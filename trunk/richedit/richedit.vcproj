@@ -225,6 +225,10 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
+				RelativePath=".\ReadMe.txt"
+				>
+			</File>
+			<File
 				RelativePath=".\richedit.ico"
 				>
 			</File>
@@ -237,10 +241,30 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath=".\ReadMe.txt"
+		<Filter
+			Name="- Control"
 			>
-		</File>
+			<File
+				RelativePath=".\RichEditCtrl.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RichEditCtrl.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="- TestWnd"
+			>
+			<File
+				RelativePath=".\MainDlg.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MainDlg.h"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>
