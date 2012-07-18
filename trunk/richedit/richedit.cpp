@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "richedit.h"
+#include "MainDlg.h"
 
 // Global Variables:
 CAppModule  _Module;
@@ -15,7 +16,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 {
 	_Module.Init(NULL, hInstance);
 
-	CSimpleDialog<IDD_ABOUTBOX> dlg;
+	CMainDlg dlg;
 	dlg.DoModal();
 
 	_Module.Term();
