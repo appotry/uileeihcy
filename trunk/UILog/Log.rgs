@@ -1,0 +1,26 @@
+HKCR
+{
+	UILog.Log.1 = s 'Log Class'
+	{
+		CLSID = s '{3A24D68D-EBB5-4836-B45A-3A954BFD07A1}'
+	}
+	UILog.Log = s 'Log Class'
+	{
+		CLSID = s '{3A24D68D-EBB5-4836-B45A-3A954BFD07A1}'
+		CurVer = s 'UILog.Log.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {3A24D68D-EBB5-4836-B45A-3A954BFD07A1} = s 'Log Class'
+		{
+			ProgID = s 'UILog.Log.1'
+			VersionIndependentProgID = s 'UILog.Log'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{F7715108-51D9-4CB2-9D6D-A4E53084A0D5}'
+		}
+	}
+}

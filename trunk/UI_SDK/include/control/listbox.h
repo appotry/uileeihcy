@@ -1,0 +1,217 @@
+#pragma  once
+
+//////////////////////////////////////////////////////////////////////////
+//
+//                             列表框控件
+//
+//////////////////////////////////////////////////////////////////////////
+
+namespace UI
+{
+
+	//
+	//	列表项内容，真正的列表数据m_pData由子类去维护
+	//
+	class ListItemBase
+	{
+	public:
+		ListItemBase();
+		virtual ~ListItemBase();
+
+	public:
+		ListItemBase*    GetNextItem() { return m_pNext; }
+		ListItemBase*    GetPrevItem() { return m_pPrev; }
+		ListItemBase*    GetPrevSelection() { return m_pPrevSelection; }
+		ListItemBase*    GetNextSelection() { return m_pNextSelection; }
+		void    SetNextItem(ListItemBase* p) { m_pNext = p; }
+		void    SetPrevItem(ListItemBase* p) { m_pPrev = p; }
+		void    SetNextSelection(ListItemBase* p){ m_pNextSelection = p; }
+		void    SetPrevSelection(ListItemBase* p){ m_pPrevSelection = p; }
+
+		CRect   GetParentRect() { return m_rcParent; }
+		void    GetParentRect(CRect* prc){ prc->CopyRect(&m_rcParent); }
+		void    SetParentRect(CRect* prc){ m_rcParent.CopyRect(prc); }
+		bool    IsDisable() { return m_bDisable; }
+		bool    IsChecked() { return m_bChecked; }
+		int     GetDesiredHeight() { return m_nHeight; }
+
+	protected:
+		int            m_nHeight;         // 保存该子项的高度，仅在ListBoxBase::m_bFixedItemHeight=false有效
+		CRect          m_rcParent;        // 基于列表控件的client 区域 
+
+		ListItemBase*  m_pPrev;
+		ListItemBase*  m_pNext;
+
+		ListItemBase*  m_pNextSelection;  // 下一个被选中的对象(自己已被选中)
+		ListItemBase*  m_pPrevSelection;  // 上一个被选中的对象(自己已被选中)
+
+		bool           m_bDisable;        // 该项是否被禁用（如菜单项）
+		bool           m_bChecked;        // 该基是否被标记（如菜单项）
+	};
+
+	class TreeListItemBase : public ListItemBase
+	{
+	public:
+		TreeListItemBase();
+		~TreeListItemBase();
+
+		ListItemBase*    GetParentItem() { return m_pParent; }
+		ListItemBase*    GetChildItem()  { return m_pChild; }
+		void    SetParentItem(TreeListItemBase* p) { m_pParent = p; }
+		void    SetChildItem(TreeListItemBase* p)  { m_pChild = p; }
+
+	protected:
+		TreeListItemBase*  m_pParent;
+		TreeListItemBase*  m_pChild;
+	};
+
+
+	typedef int (*ListItemCompareProc)(ListItemBase* p1, ListItemBase* p2);
+	enum LISTITEM_SORT_TYPE{ 
+		LISTITEM_SORT_DISABLE,            // 不启用
+		LISTITEM_SORT_ASCEND,             // 升序
+		LISTITEM_SORT_DESCEND             // 降序
+	};
+	enum LISTITEM_VISIBLE_POS_TYPE{
+		LISTITEM_UNVISIBLE_TOP = 1,      
+		LISTITEM_VISIBLE_COVERTOP,       
+		LISTITEM_VISIBLE,
+		LISTITEM_VISIBLE_COVERBOTTOM,
+		LISTITEM_UNVISIBLE_BOTTOM,
+	};
+
+// 	class IScrollObject
+// 	{
+// 	public:
+// 		virtual void SetScrollOffset(int x, int y) = 0;
+// 		virtual void GetScrollOffset(int* px, int* py) = 0;
+// 		virtual void SetScrollSize(int nxSize, int nySize) = 0;
+// 		virtual void SetScrollPage(int nxPage, int nyPage) = 0;
+// 		virtual void GetScrollClientRect(RECT* prc) = 0;
+// 	};
+
+	class UIAPI ListBoxBase : public Control//, public IScrollObject
+	{
+	public:
+		ListBoxBase();
+		~ListBoxBase();
+
+		UI_BEGIN_MSG_MAP
+			UIMSG_WM_MOUSEMOVE(OnMouseMove)
+			UIMSG_WM_PAINT(OnPaint)
+			UIMSG_WM_MOUSELEAVE(OnMouseLeave)
+			UIMSG_WM_LBUTTONDOWN(OnLButtonDown)
+			UIMSG_WM_LBUTTONUP(OnLButtonUp)
+			UIMSG_WM_KEYDOWN(OnKeyDown)
+			UIMSG_WM_SIZE(OnSize)
+			UICHAIN_MSG_MAP_MEMBER(m_MgrScrollbar)
+			UICHAIN_MSG_MAP(Control)
+		UI_END_MSG_MAP
+
+	protected:
+		// 消息处理
+		void     OnPaint(HRDC hRDC);
+		void     OnMouseMove(UINT nFlags, POINT point);
+		void     OnMouseLeave();
+		void     OnLButtonDown(UINT nFlags, POINT point);
+		void     OnLButtonUp(UINT nFlags, POINT point);
+		void     OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags );
+		void     OnSize( UINT nType, int cx, int cy );
+
+	public:
+		// 虚函数
+		virtual  SIZE GetAutoSize( HRDC hRDC );
+		virtual  void ResetAttribute();
+		virtual  bool SetAttribute(map<String,String>& mapAttrib, bool bReload);
+
+		// 自己给子类的虚方法
+		virtual  void OnDrawItem( HRDC hRDC, ListItemBase* p ){};
+
+	public:
+		// 公用接口
+		void    RemoveItem(int nIndex, bool bUpdate=true);
+		void    RemoveAllItem();
+		void    SetSort( LISTITEM_SORT_TYPE eSortType, ListItemCompareProc p );
+		int     GetItemCount() { return m_nItemCount; }
+
+		ListItemBase* HitTest(POINT ptWindow);
+		ListItemBase* Index2Item(int nIndex);
+
+	protected:
+		// 子类接口
+		void    AddItem( ListItemBase*  pItem );
+		void    InsertItem( ListItemBase*  pItem, ListItemBase* pInsertAfter );
+		void    RemoveItem(ListItemBase* pItem, bool bUpdate=true);
+		
+		void    UpdateItemRect( ListItemBase* pStart );
+		void    SetSelectedItem(ListItemBase* pItem, bool& bNeedUpdateObject );
+
+		void    SetScrollY( int nY, bool& bNeedUpdateObject );
+		void    SetScrollX( int nX, bool& bNeedUpdateObject );
+		void    SetScrollPoint( int nX, int nY, bool& bNeedUpdateObject );
+
+		void    ReDrawItem( ListItemBase* pItem );
+		bool    IsItemVisible( ListItemBase* pItem );
+		bool    IsItemVisibleEx( ListItemBase* pItem, LISTITEM_VISIBLE_POS_TYPE& ePos );
+		void    ItemRect2WindowRect( CRect* prc, CRect* prcRet );
+		// Selection 接口
+
+	protected:
+		// 属性
+		bool           m_bFixedItemHeight;    // 每一项行高是否一致, TODO: 改成m_nStyle来实现 
+
+		int            m_nFixeddItemHeight;   // 如果m_bFixedItemHeight=true，该项代表每一项的高度
+		int            m_nItemGap;            // 两个子项之间的间隔
+		
+		LISTITEM_SORT_TYPE   m_eSortType;     // 排序方式
+		ListItemCompareProc  m_pCompareProc;  // 排序函数
+
+		int            m_nItemCount;          // 列表项数量
+
+		// 数据导航
+		ListItemBase*  m_pFirstItem;
+		ListItemBase*  m_pLastItem;
+		
+		ListItemBase*  m_pFirstVisibleItem;
+		ListItemBase*  m_pLastVisibleItem;
+
+		ListItemBase*  m_pFirstSelectedItem;
+
+		ListItemBase*  m_pHoverItem;
+		ListItemBase*  m_pPressItem;
+
+		ScrollBarMgr   m_MgrScrollbar;
+	};
+
+
+	class ListBoxItem : public ListItemBase
+	{
+	public:
+		String   m_strText;
+	};
+	class UIAPI ListBox : public ListBoxBase/*ListBoxBase_Scrollbar*/
+	{
+	public:
+		ListBox();
+		~ListBox();
+
+		UI_DECLARE_OBJECT( ListBox, OBJ_CONTROL )
+
+		UI_BEGIN_MSG_MAP
+			UIMSG_WM_RBUTTONDOWN(OnRButtonDown)
+			UICHAIN_MSG_MAP(ListBoxBase)
+		UI_END_MSG_MAP
+
+	protected:
+		virtual  void OnDrawItem( HRDC hRDC, ListItemBase* p ) ;
+
+		void   OnRButtonDown(UINT nFlags, CPoint point);
+
+	public:
+		bool   AddString(const String& strText, bool bUpdate=true);
+
+		
+	};
+
+	
+}
