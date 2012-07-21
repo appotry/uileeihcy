@@ -25,3 +25,11 @@ BOOL CMainDlg::OnInitDialog(HWND wndFocus, LPARAM)
 	CenterWindow(NULL);
 	return TRUE;
 }
+
+void CMainDlg::OnSize(UINT nType, CSize size)
+{
+	if(m_richedit.IsWindow())
+	{
+		m_richedit.SetWindowPos(NULL, 0,0, size.cx,size.cy,SWP_NOZORDER);
+	}
+}

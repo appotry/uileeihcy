@@ -10,6 +10,7 @@ public:
 	~CMainDlg(void);
 
 	BEGIN_MSG_MAP_EX(CMainDlg)
+		MSG_WM_SIZE(OnSize)
 		MSG_WM_INITDIALOG(OnInitDialog)
 		MSG_WM_CLOSE(OnClose)
 	END_MSG_MAP()
@@ -17,7 +18,7 @@ public:
 protected:
 	void  OnClose();
 	BOOL  OnInitDialog(HWND wndFocus, LPARAM);
-
+	void  OnSize(UINT nType, CSize size);
 private:
 	RichEditCtrl   m_richedit;
 };
