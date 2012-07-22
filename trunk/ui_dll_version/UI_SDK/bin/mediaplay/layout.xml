@@ -58,15 +58,15 @@
       <CheckButton id="switch_layered" layout.right="50" layout.top="5" text="切换透明窗口" tooltip="切换透明窗口" />
     </CustomWindow>
     <Window id="OptionWindow" font="normal" width="556" height="440">
-      <!--ListBox id="optionlist" layout.left="10" layout.top="10" width="100" height="368" padding="10"
-               foregnd.render.type="imageliststretch" foregnd.render.9region="1" foregnd.render.image="listbox.png"
-               foregnd.render.imagelist.count="5"  foregnd.render.imagelist.layout="v"
-               bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/-->
-      
-      <ListBox id="listbox_test" layout.left="120" layout.top="42" width="100" height="250" padding="10"
+      <ListBox id="optionlist" layout.left="10" layout.top="10" width="100" height="368" padding="4"
                foregnd.render.type="imageliststretch" foregnd.render.9region="1" foregnd.render.image="listbox.png"
                foregnd.render.imagelist.count="5"  foregnd.render.imagelist.layout="v"
                bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/>
+      
+      <!--ListBox id="listbox_test" layout.left="120" layout.top="42" width="100" height="250" padding="10"
+               foregnd.render.type="imageliststretch" foregnd.render.9region="1" foregnd.render.image="listbox.png"
+               foregnd.render.imagelist.count="5"  foregnd.render.imagelist.layout="v"
+               bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/-->
       <!--HScrollBar id="hscrollbar_test" layout.left="150" layout.top="10" width="200" height="12"/>
       <VScrollBar id="vscrollbar_test" layout.left="150" layout.top="30" width="12" height="200"/-->
       <!--ScrollPanel id="scrollpanel" padding="50,0,0,0" istransparent="1" layout.left="10" layout.top="10" width="150" height="200" padding="10" >
@@ -74,7 +74,7 @@
         <Button id="btn2"  text="two"    layout.top="100"  layout.left="10" width="75" height="21" />
         <Button id="btn3"  text="three"  layout.top="180"    layout.left="10" width="75" height="21" />
       </ScrollPanel-->
-      <!--Button id="btn_save_all"  text="全部保存" layout.right="169" layout.bottom="6" width="75" height="21" />
+      <Button id="btn_save_all"  text="全部保存" layout.right="169" layout.bottom="6" width="75" height="21" />
       <Button id="btn_reset_all" text="全部重置" layout.right="88"  layout.bottom="6" width="75" height="21" />
       <Button id="btn_cancel"    text="关闭"     layout.right="8"   layout.bottom="6" width="75" height="21" />
       <Label  text="相关链接:"   layout.left="8" layout.bottom="8" />
@@ -96,7 +96,7 @@
       <HwndHost id="IDC_RADIO2"  controlid="1007" />
       <HwndHost id="IDC_RADIO1"  controlid="1006" />
       <HwndHost id="IDC_BUTTON1" controlid="1002" />
-      <HwndHost id="IDC_BUTTON2" controlid="1005" /-->
+      <HwndHost id="IDC_BUTTON2" controlid="1005" />
     </Window>
   </layout>
 </ui>

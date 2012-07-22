@@ -7,11 +7,12 @@
 #define TIMER_ID_BTN2_SCROLLING  4
 
 #define TIMER_TIME_TOSCROLL      500
-#define TIMER_TIME_SCROLLING     100
+#define TIMER_TIME_SCROLLING     50
 
 #define ALT_MSG_ID_BUTTON1       1
 #define ALT_MSG_ID_BUTTON2       2
-#define ALT_MSG_ID_BINDOBJ       3
+#define ALT_MSG_ID_THUMB_BTN     3
+#define ALT_MSG_ID_BINDOBJ       4
 
 IScrollBarRender* CreateScrollBarRenderInstance(ScrollBarBase* pScrollBar, SCROLLBAR_TYPE eType, SCROLLBAR_DIRECTION_TYPE eScrollDirection);
 
@@ -161,19 +162,131 @@ void ScrollBarMgr::UpdateBindObjectNonClientRect()
 
 BOOL ScrollBarMgr::ProcessMessage(UIMSG* pMsg, int nMsgMapID)
 {
-	if (WM_MOUSEWHEEL == pMsg->message)
+	// 如果bindobject没有处理，则在这里采用默认的处理
+	if (WM_VSCROLL == pMsg->message)
+	{
+		if (m_pVScrollBar != pMsg->pObjMsgFrom)
+			return FALSE;
+
+		int nSBCode = pMsg->wParam;
+		int nTrackPos = pMsg->lParam;
+
+		int nOldPos = GetVScrollPos();
+		switch (nSBCode)
+		{
+		case SB_LINEUP:
+			this->m_pVScrollBar->ScrollLineUpLeft();
+			break;
+
+		case SB_LINEDOWN:
+			this->m_pVScrollBar->ScrollLineDownRight();
+			break;
+
+		case SB_PAGEUP:
+			this->m_pVScrollBar->ScrollPageUpLeft();
+			break;
+
+		case SB_PAGEDOWN:
+			this->m_pVScrollBar->ScrollPageDownRight();
+			break;
+
+		case SB_THUMBTRACK:    // Drag scroll box to specified position. The current position is provided in nPos.
+		case SB_THUMBPOSITION: // Scroll to the absolute position. The current position is provided in nPos
+			this->m_pVScrollBar->SetScrollPos(nTrackPos);
+			break;
+		}
+
+		if (nOldPos != GetVScrollPos())
+		{
+			this->GetBindObject()->UpdateObject();
+		}
+	}
+	else if (WM_HSCROLL == pMsg->message)
+	{
+		if (m_pHScrollBar != pMsg->pObjMsgFrom)
+			return FALSE;
+
+		int nSBCode = pMsg->wParam;
+		int nTrackPos = pMsg->lParam;
+
+		int nOldPos = GetHScrollPos();
+		switch (nSBCode)
+		{
+		case SB_LINEUP:
+			this->m_pHScrollBar->ScrollLineUpLeft();
+			break;
+
+		case SB_LINEDOWN:
+			this->m_pHScrollBar->ScrollLineDownRight();
+			break;
+
+		case SB_PAGEUP:
+			this->m_pHScrollBar->ScrollPageUpLeft();
+			break;
+
+		case SB_PAGEDOWN:
+			this->m_pHScrollBar->ScrollPageDownRight();
+			break;
+
+		case SB_THUMBTRACK:    // Drag scroll box to specified position. The current position is provided in nPos.
+		case SB_THUMBPOSITION: // Scroll to the absolute position. The current position is provided in nPos
+			this->m_pHScrollBar->SetScrollPos(nTrackPos);
+			break;
+		}
+
+		if (nOldPos != GetHScrollPos())
+		{
+			this->GetBindObject()->UpdateObject();
+		}
+	}
+	else if (WM_MOUSEWHEEL == pMsg->message)  
 	{
 		if (NULL != m_pVScrollBar)
 		{
-			UIMSG msg = *pMsg;
-			msg.pObjMsgTo = m_pVScrollBar;
-			UISendMessage(&msg, ALT_MSG_ID_BINDOBJ);
+// 			UIMSG msg = *pMsg;
+// 			msg.pObjMsgTo = m_pVScrollBar;
+// 			UISendMessage(&msg, ALT_MSG_ID_BINDOBJ);
+			short nDelta = HIWORD(pMsg->wParam);
+			int   nOldPos = GetVScrollPos();
+
+			if (nDelta < 0)
+				m_pVScrollBar->ScrollWheelLineDown();
+			else
+				m_pVScrollBar->ScrollWheelLineUp();
+
+			if (nOldPos != GetVScrollPos())
+			{
+				this->GetBindObject()->UpdateObject();
+			}
 		}
 		else if (NULL != m_pHScrollBar)
 		{
-			UIMSG msg = *pMsg;
-			msg.pObjMsgTo = m_pHScrollBar;
-			UISendMessage(&msg, ALT_MSG_ID_BINDOBJ);
+// 			UIMSG msg = *pMsg;
+// 			msg.pObjMsgTo = m_pHScrollBar;
+// 			UISendMessage(&msg, ALT_MSG_ID_BINDOBJ);
+
+			int nDelta = HIWORD(pMsg->wParam);
+			int nOldPos = GetHScrollPos();
+
+			if (nDelta < 0)
+				m_pHScrollBar->ScrollWheelLineDown();
+			else
+				m_pHScrollBar->ScrollWheelLineUp();
+
+			if (nOldPos != GetHScrollPos())
+			{
+				this->GetBindObject()->UpdateObject();
+			}
+		}
+
+		// 重新发送一个MOUSEMOVE消息给obj，用于定位滚动后的hover对象
+		if (NULL != m_pHScrollBar || NULL != m_pVScrollBar)
+		{
+			POINT ptCursor;
+			ptCursor.x = GET_X_LPARAM(pMsg->lParam); 
+			ptCursor.y = GET_Y_LPARAM(pMsg->lParam);
+			MapWindowPoints(NULL, GetBindObject()->GetHWND(), &ptCursor, 1);
+			UISendMessage(GetBindObject(), WM_MOUSEMOVE, 0, MAKELPARAM(ptCursor.x,ptCursor.y));
 		}
 	}
 	else if (WM_SIZE == pMsg->message)
@@ -261,19 +374,29 @@ void ScrollBarMgr::MakeYVisible(int ny, bool bTopOrBottom)
 
 void ScrollBarMgr::SetScrollPos(int nxPos, int nyPos)
 {
-	// TODO: 
+	this->SetHScrollPos(nxPos);
+	this->SetVScrollPos(nyPos);
 }
 void ScrollBarMgr::GetScrollPos(int* pnxOffset, int* pnyOffset)
 {
 	UIASSERT(NULL != pnxOffset && NULL != pnyOffset);
 
-	*pnxOffset = 0;
-	*pnyOffset = 0;
-
-	if (NULL != m_pVScrollBar)
-		*pnyOffset = m_pVScrollBar->GetScrollPos();
+	*pnyOffset = GetVScrollPos();
+	*pnxOffset = GetHScrollPos();
+}
+int ScrollBarMgr::GetHScrollPos()
+{
 	if (NULL != m_pHScrollBar)
-		*pnxOffset = m_pHScrollBar->GetScrollPos();
+		return m_pHScrollBar->GetScrollPos();
+
+	return 0;
+}
+int ScrollBarMgr::GetVScrollPos()
+{
+	if (NULL != m_pVScrollBar)
+		return m_pVScrollBar->GetScrollPos();
+
+	return 0;
 }
 void ScrollBarMgr::SetScrollRange(int nX, int nY)
 {
@@ -437,7 +560,7 @@ ScrollBarBase::ScrollBarBase()
 	m_nPos   = 0;
 	m_nPage  = 1;
 	m_nButtonLine = 1;
-	m_nWheelLine = 1;
+	m_nWheelLine = 3;
 }
 ScrollBarBase::~ScrollBarBase()
 {
@@ -543,7 +666,7 @@ bool ScrollBarBase::SetScrollInfo(LPUISCROLLINFO lpsi, bool bUpdate)
 	return true;
 }
 
-bool ScrollBarBase::SetScrollPos(int nPos, bool bUpdate)
+bool ScrollBarBase::SetScrollPos(int nPos/*, bool bUpdate*/)
 {
 	if (nPos > m_nRange-m_nPage)
 	{
@@ -558,8 +681,8 @@ bool ScrollBarBase::SetScrollPos(int nPos, bool bUpdate)
 	{
 		m_nPos = nPos;
 
-		if (bUpdate)
-			this->UpdateObject();
+// 		if (bUpdate)
+// 			this->UpdateObject();
 	}
 	return true;
 }
@@ -608,21 +731,28 @@ int ScrollBarBase::GetScrollPage()
 }
 void ScrollBarBase::ScrollLineUpLeft()
 {
-	// TODO:
-	UIASSERT(0);
+	this->SetScrollPos(m_nPos-m_nButtonLine);
 }
 void ScrollBarBase::ScrollLineDownRight()
 {
-	// TODO:
-	UIASSERT(0);
+	this->SetScrollPos(m_nPos+m_nButtonLine);
 }
 void ScrollBarBase::ScrollWheelLineUp()
 {
-
+	this->SetScrollPos(m_nPos-m_nWheelLine);
 }
 void ScrollBarBase::ScrollWheelLineDown()
 {
+	this->SetScrollPos(m_nPos+m_nWheelLine);
+}
 
+void ScrollBarBase::ScrollPageDownRight()
+{
+	this->SetScrollPos(m_nPos+m_nPage);
+}
+void ScrollBarBase::ScrollPageUpLeft()
+{
+	this->SetScrollPos(m_nPos-m_nPage);
 }
 HScrollBar::HScrollBar()
 {
@@ -658,7 +788,7 @@ void VScrollBar::ResetAttribute()
 
 
 // 操作系统类型滚动条：两侧两个按钮 + 中间一个THUBM按钮
-class SystemScrollBarRender : public IScrollBarRender, public TimerIpml<SystemScrollBarRender>
+class SystemScrollBarRender : public IScrollBarRender
 {
 public:
 	SystemScrollBarRender(ScrollBarBase* p):IScrollBarRender(p)
@@ -668,8 +798,9 @@ public:
 
 		m_pBtnThumb = new ButtonBase;
 		this->m_pScrollBar->AddChild(m_pBtnThumb);
+		m_pBtnThumb->AddHook(this,0,ALT_MSG_ID_THUMB_BTN);
 
-		m_nOldPage = m_nOldRange = 0;
+		m_nOldPage = m_nOldRange = m_nOldPos = 0;
 	}
 	~SystemScrollBarRender()
 	{
@@ -681,7 +812,6 @@ public:
 	UI_BEGIN_MSG_MAP
 		UIMSG_WM_PAINT(OnPaint)
 		UIMSG_WM_STATECHANGED(OnStateChanged)
-		UIMSG_TRBN_POSCHANGED(_T(""), OnSliderPosChanged)
 		UIMSG_WM_TIMER(OnTimer)
 
 	UIALT_MSG_MAP(ALT_MSG_ID_BUTTON1)
@@ -700,21 +830,31 @@ public:
 
 	int  m_nOldPage;
 	int  m_nOldRange;
+	int  m_nOldPos;
+
 	void OnPaint(HRDC)
 	{
 		SetMsgHandled(FALSE);
 
 		if (m_nOldRange != this->m_pScrollBar->GetScrollRange() ||
-			m_nOldPage != this->m_pScrollBar->GetScrollPage() )
+			m_nOldPage != this->m_pScrollBar->GetScrollPage()   ||
+			m_nOldPos != this->m_pScrollBar->GetScrollPos())
 		{
-			if (this->UpdateThumbButtonPos())
+			bool bNeedUpdateThumbButtonSize = false;
+			if (m_nOldRange != this->m_pScrollBar->GetScrollRange() ||
+				m_nOldPage != this->m_pScrollBar->GetScrollPage() )
+			{
+				bNeedUpdateThumbButtonSize = true;
+			}
+			if (this->UpdateThumbButtonPos(bNeedUpdateThumbButtonSize))
 			{
 				m_nOldRange = this->m_pScrollBar->GetScrollRange();
 				m_nOldPage = this->m_pScrollBar->GetScrollPage();
+				m_nOldPos = this->m_pScrollBar->GetScrollPos();
 			}
 		}
 	}
-	virtual bool UpdateThumbButtonPos() = 0; 
+	virtual bool UpdateThumbButtonPos(bool bNeedUpdateThumbButtonSize) = 0; 
 
 	virtual  bool  SetAttribute(ATTRMAP& mapAttrib)
 	{
@@ -763,7 +903,6 @@ protected:
 	void     OnBtn1KillFocus( Object* pNewFocusObj );
 	void     OnBtn2LButtonUp(UINT nFlags, POINT point);
 	void     OnBtn2KillFocus( Object* pNewFocusObj );
-	void     OnSliderPosChanged( int nPos, int nScrollType );
 	Object*  GetBindObject() { return m_pScrollBar->GetScrollMgr()->GetBindObject(); }
 
 private:
@@ -791,19 +930,90 @@ public:
 
 	UI_BEGIN_MSG_MAP
 		UIMSG_WM_SIZE(OnSize)
-		UICHAIN_MSG_MAP(SystemScrollBarRender)
+		UIMSG_WM_LBUTTONDOWN(OnLButtonDown)
+
+
+	UIALT_MSG_MAP(ALT_MSG_ID_THUMB_BTN)
+		UIMSG_WM_LBUTTONDOWN(OnThumbBtnLButtonDown)	
+		UIMSG_WM_LBUTTONUP(OnThumbBtnLButtonUp)	
+		UIMSG_WM_MOUSEMOVE(OnThumbBtnMousemove)
+
 	UIALT_MSG_MAP(ALT_MSG_ID_BINDOBJ)
 		UIMSG_WM_SIZE(OnBindObjSize)
 		UIMSG_WM_NCCALCSIZE(OnNcCalcSize)
-		UIMSG_WM_MOUSEWHEEL(OnMouseWheel)
+
+	UI_BEGIN_CHAIN_ALL_MSG_MAP
+		UICHAIN_MSG_MAP(SystemScrollBarRender)
+	UI_END_CHAIN_ALL_MSG_MAP
+
 	UI_END_MSG_MAP
 
 protected:
 	virtual SCROLLBAR_DIRECTION_TYPE GetScrollBarDirType() { return VSCROLLBAR; }
 	void    OnSize(UINT nType, int cx, int cy);
 	LRESULT OnNcCalcSize(BOOL bCalcValidRects, LPARAM lprc);
-	LRESULT OnMouseWheel(UINT nFlags, short zDelta, POINT pt);
 	void    OnBindObjSize(UINT nType, int cx, int cy);
+
+	void    OnLButtonDown(UINT nFlags, POINT point)
+	{
+		if (NULL == m_pBtnThumb)
+			return;
+
+		POINT ptObj;
+		m_pBtnThumb->WindowPoint2ObjectPoint(&point, &ptObj);
+		if (ptObj.y < 0)
+			this->m_pScrollBar->FireScrollMessage(SB_PAGEUP);
+		else
+			this->m_pScrollBar->FireScrollMessage(SB_PAGEDOWN);
+	
+	}
+
+	// 将thumb button的最前面的位置转换为当前位置
+	// pt相对于scrollbar
+	int     WindowPoint2TrackPos(int nUIPos)
+	{
+		float nRange = (float)m_pScrollBar->GetScrollRange();
+		float nPage = (float)m_pScrollBar->GetScrollPage();
+
+		CRect rcChannel;
+		this->CalcChannelRect(&rcChannel);
+		int nUIRange = rcChannel.Height();
+		if (NULL != m_pBtnThumb)
+			nUIRange -= m_pBtnThumb->GetHeight();
+		if (0 == nUIRange)
+			return 0;
+
+		float nPos =  ((float)(nUIPos - rcChannel.top))/((float)nUIRange)*(nRange-nPage);
+		return (int)nPos;
+	}
+	int m_nClickDiff;
+	void    OnThumbBtnLButtonDown(UINT nFlags, POINT point)
+	{
+		SetMsgHandled(FALSE);
+
+		// 将窗口坐标转换为相对于控件的坐标
+		POINT  ptObj;
+		m_pBtnThumb->WindowPoint2ObjectPoint(&point, &ptObj);
+		m_nClickDiff = ptObj.y;
+	}
+	void    OnThumbBtnLButtonUp(UINT nFlags, POINT point)
+	{
+		SetMsgHandled(FALSE);
+		m_nClickDiff = 0;
+	}
+	void    OnThumbBtnMousemove(UINT nFlags, POINT point)
+	{
+		SetMsgHandled(FALSE);
+
+		if(! (nFlags & MK_LBUTTON) )
+			return;
+
+		POINT ptObj;
+		m_pScrollBar->WindowPoint2ObjectPoint(&point, &ptObj);
+		int nNewPos = this->WindowPoint2TrackPos(ptObj.y - m_nClickDiff);
+
+		m_pScrollBar->FireScrollMessage(SB_THUMBTRACK, nNewPos);
+	}
 
 	virtual void UpdateScrollBarVisible()
 	{
@@ -840,13 +1050,18 @@ protected:
 			}
 		}
 	}
-	bool UpdateThumbButtonPos()
+	bool  UpdateThumbButtonPos(bool bNeedUpdateThumbButtonSize)
 	{
 		float nPos = (float)m_pScrollBar->GetScrollPos();
 		float nRange = (float)m_pScrollBar->GetScrollRange();
 		float nPage = (float)m_pScrollBar->GetScrollPage();
 
-		int nNewSize = this->CalcThumbButtonSize();
+		int nNewSize = 0;
+		if (bNeedUpdateThumbButtonSize)
+			nNewSize = this->CalcThumbButtonSize();
+		else
+			nNewSize = this->m_pBtnThumb->GetHeight();
+
 		if (nNewSize < 10)
 			nNewSize = 10;
 
@@ -860,7 +1075,7 @@ protected:
 		return true;
 	}
 
-	void    CalcChannelRect(CRect* prc)
+	void  CalcChannelRect(CRect* prc)
 	{
 		m_pScrollBar->GetClientRect(prc);
 
@@ -869,7 +1084,7 @@ protected:
 		if (NULL != m_pBtnLineDownRight)
 			prc->bottom -= m_pBtnLineDownRight->GetHeight();
 	}
-	int     CalcThumbButtonSize()
+	int   CalcThumbButtonSize()
 	{
 		if (NULL == m_pBtnThumb)
 			return -1;
@@ -897,11 +1112,12 @@ public:
 	}
 	UI_BEGIN_MSG_MAP
 		UIMSG_WM_SIZE(OnSize)
-		UICHAIN_MSG_MAP(SystemScrollBarRender)
 	UIALT_MSG_MAP(ALT_MSG_ID_BINDOBJ)
 		UIMSG_WM_SIZE(OnBindObjSize)
 		UIMSG_WM_NCCALCSIZE(OnNcCalcSize)
-		UIMSG_WM_MOUSEWHEEL(OnMouseWheel)
+	UI_BEGIN_CHAIN_ALL_MSG_MAP
+		UICHAIN_MSG_MAP(SystemScrollBarRender)
+	UI_END_CHAIN_ALL_MSG_MAP
 	UI_END_MSG_MAP
 
 protected:
@@ -910,10 +1126,6 @@ protected:
 	LRESULT OnNcCalcSize(BOOL bCalcValidRects, LPARAM lprc);
 	void    OnBindObjSize(UINT nType, int cx, int cy);
 
-	LRESULT OnMouseWheel(UINT nFlags, short zDelta, POINT pt)
-	{
-		return 0;
-	}
 	virtual void UpdateScrollBarVisible()
 	{
 		float nPos = (float)m_pScrollBar->GetScrollPos();
@@ -949,13 +1161,18 @@ protected:
 			}
 		}
 	}
-	bool UpdateThumbButtonPos()
+	bool UpdateThumbButtonPos(bool bNeedUpdateThumbButtonSize)
 	{
 		float nPos = (float)m_pScrollBar->GetScrollPos();
 		float nRange = (float)m_pScrollBar->GetScrollRange();
 		float nPage = (float)m_pScrollBar->GetScrollPage();
 
-		int nNewSize = this->CalcThumbButtonSize();
+		int nNewSize = 0;
+		if (bNeedUpdateThumbButtonSize)
+			nNewSize = this->CalcThumbButtonSize();
+		else
+			nNewSize = this->m_pBtnThumb->GetWidth();
+
 		if (nNewSize < 10)
 			nNewSize = 10;
 
@@ -1001,26 +1218,31 @@ void SystemScrollBarRender::OnTimer(UINT_PTR idEvent)
 {	
 	if(idEvent == m_nTimer1IDToScroll)
 	{
-		this->KillTimer(m_nTimer1IDToScroll);
-		m_nTimer1IDScrolling = SetNewTimer(TIMER_TIME_SCROLLING);
+		TimerHelper::GetInstance()->KillTimer(m_nTimer1IDToScroll);
+		m_nTimer1IDScrolling = TimerHelper::GetInstance()->SetNewTimer(TIMER_TIME_SCROLLING, (Message*)this);
 	}
 	else if(idEvent == m_nTimer2IDToScroll)
 	{
-		this->KillTimer(m_nTimer2IDToScroll);
-		m_nTimer2IDScrolling = this->SetNewTimer(TIMER_TIME_SCROLLING);
+		TimerHelper::GetInstance()->KillTimer(m_nTimer2IDToScroll);
+		m_nTimer2IDScrolling = TimerHelper::GetInstance()->SetNewTimer(TIMER_TIME_SCROLLING, (Message*)this);
 	}
 	else if(idEvent == m_nTimer1IDScrolling)
 	{
 		// 检测鼠标是否在其上面
-		POINT pt;
+		POINT pt, ptObj;
 		::GetCursorPos(&pt);
-		::MapWindowPoints(NULL, this->m_pScrollBar->GetHWND(), &pt, 1);
-
+		::MapWindowPoints(NULL, this->GetBindObject()->GetHWND(), &pt, 1);
+		this->m_pScrollBar->WindowPoint2ObjectPoint(&pt, &ptObj);
 		if (NULL != m_pBtnLineUpLeft)
 		{
-			if(HTNOWHERE != UISendMessage(m_pBtnLineUpLeft, UI_WM_HITTEST, pt.x, pt.y))
+			if(HTNOWHERE != UISendMessage(m_pBtnLineUpLeft, UI_WM_HITTEST, ptObj.x, ptObj.y))
 			{
+				int nOldPos = m_pScrollBar->GetScrollPos();
 				this->m_pScrollBar->ScrollLineUpLeft();
+				if (nOldPos != m_pScrollBar->GetScrollPos())
+				{
+					this->GetBindObject()->UpdateObject();
+				}
 			}
 		}
 	}
@@ -1031,33 +1253,21 @@ void SystemScrollBarRender::OnTimer(UINT_PTR idEvent)
 			// 检测鼠标是否在其上面
 			POINT pt, ptObj;
 			::GetCursorPos(&pt);
-			::MapWindowPoints(NULL, this->m_pScrollBar->GetHWND(), &pt, 1);
+			::MapWindowPoints(NULL, this->GetBindObject()->GetHWND(), &pt, 1);
 			this->m_pScrollBar->WindowPoint2ObjectPoint(&pt, &ptObj);
 			if(HTNOWHERE != UISendMessage(m_pBtnLineDownRight, UI_WM_HITTEST, ptObj.x, ptObj.y))
 			{
+				int nOldPos = m_pScrollBar->GetScrollPos();
 				this->m_pScrollBar->ScrollLineDownRight();
+				if (nOldPos != m_pScrollBar->GetScrollPos())
+				{
+					this->GetBindObject()->UpdateObject();
+				}
 			}
 		}
 	}
 }
 
-void SystemScrollBarRender::OnSliderPosChanged(int nPos, int nScrollType)
-{
-	// 	UIMSG  msg;
-	// 	msg.message = UI_WM_NOTIFY;
-	// 	msg.code = m_eScrollDirection==HSCROLLBAR? UI_WM_HSCROLL:UI_WM_VSCROLL;
-	// 	msg.wParam = nPos;
-	// 	msg.lParam = nScrollType;
-	// 	msg.pObjMsgFrom = this;
-	// 
-	// 	this->DoNotify(&msg);
-
-// 	if (NULL == m_pSliderCtrl || NULL == m_pScrollBarMgr)
-// 		return;
-// 
-// 	if (SB_ENDSCROLL != nPos)
-// 		this->m_pScrollBar->UpdateObject();
-}
 
 void SystemScrollBarRender::OnStateChanged(int nOld, int nNew)
 {
@@ -1069,22 +1279,16 @@ void SystemScrollBarRender::OnBtn1LButtonDown(UINT nFlags, POINT point)
 
 	if( 0 != m_nTimer1IDToScroll )
 	{
-		KillTimer(m_nTimer1IDToScroll);
+		TimerHelper::GetInstance()->KillTimer(m_nTimer1IDToScroll);
 		m_nTimer1IDToScroll = 0;
 	}
 	if( 0 != m_nTimer1IDScrolling )
 	{
-		KillTimer(m_nTimer1IDScrolling);
+		TimerHelper::GetInstance()->KillTimer(m_nTimer1IDScrolling);
 		m_nTimer1IDScrolling = 0;
 	}
-
-	this->m_pScrollBar->ScrollLineUpLeft();
-// 	if( this->m_pScrollBar->GetScrollBarDirection() == HSCROLLBAR )
-// 		this->OnSliderPosChanged(m_pSliderCtrl->GetPos(), SB_LINELEFT );
-// 	else
-// 		this->OnSliderPosChanged(m_pSliderCtrl->GetPos(), SB_LINEUP );
-
-	m_nTimer1IDToScroll = SetNewTimer(TIMER_TIME_TOSCROLL);
+	m_nTimer1IDToScroll = TimerHelper::GetInstance()->SetNewTimer(TIMER_TIME_TOSCROLL, (Message*)this);
+	this->m_pScrollBar->FireScrollMessage(SB_LINEUP);
 }
 
 void SystemScrollBarRender::OnBtn2LButtonDown(UINT nFlags, POINT point)
@@ -1093,21 +1297,14 @@ void SystemScrollBarRender::OnBtn2LButtonDown(UINT nFlags, POINT point)
 
 	if (0 != m_nTimer2IDToScroll)
 	{
-		KillTimer(m_nTimer2IDToScroll);
+		TimerHelper::GetInstance()->KillTimer(m_nTimer2IDToScroll);
 	}
 	if (0 != m_nTimer2IDScrolling)
 	{
-		KillTimer(m_nTimer2IDScrolling);
+		TimerHelper::GetInstance()->KillTimer(m_nTimer2IDScrolling);
 	}
-
-	this->m_pScrollBar->ScrollLineDownRight();
-// 	if( this->m_pScrollBar->GetScrollBarDirection() == HSCROLLBAR )
-// 		this->OnSliderPosChanged(m_pSliderCtrl->GetPos(), SB_LINERIGHT );
-// 	else
-// 		this->OnSliderPosChanged(m_pSliderCtrl->GetPos(), SB_LINEDOWN );
-
-	m_nTimer2IDToScroll = SetNewTimer(TIMER_TIME_TOSCROLL);
-
+	m_nTimer2IDToScroll = TimerHelper::GetInstance()->SetNewTimer(TIMER_TIME_TOSCROLL, (Message*)this);
+	this->m_pScrollBar->FireScrollMessage(SB_LINEDOWN);
 }
 void SystemScrollBarRender::OnBtn1LButtonUp(UINT nFlags, POINT point)
 {
@@ -1115,14 +1312,13 @@ void SystemScrollBarRender::OnBtn1LButtonUp(UINT nFlags, POINT point)
 
 	if( 0 != m_nTimer1IDToScroll )
 	{
-		KillTimer(m_nTimer1IDToScroll );
+		TimerHelper::GetInstance()->KillTimer(m_nTimer1IDToScroll );
 	}
 	if( 0 != m_nTimer1IDScrolling )
 	{
-		KillTimer(m_nTimer1IDScrolling);
-
-//		this->OnSliderPosChanged(m_pSliderCtrl->GetPos(), SB_ENDSCROLL );
+		TimerHelper::GetInstance()->KillTimer(m_nTimer1IDScrolling);
 	}
+	this->m_pScrollBar->FireScrollMessage(SB_ENDSCROLL);
 }
 void SystemScrollBarRender::OnBtn1KillFocus(Object* pNewFocusObj)
 {
@@ -1130,13 +1326,12 @@ void SystemScrollBarRender::OnBtn1KillFocus(Object* pNewFocusObj)
 
 	if( 0 != m_nTimer1IDToScroll )
 	{
-		KillTimer(m_nTimer1IDToScroll );
+		TimerHelper::GetInstance()->KillTimer(m_nTimer1IDToScroll );
 	}
 	if( 0 != m_nTimer1IDScrolling )
 	{
-		KillTimer(m_nTimer1IDScrolling);
-
-//		this->OnSliderPosChanged(m_pSliderCtrl->GetPos(), SB_ENDSCROLL );
+		TimerHelper::GetInstance()->KillTimer(m_nTimer1IDScrolling);
+		this->m_pScrollBar->FireScrollMessage(SB_ENDSCROLL);
 	}
 }
 
@@ -1146,14 +1341,13 @@ void SystemScrollBarRender::OnBtn2LButtonUp(UINT nFlags, POINT point)
 
 	if( 0 != m_nTimer2IDToScroll )
 	{
-		KillTimer(m_nTimer2IDToScroll);
+		TimerHelper::GetInstance()->KillTimer(m_nTimer2IDToScroll);
 	}
 	if( 0 != m_nTimer2IDScrolling )
 	{
-		KillTimer(m_nTimer2IDScrolling);
-
-//		this->OnSliderPosChanged(m_pSliderCtrl->GetPos(), SB_ENDSCROLL );
+		TimerHelper::GetInstance()->KillTimer(m_nTimer2IDScrolling);
 	}
+	this->m_pScrollBar->FireScrollMessage(SB_ENDSCROLL);
 }
 void SystemScrollBarRender::OnBtn2KillFocus(Object* pNewFocusObj)
 {
@@ -1161,14 +1355,25 @@ void SystemScrollBarRender::OnBtn2KillFocus(Object* pNewFocusObj)
 
 	if( 0 != m_nTimer2IDToScroll )
 	{
-		KillTimer(m_nTimer2IDToScroll );
+		TimerHelper::GetInstance()->KillTimer(m_nTimer2IDToScroll );
 	}
 	if( 0 != m_nTimer2IDScrolling )
 	{
-		KillTimer(m_nTimer2IDScrolling);
-
-//		this->OnSliderPosChanged(m_pSliderCtrl->GetPos(), SB_ENDSCROLL );
+		TimerHelper::GetInstance()->KillTimer(m_nTimer2IDScrolling);
+		this->m_pScrollBar->FireScrollMessage(SB_ENDSCROLL);
 	}
+}
+
+void ScrollBarBase::FireScrollMessage(int nSBCode, int nThackPos)
+{
+	UIMSG msg;
+	msg.message = m_eScrollDirection==HSCROLLBAR? WM_HSCROLL:WM_VSCROLL;
+	msg.code = 0;
+	msg.wParam = nSBCode;
+	msg.lParam = nThackPos;
+	msg.pObjMsgFrom = this;
+	msg.pObjMsgTo = this->GetBindObject();
+	DoNotify(&msg);
 }
 
 void SystemVScrollBarRender::OnBindObjSize(UINT nType, int cx, int cy)
@@ -1305,25 +1510,6 @@ LRESULT SystemVScrollBarRender::OnNcCalcSize(BOOL bCalcValidRects, LPARAM lprc)
 		nWidth = s.cx;
 	}
 	((RECT*)lprc)->right -= nWidth;
-	return 0;
-}
-LRESULT SystemVScrollBarRender::OnMouseWheel(UINT nFlags, short zDelta, POINT pt)
-{
-//	if (NULL == m_pSliderCtrl)
-		return 0;
-//
-	// 如果源对象没有处理这个消息，这里直接进行滚动
-	int nCurPos = this->m_pScrollBar->GetScrollPos();
-//	int nToScroll = 3 * m_pSliderCtrl->GetLine();
-
-// 	if (zDelta < 0)
-// 		this->m_pScrollBar->SetScrollPos(nCurPos + nToScroll);
-// 	else
-// 		this->m_pScrollBar->SetScrollPos(nCurPos - nToScroll);
-// 
-// 	if (nCurPos != this->m_pScrollBar->GetScrollPos())
-// 		this->m_pScrollBar->GetScrollMgr()->GetBindObject()->UpdateObject();
-
 	return 0;
 }
 

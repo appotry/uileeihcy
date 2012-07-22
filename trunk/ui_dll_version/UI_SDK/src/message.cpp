@@ -164,12 +164,18 @@ void Message::ClearNotify( )
 // 发送Notify消息到注册过Notify的对象
 void Message::DoNotify( UIMSG* pMsg )
 {
+	if (NULL != pMsg->pObjMsgTo)
+	{
+		UISendMessage(pMsg);
+	}
+
 	list< MsgNotify* >::iterator  iter    = m_lNotifyMsgMap.begin();
 	list< MsgNotify* >::iterator  iterEnd = m_lNotifyMsgMap.end();
 	for( ; iter!=iterEnd; iter++ )
 	{
 		MsgNotify*  pNotify = *iter;
-		pNotify->pObj->ProcessMessage( pMsg, pNotify->nMsgMapIDToNotify );
+		if (pNotify->pObj != pMsg->pObjMsgTo)
+			pNotify->pObj->ProcessMessage( pMsg, pNotify->nMsgMapIDToNotify );
 	}
 }
 

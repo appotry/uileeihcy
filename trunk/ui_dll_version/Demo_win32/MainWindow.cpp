@@ -499,17 +499,14 @@ void MainWindow::on_mp3_volume_ind(long lVolumn)
 
 COptionWindow::COptionWindow()
 {
-	m_pListBox = NULL;
 	m_pListOption = NULL;
 }
 
 BOOL COptionWindow::OnInitDialog( HWND, LPARAM )
 {
-//	m_pListBox = (ListBox*)this->FindChildObject(_T("listbox_test") );
-//	m_pListOption = (ListBox*)this->FindChildObject(_T("optionlist") );
-
-//	m_pListBox->SetSort( LISTITEM_SORT_DISABLE,NULL );
-//	m_pListOption->SetSort( LISTITEM_SORT_DISABLE,NULL );
+	m_pListOption = (ListBox*)this->FindChildObject(_T("optionlist") );
+	m_pListOption->SetSort( LISTITEM_SORT_DISABLE,NULL );
+	m_pListOption->SetFixedItemHeight(24, false);
 
 	String strArray[] = { _T("关于"),_T("常规"),_T("播放"),_T("快捷键"),_T("视觉效果"),
 		_T("播放列表"),_T("媒体库"),_T("歌词秀"),_T("歌词搜索"),_T("网络连接"),_T("音效插件"),
@@ -517,15 +514,9 @@ BOOL COptionWindow::OnInitDialog( HWND, LPARAM )
 	int nCount = sizeof(strArray)/sizeof(String);
 	for (int i = 0; i < nCount; i++)
 	{
-//		m_pListOption->AddString(strArray[i]);
+		m_pListOption->AddString(strArray[i]);
 	}
 
-// 	for ( int i = 0; i < 20; i++ )
-// 	{
-// 		TCHAR szInfo[128] ;
-// 		_stprintf( szInfo, _T("%d"), i );
-// 		m_pListBox->AddString( szInfo );
-// 	}
 	return FALSE;
 }
 void COptionWindow::OnClose()
@@ -538,21 +529,9 @@ void COptionWindow::OnDestroy()
 
 void COptionWindow::OnBtnSaveAll()
 {
-	if (NULL != m_pListBox)
-	{
-		int nCount = m_pListBox->GetItemCount();
-		
-		TCHAR szInfo[128] ;
-		_stprintf( szInfo, _T("%d"), nCount );
-		m_pListBox->AddString( szInfo );
-	}
 }
 void COptionWindow::OnBtnResetAll()
 {
-	if (NULL != m_pListBox)
-	{
-		m_pListBox->RemoveItem(0);
-	}
 }
 void COptionWindow::OnBtnCancel()
 {
