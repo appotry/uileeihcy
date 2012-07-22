@@ -184,7 +184,8 @@ public:
 	RenderBase*  GetBkRender() { return m_pBkgndRender; }
 	RenderBase*  GetForeRender() { return m_pForegndRender; }
 
-	void         GetWindowRect(RECT* lprc);
+	POINT        GetRealPosInWindow();
+	void         GetWindowRect(CRect* lprc);
 	void         WindowPoint2ObjectPoint(const POINT* ptWindow, POINT* ptObj);
 	void         WindowPoint2ObjectClientPoint(const POINT* ptWindow, POINT* ptObj);
 	void         ObjectPoint2ObjectClientPoint(const POINT* ptWindow, POINT* ptObj);
@@ -228,7 +229,6 @@ public:
 	bool         GetAttribute(const String& strKey, String& strValue);
 	
 	// »æÖÆ
-	POINT        GetRealPosInWindow();
 	void         DrawObject(HRDC hRDC, RenderOffsetClipHelper roc);   
 	void         DrawObjectTransparentBkgnd(HRDC hRDC, RenderOffsetClipHelper& roc);
 

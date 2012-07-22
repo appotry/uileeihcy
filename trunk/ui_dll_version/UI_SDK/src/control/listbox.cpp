@@ -1,19 +1,37 @@
 #include "stdafx.h"
 
-ListItemBase::ListItemBase()
+ListItemBase::ListItemBase(void* pData, LIST_ITEM_DATA_DELETE_TYPE eType)
 {
+	m_nLineIndex = 0;
 	m_nHeight = 20;
 	m_pPrev = m_pNext = m_pPrevSelection = m_pNextSelection = NULL;
 	m_rcParent.SetRectEmpty();
 
 	m_bDisable = false;
 	m_bChecked = false;
+	m_pData = pData;
+	m_eDataDeleteType = eType;
 }
 ListItemBase::~ListItemBase()
 {
 	m_pPrev = m_pNext = m_pPrevSelection = m_pNextSelection = NULL;
+	if (NULL != m_pData)
+	{
+		switch (m_eDataDeleteType)
+		{
+		case LIST_ITEM_DATA_DELETE_TYPE_NONE:
+			break;
+		case LIST_ITEM_DATA_DELETE_TYPE_DELETE:
+			delete m_pData;
+			break;
+		case LIST_ITEM_DATA_DELETE_TYPE_DELETE_ARRAY:
+			delete [] m_pData;
+			break;
+		}
+		m_pData = NULL;
+	}
 }
-TreeListItemBase::TreeListItemBase()
+TreeListItemBase::TreeListItemBase(void* pData, LIST_ITEM_DATA_DELETE_TYPE eType):ListItemBase(pData, eType)
 {
 	m_pChild = m_pParent = NULL;
 }
@@ -155,7 +173,7 @@ void ListBoxBase::SetFixedItemHeight(int nHeight, bool bUpdate)
 //
 //	在末尾添加一项
 //
-void ListBoxBase::AddItem( ListItemBase* pItem )
+void ListBoxBase::AddItem(ListItemBase* pItem, bool bUpdate)
 {
 	ListItemBase* pInsertAfter = m_pLastItem;
 	if( m_eSortType != LISTITEM_SORT_DISABLE && NULL != m_pCompareProc )
@@ -190,6 +208,10 @@ void ListBoxBase::AddItem( ListItemBase* pItem )
 
 	// 插入
 	this->InsertItem(pItem,pInsertAfter);
+	if (bUpdate)
+	{
+		this->UpdateObject();
+	}
 }
 
 void ListBoxBase::RemoveItem(int nIndex, bool bUpdate)
@@ -218,11 +240,12 @@ void ListBoxBase::UpdateItemRect( ListItemBase* pStart )
 		int y = 0;
 		if (NULL == p->GetPrevItem())   // 第一个
 		{
-			//y = m_rcPadding.top + m_nItemGap;
+			p->SetLineIndex(0);
 		}
 		else
 		{
 			y = p->GetPrevItem()->GetParentRect().bottom + m_nItemGap;
+			p->SetLineIndex(p->GetPrevItem()->GetLineIndex()+1);
 		}
 
 		if (m_bFixedItemHeight)
@@ -236,12 +259,6 @@ void ListBoxBase::UpdateItemRect( ListItemBase* pStart )
 			p->SetParentRect(&rc);
 		}
 			
-// 		CRect rcParent;
-// 		p->GetParentRect(&rcParent);
-// 		rcParent.left  += m_rcPadding.left;
-// 		rcParent.right -= m_rcPadding.right;
-// 		p->SetParentRect(&rcParent);
-
 		p = p->GetNextItem();
 	}
 
@@ -787,15 +804,33 @@ ListBox::~ListBox()
 
 int ListBoxCompareProc( ListItemBase* p1, ListItemBase* p2 )
 {
-	ListBoxItem* pItem1 = (ListBoxItem*)p1;
-	ListBoxItem* pItem2 = (ListBoxItem*)p2;
+	ListItemBase* pItem1 = (ListItemBase*)p1;
+	ListItemBase* pItem2 = (ListItemBase*)p2;
+	
+	if (NULL == pItem1 && NULL == pItem2)
+		return 0;
+	else if (NULL == pItem2)
+		return 1;
+	else if (NULL == pItem1)
+		return -1;
+		
+	ListBoxItemData* pData1 = (ListBoxItemData*)pItem1->GetData();
+	ListBoxItemData* pData2 = (ListBoxItemData*)pItem2->GetData();
 
-	return( pItem1->m_strText.compare(pItem2->m_strText) );
+	if (NULL == pData1 && NULL == pData2)
+		return 0;
+	else if (NULL == pData2)
+		return 1;
+	else if (NULL == pData1)
+		return -1;
+
+	return( pData1->m_strText.compare(pData2->m_strText) );
 }
 bool ListBox::AddString(const String& strText, bool bUpdate)
 {
-	ListBoxItem* pItem = new ListBoxItem;
-	pItem->m_strText = strText;
+	ListBoxItemData *pData = new ListBoxItemData;
+	pData->m_strText = strText;
+	ListItemBase* pItem = new ListItemBase(pData);
 
 	__super::AddItem(pItem);
 	if (bUpdate)
@@ -804,12 +839,14 @@ bool ListBox::AddString(const String& strText, bool bUpdate)
 	return true;
 }
 
-void ListBox::OnDrawItem( HRDC hRDC, ListItemBase* p )
+void ListBox::OnDrawItem(HRDC hRDC, ListItemBase* p)
 {
-	ListBoxItem* pListBoxItem = (ListBoxItem*)p;
+	if (NULL == p)
+		return;
+	ListBoxItemData* pData = (ListBoxItemData*)p->GetData();
+
 	CRect rcItem;
-	pListBoxItem->GetParentRect(&rcItem);
-//	::OffsetRect(&rcItem, -m_ptScroll.x, -m_ptScroll.y );
+	p->GetParentRect(&rcItem);
 
 	if (NULL != m_pForegndRender)
 	{
@@ -833,9 +870,10 @@ void ListBox::OnDrawItem( HRDC hRDC, ListItemBase* p )
 		// 正常状态不绘制
 	}
 
-	DrawString( hRDC, pListBoxItem->m_strText.c_str(), &rcItem, DT_SINGLELINE|DT_END_ELLIPSIS|DT_CENTER|DT_VCENTER, this->GetFont() );
-
-//	UI_LOG_DEBUG( _T("ListBox: OnDrawItem %s"), pListBoxItem->m_strText.c_str() );
+	if (NULL != pData)
+	{
+		DrawString( hRDC, pData->m_strText.c_str(), &rcItem, DT_SINGLELINE|DT_END_ELLIPSIS|DT_CENTER|DT_VCENTER, this->GetFont() );
+	}
 }
 
 void ListBox::OnRButtonDown(UINT nFlags, CPoint point)
@@ -843,4 +881,101 @@ void ListBox::OnRButtonDown(UINT nFlags, CPoint point)
 #ifdef _DEBUG
 	this->AddString(_T("test"));
 #endif
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void TTPlayerPlaylistCtrl::OnDrawItem(HRDC hRDC, ListItemBase* p)
+{
+	if (NULL == p)
+		return;
+	TTPlayerPlaylistItemData* pData = (TTPlayerPlaylistItemData*)p->GetData();
+
+	CRect rcItem;
+	p->GetParentRect(&rcItem);
+
+	if ( 0 == p->GetLineIndex()%2 )
+	{
+		::FillRect(hRDC, &rcItem, RGB(0,0,0));
+	}
+	else
+	{
+		::FillRect(hRDC, &rcItem, RGB(32,32,32));
+	}
+
+	COLORREF rgbText = RGB(0,128,255);
+	if (0/*NULL != m_pForegndRender*/)
+	{
+		if (p->IsDisable())
+		{
+			m_pForegndRender->DrawState(hRDC, &rcItem, LISTITEM_FOREGND_RENDER_STATE_DISABLE);
+		}
+		else if( m_pFirstSelectedItem == p || p->GetPrevSelection() != NULL || p->GetNextSelection() != NULL )
+		{
+			m_pForegndRender->DrawState(hRDC, &rcItem, LISTITEM_FOREGND_RENDER_STATE_SELECTED);
+		}
+		else if( m_pPressItem == p )
+		{
+			m_pForegndRender->DrawState(hRDC, &rcItem, LISTITEM_FOREGND_RENDER_STATE_PRESS);
+		}
+		else if( NULL == m_pPressItem && m_pHoverItem == p )
+		{
+			m_pForegndRender->DrawState(hRDC, &rcItem, LISTITEM_FOREGND_RENDER_STATE_HOVER);
+		}
+	}
+	else
+	{
+		if (p->IsDisable())
+		{
+			
+		}
+		else if( m_pFirstSelectedItem == p || p->GetPrevSelection() != NULL || p->GetNextSelection() != NULL )
+		{
+			GradientFillV(hRDC, &rcItem, RGB(47,100,190), RGB(4,10,19));
+			Rectangle(hRDC, &rcItem, RGB(255,255,255), NULL, 1, true);
+
+			rgbText = RGB(255,255,255);
+		}
+		else if( m_pPressItem == p )
+		{
+		}
+		else if( NULL == m_pPressItem && m_pHoverItem == p )
+		{
+		}
+	}
+
+	if (NULL != pData)
+	{
+		CRect rcNum = rcItem;
+		CRect rcTime = rcItem;
+		CRect rcText = rcItem;
+
+		rcText.left = rcNum.right = 20;
+		rcText.right = rcTime.left = rcItem.right - 25;
+		rcTime.right--;
+		
+		TCHAR szNum[16] = _T("");
+		_stprintf(szNum, _T("%d."), p->GetLineIndex()+1);
+		DrawString( hRDC, szNum, &rcNum, 
+			DT_SINGLELINE|DT_RIGHT|DT_VCENTER, 
+			this->GetFont(), rgbText );
+
+		DrawString( hRDC, pData->m_strFileName.c_str(), &rcText, 
+			DT_SINGLELINE|DT_END_ELLIPSIS|DT_LEFT|DT_VCENTER, 
+			this->GetFont(), rgbText );
+
+		DrawString( hRDC, pData->m_strFileTime.c_str(), &rcTime, 
+			DT_SINGLELINE|DT_RIGHT|DT_VCENTER, 
+			this->GetFont(), rgbText );
+	}
+}
+void TTPlayerPlaylistCtrl::AddFileItem(const String& strFilePath, bool bUpdate)
+{
+	int nPos = strFilePath.rfind(_T('\\'), strFilePath.length());
+	TTPlayerPlaylistItemData* pData = new TTPlayerPlaylistItemData;
+	pData->m_strFilePath = strFilePath;
+	pData->m_strFileName = strFilePath.substr(nPos+1, strFilePath.length()-nPos-1);
+	pData->m_strFileTime = _T("3:25");
+
+	__super::AddItem( new ListItemBase(pData), bUpdate );
 }

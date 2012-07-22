@@ -2456,6 +2456,7 @@ Object*  CXmlLayoutParse::mapXmlToClass( String strXmlName )
 //		XML2CLASS( Edit )
 		XML2CLASS( SliderCtrl )
 		XML2CLASS( ListBox )
+		XML2CLASS( TTPlayerPlaylistCtrl )
 		XML2CLASS( HScrollBar )
 		XML2CLASS( VScrollBar )
 	END_XML2CLASS

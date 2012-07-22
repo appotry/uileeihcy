@@ -302,5 +302,50 @@ bool CreateEmptyXmlFile( const TCHAR* szPath, const TCHAR* szRoot, const TCHAR* 
 
 	return true;
 }
+
+
+// ±éÀúÎÄ¼þ¼Ð
+BOOL EnumFileInDirectory(const TCHAR* szDir, EnumFileInDirProc proc, WPARAM wParam)
+{
+	WIN32_FIND_DATA  finddata;
+
+	String strBaseDir = szDir;
+	if (strBaseDir[strBaseDir.length()-1] != _T('\\') &&
+		strBaseDir[strBaseDir.length()-1] != _T('/'))
+	{
+		strBaseDir += _T("\\");
+	}
+	String strFind = strBaseDir;
+	strFind += _T("*.*");
+
+	HANDLE hFind=::FindFirstFile(strFind.c_str(),&finddata);
+	if(INVALID_HANDLE_VALUE == hFind)
+		return FALSE;
+
+	while(1)
+	{
+		if(finddata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			if (finddata.cFileName[0] != '.')
+			{
+				String str = strBaseDir;
+				str += finddata.cFileName;
+				str += _T("\\");
+				EnumFileInDirectory(str.c_str(), proc, wParam);
+			}
+		}
+		else
+		{
+			proc(strBaseDir.c_str(), finddata.cFileName, wParam);
+		}
+		if(!FindNextFile(hFind,&finddata))
+			break;
+	}
+	FindClose(hFind);
+
+	return TRUE;
+}
+
 #endif
 }}
+

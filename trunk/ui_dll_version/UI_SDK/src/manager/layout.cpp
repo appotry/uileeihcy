@@ -441,13 +441,6 @@ void  CanvasLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bR
 		}
 	
 
-		// 计算出 pChild 的 rectP的宽和高
-		SIZE s = pChild->GetDesiredSize( hRDC );
-		CRect rcChildObj ;
-		int nChildW = s.cx - pChild->GetMarginW();
-		int nChildH = s.cy - pChild->GetMarginH();
-		rcChildObj.SetRect(0, 0, nChildW, nChildH );
-		
 		int  x = 0, y = 0;                                  // pChild最终在parent中的坐标
 		int  left=NDEF, top=NDEF, right=NDEF, bottom=NDEF;  // pChild的xml属性
 
@@ -469,6 +462,28 @@ void  CanvasLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bR
 		{
 			bottom = _ttoi( strAttribute.c_str() );
 		}
+
+		// 计算出 pChild 的 rectP的宽和高
+		SIZE s = {0,0};
+		if( left != NDEF || right != NDEF || top != NDEF || bottom != NDEF )
+		{
+			s = pChild->GetDesiredSize( hRDC );
+		}
+
+		if (left != NDEF && right != NDEF)
+		{
+			s.cx = nWidth - left - right;
+		}
+		if (top != NDEF && bottom != NDEF)
+		{
+			s.cy = nHeight - top - bottom;
+		}
+
+		CRect rcChildObj ;
+		int nChildW = s.cx - pChild->GetMarginW();
+		int nChildH = s.cy - pChild->GetMarginH();
+		rcChildObj.SetRect(0, 0, nChildW, nChildH );
+
 
 		// 计算出坐标，若left/right,top/bottom中有一个未指定的，那么取0（但在DesktopLayout中是取居中）
 		if( left != NDEF )
