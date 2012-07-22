@@ -307,28 +307,6 @@ bool WindowBase::Create( const String& ID, HWND hWndParent )
 		UI_LOG_FATAL( _T("Window::Create, CreateWindowEx失败") );
 		return false;
 	}
-
-	//	子类化
-//	this->SubclassWindow();
-
-	//	特殊处理：WM_CREATE消息
-	//		有些消息在创建之后、之类化之前，这些消息没能走到我们自己的窗口过程中
-// 	UIMSG msgWMCreate;
-// 	msgWMCreate.pObjMsgTo = this;
-// 	msgWMCreate.message   = WM_CREATE;
-// 	if( -1 == ::UISendMessage( &msgWMCreate ) )   // 这里忽略了WM_CRAETE消息的参数
-// 	{
-// 		if( msgWMCreate.bHandled )       // 确保该消息调用者确实处理了
-// 		{
-// 			this->UnSubclassWindow();
-// 			::DestroyWindow( m_hWnd );
-// 			m_hWnd = NULL;
-// 
-// 			UI_LOG_DEBUG( _T("Window(ID=%s)WM_CRAETE 返回 -1, 窗口创建失败" ), ID.c_str() );
-// 			return false;
-// 		}
-// 	}
-
 	return true;
 }
 
@@ -823,7 +801,10 @@ LRESULT WindowBase::_OnCreate( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bH
 {
 	bHandled = FALSE;
 
-	this->CreateUI(m_strID, m_hWnd);
+	if (!m_strID.empty())
+	{
+		this->CreateUI(m_strID, m_hWnd);
+	}
 	return 0;
 }
 LRESULT WindowBase::_OnNcDestroy( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
