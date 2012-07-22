@@ -242,6 +242,7 @@ namespace UI
 #include "control\progress.h"
 #include "control\edit.h"
 #include "control\listbox.h"
+#include "control\menu.h"
 
 #include "uiapplication.h"
 

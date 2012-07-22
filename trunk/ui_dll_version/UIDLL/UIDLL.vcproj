@@ -379,6 +379,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\UI_SDK\include\control\menu.h"
+						>
+					</File>
+					<File
 						RelativePath="..\UI_SDK\include\control\progress.h"
 						>
 					</File>
@@ -620,6 +624,10 @@
 					</File>
 					<File
 						RelativePath="..\UI_SDK\src\control\listbox.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\UI_SDK\src\control\menu.cpp"
 						>
 					</File>
 					<File
