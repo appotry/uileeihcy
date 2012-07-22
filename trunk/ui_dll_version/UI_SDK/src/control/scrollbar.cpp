@@ -926,12 +926,14 @@ public:
 //		m_eScrollDirection = VSCROLLBAR;
 //		if( NULL != m_pSliderCtrl )
 //			m_pSliderCtrl->SetDirectionType(/*SCROLL_BOTTOM_2_TOP*/PROGRESS_SCROLL_TOP_2_BOTTOM);
+		m_nClickDiff = 0;
+		m_bTracking = false;
 	}
 
 	UI_BEGIN_MSG_MAP
 		UIMSG_WM_SIZE(OnSize)
 		UIMSG_WM_LBUTTONDOWN(OnLButtonDown)
-
+		UIMSG_WM_LBUTTONUP(OnLButtonUp)
 
 	UIALT_MSG_MAP(ALT_MSG_ID_THUMB_BTN)
 		UIMSG_WM_LBUTTONDOWN(OnThumbBtnLButtonDown)	
@@ -954,7 +956,7 @@ protected:
 	LRESULT OnNcCalcSize(BOOL bCalcValidRects, LPARAM lprc);
 	void    OnBindObjSize(UINT nType, int cx, int cy);
 
-	void    OnLButtonDown(UINT nFlags, POINT point)
+	void OnLButtonDown(UINT nFlags, POINT point)
 	{
 		if (NULL == m_pBtnThumb)
 			return;
@@ -965,8 +967,15 @@ protected:
 			this->m_pScrollBar->FireScrollMessage(SB_PAGEUP);
 		else
 			this->m_pScrollBar->FireScrollMessage(SB_PAGEDOWN);
-	
 	}
+	void OnLButtonUp(UINT nFlags, POINT point)
+	{
+		if (NULL == m_pBtnThumb)
+			return;
+
+		this->m_pScrollBar->FireScrollMessage(SB_ENDSCROLL);
+	}
+	
 
 	// 将thumb button的最前面的位置转换为当前位置
 	// pt相对于scrollbar
@@ -987,6 +996,8 @@ protected:
 		return (int)nPos;
 	}
 	int m_nClickDiff;
+	bool m_bTracking;
+
 	void    OnThumbBtnLButtonDown(UINT nFlags, POINT point)
 	{
 		SetMsgHandled(FALSE);
@@ -999,6 +1010,12 @@ protected:
 	void    OnThumbBtnLButtonUp(UINT nFlags, POINT point)
 	{
 		SetMsgHandled(FALSE);
+
+		if (m_bTracking)
+		{
+			m_pScrollBar->FireScrollMessage(SB_ENDSCROLL);
+		}
+		m_bTracking = false;
 		m_nClickDiff = 0;
 	}
 	void    OnThumbBtnMousemove(UINT nFlags, POINT point)
@@ -1013,6 +1030,7 @@ protected:
 		int nNewPos = this->WindowPoint2TrackPos(ptObj.y - m_nClickDiff);
 
 		m_pScrollBar->FireScrollMessage(SB_THUMBTRACK, nNewPos);
+		m_bTracking = true;
 	}
 
 	virtual void UpdateScrollBarVisible()

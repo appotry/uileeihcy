@@ -20,6 +20,13 @@ public:
 	int  OnCreate(LPCREATESTRUCT lpCreateStruct);
 	void OnClose();
 	void OnBtnClickAdd(Object* pBtnObj, POINT* pt);
+
+public:
+	void AddFile(const String& strFile);
+	void AddDirectory(const String& strDir);
+
+private:
+	TTPlayerPlaylistCtrl*   m_plistctrl;
 };
 
 class CLyricDlg : public UI::CustomWindow

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ui>
   <color>
+    <item id="black">0,0,0</item>
     <item id="voice_channel">0,192,0</item>
     <item id="play_statue">160,160,160</item>
     <item id="default">255,255,255</item>

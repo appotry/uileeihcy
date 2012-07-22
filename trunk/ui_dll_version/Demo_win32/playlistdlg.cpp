@@ -4,6 +4,7 @@
 CPlayListDlg::CPlayListDlg(void)
 {
 	this->SetWindowResizeType(WRSB_ALL);
+	m_plistctrl = NULL;
 }
 
 CPlayListDlg::~CPlayListDlg(void)
@@ -19,16 +20,14 @@ BOOL CPlayListDlg::PreCreateWindow( CREATESTRUCT& cs, DWORD& dwStyleEx )
  
 int CPlayListDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
+	
 	return 0;
 }
 
 void CPlayListDlg::OnInitWindow( )
 {
-	Button* pBton = (Button*)this->FindChildObject(_T("sys_close"));
-	if( NULL != pBton )
-	{
-//		this->AddToolTip(pBton);
-	}
+	m_plistctrl = (TTPlayerPlaylistCtrl*)this->FindChildObject(_T("playlistctrl"));
+	UIASSERT(NULL != m_plistctrl);
 }
 
 void CEqualizerDlg::OnInitWindow( )
@@ -76,10 +75,64 @@ void CPlayListDlg::OnBtnClickAdd(Object* pBtnObj, POINT* pt)
 	AppendMenu( hMenu, MF_STRING, 101, _T("ÎÄ¼þ¼Ð"));
 	AppendMenu( hMenu, MF_STRING, 102, _T("±¾µØËÑË÷"));
 	AppendMenu( hMenu, MF_STRING, 103, _T("ÍøÂçËÑË÷"));
-	POINT ptMenu = pBtnObj->GetRealPosInWindow();
-	::MapWindowPoints(m_hWnd, NULL, &ptMenu,1 );
-	::TrackPopupMenu(hMenu, 0, ptMenu.x, ptMenu.y , 0, m_hWnd, NULL );
+	
+	CRect rc;
+	pBtnObj->GetWindowRect(&rc);
+	::MapWindowPoints(m_hWnd, NULL, (LPPOINT)&rc, 2);
+	UINT nRet = ::TrackPopupMenu(hMenu, TPM_RETURNCMD, rc.left, rc.bottom, 0, m_hWnd, NULL );
+	switch(nRet)
+	{
+	case 100:
+		{
+			CFileDialog dlg(TRUE, _T("*.mp3"), 0,4|2, _T("*.mp3\0*.mp3\0\0"));
+			if(IDCANCEL != dlg.DoModal())
+			{
+				this->AddFile(dlg.m_szFileName);
+			}
+		}
+		break;
+
+	case 101:
+		{
+			CFolderDialog dlg;
+			if( IDCANCEL != dlg.DoModal() )
+			{
+				this->AddDirectory(dlg.m_szFolderPath);
+			}
+		}
+		break;
+	}
 	::DestroyMenu(hMenu);
+}
+
+void CPlayListDlg::AddFile(const String& strFile)
+{
+	if (NULL == m_plistctrl)
+		return;
+
+	m_plistctrl->AddFileItem(strFile);
+}
+
+bool CALLBACK MyEnumFileInDirProc(const TCHAR* szDir, const TCHAR* szFileName, WPARAM wParam)
+{
+	CPlayListDlg* pThis = (CPlayListDlg*)wParam;
+	if (NULL == pThis)
+		return false;
+
+	String str = szDir;
+	str += szFileName;
+	if( str.substr(str.length()-4,4) == _T(".mp3") )
+	{
+		pThis->AddFile(str);
+	}
+	return true;
+}
+void CPlayListDlg::AddDirectory(const String& strDir)
+{
+	if (NULL == m_plistctrl)
+		return;
+
+	Util::EnumFileInDirectory(strDir.c_str(), MyEnumFileInDirProc, (WPARAM)this);
 }
 
 void CLyricDlg::OnPaint( HRDC hRDC )

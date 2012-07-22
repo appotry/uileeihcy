@@ -721,16 +721,16 @@ void Object::ObjectPoint2ObjectClientPoint(const POINT* ptObj, POINT* ptClient)
 	ptClient->x = ptObj->x - m_rcNonClient.left;
 	ptClient->y = ptObj->y - m_rcNonClient.top;
 }
-void Object::GetWindowRect(RECT* lprc)
+void Object::GetWindowRect(CRect* lprc)
 {
 	if (NULL == lprc)
 		return;
 	
-	::CopyRect(lprc, &m_rcParent);
+	lprc->CopyRect(&m_rcParent);
 	if (NULL != this->GetParentObject())
 	{
 		POINT pt = this->GetParentObject()->GetRealPosInWindow();
-		::OffsetRect(lprc, pt.x, pt.y);
+		lprc->OffsetRect(pt.x, pt.y);
 	}
 }
 //////////////////////////////////////////////////////////////////////////

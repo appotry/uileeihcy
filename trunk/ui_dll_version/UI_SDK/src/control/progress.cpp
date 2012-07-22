@@ -784,7 +784,7 @@ void SliderCtrlBase::OnBtnLButtonDown(UINT nFlags, POINT point)
 	case PROGRESS_SCROLL_BOTTOM_2_TOP:
 	case PROGRESS_SCROLL_TOP_2_BOTTOM:
 		{
-			RECT rcBtnWindow = {0,0,0,0};
+			CRect rcBtnWindow(0,0,0,0);
 			this->m_pButton->GetWindowRect(&rcBtnWindow);
 			int yBtnCenter = (rcBtnWindow.top + rcBtnWindow.bottom)/2;
 			m_nDiffFix = point.y - yBtnCenter;
@@ -793,7 +793,7 @@ void SliderCtrlBase::OnBtnLButtonDown(UINT nFlags, POINT point)
 	case PROGRESS_SCROLL_LEFT_2_RIGHT:
 	case PROGRESS_SCROLL_RIGHT_2_LEFT:
 		{
-			RECT rcBtnWindow = {0,0,0,0};
+			CRect rcBtnWindow(0,0,0,0);
 			this->m_pButton->GetWindowRect(&rcBtnWindow);
 			int xBtnCenter = (rcBtnWindow.right + rcBtnWindow.left)/2;
 			m_nDiffFix = point.x - xBtnCenter;
@@ -874,8 +874,8 @@ void SliderCtrlBase::OnPaint( HRDC hRDC )
 		if( m_eDirectionType == PROGRESS_SCROLL_BOTTOM_2_TOP )
 		{
 			// 将前景拉伸绘制在背景上面，但只在按钮下侧显示出来，因此在这做一个clip
-			RECT rcBtnWindow = {0,0,0,0};
-			RECT rcThisWindow = {0,0,0,0};
+			CRect rcBtnWindow(0,0,0,0);
+			CRect rcThisWindow(0,0,0,0);
 			this->m_pButton->GetWindowRect(&rcBtnWindow);
 			this->GetWindowRect(&rcThisWindow);
 			HRGN hRgnClip = ::CreateRectRgn(rcThisWindow.left,rcBtnWindow.top,rcThisWindow.right,rcThisWindow.bottom);

@@ -54,6 +54,7 @@ typedef string  String;
 }                                
 #endif
 
+typedef bool (CALLBACK* EnumFileInDirProc)(const TCHAR*, const TCHAR*, WPARAM);
 
 //
 //	定义要导出的函数接口集，如果要禁用某一util函数类型，则不要#define即可
@@ -106,7 +107,7 @@ namespace UI { namespace Util {
 	//=================================================================
 	// File
 	//=================================================================
-	BOOL UIUTILAPI GetFileBuffer( TCHAR* szPath, CBufferT<char>&	fileBuf );
+	BOOL UIUTILAPI GetFileBuffer( TCHAR* szPath, CBufferT<char>& fileBuf );
 	BOOL UIUTILAPI OpenFolderAndSelectFile( TCHAR* szFullPath );
 
 	void UIUTILAPI ShowFileProp( TCHAR* szFile );
@@ -117,6 +118,9 @@ namespace UI { namespace Util {
 	BOOL UIUTILAPI CalcRelativePathToDir(const TCHAR* szDir, const TCHAR* szPath, TCHAR* szOutRelativePath );
 	BOOL UIUTILAPI CalcRelativePathToFile(const TCHAR* szFile, const TCHAR* szPath, TCHAR* szOutRelativePath );
 	BOOL UIUTILAPI CalcFullPathByRelative(const TCHAR* szDir, const TCHAR* szRelative, TCHAR* szOut ); 
+	
+	//bool EnumFileInDirProc(TCHAR* szFileName);
+	BOOL UIUTILAPI EnumFileInDirectory(const TCHAR* szDir, EnumFileInDirProc proc, WPARAM wParam);
 
 	bool UIUTILAPI CreateEmptyXmlFileA( const char* szPath, const char* szRoot, const char* szNode = NULL );
 	bool UIUTILAPI CreateEmptyXmlFileW( const wchar_t* szPath, const wchar_t* szRoot, const wchar_t* szNode = NULL );

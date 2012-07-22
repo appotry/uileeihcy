@@ -40,6 +40,10 @@
           <Button id="playlist_edit" styleclass="imagebtn" tooltip="编辑" bkgnd.render.image="playlist_edit.png"   bkgnd.render.imagelist.layout="v"/>
           <Button id="playlist_mode" styleclass="imagebtn" tooltip="模式" bkgnd.render.image="playlist_mode.png"   bkgnd.render.imagelist.layout="v"/>
       </Panel>
+      <TTPlayerPlaylistCtrl id="playlistctrl" layout.left="10" layout.top="52"  layout.right="10"  layout.bottom="10"
+               foregnd.render.type="imageliststretch" foregnd.render.9region="1" foregnd.render.image="listbox.png"
+               foregnd.render.imagelist.count="5"  foregnd.render.imagelist.layout="v"
+               bkgnd.render.type="color" bkgnd.render.color="black"/>
     </CustomWindow>
     <CustomWindow id="equalizerdlg"  width="270" height="165"  layout.left="570" layout.top="368"
                   bkgnd.render.type="imagestretch" bkgnd.render.image="equalizer_skin.bmp" bkgnd.render.9region="100,60,50,15,15,15,20,15" 

@@ -8,6 +8,12 @@
 
 namespace UI
 {
+	enum LIST_ITEM_DATA_DELETE_TYPE
+	{
+		LIST_ITEM_DATA_DELETE_TYPE_NONE,
+		LIST_ITEM_DATA_DELETE_TYPE_DELETE,
+		LIST_ITEM_DATA_DELETE_TYPE_DELETE_ARRAY,
+	};
 
 	//
 	//	列表项内容，真正的列表数据m_pData由子类去维护
@@ -15,7 +21,7 @@ namespace UI
 	class ListItemBase
 	{
 	public:
-		ListItemBase();
+		ListItemBase(void* pData, LIST_ITEM_DATA_DELETE_TYPE eType=LIST_ITEM_DATA_DELETE_TYPE_DELETE);
 		virtual ~ListItemBase();
 
 	public:
@@ -35,7 +41,12 @@ namespace UI
 		bool    IsChecked() { return m_bChecked; }
 		int     GetDesiredHeight() { return m_nHeight; }
 
+		void*   GetData(){ return m_pData; }
+		int     GetLineIndex() { return m_nLineIndex; }
+		void    SetLineIndex(int n) { m_nLineIndex = n; }
+
 	protected:
+		int            m_nLineIndex;      // 记录该项位于第几行
 		int            m_nHeight;         // 保存该子项的高度，仅在ListBoxBase::m_bFixedItemHeight=false有效
 		CRect          m_rcParent;        // 基于列表控件的client 区域 
 
@@ -47,12 +58,15 @@ namespace UI
 
 		bool           m_bDisable;        // 该项是否被禁用（如菜单项）
 		bool           m_bChecked;        // 该基是否被标记（如菜单项）
+
+		void*          m_pData;           // 与每一个IListxxxRender的实现相关
+		LIST_ITEM_DATA_DELETE_TYPE m_eDataDeleteType;
 	};
 
 	class TreeListItemBase : public ListItemBase
 	{
 	public:
-		TreeListItemBase();
+		TreeListItemBase(void* pData, LIST_ITEM_DATA_DELETE_TYPE eType=LIST_ITEM_DATA_DELETE_TYPE_DELETE);
 		~TreeListItemBase();
 
 		ListItemBase*    GetParentItem() { return m_pParent; }
@@ -79,16 +93,6 @@ namespace UI
 		LISTITEM_VISIBLE_COVERBOTTOM,
 		LISTITEM_UNVISIBLE_BOTTOM,
 	};
-
-// 	class IScrollObject
-// 	{
-// 	public:
-// 		virtual void SetScrollOffset(int x, int y) = 0;
-// 		virtual void GetScrollOffset(int* px, int* py) = 0;
-// 		virtual void SetScrollSize(int nxSize, int nySize) = 0;
-// 		virtual void SetScrollPage(int nxPage, int nyPage) = 0;
-// 		virtual void GetScrollClientRect(RECT* prc) = 0;
-// 	};
 
 	class UIAPI ListBoxBase : public Control//, public IScrollObject
 	{
@@ -140,8 +144,8 @@ namespace UI
 
 	protected:
 		// 子类接口
-		void    AddItem( ListItemBase*  pItem );
-		void    InsertItem( ListItemBase*  pItem, ListItemBase* pInsertAfter );
+		void    AddItem(ListItemBase*  pItem, bool bUpdate=true);
+		void    InsertItem(ListItemBase*  pItem, ListItemBase* pInsertAfter);
 		void    RemoveItem(ListItemBase* pItem, bool bUpdate=true);
 		
 		void    UpdateItemRect( ListItemBase* pStart );
@@ -181,11 +185,13 @@ namespace UI
 		ListItemBase*  m_pHoverItem;
 		ListItemBase*  m_pPressItem;
 
-		ScrollBarMgr   m_MgrScrollbar;
+		ScrollBarMgr   m_MgrScrollbar;  
 	};
 
 
-	class ListBoxItem : public ListItemBase
+	//////////////////////////////////////////////////////////////////////////
+	// 系统列表框控件
+	class ListBoxItemData
 	{
 	public:
 		String   m_strText;
@@ -205,13 +211,29 @@ namespace UI
 
 	protected:
 		virtual  void OnDrawItem( HRDC hRDC, ListItemBase* p ) ;
-
-		void   OnRButtonDown(UINT nFlags, CPoint point);
+		void     OnRButtonDown(UINT nFlags, CPoint point);
 
 	public:
-		bool   AddString(const String& strText, bool bUpdate=true);
+		bool     AddString(const String& strText, bool bUpdate=true);
+	};
 
+	//////////////////////////////////////////////////////////////////////////
+	// 模仿千千静听播放列表的自绘控件
+
+	class TTPlayerPlaylistItemData
+	{
+	public:
+		String   m_strFilePath;
+		String   m_strFileName;
+		String   m_strFileTime;
+	};
+	class UIAPI TTPlayerPlaylistCtrl : public ListBoxBase
+	{
+	public:
+		UI_DECLARE_OBJECT( TTPlayerPlaylistCtrl, OBJ_CONTROL )
 		
+		void    AddFileItem(const String& strFilePath, bool bUpdate=true);
+		virtual void OnDrawItem(HRDC hRDC, ListItemBase* p);
 	};
 
 	
