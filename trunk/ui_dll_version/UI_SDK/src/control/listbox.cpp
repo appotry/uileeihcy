@@ -135,6 +135,23 @@ void ListBoxBase::SetSort( LISTITEM_SORT_TYPE eSortType, ListItemCompareProc p )
 	m_pCompareProc = p;
 }
 
+void ListBoxBase::SetFixedItemHeight(int nHeight, bool bUpdate)
+{
+	if (m_nFixeddItemHeight == nHeight)
+	{
+		return;
+	}
+
+	m_nFixeddItemHeight = nHeight;
+	if (m_bFixedItemHeight)
+	{
+		this->UpdateItemRect(m_pFirstItem);
+	}
+	if (bUpdate)
+	{
+		this->UpdateObject();
+	}
+}
 //
 //	在末尾添加一项
 //
@@ -423,6 +440,11 @@ ListItemBase* ListBoxBase::HitTest(POINT ptWindow)
 
 	this->ObjectPoint2ObjectClientPoint(&pt, &pt);
 
+	int nxOffset=0, nyOffset=0;
+	this->GetScrollOffset(&nxOffset, &nyOffset);
+	pt.x += nxOffset;
+	pt.y += nyOffset;
+
 	// 2. 判断
 	
 	ListItemBase* p = m_pFirstVisibleItem;
@@ -499,15 +521,11 @@ bool ListBoxBase::IsItemVisible(ListItemBase* pItem)
 
 	CRect rcParent;
 	pItem->GetParentRect(&rcParent);
-	if(rcParent.bottom - yOffset <= rcClient.top) 
-	{
+	if (rcParent.bottom - yOffset <= 0) 
 		return false;
-	}
 
-	if(rcParent.top - yOffset >= rcClient.bottom)  
-	{
+	if (rcParent.top - yOffset >= rcClient.Height())  
 		return false;
-	}
 
 	return true;
 }
@@ -525,22 +543,22 @@ bool ListBoxBase::IsItemVisibleEx(ListItemBase* pItem, LISTITEM_VISIBLE_POS_TYPE
 
 	int yTop = rcItemParent.top - yOffset;
 	int yBottom = rcItemParent.bottom - yOffset;
-	if(  yBottom <= rcClient.top ) 
+	if(  yBottom <= 0 ) 
 	{
 		ePos = LISTITEM_UNVISIBLE_TOP;
 		return false;
 	}
-	else if( yTop >= rcClient.bottom )
+	else if( yTop >= rcClient.Height() )
 	{
 		ePos = LISTITEM_UNVISIBLE_BOTTOM;
 		return false;
 	}
-	else if( yTop < rcClient.top )
+	else if( yTop < 0 )
 	{
 		ePos = LISTITEM_VISIBLE_COVERTOP;
 		return true;
 	}
-	else if( yBottom > rcClient.bottom )
+	else if( yBottom > rcClient.Height() )
 	{
 		ePos = LISTITEM_VISIBLE_COVERBOTTOM;
 		return true;

@@ -400,7 +400,6 @@ LRESULT MouseManager::LButtonDown( int vkFlag, int xPos, int yPos )
 {
 	if( this->m_pObjHover != NULL )
 	{
-
 		::SetCapture( this->m_pWindow->m_hWnd );
 		this->SetPressObject(m_pObjHover);
 
@@ -413,7 +412,6 @@ LRESULT MouseManager::LButtonDown( int vkFlag, int xPos, int yPos )
 		msg.lParam    = MAKELPARAM(xPos,yPos);
 		::UISendMessage( &msg );
 
-		
 		if( this->m_pObjPress->GetObjectType() == OBJ_CONTROL )
 		{
 			if( this->m_pObjPress->IsTabstop() )

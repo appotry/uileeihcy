@@ -57,10 +57,12 @@ namespace UI
 		void     UpdateBindObjectNonClientRect();
 
 		void     GetScrollPos(int* pnxOffset, int* pnyOffset);
+		int      GetHScrollPos();
+		int      GetVScrollPos();
 		void     SetScrollPos(int nxPos, int nyPos);
 		void     SetHScrollPos(int nX);
 		void     SetVScrollPos(int nY);
-
+		
 		void     SetScrollRange(int nX, int nY);
 		void     SetHScrollRange(int nX);
 		void     SetVScrollRange(int nY);
@@ -120,8 +122,6 @@ namespace UI
 		virtual SIZE  GetAutoSize(HRDC hRDC);
 
 		void    Init(ScrollBarMgr* pMgr);
-//		void  Release() { delete this; }
-//		Object*  GetObjectPtr();
 		int     GetScrollPos();
 		void    SetScrollPage(int nPage);
 		void    SetScrollRange(int nRange);
@@ -134,14 +134,19 @@ namespace UI
 		void    ScrollLineUpLeft();
 		void    ScrollWheelLineUp();
 		void    ScrollWheelLineDown();
+		void    ScrollPageDownRight();
+		void    ScrollPageUpLeft();
 
 		bool    SetScrollInfo(LPUISCROLLINFO lpsi, bool bUpdate=true);
-		bool    SetScrollPos(int nPos, bool bUpdate=true);
+		bool    SetScrollPos(int nPos/*, bool bUpdate=true*/);
 		void    SetScrollButtonLine(int nLine);
 		void    SetScrollWheelLine(int nLine);
 
+		void    FireScrollMessage(int nSBCode, int nThackPos=0);
+
 		SCROLLBAR_DIRECTION_TYPE GetScrollBarDirection() { return m_eScrollDirection; }
 		ScrollBarMgr*  GetScrollMgr() { return m_pScrollBarMgr; }
+		Object*        GetBindObject(){ return m_pScrollBarMgr->GetBindObject(); }
 
 	protected:
 		ScrollBarMgr*            m_pScrollBarMgr;

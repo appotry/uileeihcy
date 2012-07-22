@@ -47,9 +47,9 @@ enum
 	//
 	//	滚动条位置改变通知
 	//
-	//		message:UI_WM_NOTIFY
-	//		code:   UI_WM_HSCROLL/UI_WM_VSCROLL
-	//		wparam: new Pos
+	//		message:UI_WM_HSCROLL/UI_WM_VSCROLL
+	//		code:   0
+	//		wparam: Pos Contains the current scroll-box position if the scroll-bar code is SB_THUMBPOSITION or SB_THUMBTRACK; otherwise not used.
 	//		lParam: scroll type, SB_LEFT SB_RIGHT SB_THUMBTRACK SB_ENDSCROLL ...
 	//		pObjMsgFrom: this
 	//
@@ -890,25 +890,26 @@ protected:
 			return TRUE;                              \
 	}
 
+// void OnVScroll(int nSBCode, int nPos, Message* pMsgFrom)
 #define UIMSG_WM_HSCROLL(func)                        \
-	if( uMsg == UI_WM_NOTIFY  &&                      \
-		code == UI_WM_HSCROLL && )                    \
+	if( uMsg == WM_HSCROLL )                          \
 	{                                                 \
 		SetMsgHandled(TRUE);                          \
-		func( (int)wParam, (int)lParam );             \
+		func( (int)wParam, (int)lParam, pObjMsgFrom );\
 		if(IsMsgHandled())                            \
 			return TRUE;                              \
 	}
 
+// void OnVScroll(int nSBCode, int nPos, Message* pMsgFrom)
 #define UIMSG_WM_VSCROLL(func)                        \
-	if( uMsg == UI_WM_NOTIFY  &&                      \
-		code == UI_WM_VSCROLL && )                    \
+	if( uMsg == WM_VSCROLL )                          \
 	{                                                 \
 		SetMsgHandled(TRUE);                          \
-		func( (int)wParam, (int)lParam );             \
+		func( (int)wParam, (int)lParam, pObjMsgFrom );\
 		if(IsMsgHandled())                            \
 			return TRUE;                              \
 	}
+
 // void OnStateChanged(int nOld, int nNew);
 #define UIMSG_WM_STATECHANGED(func)                   \
 	if( uMsg == UI_WM_STATECHANGED )                  \

@@ -1,45 +1,73 @@
 #pragma once
 
 //
-// 对于需要使用计时器的对象，可以从该继承，但该对象必须从Message派生，
-// 因为是使用发送 WM_TIMER 的方式进行通知
+//  计时器辅助类，在时间到达之后，将给该对象发送WM_TIMER消息
 //
-template<class T>
-class TimerIpml
+class TimerHelper
 {
 public:
-	TimerIpml()
+	static TimerHelper* GetInstance()
 	{
-		m_thunk.Init((DWORD_PTR)TimerIpml<T>::TimerProc, this);
+		static TimerHelper s;
+		return &s;
 	}
-	UINT_PTR SetNewTimer(int nElapse)
+
+	TimerHelper()
 	{
-		return ::SetTimer(NULL, 0, nElapse, (TIMERPROC)m_thunk.GetCodeAddress());
+//		m_thunk.Init((DWORD_PTR)TimerHelper::TimerProc, this);
+	}
+
+	UINT_PTR SetNewTimer(int nElapse, Message* pNotify)
+	{
+		if (NULL == pNotify)
+			return 0;
+		
+//		UINT_PTR nTimerID = ::SetTimer(NULL, 0, nElapse, (TIMERPROC)m_thunk.GetCodeAddress());
+
+		UINT_PTR nTimerID = ::SetTimer(NULL, 0, nElapse, TimerHelper::TimerProc);
+		m_mapTimerNotify[nTimerID] = pNotify;
+		return nTimerID;
 	}
 	void KillTimer(UINT_PTR& nTimerIdRef)
 	{
-		::KillTimer(0, nTimerIdRef);
-		nTimerIdRef = 0;
+		if (m_mapTimerNotify.count(nTimerIdRef))
+		{
+			::KillTimer(0, nTimerIdRef);
+
+			m_mapTimerNotify.erase(nTimerIdRef);
+			nTimerIdRef = 0;
+		}
 	}
 
 	static VOID CALLBACK TimerProc( HWND hwnd, UINT uMsg, UINT_PTR idEvent,	DWORD dwTime )
 	{
-		TimerIpml* pThis = (TimerIpml*)hwnd;
-		pThis->__OnTimer__(idEvent);
+// 		TimerIpml* pThis = (TimerIpml*)hwnd;
+// 		pThis->__OnTimer__(idEvent);
+		TimerHelper::GetInstance()->__OnTimer__(idEvent);
 	}
 	void  __OnTimer__(UINT_PTR idEvent)
 	{
-		Message* pThis = (Message*)this;
-		if (NULL == pThis)
+		Message* pNotify = NULL;
+		if (0 == m_mapTimerNotify.count(idEvent))
 		{
 			UIASSERT(0);
+			TimerHelper::GetInstance()->KillTimer(idEvent);
+			return;
+		}
+		pNotify = m_mapTimerNotify[idEvent];
+		if (NULL == pNotify)
+		{
+			UIASSERT(0);
+			TimerHelper::GetInstance()->KillTimer(idEvent);
 			return;
 		}
 
-		::UISendMessage(pThis, WM_TIMER, idEvent, NULL);
+		::UISendMessage(pNotify, WM_TIMER, idEvent, NULL);
 	}
+
 private:
-	CStdCallThunk    m_thunk;
+//	CStdCallThunk            m_thunk;
+	map<UINT_PTR, Message*>  m_mapTimerNotify;
 };
 
 

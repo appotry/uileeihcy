@@ -133,6 +133,7 @@ namespace UI
 		void    RemoveAllItem();
 		void    SetSort( LISTITEM_SORT_TYPE eSortType, ListItemCompareProc p );
 		int     GetItemCount() { return m_nItemCount; }
+		void    SetFixedItemHeight(int nHeight, bool bUpdate=true);
 
 		ListItemBase* HitTest(POINT ptWindow);
 		ListItemBase* Index2Item(int nIndex);
