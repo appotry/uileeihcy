@@ -27,7 +27,6 @@
 namespace UI
 {
 class Edit;
-#if 0
 //
 //	封装编辑框的数据
 //
@@ -177,6 +176,7 @@ private:
 	void        DrawFocus( HRDC hRDC );
 
 	void        CalcCaretPos(int nCaretIndex, bool& bUpdate);
+	void        UpdateCaretByPos();
 
 	// 属性
 protected:
@@ -202,5 +202,4 @@ private:
 	UIColor*    m_pColorSelectBk;
 };
 
-#endif
 }
