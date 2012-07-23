@@ -31,7 +31,7 @@ EditData::EditData()
 #endif
 }
 
-void EditData::BindToEdit(Edit* pEdit)
+void EditData::BindToEdit(EditBase* pEdit)
 {
 	m_pEdit = pEdit;
 }
@@ -647,7 +647,7 @@ void EditData::PasteFromClipboard()
 
 //////////////////////////////////////////////////////////////////////////
 
-Edit::Edit()
+EditBase::EditBase()
 {
 	this->SetTabstop( true );  
  	CRegion4 rPadding(3,3,3,6);
@@ -670,20 +670,20 @@ Edit::Edit()
 }
 
 
-Edit::~Edit()
+EditBase::~EditBase()
 {
 	SAFE_RELEASE(m_pColor);
 	SAFE_RELEASE(m_pColorSelect);
 	SAFE_RELEASE(m_pColorSelectBk);
 }
 
-String Edit::GetText()
+String EditBase::GetText()
 {
 	return this->m_EditData.GetText();;
 }
 
 // 
-void Edit::SetText( const String& strText )
+void EditBase::SetText( const String& strText )
 {
 	bool bUpdate = false;
 	m_EditData.SetText(strText, bUpdate);		
@@ -700,7 +700,7 @@ void Edit::SetText( const String& strText )
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
-void Edit::ResetAttribute()
+void EditBase::ResetAttribute()
 {
 	Control::ResetAttribute();
 
@@ -711,7 +711,7 @@ void Edit::ResetAttribute()
 	this->m_EditData.SetMaxChar(-1);
 	::SetRect(&this->m_rcPadding, 3,3,3,6 );
 }
-bool Edit::SetAttribute( map<String,String>& mapAttrib, bool bReload )
+bool EditBase::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 {
 	bool bRet = Control::SetAttribute( mapAttrib,bReload );
 	if( false == bRet )	return bRet;
@@ -771,7 +771,7 @@ bool Edit::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 }
 
 
-SIZE Edit::GetAutoSize( HRDC hRDC )
+SIZE EditBase::GetAutoSize( HRDC hRDC )
 {
 	String strTest = this->m_EditData.GetText();
 	if( strTest.empty() )
@@ -800,12 +800,12 @@ SIZE Edit::GetAutoSize( HRDC hRDC )
 **
 **	返回true表示允许输入，false表示禁止输入
 */
-bool Edit::FilterInputChar( UINT nChar )
+bool EditBase::FilterInputChar( UINT nChar )
 {
 	return true;
 }
 
-void Edit::DrawNormal( HRDC hRDC )
+void EditBase::DrawNormal( HRDC hRDC )
 {
 	CRect rcClient;
 	this->GetClientRectAsWin32(&rcClient);
@@ -836,7 +836,7 @@ void Edit::DrawNormal( HRDC hRDC )
 #endif
 }
 
-void Edit::DrawFocus( HRDC hRDC )
+void EditBase::DrawFocus( HRDC hRDC )
 {
 	CRect rcClient;
 	this->GetClientRectAsWin32(&rcClient);
@@ -889,7 +889,7 @@ void Edit::DrawFocus( HRDC hRDC )
 //
 //	将光标位置设置在第N个字符前面。该函数仅更新数据，不真正设置光标位置
 //
-void Edit::CalcCaretPos(int nCaretIndex, bool& bUpdate)
+void EditBase::CalcCaretPos(int nCaretIndex, bool& bUpdate)
 {
 	bUpdate = false;
 
@@ -941,7 +941,7 @@ void Edit::CalcCaretPos(int nCaretIndex, bool& bUpdate)
 	}
 }
 
-void Edit::UpdateCaretByPos()
+void EditBase::UpdateCaretByPos()
 {
 	POINT ptWindow = this->GetRealPosInWindow();
 	::SetCaretPos( m_nXCaretPos + ptWindow.x + m_rcPadding.left, ptWindow.y + m_rcPadding.top );
@@ -954,7 +954,7 @@ void Edit::UpdateCaretByPos()
 //////////////////////////////////////////////////////////////////////////
 
 
-void Edit::OnEraseBkgnd(HRDC hRDC)
+void EditBase::OnEraseBkgnd(HRDC hRDC)
 {
 	if( NULL != m_pBkgndRender )
 	{
@@ -977,7 +977,7 @@ void Edit::OnEraseBkgnd(HRDC hRDC)
 		}
 	}
 }
-void Edit::OnPaint( HRDC hRDC )
+void EditBase::OnPaint( HRDC hRDC )
 {
 	this->DrawNormal( hRDC );
 
@@ -985,7 +985,7 @@ void Edit::OnPaint( HRDC hRDC )
 		this->DrawFocus( hRDC );
 }
 
-BOOL Edit::OnSetCursor( HWND hWnd, UINT nHitTest, UINT message )
+BOOL EditBase::OnSetCursor( HWND hWnd, UINT nHitTest, UINT message )
 {
 	if( this->IsEnable() )
 		::SetCursor( ::LoadCursor( NULL,IDC_IBEAM ) );
@@ -995,21 +995,21 @@ BOOL Edit::OnSetCursor( HWND hWnd, UINT nHitTest, UINT message )
 	return TRUE;
 }
 
-void Edit::OnSetFocus( Object* )
+void EditBase::OnSetFocus( Object* )
 {
 	HWND hWnd = GetHWND();
 	::CreateCaret( hWnd, NULL, 1, m_nCaretHeight );
 	this->UpdateCaretByPos();
 //	::ShowCaret( hWnd );  // 在响应完OnStateChanged刷新之后，再显示光标
 }
-void Edit::OnKillFocus( Object* )
+void EditBase::OnKillFocus( Object* )
 {
 	m_bMouseDrag = false;
 	::HideCaret(GetHWND());
 	::DestroyCaret(); 
 }
 
-void Edit::OnStateChanged(int nOld, int nNew)
+void EditBase::OnStateChanged(int nOld, int nNew)
 {
 	// 当Edit有焦点时，鼠标移动移出不刷新
 	if( nOld&CSB_FOCUS && nNew&CSB_FOCUS )
@@ -1069,7 +1069,7 @@ void Edit::OnStateChanged(int nOld, int nNew)
 // 	break; 
 //
 //
-void Edit::OnChar( UINT nChar, UINT nRepCnt, UINT nFlags )
+void EditBase::OnChar( UINT nChar, UINT nRepCnt, UINT nFlags )
 {
 	if( VK_ESCAPE == nChar || VK_RETURN == nChar )
 		return;
@@ -1092,7 +1092,7 @@ void Edit::OnChar( UINT nChar, UINT nRepCnt, UINT nFlags )
 
 	return ;
 }
-void Edit::OnInputChar(UINT nChar)
+void EditBase::OnInputChar(UINT nChar)
 {
 	if( this->IsReadonly() )
 		return;
@@ -1118,7 +1118,7 @@ void Edit::OnInputChar(UINT nChar)
 	}
 }
 
-void Edit::OnLButtonDown(UINT nFlags, POINT point)
+void EditBase::OnLButtonDown(UINT nFlags, POINT point)
 {
 	// 将鼠标位置转换为相对字符串的位置
 	POINT ptClient;
@@ -1154,7 +1154,7 @@ void Edit::OnLButtonDown(UINT nFlags, POINT point)
 	m_bMouseDrag = true;
 }
 
-void Edit::OnLButtonUp(UINT nFlags, POINT point)
+void EditBase::OnLButtonUp(UINT nFlags, POINT point)
 {
 	m_bMouseDrag = false;
 }	
@@ -1163,7 +1163,7 @@ void Edit::OnLButtonUp(UINT nFlags, POINT point)
 //	TODO: 在 aa___bb
 //			     |在这里双击，会导致aabb都被选中
 //
-void Edit::OnLButtonDblClk(UINT nFlags, POINT point)
+void EditBase::OnLButtonDblClk(UINT nFlags, POINT point)
 {
 	bool bUpdate1 = false, bUpdate2 = false;
 	int  nOldXCaretPos = m_nXCaretPos;
@@ -1186,7 +1186,7 @@ void Edit::OnLButtonDblClk(UINT nFlags, POINT point)
 		this->UpdateCaretByPos();
 	}
 }
-void Edit::OnMouseMove(UINT nFlags, POINT point)
+void EditBase::OnMouseMove(UINT nFlags, POINT point)
 {
 	if( m_bMouseDrag )
 	{
@@ -1238,7 +1238,7 @@ void Edit::OnMouseMove(UINT nFlags, POINT point)
 **	SHIFT + DOWN    往后选择
 **
 */
-void Edit::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
+void EditBase::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
 {
 	bool bCtrlDown  =  Util::IsKeyDown( VK_CONTROL );
 	if( bCtrlDown )
@@ -1311,7 +1311,7 @@ void Edit::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
 	}
 }
 
-void Edit::OnKeyDown_Ctrl_A()
+void EditBase::OnKeyDown_Ctrl_A()
 {
 	bool bUpdate1 = false, bUpdate2 = false;
 	int  nOldXCaretPos = m_nXCaretPos;
@@ -1334,7 +1334,7 @@ void Edit::OnKeyDown_Ctrl_A()
 	}
 }
 
-void  Edit::OnKeyDown_Ctrl_X()
+void EditBase::OnKeyDown_Ctrl_X()
 {
 	if( this->IsReadonly() )
 	{
@@ -1362,11 +1362,11 @@ void  Edit::OnKeyDown_Ctrl_X()
 	}
 }
 
-void Edit::OnKeyDown_Ctrl_C()
+void EditBase::OnKeyDown_Ctrl_C()
 {
 	m_EditData.CopyToClipboard();
 }
-void Edit::OnKeyDown_Ctrl_V()
+void EditBase::OnKeyDown_Ctrl_V()
 {
 	if( this->IsReadonly() )
 		return;
@@ -1388,15 +1388,15 @@ void Edit::OnKeyDown_Ctrl_V()
 		this->UpdateCaretByPos();
 	}
 }
-void Edit::OnKeyDown_Ctrl_Z()
+void EditBase::OnKeyDown_Ctrl_Z()
 {
 
 }
-void Edit::OnKeyDown_Ctrl_Y()
+void EditBase::OnKeyDown_Ctrl_Y()
 {
 
 }
-void Edit::OnKeyDown_Backspace(bool bCtrlDown)
+void EditBase::OnKeyDown_Backspace(bool bCtrlDown)
 {
 	if( this->IsReadonly() )
 		return;
@@ -1419,7 +1419,7 @@ void Edit::OnKeyDown_Backspace(bool bCtrlDown)
 		this->UpdateCaretByPos();
 	}
 }
-void Edit::OnKeyDown_Delete(bool bCtrlDown)
+void EditBase::OnKeyDown_Delete(bool bCtrlDown)
 {
 	if( this->IsReadonly() )
 		return;
@@ -1452,7 +1452,7 @@ void Edit::OnKeyDown_Delete(bool bCtrlDown)
 	}
 }
 
-void Edit::OnKeyDown_Left_Top(bool bCtrlDown)
+void EditBase::OnKeyDown_Left_Top(bool bCtrlDown)
 {
 	bool bShiftDown = Util::IsKeyDown( VK_SHIFT );
 
@@ -1484,7 +1484,7 @@ void Edit::OnKeyDown_Left_Top(bool bCtrlDown)
 		this->UpdateCaretByPos();
 	}
 }
-void Edit::OnKeyDown_Right_Down(bool bCtrlDown)
+void EditBase::OnKeyDown_Right_Down(bool bCtrlDown)
 {
 	bool bShiftDown = Util::IsKeyDown( VK_SHIFT );
 
@@ -1517,7 +1517,7 @@ void Edit::OnKeyDown_Right_Down(bool bCtrlDown)
 	}
 }
 
-void Edit::OnKeyDown_Home(bool bCtrlDown)
+void EditBase::OnKeyDown_Home(bool bCtrlDown)
 {
 	bool bShiftDown =  Util::IsKeyDown( VK_SHIFT );
 	bool bUpdate1 = false, bUpdate2 = false;
@@ -1538,7 +1538,7 @@ void Edit::OnKeyDown_Home(bool bCtrlDown)
 		this->UpdateCaretByPos();
 	}
 }
-void Edit::OnKeyDown_End(bool bCtrlDown)
+void EditBase::OnKeyDown_End(bool bCtrlDown)
 {
 
 	bool bShiftDown = Util::IsKeyDown( VK_SHIFT );
@@ -1560,7 +1560,7 @@ void Edit::OnKeyDown_End(bool bCtrlDown)
 		this->UpdateCaretByPos();
 	}
 }
-void Edit::OnKeyDown_Insert(bool bCtrlDown)
+void EditBase::OnKeyDown_Insert(bool bCtrlDown)
 {
 	if( bCtrlDown )
 	{
@@ -1575,6 +1575,6 @@ void Edit::OnKeyDown_Insert(bool bCtrlDown)
 		m_EditData.SetInsertMode(!m_EditData.GetInsertMode());
 	}
 }
-void Edit::OnKeyUp( UINT nChar, UINT nRepCnt, UINT nFlags )
+void EditBase::OnKeyUp( UINT nChar, UINT nRepCnt, UINT nFlags )
 {
 }

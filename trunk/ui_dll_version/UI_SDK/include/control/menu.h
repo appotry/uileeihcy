@@ -8,6 +8,9 @@ namespace UI
 		UI_BEGIN_MSG_MAP
 			UICHAIN_MSG_MAP(WindowBase)
 		UI_END_MSG_MAP
+
+		//virtual void OnInitWindow();
+		//virtual BOOL PreCreateWindow( CREATESTRUCT& cs , DWORD& dwStyleEx );
 	};
 
 	class UIAPI MenuBase : public ListBoxBase

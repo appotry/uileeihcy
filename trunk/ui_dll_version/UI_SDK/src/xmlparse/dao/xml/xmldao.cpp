@@ -2459,6 +2459,7 @@ Object*  CXmlLayoutParse::mapXmlToClass( String strXmlName )
 		XML2CLASS( TTPlayerPlaylistCtrl )
 		XML2CLASS( HScrollBar )
 		XML2CLASS( VScrollBar )
+		XML2CLASS( Combobox )
 	END_XML2CLASS
 	return pObj;
 }

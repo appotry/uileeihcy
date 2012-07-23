@@ -359,6 +359,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\UI_SDK\include\control\combobox.h"
+						>
+					</File>
+					<File
 						RelativePath="..\UI_SDK\include\control\control.h"
 						>
 					</File>
@@ -604,6 +608,10 @@
 					>
 					<File
 						RelativePath="..\UI_SDK\src\control\button.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\UI_SDK\src\control\combobox.cpp"
 						>
 					</File>
 					<File

@@ -174,6 +174,7 @@ RedrawWindow(hwnd,
 60. 将BkRender, ForeRender移到IObjectRender当中，子类controlRender可继承
 61. LISTBOX的局部刷新
 62. 需要一套更灵活的classname <-> xmlname 的注册映射关系
+63. 修改optiondlg中焦点切换不刷新的问题
 
 疑问：
 1. Message类是否需要一个 m_pCurMsg成员变量？

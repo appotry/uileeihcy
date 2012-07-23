@@ -320,9 +320,10 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 		this->m_strID = this->m_mapAttribute[ XML_ID ];
 		this->m_mapAttribute.erase( XML_ID );
 	}
-	else
+	
+	if (m_strID.empty())
 	{
-		UI_LOG_WARN( _T("Object::SetAttrib, not font name=%s attribute: \"%s\""), this->GetObjectName().c_str(), XML_ID ) ;
+		UI_LOG_WARN( _T("Object::SetAttrib, not find name=%s attribute: \"%s\""), this->GetObjectName().c_str(), XML_ID ) ;
 	}
 
 	//  3. 设置布局相关值

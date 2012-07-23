@@ -26,7 +26,7 @@
 #endif
 namespace UI
 {
-class Edit;
+class EditBase;
 //
 //	封装编辑框的数据
 //
@@ -37,7 +37,7 @@ public:
 	~EditData();
 
 public:
-	void            BindToEdit(Edit* pEdit);
+	void            BindToEdit(EditBase* pEdit);
 
 	void            SetText(const String& str, bool& bUpdate);
 	void            ReplaceChar(const TCHAR& c, bool& bUpdate);
@@ -95,15 +95,14 @@ private:
 	SCRIPT_STRING_ANALYSIS	m_Analysis;     // For cp2x, x2cp...
 	int             m_nTextWidth;           // 当前字符的总长度
 
-	Edit*           m_pEdit;
+	EditBase*           m_pEdit;
 };
 
-class UIAPI Edit : public Control
+class UIAPI EditBase : public Control
 {
 public:
-	Edit();
-	~Edit();
-	UI_DECLARE_OBJECT( Edit, OBJ_CONTROL )
+	EditBase();
+	~EditBase();
 
 	UI_BEGIN_MSG_MAP
  		UIMSG_WM_PAINT(OnPaint)
@@ -202,4 +201,9 @@ private:
 	UIColor*    m_pColorSelectBk;
 };
 
+class Edit : public EditBase
+{
+public:
+	UI_DECLARE_OBJECT( Edit, OBJ_CONTROL )
+};
 }
