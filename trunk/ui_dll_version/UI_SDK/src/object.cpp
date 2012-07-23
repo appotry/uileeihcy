@@ -1154,6 +1154,18 @@ void Object::GetClientRect(CRect* prc)
 		this->GetHeight()- m_rcNonClient.bottom); 
 }
 
+// 注：这里的clientrect 是0,0起点的
+void Object::GetClientRectAsWin32( CRect* prc )
+{
+	if (NULL == prc)
+		return;
+
+	prc->SetRect(
+		0, 
+		0, 
+		this->GetWidth() - m_rcNonClient.Width(), 
+		this->GetHeight()- m_rcNonClient.Height()); 
+}
 void Object::SetNonClientRegion( CRegion4* prc )
 {
 	m_rcNonClient.SetRect(

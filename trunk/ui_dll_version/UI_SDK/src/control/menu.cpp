@@ -10,7 +10,6 @@ int  MenuBase::TrackPopupMenu(UINT nFlag, int x, int y, Message* pNotifyObj)
 	{
 		pMenuWindow->DoModeless(_T(""), NULL);
 	}
-	pMenuWindow->Create()
 	return 0;
 }
 

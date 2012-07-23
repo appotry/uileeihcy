@@ -167,6 +167,7 @@ public:
 	int          GetMarginW() { return m_rcMargin.left + m_rcMargin.right; }
 	int          GetMarginH() { return m_rcMargin.top + m_rcMargin.bottom; }
 	void         GetClientRect( CRect* prc );
+	void         GetClientRectAsWin32( CRect* prc );
 	void         GetParentRect( CRect* prc );
 	int          GetParentRectL() { return m_rcParent.left; }
 	int          GetParentRectT() { return m_rcParent.top; }

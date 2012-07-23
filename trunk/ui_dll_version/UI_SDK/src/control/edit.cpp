@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#if 0
 //
 //	Remark:
 //		m_EditData.SetCaret( nCP, true, bUpdate1 );
@@ -651,7 +650,8 @@ void EditData::PasteFromClipboard()
 Edit::Edit()
 {
 	this->SetTabstop( true );  
-	::SetRect(&this->m_rcPadding, 3,3,3,6 );
+ 	CRegion4 rPadding(3,3,3,6);
+	this->SetPaddingRegion(&rPadding);
 
 	this->m_pColor = NULL;
 	this->m_pColorSelect = NULL;
@@ -807,8 +807,8 @@ bool Edit::FilterInputChar( UINT nChar )
 
 void Edit::DrawNormal( HRDC hRDC )
 {
-	RECT rcClient;
-	this->GetClientRect(&rcClient);
+	CRect rcClient;
+	this->GetClientRectAsWin32(&rcClient);
 
 	// 文字
 
@@ -838,8 +838,8 @@ void Edit::DrawNormal( HRDC hRDC )
 
 void Edit::DrawFocus( HRDC hRDC )
 {
-	RECT rcClient;
-	this->GetClientRect(&rcClient);
+	CRect rcClient;
+	this->GetClientRectAsWin32(&rcClient);
 
 	// 绘制被选择的文字
 	if( m_EditData.IsSelectionExist() )
@@ -854,7 +854,7 @@ void Edit::DrawFocus( HRDC hRDC )
 		else
 			m_EditData.CP2X( nSelLeft, &x ) ;
 
-		x = x - m_nXScroll + m_rcPadding.left;
+		x = x - m_nXScroll;
 
 		HRFONT hRFont = this->GetFont();
 		HFONT  hFont = UI_GetFontHFONT(hRFont);
@@ -896,10 +896,10 @@ void Edit::CalcCaretPos(int nCaretIndex, bool& bUpdate)
 	int nX = 0;
 	m_EditData.CP2X(nCaretIndex, &nX);
 	
-	RECT rcClient;
+	CRect rcClient;
 	this->GetClientRect(&rcClient);
 
-	int nEditW  = Util::RectW(&rcClient);
+	int nEditW  = rcClient.Width();
 	int nXLeft  = m_nXScroll;
 	int nXRight = m_nXScroll + nEditW;
 
@@ -941,6 +941,12 @@ void Edit::CalcCaretPos(int nCaretIndex, bool& bUpdate)
 	}
 }
 
+void Edit::UpdateCaretByPos()
+{
+	POINT ptWindow = this->GetRealPosInWindow();
+	::SetCaretPos( m_nXCaretPos + ptWindow.x + m_rcPadding.left, ptWindow.y + m_rcPadding.top );
+}
+
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //
 //                                 消息响应                             //
@@ -952,7 +958,7 @@ void Edit::OnEraseBkgnd(HRDC hRDC)
 {
 	if( NULL != m_pBkgndRender )
 	{
-		RECT rc = {0,0,GetWidth(),GetHeight()};
+		CRect rc(0,0,GetWidth(),GetHeight());
 		if( !this->IsEnable() )
 		{
 			m_pBkgndRender->DrawState(hRDC, &rc, EDIT_BKGND_RENDER_STATE_DISABLE);
@@ -993,7 +999,7 @@ void Edit::OnSetFocus( Object* )
 {
 	HWND hWnd = GetHWND();
 	::CreateCaret( hWnd, NULL, 1, m_nCaretHeight );
-	::SetCaretPos( m_nXCaretPos+m_rcWindow.left+m_rcPadding.left, m_rcWindow.top + m_rcPadding.top );
+	this->UpdateCaretByPos();
 //	::ShowCaret( hWnd );  // 在响应完OnStateChanged刷新之后，再显示光标
 }
 void Edit::OnKillFocus( Object* )
@@ -1108,14 +1114,17 @@ void Edit::OnInputChar(UINT nChar)
 	}
 	if(nOldXCaretPos != m_nXCaretPos)
 	{
-		::SetCaretPos( m_nXCaretPos+m_rcWindow.left+m_rcPadding.left, m_rcWindow.top + m_rcPadding.top );
+		this->UpdateCaretByPos();
 	}
 }
 
 void Edit::OnLButtonDown(UINT nFlags, POINT point)
 {
 	// 将鼠标位置转换为相对字符串的位置
-	int x = point.x - m_rcWindow.left - m_rcPadding.left + m_nXScroll;
+	POINT ptClient;
+	this->WindowPoint2ObjectClientPoint(&point, &ptClient);
+	int x = ptClient.x + m_nXScroll;
+	//int x = point.x - m_rcWindow.left - m_rcPadding.left + m_nXScroll;
 	
 	int nCP = 0, bTrailOrLead = 0;
 	m_EditData.X2CP( x, &nCP, &bTrailOrLead );
@@ -1139,7 +1148,7 @@ void Edit::OnLButtonDown(UINT nFlags, POINT point)
 	}
 	if( nOldXCaretPos != m_nXCaretPos && this->IsFocus() )
 	{
-		::SetCaretPos( m_nXCaretPos+m_rcWindow.left+m_rcPadding.left, m_rcWindow.top + m_rcPadding.top );
+		this->UpdateCaretByPos();
 	}
 
 	m_bMouseDrag = true;
@@ -1174,7 +1183,7 @@ void Edit::OnLButtonDblClk(UINT nFlags, POINT point)
 	
 	if( nOldXCaretPos != m_nXCaretPos )
 	{
-		::SetCaretPos( m_nXCaretPos+m_rcWindow.left+m_rcPadding.left, m_rcWindow.top + m_rcPadding.top );
+		this->UpdateCaretByPos();
 	}
 }
 void Edit::OnMouseMove(UINT nFlags, POINT point)
@@ -1182,7 +1191,8 @@ void Edit::OnMouseMove(UINT nFlags, POINT point)
 	if( m_bMouseDrag )
 	{
 		// 将鼠标位置转换为相对字符串的位置
-		int x = point.x - m_rcWindow.left - m_rcPadding.left + m_nXScroll;
+		POINT ptWindow = this->GetRealPosInWindow();
+		int x = point.x - ptWindow.x - m_rcPadding.left + m_nXScroll;
 
 		int nCP = 0, bTrailOrLead = 0;
 		m_EditData.X2CP( x, &nCP, &bTrailOrLead );
@@ -1206,7 +1216,7 @@ void Edit::OnMouseMove(UINT nFlags, POINT point)
 		}
 		if( nOldXCaretPos != m_nXCaretPos )
 		{
-			::SetCaretPos( m_nXCaretPos+m_rcWindow.left+m_rcPadding.left, m_rcWindow.top + m_rcPadding.top );
+			this->UpdateCaretByPos();
 		}
 	}
 }
@@ -1320,7 +1330,7 @@ void Edit::OnKeyDown_Ctrl_A()
 	}
 	if( nOldXCaretPos != m_nXCaretPos )
 	{
-		::SetCaretPos( m_nXCaretPos+m_rcWindow.left+m_rcPadding.left, m_rcWindow.top + m_rcPadding.top );
+		this->UpdateCaretByPos();
 	}
 }
 
@@ -1347,7 +1357,7 @@ void  Edit::OnKeyDown_Ctrl_X()
 		
 		if( nOldXCaretPos != m_nXCaretPos )
 		{
-			::SetCaretPos( m_nXCaretPos+m_rcWindow.left+m_rcPadding.left, m_rcWindow.top + m_rcPadding.top );
+			this->UpdateCaretByPos();
 		}
 	}
 }
@@ -1375,7 +1385,7 @@ void Edit::OnKeyDown_Ctrl_V()
 
 	if( nOldXCaretPos != m_nXCaretPos )
 	{
-		::SetCaretPos( m_nXCaretPos+m_rcWindow.left+m_rcPadding.left, m_rcWindow.top + m_rcPadding.top );
+		this->UpdateCaretByPos();
 	}
 }
 void Edit::OnKeyDown_Ctrl_Z()
@@ -1406,7 +1416,7 @@ void Edit::OnKeyDown_Backspace(bool bCtrlDown)
 	}
 	if( nOldXCaretPos != m_nXCaretPos )
 	{
-		::SetCaretPos( m_nXCaretPos+m_rcWindow.left+m_rcPadding.left, m_rcWindow.top + m_rcPadding.top );
+		this->UpdateCaretByPos();
 	}
 }
 void Edit::OnKeyDown_Delete(bool bCtrlDown)
@@ -1438,7 +1448,7 @@ void Edit::OnKeyDown_Delete(bool bCtrlDown)
 	}
 	if( nOldXCaretPos != m_nXCaretPos )
 	{
-		::SetCaretPos( m_nXCaretPos+m_rcWindow.left+m_rcPadding.left, m_rcWindow.top + m_rcPadding.top );
+		this->UpdateCaretByPos();
 	}
 }
 
@@ -1471,7 +1481,7 @@ void Edit::OnKeyDown_Left_Top(bool bCtrlDown)
 	}
 	if( nOldXCaretPos != m_nXCaretPos )
 	{
-		::SetCaretPos( m_nXCaretPos+m_rcWindow.left+m_rcPadding.left, m_rcWindow.top + m_rcPadding.top );
+		this->UpdateCaretByPos();
 	}
 }
 void Edit::OnKeyDown_Right_Down(bool bCtrlDown)
@@ -1503,7 +1513,7 @@ void Edit::OnKeyDown_Right_Down(bool bCtrlDown)
 	}
 	if( m_nXCaretPos != nOldXCaretPos )
 	{
-		::SetCaretPos( m_nXCaretPos+m_rcWindow.left+m_rcPadding.left, m_rcWindow.top + m_rcPadding.top );
+		this->UpdateCaretByPos();
 	}
 }
 
@@ -1525,7 +1535,7 @@ void Edit::OnKeyDown_Home(bool bCtrlDown)
 	}
 	if( m_nXCaretPos != nOldXCaretPos )
 	{
-		::SetCaretPos( m_nXCaretPos+m_rcWindow.left+m_rcPadding.left, m_rcWindow.top + m_rcPadding.top );
+		this->UpdateCaretByPos();
 	}
 }
 void Edit::OnKeyDown_End(bool bCtrlDown)
@@ -1547,7 +1557,7 @@ void Edit::OnKeyDown_End(bool bCtrlDown)
 	}
 	if( m_nXCaretPos != nOldXCaretPos )
 	{
-		::SetCaretPos( m_nXCaretPos+m_rcWindow.left+m_rcPadding.left, m_rcWindow.top + m_rcPadding.top );
+		this->UpdateCaretByPos();
 	}
 }
 void Edit::OnKeyDown_Insert(bool bCtrlDown)
@@ -1568,5 +1578,3 @@ void Edit::OnKeyDown_Insert(bool bCtrlDown)
 void Edit::OnKeyUp( UINT nChar, UINT nRepCnt, UINT nFlags )
 {
 }
-
-#endif
