@@ -106,6 +106,7 @@ bool ScrollBarMgr::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 	else if (NULL == m_pHScrollBar)
 	{
 		m_pHScrollBar = new HScrollBar();
+		m_pHScrollBar->m_strID = _T("hscrollbar");
 		m_pBindObject->ModifyStyle(OBJECT_STYLE_HSCROLL);
 	}
 
@@ -117,6 +118,7 @@ bool ScrollBarMgr::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 	else if (NULL == m_pVScrollBar)
 	{
 		m_pVScrollBar = new VScrollBar();
+		m_pVScrollBar->m_strID = _T("vscrollbar");
 		m_pBindObject->ModifyStyle(OBJECT_STYLE_VSCROLL);
 	}
 
@@ -797,6 +799,7 @@ public:
 		m_nTimer1IDToScroll = m_nTimer2IDToScroll = m_nTimer1IDScrolling = m_nTimer2IDScrolling = 0;
 
 		m_pBtnThumb = new ButtonBase;
+		m_pBtnThumb->m_strID = _T("thumbbtn");
 		this->m_pScrollBar->AddChild(m_pBtnThumb);
 		m_pBtnThumb->AddHook(this,0,ALT_MSG_ID_THUMB_BTN);
 
@@ -868,6 +871,7 @@ public:
 		if (NULL == m_pBtnLineUpLeft)
 		{
 			m_pBtnLineUpLeft = new ButtonBase;
+			m_pBtnLineUpLeft->m_strID = _T("lineupleftbtn");
 			this->m_pScrollBar->AddChild(m_pBtnLineUpLeft);
 			m_pBtnLineUpLeft->AddHook(this,0,ALT_MSG_ID_BUTTON1);
 			m_pBtnLineUpLeft->SetTabstop(false);
@@ -875,6 +879,7 @@ public:
 		if (NULL == m_pBtnLineDownRight)
 		{
 			m_pBtnLineDownRight = new ButtonBase;
+			m_pBtnLineDownRight->m_strID = _T("linedownrightbtn");
 			this->m_pScrollBar->AddChild(m_pBtnLineDownRight);
 			m_pBtnLineDownRight->AddHook(this,0,ALT_MSG_ID_BUTTON2);
 			m_pBtnLineDownRight->SetTabstop(false);

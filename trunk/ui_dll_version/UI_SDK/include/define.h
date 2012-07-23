@@ -559,3 +559,8 @@ enum SCROLLBAR_TYPE
 
 #define  XML_HSCROLLBAR_PRIFIX                    _T("hscrollbar.") // 横向滚动条的属性前缀
 #define  XML_VSCROLLBAR_PRIFIX                    _T("vscrollbar.") // 纵向滚动条的属性前缀
+
+// combobox
+#define  XML_COMBOBOX_EDIT_PRIFIX                 _T("edit.")       // 编辑框的属性前缀
+#define  XML_COMBOBOX_BUTTON_PRIFIX               _T("button.")     // 按钮的属性前缀
+#define  XML_COMBOBOX_LISTBOX_PRIFIX              _T("listbox.")    // 下拉列表的属性前缀
