@@ -875,10 +875,10 @@ UINT Object::OnHitTest( POINT* pt )
 */
 bool Object::testStateBit( UINT bit )
 {
-	if( 0 ==(int)( m_nStateBit & bit ) )
-		return false;
-	else 
+	if( m_nStateBit & bit )
 		return true;
+	else 
+		return false;
 }
 void Object::setStateBit( UINT bit )
 {
