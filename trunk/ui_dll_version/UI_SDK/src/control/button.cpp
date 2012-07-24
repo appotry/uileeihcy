@@ -62,7 +62,9 @@ bool ButtonBase::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 		this->EraseAttribute(XML_BUTTON_RENDER_AUTOSIZE_TYPE);
 	}
 
-	if( NULL == m_pBkgndRender && this->GetButtonStyle() == BUTTON_STYLE_PUSHBUTTON )
+	if( NULL == m_pBkgndRender && 
+		(this->GetButtonStyle() == BUTTON_STYLE_PUSHBUTTON ||
+		 this->GetButtonStyle() == BUTTON_STYLE_COMBOBOX) )  // TODO: 这里需要改进为更好的办法
 	{
 		m_pBkgndRender = RenderFactory::GetRender( RENDER_TYPE_THEME, this);
 		this->ModifyStyle(OBJECT_STYLE_TRANSPARENT,0);

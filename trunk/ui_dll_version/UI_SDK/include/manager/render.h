@@ -19,6 +19,11 @@ namespace UI
 #define EDIT_BKGND_RENDER_STATE_PRESS    2
 #define EDIT_BKGND_RENDER_STATE_DISABLE  3
 
+#define COMBOBOX_BKGND_RENDER_STATE_NORMAL   0
+#define COMBOBOX_BKGND_RENDER_STATE_HOVER    1
+#define COMBOBOX_BKGND_RENDER_STATE_PRESS    2
+#define COMBOBOX_BKGND_RENDER_STATE_DISABLE  3
+
 #define GROUPBOX_BKGND_RENDER_STATE_NORMAL  0
 #define GROUPBOX_BKGND_RENDER_STATE_DISABLE 1
 
@@ -64,6 +69,7 @@ namespace UI
 		virtual bool SetAttribute( const String& strPrifix, map<String,String>& mapAttrib ){ return true; };
 		virtual void DrawState(HRDC hRDC, const CRect* prc, int nState) {};
 		virtual SIZE GetDesiredSize() { SIZE s = {0,0}; return s; }
+		virtual void Init() {};
 
 	public:
 		void         SetObject( Object* pObject ) { this->m_pObject = pObject; }
@@ -223,46 +229,48 @@ namespace UI
 	//
 	//	主题背景按钮
 	//
-	class ButtonBkThemeRender : public RenderBase
+	class ThemeRenderBase : public RenderBase
 	{
 	public:
-		ButtonBkThemeRender( );
-		~ButtonBkThemeRender( );
+		ThemeRenderBase();
+		~ThemeRenderBase();
 
-// 		UI_BEGIN_MSG_MAP
-// 			UIMSG_WM_THEMECHANGED( OnThemeChanged )
-// 			UICHAIN_MSG_MAP(BackRenderBase)
-// 		UI_END_MSG_MAP
+//  	UI_BEGIN_MSG_MAP
+//  		UIMSG_WM_THEMECHANGED( OnThemeChanged )
+//  		UICHAIN_MSG_MAP(RenderBase)
+//  	UI_END_MSG_MAP
+
+		void      OnThemeChanged();
+		void      CreateTheme();
+
+		virtual   void Init();
+		virtual   const TCHAR* GetThemeName() = 0;
+	protected:
+		HTHEME    m_hTheme;
+	};
+
+	class ButtonBkThemeRender : public ThemeRenderBase
+	{
 	public:
-
-		virtual void   DrawState(HRDC hRDC, const CRect* prc, int nState);
+		virtual const TCHAR* GetThemeName() { return _T("Button"); }
+		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
 
 		void DrawDisable( HRDC hRDC, const CRect* prc );
 		void DrawNormal( HRDC hRDC, const CRect* prc );
 		void DrawHover( HRDC hRDC, const CRect* prc );
 		void DrawPress( HRDC hRDC, const CRect* prc );	
-
-		void OnThemeChanged();
-	private:
-		HTHEME    m_hTheme;
 	};
 
 
 	//
 	//	主题样式的单选图标
 	//
-	class RadioButtonThemeRender : public RenderBase
+	class RadioButtonThemeRender : public ThemeRenderBase
 	{
 	public:
-		RadioButtonThemeRender();
-		~RadioButtonThemeRender();
-
-// 		UI_BEGIN_MSG_MAP
-// 			UIMSG_WM_THEMECHANGED( OnThemeChanged )
-// 			UICHAIN_MSG_MAP(_ButtonIconRender)
-// 		UI_END_MSG_MAP
-
-		virtual void   DrawState(HRDC hRDC, const CRect* prc, int nState);
+		virtual const TCHAR* GetThemeName() { return _T("Button"); }
+		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
+		virtual SIZE  GetDesiredSize( );
 
 		void DrawDisable( HRDC hRDC, const CRect* prc );
 		void DrawNormal( HRDC hRDC, const CRect* prc );
@@ -272,28 +280,16 @@ namespace UI
 		void DrawCheckNormal( HRDC hRDC, const CRect* prc );
 		void DrawCheckHover( HRDC hRDC, const CRect* prc );
 		void DrawCheckPress( HRDC hRDC, const CRect* prc );
-
-		void     OnThemeChanged();
-		virtual  SIZE  GetDesiredSize( );
-
-	private:
-		HTHEME    m_hTheme;
 	};
 	//
 	//	主题样式的复选图标
 	//
-	class CheckButtonThemeRender : public RenderBase
+	class CheckButtonThemeRender : public ThemeRenderBase
 	{
 	public:
-		CheckButtonThemeRender();
-		~CheckButtonThemeRender();
-
-// 		UI_BEGIN_MSG_MAP
-// 			UIMSG_WM_THEMECHANGED( OnThemeChanged )
-// 			UICHAIN_MSG_MAP(_ButtonIconRender)
-// 		UI_END_MSG_MAP
-
-		virtual void   DrawState(HRDC hRDC, const CRect* prc, int nState);
+		virtual const TCHAR* GetThemeName() { return _T("Button"); }
+		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
+		virtual SIZE  GetDesiredSize( );
 
 		void DrawDisable( HRDC hRDC, const CRect* prc );
 		void DrawNormal( HRDC hRDC, const CRect* prc );
@@ -304,61 +300,55 @@ namespace UI
 		void DrawCheckHover( HRDC hRDC, const CRect* prc );
 		void DrawCheckPress( HRDC hRDC, const CRect* prc );
 
-		void     OnThemeChanged();
-		virtual  SIZE  GetDesiredSize( );
-
-	private:
-		HTHEME    m_hTheme;
 	};
 
 	//
 	//	主题背景按钮
 	//
-	class EditBkThemeRender : public RenderBase
+	class EditBkThemeRender : public ThemeRenderBase
 	{
 	public:
-		EditBkThemeRender( );
-		~EditBkThemeRender( );
-
-// 		UI_BEGIN_MSG_MAP
-// 			UIMSG_WM_THEMECHANGED( OnThemeChanged )
-// 			UICHAIN_MSG_MAP(BackRenderBase)
-// 		UI_END_MSG_MAP
-	public:
-		virtual void   DrawState(HRDC hRDC, const CRect* prc, int nState);
+		virtual const TCHAR* GetThemeName() { return _T("Edit"); }
+		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
 
 		void DrawDisable( HRDC hRDC, const CRect* prc );
 		void DrawNormal( HRDC hRDC, const CRect* prc );
 		void DrawHover( HRDC hRDC, const CRect* prc );
 		void DrawPress( HRDC hRDC, const CRect* prc );	
-
-		void OnThemeChanged();
-	private:
-		HTHEME    m_hTheme;
 	};
 
-	class GroupBoxBkThemeRender : public RenderBase
+	class GroupBoxBkThemeRender : public ThemeRenderBase
 	{
 	public:
-		GroupBoxBkThemeRender( );
-		~GroupBoxBkThemeRender( );
-
-// 		UI_BEGIN_MSG_MAP
-// 			UIMSG_WM_THEMECHANGED( OnThemeChanged )
-// 			UICHAIN_MSG_MAP(BackRenderBase)
-// 		UI_END_MSG_MAP
-	public:
-
-		virtual void   DrawState(HRDC hRDC, const CRect* prc, int nState);
+		virtual const TCHAR* GetThemeName() { return _T("Button"); }
+		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
 
 		void DrawDisable( HRDC hRDC, const CRect* prc );
 		void DrawNormal( HRDC hRDC, const CRect* prc );
 // 		void DrawHover( HRDC hRDC, CRect* prc );
 // 		void DrawPress( HRDC hRDC, CRect* prc );	
+	};
 
-		void OnThemeChanged();
-	private:
-		HTHEME    m_hTheme;
+	class ComboboxButtonBkThemeRender : public ThemeRenderBase
+	{
+		virtual const TCHAR* GetThemeName() { return _T("COMBOBOX"); }
+		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
+
+		void DrawDisable( HRDC hRDC, const CRect* prc );
+		void DrawNormal( HRDC hRDC, const CRect* prc );
+		void DrawHover( HRDC hRDC, const CRect* prc );
+		void DrawPress( HRDC hRDC, const CRect* prc );	
+	};
+
+	class ComboboxBkThemeRender : public ThemeRenderBase
+	{
+		virtual const TCHAR* GetThemeName() { return _T("COMBOBOX"); }
+		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
+
+		void DrawDisable( HRDC hRDC, const CRect* prc );
+		void DrawNormal( HRDC hRDC, const CRect* prc );
+		void DrawHover( HRDC hRDC, const CRect* prc );
+		void DrawPress( HRDC hRDC, const CRect* prc );	
 	};
 	//////////////////////////////////////////////////////////////////////////
 

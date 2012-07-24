@@ -76,6 +76,7 @@ enum OBJ_TYPE
 #define BUTTON_STYLE_HYPERLINK          0x00000003    // 超链接按钮
 #define BUTTON_STYLE_MENUBUTTON         0x00000004    // 菜单按钮
 #define BUTTON_STYLE_SPLITMENUBUTTON    0x00000005    // 按钮+菜单
+#define BUTTON_STYLE_COMBOBOX           0x00000006    // 组合框中的按钮
 
 // progress style
 #define PROGRESS_STYLE_MASK             0x0000000F    // 进度条类型使用的位
@@ -83,6 +84,8 @@ enum OBJ_TYPE
 #define PROGRESS_STYLE_SLIDER           0x00000001    // 可拖动的slider ctrl
 #define PROGRESS_STYLE_SCROLLBAR        0x00000002    // 作为滚动条的一部分
 
+#define EDIT_STYLE_MASK                 0x0000000F    // 编辑框类型使用的位
+#define EDIT_STYLE_COMBOBOX             0x00000001    // 组合框中使用的编辑框
 
 
 // 所有UI类对象的统一基类 
