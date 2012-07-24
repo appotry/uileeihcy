@@ -16,6 +16,7 @@ GroupBox::GroupBox()
 	::SetRectEmpty(&m_rcText);
 	::SetRectEmpty(&m_rcClip);
 	m_bNeedCalcRect = true;
+	this->ModifyStyle(OBJECT_STYLE_TRANSPARENT);
 
 }
 GroupBox::~GroupBox()
