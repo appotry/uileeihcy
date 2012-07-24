@@ -174,7 +174,7 @@ RedrawWindow(hwnd,
 60. 将BkRender, ForeRender移到IObjectRender当中，子类controlRender可继承
 61. LISTBOX的局部刷新
 62. 需要一套更灵活的classname <-> xmlname 的注册映射关系
-63. 修改optiondlg中焦点切换不刷新的问题
+64. 关于DrawThemexxx的Gdiplus，可以考虑先画在一个HDC的BITMAP上面，然后转成Gdiplus::Bitmap
 
 疑问：
 1. Message类是否需要一个 m_pCurMsg成员变量？
@@ -202,3 +202,5 @@ Finish
  
 49. 取消ImageSliderCtrl ->  backrender!
 50. GDIPLUS pojo_imageitem changeskinH
+
+63. 修改optiondlg中焦点切换不刷新的问题 --> Groupbox没有设置为透明导致

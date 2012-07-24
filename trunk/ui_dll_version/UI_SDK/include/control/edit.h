@@ -168,6 +168,8 @@ public:
 public:
 	String      GetText();
 	void        SetText( const String& strText );
+	int         GetEditStyle();
+	void        SetEditStyle(int n);
 
 	// Ë½ÓÐ·½·¨
 private:

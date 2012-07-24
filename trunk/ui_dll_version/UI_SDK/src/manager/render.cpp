@@ -24,7 +24,8 @@ RenderBase::RenderBase()
 //
 RenderBase* RenderFactory::GetRender( const String& strType, Object* pObj )
 {
-	RenderBase*  pRender = NULL;  // TOTO:  将strType直接转换为eType再调用
+#if 0
+	RenderBase*  pRender = NULL; 
 
 	if( XML_RENDER_TYPE_COLOR == strType )
 	{
@@ -101,6 +102,44 @@ RenderBase* RenderFactory::GetRender( const String& strType, Object* pObj )
 	}
 
 	return pRender;
+#else
+	RENDER_TYPE eType = RENDER_TYPE_THEME;
+
+	if( XML_RENDER_TYPE_COLOR == strType )
+		eType = RENDER_TYPE_COLOR;
+
+	else if( XML_RENDER_TYPE_GRADIENT_H == strType )
+		eType = RENDER_TYPE_GRADIENTH;
+
+	else if( XML_RENDER_TYPE_GRADIENT_V == strType )
+		eType = RENDER_TYPE_GRADIENTV;
+
+	else if( XML_RENDER_TYPE_IMAGE_SIMPLE == strType )
+		eType = RENDER_TYPE_IMAGESIMPLE;
+
+	else if( XML_RENDER_TYPE_IMAGE_STRETCH == strType )
+		eType = RENDER_TYPE_IMAGESTRETCH;
+
+	else if( XML_RENDER_TYPE_IMAGE_TILE == strType )
+		eType = RENDER_TYPE_IMAGETILE;
+
+	else if( XML_RENDER_TYPE_COLORLIST == strType )
+		eType = RENDER_TYPE_COLORLIST;
+
+	else if( XML_RENDER_TYPE_IMAGELIST == strType )
+		eType = RENDER_TYPE_IMAGELIST;
+
+	else if( XML_RENDER_TYPE_IMAGELISTSTRETCH == strType )
+		eType = RENDER_TYPE_IMAGELISTSTRETCH;
+
+	else if( XML_RENDER_TYPE_THEME == strType )
+		eType = RENDER_TYPE_THEME;
+
+	else
+		return NULL;
+
+	return GetRender(eType, pObj);
+#endif
 }
 
 RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
@@ -150,28 +189,38 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 	{
 		if( _T("Button") == pObj->GetObjectName() )
 		{
-			pRender = new ButtonBkThemeRender();
-			pRender->SetRenderType( RENDER_TYPE_THEME );
+			Button* pButton = dynamic_cast<Button*>(pObj);
+			if (NULL == pButton)
+				return NULL;
+
+			if (BUTTON_STYLE_COMBOBOX == pButton->GetButtonStyle())
+			{
+				pRender = new ComboboxButtonBkThemeRender();
+			}
+			else
+			{
+				pRender = new ButtonBkThemeRender();
+			}
 		}
-		if( _T("RadioButton") == pObj->GetObjectName() )
+		else if( _T("RadioButton") == pObj->GetObjectName() )
 		{
 			pRender = new RadioButtonThemeRender();
-			pRender->SetRenderType( RENDER_TYPE_THEME );
 		}
-		if( _T("CheckButton") == pObj->GetObjectName() )
+		else if( _T("CheckButton") == pObj->GetObjectName() )
 		{
 			pRender = new CheckButtonThemeRender();
-			pRender->SetRenderType( RENDER_TYPE_THEME );
 		}
 		else if( _T("Edit") == pObj->GetObjectName() )
 		{
 			pRender = new EditBkThemeRender();
-			pRender->SetRenderType( RENDER_TYPE_THEME );
 		}
 		else if( _T("GroupBox") == pObj->GetObjectName() )
 		{
 			pRender = new GroupBoxBkThemeRender();
-			pRender->SetRenderType( RENDER_TYPE_THEME );
+		}
+		else if (_T("Combobox") == pObj->GetObjectName() )
+		{
+			pRender = new ComboboxBkThemeRender();
 		}
 	}
 	else
@@ -183,6 +232,7 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 	{
 		pRender->SetRenderType(eType);
 		pRender->SetObject(pObj);
+		pRender->Init();
 	}
 
 	return pRender;
@@ -806,13 +856,11 @@ void ImageListStretchRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 }
 //////////////////////////////////////////////////////////////////////////
 
-
-ButtonBkThemeRender::ButtonBkThemeRender( )
+ThemeRenderBase::ThemeRenderBase()
 {
 	m_hTheme = NULL;
-	m_hTheme = ::OpenThemeData(NULL, L"Button");
 }
-ButtonBkThemeRender::~ButtonBkThemeRender( )
+ThemeRenderBase::~ThemeRenderBase()
 {
 	if( m_hTheme )
 	{
@@ -820,11 +868,22 @@ ButtonBkThemeRender::~ButtonBkThemeRender( )
 		m_hTheme = NULL;
 	}
 }
-
-void ButtonBkThemeRender::OnThemeChanged()
+void ThemeRenderBase::Init()
 {
-	::CloseThemeData(m_hTheme);
-	m_hTheme = ::OpenThemeData(NULL, L"Button");
+	this->CreateTheme();
+}
+void ThemeRenderBase::OnThemeChanged()
+{
+	this->CreateTheme();
+}
+void ThemeRenderBase::CreateTheme()
+{
+	if (NULL != m_hTheme)
+	{
+		::CloseThemeData(m_hTheme);
+		m_hTheme = NULL;
+	}
+	m_hTheme = ::OpenThemeData(NULL, this->GetThemeName());
 }
 
 void ButtonBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
@@ -922,25 +981,6 @@ void ButtonBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc  )
 
 //////////////////////////////////////////////////////////////////////////
 
-
-RadioButtonThemeRender::RadioButtonThemeRender( )
-{
-	m_hTheme = ::OpenThemeData(NULL, L"Button");
-}
-RadioButtonThemeRender::~RadioButtonThemeRender()
-{
-	if( m_hTheme )
-	{
-		::CloseThemeData( m_hTheme );
-		m_hTheme = NULL;
-	}
-}
-
-void RadioButtonThemeRender::OnThemeChanged()
-{
-	::CloseThemeData(m_hTheme);
-	m_hTheme = ::OpenThemeData(NULL, L"Button");
-}
 SIZE RadioButtonThemeRender::GetDesiredSize( )
 {
 	SIZE s = {12,12};
@@ -1165,24 +1205,6 @@ void RadioButtonThemeRender::DrawCheckPress( HRDC hRDC, const CRect* prc )
 
 //////////////////////////////////////////////////////////////////////////
 
-CheckButtonThemeRender::CheckButtonThemeRender( )
-{
-	m_hTheme = ::OpenThemeData(NULL, L"Button");
-}
-CheckButtonThemeRender::~CheckButtonThemeRender()
-{
-	if( m_hTheme )
-	{
-		::CloseThemeData( m_hTheme );
-		m_hTheme = NULL;
-	}
-}
-
-void CheckButtonThemeRender::OnThemeChanged()
-{
-	::CloseThemeData(m_hTheme);
-	m_hTheme = ::OpenThemeData(NULL, L"Button");
-}
 SIZE  CheckButtonThemeRender::GetDesiredSize( )
 {
 	SIZE s = {13,13};
@@ -1409,26 +1431,6 @@ void CheckButtonThemeRender::DrawCheckPress( HRDC hRDC, const CRect* prc )
 }
 //////////////////////////////////////////////////////////////////////////
 
-EditBkThemeRender::EditBkThemeRender( )
-{
-	m_hTheme = NULL;
-	m_hTheme = ::OpenThemeData(NULL, L"Edit");
-}
-EditBkThemeRender::~EditBkThemeRender( )
-{
-	if( m_hTheme )
-	{
-		::CloseThemeData( m_hTheme );
-		m_hTheme = NULL;
-	}
-}
-
-void EditBkThemeRender::OnThemeChanged()
-{
-	::CloseThemeData(m_hTheme);
-	m_hTheme = ::OpenThemeData(NULL, L"Edit");
-}
-
 void EditBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 {
 	switch(nState)
@@ -1549,27 +1551,6 @@ void EditBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc )
 
 //////////////////////////////////////////////////////////////////////////
 
-
-GroupBoxBkThemeRender::GroupBoxBkThemeRender()
-{
-	m_hTheme = NULL;
-	m_hTheme = ::OpenThemeData(NULL, L"Button");
-}
-GroupBoxBkThemeRender::~GroupBoxBkThemeRender( )
-{
-	if( m_hTheme )
-	{
-		::CloseThemeData( m_hTheme );
-		m_hTheme = NULL;
-	}
-}
-
-void GroupBoxBkThemeRender::OnThemeChanged()
-{
-	::CloseThemeData(m_hTheme);
-	m_hTheme = ::OpenThemeData(NULL, L"Button");
-}
-
 void GroupBoxBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 {
 	switch(nState)
@@ -1630,6 +1611,219 @@ void GroupBoxBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 // void GroupBoxBkThemeRender::DrawPress( HRDC hRDC, RECT* prc )
 // {
 // }
+
+void ComboboxButtonBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+{
+	switch(nState)
+	{
+	case BUTTON_BKGND_RENDER_STATE_DISABLE:
+		this->DrawDisable(hRDC, (CRect*)prc);
+		break;
+
+	case BUTTON_BKGND_RENDER_STATE_PRESS:
+		this->DrawPress(hRDC, (CRect*)prc);
+		break;
+
+	case BUTTON_BKGND_RENDER_STATE_HOVER:
+		this->DrawHover(hRDC, (CRect*)prc);
+		break;;
+
+	default:
+		this->DrawNormal(hRDC, (CRect*)prc);
+		break;
+	}
+}
+
+void ComboboxButtonBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc  )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_DROPDOWNBUTTON, CBXS_DISABLED, prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("ComboboxButtonBkThemeRender::DrawNormal  DrawThemeBackground failed."));
+		}
+	}
+	else
+	{
+		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_INACTIVE );
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+void ComboboxButtonBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc  )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_DROPDOWNBUTTON, CBXS_NORMAL, prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("ComboboxButtonBkThemeRender::DrawNormal  DrawThemeBackground failed."));
+		}
+	}
+	else
+	{
+		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, DFCS_BUTTONPUSH );
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+
+void ComboboxButtonBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc  )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_DROPDOWNBUTTON, CBXS_HOT, prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("ComboboxButtonBkThemeRender::DrawNormal  DrawThemeBackground failed."));
+		}
+	}
+	else
+	{
+		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_HOT );
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+void ComboboxButtonBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc  )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_DROPDOWNBUTTON, CBXS_PRESSED, prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("ComboboxButtonBkThemeRender::DrawNormal  DrawThemeBackground failed."));
+		}
+	}
+	else
+	{
+		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_PUSHED );
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+
+void ComboboxBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+{
+	switch(nState)
+	{
+	case EDIT_BKGND_RENDER_STATE_DISABLE:
+		this->DrawDisable(hRDC, prc);
+		break;
+
+	case EDIT_BKGND_RENDER_STATE_PRESS:
+		this->DrawPress(hRDC, prc);
+		break;
+
+	case EDIT_BKGND_RENDER_STATE_HOVER:
+		this->DrawHover(hRDC, prc);
+		break;;
+
+	default:
+		this->DrawNormal(hRDC, prc);
+		break;
+	}
+}
+
+void ComboboxBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_BORDER, CBXS_DISABLED, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("EditBkThemeRender::DrawDisable  DrawThemeBackground failed."));
+		}
+	}
+	else
+	{
+		DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT|BF_MIDDLE);
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+void ComboboxBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_BORDER, CBXS_NORMAL, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("EditBkThemeRender::DrawNormal  DrawThemeBackground failed."));
+		}
+	}
+	else
+	{
+		if( m_pObject->IsReadonly() )
+		{
+			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT|BF_MIDDLE);
+		}
+		else
+		{
+			::FillRect(hDC, (RECT*)prc, (HBRUSH)GetStockObject(WHITE_BRUSH));
+			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT);
+		}
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+
+void ComboboxBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_BORDER, CBXS_HOT, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("EditBkThemeRender::DrawHover  DrawThemeBackground failed."));
+		}
+	}
+	else
+	{
+		if( m_pObject->IsReadonly() )
+		{
+			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT|BF_MIDDLE);
+		}
+		else
+		{
+			::FillRect(hDC, (RECT*)prc, (HBRUSH)GetStockObject(WHITE_BRUSH));
+			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT);
+		}
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+void ComboboxBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_BORDER, CBXS_PRESSED, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("EditBkThemeRender::DrawPress  DrawThemeBackground failed."));
+		}
+	}
+	else
+	{
+		if( m_pObject->IsReadonly() )
+		{
+			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT|BF_MIDDLE);
+		}
+		else
+		{
+			::FillRect(hDC, (RECT*)prc, (HBRUSH)GetStockObject(WHITE_BRUSH));
+			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT);
+		}
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+
+
 
 
 //////////////////////////////////////////////////////////////////////////////////////////

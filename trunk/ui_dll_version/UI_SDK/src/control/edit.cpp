@@ -694,6 +694,20 @@ void EditBase::SetText( const String& strText )
 	}
 }
 
+//	按钮的类型
+int  EditBase::GetEditStyle()
+{
+	return m_nStyle & EDIT_STYLE_MASK;
+}
+void EditBase::SetEditStyle(int n)
+{
+	if(n > EDIT_STYLE_MASK)
+		return;
+
+	m_nStyle &= ~EDIT_STYLE_MASK;
+	m_nStyle |= n;
+}
+
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //
 //                                 虚函数                               //
@@ -741,7 +755,7 @@ bool EditBase::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 	}
 
 	// 背景绘制 
-	if( NULL == m_pBkgndRender )
+	if( NULL == m_pBkgndRender && 0 == this->GetEditStyle())
 	{
 		m_pBkgndRender = RenderFactory::GetRender( RENDER_TYPE_THEME, this);
 		this->ModifyStyle(OBJECT_STYLE_TRANSPARENT);
