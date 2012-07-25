@@ -187,6 +187,8 @@ public:
 	HRFONT       GetFont();
 	RenderBase*  GetBkRender() { return m_pBkgndRender; }
 	RenderBase*  GetForeRender() { return m_pForegndRender; }
+	void         SetBkRender(RenderBase* p);
+	void         SetForeRender(RenderBase* p);
 
 	POINT        GetRealPosInWindow();
 	void         GetWindowRect(CRect* lprc);

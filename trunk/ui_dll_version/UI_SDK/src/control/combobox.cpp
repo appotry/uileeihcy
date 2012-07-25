@@ -2,12 +2,16 @@
 
 ComboboxBase::ComboboxBase()
 {
+	// 修改一些默认属性
 	m_edit.m_strID = _T("combobox_edit");
 	m_button.m_strID = _T("combobox_button");
 	m_edit.SetEditStyle(EDIT_STYLE_COMBOBOX);
 	m_button.SetButtonStyle(BUTTON_STYLE_COMBOBOX);
+	
+	CRegion4 r(0,0,0,0);
+	m_edit.SetPaddingRegion(&r);
 
-	this->AddChild(&m_edit);
+//	this->AddChild(&m_edit);
 	this->AddChild(&m_button);
 }
 
@@ -22,22 +26,31 @@ bool ComboboxBase::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 	if (false == bRet)
 		return false;
 
-	this->SetChildObjectAttribute(&m_edit, XML_COMBOBOX_EDIT_PRIFIX, mapAttrib, bReload);
+//	this->SetChildObjectAttribute(&m_edit, XML_COMBOBOX_EDIT_PRIFIX, mapAttrib, bReload);
 	this->SetChildObjectAttribute(&m_button, XML_COMBOBOX_BUTTON_PRIFIX,mapAttrib, bReload);
 
 	// 背景绘制 
-	if( NULL == m_pBkgndRender )
+	if (NULL == m_pBkgndRender)
 	{
 		m_pBkgndRender = RenderFactory::GetRender( RENDER_TYPE_THEME, this);
+		this->ModifyStyle(OBJECT_STYLE_TRANSPARENT,0);
+	}
+
+	if (NULL == m_button.GetBkRender()) 
+	{
+		m_button.SetBkRender(RenderFactory::GetRender( RENDER_TYPE_THEME, &m_button));
+		m_button.ModifyStyle(OBJECT_STYLE_TRANSPARENT,0);
 	}
 
 	return true;
 }
 void ComboboxBase::ResetAttribute()
 {
-	m_edit.ResetAttribute();
+//	m_edit.ResetAttribute();
 	m_button.ResetAttribute();
 	m_listbox.ResetAttribute();
+
+	m_button.SetDrawFocusType(BUTTON_RENDER_DRAW_FOCUS_TYPE_NONE);
 }
 SIZE ComboboxBase::GetAutoSize( HRDC hRDC )
 {
@@ -73,11 +86,11 @@ void ComboboxBase::OnEraseBkgnd(HRDC hRDC)
 		{
 			m_pBkgndRender->DrawState(hRDC, &rc, COMBOBOX_BKGND_RENDER_STATE_DISABLE);
 		}
-		else if( this->IsFocus() || this->IsPress() )
+		else if( this->IsPress() /*|| m_button.IsPress() || m_edit.IsPress()*/)
 		{
 			m_pBkgndRender->DrawState(hRDC, &rc, COMBOBOX_BKGND_RENDER_STATE_PRESS);
 		}
-		else if( this->IsHover() )
+		else if( this->IsHover() /*|| m_button.IsHover() || m_edit.IsHover()*/)
 		{
 			m_pBkgndRender->DrawState(hRDC, &rc, COMBOBOX_BKGND_RENDER_STATE_HOVER);
 		}
@@ -86,4 +99,9 @@ void ComboboxBase::OnEraseBkgnd(HRDC hRDC)
 			m_pBkgndRender->DrawState(hRDC, &rc, COMBOBOX_BKGND_RENDER_STATE_NORMAL);
 		}
 	}
+}
+
+void ComboboxBase::OnStateChanged(int nOld, int nNew)
+{
+	this->UpdateObject();
 }

@@ -10,7 +10,8 @@ public:
 	~ComboboxBase();
 
 	UI_BEGIN_MSG_MAP
-		
+		UIMSG_WM_STATECHANGED(OnStateChanged)
+		UIMSG_WM_ERASEBKGND(OnEraseBkgnd)
 		UIMSG_WM_SIZE(OnSize)
 		UICHAIN_MSG_MAP(Control)
 	UI_END_MSG_MAP
@@ -20,6 +21,7 @@ public:
 	virtual SIZE GetAutoSize( HRDC hRDC );
 
 protected:
+	void OnStateChanged(int nOld, int nNew);
 	void OnEraseBkgnd(HRDC hRDC);
 	void OnSize( UINT nType, int cx, int cy );
 

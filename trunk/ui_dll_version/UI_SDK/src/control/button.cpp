@@ -62,20 +62,18 @@ bool ButtonBase::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 		this->EraseAttribute(XML_BUTTON_RENDER_AUTOSIZE_TYPE);
 	}
 
-	if( NULL == m_pBkgndRender && 
-		(this->GetButtonStyle() == BUTTON_STYLE_PUSHBUTTON ||
-		 this->GetButtonStyle() == BUTTON_STYLE_COMBOBOX) )  // TODO: 这里需要改进为更好的办法
+	if (NULL == m_pBkgndRender && this->GetButtonStyle() == BUTTON_STYLE_PUSHBUTTON)
 	{
 		m_pBkgndRender = RenderFactory::GetRender( RENDER_TYPE_THEME, this);
 		this->ModifyStyle(OBJECT_STYLE_TRANSPARENT,0);
 	}
 
-	if( false == bReload && 0 != mapAttrib.count(XML_BUTTON_TEXT) )
+	if (false == bReload && 0 != mapAttrib.count(XML_BUTTON_TEXT))
 	{
 		m_strText = mapAttrib[XML_BUTTON_TEXT];
 		this->EraseAttribute(XML_BUTTON_TEXT);
 	}
-	if( 0 != mapAttrib.count(XML_BUTTON_RENDER_DRAW_FOCUS_FLAG) )
+	if (0 != mapAttrib.count(XML_BUTTON_RENDER_DRAW_FOCUS_FLAG))
 	{
 		m_nDrawFocusType = _ttoi( mapAttrib[XML_BUTTON_RENDER_DRAW_FOCUS_FLAG].c_str() );
 		this->EraseAttribute(XML_BUTTON_RENDER_DRAW_FOCUS_FLAG);
@@ -211,6 +209,11 @@ void ButtonBase::SetButtonStyle(int n)
 
 	m_nStyle &= ~BUTTON_STYLE_MASK;
 	m_nStyle |= n;
+}
+
+void ButtonBase::SetDrawFocusType(BUTTON_RENDER_DRAW_FOCUS_TYPE eType)
+{
+	m_nDrawFocusType = eType;
 }
 
 void ButtonBase::OnEraseBkgnd(HRDC hRDC)
@@ -360,7 +363,7 @@ void ButtonBase::DrawFocus( HRDC hRDC, CRect* prcIcon, CRect* prcText )
 {
 	switch(m_nDrawFocusType)
 	{
-	case BUTTON_RENDER_DRAW_FOCUS_TYPE_NULL:
+	case BUTTON_RENDER_DRAW_FOCUS_TYPE_NONE:
 		break;
 	case BUTTON_RENDER_DRAW_FOCUS_TYPE_DOT:
 		{
