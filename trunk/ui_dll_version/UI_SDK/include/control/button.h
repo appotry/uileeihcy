@@ -58,9 +58,6 @@ public:
 	// my virtual function
 	virtual void OnClicked(){};         // 自己被点击了（可在子类中用于设置当前check状态）
 
-	int  GetButtonStyle();
-	void SetButtonStyle(int n);
-
 public:
 	// 外部接口
 	void    SetCheck(int nCheckState);
@@ -68,6 +65,9 @@ public:
 	void    SetUnChecked();
 	int     GetCheck();
 	bool    IsChecked();
+	int     GetButtonStyle();
+	void    SetButtonStyle(int n);
+	void    SetDrawFocusType(BUTTON_RENDER_DRAW_FOCUS_TYPE eType);
 
 protected:
 //	ButtonRender   m_render;

@@ -196,13 +196,14 @@ void Object::SetReDraw( bool bReDraw )
 WindowBase* Object::GetWindowObject()
 {
 	Object* pObj = this;
-	while( true )
+	while(NULL != pObj)
 	{
 		if (pObj->GetObjectType() == OBJ_WINDOW)
 			return (WindowBase*)pObj;
 		else
 			pObj = pObj->m_pParent;
 	}
+	return NULL;
 }
 
 HWND Object::GetHWND()
@@ -1260,6 +1261,17 @@ bool Object::GetAttribute( const String& strKey, String& strValue )
 	}
 
 	return false;
+}
+
+void Object::SetBkRender(RenderBase* p)
+{
+	SAFE_DELETE(m_pBkgndRender);
+	m_pBkgndRender = p;
+}
+void Object::SetForeRender(RenderBase* p)
+{
+	SAFE_DELETE(m_pForegndRender);
+	m_pForegndRender = p;
 }
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //

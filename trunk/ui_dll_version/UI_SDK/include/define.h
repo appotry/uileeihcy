@@ -437,7 +437,7 @@ typedef enum
 #define  XML_BUTTON_RENDER_DRAW_FOCUS_FLAG     _T("drawfocus")        // 如何绘制焦点
 typedef enum
 {
-	BUTTON_RENDER_DRAW_FOCUS_TYPE_NULL,                               // 不绘制
+	BUTTON_RENDER_DRAW_FOCUS_TYPE_NONE,                               // 不绘制
 	BUTTON_RENDER_DRAW_FOCUS_TYPE_DOT,                                // 使用虚线点绘制
 }BUTTON_RENDER_DRAW_FOCUS_TYPE;
 
