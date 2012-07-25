@@ -215,6 +215,10 @@ void ButtonBase::SetDrawFocusType(BUTTON_RENDER_DRAW_FOCUS_TYPE eType)
 {
 	m_nDrawFocusType = eType;
 }
+void ButtonBase::SetAutoSizeType(BUTTON_RENDER_AUTO_SIZE_TYPE eType)
+{
+	m_nAutoSizeType = eType;
+}
 
 void ButtonBase::OnEraseBkgnd(HRDC hRDC)
 {

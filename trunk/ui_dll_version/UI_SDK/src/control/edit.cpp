@@ -650,7 +650,7 @@ void EditData::PasteFromClipboard()
 EditBase::EditBase()
 {
 	this->SetTabstop( true );  
- 	CRegion4 rPadding(3,3,3,6);
+ 	CRegion4 rPadding(3,0,3,0);
 	this->SetPaddingRegion(&rPadding);
 
 	this->m_pColor = NULL;
@@ -723,7 +723,9 @@ void EditBase::ResetAttribute()
 	SAFE_RELEASE(m_pColorSelect);
 	SAFE_RELEASE(m_pColorSelectBk);
 	this->m_EditData.SetMaxChar(-1);
-	::SetRect(&this->m_rcPadding, 3,3,3,6 );
+
+	CRegion4 r(3,0,3,0);
+	this->SetPaddingRegion(&r);
 }
 bool EditBase::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 {
@@ -797,6 +799,7 @@ SIZE EditBase::GetAutoSize( HRDC hRDC )
 	s.cx += m_rcPadding.left + m_rcPadding.right;
 	s.cy += m_rcPadding.top + m_rcPadding.bottom;
 
+	s.cy +=6; // 防止edit过小而添加的值
 	return s;
 }
 
@@ -832,13 +835,17 @@ void EditBase::DrawNormal( HRDC hRDC )
 	SelectObject(hDC, hFont);
 	COLORREF oldTextCol = ::SetTextColor( hDC, RGB( 0,0,0) );
 
+	CRect rcText = rcClient;
+	rcText.top = rcClient.top + (rcClient.Height() - m_nCaretHeight)/2;
+	rcText.bottom = rcText.top + m_nCaretHeight;
+
 	ExtTextOut( 
-		hDC, rcClient.left - m_nXScroll, rcClient.top, 
+		hDC, rcClient.left - m_nXScroll, rcText.top, 
 		ETO_CLIPPED, 
-		&rcClient, 
+		&rcText, 
 		m_EditData.GetText().c_str(), 
 		m_EditData.GetTextLength(), NULL );
-
+	
 	::SetTextColor( hDC, oldTextCol );
 	ReleaseHDC(hRDC,hDC);
 
@@ -885,10 +892,14 @@ void EditBase::DrawFocus( HRDC hRDC )
 		m_EditData.GetSelectionText(selString);
 
 		// 是否可以考虑使用MaskBlt(还得考虑绘制Clip)
+		CRect rcText = rcClient;
+		rcText.top = rcClient.top + (rcClient.Height() - m_nCaretHeight)/2;
+		rcText.bottom = rcText.top + m_nCaretHeight;
+
 		ExtTextOut( 
-			hDC, x, rcClient.top, 
+			hDC, x, rcText.top, 
 			ETO_CLIPPED, 
-			&rcClient, 
+			&rcText, 
 			selString.c_str(),
 			nSelRight-nSelLeft, NULL );
 
@@ -958,7 +969,13 @@ void EditBase::CalcCaretPos(int nCaretIndex, bool& bUpdate)
 void EditBase::UpdateCaretByPos()
 {
 	POINT ptWindow = this->GetRealPosInWindow();
-	::SetCaretPos( m_nXCaretPos + ptWindow.x + m_rcPadding.left, ptWindow.y + m_rcPadding.top );
+
+	// 将光标和TEXT一样，纵向居中
+	CRect rcClient;
+	this->GetClientRect(&rcClient);
+	int y = ptWindow.y + m_rcNonClient.top + (rcClient.Height()-m_nCaretHeight)/2;
+
+	::SetCaretPos( m_nXCaretPos + ptWindow.x + m_rcPadding.left, y );
 }
 
 //////////////////////////////////////////////////////////////////////////

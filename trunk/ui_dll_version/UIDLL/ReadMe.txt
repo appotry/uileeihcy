@@ -175,6 +175,8 @@ RedrawWindow(hwnd,
 61. LISTBOX的局部刷新
 62. 需要一套更灵活的classname <-> xmlname 的注册映射关系
 64. 关于DrawThemexxx的Gdiplus，可以考虑先画在一个HDC的BITMAP上面，然后转成Gdiplus::Bitmap
+65. TextRender可以考虑增加一个文字阴影效果，仿XP STYLE
+66. Edit中，字体改变后/换肤后，m_nCaretHeight没有更新，将导致绘制位置出错
 
 疑问：
 1. Message类是否需要一个 m_pCurMsg成员变量？

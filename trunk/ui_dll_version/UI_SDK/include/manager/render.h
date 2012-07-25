@@ -331,17 +331,22 @@ namespace UI
 
 	class ComboboxButtonBkThemeRender : public ThemeRenderBase
 	{
+	public:
 		virtual const TCHAR* GetThemeName() { return _T("COMBOBOX"); }
 		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
+		virtual SIZE GetDesiredSize();
 
 		void DrawDisable( HRDC hRDC, const CRect* prc );
 		void DrawNormal( HRDC hRDC, const CRect* prc );
 		void DrawHover( HRDC hRDC, const CRect* prc );
 		void DrawPress( HRDC hRDC, const CRect* prc );	
+
+		void DrawGlyph( HDC hDC, const CRect* prc, bool bPressDown=false);
 	};
 
 	class ComboboxBkThemeRender : public ThemeRenderBase
 	{
+	public:
 		virtual const TCHAR* GetThemeName() { return _T("COMBOBOX"); }
 		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
 
