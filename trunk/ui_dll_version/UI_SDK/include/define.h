@@ -445,9 +445,12 @@ typedef enum
 #define  XML_BUTTON_RENDER_AUTOSIZE_TYPE_BKIMAGE   _T("bkimage")      // 背景图片的大小决定按钮大小
 #define  XML_BUTTON_RENDER_AUTOSIZE_TYPE_CONTENT   _T("content")      // 背景图片的内容(图标+文本)决定按钮大小
 #define  XML_BUTTON_RENDER_AUTOSIZE_TYPE_BKIMAGEHEIGHT_CONTENTWIDTH _T("bkimagehcontentw")  // 图片的高度+内容的宽度
-#define  BUTTON_RENDER_AUTOSIZE_TYPE_BKIMAGE   0
-#define  BUTTON_RENDER_AUTOSIZE_TYPE_CONTENT   1
-#define  BUTTON_RENDER_AUTOSIZE_TYPE_BKIMAGEHEIGHT_CONTENTWIDTH 2
+enum BUTTON_RENDER_AUTO_SIZE_TYPE
+{
+	BUTTON_RENDER_AUTOSIZE_TYPE_BKIMAGE,
+	BUTTON_RENDER_AUTOSIZE_TYPE_CONTENT,
+	BUTTON_RENDER_AUTOSIZE_TYPE_BKIMAGEHEIGHT_CONTENTWIDTH
+};
 
 #define  XML_BUTTON_ICON                             _T("icon")             // 按钮图标
 #define  XML_BUTTON_ICON_RENDER_TYPE                 _T("icontype")         // 按钮图标绘制类型

@@ -68,6 +68,7 @@ public:
 	int     GetButtonStyle();
 	void    SetButtonStyle(int n);
 	void    SetDrawFocusType(BUTTON_RENDER_DRAW_FOCUS_TYPE eType);
+	void    SetAutoSizeType(BUTTON_RENDER_AUTO_SIZE_TYPE eType);
 
 protected:
 //	ButtonRender   m_render;

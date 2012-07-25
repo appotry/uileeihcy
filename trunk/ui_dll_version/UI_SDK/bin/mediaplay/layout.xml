@@ -89,7 +89,7 @@
          <RadioButton id="test_radio3" tooltip="test" text="单选按钮_3" layout.top="90"  layout.left="10" group="1" />
          <RadioButton id="test_radio4" tooltip="test" text="单选按钮_4" layout.top="110" layout.left="10"/>
          <Edit        id="test_edit1"  width="120"  layout.left="10" layout.top="130"/>
-         <Combobox    id="test_combo1" width="120"  height="20" layout.left="10" layout.top="155" button.width="20"/>
+         <Combobox    id="test_combo1" width="120"  height="20" layout.left="10" layout.top="155"/>
       </GroupBox>
       <HwndHost id="IDC_EDIT1"   controlid="1003" />
       <HwndHost id="IDC_CHECK1"  controlid="1009" />

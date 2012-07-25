@@ -297,6 +297,7 @@ void Object::ResetAttribute()
 {
 	::SetRectEmpty(&m_rcMargin);
 	::SetRectEmpty(&m_rcPadding);
+	::SetRectEmpty(&m_rcNonClient);
 	m_nConfigWidth = m_nConfigHeight = AUTO;
 
 	SAFE_DELETE(m_pBkgndRender);

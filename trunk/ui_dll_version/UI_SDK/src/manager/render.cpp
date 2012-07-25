@@ -1612,6 +1612,23 @@ void GroupBoxBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 // {
 // }
 
+SIZE ComboboxButtonBkThemeRender::GetDesiredSize()
+{
+	SIZE s = {18,0};
+
+//  TODO: 1. 这里一直返回0
+//        2. 有xp中有些主题的button在绘制时，又不用去deflatrect(1,1,1,1)，这个怎么去判断？例如那个仿苹果主题
+// 	if( NULL != m_hTheme )
+// 	{
+// 		HDC hDC = UI_GetCacheDC();
+// 		RECT rect = {0,0,100,50};
+// 		GetThemePartSize(m_hTheme,hDC,CP_DROPDOWNBUTTON,CBXS_NORMAL, &rect, TS_DRAW, &s );
+// 		UI_ReleaseCacheDC(hDC);
+// 	}
+
+	return s;
+}
+
 void ComboboxButtonBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 {
 	switch(nState)
@@ -1637,9 +1654,11 @@ void ComboboxButtonBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nSt
 void ComboboxButtonBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc  )
 {
 	HDC hDC = GetHDC(hRDC);
+	CRect rc = *prc;
 	if( m_hTheme )
 	{
-		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_DROPDOWNBUTTON, CBXS_DISABLED, prc, 0);
+		rc.DeflateRect(1,1,1,1);
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_DROPDOWNBUTTON, CBXSR_DISABLED, &rc, 0);
 		if ( S_OK != hr )
 		{
 			UI_LOG_WARN(_T("ComboboxButtonBkThemeRender::DrawNormal  DrawThemeBackground failed."));
@@ -1647,16 +1666,20 @@ void ComboboxButtonBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc  )
 	}
 	else
 	{
-		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_INACTIVE );
+		rc.DeflateRect(0,2,2,2);
+		DrawFrameControl(hDC, (RECT*)&rc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_INACTIVE );
+		DrawGlyph(hDC, &rc);
 	}
 	ReleaseHDC(hRDC, hDC);
 }
 void ComboboxButtonBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc  )
 {
 	HDC hDC = GetHDC(hRDC);
+	CRect rc = *prc;
 	if( m_hTheme )
 	{
-		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_DROPDOWNBUTTON, CBXS_NORMAL, prc, 0);
+		rc.DeflateRect(1,1,1,1);
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_DROPDOWNBUTTON, CBXSR_NORMAL, &rc, 0);
 		if ( S_OK != hr )
 		{
 			UI_LOG_WARN(_T("ComboboxButtonBkThemeRender::DrawNormal  DrawThemeBackground failed."));
@@ -1664,7 +1687,9 @@ void ComboboxButtonBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc  )
 	}
 	else
 	{
-		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, DFCS_BUTTONPUSH );
+		rc.DeflateRect(0,2,2,2);
+		DrawFrameControl(hDC, (RECT*)&rc, DFC_BUTTON, DFCS_BUTTONPUSH );
+		DrawGlyph(hDC, &rc);
 	}
 	ReleaseHDC(hRDC, hDC);
 }
@@ -1672,9 +1697,12 @@ void ComboboxButtonBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc  )
 void ComboboxButtonBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc  )
 {
 	HDC hDC = GetHDC(hRDC);
+
+	CRect rc = *prc;
 	if( m_hTheme )
 	{
-		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_DROPDOWNBUTTON, CBXS_HOT, prc, 0);
+		rc.DeflateRect(1,1,1,1);
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_DROPDOWNBUTTON, CBXSR_HOT, &rc, 0);
 		if ( S_OK != hr )
 		{
 			UI_LOG_WARN(_T("ComboboxButtonBkThemeRender::DrawNormal  DrawThemeBackground failed."));
@@ -1682,16 +1710,20 @@ void ComboboxButtonBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc  )
 	}
 	else
 	{
-		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_HOT );
+		rc.DeflateRect(0,2,2,2);
+		DrawFrameControl(hDC, (RECT*)&rc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_HOT );
+		DrawGlyph(hDC, &rc);
 	}
 	ReleaseHDC(hRDC, hDC);
 }
 void ComboboxButtonBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc  )
 {
 	HDC hDC = GetHDC(hRDC);
+	CRect rc = *prc;
 	if( m_hTheme )
 	{
-		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_DROPDOWNBUTTON, CBXS_PRESSED, prc, 0);
+		rc.DeflateRect(1,1,1,1);
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_DROPDOWNBUTTON, CBXSR_PRESSED, &rc, 0);
 		if ( S_OK != hr )
 		{
 			UI_LOG_WARN(_T("ComboboxButtonBkThemeRender::DrawNormal  DrawThemeBackground failed."));
@@ -1699,9 +1731,41 @@ void ComboboxButtonBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc  )
 	}
 	else
 	{
-		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_PUSHED );
+		rc.DeflateRect(0,2,2,2);
+		DrawFrameControl(hDC, (RECT*)&rc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_PUSHED|DFCS_FLAT );
+		DrawGlyph(hDC, &rc, true);
 	}
 	ReleaseHDC(hRDC, hDC);
+}
+
+// 绘制按钮上的箭头
+void ComboboxButtonBkThemeRender::DrawGlyph( HDC hDC, const CRect* prc, bool bPressDown )
+{
+	POINT pt[4] = 
+	{
+		{-3,-2}, {3,-2}, {0,1}, {-3,-2}
+	};
+
+	int x = 0; int y = 0;
+	x = (prc->left + prc->right)/2;
+	y = (prc->top + prc->bottom)/2;
+
+	for (int i = 0; i < 4; i++)
+	{
+		pt[i].x += x;
+		pt[i].y += y;
+
+		if(bPressDown)
+		{
+		//	pt[i].x += 1;
+			pt[i].y += 1;
+		}
+	}
+
+	HBRUSH hBlackBrush = (HBRUSH)GetStockObject(BLACK_BRUSH);
+	HBRUSH hOldBrush = (HBRUSH)::SelectObject(hDC, hBlackBrush);
+	::Polygon(hDC, pt, 4);
+	::SelectObject(hDC,hOldBrush);
 }
 
 //////////////////////////////////////////////////////////////////////////
