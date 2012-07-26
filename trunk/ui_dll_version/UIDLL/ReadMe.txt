@@ -182,6 +182,8 @@ RedrawWindow(hwnd,
 	VISIBILITY_Visible     // 可见，  占用布局
 	VISIBILITY_COLLAPSED,  // 不可见，不占用布局
 68. 考虑下m_pLayout是否可以不作为一个成员变量出现，而是作为一个helper类出现？
+
+*69. 现在重置属性，需要的构造函数中和resetattrib函数中都写一份代码，很容易导致不匹配，急需修改	
 	
 疑问：
 1. Message类是否需要一个 m_pCurMsg成员变量？

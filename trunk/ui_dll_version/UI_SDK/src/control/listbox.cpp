@@ -44,7 +44,7 @@ TreeListItemBase::~TreeListItemBase()
 
 
 
-ListBoxBase::ListBoxBase()
+ListCtrlBase::ListCtrlBase()
 {
 	m_pFirstItem = NULL;
 	m_pLastItem = NULL;
@@ -66,12 +66,12 @@ ListBoxBase::ListBoxBase()
 	this->m_MgrScrollbar.SetVScrollLine(m_nFixeddItemHeight);
 //	this->m_MgrScrollbar.SetScrollBarVisibleType(HSCROLLBAR, SCROLLBAR_VISIBLE_NONE);
 }
-ListBoxBase::~ListBoxBase()
+ListCtrlBase::~ListCtrlBase()
 {
 	this->RemoveAllItem();
 }
 
-void ListBoxBase::RemoveItem(ListItemBase* pItem, bool bUpdate)
+void ListCtrlBase::RemoveItem(ListItemBase* pItem, bool bUpdate)
 {
 	if( NULL == pItem )
 		return;
@@ -129,7 +129,7 @@ void ListBoxBase::RemoveItem(ListItemBase* pItem, bool bUpdate)
 		this->UpdateObject();
 	}
 }
-void ListBoxBase::RemoveAllItem()
+void ListCtrlBase::RemoveAllItem()
 {
 	ListItemBase* p = m_pFirstItem;
 	while ( p!=NULL )
@@ -147,13 +147,13 @@ void ListBoxBase::RemoveAllItem()
 	m_pPressItem = NULL;
 	m_nItemCount = 0;
 }
-void ListBoxBase::SetSort( LISTITEM_SORT_TYPE eSortType, ListItemCompareProc p )
+void ListCtrlBase::SetSort( LISTITEM_SORT_TYPE eSortType, ListItemCompareProc p )
 {
 	m_eSortType = eSortType;
 	m_pCompareProc = p;
 }
 
-void ListBoxBase::SetFixedItemHeight(int nHeight, bool bUpdate)
+void ListCtrlBase::SetFixedItemHeight(int nHeight, bool bUpdate)
 {
 	if (m_nFixeddItemHeight == nHeight)
 	{
@@ -173,7 +173,7 @@ void ListBoxBase::SetFixedItemHeight(int nHeight, bool bUpdate)
 //
 //	在末尾添加一项，根据排序结果，最后调用InsertItem
 //
-void ListBoxBase::AddItem(ListItemBase* pItem, bool bUpdate)
+void ListCtrlBase::AddItem(ListItemBase* pItem, bool bUpdate)
 {
 	ListItemBase* pInsertAfter = m_pLastItem;
 	if( m_eSortType != LISTITEM_SORT_DISABLE && NULL != m_pCompareProc )
@@ -214,7 +214,7 @@ void ListBoxBase::AddItem(ListItemBase* pItem, bool bUpdate)
 	}
 }
 
-void ListBoxBase::RemoveItem(int nIndex, bool bUpdate)
+void ListCtrlBase::RemoveItem(int nIndex, bool bUpdate)
 {
 	ListItemBase* pItem = this->Index2Item(nIndex);
 	if (NULL == pItem)
@@ -226,7 +226,7 @@ void ListBoxBase::RemoveItem(int nIndex, bool bUpdate)
 //
 //	更新从pStart开始后面的每一个item的 m_rcParent，比如新插入一个pItem
 //
-void ListBoxBase::UpdateItemRect( ListItemBase* pStart )
+void ListCtrlBase::UpdateItemRect( ListItemBase* pStart )
 {
 	if( NULL == pStart )
 		return;
@@ -266,7 +266,7 @@ void ListBoxBase::UpdateItemRect( ListItemBase* pStart )
 		  NULL == m_pLastItem ? 0:m_pLastItem->GetParentRect().bottom);
 }
 
-void ListBoxBase::SetSelectedItem(ListItemBase* pItem, bool& bNeedUpdateObject )
+void ListCtrlBase::SetSelectedItem(ListItemBase* pItem, bool& bNeedUpdateObject )
 {
 	ListItemBase* pOldSelectoinItem = m_pFirstSelectedItem;
 	m_pFirstSelectedItem = pItem;
@@ -320,15 +320,15 @@ void ListBoxBase::SetSelectedItem(ListItemBase* pItem, bool& bNeedUpdateObject )
 
 }
 
-void ListBoxBase::SetScrollY( int nY, bool& bNeedUpdateObject  )
+void ListCtrlBase::SetScrollY( int nY, bool& bNeedUpdateObject  )
 {
 	this->SetScrollPoint( -1, nY, bNeedUpdateObject );
 }
-void ListBoxBase::SetScrollX( int nX, bool& bNeedUpdateObject  )
+void ListCtrlBase::SetScrollX( int nX, bool& bNeedUpdateObject  )
 {
 	this->SetScrollPoint( nX, -1, bNeedUpdateObject );
 }
-void ListBoxBase::SetScrollPoint(int nX, int nY, bool& bNeedUpdateObject)
+void ListCtrlBase::SetScrollPoint(int nX, int nY, bool& bNeedUpdateObject)
 {
 	bNeedUpdateObject = false;
 #if 0
@@ -399,7 +399,7 @@ void ListBoxBase::SetScrollPoint(int nX, int nY, bool& bNeedUpdateObject)
 //
 // 在pInsertAfter前面插入pItem，如果pInsertAfter为NULL表示插入最前面
 //
-void ListBoxBase::InsertItem( ListItemBase*  pItem, ListItemBase* pInsertAfter )
+void ListCtrlBase::InsertItem( ListItemBase*  pItem, ListItemBase* pInsertAfter )
 {
 	if( NULL == pItem )
 		return;
@@ -439,11 +439,13 @@ void ListBoxBase::InsertItem( ListItemBase*  pItem, ListItemBase* pInsertAfter )
 
 	m_nItemCount++;
 
+// 	SIZE s = this->GetItemDisiredSize();
+// 	pItem->SetParentRect(0,0,s.cx, s.cy);
 	this->UpdateItemRect(pItem);
 }
 
 
-ListItemBase* ListBoxBase::HitTest(POINT ptWindow)
+ListItemBase* ListCtrlBase::HitTest(POINT ptWindow)
 {
 	CRect rcClient;
 	this->GetClientRect(&rcClient);
@@ -476,7 +478,7 @@ ListItemBase* ListBoxBase::HitTest(POINT ptWindow)
 	return NULL;
 }
 
-ListItemBase* ListBoxBase::Index2Item(int nIndex)
+ListItemBase* ListCtrlBase::Index2Item(int nIndex)
 {
 	if(0 < nIndex || nIndex >= m_nItemCount)
 		return NULL;
@@ -493,7 +495,7 @@ ListItemBase* ListBoxBase::Index2Item(int nIndex)
 	return p;
 }
 
-void ListBoxBase::ReDrawItem( ListItemBase* pItem )
+void ListCtrlBase::ReDrawItem( ListItemBase* pItem )
 {
 	if( false == IsItemVisible(pItem) )
 		return;
@@ -525,7 +527,7 @@ void ListBoxBase::ReDrawItem( ListItemBase* pItem )
 }
 
 
-bool ListBoxBase::IsItemVisible(ListItemBase* pItem)
+bool ListCtrlBase::IsItemVisible(ListItemBase* pItem)
 {
 	if( NULL == pItem )
 		return false;
@@ -546,7 +548,7 @@ bool ListBoxBase::IsItemVisible(ListItemBase* pItem)
 
 	return true;
 }
-bool ListBoxBase::IsItemVisibleEx(ListItemBase* pItem, LISTITEM_VISIBLE_POS_TYPE& ePos)
+bool ListCtrlBase::IsItemVisibleEx(ListItemBase* pItem, LISTITEM_VISIBLE_POS_TYPE& ePos)
 {
 	if( NULL == pItem )
 		return false;
@@ -585,7 +587,7 @@ bool ListBoxBase::IsItemVisibleEx(ListItemBase* pItem, LISTITEM_VISIBLE_POS_TYPE
 	return true;
 }
 
-void ListBoxBase::ItemRect2WindowRect( CRect* prc, CRect* prcRet )
+void ListCtrlBase::ItemRect2WindowRect( CRect* prc, CRect* prcRet )
 {
 	if( NULL == prc || NULL == prcRet )
 		return;
@@ -610,7 +612,7 @@ void ListBoxBase::ItemRect2WindowRect( CRect* prc, CRect* prcRet )
 // 		prcRet->bottom = rcClient.bottom;
 }
 
-void ListBoxBase::OnMouseMove(UINT nFlags, POINT point)
+void ListCtrlBase::OnMouseMove(UINT nFlags, POINT point)
 {
 	ListItemBase* pNewHover = this->HitTest(point);
 	if( pNewHover != m_pHoverItem )
@@ -623,7 +625,7 @@ void ListBoxBase::OnMouseMove(UINT nFlags, POINT point)
 	}
 }
 
-void ListBoxBase::OnMouseLeave()
+void ListCtrlBase::OnMouseLeave()
 {
 	bool bNeedUpdate = false;
 	if( NULL != m_pHoverItem || NULL != m_pPressItem )
@@ -638,7 +640,7 @@ void ListBoxBase::OnMouseLeave()
 	}
 }
 
-void ListBoxBase::OnLButtonDown(UINT nFlags, POINT point)
+void ListCtrlBase::OnLButtonDown(UINT nFlags, POINT point)
 {
 	if( NULL != m_pHoverItem )
 	{
@@ -656,7 +658,7 @@ void ListBoxBase::OnLButtonDown(UINT nFlags, POINT point)
 		}
 	}
 }
-void ListBoxBase::OnLButtonUp(UINT nFlags, POINT point)
+void ListCtrlBase::OnLButtonUp(UINT nFlags, POINT point)
 {
 	if( NULL != m_pPressItem )
 	{
@@ -668,7 +670,7 @@ void ListBoxBase::OnLButtonUp(UINT nFlags, POINT point)
 #ifdef _DEBUG
 #endif
 }
-void ListBoxBase::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
+void ListCtrlBase::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
 {
 	bool bNeedUpdateObject = false;
 	if( VK_DOWN == nChar )
@@ -706,7 +708,7 @@ void ListBoxBase::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
 		this->UpdateObject();
 	}
 }
-// BOOL ListBoxBase::OnMouseWheel(UINT nFlags, short zDelta, POINT pt)
+// BOOL ListCtrlBase::OnMouseWheel(UINT nFlags, short zDelta, POINT pt)
 // {
 // 	int nScroll = 20;
 // 	if( m_bFixedItemHeight )
@@ -731,7 +733,7 @@ void ListBoxBase::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
 // 	return 0;
 // }
 
-void ListBoxBase::OnPaint(HRDC hRDC)
+void ListCtrlBase::OnPaint(HRDC hRDC)
 {
 	ListItemBase* pItem = m_pFirstVisibleItem;
 
@@ -757,25 +759,25 @@ void ListBoxBase::OnPaint(HRDC hRDC)
 	}
 }
 
-void ListBoxBase::OnSize( UINT nType, int cx, int cy )
+void ListCtrlBase::OnSize( UINT nType, int cx, int cy )
 {
 	SetMsgHandled(FALSE);
 	this->UpdateItemRect(m_pFirstItem);
 }
 
 
-SIZE ListBoxBase::GetAutoSize( HRDC hRDC ) 
+SIZE ListCtrlBase::GetAutoSize( HRDC hRDC ) 
 {
 	SIZE s = {0,0};
 	return s;
 }
 
-void ListBoxBase::ResetAttribute()
+void ListCtrlBase::ResetAttribute()
 {
 	__super::ResetAttribute();
 	m_MgrScrollbar.ResetAttribute( );
 }
-bool ListBoxBase::SetAttribute(map<String,String>& mapAttrib, bool bReload)
+bool ListCtrlBase::SetAttribute(map<String,String>& mapAttrib, bool bReload)
 {
 	bool bRet = __super::SetAttribute(mapAttrib, bReload);
 	if (false == bRet)

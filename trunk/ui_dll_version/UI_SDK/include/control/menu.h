@@ -13,7 +13,7 @@ namespace UI
 		//virtual BOOL PreCreateWindow( CREATESTRUCT& cs , DWORD& dwStyleEx );
 	};
 
-	class UIAPI MenuBase : public ListBoxBase
+	class UIAPI MenuBase : public ListCtrlBase
 	{
 	public:
 		int  GetMenuItemCount();
