@@ -563,6 +563,11 @@ enum SCROLLBAR_TYPE
 #define  XML_HSCROLLBAR_PRIFIX                    _T("hscrollbar.") // 横向滚动条的属性前缀
 #define  XML_VSCROLLBAR_PRIFIX                    _T("vscrollbar.") // 纵向滚动条的属性前缀
 
+// listbox
+#define  XML_LISTCTRL_ITEM_HEIGHT                 _T("itemheight")  // 列表控件每一项的高度
+
+#define  XML_MENU_SEPERATOR_HEIGHT                _T("seperatorheight")  // 菜单的分隔条高度
+
 // combobox
 #define  XML_COMBOBOX_EDIT_PRIFIX                 _T("edit.")       // 编辑框的属性前缀
 #define  XML_COMBOBOX_BUTTON_PRIFIX               _T("button.")     // 按钮的属性前缀

@@ -8,11 +8,20 @@
 
 namespace UI
 {
-	enum LIST_ITEM_DATA_DELETE_TYPE
+	// 列表项数据的释放方式
+	enum LIST_ITEM_DATA_DELETE_TYPE   
 	{
 		LIST_ITEM_DATA_DELETE_TYPE_NONE,
 		LIST_ITEM_DATA_DELETE_TYPE_DELETE,
 		LIST_ITEM_DATA_DELETE_TYPE_DELETE_ARRAY,
+	};
+
+	// 列表框内容与列表框大小的关系
+	enum LIST_CTRL_CONTENT_SIZE_TYPE 
+	{
+		LIST_CTRL_CONTENT_SIZE_NONE,  // 1. 控件大小与内容无关系，例如带横向滚动条的列表框
+		LIST_CTRL_CONTENT_2_SIZE,     // 2. 内容决定控件大小，例如菜单和弹出式列表框
+		LIST_CTRL_SIZE_2_CONTENT,     // 3. 控件大小决定内容，例如不带横向滚动条的列表框
 	};
 
 	//
@@ -94,11 +103,11 @@ namespace UI
 		LISTITEM_UNVISIBLE_BOTTOM,
 	};
 
-	class UIAPI ListBoxBase : public Control//, public IScrollObject
+	class UIAPI ListCtrlBase : public Control//, public IScrollObject
 	{
 	public:
-		ListBoxBase();
-		~ListBoxBase();
+		ListCtrlBase();
+		~ListCtrlBase();
 
 		UI_BEGIN_MSG_MAP
 			UIMSG_WM_MOUSEMOVE(OnMouseMove)
@@ -196,7 +205,7 @@ namespace UI
 	public:
 		String   m_strText;
 	};
-	class UIAPI ListBox : public ListBoxBase/*ListBoxBase_Scrollbar*/
+	class UIAPI ListBox : public ListCtrlBase/*ListBoxBase_Scrollbar*/
 	{
 	public:
 		ListBox();
@@ -206,7 +215,7 @@ namespace UI
 
 		UI_BEGIN_MSG_MAP
 			UIMSG_WM_RBUTTONDOWN(OnRButtonDown)
-			UICHAIN_MSG_MAP(ListBoxBase)
+			UICHAIN_MSG_MAP(ListCtrlBase)
 		UI_END_MSG_MAP
 
 	protected:
@@ -227,7 +236,7 @@ namespace UI
 		String   m_strFileName;
 		String   m_strFileTime;
 	};
-	class UIAPI TTPlayerPlaylistCtrl : public ListBoxBase
+	class UIAPI TTPlayerPlaylistCtrl : public ListCtrlBase
 	{
 	public:
 		UI_DECLARE_OBJECT( TTPlayerPlaylistCtrl, OBJ_CONTROL )
