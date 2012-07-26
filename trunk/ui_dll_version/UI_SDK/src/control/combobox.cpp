@@ -3,8 +3,8 @@
 ComboboxBase::ComboboxBase()
 {
 	// 修改一些默认属性
-	m_edit.m_strID = _T("combobox_edit");
-	m_button.m_strID = _T("combobox_button");
+	m_edit.m_strID = COMBOBOX_EDIT_ID;
+	m_button.m_strID = COMBOBOX_BUTTON_ID;
 	m_edit.SetEditStyle(EDIT_STYLE_COMBOBOX);
 	m_button.SetButtonStyle(BUTTON_STYLE_COMBOBOX);
 
@@ -14,6 +14,8 @@ ComboboxBase::ComboboxBase()
 
 	this->AddChild(&m_edit);
 	this->AddChild(&m_button);
+	m_button.ClearNotify();
+	m_button.AddNotify(this,0);
 }
 
 ComboboxBase::~ComboboxBase()
@@ -107,4 +109,10 @@ void ComboboxBase::OnEraseBkgnd(HRDC hRDC)
 void ComboboxBase::OnStateChanged(int nOld, int nNew)
 {
 	this->UpdateObject();
+}
+
+void ComboboxBase::OnBtnClicked( )
+{
+	PopupControlWindow wnd;
+	wnd.DoModal(_T(""),NULL);
 }

@@ -2,6 +2,8 @@
 
 namespace UI
 {
+#define COMBOBOX_BUTTON_ID _T("combobox_button")
+#define COMBOBOX_EDIT_ID   _T("combobox_edit")
 
 class UIAPI ComboboxBase : public Control
 {
@@ -13,6 +15,7 @@ public:
 		UIMSG_WM_STATECHANGED(OnStateChanged)
 		UIMSG_WM_ERASEBKGND(OnEraseBkgnd)
 		UIMSG_WM_SIZE(OnSize)
+		UIMSG_BN_CLICKED2(&m_button, OnBtnClicked)
 		UICHAIN_MSG_MAP(Control)
 	UI_END_MSG_MAP
 
@@ -24,6 +27,7 @@ protected:
 	void OnStateChanged(int nOld, int nNew);
 	void OnEraseBkgnd(HRDC hRDC);
 	void OnSize( UINT nType, int cx, int cy );
+	void OnBtnClicked( );
 
 protected:
 	Edit      m_edit;

@@ -864,6 +864,17 @@ protected:
 			return TRUE;                              \
 	}
 
+#define UIMSG_BN_CLICKED2( ptr, func )                \
+	if( uMsg == UI_WM_NOTIFY  &&                      \
+		code == UI_BN_CLICKED &&                      \
+		(Object*)pObjMsgFrom == ptr)                  \
+	{                                                 \
+		SetMsgHandled(TRUE);                          \
+		func( );                                      \
+		if(IsMsgHandled())                            \
+			return TRUE;                              \
+	}
+
 // void OnBtnClicked( Object* pBtnObj, POINT* pt );
 #define UIMSG_BN_CLICKED_EX( OBJID, func )            \
 	if( uMsg == UI_WM_NOTIFY &&                       \

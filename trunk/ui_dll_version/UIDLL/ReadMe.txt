@@ -177,7 +177,12 @@ RedrawWindow(hwnd,
 64. 关于DrawThemexxx的Gdiplus，可以考虑先画在一个HDC的BITMAP上面，然后转成Gdiplus::Bitmap
 65. TextRender可以考虑增加一个文字阴影效果，仿XP STYLE
 66. Edit中，字体改变后/换肤后，m_nCaretHeight没有更新，将导致绘制位置出错
-
+67. WPF中的元素Visibility可视性有三种值,之前我也没有仔细看过,一般就都用Hidden了(Flash的习惯),但事实上呢,Collapsed也有非常大的用处,hidden仅仅将元素设为不可视,但是元素在画面上依然将占有空间,而Collapsed的话,在不可视的基础上,还能将元素在画面上的占位符清除,元素彻底不影响画面.所以,某些时候可能用Collapsed更为合理.在做一个StackPanel的时候最明显,三个对象在StackPanel中的时候,中间的对象如果Hidden,还将占有Stack中的位置,而Collapsed的话,下面的对象就会挤上了(有点像DIV了..)  
+	VISIBILITY_HIDDEN,     // 不可见，占用布局
+	VISIBILITY_Visible     // 可见，  占用布局
+	VISIBILITY_COLLAPSED,  // 不可见，不占用布局
+68. 考虑下m_pLayout是否可以不作为一个成员变量出现，而是作为一个helper类出现？
+	
 疑问：
 1. Message类是否需要一个 m_pCurMsg成员变量？
  
