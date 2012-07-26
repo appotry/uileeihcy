@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+
 int  MenuBase::TrackPopupMenu(UINT nFlag, int x, int y, Message* pNotifyObj)
 {
 	if (0 >= this->GetMenuItemCount())

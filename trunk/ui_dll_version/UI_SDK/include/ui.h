@@ -235,6 +235,7 @@ namespace UI
 #include "window\windowbase.h"
 #include "window\window.h"
 #include "window\customwindow.h"
+#include "window\popupcontrolwindow.h"
 
 // control ,在添加include的时候，别忘了去LayoutXmlParse::mapXmlToClass
 #include "control\button.h"

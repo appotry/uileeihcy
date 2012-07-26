@@ -98,6 +98,7 @@
       <HwndHost id="IDC_RADIO1"  controlid="1006" />
       <HwndHost id="IDC_BUTTON1" controlid="1002" />
       <HwndHost id="IDC_BUTTON2" controlid="1005" />
+      <HwndHost id="IDC_COMBO1"  controlid="1010" />
     </Window>
   </layout>
 </ui>

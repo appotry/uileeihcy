@@ -407,6 +407,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\UI_SDK\include\window\popupcontrolwindow.h"
+						>
+					</File>
+					<File
 						RelativePath="..\UI_SDK\include\window\window.h"
 						>
 					</File>
@@ -656,6 +660,10 @@
 					>
 					<File
 						RelativePath="..\UI_SDK\src\window\customwindow.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\UI_SDK\src\window\popupcontrolwindow.cpp"
 						>
 					</File>
 					<File

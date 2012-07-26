@@ -171,7 +171,7 @@ void ListBoxBase::SetFixedItemHeight(int nHeight, bool bUpdate)
 	}
 }
 //
-//	在末尾添加一项
+//	在末尾添加一项，根据排序结果，最后调用InsertItem
 //
 void ListBoxBase::AddItem(ListItemBase* pItem, bool bUpdate)
 {
@@ -774,7 +774,6 @@ void ListBoxBase::ResetAttribute()
 {
 	__super::ResetAttribute();
 	m_MgrScrollbar.ResetAttribute( );
-//	m_MgrScrollbar.SetScrollBarVisibleType(HSCROLLBAR, SCROLLBAR_VISIBLE_NONE);
 }
 bool ListBoxBase::SetAttribute(map<String,String>& mapAttrib, bool bReload)
 {
@@ -783,7 +782,6 @@ bool ListBoxBase::SetAttribute(map<String,String>& mapAttrib, bool bReload)
 		return false;
 
 	m_MgrScrollbar.SetAttribute(mapAttrib, bReload);
-
 	return true;
 }
 
