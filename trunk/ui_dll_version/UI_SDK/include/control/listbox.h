@@ -90,11 +90,11 @@ namespace UI
 
 
 	typedef int (*ListItemCompareProc)(ListItemBase* p1, ListItemBase* p2);
-	enum LISTITEM_SORT_TYPE{ 
-		LISTITEM_SORT_DISABLE,            // 不启用
-		LISTITEM_SORT_ASCEND,             // 升序
-		LISTITEM_SORT_DESCEND             // 降序
-	};
+// 	enum LISTITEM_SORT_TYPE{ 
+// 		LISTITEM_SORT_DISABLE,            // 不启用
+// 		LISTITEM_SORT_ASCEND,             // 升序
+// 		LISTITEM_SORT_DESCEND             // 降序
+// 	};
 	enum LISTITEM_VISIBLE_POS_TYPE{
 		LISTITEM_UNVISIBLE_TOP = 1,      
 		LISTITEM_VISIBLE_COVERTOP,       
@@ -144,7 +144,7 @@ namespace UI
 		// 公用接口
 		void    RemoveItem(int nIndex, bool bUpdate=true);
 		void    RemoveAllItem();
-		void    SetSort( LISTITEM_SORT_TYPE eSortType, ListItemCompareProc p );
+		void    SetSortCompareProc( ListItemCompareProc p );
 		int     GetItemCount() { return m_nItemCount; }
 		void    SetFixedItemHeight(int nHeight, bool bUpdate=true);
 
@@ -172,15 +172,11 @@ namespace UI
 
 	protected:
 		// 属性
-		bool           m_bFixedItemHeight;    // 每一项行高是否一致, TODO: 改成m_nStyle来实现 
-
 		int            m_nFixeddItemHeight;   // 如果m_bFixedItemHeight=true，该项代表每一项的高度
 		int            m_nItemGap;            // 两个子项之间的间隔
-		
-		LISTITEM_SORT_TYPE   m_eSortType;     // 排序方式
-		ListItemCompareProc  m_pCompareProc;  // 排序函数
-
 		int            m_nItemCount;          // 列表项数量
+
+		ListItemCompareProc  m_pCompareProc;  // 排序函数
 
 		// 数据导航
 		ListItemBase*  m_pFirstItem;
@@ -200,12 +196,13 @@ namespace UI
 
 	//////////////////////////////////////////////////////////////////////////
 	// 系统列表框控件
+
 	class ListBoxItemData
 	{
 	public:
 		String   m_strText;
 	};
-	class UIAPI ListBox : public ListCtrlBase/*ListBoxBase_Scrollbar*/
+	class UIAPI ListBox : public ListCtrlBase
 	{
 	public:
 		ListBox();
