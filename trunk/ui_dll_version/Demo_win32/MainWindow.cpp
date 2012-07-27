@@ -508,7 +508,7 @@ COptionWindow::COptionWindow()
 BOOL COptionWindow::OnInitDialog( HWND, LPARAM )
 {
 	m_pListOption = (ListBox*)this->FindChildObject(_T("optionlist") );
-	m_pListOption->SetSort( LISTITEM_SORT_DISABLE,NULL );
+	m_pListOption->ModifyStyle( 0, LISTCTRLBASE_SORT_ASCEND|LISTCTRLBASE_SORT_DESCEND);
 	m_pListOption->SetFixedItemHeight(24, false);
 
 	String strArray[] = { _T("关于"),_T("常规"),_T("播放"),_T("快捷键"),_T("视觉效果"),

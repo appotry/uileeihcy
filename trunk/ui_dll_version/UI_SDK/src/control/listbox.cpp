@@ -46,21 +46,17 @@ TreeListItemBase::~TreeListItemBase()
 
 ListCtrlBase::ListCtrlBase()
 {
-	m_pFirstItem = NULL;
-	m_pLastItem = NULL;
-	m_pFirstVisibleItem = NULL;
-	m_pLastVisibleItem = NULL;
+	m_pFirstItem         = NULL;
+	m_pLastItem          = NULL;
+	m_pFirstVisibleItem  = NULL;
+	m_pLastVisibleItem   = NULL;
 	m_pFirstSelectedItem = NULL;
-	m_pHoverItem = NULL;
-	m_pPressItem = NULL;
-
-	m_bFixedItemHeight = true;
-	m_nFixeddItemHeight = 20;
-
-	m_eSortType = LISTITEM_SORT_DISABLE;
-	m_pCompareProc = NULL;
-	m_nItemCount = 0;
-	m_nItemGap = 0;
+	m_pHoverItem         = NULL;
+	m_pPressItem         = NULL;
+	m_nFixeddItemHeight  = 20;
+	m_pCompareProc       = NULL;
+	m_nItemCount         = 0;
+	m_nItemGap           = 0;
 
 	this->m_MgrScrollbar.SetBindObject(this);
 	this->m_MgrScrollbar.SetVScrollLine(m_nFixeddItemHeight);
@@ -147,9 +143,8 @@ void ListCtrlBase::RemoveAllItem()
 	m_pPressItem = NULL;
 	m_nItemCount = 0;
 }
-void ListCtrlBase::SetSort( LISTITEM_SORT_TYPE eSortType, ListItemCompareProc p )
+void ListCtrlBase::SetSortCompareProc( ListItemCompareProc p )
 {
-	m_eSortType = eSortType;
 	m_pCompareProc = p;
 }
 
@@ -161,7 +156,7 @@ void ListCtrlBase::SetFixedItemHeight(int nHeight, bool bUpdate)
 	}
 
 	m_nFixeddItemHeight = nHeight;
-	if (m_bFixedItemHeight)
+	if (0 == (m_nStyle&LISTCTRLBASE_ITEM_VARIABLE_HEIGHT))
 	{
 		this->UpdateItemRect(m_pFirstItem);
 	}
@@ -176,14 +171,17 @@ void ListCtrlBase::SetFixedItemHeight(int nHeight, bool bUpdate)
 void ListCtrlBase::AddItem(ListItemBase* pItem, bool bUpdate)
 {
 	ListItemBase* pInsertAfter = m_pLastItem;
-	if( m_eSortType != LISTITEM_SORT_DISABLE && NULL != m_pCompareProc )
+
+	bool bAscendSort = m_nStyle&LISTCTRLBASE_SORT_ASCEND ? true:false;
+	bool bDescendSort = m_nStyle&LISTCTRLBASE_SORT_DESCEND ? true:false;
+	if( (bAscendSort||bDescendSort) && NULL != m_pCompareProc )
 	{
 		// 排序决定位置(由于采用了链接的数据结构，不能采用二分查找的方式...)
 		ListItemBase* pEnumItem = m_pFirstItem;
 		while(NULL != pEnumItem)
 		{
 			int nResult = m_pCompareProc(pEnumItem,pItem);
-			if(m_eSortType == LISTITEM_SORT_ASCEND)
+			if(bAscendSort)
 			{
 				// 查找第一个大于自己的对象
 				if(nResult>0)
@@ -192,7 +190,7 @@ void ListCtrlBase::AddItem(ListItemBase* pItem, bool bUpdate)
 					break;
 				}
 			}
-			else if(m_eSortType == LISTITEM_SORT_DESCEND)
+			else if(bDescendSort)
 			{
 				// 查找第一个小于自己的对象 
 				if(nResult<0)
@@ -248,16 +246,17 @@ void ListCtrlBase::UpdateItemRect( ListItemBase* pStart )
 			p->SetLineIndex(p->GetPrevItem()->GetLineIndex()+1);
 		}
 
-		if (m_bFixedItemHeight)
-		{
-			CRect rc(0, y, rcClient.Width(), y+m_nFixeddItemHeight);
-			p->SetParentRect(&rc);
-		}
-		else
+		if (m_nStyle & LISTCTRLBASE_ITEM_VARIABLE_HEIGHT)
 		{
 			CRect rc(0, y, rcClient.Width(), y+p->GetDesiredHeight());
 			p->SetParentRect(&rc);
 		}
+		else
+		{
+			CRect rc(0, y, rcClient.Width(), y+m_nFixeddItemHeight);
+			p->SetParentRect(&rc);
+		}
+		
 			
 		p = p->GetNextItem();
 	}
@@ -793,9 +792,8 @@ int ListBoxCompareProc( ListItemBase* p1, ListItemBase* p2 );
 
 ListBox::ListBox()
 {
-	__super::SetSort(LISTITEM_SORT_ASCEND, ListBoxCompareProc );
-
-	this->ModifyStyle(OBJECT_STYLE_VSCROLL);
+	this->ModifyStyle(OBJECT_STYLE_VSCROLL | LISTCTRLBASE_SORT_ASCEND);
+	__super::SetSortCompareProc( ListBoxCompareProc );
 }
 ListBox::~ListBox()
 {

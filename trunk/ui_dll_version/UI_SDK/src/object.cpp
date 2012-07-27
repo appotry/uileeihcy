@@ -987,6 +987,12 @@ bool Object::IsVisible()
 		}
 	}
 }
+
+bool Object::IsCollapsed()
+{
+	return ;
+}
+
 bool Object::IsEnable()
 {
 	if( this->GetObjectType() == OBJ_WINDOW )

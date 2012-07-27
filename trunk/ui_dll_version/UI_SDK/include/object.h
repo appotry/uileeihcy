@@ -58,6 +58,12 @@ enum OBJ_TYPE
 
 #define WSB_ACTIVE        0x1000         // 窗口为active
 
+// STYLE样式占位说明
+//   31-24:  OBJECT 通用样式
+//	 23-16:  CONTROL通用样式
+//   15-1 :  具体控件自己的样式
+//      0 :  表示该控件类型
+
 // object style
 #define OBJECT_STYLE_TRANSPARENT        0x01000000    // 对象是否透明处理
 #define OBJECT_STYLE_HSCROLL            0x02000000    // 对象横向滚动
@@ -69,23 +75,37 @@ enum OBJ_TYPE
 #define CONTROL_STYLE_GROUP             0x00020000    // 是否是一个新组的开始
 
 // button style
-#define BUTTON_STYLE_MASK               0x0000000F    // 按钮类型使用的位
-#define BUTTON_STYLE_PUSHBUTTON         0x00000000    // 普通按钮
-#define BUTTON_STYLE_RADIOBUTTON        0x00000001    // 单选按钮
-#define BUTTON_STYLE_CHECKBUTTON        0x00000002    // 复选按钮
-#define BUTTON_STYLE_HYPERLINK          0x00000003    // 超链接按钮
-#define BUTTON_STYLE_MENUBUTTON         0x00000004    // 菜单按钮
-#define BUTTON_STYLE_SPLITMENUBUTTON    0x00000005    // 按钮+菜单
-#define BUTTON_STYLE_COMBOBOX           0x00000006    // 组合框中的按钮
+#define BUTTON_STYLE_MASK               0x000F    // 按钮类型使用的位
+#define BUTTON_STYLE_PUSHBUTTON         0x0000    // 普通按钮
+#define BUTTON_STYLE_RADIOBUTTON        0x0001    // 单选按钮
+#define BUTTON_STYLE_CHECKBUTTON        0x0002    // 复选按钮
+#define BUTTON_STYLE_HYPERLINK          0x0003    // 超链接按钮
+#define BUTTON_STYLE_MENUBUTTON         0x0004    // 菜单按钮
+#define BUTTON_STYLE_SPLITMENUBUTTON    0x0005    // 按钮+菜单
+#define BUTTON_STYLE_COMBOBOX           0x0006    // 组合框中的按钮
 
 // progress style
-#define PROGRESS_STYLE_MASK             0x0000000F    // 进度条类型使用的位
-#define PROGRESS_STYLE_PROGRESS         0x00000000    // 普通进度条
-#define PROGRESS_STYLE_SLIDER           0x00000001    // 可拖动的slider ctrl
-#define PROGRESS_STYLE_SCROLLBAR        0x00000002    // 作为滚动条的一部分
+#define PROGRESS_STYLE_MASK             0x000F    // 进度条类型使用的位
+#define PROGRESS_STYLE_PROGRESS         0x0000    // 普通进度条
+#define PROGRESS_STYLE_SLIDER           0x0001    // 可拖动的slider ctrl
+#define PROGRESS_STYLE_SCROLLBAR        0x0002    // 作为滚动条的一部分
 
-#define EDIT_STYLE_MASK                 0x0000000F    // 编辑框类型使用的位
-#define EDIT_STYLE_COMBOBOX             0x00000001    // 组合框中使用的编辑框
+// edit style
+#define EDIT_STYLE_MASK                 0x000F    // 编辑框类型使用的位
+#define EDIT_STYLE_COMBOBOX             0x0001    // 组合框中使用的编辑框
+
+// listctrl style
+#define LISTCTRLBASE_ITEM_VARIABLE_HEIGHT 0x0010  // 列表控件各个子项高度不是相等的
+#define LISTCTRLBASE_SORT_ASCEND        0x0020    // 升序排序
+#define LISTCTRLBASE_SORT_DESCEND       0x0040    // 降序排序
+#define LISTCTRLBASE_MULTIPLE_SEL       0x0080    // 是否支持多选
+
+// listbox style
+#define LISTBOX_STYLE_MASK              0x000F    // 编辑框类型使用的位
+#define LISTBOX_STYLE_COMBOBOX          0x0001    // 组合框中使用的列表框
+
+
+
 
 
 // 所有UI类对象的统一基类 
@@ -113,8 +133,8 @@ protected:
 
 	int      m_nConfigWidth;   // 对象的宽度，可取值： 数值 | "auto" . （对于window对象，width 是指client区域的大小，不是整个窗口的大小；width包括padding，但不包括margin）
 	int      m_nConfigHeight;  // 对象的高度，可取值： 数值 | "auto" . （对于window对象，height是指client区域的大小，不是整个窗口的大小；height包括padding，但不包括margin）
-								   // 在这里需要说明，对象的最终占用的宽度= margin.left + width + margin.right
-								   // 也就是说这里的width = padding.left + padding.right + content.width
+						       // 在这里需要说明，对象的最终占用的宽度= margin.left + width + margin.right
+							   // 也就是说这里的width = padding.left + padding.right + content.width
 // 	int     minwidth;
 // 	int     minheight;
 // 	int     maxwidth;
@@ -197,7 +217,6 @@ public:
 	void         ObjectPoint2ObjectClientPoint(const POINT* ptWindow, POINT* ptObj);
 	bool         GetScrollOffset(int* pxOffset, int* pyOffset);
 	
-
 	// 样式操作
 	int          GetStateBit() { return m_nStateBit; }
 	bool         IsFocus();
@@ -207,6 +226,7 @@ public:
 	void         SetTabstop( bool b );
 	void         SetGroup( bool b );
 	bool         IsVisible();
+	bool         IsCollapsed();
 	bool         IsMySelfVisible();
 	bool         IsEnable();
 	void         SetVisible( bool b, bool bUpdateNow=true );
