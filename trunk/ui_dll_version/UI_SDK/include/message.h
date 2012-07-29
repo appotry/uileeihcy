@@ -124,7 +124,15 @@ enum
 	//UI_WM_GETSCROLLBAROBJECT,
 
 
-	UI_WM_DESTROYPOPUPWINDOW,
+	//
+	//	通过给自己Post该消息来销毁当前弹出窗口
+	//
+	UI_WM_DESTROYPOPUPWINDOW,   
+
+	// 
+	//	通过给自己Post该消息来通知自己创建消息循环
+	//
+	UI_WM_BEGINPOPUPLOOP,
 };
 
 namespace UI
@@ -135,14 +143,15 @@ class Message;
 
 // 
 // 消息通知函数
-long  UIAPI UISendMessage( UIMSG* pMsg, int nMsgMapID=0 );
+long  UIAPI UISendMessage( UIMSG* pMsg, int nMsgMapID=0, BOOL* pbHandled = NULL );
 long  UIAPI UISendMessage( Message* pObjMsgTo, 
 						   UINT     message, 
 						   WPARAM   wParam=0,  
 						   LPARAM   lParam=0, 
 						   UINT     code=0,    
 						   Message* pObjMsgFrom=NULL,
-						   int      nMsgMapID = 0);
+						   int      nMsgMapID = 0,
+						   BOOL*    pbHandled = NULL);
 
 
 //
@@ -566,6 +575,12 @@ protected:
 			return TRUE;                              \
 	}
 
+// void OnActivateApp(BOOL bActive, DWORD dwThreadID)
+#define UIMSG_WM_ACTIVATEAPP MSG_WM_ACTIVATEAPP
+
+// int OnMouseActivate(HWND wndTopLevel, UINT nHitTest, UINT message)
+#define UIMSG_WM_MOUSEACTIVATE MSG_WM_MOUSEACTIVATE
+
 // void OnCancelMode()
 #define UIMSG_WM_CANCELMODE  MSG_WM_CANCELMODE
 //
@@ -848,7 +863,9 @@ protected:
 // void OnTimer(UINT_PTR nIDEvent)
 #define UIMSG_WM_TIMER        MSG_WM_TIMER
 
+// void OnContextMenu(HWND hWnd, POINT point)
 #define UIMSG_WM_CONTEXTMENU  MSG_WM_CONTEXTMENU
+
 //
 // UI_WM_NOTIFY
 //
@@ -970,6 +987,9 @@ protected:
 //                    ATL中的消息兼容
 //
 //////////////////////////////////////////////////////////////////////////
+
+// LRESULT OnMessageHandlerEX(UINT uMsg, WPARAM wParam, LPARAM lParam)
+#define UIMESSAGE_HANDLER_EX  MESSAGE_HANDLER_EX
 
 #ifndef MESSAGE_HANDLER
 #define MESSAGE_HANDLER(msg, func) \

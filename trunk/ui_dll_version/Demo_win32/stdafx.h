@@ -43,6 +43,7 @@ extern HINSTANCE g_hInstance;
 #include "atlapp.h"
 #include "atlwin.h"
 #include "atldlgs.h"
+#include "atlctrls.h"
 
 #ifdef _DEBUG
 #include "..\ui_sdk\include\other\vld.h"	// ÄÚ´æÐ¹Â¶¼ì²é

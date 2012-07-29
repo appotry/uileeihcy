@@ -66,7 +66,7 @@ public:
 
 	// ÐéÄâ·½·¨
 protected:
-	virtual   BOOL PreCreateWindow( CREATESTRUCT& cs , DWORD& dwStyleEx );
+	virtual   BOOL PreCreateWindow( CREATESTRUCT& cs );
 	virtual   void OnInitWindow( );
 	virtual   void InvalidateObject( Object* pInvalidateObj, RECT* prc, bool bUpdateNow );
 	virtual   HRDC BeginDrawObject( Object* pInvalidateObj, HRGN& hClipRgn );
@@ -148,7 +148,7 @@ public:
 	LayeredWindowWrap(CustomWindow* pWindow);
 	~LayeredWindowWrap();
 
-	BOOL      PreCreateWindow( CREATESTRUCT& cs, DWORD& dwStyleEx );
+	BOOL      PreCreateWindow( CREATESTRUCT& cs );
 	void      InitLayeredWindow();
 	void      ReleaseLayeredWindow();
 	void      OnSize( UINT nType, int cx, int cy );

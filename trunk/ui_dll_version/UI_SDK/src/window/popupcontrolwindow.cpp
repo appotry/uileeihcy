@@ -3,31 +3,104 @@
 void PopupControlWindow::OnInitWindow()
 {
 	__super::OnInitWindow();
+	::PostMessage(m_hWnd, UI_WM_BEGINPOPUPLOOP, 0, 0);
+	SetCapture(m_hWnd);
+
+	m_bDestroying = false;
 }
 void PopupControlWindow::OnFinalMessage()
 {
 	delete this;
 }
-BOOL PopupControlWindow::PreCreateWindow( CREATESTRUCT& cs , DWORD& dwStyleEx )
+
+//(WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE);
+// 注：如果自己的父窗口不是桌面，则不会在任务栏上面显示图标，因此这里没有添加WS_EX_TOOLWINDOW属性
+BOOL PopupControlWindow::PreCreateWindow( CREATESTRUCT& cs )
 {
-	dwStyleEx = 0;//(WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE);
+	cs.dwExStyle |= WS_EX_TOPMOST|WS_EX_NOACTIVATE;
 	cs.lpszClass = WND_POPUP_CONTROL_NAME;
-	return __super::PreCreateWindow(cs,dwStyleEx);
-}
-void PopupControlWindow::OnKillFocus( Object* pNewFocusObj )
-{
-	this->DestroyPopupWindow();
+	return __super::PreCreateWindow(cs);
 }
 
 void PopupControlWindow::DestroyPopupWindow()
 {
+	m_bDestroying = true;
 	::PostMessage(m_hWnd, UI_WM_DESTROYPOPUPWINDOW, 0, 0);
 }
-LRESULT PopupControlWindow::__OnDestroyPopupWindow(UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT PopupControlWindow::OnDestroyPopupWindow(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	this->ClearTreeObject();
 	::DestroyWindow(m_hWnd);
 	return 0;
+}
+
+LRESULT PopupControlWindow::OnBeginPopupLoop(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	PopupLoop();
+	return 0;
+}
+
+// 注：
+//	这里的GetMessage其实是只能拦截PostMessage发送过来的消息，
+//  对于其它SendMessage的消息是不法得知的。
+
+void PopupControlWindow::PopupLoop()
+{
+	MSG msg;
+	while (GetMessage(&msg, NULL, 0, 0))
+	{
+		if (msg.message == WM_QUIT)
+		{
+			::PostMessage(msg.hwnd, msg.message, msg.wParam, msg.lParam);
+			return;
+		}
+
+		bool bBreak = false;
+		if (msg.hwnd == m_hWnd && UI_WM_DESTROYPOPUPWINDOW == msg.message)  // 注：处理完该消息后，m_hWnd将为空
+			bBreak = true;
+
+		if (FALSE == this->PreTranslatePopupMessage(&msg))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+
+		if (bBreak)
+			break;
+	}
+
+}
+BOOL PopupControlWindow::PreTranslatePopupMessage(MSG* pMsg)
+{
+	UI_LOG_DEBUG(_T("%x, %x"),pMsg->message, pMsg->hwnd);
+
+	if (WM_KEYFIRST <= pMsg->message && WM_KEYLAST >= pMsg->message)
+	{
+		BOOL bHandle = FALSE;
+		UISendMessage(this, pMsg->message, pMsg->wParam, pMsg->lParam, 0, 0, 0, &bHandle);
+		return bHandle;
+	}
+	
+	if (pMsg->hwnd != m_hWnd)
+	{
+		if (WM_LBUTTONDOWN   == pMsg->message ||
+			WM_LBUTTONDBLCLK == pMsg->message ||
+			WM_RBUTTONDOWN   == pMsg->message ||
+			WM_RBUTTONDBLCLK == pMsg->message ||
+			WM_MBUTTONDOWN   == pMsg->message ||
+			WM_MBUTTONDBLCLK == pMsg->message ||
+			WM_XBUTTONDOWN   == pMsg->message ||
+			WM_XBUTTONDBLCLK == pMsg->message ||
+			WM_NCLBUTTONDOWN == pMsg->message ||
+			WM_NCRBUTTONDOWN == pMsg->message ||
+			WM_NCRBUTTONDBLCLK == pMsg->message )
+		{
+			this->DestroyPopupWindow();
+			return FALSE;
+		}
+	}
+	
+	return FALSE;
 }
 
 BOOL PopupControlWindow::OnEraseBkgnd(HRDC hRDC)
@@ -45,15 +118,17 @@ PopupListBoxWindow::PopupListBoxWindow(ListBox* pListBox, Object* pBindObj)
 	m_pListBox = pListBox;
 }
 
-BOOL PopupListBoxWindow::PreCreateWindow( CREATESTRUCT& cs , DWORD& dwStyleEx )
+BOOL PopupListBoxWindow::PreCreateWindow( CREATESTRUCT& cs )
 {
 	if (NULL == m_pListBox || NULL == m_pBindOb)
 		return FALSE;
 
-	return __super::PreCreateWindow(cs,dwStyleEx);
+	return __super::PreCreateWindow(cs);
 }
 void PopupListBoxWindow::OnInitWindow()
 {
+	__super::OnInitWindow();
+
 	m_pListBox->AddHook(this, 0, ALT_MSG_ID_LISTBOX);
 	this->AddChild(m_pListBox);
 
@@ -92,6 +167,5 @@ LRESULT PopupListBoxWindow::OnDestroyPopupWindow(UINT uMsg, WPARAM wParam, LPARA
 
 void PopupListBoxWindow::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
 {
-	UI_LOG_DEBUG(_T("AAA"));
 	return;
 }

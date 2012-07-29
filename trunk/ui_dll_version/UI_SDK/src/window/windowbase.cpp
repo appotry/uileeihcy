@@ -282,6 +282,7 @@ bool WindowBase::Create( const String& ID, HWND hWndParent )
 
 	//	´´½¨´°¿Ú¾ä±ú
 	CREATESTRUCT cs;
+	::ZeroMemory(&cs, sizeof(CREATESTRUCT));
 	DWORD  dwStyleEx = WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR | WS_EX_WINDOWEDGE;
 
 	cs.style     = WS_OVERLAPPEDWINDOW;
@@ -290,11 +291,11 @@ bool WindowBase::Create( const String& ID, HWND hWndParent )
 	cs.x = cs.y = 0;
 	cs.cx = cs.cy = 300;//CW_USEDEFAULT;
 
-	this->PreCreateWindow( cs, dwStyleEx );
+	this->PreCreateWindow( cs );
 
 	UI_AddCreateWndData(&m_thunk.cd, this);
 	this->m_hWnd = ::CreateWindowEx( 
-		dwStyleEx,
+		cs.dwExStyle,
 		cs.lpszClass, cs.lpszName, cs.style,
 		cs.x, cs.y, cs.cx, cs.cy,
 		hWndParent, 0, NULL, NULL );
@@ -353,7 +354,7 @@ long  WindowBase::DoModal(  const String& ID, HWND hWndParent )
 	cs.x  = cs.y    = 0;
 	cs.cx = cs.cy   = 100;//CW_USEDEFAULT;
 	DWORD dwStyleEx = WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR | WS_EX_WINDOWEDGE;
-	this->PreCreateWindow( cs, dwStyleEx );
+	this->PreCreateWindow( cs );
 
 	HGLOBAL hgbl = GlobalAlloc(GMEM_ZEROINIT, 1024);
 	if (!hgbl)
@@ -457,8 +458,8 @@ HWND WindowBase::DoModeless( const String& ID, HWND hWndParent )
 	cs.lpszName     = _T("");
 	cs.x  = cs.y    = 0;
 	cs.cx = cs.cy   = 100;//CW_USEDEFAULT;
-	DWORD dwStyleEx = WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR | WS_EX_WINDOWEDGE;
-	this->PreCreateWindow( cs, dwStyleEx );
+	cs.dwExStyle    = WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR | WS_EX_WINDOWEDGE;
+	this->PreCreateWindow( cs );
 
 	HGLOBAL hgbl = GlobalAlloc(GMEM_ZEROINIT, 1024);
 	if (!hgbl)
@@ -467,7 +468,7 @@ HWND WindowBase::DoModeless( const String& ID, HWND hWndParent )
 
 	lpdt->cdit = 0;  // Number of controls
 	lpdt->style = cs.style;
-	lpdt->dwExtendedStyle = dwStyleEx;
+	lpdt->dwExtendedStyle = cs.dwExStyle;
 	lpdt->x = cs.x;
 	lpdt->y = cs.y;
 	lpdt->cx = cs.cx;
@@ -939,7 +940,7 @@ LRESULT WindowBase::OnGetRenderType()
 	return  /*GRAPHICS_RENDER_TYPE_GDIPLUS*/ GRAPHICS_RENDER_TYPE_AUTO;
 }
 
-BOOL WindowBase::PreCreateWindow( CREATESTRUCT& cs, DWORD& dwStyleEx )
+BOOL WindowBase::PreCreateWindow( CREATESTRUCT& cs )
 {
 	return TRUE;
 }

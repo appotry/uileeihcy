@@ -6,36 +6,50 @@ namespace UI
 	{
 	public:
 		UI_BEGIN_MSG_MAP
+			UI_LOG_WARN(_T("%x, %x"),pMsg->message, pMsg->hwnd);
 			UIMSG_WM_ERASEBKGND(OnEraseBkgnd)
-			//UIMSG_WM_KILLFOCUS(OnKillFocus)
-			MESSAGE_HANDLER_EX(UI_WM_DESTROYPOPUPWINDOW, __OnDestroyPopupWindow)
-			MESSAGE_HANDLER_EX(WM_MOUSEACTIVATE, OnMouseActivate)
-			//MESSAGE_HANDLER_EX(WM_ACTIVATEAPP, OnActivateApp)
+			UIMSG_WM_MOUSEACTIVATE(OnMouseActivate)
+			UIMSG_WM_ACTIVATEAPP(OnActivateApp)
 
+			UIMESSAGE_HANDLER_EX(UI_WM_DESTROYPOPUPWINDOW, OnDestroyPopupWindow)
+			UIMESSAGE_HANDLER_EX(UI_WM_BEGINPOPUPLOOP, OnBeginPopupLoop)
 			UICHAIN_MSG_MAP(CustomWindow)
 		UI_END_MSG_MAP
 
 		virtual void OnInitWindow();
 		virtual void OnFinalMessage();
+		virtual BOOL PreCreateWindow( CREATESTRUCT& cs );
 
-		virtual BOOL PreCreateWindow( CREATESTRUCT& cs , DWORD& dwStyleEx );
-		void    OnKillFocus( Object* pNewFocusObj );
-		BOOL    OnEraseBkgnd(HRDC hRDC);
-		void    DestroyPopupWindow();
-		LRESULT __OnDestroyPopupWindow(UINT uMsg, WPARAM wParam, LPARAM lParam);
-		LRESULT OnMouseActivate(UINT uMsg, WPARAM wParam, LPARAM lParam)
+		virtual BOOL PreTranslatePopupMessage(MSG* pMsg);
+
+		BOOL      OnEraseBkgnd(HRDC hRDC);
+		void      DestroyPopupWindow();
+		LRESULT   OnDestroyPopupWindow(UINT uMsg, WPARAM wParam, LPARAM lParam);
+		LRESULT   OnBeginPopupLoop(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+		// 在鼠标点击本窗口的时候，不要去抢占主窗口的焦点
+		// 但是这样同时导致了鼠标消息和键盘消息获取不进来了
+		// WM_NCHITTEST能收到
+		int OnMouseActivate(HWND wndTopLevel, UINT nHitTest, UINT message)
 		{
 			return MA_NOACTIVATE;
 		}
-		LRESULT OnActivateApp(UINT uMsg, WPARAM wParam, LPARAM lParam)
+
+		// 这个消息是用于针对鼠标点击了桌面/其它顶层窗口的时候，
+		// 将窗口隐藏的通知。对于点击了自己的顶层窗口却处理不了
+		void OnActivateApp(BOOL bActive, DWORD dwThreadID)
 		{
 			SetMsgHandled(FALSE);
-			DestroyPopupWindow();
-			return 0;
+			if (FALSE == bActive)
+			{
+				DestroyPopupWindow();
+			}
 		}
-		
-		
-		
+
+		void PopupLoop();
+
+	private:
+		bool   m_bDestroying;
 	};
 
 	class ListBox;
@@ -58,7 +72,7 @@ namespace UI
 		UI_END_MSG_MAP
 
 	protected:
-		virtual BOOL PreCreateWindow( CREATESTRUCT& cs , DWORD& dwStyleEx );
+		virtual BOOL PreCreateWindow( CREATESTRUCT& cs );
 		virtual void OnInitWindow();
 
 		void    OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags );

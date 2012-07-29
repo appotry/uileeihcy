@@ -11,7 +11,7 @@ namespace UI
 //	remark
 //		想要知道这个消息有没有被处理，可调用IsCurMsgHandled()
 //
-long UISendMessage(UIMSG* pMsg, int nMsgMapID)
+long UISendMessage(UIMSG* pMsg, int nMsgMapID, BOOL* pbHandled)
 {
 	UIASSERT( pMsg != NULL );
 	if( NULL == pMsg )
@@ -29,7 +29,11 @@ long UISendMessage(UIMSG* pMsg, int nMsgMapID)
 		UI_LOG_ERROR(_T("UISendMessage, pMessageTo==NULL!  message=%d"), pMsg->message );
 		return -1;
 	}
-	pMessageTo->ProcessMessage(pMsg, nMsgMapID);
+	BOOL bRet = pMessageTo->ProcessMessage(pMsg, nMsgMapID);
+	if (NULL != pbHandled)
+	{
+		*pbHandled = bRet;
+	}
 
 	return pMsg->lRet;
 }
@@ -37,7 +41,7 @@ long UISendMessage(UIMSG* pMsg, int nMsgMapID)
 long UISendMessage( Message* pObjMsgTo,  UINT message, 
 					WPARAM   wParam,     LPARAM lParam, 
 					UINT     code,       Message* pObjMsgFrom,
-					int      nMsgMapID )
+					int      nMsgMapID,  BOOL* pbHandled )
 {
 	assert( pObjMsgTo != NULL );
 
@@ -50,7 +54,7 @@ long UISendMessage( Message* pObjMsgTo,  UINT message,
 	msg.wParam        = wParam;
 	msg.lParam        = lParam;
 
-	return ::UISendMessage(&msg, nMsgMapID);
+	return ::UISendMessage(&msg, nMsgMapID, pbHandled);
 }
 
 }

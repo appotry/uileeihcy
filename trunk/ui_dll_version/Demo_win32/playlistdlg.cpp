@@ -11,11 +11,11 @@ CPlayListDlg::~CPlayListDlg(void)
 {
 }
 
-BOOL CPlayListDlg::PreCreateWindow( CREATESTRUCT& cs, DWORD& dwStyleEx )
+BOOL CPlayListDlg::PreCreateWindow( CREATESTRUCT& cs )
 {
-	dwStyleEx &= ~WS_EX_APPWINDOW;
-	dwStyleEx |= WS_EX_TOOLWINDOW;
-	return __super::PreCreateWindow(cs,dwStyleEx);
+	cs.dwExStyle &= ~WS_EX_APPWINDOW;
+	cs.dwExStyle |= WS_EX_TOOLWINDOW;
+	return __super::PreCreateWindow(cs);
 }
  
 int CPlayListDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
