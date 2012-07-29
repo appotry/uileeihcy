@@ -314,11 +314,6 @@ BOOL ScrollBarMgr::ProcessMessage(UIMSG* pMsg, int nMsgMapID)
 		}
 
 	}
-	else if (pMsg->message == UI_WM_HITTEST)
-	{
-		POINT pt = {pMsg->wParam, pMsg->lParam};
-		return this->OnHitTest(&pt);
-	}
 	else if (pMsg->message == UI_WM_GETSCROLLOFFSET)
 	{
 		this->GetScrollPos((int*)pMsg->wParam, (int*)pMsg->lParam);
@@ -347,23 +342,23 @@ BOOL ScrollBarMgr::ProcessMessage(UIMSG* pMsg, int nMsgMapID)
 	return FALSE;
 }
 
-UINT ScrollBarMgr::OnHitTest(POINT* pt)
-{
-	if (NULL != m_pVScrollBar)
-	{
-		UINT nRet = UISendMessage(m_pVScrollBar, UI_WM_HITTEST, pt->x, pt->y);
-		if (HTNOWHERE != nRet)
-			return HTVSCROLL;
-	}
-	if (NULL != m_pHScrollBar)
-	{
-		UINT nRet = UISendMessage(m_pHScrollBar, UI_WM_HITTEST, pt->x, pt->y);
-		if (HTNOWHERE != nRet)
-			return HTHSCROLL;
-	}
-
-	return HTNOWHERE;
-}
+// UINT ScrollBarMgr::OnHitTest(POINT* pt)
+// {
+// 	if (NULL != m_pVScrollBar)
+// 	{
+// 		UINT nRet = UISendMessage(m_pVScrollBar, UI_WM_HITTEST, pt->x, pt->y);
+// 		if (HTNOWHERE != nRet)
+// 			return HTVSCROLL;
+// 	}
+// 	if (NULL != m_pHScrollBar)
+// 	{
+// 		UINT nRet = UISendMessage(m_pHScrollBar, UI_WM_HITTEST, pt->x, pt->y);
+// 		if (HTNOWHERE != nRet)
+// 			return HTHSCROLL;
+// 	}
+// 
+// 	return HTNOWHERE;
+// }
 
 void ScrollBarMgr::MakeYVisible(int ny, bool bTopOrBottom)
 {
@@ -486,7 +481,7 @@ bool ScrollBarMgr::SetScrollPage(int nxPage, int nyPage)
 	if (NULL != m_pHScrollBar)
 	{
 		bool bOldVisible = m_pHScrollBar->IsMySelfVisible();
- 		this->m_pHScrollBar->SetScrollButtonLine(nxPage);
+ 		this->m_pHScrollBar->SetScrollPage(nxPage);
 		bool bNowVisible = m_pHScrollBar->IsMySelfVisible();
 		
 		if (bOldVisible != bNowVisible)

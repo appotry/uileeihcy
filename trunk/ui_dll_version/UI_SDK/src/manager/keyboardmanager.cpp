@@ -52,6 +52,9 @@ void KeyboardManager::SetFocusObjectDirect( Object* pObj )
 //
 void KeyboardManager::SetFocusObject( Object* pObj )
 {
+#ifdef _DEBUG
+	return;
+#endif
 	 if( m_pFocusObject == pObj )
 		 return;
 
@@ -63,7 +66,12 @@ void KeyboardManager::SetFocusObject( Object* pObj )
 			 {
 				 m_pOldFocusObject = m_pFocusObject;   // 在HwndHost::WndProc WM_SETFOCUS中使用
 				 m_pFocusObject = pObj;
-				 ::SetFocus( ((HwndHost*)pObj)->m_hWnd );  
+
+				 HWND hWnd = ((HwndHost*)pObj)->m_hWnd;
+				 if (GetWindowLong(hWnd, GWL_EXSTYLE)&WS_EX_NOACTIVATE)
+					{}
+				 else
+					::SetFocus(hWnd);  
 				 return;
 			 }
 		 }
@@ -73,7 +81,13 @@ void KeyboardManager::SetFocusObject( Object* pObj )
 			 {
 				 m_pOldFocusObject = m_pFocusObject;   // 在KeyboardManager::SetFocus中使用
 				 m_pFocusObject = pObj;
-				 ::SetFocus( m_pWindow->m_hWnd );
+
+				 HWND hWnd = m_pWindow->m_hWnd;
+				 if (GetWindowLong(hWnd, GWL_EXSTYLE)&WS_EX_NOACTIVATE)
+					{int a = 0;}
+				 else
+					 ::SetFocus(hWnd);  
+
 				 return;
 			 }
 		 }

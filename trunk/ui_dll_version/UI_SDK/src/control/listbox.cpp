@@ -1,37 +1,24 @@
 #include "stdafx.h"
 
-ListItemBase::ListItemBase(void* pData, LIST_ITEM_DATA_DELETE_TYPE eType)
+ListItemBase::ListItemBase(ListCtrlBase* pCtrl)
 {
 	m_nLineIndex = 0;
-	m_nHeight = 20;
+	m_DesiredSize.cx = m_DesiredSize.cy = 0;
 	m_pPrev = m_pNext = m_pPrevSelection = m_pNextSelection = NULL;
 	m_rcParent.SetRectEmpty();
 
 	m_bDisable = false;
 	m_bChecked = false;
-	m_pData = pData;
-	m_eDataDeleteType = eType;
+	m_pData = NULL;
+	m_pCtrl = pCtrl;
 }
 ListItemBase::~ListItemBase()
 {
 	m_pPrev = m_pNext = m_pPrevSelection = m_pNextSelection = NULL;
-	if (NULL != m_pData)
-	{
-		switch (m_eDataDeleteType)
-		{
-		case LIST_ITEM_DATA_DELETE_TYPE_NONE:
-			break;
-		case LIST_ITEM_DATA_DELETE_TYPE_DELETE:
-			delete m_pData;
-			break;
-		case LIST_ITEM_DATA_DELETE_TYPE_DELETE_ARRAY:
-			delete [] m_pData;
-			break;
-		}
-		m_pData = NULL;
-	}
+	m_pData = NULL;
+	m_pCtrl = NULL;
 }
-TreeListItemBase::TreeListItemBase(void* pData, LIST_ITEM_DATA_DELETE_TYPE eType):ListItemBase(pData, eType)
+TreeListItemBase::TreeListItemBase(ListCtrlBase* pCtrl):ListItemBase(pCtrl)
 {
 	m_pChild = m_pParent = NULL;
 }
@@ -64,7 +51,6 @@ ListCtrlBase::ListCtrlBase()
 }
 ListCtrlBase::~ListCtrlBase()
 {
-	this->RemoveAllItem();
 }
 
 void ListCtrlBase::RemoveItem(ListItemBase* pItem, bool bUpdate)
@@ -116,6 +102,7 @@ void ListCtrlBase::RemoveItem(ListItemBase* pItem, bool bUpdate)
 
 	this->UpdateItemRect(pItem->GetNextItem());
 	
+	this->OnDeleteItem(pItem);
 	delete pItem;
 	pItem = NULL;
 
@@ -131,6 +118,7 @@ void ListCtrlBase::RemoveAllItem()
 	while ( p!=NULL )
 	{
 		ListItemBase* pNext = p->GetNextItem();  // Save
+		this->OnDeleteItem(p);
 		delete  p;
 		p = pNext;
 	}
@@ -227,10 +215,26 @@ void ListCtrlBase::RemoveItem(int nIndex, bool bUpdate)
 void ListCtrlBase::UpdateItemRect( ListItemBase* pStart )
 {
 	if( NULL == pStart )
+		pStart = m_pFirstItem;
+		
+	if (NULL == pStart)
 		return;
 
 	CRect rcClient;
 	this->GetClientRect(&rcClient);
+
+	int nMaxDesiredWidth = 0;
+	if (m_nStyle&LISTCTRLBASE_SIZE_2_CONTENT)
+	{ }
+	else
+	{
+		nMaxDesiredWidth = this->GetMaxDisiredWidth();
+		if (0 == nMaxDesiredWidth)
+		{
+			nMaxDesiredWidth = rcClient.Width();
+		}
+	}
+
 
 	ListItemBase* p = pStart;
 	while( p != NULL )
@@ -246,22 +250,26 @@ void ListCtrlBase::UpdateItemRect( ListItemBase* pStart )
 			p->SetLineIndex(p->GetPrevItem()->GetLineIndex()+1);
 		}
 
-		if (m_nStyle & LISTCTRLBASE_ITEM_VARIABLE_HEIGHT)
+		if (m_nStyle & LISTCTRLBASE_CONTENT_2_SIZE)
 		{
-			CRect rc(0, y, rcClient.Width(), y+p->GetDesiredHeight());
+			CRect rc(0, y, nMaxDesiredWidth, y+p->GetDesiredSize().cy);
+			p->SetParentRect(&rc);
+		}
+		else if (m_nStyle & LISTCTRLBASE_SIZE_2_CONTENT)
+		{
+			CRect rc(0, y, rcClient.Width(), y+p->GetDesiredSize().cy);
 			p->SetParentRect(&rc);
 		}
 		else
 		{
-			CRect rc(0, y, rcClient.Width(), y+m_nFixeddItemHeight);
+			CRect rc(0, y, nMaxDesiredWidth, y+p->GetDesiredSize().cy);
 			p->SetParentRect(&rc);
 		}
-		
 			
 		p = p->GetNextItem();
 	}
 
-	this->m_MgrScrollbar.SetScrollRange(0, 
+	this->m_MgrScrollbar.SetScrollRange(nMaxDesiredWidth, 
 		  NULL == m_pLastItem ? 0:m_pLastItem->GetParentRect().bottom);
 }
 
@@ -403,6 +411,15 @@ void ListCtrlBase::InsertItem( ListItemBase*  pItem, ListItemBase* pInsertAfter 
 	if( NULL == pItem )
 		return;
 
+	int nMaxDesiredWidth = 0;
+	int nTotalDesiredHeight = 0;
+	if (m_nStyle & LISTCTRLBASE_SIZE_2_CONTENT)
+		{}
+	else if (m_nStyle & LISTCTRLBASE_CONTENT_2_SIZE)
+		nMaxDesiredWidth = this->GetMaxDisiredWidth(&nTotalDesiredHeight);
+	else
+		nMaxDesiredWidth = this->GetMaxDisiredWidth();
+
 	if( NULL == pInsertAfter )
 	{
 		if( NULL == m_pFirstItem )
@@ -440,10 +457,82 @@ void ListCtrlBase::InsertItem( ListItemBase*  pItem, ListItemBase* pInsertAfter 
 
 // 	SIZE s = this->GetItemDisiredSize();
 // 	pItem->SetParentRect(0,0,s.cx, s.cy);
-	this->UpdateItemRect(pItem);
+
+	this->MeasureItem(pItem);
+
+	if (m_nStyle&LISTCTRLBASE_SIZE_2_CONTENT)
+	{
+		this->UpdateItemRect(pItem);
+	}
+	else if (m_nStyle & LISTCTRLBASE_CONTENT_2_SIZE)
+	{
+		//if (pItem->GetDesiredSize().cx > nMaxDesiredWidth)  // 改项为最宽项，导致所有子项需要重新更新自己的区域
+		{
+			nMaxDesiredWidth = this->GetMaxDisiredWidth(&nTotalDesiredHeight);
+
+			CRegion4 rcNonClient;
+			this->GetNonClientRegion(&rcNonClient);
+			this->SetObjectPos(0,0, 
+				nMaxDesiredWidth + rcNonClient.left + rcNonClient.right,
+				nTotalDesiredHeight + rcNonClient.top + rcNonClient.bottom,
+				SWP_NOMOVE|SWP_NOREDRAW );
+		}
+	}
+	else
+	{
+		if (pItem->GetDesiredSize().cx > nMaxDesiredWidth)  // 改项为最宽项，导致所有子项需要重新更新自己的区域
+			this->UpdateItemRect(m_pFirstItem);
+		else
+			this->UpdateItemRect(pItem);
+	}
 }
 
+void ListCtrlBase::MeasureItem(ListItemBase* pItem)
+{
+	if (NULL == pItem)
+		return;
 
+	SIZE s = this->OnMeasureItem(pItem);
+	pItem->SetDesiredSize(s);
+}
+
+void ListCtrlBase::MeasureAllItem()
+{
+	ListItemBase* p = m_pFirstItem;
+	while ( p!=NULL )
+	{
+		this->MeasureItem(p);
+		p = p->GetNextItem();
+	}
+}
+
+// 获取所有item中，最大的宽度值(如果pDesiredHeight不为空，则同时返回总共需要的高度)
+int ListCtrlBase::GetMaxDisiredWidth(int* pDesiredHeight)
+{
+	if (NULL != pDesiredHeight)
+		*pDesiredHeight = 0;
+
+	int nRet = 0;
+	ListItemBase* p = m_pFirstItem;
+	while ( p!=NULL )
+	{
+		SIZE s = p->GetDesiredSize();
+		int nWidth = s.cx;
+		nRet = max(nRet, nWidth);
+
+		if (NULL != pDesiredHeight)
+		{
+			*pDesiredHeight += s.cy;
+			if (p != m_pFirstItem)
+			{
+				*pDesiredHeight += m_nItemGap;
+			}
+		}
+		p = p->GetNextItem();
+	}
+
+	return nRet;
+}
 ListItemBase* ListCtrlBase::HitTest(POINT ptWindow)
 {
 	CRect rcClient;
@@ -792,12 +881,14 @@ int ListBoxCompareProc( ListItemBase* p1, ListItemBase* p2 );
 
 ListBox::ListBox()
 {
-	this->ModifyStyle(OBJECT_STYLE_VSCROLL | LISTCTRLBASE_SORT_ASCEND);
+	m_nItemHeight = 24;
+
+	this->ModifyStyle(OBJECT_STYLE_VSCROLL | LISTCTRLBASE_SORT_ASCEND | LISTCTRLBASE_SIZE_2_CONTENT);
 	__super::SetSortCompareProc( ListBoxCompareProc );
 }
 ListBox::~ListBox()
 {
-	
+	this->RemoveAllItem();
 }
 
 int ListBoxCompareProc( ListItemBase* p1, ListItemBase* p2 )
@@ -826,15 +917,21 @@ int ListBoxCompareProc( ListItemBase* p1, ListItemBase* p2 )
 }
 bool ListBox::AddString(const String& strText, bool bUpdate)
 {
+	ListItemBase* pItem = new ListItemBase(this);
 	ListBoxItemData *pData = new ListBoxItemData;
-	pData->m_strText = strText;
-	ListItemBase* pItem = new ListItemBase(pData);
 
-	__super::AddItem(pItem);
-	if (bUpdate)
-		this->UpdateObject();
+	pData->m_strText = strText;
+	pItem->SetData((void*)pData);
+	this->AddItem(pItem, bUpdate);
 
 	return true;
+}
+
+void ListBox::SetItemHeight(int nHeight)
+{
+	m_nItemHeight = nHeight;
+	this->MeasureAllItem();
+	this->UpdateItemRect(m_pFirstItem);
 }
 
 void ListBox::OnDrawItem(HRDC hRDC, ListItemBase* p)
@@ -874,13 +971,36 @@ void ListBox::OnDrawItem(HRDC hRDC, ListItemBase* p)
 	}
 }
 
+SIZE ListBox::OnMeasureItem( ListItemBase* p)
+{
+	SIZE s = {0,m_nItemHeight};
+	return s;
+}
+void ListBox::OnDeleteItem( ListItemBase* p )
+{
+	if (NULL == p)
+		return;
+
+	ListBoxItemData *pData = (ListBoxItemData*)p->GetData();
+	if (NULL == pData)
+		return;
+
+	SAFE_DELETE(pData);
+}
+
 void ListBox::OnRButtonDown(UINT nFlags, CPoint point)
 {
 #ifdef _DEBUG
-	this->AddString(_T("test"));
+	//this->AddString(_T("test"));
+	this->SetItemHeight(m_nItemHeight + 10);
+	this->UpdateObject();
 #endif
 }
-
+void ListBox::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
+{
+	UI_LOG_DEBUG(_T("AAA"));
+	return;
+}
 //////////////////////////////////////////////////////////////////////////
 
 void TTPlayerPlaylistCtrl::OnDrawItem(HRDC hRDC, ListItemBase* p)
@@ -975,5 +1095,24 @@ void TTPlayerPlaylistCtrl::AddFileItem(const String& strFilePath, bool bUpdate)
 	pData->m_strFileName = strFilePath.substr(nPos+1, strFilePath.length()-nPos-1);
 	pData->m_strFileTime = _T("3:25");
 
-	__super::AddItem( new ListItemBase(pData), bUpdate );
+	ListItemBase* pItem = new ListItemBase(this);
+	pItem->SetData((void*)pData);
+	__super::AddItem( pItem, bUpdate );
+}
+
+SIZE TTPlayerPlaylistCtrl::OnMeasureItem( ListItemBase* p)
+{
+	SIZE s = {0,0};
+	return s;
+}
+void TTPlayerPlaylistCtrl::OnDeleteItem( ListItemBase* p )
+{
+	if (NULL == p)
+		return;
+
+	TTPlayerPlaylistItemData* pData = (TTPlayerPlaylistItemData*)p->GetData();
+	if (NULL == pData)
+		return;
+
+	SAFE_DELETE(pData);
 }

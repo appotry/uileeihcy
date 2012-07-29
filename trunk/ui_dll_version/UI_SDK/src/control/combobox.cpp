@@ -4,14 +4,17 @@ ComboboxBase::ComboboxBase()
 {
 	// 修改一些默认属性
 	m_edit.m_strID = COMBOBOX_EDIT_ID;
-	m_button.m_strID = COMBOBOX_BUTTON_ID;
 	m_edit.SetEditStyle(EDIT_STYLE_COMBOBOX);
-	m_button.SetButtonStyle(BUTTON_STYLE_COMBOBOX);
-
 	m_edit.ModifyStyle(OBJECT_STYLE_TRANSPARENT, 0);
+
+	m_button.m_strID = COMBOBOX_BUTTON_ID;
+	m_button.SetButtonStyle(BUTTON_STYLE_COMBOBOX);
 	m_button.SetDrawFocusType(BUTTON_RENDER_DRAW_FOCUS_TYPE_NONE);
 	m_button.SetAutoSizeType(BUTTON_RENDER_AUTOSIZE_TYPE_BKIMAGE);
 
+	m_listbox.m_strID = COMBOBOX_LIST_ID;
+	m_listbox.ModifyStyle(LISTCTRLBASE_CONTENT_2_SIZE, LISTCTRLBASE_SIZE_2_CONTENT);
+	
 	this->AddChild(&m_edit);
 	this->AddChild(&m_button);
 	m_button.ClearNotify();
@@ -113,6 +116,10 @@ void ComboboxBase::OnStateChanged(int nOld, int nNew)
 
 void ComboboxBase::OnBtnClicked( )
 {
-	PopupControlWindow wnd;
-	wnd.DoModal(_T(""),NULL);
+	m_listbox.AddString(_T("Test"),false);
+	PopupListBoxWindow* p = new PopupListBoxWindow(&m_listbox, this);
+	p->Create(_T(""),NULL/*GetHWND()*/);
+	//::ShowWindow(p->m_hWnd,SW_SHOW);
+	::SetWindowPos(p->m_hWnd, NULL,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_SHOWWINDOW|SWP_NOACTIVATE);
+	//::SetFocus(p->m_hWnd);
 }

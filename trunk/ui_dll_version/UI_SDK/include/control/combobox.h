@@ -4,6 +4,7 @@ namespace UI
 {
 #define COMBOBOX_BUTTON_ID _T("combobox_button")
 #define COMBOBOX_EDIT_ID   _T("combobox_edit")
+#define COMBOBOX_LIST_ID   _T("combobox_list")
 
 class UIAPI ComboboxBase : public Control
 {

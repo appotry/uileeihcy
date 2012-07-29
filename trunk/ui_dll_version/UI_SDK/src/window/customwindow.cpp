@@ -214,6 +214,10 @@ void CustomWindow::OnEraseBkgnd(HRDC hRDC)
 			m_pBkgndRender->DrawState(hRDC, &rc, WINDOW_BKGND_RENDER_STATE_INACTIVE );
 		}
 	}
+	else
+	{
+		__super::OnEraseBkgnd(hRDC);
+	}
 
 	// 重新设置窗口透明形状
 	if( m_bNeedToSetWindowRgn )

@@ -284,16 +284,15 @@ LRESULT MouseManager::MouseMove( int vkFlag, int xPos, int yPos )
 {
 	
 	// 1. 判断当前鼠标位置
-	POINT     pt = { xPos, yPos };
+	POINT pt = { xPos, yPos };
 
-	Object*   pObj = this->GetObjectByPos( this->m_pWindow, &pt );
-	if( NULL == this->m_pObjPress )
+	Object* pObj = this->GetObjectByPos( this->m_pWindow, &pt );
+	if (NULL == this->m_pObjPress)
 	{
-		if( NULL == this->m_pObjHover )
+		if (NULL == this->m_pObjHover)
 		{
-			if( pObj == this->m_pObjHover )   // 鼠标还是在外面移动
+			if (pObj == this->m_pObjHover)   // 鼠标还是在外面移动
 			{
-
 			}
 			else                              // 鼠标移动到了pObj上
 			{
@@ -310,7 +309,7 @@ LRESULT MouseManager::MouseMove( int vkFlag, int xPos, int yPos )
 		}
 		else
 		{
-			if( pObj == this->m_pObjHover )   // 鼠标在A上面移动
+			if (pObj == this->m_pObjHover)   // 鼠标在A上面移动
 			{
 				::UISendMessage( m_pObjHover, WM_MOUSEMOVE, (WPARAM) vkFlag, MAKELPARAM( xPos, yPos ) );
 			}
@@ -330,9 +329,9 @@ LRESULT MouseManager::MouseMove( int vkFlag, int xPos, int yPos )
 	}
 	else
 	{
-		if( NULL == this->m_pObjHover )
+		if (NULL == this->m_pObjHover)
 		{
-			if( pObj == m_pObjPress )  // 鼠标按在了A对象上，但鼠标在A外面。现在又移动回来了
+			if (pObj == m_pObjPress)  // 鼠标按在了A对象上，但鼠标在A外面。现在又移动回来了
 			{
 				//m_pObjHover = m_pObjPress;
 				this->SetHoverObject(m_pObjPress);
@@ -347,16 +346,16 @@ LRESULT MouseManager::MouseMove( int vkFlag, int xPos, int yPos )
 		}
 		else
 		{
-			if( pObj == m_pObjPress )  // 鼠标按在了A对象上，现在在A上移动
+			if (pObj == m_pObjPress)  // 鼠标按在了A对象上，现在在A上移动
 			{
-				assert( m_pObjPress == m_pObjHover );
-				assert( m_pObjHover == pObj );
+				UIASSERT(m_pObjPress == m_pObjHover);
+				UIASSERT(m_pObjHover == pObj);
 
 				::UISendMessage( m_pObjPress, WM_MOUSEMOVE, (WPARAM) vkFlag, MAKELPARAM( xPos, yPos ) );
 			}
 			else  // 鼠标刚才按在了A对象上，但现在鼠标移出来了。
 			{
-				assert( m_pObjPress==m_pObjHover );	
+				UIASSERT(m_pObjPress==m_pObjHover);	
 
 				// m_pObjHover = NULL;
 				this->SetHoverObject(NULL);
