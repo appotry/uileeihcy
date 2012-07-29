@@ -53,7 +53,7 @@ namespace UI
 		SCROLLBAR_VISIBLE_TYPE GetScrollBarVisibleType(SCROLLBAR_DIRECTION_TYPE eType);
 
 		void     MakeYVisible(int ny, bool bTopOrBottom=true);
-		UINT     OnHitTest( POINT* pt );
+//		UINT     OnHitTest( POINT* pt );
 		void     UpdateBindObjectNonClientRect();
 
 		void     GetScrollPos(int* pnxOffset, int* pnyOffset);

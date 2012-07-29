@@ -123,6 +123,8 @@ enum
 	//
 	//UI_WM_GETSCROLLBAROBJECT,
 
+
+	UI_WM_DESTROYPOPUPWINDOW,
 };
 
 namespace UI
@@ -367,6 +369,9 @@ protected:
 // 		if(IsMsgHandled())                         \
 //			return TRUE;                              \
 // 	}
+
+// void OnNcDestroy()
+#define UIMSG_WM_NCDESTROY MSG_WM_NCDESTROY
 
 #define UIMSG_WM_DESTROY MSG_WM_DESTROY
 // void OnDestroy()

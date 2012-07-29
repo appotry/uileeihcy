@@ -380,6 +380,9 @@ namespace UI
 				this->m_pChild = NULL;
 				this->m_pNcChild = NULL;
 			}
+			
+			pThis->ClearHook();
+			pThis->ClearNotify();
 		}
 	
 	protected:

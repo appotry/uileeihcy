@@ -89,9 +89,8 @@ void MainWindow::OnInitWindow()
 
 	::SetWindowText(m_hWnd, _T("wine-of-bincos-lunba.mp3"));
 
-
-	COptionWindow win;
-	win.DoModal(g_hInstance, COptionWindow::IDD, _T("OptionWindow"),m_hWnd);
+//	COptionWindow win;
+//	win.DoModal(g_hInstance, COptionWindow::IDD, _T("OptionWindow"),m_hWnd);
 }
 
 void MainWindow::OnBnClickPlay()

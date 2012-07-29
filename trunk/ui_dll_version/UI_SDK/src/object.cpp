@@ -54,10 +54,10 @@ void Object::UpdateObject( bool bUpdateNow )
 	if( !this->IsVisible() )
 		return ;
 
-	if( this->testStateBit( CSB_PREVENTREDRAW) )
+	if( this->testStateBit(CSB_PREVENTREDRAW))
 		return ;
 
-	this->GetWindowObject()->InvalidateObject( this, NULL, bUpdateNow );
+	this->GetWindowObject()->InvalidateObject(this, NULL, bUpdateNow);
 }
 
 //
@@ -779,7 +779,11 @@ HRFONT Object::GetFont()
 {
 	if( NULL == m_pTextRender || NULL == m_pTextRender->GetHRFONT() )
 	{
-		return GetWindowObject()->GetHRFONT();
+		WindowBase* pWindow = GetWindowObject();
+		if (NULL != pWindow)
+		{
+			return pWindow->GetHRFONT();
+		}
 	}
 	else
 	{
@@ -990,7 +994,9 @@ bool Object::IsVisible()
 
 bool Object::IsCollapsed()
 {
-	return ;
+	// TODO:  
+	UIASSERT(0);
+	return false;
 }
 
 bool Object::IsEnable()

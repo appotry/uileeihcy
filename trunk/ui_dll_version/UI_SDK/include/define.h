@@ -21,8 +21,9 @@ typedef CRect CRegion4;
 typedef void *HSKIN;
 
 // 窗口类名称
-#define WND_CLASS_NAME   _T("UI")
-#define WND_ANIMATE_CLASS_NAME _T("UI_Animate")
+#define WND_CLASS_NAME           _T("UI")
+#define WND_ANIMATE_CLASS_NAME   _T("UI_Animate")
+#define WND_POPUP_CONTROL_NAME   _T("UI_PopupControl")
 
 // 临时文件后缀名
 #define TEMP_FILE_EXT    _T(".tmp")

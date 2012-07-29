@@ -70,6 +70,9 @@ enum OBJ_TYPE
 #define OBJECT_STYLE_VSCROLL            0x04000000    // 对象纵向滚动
 #define OBJECT_STYLE_NCOBJ              0x08000000    // 该对象位于父对象的非客户区，不接受偏移
 
+// window style
+#define WINDOW_STYLE_DESTROYED          0x00010000    // 表示该窗口已经被销毁了(WM_NCDESTROY)，用于触发OnFinalMessage
+
 // control style
 #define CONTROL_STYLE_TABSTOP           0x00010000    // 是否接受TAB快捷键的焦点
 #define CONTROL_STYLE_GROUP             0x00020000    // 是否是一个新组的开始
@@ -99,12 +102,12 @@ enum OBJ_TYPE
 #define LISTCTRLBASE_SORT_ASCEND        0x0020    // 升序排序
 #define LISTCTRLBASE_SORT_DESCEND       0x0040    // 降序排序
 #define LISTCTRLBASE_MULTIPLE_SEL       0x0080    // 是否支持多选
+#define LISTCTRLBASE_SIZE_2_CONTENT     0x0100    // 控件大小决定内容，例如不带横向滚动条的列表框
+#define LISTCTRLBASE_CONTENT_2_SIZE     0x0200    // 内容决定控件大小，例如菜单和弹出式列表框
 
 // listbox style
 #define LISTBOX_STYLE_MASK              0x000F    // 编辑框类型使用的位
 #define LISTBOX_STYLE_COMBOBOX          0x0001    // 组合框中使用的列表框
-
-
 
 
 

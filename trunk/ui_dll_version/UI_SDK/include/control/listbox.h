@@ -8,21 +8,23 @@
 
 namespace UI
 {
+	class ListCtrlBase;
+
 	// 列表项数据的释放方式
-	enum LIST_ITEM_DATA_DELETE_TYPE   
-	{
-		LIST_ITEM_DATA_DELETE_TYPE_NONE,
-		LIST_ITEM_DATA_DELETE_TYPE_DELETE,
-		LIST_ITEM_DATA_DELETE_TYPE_DELETE_ARRAY,
-	};
+// 	enum LIST_ITEM_DATA_DELETE_TYPE   
+// 	{
+// 		LIST_ITEM_DATA_DELETE_TYPE_NONE,
+// 		LIST_ITEM_DATA_DELETE_TYPE_DELETE,
+// 		LIST_ITEM_DATA_DELETE_TYPE_DELETE_ARRAY,
+// 	};
 
 	// 列表框内容与列表框大小的关系
-	enum LIST_CTRL_CONTENT_SIZE_TYPE 
-	{
-		LIST_CTRL_CONTENT_SIZE_NONE,  // 1. 控件大小与内容无关系，例如带横向滚动条的列表框
-		LIST_CTRL_CONTENT_2_SIZE,     // 2. 内容决定控件大小，例如菜单和弹出式列表框
-		LIST_CTRL_SIZE_2_CONTENT,     // 3. 控件大小决定内容，例如不带横向滚动条的列表框
-	};
+// 	enum LIST_CTRL_CONTENT_SIZE_TYPE 
+// 	{
+// 		LIST_CTRL_CONTENT_SIZE_NONE,  // 1. 控件大小与内容无关系，例如带横向滚动条的列表框
+// 		LIST_CTRL_CONTENT_2_SIZE,     // 2. 内容决定控件大小，例如菜单和弹出式列表框
+// 		LIST_CTRL_SIZE_2_CONTENT,     // 3. 控件大小决定内容，例如不带横向滚动条的列表框
+// 	};
 
 	//
 	//	列表项内容，真正的列表数据m_pData由子类去维护
@@ -30,7 +32,7 @@ namespace UI
 	class ListItemBase
 	{
 	public:
-		ListItemBase(void* pData, LIST_ITEM_DATA_DELETE_TYPE eType=LIST_ITEM_DATA_DELETE_TYPE_DELETE);
+		ListItemBase(ListCtrlBase* pCtrl);
 		virtual ~ListItemBase();
 
 	public:
@@ -48,15 +50,18 @@ namespace UI
 		void    SetParentRect(CRect* prc){ m_rcParent.CopyRect(prc); }
 		bool    IsDisable() { return m_bDisable; }
 		bool    IsChecked() { return m_bChecked; }
-		int     GetDesiredHeight() { return m_nHeight; }
 
 		void*   GetData(){ return m_pData; }
+		void    SetData(void* p) { m_pData = p; }
+		void    SetDesiredSize(SIZE ps){ m_DesiredSize = ps; }
+		SIZE    GetDesiredSize() { return m_DesiredSize; }
 		int     GetLineIndex() { return m_nLineIndex; }
 		void    SetLineIndex(int n) { m_nLineIndex = n; }
 
 	protected:
 		int            m_nLineIndex;      // 记录该项位于第几行
-		int            m_nHeight;         // 保存该子项的高度，仅在ListBoxBase::m_bFixedItemHeight=false有效
+//		int            m_nHeight;         // 保存该子项的高度，仅在ListBoxBase::m_bFixedItemHeight=false有效
+		SIZE           m_DesiredSize;
 		CRect          m_rcParent;        // 基于列表控件的client 区域 
 
 		ListItemBase*  m_pPrev;
@@ -69,13 +74,13 @@ namespace UI
 		bool           m_bChecked;        // 该基是否被标记（如菜单项）
 
 		void*          m_pData;           // 与每一个IListxxxRender的实现相关
-		LIST_ITEM_DATA_DELETE_TYPE m_eDataDeleteType;
+		ListCtrlBase*  m_pCtrl;
 	};
 
 	class TreeListItemBase : public ListItemBase
 	{
 	public:
-		TreeListItemBase(void* pData, LIST_ITEM_DATA_DELETE_TYPE eType=LIST_ITEM_DATA_DELETE_TYPE_DELETE);
+		TreeListItemBase(ListCtrlBase* pCtrl);
 		~TreeListItemBase();
 
 		ListItemBase*    GetParentItem() { return m_pParent; }
@@ -138,7 +143,9 @@ namespace UI
 		virtual  bool SetAttribute(map<String,String>& mapAttrib, bool bReload);
 
 		// 自己给子类的虚方法
-		virtual  void OnDrawItem( HRDC hRDC, ListItemBase* p ){};
+		virtual  void OnDrawItem( HRDC hRDC, ListItemBase* p ) = 0;
+		virtual  SIZE OnMeasureItem( ListItemBase* p) = 0;
+		virtual  void OnDeleteItem( ListItemBase* p ) = 0;
 
 	public:
 		// 公用接口
@@ -151,13 +158,13 @@ namespace UI
 		ListItemBase* HitTest(POINT ptWindow);
 		ListItemBase* Index2Item(int nIndex);
 
+		void    UpdateItemRect( ListItemBase* pStart );
+
 	protected:
 		// 子类接口
 		void    AddItem(ListItemBase*  pItem, bool bUpdate=true);
 		void    InsertItem(ListItemBase*  pItem, ListItemBase* pInsertAfter);
 		void    RemoveItem(ListItemBase* pItem, bool bUpdate=true);
-		
-		void    UpdateItemRect( ListItemBase* pStart );
 		void    SetSelectedItem(ListItemBase* pItem, bool& bNeedUpdateObject );
 
 		void    SetScrollY( int nY, bool& bNeedUpdateObject );
@@ -168,6 +175,11 @@ namespace UI
 		bool    IsItemVisible( ListItemBase* pItem );
 		bool    IsItemVisibleEx( ListItemBase* pItem, LISTITEM_VISIBLE_POS_TYPE& ePos );
 		void    ItemRect2WindowRect( CRect* prc, CRect* prcRet );
+
+		void    MeasureItem(ListItemBase* pItem);
+		void    MeasureAllItem();
+		int     GetMaxDisiredWidth(int* pDesiredHeight=NULL);
+
 		// Selection 接口
 
 	protected:
@@ -212,15 +224,23 @@ namespace UI
 
 		UI_BEGIN_MSG_MAP
 			UIMSG_WM_RBUTTONDOWN(OnRButtonDown)
+			UIMSG_WM_KEYDOWN(OnKeyDown)
 			UICHAIN_MSG_MAP(ListCtrlBase)
 		UI_END_MSG_MAP
 
 	protected:
 		virtual  void OnDrawItem( HRDC hRDC, ListItemBase* p ) ;
-		void     OnRButtonDown(UINT nFlags, CPoint point);
+		virtual  SIZE OnMeasureItem( ListItemBase* p);
+		virtual  void OnDeleteItem( ListItemBase* p );
 
+		void     OnRButtonDown(UINT nFlags, CPoint point);
+		void	 OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags );
 	public:
 		bool     AddString(const String& strText, bool bUpdate=true);
+		void     SetItemHeight(int nHeight);
+
+	protected:
+		int      m_nItemHeight;
 	};
 
 	//////////////////////////////////////////////////////////////////////////
@@ -239,7 +259,10 @@ namespace UI
 		UI_DECLARE_OBJECT( TTPlayerPlaylistCtrl, OBJ_CONTROL )
 		
 		void    AddFileItem(const String& strFilePath, bool bUpdate=true);
-		virtual void OnDrawItem(HRDC hRDC, ListItemBase* p);
+
+		virtual  void OnDrawItem(HRDC hRDC, ListItemBase* p);
+		virtual  SIZE OnMeasureItem( ListItemBase* p);
+		virtual  void OnDeleteItem( ListItemBase* p );
 	};
 
 	

@@ -71,8 +71,8 @@ protected:
 	virtual           BOOL PreCreateWindow( CREATESTRUCT& cs , DWORD& dwStyleEx );
 
 	// 在加载完自己的控件和布局之后被调用，子类调用时先调用父类的该方法
-	virtual           void OnInitWindow( );
-
+	virtual           void OnInitWindow();
+	virtual           void OnFinalMessage();
 
 	void              ReCreateRenderTarget();
 

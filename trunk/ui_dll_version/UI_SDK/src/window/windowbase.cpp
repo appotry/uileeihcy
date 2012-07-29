@@ -109,11 +109,7 @@ bool WindowBase::CreateUI( const String& ID, HWND hWnd )
 	//	
 	::PostMessage( m_hWnd, WM_CHANGEUISTATE, 
 		MAKEWPARAM(UIS_CLEAR, UISF_HIDEACCEL|UISF_HIDEFOCUS), 0);
-	//
-	//  给子类一个初始化的机会 (virtual)
-	//
-	this->OnInitWindow();
-
+	
 	return true;
 }
 bool WindowBase::DestroyUI()
@@ -274,12 +270,13 @@ void WindowBase::EndDrawObject( CRect* prcWindow, HRGN& hClipRgn )
 
 bool WindowBase::Create( const String& ID, HWND hWndParent )
 {
-	UIASSERT( ID != _T("") );
-	if( _T("") == ID )
-	{
-		UI_LOG_FATAL( _T("Window::Create, 未指定窗口id") );
-		return false;
-	}
+	// removed by libo 20120728 允许创建一个空的窗口，例如菜单窗口
+// 	UIASSERT( ID != _T("") );
+// 	if( _T("") == ID )
+// 	{
+// 		UI_LOG_FATAL( _T("Window::Create, 未指定窗口id") );
+// 		return false;
+// 	}
 
 	__super::m_strID = ID;   // 提前给id赋值，便于日志输出
 
@@ -454,6 +451,7 @@ HWND WindowBase::DoModeless( const String& ID, HWND hWndParent )
 	UIASSERT( NULL == m_hWnd );
 
 	CREATESTRUCT cs;
+	memset(&cs, 0, sizeof(CREATESTRUCT));
 	cs.style        = WS_POPUP | WS_BORDER | WS_SYSMENU | DS_MODALFRAME | WS_CAPTION;
 	cs.lpszClass    = WND_CLASS_NAME;
 	cs.lpszName     = _T("");
@@ -600,6 +598,7 @@ LRESULT WindowBase::DefWindowProc( UINT uMsg, WPARAM wParam, LPARAM lParam )
 LRESULT	WindowBase::WndProc( UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	LRESULT lRes;
+	UIMSG*  pOldMsg = m_pCurMsg;
 	BOOL bRet = this->ProcessWindowMessage( m_hWnd, uMsg, wParam, lParam, lRes, 0 );  // 调用BEGIN_MSG_MAP消息映射列表
 	if( bRet )
 	{
@@ -622,9 +621,11 @@ LRESULT	WindowBase::WndProc( UINT uMsg, WPARAM wParam, LPARAM lParam )
 				{
 				case WM_INITDIALOG: 
 					if( NULL != GetKeyboardMgr().GetFocusObject() )
-						return FALSE;  // 不使用其焦点设置
+						lRes = FALSE;  // 不使用其焦点设置
 					else
-						return msg.lRet;
+						lRes = msg.lRet;
+
+					break;
 
 				case WM_COMPAREITEM:
 				case WM_VKEYTOITEM:
@@ -638,19 +639,36 @@ LRESULT	WindowBase::WndProc( UINT uMsg, WPARAM wParam, LPARAM lParam )
 				case WM_CTLCOLORSCROLLBAR:
 				case WM_CTLCOLORSTATIC:
 					// return directly
-					return msg.lRet;
+					lRes = msg.lRet;
 					break;
 
 				default:
 					SetWindowLong(m_hWnd, DWL_MSGRESULT, msg.lRet) ;
-					return TRUE;
+					lRes = TRUE;
 				}
 			}
-			return msg.lRet;
+			else
+				lRes = msg.lRet;
 		}
 		else
-			return DefWindowProc( uMsg, wParam, lParam );
+			lRes = DefWindowProc( uMsg, wParam, lParam );
 	}
+
+	if (uMsg == WM_NCDESTROY)
+	{
+		// 注：为什么不在这里直接调用OnFinalMessage，却还要再加一个状态位？
+		// 因为WM_NCDESTROY函数由DestroyWindow api触发，而DestroyWindow api
+		// 可能位于任何一个当前窗口的消息响应中，因此当pOldMsg==NULL时，即表示
+		// 没有消息嵌套了，在检查一次WINDOW_STYLE_DESTROYED标志即可。
+		this->ModifyStyle(WINDOW_STYLE_DESTROYED,0);
+	}
+	if (m_nStyle&WINDOW_STYLE_DESTROYED && pOldMsg == NULL)
+	{
+		this->OnFinalMessage();
+		this->ModifyStyle(0,WINDOW_STYLE_DESTROYED);
+	}
+
+	return lRes;
 }
 
 //
@@ -805,6 +823,14 @@ LRESULT WindowBase::_OnCreate( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bH
 	{
 		this->CreateUI(m_strID, m_hWnd);
 	}
+
+	//
+	//  给子类一个初始化的机会 (virtual)
+	//  有可能m_strID为空（不加载资源，例如临时的popupconotrolwindow）
+	//	因此没有将OnInitWindow放在CreateUI中执行
+	//
+	this->OnInitWindow();
+
 	return 0;
 }
 LRESULT WindowBase::_OnNcDestroy( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
@@ -888,7 +914,7 @@ LRESULT WindowBase::_OnThemeChange( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 }
 BOOL WindowBase::OnEraseBkgnd(HRDC hRDC)
 {
-	BOOL bRet = Panel::OnEraseBkgnd(hRDC);  // 如果m_pEraseBkgndRender没有处理，在这里调用系统过程
+	BOOL bRet = __super::OnEraseBkgnd(hRDC);  // 如果m_pEraseBkgndRender没有处理，在这里调用系统过程
 	if( FALSE == bRet )
 	{
 		if( NULL == m_oldWndProc )   // Dialog类型，直接填充系统背景色
@@ -918,15 +944,22 @@ BOOL WindowBase::PreCreateWindow( CREATESTRUCT& cs, DWORD& dwStyleEx )
 	return TRUE;
 }
 
-/*
-**	[virtual] [public]
-**	remarks
-**		给窗口一个初始化的机会，类似于CDialog::OnInitDialog函数
-**		所有子类在重载该函数的时候，必须同时去调用父类的该函数。
-*/
+//
+//  类似于OnCreate/OnInitDialog函数，但该函数无论是窗口还是对话框都会被触发
+//	所有子类在重载该函数的时候，必须同时去调用父类的该函数。
+//
 void WindowBase::OnInitWindow( )
 {
 	// TODO 数据DDX_DDV
+}
+
+//
+//  在响应完窗口的WM_NCDESTROY后，会触发该函数。
+//  不要尝试在消息响应中调用delete this; 但可以再该函数中调用
+//
+void WindowBase::OnFinalMessage()
+{
+	
 }
 
 //
