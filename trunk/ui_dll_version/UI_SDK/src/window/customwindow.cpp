@@ -27,14 +27,14 @@ CustomWindow::~CustomWindow( )
 	SAFE_DELETE(m_pLayeredWindowWrap);
 }
 
-BOOL CustomWindow::PreCreateWindow( CREATESTRUCT& cs , DWORD& dwStyleEx )
+BOOL CustomWindow::PreCreateWindow( CREATESTRUCT& cs )
 {
-	Window::PreCreateWindow( cs, dwStyleEx );
+	Window::PreCreateWindow( cs );
 	cs.style = DS_SETFONT | WS_POPUP | WS_SYSMENU /*| WS_THICKFRAME*/;
 
 	if( NULL != m_pLayeredWindowWrap )
 	{
-		m_pLayeredWindowWrap->PreCreateWindow( cs, dwStyleEx );
+		m_pLayeredWindowWrap->PreCreateWindow( cs );
 	}
 
 	return TRUE;
@@ -975,10 +975,10 @@ LayeredWindowWrap::~LayeredWindowWrap()
 {
 	m_pWindow = NULL;
 }
-BOOL LayeredWindowWrap::PreCreateWindow( CREATESTRUCT& cs , DWORD& dwStyleEx )
+BOOL LayeredWindowWrap::PreCreateWindow( CREATESTRUCT& cs )
 {
 	// ÃÌº”∑÷≤„ Ù–‘ 
-	dwStyleEx |= WS_EX_LAYERED;
+	cs.dwExStyle |= WS_EX_LAYERED;
 	return TRUE;
 }
 

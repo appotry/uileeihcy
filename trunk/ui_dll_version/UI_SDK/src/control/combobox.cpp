@@ -119,7 +119,5 @@ void ComboboxBase::OnBtnClicked( )
 	m_listbox.AddString(_T("Test"),false);
 	PopupListBoxWindow* p = new PopupListBoxWindow(&m_listbox, this);
 	p->Create(_T(""),NULL/*GetHWND()*/);
-	//::ShowWindow(p->m_hWnd,SW_SHOW);
 	::SetWindowPos(p->m_hWnd, NULL,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_SHOWWINDOW|SWP_NOACTIVATE);
-	//::SetFocus(p->m_hWnd);
 }

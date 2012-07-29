@@ -44,10 +44,10 @@ MainWindow::~MainWindow(void)
 	}
 }
 
-BOOL MainWindow::PreCreateWindow( CREATESTRUCT& cs , DWORD& dwStyleEx )
+BOOL MainWindow::PreCreateWindow( CREATESTRUCT& cs )
 {
 	cs.style |= WS_MINIMIZE;
-	return CustomWindow::PreCreateWindow(cs,dwStyleEx);;
+	return CustomWindow::PreCreateWindow(cs);;
 
 }
 void MainWindow::OnDestroy()
@@ -504,6 +504,7 @@ COptionWindow::COptionWindow()
 	m_pListOption = NULL;
 }
 
+
 BOOL COptionWindow::OnInitDialog( HWND, LPARAM )
 {
 	m_pListOption = (ListBox*)this->FindChildObject(_T("optionlist") );
@@ -518,6 +519,10 @@ BOOL COptionWindow::OnInitDialog( HWND, LPARAM )
 	{
 		m_pListOption->AddString(strArray[i]);
 	}
+
+	CComboBox box = ::GetDlgItem(m_hWnd, IDC_COMBO1);
+	box.AddString(_T("11234"));box.AddString(_T("11234"));box.AddString(_T("11234"));
+	box.AddString(_T("11234"));box.AddString(_T("11234"));box.AddString(_T("11234"));
 
 	return FALSE;
 }
@@ -556,4 +561,13 @@ void COptionWindow::OnBtnClick2(UINT uNotifyCode, int nID, HWND wndCtl)
 	{
 		pObj->SetVisible(!pObj->IsVisible());
 	}
+}
+void COptionWindow::OnRButtonUp(UINT nFlags, CPoint point)
+{
+	HMENU hMenu = ::CreatePopupMenu();
+	::AppendMenu(hMenu, MF_STRING, 1002, _T("LLLLLLL"));
+	::AppendMenu(hMenu, MF_STRING, 1003, _T("LLLLLLL"));
+	::AppendMenu(hMenu, MF_STRING, 1004, _T("LLLLLLL"));
+	::TrackPopupMenuEx(hMenu,0, 100,100, m_hWnd, NULL);
+	::DestroyMenu(hMenu);
 }

@@ -998,7 +998,6 @@ void ListBox::OnRButtonDown(UINT nFlags, CPoint point)
 }
 void ListBox::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
 {
-	UI_LOG_DEBUG(_T("AAA"));
 	return;
 }
 //////////////////////////////////////////////////////////////////////////

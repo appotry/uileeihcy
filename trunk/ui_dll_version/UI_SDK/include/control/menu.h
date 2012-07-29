@@ -10,7 +10,7 @@ namespace UI
 		UI_END_MSG_MAP
 
 		//virtual void OnInitWindow();
-		//virtual BOOL PreCreateWindow( CREATESTRUCT& cs , DWORD& dwStyleEx );
+		//virtual BOOL PreCreateWindow( CREATESTRUCT& cs );
 	};
 
 	class UIAPI MenuBase : public ListCtrlBase

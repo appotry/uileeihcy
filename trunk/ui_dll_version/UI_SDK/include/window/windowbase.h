@@ -68,7 +68,7 @@ protected:
 	virtual           bool SetAttribute( map<String,String>& mapAttrib, bool bReload=false );
 
 	// 自己的虚函数
-	virtual           BOOL PreCreateWindow( CREATESTRUCT& cs , DWORD& dwStyleEx );
+	virtual           BOOL PreCreateWindow( CREATESTRUCT& cs );
 
 	// 在加载完自己的控件和布局之后被调用，子类调用时先调用父类的该方法
 	virtual           void OnInitWindow();

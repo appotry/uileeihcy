@@ -14,7 +14,7 @@ public:
 
  
 public:
-	virtual BOOL PreCreateWindow( CREATESTRUCT& cs, DWORD& dwStyleEx );
+	virtual BOOL PreCreateWindow( CREATESTRUCT& cs );
 	virtual void OnInitWindow( );
 
 	int  OnCreate(LPCREATESTRUCT lpCreateStruct);
