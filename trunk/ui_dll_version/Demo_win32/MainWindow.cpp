@@ -524,6 +524,8 @@ BOOL COptionWindow::OnInitDialog( HWND, LPARAM )
 	box.AddString(_T("11234"));box.AddString(_T("11234"));box.AddString(_T("11234"));
 	box.AddString(_T("11234"));box.AddString(_T("11234"));box.AddString(_T("11234"));
 
+	m_pListOption->GetScrollBarMgr()->GetVScrollBar()->SetScrollButtonLine(24);
+
 	return FALSE;
 }
 void COptionWindow::OnClose()

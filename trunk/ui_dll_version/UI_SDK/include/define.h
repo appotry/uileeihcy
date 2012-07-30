@@ -177,6 +177,7 @@ UI_RESOURCE_TYPE;
 #define XML_HEIGHT               _T("height")        // 对象的高度，可以为 auto | 数值
 #define XML_MARGIN               _T("margin")        // 对象的外边距
 #define XML_PADDING              _T("padding")       // 对象的内边距
+#define XML_BORDER               _T("border")        // 对象的边框
 #define XML_MINWIDTH             _T("minwidht")      // 对象的最小宽度
 #define XML_MINHEIGHT            _T("minheight")     // 对象的最小高度
 #define XML_MAXWIDTH             _T("maxwidth")      // 对象的最大宽度

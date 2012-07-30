@@ -160,6 +160,8 @@ namespace UI
 
 		void    UpdateItemRect( ListItemBase* pStart );
 
+		ScrollBarMgr* GetScrollBarMgr() { return &m_MgrScrollbar; }
+
 	protected:
 		// 子类接口
 		void    AddItem(ListItemBase*  pItem, bool bUpdate=true);

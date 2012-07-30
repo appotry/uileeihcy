@@ -32,7 +32,7 @@ namespace UI
 		int  nWheelLine;
 	}UISCROLLINFO, *LPUISCROLLINFO;
 
-	class ScrollBarMgr : public Message
+	class UIAPI ScrollBarMgr : public Message
 	{
 	public:
 		ScrollBarMgr();
@@ -101,7 +101,7 @@ namespace UI
 	};
 
 
-	class ScrollBarBase : public Control
+	class UIAPI ScrollBarBase : public Control
 	{
 	public:
 		ScrollBarBase();
@@ -162,7 +162,7 @@ namespace UI
 	};
 
 
-	class HScrollBar : public ScrollBarBase
+	class UIAPI HScrollBar : public ScrollBarBase
 	{
 	public:
 		HScrollBar();
@@ -172,7 +172,7 @@ namespace UI
 		virtual void  ResetAttribute();
 	};
 
-	class VScrollBar : public ScrollBarBase
+	class UIAPI VScrollBar : public ScrollBarBase
 	{
 	public:
 		VScrollBar();

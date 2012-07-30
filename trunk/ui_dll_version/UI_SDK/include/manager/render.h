@@ -24,6 +24,11 @@ namespace UI
 #define COMBOBOX_BKGND_RENDER_STATE_PRESS    2
 #define COMBOBOX_BKGND_RENDER_STATE_DISABLE  3
 
+#define LISTBOX_BKGND_RENDER_STATE_NORMAL   0
+#define LISTBOX_BKGND_RENDER_STATE_HOVER    1
+#define LISTBOX_BKGND_RENDER_STATE_PRESS    2
+#define LISTBOX_BKGND_RENDER_STATE_DISABLE  3
+
 #define GROUPBOX_BKGND_RENDER_STATE_NORMAL  0
 #define GROUPBOX_BKGND_RENDER_STATE_DISABLE 1
 
@@ -348,6 +353,18 @@ namespace UI
 	{
 	public:
 		virtual const TCHAR* GetThemeName() { return _T("COMBOBOX"); }
+		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
+
+		void DrawDisable( HRDC hRDC, const CRect* prc );
+		void DrawNormal( HRDC hRDC, const CRect* prc );
+		void DrawHover( HRDC hRDC, const CRect* prc );
+		void DrawPress( HRDC hRDC, const CRect* prc );	
+	};
+
+	class ListboxBkThemeRender : public ThemeRenderBase
+	{
+	public:
+		virtual const TCHAR* GetThemeName() { return _T("LISTBOX"); }
 		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
 
 		void DrawDisable( HRDC hRDC, const CRect* prc );

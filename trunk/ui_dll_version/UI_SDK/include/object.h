@@ -128,9 +128,10 @@ public:
 protected:
 	CRect    m_rcParent;       // 该对象的范围，相对于parent.对于Window对象客户区域位置，即左上角为0，0
 	
-	CRegion4 m_rcNonClient;    // 如果在没有滚动条、Header等其它占用空间的控件，m_rcNonClient即为m_rcPadding
+	CRegion4 m_rcNonClient;    // 如果在没有滚动条、Header等其它占用空间的控件，m_rcNonClient即为m_rcPadding+m_rcBorder
 	CRegion4 m_rcMargin;
 	CRegion4 m_rcPadding;
+	CRegion4 m_rcBorder;       // TODO: 未完成
 
 	HRGN     m_hRgn;           // 如果该对象是一个不规则区域，必须设置该值，该值对window类型对象无效. rgn是相对于窗口左上角的。
 
@@ -177,6 +178,8 @@ public:
 	int          GetNonClientB() { return m_rcNonClient.bottom; }
 	int          GetNonClientW() { return m_rcNonClient.left + m_rcNonClient.right; }
 	int          GetNonClientH() { return m_rcNonClient.top + m_rcNonClient.bottom; }
+	void         GetBorderRegion( CRegion4* prc ) { prc->CopyRect(&m_rcBorder); }
+	void         SetBorderRegion( CRegion4* prc );
 	void         GetPaddingRegion( CRegion4* prc ) { prc->CopyRect(&m_rcPadding); }
 	void         SetPaddingRegion( CRegion4* prc );
 	int          GetPaddingL() { return m_rcPadding.left; }
