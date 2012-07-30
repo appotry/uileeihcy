@@ -7,6 +7,7 @@ Object::Object(void)
 	::SetRectEmpty(&m_rcNonClient);
 	::SetRectEmpty(&m_rcMargin);
 	::SetRectEmpty(&m_rcPadding);
+	::SetRectEmpty(&m_rcBorder);
 
 	m_nConfigWidth    = m_nConfigHeight    = AUTO;
 // 	minwidth = minheight = NDEF;
@@ -298,6 +299,7 @@ void Object::ResetAttribute()
 	::SetRectEmpty(&m_rcMargin);
 	::SetRectEmpty(&m_rcPadding);
 	::SetRectEmpty(&m_rcNonClient);
+	::SetRectEmpty(&m_rcBorder);
 	m_nConfigWidth = m_nConfigHeight = AUTO;
 
 	SAFE_DELETE(m_pBkgndRender);
@@ -387,11 +389,20 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 	if( this->m_mapAttribute.count( XML_PADDING ) )
 	{
 		String str = this->m_mapAttribute[ XML_PADDING ];
-		RECT rcPadding;
+		REGION4 rcPadding;
 		Util::TranslateRECT( str, &rcPadding );
 		this->m_mapAttribute.erase( XML_PADDING );
 
 		this->SetPaddingRegion((CRegion4*)&rcPadding);
+	}
+	if( this->m_mapAttribute.count( XML_BORDER ) )
+	{
+		String str = this->m_mapAttribute[ XML_BORDER ];
+		REGION4 rcBorder;
+		Util::TranslateRECT( str, &rcBorder );
+		this->m_mapAttribute.erase( XML_BORDER );
+
+		this->SetBorderRegion((CRegion4*)&rcBorder);
 	}
 
 	// 设置背景渲染器
@@ -521,18 +532,37 @@ void Object::SetPaddingRegion(CRegion4* prc)
 	if (NULL == prc)
 		return;
 
-	RECT rcNonClientExcludePadding = { 
-		m_rcNonClient.left - m_rcPadding.left,
-		m_rcNonClient.top - m_rcPadding.top,
-		m_rcNonClient.right - m_rcPadding.right,
+	REGION4 rcOther = { 
+		m_rcNonClient.left   - m_rcPadding.left,
+		m_rcNonClient.top    - m_rcPadding.top,
+		m_rcNonClient.right  - m_rcPadding.right,
 		m_rcNonClient.bottom - m_rcPadding.bottom };
 
 	m_rcPadding.CopyRect(prc);
 	m_rcNonClient.SetRect(
-		m_rcPadding.left + rcNonClientExcludePadding.left,
-		m_rcPadding.top + rcNonClientExcludePadding.top,
-		m_rcPadding.right + rcNonClientExcludePadding.right,
-		m_rcPadding.bottom + rcNonClientExcludePadding.bottom );
+		m_rcPadding.left   + rcOther.left,
+		m_rcPadding.top    + rcOther.top,
+		m_rcPadding.right  + rcOther.right,
+		m_rcPadding.bottom + rcOther.bottom );
+}
+
+void Object::SetBorderRegion( CRegion4* prc )
+{
+	if (NULL == prc)
+		return;
+
+	REGION4 rcOther = { 
+		m_rcNonClient.left   - m_rcBorder.left,
+		m_rcNonClient.top    - m_rcBorder.top,
+		m_rcNonClient.right  - m_rcBorder.right,
+		m_rcNonClient.bottom - m_rcBorder.bottom };
+
+	m_rcBorder.CopyRect(prc);
+	m_rcNonClient.SetRect(
+		m_rcBorder.left   + rcOther.left,
+		m_rcBorder.top    + rcOther.top,
+		m_rcBorder.right  + rcOther.right,
+		m_rcBorder.bottom + rcOther.bottom );
 }
 
 // 要绘制该对象之前，获取该对象在窗口中的实现位置，用于设置偏移量和裁剪区

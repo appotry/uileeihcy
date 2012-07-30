@@ -631,6 +631,15 @@ int ScrollBarBase::GetScrollPos()
 void ScrollBarBase::SetScrollButtonLine(int nLine)
 {
 	m_nButtonLine = nLine;
+
+	// SPI_GETWHEELSCROLLCHARS
+	int nValue = 3;
+	SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &nValue, 0);
+	if(-1 == nValue)
+		SetScrollButtonLine(m_nPage);
+	else
+		SetScrollWheelLine(nValue*m_nButtonLine);
+
 }
 void ScrollBarBase::SetScrollWheelLine(int nLine)
 {

@@ -1775,15 +1775,15 @@ void ComboboxBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 {
 	switch(nState)
 	{
-	case EDIT_BKGND_RENDER_STATE_DISABLE:
+	case COMBOBOX_BKGND_RENDER_STATE_DISABLE:
 		this->DrawDisable(hRDC, prc);
 		break;
 
-	case EDIT_BKGND_RENDER_STATE_PRESS:
+	case COMBOBOX_BKGND_RENDER_STATE_PRESS:
 		this->DrawPress(hRDC, prc);
 		break;
 
-	case EDIT_BKGND_RENDER_STATE_HOVER:
+	case COMBOBOX_BKGND_RENDER_STATE_HOVER:
 		this->DrawHover(hRDC, prc);
 		break;;
 
@@ -1887,6 +1887,125 @@ void ComboboxBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc )
 	ReleaseHDC(hRDC, hDC);
 }
 
+
+//////////////////////////////////////////////////////////////////////////
+
+
+void ListboxBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+{
+	switch(nState)
+	{
+	case LISTBOX_BKGND_RENDER_STATE_DISABLE:
+		this->DrawDisable(hRDC, prc);
+		break;
+
+	case LISTBOX_BKGND_RENDER_STATE_PRESS:
+		this->DrawPress(hRDC, prc);
+		break;
+
+	case LISTBOX_BKGND_RENDER_STATE_HOVER:
+		this->DrawHover(hRDC, prc);
+		break;;
+
+	default:
+		this->DrawNormal(hRDC, prc);
+		break;
+	}
+}
+
+void ListboxBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, LBCP_BORDER_NOSCROLL, LBPSH_DISABLED, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("EditBkThemeRender::DrawDisable  DrawThemeBackground failed."));
+		}
+	}
+	else
+	{
+		DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT|BF_MIDDLE);
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+void ListboxBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, LBCP_BORDER_NOSCROLL, LBPSH_NORMAL, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("EditBkThemeRender::DrawNormal  DrawThemeBackground failed."));
+		}
+	}
+	else
+	{
+		if( m_pObject->IsReadonly() )
+		{
+			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT|BF_MIDDLE);
+		}
+		else
+		{
+			::FillRect(hDC, (RECT*)prc, (HBRUSH)GetStockObject(WHITE_BRUSH));
+			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT);
+		}
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+
+void ListboxBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, LBCP_BORDER_NOSCROLL, LBPSH_HOT, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("EditBkThemeRender::DrawHover  DrawThemeBackground failed."));
+		}
+	}
+	else
+	{
+		if( m_pObject->IsReadonly() )
+		{
+			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT|BF_MIDDLE);
+		}
+		else
+		{
+			::FillRect(hDC, (RECT*)prc, (HBRUSH)GetStockObject(WHITE_BRUSH));
+			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT);
+		}
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+void ListboxBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, LBCP_BORDER_NOSCROLL, LBPSH_FOCUSED, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("EditBkThemeRender::DrawPress  DrawThemeBackground failed."));
+		}
+	}
+	else
+	{
+		if( m_pObject->IsReadonly() )
+		{
+			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT|BF_MIDDLE);
+		}
+		else
+		{
+			::FillRect(hDC, (RECT*)prc, (HBRUSH)GetStockObject(WHITE_BRUSH));
+			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT);
+		}
+	}
+	ReleaseHDC(hRDC, hDC);
+}
 
 
 
