@@ -157,8 +157,13 @@ void UIApplication::RegisterWndClass()
 
 
 	// 注册用于实现菜单，弹出式列表框的窗口(带阴影)
-	wcex.lpszClassName  = WND_POPUP_CONTROL_NAME;
+	wcex.lpszClassName  = WND_POPUP_CONTROL_SHADOW_NAME;
 	wcex.style          = CS_DROPSHADOW;
+	wcex.lpfnWndProc    = WindowBase::StartWindowProc;;
+	RegisterClassEx(&wcex);
+
+	wcex.lpszClassName  = WND_POPUP_CONTROL_NAME;
+	wcex.style          = 0;
 	wcex.lpfnWndProc    = WindowBase::StartWindowProc;;
 	RegisterClassEx(&wcex);
 }

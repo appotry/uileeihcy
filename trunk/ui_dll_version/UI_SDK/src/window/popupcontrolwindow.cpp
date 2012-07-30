@@ -18,7 +18,7 @@ void PopupControlWindow::OnFinalMessage()
 BOOL PopupControlWindow::PreCreateWindow( CREATESTRUCT& cs )
 {
 	cs.dwExStyle |= WS_EX_TOPMOST|WS_EX_NOACTIVATE;
-	cs.lpszClass = WND_POPUP_CONTROL_NAME;
+	cs.lpszClass = WND_POPUP_CONTROL_SHADOW_NAME;
 	return __super::PreCreateWindow(cs);
 }
 
@@ -72,8 +72,6 @@ void PopupControlWindow::PopupLoop()
 }
 BOOL PopupControlWindow::PreTranslatePopupMessage(MSG* pMsg)
 {
-	UI_LOG_DEBUG(_T("%x, %x"),pMsg->message, pMsg->hwnd);
-
 	if (WM_KEYFIRST <= pMsg->message && WM_KEYLAST >= pMsg->message)
 	{
 		BOOL bHandle = FALSE;
@@ -123,7 +121,9 @@ BOOL PopupListBoxWindow::PreCreateWindow( CREATESTRUCT& cs )
 	if (NULL == m_pListBox || NULL == m_pBindOb)
 		return FALSE;
 
-	return __super::PreCreateWindow(cs);
+	BOOL bRet = __super::PreCreateWindow(cs);
+	cs.lpszClass = WND_POPUP_CONTROL_NAME;  // ≤ªº”“ı”∞
+	return bRet;
 }
 void PopupListBoxWindow::OnInitWindow()
 {

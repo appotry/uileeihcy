@@ -58,7 +58,11 @@ void Object::UpdateObject( bool bUpdateNow )
 	if( this->testStateBit(CSB_PREVENTREDRAW))
 		return ;
 
-	this->GetWindowObject()->InvalidateObject(this, NULL, bUpdateNow);
+	WindowBase* pWindow = this->GetWindowObject();
+	if (NULL != pWindow)
+	{
+		pWindow->InvalidateObject(this, NULL, bUpdateNow);
+	}
 }
 
 //
@@ -78,7 +82,9 @@ void Object::UpdateObject( bool bUpdateNow )
 // 		return ;
 // 
 // 	WindowBase* pWindow = this->GetWindowObject();
-// 	this->GetWindowObject()->InvalidateObject( pWindow, prc, bUpdateNow );
+//	WindowBase* pWindow = this->GetWindowObject();
+//	if (NULL != pWindow)
+// 		pWindow->InvalidateObject( pWindow, prc, bUpdateNow );
 // }
 
 //
@@ -209,7 +215,11 @@ WindowBase* Object::GetWindowObject()
 
 HWND Object::GetHWND()
 {
-	return this->GetWindowObject()->m_hWnd;
+	WindowBase* pWindow = this->GetWindowObject();
+	if (NULL == pWindow)
+		return NULL;
+
+	return pWindow->m_hWnd;
 }
 /*
 **	[public] 获取某一具体路径下的子对象，但这里的子对象也可是子对象的子对象。
@@ -1044,7 +1054,7 @@ bool Object::IsEnable()
 
 //
 //	备注：分层窗口中，隐藏一个对象时，不能直接调用::InvalidateRect(&rc..)
-//        必须调用 GetWindowObject()->InvalidateObject(GetWindowObject(),...);
+//        必须调用 GetWindowObject(); pWindow->InvalidateObject(GetWindowObject(),...);
 //
 void Object::SetVisible( bool b, bool bUpdateNow )
 {
@@ -1078,7 +1088,11 @@ void Object::SetVisible( bool b, bool bUpdateNow )
 	// 如果隐藏的对象是一个焦点对象，则将焦点重新切回到第一个对象
 	if( false == b )
 	{
-		this->GetWindowObject()->GetKeyboardMgr().OnObjectHideInd(this);
+		WindowBase* pWindow = this->GetWindowObject();
+		if (NULL != pWindow)
+		{
+			pWindow->GetKeyboardMgr().OnObjectHideInd(this);
+		}
 	}
 }
 void Object::SetEnable( bool b )

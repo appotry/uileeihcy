@@ -132,19 +132,27 @@ LRESULT	HwndHost::WndProc( UINT uMsg, WPARAM wParam, LPARAM lParam )
 	case WM_SETFOCUS:
 		{
 			this->SetFocus(true);
-			this->GetWindowObject()->GetKeyboardMgr().SetFocusObjectDirect(this);
-			::UISendMessage(this, WM_SETFOCUS, 
-				(WPARAM)this->GetWindowObject()->GetKeyboardMgr().GetOldFocusObject(),
-				0 );
+			WindowBase* pWindow = this->GetWindowObject();
+			if (NULL != pWindow)
+			{
+				pWindow->GetKeyboardMgr().SetFocusObjectDirect(this);
+				::UISendMessage(this, WM_SETFOCUS, 
+					(WPARAM)pWindow->GetKeyboardMgr().GetOldFocusObject(),
+					0 );
+			}
 		}
 		break;
 
 	case WM_KILLFOCUS:
 		{
 			this->SetFocus(false);
-			::UISendMessage(this, WM_SETFOCUS, 
-				(WPARAM)this->GetWindowObject()->GetKeyboardMgr().GetFocusObject(),
-				0 );
+			WindowBase* pWindow = this->GetWindowObject();
+			if (NULL != pWindow)
+			{
+				::UISendMessage(this, WM_SETFOCUS, 
+					(WPARAM)pWindow->GetKeyboardMgr().GetFocusObject(),
+					0 );
+			}
 		}
 		break;
 
