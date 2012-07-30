@@ -323,7 +323,11 @@ namespace UI
 			if (NULL == p)
 			{
 				T* pThis = (T*)this;
-				p = pThis->GetWindowObject()->GetNeighbourLeafNodeObject(bPrevOrNext);  
+				WindowBase* pWindow = pThis->GetWindowObject();
+				if (NULL != pWindow)
+				{
+					p = pWindow->GetNeighbourLeafNodeObject(bPrevOrNext);  
+				}
 			}
 
 			if (NULL == p || p == this)

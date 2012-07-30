@@ -849,7 +849,8 @@ void ListCtrlBase::OnPaint(HRDC hRDC)
 
 void ListCtrlBase::OnSize( UINT nType, int cx, int cy )
 {
-	SetMsgHandled(FALSE);
+	this->m_MgrScrollbar.ProcessMessage(m_pCurMsg, 0);  // 先设置page大小，再做其它处理，否则容易造成死循环
+
 	this->UpdateItemRect(m_pFirstItem);
 }
 
@@ -865,7 +866,7 @@ void ListCtrlBase::ResetAttribute()
 	__super::ResetAttribute();
 	m_MgrScrollbar.ResetAttribute( );
 }
-bool ListCtrlBase::SetAttribute(map<String,String>& mapAttrib, bool bReload)
+bool ListCtrlBase::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 {
 	bool bRet = __super::SetAttribute(mapAttrib, bReload);
 	if (false == bRet)
@@ -932,6 +933,34 @@ void ListBox::SetItemHeight(int nHeight)
 	m_nItemHeight = nHeight;
 	this->MeasureAllItem();
 	this->UpdateItemRect(m_pFirstItem);
+}
+
+int  ListBox::GetListBoxStyle()
+{
+	return m_nStyle & LISTBOX_STYLE_MASK;
+}
+void ListBox::SetListBoxStyle(int n)
+{
+	if(n > LISTBOX_STYLE_MASK)
+		return;
+
+	m_nStyle &= ~LISTBOX_STYLE_MASK;
+	m_nStyle |= n;
+}
+
+
+bool ListBox::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
+{
+	bool bRet = __super::SetAttribute(mapAttrib, bReload);
+	if (false == bRet)
+		return false;
+
+	if (NULL == m_pBkgndRender)
+	{
+		m_pBkgndRender = RenderFactory::GetRender(RENDER_TYPE_THEME, this);
+	}
+
+	return true;
 }
 
 void ListBox::OnDrawItem(HRDC hRDC, ListItemBase* p)

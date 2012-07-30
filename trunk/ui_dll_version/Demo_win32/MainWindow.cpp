@@ -508,23 +508,24 @@ COptionWindow::COptionWindow()
 BOOL COptionWindow::OnInitDialog( HWND, LPARAM )
 {
 	m_pListOption = (ListBox*)this->FindChildObject(_T("optionlist") );
-	m_pListOption->ModifyStyle( 0, LISTCTRLBASE_SORT_ASCEND|LISTCTRLBASE_SORT_DESCEND);
-	m_pListOption->SetFixedItemHeight(24, false);
-
-	String strArray[] = { _T("关于"),_T("常规"),_T("播放"),_T("快捷键"),_T("视觉效果"),
-		_T("播放列表"),_T("媒体库"),_T("歌词秀"),_T("歌词搜索"),_T("网络连接"),_T("音效插件"),
-		_T("音频设备"),_T("皮肤"),_T("全屏显示"),_T("系统关联")};
-	int nCount = sizeof(strArray)/sizeof(String);
-	for (int i = 0; i < nCount; i++)
+	if (NULL != m_pListOption)
 	{
-		m_pListOption->AddString(strArray[i]);
+		m_pListOption->ModifyStyle( 0, LISTCTRLBASE_SORT_ASCEND|LISTCTRLBASE_SORT_DESCEND);
+		m_pListOption->SetFixedItemHeight(24, false);
+
+		String strArray[] = { _T("关于"),_T("常规"),_T("播放"),_T("快捷键"),_T("视觉效果"),
+			_T("播放列表"),_T("媒体库"),_T("歌词秀"),_T("歌词搜索"),_T("网络连接"),_T("音效插件"),
+			_T("音频设备"),_T("皮肤"),_T("全屏显示"),_T("系统关联")};
+		int nCount = sizeof(strArray)/sizeof(String);
+		for (int i = 0; i < nCount; i++)
+		{
+			m_pListOption->AddString(strArray[i]);
+		}
 	}
 
 	CComboBox box = ::GetDlgItem(m_hWnd, IDC_COMBO1);
 	box.AddString(_T("11234"));box.AddString(_T("11234"));box.AddString(_T("11234"));
 	box.AddString(_T("11234"));box.AddString(_T("11234"));box.AddString(_T("11234"));
-
-	m_pListOption->GetScrollBarMgr()->GetVScrollBar()->SetScrollButtonLine(24);
 
 	return FALSE;
 }

@@ -14,6 +14,7 @@ ComboboxBase::ComboboxBase()
 
 	m_listbox.m_strID = COMBOBOX_LIST_ID;
 	m_listbox.ModifyStyle(LISTCTRLBASE_CONTENT_2_SIZE, LISTCTRLBASE_SIZE_2_CONTENT);
+	m_listbox.SetListBoxStyle(LISTBOX_STYLE_COMBOBOX);
 	
 	this->AddChild(&m_edit);
 	this->AddChild(&m_button);
@@ -32,8 +33,9 @@ bool ComboboxBase::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 	if (false == bRet)
 		return false;
 
-	this->SetChildObjectAttribute(&m_edit, XML_COMBOBOX_EDIT_PRIFIX, mapAttrib, bReload);
-	this->SetChildObjectAttribute(&m_button, XML_COMBOBOX_BUTTON_PRIFIX,mapAttrib, bReload);
+	this->SetChildObjectAttribute(&m_edit,    XML_COMBOBOX_EDIT_PRIFIX,    mapAttrib, bReload);
+	this->SetChildObjectAttribute(&m_button,  XML_COMBOBOX_BUTTON_PRIFIX,  mapAttrib, bReload);
+	this->SetChildObjectAttribute(&m_listbox, XML_COMBOBOX_LISTBOX_PRIFIX, mapAttrib, bReload);
 
 	// ±≥æ∞ªÊ÷∆ 
 	if (NULL == m_pBkgndRender)

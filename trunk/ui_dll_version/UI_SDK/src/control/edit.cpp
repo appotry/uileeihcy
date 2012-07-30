@@ -694,7 +694,6 @@ void EditBase::SetText( const String& strText )
 	}
 }
 
-//	按钮的类型
 int  EditBase::GetEditStyle()
 {
 	return m_nStyle & EDIT_STYLE_MASK;

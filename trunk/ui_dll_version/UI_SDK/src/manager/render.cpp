@@ -222,6 +222,22 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 		{
 			pRender = new ComboboxBkThemeRender();
 		}
+		else if (_T("ListBox") == pObj->GetObjectName())
+		{
+			ListBox* pListBox = dynamic_cast<ListBox*>(pObj);
+			if (NULL != pListBox)
+			{
+				if (LISTBOX_STYLE_COMBOBOX == pListBox->GetListBoxStyle())
+				{
+					ColorRender* pTemp = new ColorRender();
+					pTemp->SetBkColor(RGB(255,255,255));
+					pTemp->SetBorderColor(RGB(0,0,0));
+					pRender = static_cast<RenderBase*>(pTemp);
+				}
+				else
+					pRender = new ListboxBkThemeRender();
+			}
+		}
 	}
 	else
 	{

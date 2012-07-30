@@ -6,8 +6,7 @@ namespace UI
 	{
 	public:
 		UI_BEGIN_MSG_MAP
-			UI_LOG_WARN(_T("%x, %x"),pMsg->message, pMsg->hwnd);
-			UIMSG_WM_ERASEBKGND(OnEraseBkgnd)
+			//UIMSG_WM_ERASEBKGND(OnEraseBkgnd)
 			UIMSG_WM_MOUSEACTIVATE(OnMouseActivate)
 			UIMSG_WM_ACTIVATEAPP(OnActivateApp)
 

@@ -121,7 +121,7 @@ namespace UI
 			UIMSG_WM_LBUTTONDOWN(OnLButtonDown)
 			UIMSG_WM_LBUTTONUP(OnLButtonUp)
 			UIMSG_WM_KEYDOWN(OnKeyDown)
-			UIMSG_WM_SIZE(OnSize)
+			UIMSG_WM_SIZE(OnSize) 
 			UICHAIN_MSG_MAP_MEMBER(m_MgrScrollbar)
 			UICHAIN_MSG_MAP(Control)
 		UI_END_MSG_MAP
@@ -140,7 +140,7 @@ namespace UI
 		// 虚函数
 		virtual  SIZE GetAutoSize( HRDC hRDC );
 		virtual  void ResetAttribute();
-		virtual  bool SetAttribute(map<String,String>& mapAttrib, bool bReload);
+		virtual  bool SetAttribute(ATTRMAP& mapAttrib, bool bReload);
 
 		// 自己给子类的虚方法
 		virtual  void OnDrawItem( HRDC hRDC, ListItemBase* p ) = 0;
@@ -231,6 +231,8 @@ namespace UI
 		UI_END_MSG_MAP
 
 	protected:
+		virtual  bool SetAttribute(ATTRMAP& mapAttrib, bool bReload);
+
 		virtual  void OnDrawItem( HRDC hRDC, ListItemBase* p ) ;
 		virtual  SIZE OnMeasureItem( ListItemBase* p);
 		virtual  void OnDeleteItem( ListItemBase* p );
@@ -240,6 +242,9 @@ namespace UI
 	public:
 		bool     AddString(const String& strText, bool bUpdate=true);
 		void     SetItemHeight(int nHeight);
+
+		int      GetListBoxStyle();
+		void     SetListBoxStyle(int n);
 
 	protected:
 		int      m_nItemHeight;
