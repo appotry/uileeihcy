@@ -470,6 +470,7 @@ namespace UI
 		bool GetHRFontID(HRFONT hRFont, String& strID);
 
 		HRFONT GetFont( const String& strFontID, GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI );
+		HRFONT GetDefaultFont( GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI );
 		HRFONT GetFontEx( HRFONT hRFont, WPARAM wParam=0, LPARAM lParam=0, GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI );
 	};
 

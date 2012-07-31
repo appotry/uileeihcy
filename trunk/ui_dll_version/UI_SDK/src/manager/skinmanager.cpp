@@ -385,6 +385,16 @@ HRFONT SkinManager::GetFont( const String& strFontID,  GRAPHICS_RENDER_TYPE eRen
  
  	return this->m_pFontMgr->GetFont( strFontID, eRenderType );
 }
+HRFONT SkinManager::GetDefaultFont( GRAPHICS_RENDER_TYPE eRenderType )
+{
+	if ( NULL == m_pFontMgr )
+	{
+		UI_LOG_ERROR( _T("SkinManager::GetDefalutFont failed."));
+		return NULL;
+	}
+
+	return this->m_pFontMgr->GetDefaultFont( eRenderType );
+}
 HRFONT SkinManager::GetFontEx( HRFONT hRFont, WPARAM w, LPARAM l, GRAPHICS_RENDER_TYPE eRenderType )
 {
 	if ( NULL == m_pFontMgr )

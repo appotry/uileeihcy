@@ -1198,6 +1198,16 @@ HRFONT CPojo_Font::GetFont( const String& strFontID, GRAPHICS_RENDER_TYPE eRende
 	return NULL;
 }
 
+HRFONT CPojo_Font::GetDefaultFont( GRAPHICS_RENDER_TYPE eRenderType )
+{
+	if (0 == (int)m_vFonts.size())
+		return NULL;
+
+	if (NULL != m_vFonts[0])
+		return m_vFonts[0]->GetFont(eRenderType);
+
+	return NULL;
+}
 bool  CPojo_Font::GetHRFontID(HRFONT hRFont, String& strID)
 {
 	vector<CPojo_FontItem*>::iterator iter = m_vFonts.begin();

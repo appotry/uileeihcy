@@ -573,6 +573,13 @@ HRFONT   UI_GetFont( const String& strFontID, GRAPHICS_RENDER_TYPE eRenderType, 
 
 	return g_pUIApplication->m_ProjectMgr.GetFont( strFontID, eRenderType, hSkin );
 }
+HRFONT   UI_GetDefaultFont( GRAPHICS_RENDER_TYPE eRenderType, HSKIN hSkin )
+{
+	if( NULL == g_pUIApplication )
+		return NULL;
+
+	return g_pUIApplication->m_ProjectMgr.GetDefaultFont( eRenderType, hSkin );
+}
 
 HRFONT   UI_CopyFont( HRFONT hFont )
 {

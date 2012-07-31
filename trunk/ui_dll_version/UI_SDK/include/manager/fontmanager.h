@@ -48,6 +48,7 @@ namespace UI
 		bool       Save();
 		void       Clear();
 		HRFONT     GetFont( const String& strID, GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI );
+		HRFONT     GetDefaultFont( GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI );
 		HRFONT     GetFontEx( HRFONT hRFont, WPARAM w, LPARAM l, GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI );
 		int        GetFontCount();
 		bool       GetFontItemInfo( int nIndex, IFontItemInfo** ppFontItemInfo );

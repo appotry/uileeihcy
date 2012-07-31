@@ -140,6 +140,10 @@ HRFONT FontManager::GetFont( const String& strID, GRAPHICS_RENDER_TYPE eRenderTy
 {
 	return m_pojoFont.GetFont( strID, eRenderType );
 }
+HRFONT FontManager::GetDefaultFont( GRAPHICS_RENDER_TYPE eRenderType )
+{
+	return m_pojoFont.GetDefaultFont( eRenderType );
+}
 HRFONT FontManager::GetFontEx( HRFONT hRFont, WPARAM w, LPARAM l, GRAPHICS_RENDER_TYPE eRenderType )
 {
 	return m_pojoFont.GetFontEx(hRFont, w, l, eRenderType );

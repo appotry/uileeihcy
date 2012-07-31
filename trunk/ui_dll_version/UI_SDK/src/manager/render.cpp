@@ -2036,6 +2036,11 @@ TextRenderBase::TextRenderBase()
 {
 	m_pObject = NULL;
 	m_nTextRenderType = TEXTRENDER_TYPE_NULL;
+	m_nDrawTextFlag = DT_SINGLELINE|DT_END_ELLIPSIS|DT_CENTER|DT_VCENTER;
+}
+void TextRenderBase::SetTextAlignment(int nDrawFlag)
+{
+	m_nDrawTextFlag = nDrawFlag;
 }
 
 SIZE TextRenderBase::GetDesiredSize(const String& strText, int nLimitWidth)
@@ -2136,11 +2141,29 @@ bool TextRender::SetAttribute( const String& strPrifix, map<String,String>& mapA
 	}
 	if( NULL == m_hFont )
 	{
-		m_hFont = UI_CopyFont(m_pObject->GetFont());
+		HRFONT hRFont = m_pObject->GetFont();
+		if (NULL != hRFont)
+		{
+			m_hFont = UI_CopyFont(m_pObject->GetFont());
+		}
 	}
 	return true;
 }
-void TextRender::DrawState(HRDC hRDC, const CRect* prc, int nState, const String& strText, UINT nDrawTextFlag)
+
+void TextRender::SetHRFont(HRFONT hRFont)
+{
+	if( NULL != m_hFont )
+	{
+		UI_ReleaseFont(m_hFont);
+		m_hFont = NULL;
+	}
+	if (NULL != hRFont)
+	{
+		m_hFont = UI_CopyFont(hRFont);
+	}
+}
+
+void TextRender::DrawState(HRDC hRDC, const CRect* prc, int nState, const String& strText, int nDrawTextFlag)
 {
 	if( NULL != m_hFont )
 	{
@@ -2150,7 +2173,8 @@ void TextRender::DrawState(HRDC hRDC, const CRect* prc, int nState, const String
 			col = m_pColorText->GetColor();
 		}
 
-		DrawString( hRDC, strText.c_str(), prc, nDrawTextFlag, m_hFont, col );
+		int nFlag = nDrawTextFlag==-1 ? m_nDrawTextFlag:nDrawTextFlag;
+		DrawString( hRDC, strText.c_str(), prc, nFlag, m_hFont, col );
 	}
 }
 
@@ -2238,7 +2262,7 @@ bool FontColorListTextRender::SetAttribute( const String& strPrifix, map<String,
 
 	return true;
 }
-void     FontColorListTextRender::DrawState(HRDC hRDC, const CRect* prc, int nState, const String& strText, UINT nDrawTextFlag)
+void FontColorListTextRender::DrawState(HRDC hRDC, const CRect* prc, int nState, const String& strText, int nDrawTextFlag)
 {
 	int nRealState = nState;
 	if( nState >= m_nCount )
@@ -2255,15 +2279,31 @@ void     FontColorListTextRender::DrawState(HRDC hRDC, const CRect* prc, int nSt
 
 	HRFONT hRFont = m_vTextFont[nRealState];
 
-	DrawString(hRDC, strText.c_str(), prc, nDrawTextFlag, hRFont, col );
+	int nFlag = nDrawTextFlag==-1 ? m_nDrawTextFlag:nDrawTextFlag;
+	DrawString(hRDC, strText.c_str(), prc, nFlag, hRFont, col );
 }
-HRFONT   FontColorListTextRender::GetHRFONT()
+HRFONT FontColorListTextRender::GetHRFONT()
 {
 	if( m_vTextFont.size() > 0 )
 	{
 		return m_vTextFont[0];
 	}
 	return NULL;
+}
+void FontColorListTextRender::SetHRFont(HRFONT hRFont)
+{
+	if (m_vTextFont.size() > 0)
+	{
+		if( NULL != m_vTextFont[0] )
+		{
+			UI_ReleaseFont(m_vTextFont[0]);
+			m_vTextFont[0] = NULL;
+		}
+		if (NULL != hRFont)
+		{
+			m_vTextFont[0] = UI_CopyFont(hRFont);
+		}
+	}
 }
 
 void FontColorListTextRender::SetCount( int nCount )

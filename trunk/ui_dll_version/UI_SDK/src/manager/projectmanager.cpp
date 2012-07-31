@@ -1388,6 +1388,19 @@ HRFONT ProjectManager::GetFont( const String& strFontID, GRAPHICS_RENDER_TYPE eR
  
  	return pSkinMgr->GetFont( strFontID, eRenderType );
 }
+
+HRFONT ProjectManager::GetDefaultFont( GRAPHICS_RENDER_TYPE eRenderType , HSKIN hSkin )
+{
+	// 获取当前正使用的皮肤
+	SkinManager*  pSkinMgr = (NULL == hSkin)? m_pCurActiveSkinMgr:this->_GetSkinManagerByHSKIN( hSkin );
+	if( NULL == pSkinMgr )
+	{
+		UI_LOG_ERROR( _T("ProjectManager::GetDefaultFont  Failed. pSkinMgr == NULL") );
+		return NULL;
+	}
+
+	return pSkinMgr->GetDefaultFont( eRenderType );
+}
 //
 //	设置当前的活动皮肤（例如皮肤编辑器中正在编辑的皮肤）
 //

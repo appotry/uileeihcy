@@ -53,10 +53,17 @@ bool WindowBase::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 		HFONT hFont = (HFONT)::SendMessage( m_hWnd, WM_GETFONT, 0,0 );
 		if( NULL == hFont )
 		{
-			hFont = (HFONT)GetStockObject(SYSTEM_FONT);
+			m_hFont = UI_GetDefaultFont(GetGraphicsRenderType(m_hWnd));
+			if (NULL == m_hFont)
+			{
+				hFont = (HFONT)GetStockObject(SYSTEM_FONT);
+			}
 		}
 		
-		UI_AttachFont(&m_hFont, hFont, GetGraphicsRenderType(m_hWnd));
+		if (NULL == m_hFont && NULL != hFont)
+		{
+			UI_AttachFont(&m_hFont, hFont, GetGraphicsRenderType(m_hWnd));
+		}
 	}
 
 	return true;
