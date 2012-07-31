@@ -96,7 +96,8 @@ namespace UI
 	UIAPI bool     UI_GetCursor( const String& strCursorID, UICursor** ppCursor, HSKIN hSkin = NULL );
 
 	UIAPI void     UI_AttachFont(HRFONT* pOut, HFONT hFont, GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI);
-	UIAPI HRFONT   UI_GetFont( const String& strFontID, GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI, HSKIN hSkin = NULL  );
+	UIAPI HRFONT   UI_GetFont( const String& strFontID, GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI, HSKIN hSkin = NULL );
+	UIAPI HRFONT   UI_GetDefaultFont( GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI, HSKIN hSkin = NULL );
 	UIAPI HRFONT   UI_GetFontEx( HRFONT hRFont, WPARAM w, LPARAM l, GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI, HSKIN hSkin = NULL  );
 	UIAPI HRFONT   UI_CopyFont( HRFONT hRFont );
 	UIAPI void     UI_ReleaseFont( HRFONT hRFont );

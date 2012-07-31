@@ -141,7 +141,14 @@ void PopupListBoxWindow::OnInitWindow()
 
 	ATTRMAP map_temp;
 	map_temp[XML_ID] = _T("PopupListBoxWindow");
-	this->SetAttribute(map_temp,false);  // 初始化一些默认变量
+	this->SetAttribute(map_temp,false);  // 初始化一些默认变量，如窗口字体
+
+	TextRenderBase* pTextRender = this->m_pListBox->GetTextRender();
+	if (NULL != pTextRender)
+	{
+		pTextRender->SetHRFont(this->GetHRFONT());
+		pTextRender->SetTextAlignment(DT_SINGLELINE|DT_END_ELLIPSIS|DT_VCENTER);
+	}
 
 	bool bNeedReCalcListBoxRect = false;
 	if (0 == rc.Width())

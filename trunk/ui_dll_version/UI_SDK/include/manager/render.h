@@ -191,6 +191,8 @@ namespace UI
 		virtual bool   SetAttribute( const String& strPrifix, map<String,String>& mapAttrib );
 		virtual void   DrawState(HRDC hRDC, const CRect* prc, int nState);
 		
+		void    SetStateColor(COLORREF colorBk, COLORREF colBorder);
+
 	private:
 		vector<UIColor*> m_vBkColor;
 		vector<UIColor*> m_vBorderColor;
@@ -383,19 +385,22 @@ namespace UI
 
 	public:
 		virtual bool     SetAttribute( const String& strPrifix, map<String,String>& mapAttrib ){ return true; };
-		virtual void     DrawState(HRDC hRDC, const CRect* prc, int nState, const String& strText, UINT nDrawTextFlag) {};
+		virtual void     DrawState(HRDC hRDC, const CRect* prc, int nState, const String& strText, int nDrawTextFlag=-1) {};
 		virtual HRFONT   GetHRFONT() = 0;
+		virtual void     SetHRFont(HRFONT hRFont) = 0;
+		virtual void     SetTextAlignment(int nDrawFlag);
 
 	public:
 		void             SetObject( Object* pObject ) { this->m_pObject = pObject; }
 		void             SetTextRenderType( const TEXTRENDER_TYPE& nType ){ m_nTextRenderType = nType ; }
 		TEXTRENDER_TYPE  GetTextRenderType() { return m_nTextRenderType; }
 
-		SIZE     GetDesiredSize(const String& strText, int nLimitWidth=-1);
+		SIZE             GetDesiredSize(const String& strText, int nLimitWidth=-1);
 
 	protected:
 		Object*          m_pObject;          // 绑定的对象，要绘制谁的文字
 		TEXTRENDER_TYPE  m_nTextRenderType;  // 自己的类型
+		int              m_nDrawTextFlag;
 	};
 
 	// 工厂类
@@ -413,8 +418,9 @@ namespace UI
 		~TextRender();
 
 		virtual bool     SetAttribute( const String& strPrifix, map<String,String>& mapAttrib );
-		virtual void     DrawState(HRDC hRDC, const CRect* prc, int nState, const String& strText, UINT nDrawTextFlag);
+		virtual void     DrawState(HRDC hRDC, const CRect* prc, int nState, const String& strText, int nDrawTextFlag=-1);
 		virtual HRFONT   GetHRFONT(){ return m_hFont; }
+		virtual void     SetHRFont(HRFONT hRFont);
 
 	private:
 		UIColor*     m_pColorText;
@@ -443,8 +449,9 @@ namespace UI
 		~FontColorListTextRender();
 
 		virtual bool     SetAttribute( const String& strPrifix, map<String,String>& mapAttrib );
-		virtual void     DrawState(HRDC hRDC, const CRect* prc, int nState, const String& strText, UINT nDrawTextFlag);
+		virtual void     DrawState(HRDC hRDC, const CRect* prc, int nState, const String& strText, int nDrawTextFlag=-1);
 		virtual HRFONT   GetHRFONT();
+		virtual void     SetHRFont(HRFONT hRFont);
 
 		void SetCount( int nCount );
 		void SetColor( int nIndex, COLORREF col );

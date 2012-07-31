@@ -959,6 +959,12 @@ bool ListBox::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 	{
 		m_pBkgndRender = RenderFactory::GetRender(RENDER_TYPE_THEME, this);
 	}
+	if (NULL == m_pForegndRender)
+	{
+		m_pForegndRender = RenderFactory::GetRender(RENDER_TYPE_COLORLIST, this);
+		ColorListRender* p = dynamic_cast<ColorListRender*>(m_pForegndRender);
+		p->
+	}
 
 	return true;
 }
@@ -994,9 +1000,10 @@ void ListBox::OnDrawItem(HRDC hRDC, ListItemBase* p)
 		// 正常状态不绘制
 	}
 
-	if (NULL != pData)
+	if (NULL != pData && NULL != m_pTextRender)
 	{
-		DrawString( hRDC, pData->m_strText.c_str(), &rcItem, DT_SINGLELINE|DT_END_ELLIPSIS|DT_CENTER|DT_VCENTER, this->GetFont() );
+		m_pTextRender->DrawState(hRDC, &rcItem, 0, pData->m_strText);
+	//	DrawString( hRDC, pData->m_strText.c_str(), &rcItem, DT_SINGLELINE|DT_END_ELLIPSIS|DT_CENTER|DT_VCENTER, this->GetFont() );
 	}
 }
 

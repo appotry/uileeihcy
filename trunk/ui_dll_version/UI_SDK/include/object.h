@@ -211,10 +211,12 @@ public:
 	void         SetObjectPos( CRect* prc, int nFlag=0 );
 	HRGN         GetRgn() { return m_hRgn; }
 	HRFONT       GetFont();
-	RenderBase*  GetBkRender() { return m_pBkgndRender; }
-	RenderBase*  GetForeRender() { return m_pForegndRender; }
-	void         SetBkRender(RenderBase* p);
-	void         SetForeRender(RenderBase* p);
+
+	TextRenderBase* GetTextRender(){ return m_pTextRender; }
+	RenderBase*     GetBkRender() { return m_pBkgndRender; }
+	RenderBase*     GetForeRender() { return m_pForegndRender; }
+	void            SetBkRender(RenderBase* p);
+	void            SetForeRender(RenderBase* p);
 
 	POINT        GetRealPosInWindow();
 	void         GetWindowRect(CRect* lprc);
