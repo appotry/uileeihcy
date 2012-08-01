@@ -41,11 +41,11 @@ namespace UI
 #define BUTTON_ICON_RENDER_STATE_SELECTED_PRESS     6
 #define BUTTON_ICON_RENDER_STATE_SELECTED_DISABLE   7
 
-#define LISTITEM_FOREGND_RENDER_STATE_NORMAL   0
-#define LISTITEM_FOREGND_RENDER_STATE_HOVER    1
-#define LISTITEM_FOREGND_RENDER_STATE_PRESS    2
-#define LISTITEM_FOREGND_RENDER_STATE_DISABLE  3
-#define LISTITEM_FOREGND_RENDER_STATE_SELECTED 4
+#define LISTCTRLITEM_FOREGND_RENDER_STATE_NORMAL   0
+#define LISTCTRLITEM_FOREGND_RENDER_STATE_HOVER    1
+#define LISTCTRLITEM_FOREGND_RENDER_STATE_PRESS    2
+#define LISTCTRLITEM_FOREGND_RENDER_STATE_DISABLE  3
+#define LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED 4
 
 	class IconTextRenderBase
 	{
@@ -109,10 +109,13 @@ namespace UI
 	public:
 		void    SetBkColor( COLORREF col );
 		void    SetBorderColor( COLORREF col );
+		void    SetBorder(int n){ m_nBorder = n; }
+		int     GetBorder(){ return m_nBorder; }
 
 	public:
 		UIColor*     m_pBkColor;
 		UIColor*     m_pBorderColor;
+		int	         m_nBorder;
 	};
 
 	// ∫·œÚΩ•±‰—’…´±≥æ∞
@@ -191,7 +194,7 @@ namespace UI
 		virtual bool   SetAttribute( const String& strPrifix, map<String,String>& mapAttrib );
 		virtual void   DrawState(HRDC hRDC, const CRect* prc, int nState);
 		
-		void    SetStateColor(COLORREF colorBk, COLORREF colBorder);
+		void    SetStateColor(int nState, COLORREF colorBk, bool bSetBk, COLORREF colBorder, bool bSetBorder);
 
 	private:
 		vector<UIColor*> m_vBkColor;

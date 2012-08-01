@@ -1228,10 +1228,10 @@ void Object::GetClientRectAsWin32( CRect* prc )
 void Object::SetNonClientRegion( CRegion4* prc )
 {
 	m_rcNonClient.SetRect(
-		prc->left + m_rcPadding.left,
-		prc->top + m_rcPadding.top,
-		prc->right + m_rcPadding.right,
-		prc->bottom + m_rcPadding.bottom );
+		prc->left + m_rcPadding.left + m_rcBorder.left,
+		prc->top + m_rcPadding.top + m_rcBorder.top,
+		prc->right + m_rcPadding.right + m_rcBorder.right,
+		prc->bottom + m_rcPadding.bottom + m_rcBorder.bottom);
 }
 void Object::GetParentRect( CRect* prc )
 {

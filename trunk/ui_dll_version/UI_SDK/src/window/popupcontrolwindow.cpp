@@ -151,7 +151,7 @@ void PopupListBoxWindow::OnInitWindow()
 	}
 
 	bool bNeedReCalcListBoxRect = false;
-	if (0 == rc.Width())
+	if (rc.Width() < m_pBindOb->GetWidth())  // 将下拉列表的宽度限制为最小与combobox一致
 	{
 		rc.right = rc.left + m_pBindOb->GetWidth();
 		m_pListBox->SetObjectPos(0,0,rc.Width(), rc.Height(),SWP_NOMOVE|SWP_NOREDRAW);

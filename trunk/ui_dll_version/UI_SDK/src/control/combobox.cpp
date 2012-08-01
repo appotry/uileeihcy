@@ -50,6 +50,14 @@ bool ComboboxBase::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 		m_button.ModifyStyle(OBJECT_STYLE_TRANSPARENT,0);
 	}
 
+	if (NULL == m_listbox.GetForeRender())
+	{
+		RenderBase* pForeRender = RenderFactory::GetRender(RENDER_TYPE_COLORLIST, &m_listbox);
+		ColorListRender* p = dynamic_cast<ColorListRender*>(pForeRender);
+		p->SetStateColor(LISTCTRLITEM_FOREGND_RENDER_STATE_HOVER, RGB(51,153,255),true, 0,false);
+		m_listbox.SetForeRender(pForeRender);
+	}
+
 	return true;
 }
 void ComboboxBase::ResetAttribute()
