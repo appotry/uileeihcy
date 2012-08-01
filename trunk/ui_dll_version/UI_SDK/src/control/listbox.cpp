@@ -886,6 +886,9 @@ ListBox::ListBox()
 
 	this->ModifyStyle(OBJECT_STYLE_VSCROLL | LISTCTRLBASE_SORT_ASCEND | LISTCTRLBASE_SIZE_2_CONTENT);
 	__super::SetSortCompareProc( ListBoxCompareProc );
+
+	CRegion4 r(1,1,1,1);
+	SetPaddingRegion(&r);
 }
 ListBox::~ListBox()
 {
@@ -961,9 +964,12 @@ bool ListBox::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 	}
 	if (NULL == m_pForegndRender)
 	{
-		m_pForegndRender = RenderFactory::GetRender(RENDER_TYPE_COLORLIST, this);
-		ColorListRender* p = dynamic_cast<ColorListRender*>(m_pForegndRender);
-		p->
+		if (0 == this->GetListBoxStyle())
+		{
+			m_pForegndRender = RenderFactory::GetRender(RENDER_TYPE_COLORLIST, this);
+			ColorListRender* p = dynamic_cast<ColorListRender*>(m_pForegndRender);
+			p->SetStateColor(LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED, RGB(51,153,255),true, 0,false);
+		}
 	}
 
 	return true;
@@ -982,19 +988,19 @@ void ListBox::OnDrawItem(HRDC hRDC, ListItemBase* p)
 	{
 		if (p->IsDisable())
 		{
-			m_pForegndRender->DrawState(hRDC, &rcItem, LISTITEM_FOREGND_RENDER_STATE_DISABLE);
+			m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_DISABLE);
 		}
 		else if( m_pFirstSelectedItem == p || p->GetPrevSelection() != NULL || p->GetNextSelection() != NULL )
 		{
-			m_pForegndRender->DrawState(hRDC, &rcItem, LISTITEM_FOREGND_RENDER_STATE_SELECTED);
+			m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED);
 		}
 		else if( m_pPressItem == p )
 		{
-			m_pForegndRender->DrawState(hRDC, &rcItem, LISTITEM_FOREGND_RENDER_STATE_PRESS);
+			m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_PRESS);
 		}
 		else if( NULL == m_pPressItem && m_pHoverItem == p )
 		{
-			m_pForegndRender->DrawState(hRDC, &rcItem, LISTITEM_FOREGND_RENDER_STATE_HOVER);
+			m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_HOVER);
 		}
 		
 		// 正常状态不绘制
@@ -1002,6 +1008,7 @@ void ListBox::OnDrawItem(HRDC hRDC, ListItemBase* p)
 
 	if (NULL != pData && NULL != m_pTextRender)
 	{
+		rcItem.DeflateRect(2,0,2,0);
 		m_pTextRender->DrawState(hRDC, &rcItem, 0, pData->m_strText);
 	//	DrawString( hRDC, pData->m_strText.c_str(), &rcItem, DT_SINGLELINE|DT_END_ELLIPSIS|DT_CENTER|DT_VCENTER, this->GetFont() );
 	}
@@ -1061,19 +1068,19 @@ void TTPlayerPlaylistCtrl::OnDrawItem(HRDC hRDC, ListItemBase* p)
 	{
 		if (p->IsDisable())
 		{
-			m_pForegndRender->DrawState(hRDC, &rcItem, LISTITEM_FOREGND_RENDER_STATE_DISABLE);
+			m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_DISABLE);
 		}
 		else if( m_pFirstSelectedItem == p || p->GetPrevSelection() != NULL || p->GetNextSelection() != NULL )
 		{
-			m_pForegndRender->DrawState(hRDC, &rcItem, LISTITEM_FOREGND_RENDER_STATE_SELECTED);
+			m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED);
 		}
 		else if( m_pPressItem == p )
 		{
-			m_pForegndRender->DrawState(hRDC, &rcItem, LISTITEM_FOREGND_RENDER_STATE_PRESS);
+			m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_PRESS);
 		}
 		else if( NULL == m_pPressItem && m_pHoverItem == p )
 		{
-			m_pForegndRender->DrawState(hRDC, &rcItem, LISTITEM_FOREGND_RENDER_STATE_HOVER);
+			m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_HOVER);
 		}
 	}
 	else

@@ -233,6 +233,10 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 					pTemp->SetBkColor(RGB(255,255,255));
 					pTemp->SetBorderColor(RGB(0,0,0));
 					pRender = static_cast<RenderBase*>(pTemp);
+
+					int nBorder = pTemp->GetBorder();
+					CRegion4 r(nBorder, nBorder, nBorder, nBorder);
+					pObj->SetBorderRegion(&r);
 				}
 				else
 					pRender = new ListboxBkThemeRender();
@@ -265,6 +269,7 @@ ColorRender::ColorRender()
 {
 	m_pBkColor = NULL;
 	m_pBorderColor = NULL;
+	m_nBorder = 1;
 }
 ColorRender::~ColorRender()
 {
@@ -318,9 +323,9 @@ void ColorRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 	else                           // 绘制边框
 	{
 		if( NULL != m_pBkColor )
-			Rectangle( hRDC, prc, m_pBorderColor->GetColor(), m_pBkColor->GetColor() );
+			Rectangle( hRDC, prc, m_pBorderColor->GetColor(), m_pBkColor->GetColor(), m_nBorder);
 		else
-			Rectangle( hRDC, prc, m_pBorderColor->GetColor(), 0,1,true );
+			Rectangle( hRDC, prc, m_pBorderColor->GetColor(), 0, m_nBorder,true );
 	}
 }
 
@@ -620,6 +625,33 @@ void  ColorListRender::Clear()
 	m_vBorderColor.clear();
 }
 
+void ColorListRender::SetStateColor(int nState, COLORREF colorBk, bool bSetBk, COLORREF colBorder, bool bSetBorder)
+{
+	if(m_nCount > nState)
+	{}
+	else
+	{
+		// 需要先填充空内容
+		for(int i = m_nCount-1; i <= nState; i++ )
+		{
+			m_vBkColor.push_back((UIColor*)NULL);
+			m_vBorderColor.push_back((UIColor*)NULL);
+		}
+		m_nCount = nState+1;
+	}
+
+	if (bSetBk)
+	{
+		UIColor::CreateInstance(colorBk, &m_vBkColor[nState]);
+		m_vBkColor[nState]->AddRef();
+	}
+	if (bSetBorder)
+	{
+		UIColor::CreateInstance(colBorder, &m_vBorderColor[nState]);
+		m_vBorderColor[nState]->AddRef();
+	}
+
+}
 bool ColorListRender::SetAttribute( const String& strPrifix, map<String,String>& mapAttrib )
 {
 	String strAttrib = strPrifix + XML_RENDER_COLORLIST_COUNT;
