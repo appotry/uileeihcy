@@ -248,5 +248,5 @@ namespace UI
 #include "control\combobox.h"
 
 #include "uiapplication.h"
-
+#include "objcreator.h"
 

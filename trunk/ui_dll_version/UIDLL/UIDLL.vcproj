@@ -240,6 +240,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\UI_SDK\include\objcreator.h"
+					>
+				</File>
+				<File
 					RelativePath="..\UI_SDK\include\object.h"
 					>
 				</File>
@@ -253,10 +257,6 @@
 				</File>
 				<File
 					RelativePath="..\UI_SDK\include\uiapplication.h"
-					>
-				</File>
-				<File
-					RelativePath="..\UI_SDK\doc\usage.h"
 					>
 				</File>
 				<Filter
