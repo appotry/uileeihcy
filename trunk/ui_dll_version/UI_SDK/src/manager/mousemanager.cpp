@@ -121,7 +121,7 @@ void MouseManager::CreateToolTip()
 		指定#define _WIN32_WINNT 0x0501将导致程序只能运行在xp及以上系统。
 	*/
 	m_toolinfo.cbSize = /*sizeof(TOOLINFO)*/ TTTOOLINFOA_V2_SIZE;
-	m_toolinfo.uFlags = TTF_IDISHWND | TTF_TRACK | TTF_ABSOLUTE;
+	m_toolinfo.uFlags = TTF_IDISHWND /*| TTF_TRACK | TTF_ABSOLUTE*/; // 注：加上TTF_TRACK|TTF_ABSOLUTE之后将导致提示条失去显示在屏幕范围之内的功能
 	m_toolinfo.hwnd   = m_pWindow->m_hWnd;
 	m_toolinfo.uId    = (UINT)m_pWindow->m_hWnd;
 	m_toolinfo.hinst  = g_pUIApplication->GetModuleInstance();
