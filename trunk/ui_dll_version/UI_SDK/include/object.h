@@ -119,6 +119,8 @@ public:
 	virtual ~Object(void) = 0;
 
 	UI_DECLARE_EMPTY_OBJECT();
+	virtual HRESULT FinalConstruct(){return S_OK;}
+	virtual void    FinalRelease(){};
 
 protected:
 	void DestroyUI();
@@ -131,7 +133,7 @@ protected:
 	CRegion4 m_rcNonClient;    // 如果在没有滚动条、Header等其它占用空间的控件，m_rcNonClient即为m_rcPadding+m_rcBorder
 	CRegion4 m_rcMargin;
 	CRegion4 m_rcPadding;
-	CRegion4 m_rcBorder;       // TODO: 未完成
+	CRegion4 m_rcBorder;       
 
 	HRGN     m_hRgn;           // 如果该对象是一个不规则区域，必须设置该值，该值对window类型对象无效. rgn是相对于窗口左上角的。
 

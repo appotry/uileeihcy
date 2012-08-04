@@ -40,7 +40,7 @@ extern HINSTANCE g_hInstance;
 #include <tchar.h>
 
 #include "atlbase.h"
-#include "atlapp.h"
+#include <atlapp.h>
 #include "atlwin.h"
 #include "atldlgs.h"
 #include "atlctrls.h"

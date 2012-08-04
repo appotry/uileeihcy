@@ -2423,6 +2423,7 @@ bool CXmlLayoutParse::ReLoadLayout( Object* pRootObj, list<Object*>& listAllChil
 	return bRet;
 }
 
+#if 0
 //
 //	通过xml中的标签名来实例化一个对象
 //
@@ -2462,6 +2463,14 @@ Object*  CXmlLayoutParse::mapXmlToClass( String strXmlName )
 		XML2CLASS( Combobox )
 	END_XML2CLASS
 	return pObj;
+}
+#endif
+
+Object*  CXmlLayoutParse::mapXmlToClass( String strXmlName )
+{
+	Object* p = NULL;
+	UICreateInstance(strXmlName, &p);
+	return p;
 }
 
 /*

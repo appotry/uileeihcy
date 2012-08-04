@@ -472,6 +472,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\UI_SDK\src\objcreator.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\UI_SDK\src\object.cpp"
 					>
 				</File>
