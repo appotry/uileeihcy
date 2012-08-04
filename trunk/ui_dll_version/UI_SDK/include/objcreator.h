@@ -3,46 +3,60 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-//    对象创建者
+//    对象创建者，为了支持在对象创建和销毁的时候能调用虚函数，要求所有对象
+//    调用UICreateInstance进行创建，将初始化代码和释放代码放在FinalConstruct
+//    /FinalRelease里面
 //
 //////////////////////////////////////////////////////////////////////////
-typedef HRESULT (*_CreateInstanceFunc)(void** p);
 
 template<class T>
-class UIObjectCreator : public T
+class UIObjCreator : public T
 {
 public:
-	static HRESULT CreateInstance(void** pOut)
+	virtual ~UIObjCreator()
 	{
-		if (NULL == pOut)
-			return E_INVALIDARG;
-
-		T* p = new T();
-
-		HRESULT hr = S_OK;
-// 		hr = p->FinalConstruct();
-// 
-// 		if (FAILED(hr))
-// 			delete p;
-// 		else
-// 			*pOut = p;
-
-		return hr;
+		FinalRelease();
 	}
 };
 
+HRESULT UICreateInstance(const String& strXmlName, Object** pOut);
 
-struct _UI_OBJMAP_ENTRY
+template<class T>
+HRESULT UICreateInstance(T** pOut)
 {
-	String name;
-	_CreateInstanceFunc pfunc;
-};
+	if (NULL == pOut)
+		return E_INVALIDARG;
 
-#define UI_BEGIN_OBJECT_MAP(x)     static _UI_OBJMAP_ENTRY x[] = {
-#define UI_END_OBJECT_MAP          { _T("")/*, {0,0,0,0} */,NULL}};
-#define UI_OBJECT_MAP_ENTRY(class) { class::XmlName(), UIObjectCreator<##class##>::CreateInstance },
+	UIObjCreator<T>* p = new UIObjCreator<T>();
 
-UI_BEGIN_OBJECT_MAP(aaa)
-	UI_OBJECT_MAP_ENTRY(ListBox)
-UI_END_OBJECT_MAP
+	HRESULT hr = S_OK;
+	hr = p->FinalConstruct();
+
+	if (FAILED(hr))
+		delete p;
+	else
+		*pOut = static_cast<T*>(p);
+
+	return hr;
+}
+
+
+//
+//	通过xml中的标签名来实例化一个对象
+//
+#define BEGIN_XML2CLASS \
+	Object* pObj = NULL;
+
+#define XML2CLASS( CLASS )  \
+	if( CLASS::XmlName() == strXmlName )  \
+	{ \
+		pObj = new UIObjCreator<CLASS>; \
+	} \
+	else 
+
+#define END_XML2CLASS \
+	{ \
+		UI_LOG_ERROR( _T("LayoutXmlParse::mapXmlToClass，未能解析的对象名称：%s"), strXmlName.c_str() ); \
+	}
+
 
