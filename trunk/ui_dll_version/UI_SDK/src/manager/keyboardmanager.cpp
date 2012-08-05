@@ -52,11 +52,9 @@ void KeyboardManager::SetFocusObjectDirect( Object* pObj )
 //
 void KeyboardManager::SetFocusObject( Object* pObj )
 {
-#ifdef _DEBUG
-	return;
-#endif
-	 if( m_pFocusObject == pObj )
-		 return;
+	// TODO: 这个条件会导致焦点从系统的combobox.edit点击到ui combobox.edit时没反应
+// 	 if( m_pFocusObject == pObj )  
+// 		 return;
 
 	 if( NULL != pObj )
 	 {

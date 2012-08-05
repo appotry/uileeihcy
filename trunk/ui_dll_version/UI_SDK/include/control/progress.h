@@ -131,7 +131,6 @@ public:
 // 	UI_BEGIN_MSG_MAP
 // 	UICHAIN_MSG_MAP_EX(SliderCtrlBase)
 // 	UI_END_MSG_MAP
-
 };
 
 }

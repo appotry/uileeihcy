@@ -2,22 +2,22 @@
 
 namespace UI
 {
-	class MenuWindowBase : public WindowBase
+
+	class UIAPI MenuBase : public ListBox
 	{
 	public:
-		UI_BEGIN_MSG_MAP
-			UICHAIN_MSG_MAP(WindowBase)
-		UI_END_MSG_MAP
+		MenuBase();
+		~MenuBase();
 
-		//virtual void OnInitWindow();
-		//virtual BOOL PreCreateWindow( CREATESTRUCT& cs );
-	};
-
-	class UIAPI MenuBase : public ListCtrlBase
-	{
-	public:
 		int  GetMenuItemCount();
 		int  TrackPopupMenu(UINT nFlag, int x, int y, Message* pNotifyObj);
+
+//		virtual  void OnDrawItem( HRDC hRDC, ListItemBase* p ) ;
+		virtual  SIZE OnMeasureItem( ListItemBase* p);
+//		virtual  void OnDeleteItem( ListItemBase* p );
+
+	protected:
+		PopupMenuWindow*  m_pWrapWnd;
 	};
 
 	class UIAPI Menu : public MenuBase

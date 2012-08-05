@@ -913,7 +913,10 @@ void SliderCtrlBase::OnPaint( HRDC hRDC )
 			// 将前景拉伸绘制在背景上面，但只在按钮左侧显示出来，因此在这做一个clip
 			CRect rcBtnWindow(0,0,0,0);
 			CRect rcThisWindow(0,0,0,0);
-			this->m_pButton->GetWindowRect(&rcBtnWindow);
+
+			if (NULL != m_pButton)
+				this->m_pButton->GetWindowRect(&rcBtnWindow);
+
 			this->GetWindowRect(&rcThisWindow);
 			HRGN hRgnClip = ::CreateRectRgn(rcThisWindow.left,rcThisWindow.top,rcBtnWindow.left,rcThisWindow.bottom);
 
@@ -953,11 +956,12 @@ void SliderCtrlBase::OnPaint( HRDC hRDC )
 
 SliderCtrl::SliderCtrl()
 {
-	m_pButton = new Button;
-	this->AddChild( m_pButton );
+	UICreateInstance(&m_pButton);
+ 	this->AddChild( m_pButton );
 }
 
 SliderCtrl::~SliderCtrl()
 {
+
 }
 

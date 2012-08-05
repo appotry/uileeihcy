@@ -7,6 +7,21 @@
 
 #define MAX_LOADSTRING 100
 
+//内存泄露检查改进版本
+#ifdef _DEBUG
+#	define DEBUG_CLIENTBLOCK new(_CLIENT_BLOCK, __FILE__, __LINE__)
+#else
+#	define DEBUG_CLIENTBLOCK
+#endif
+
+#define _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
+
+#ifdef _DEBUG
+#	define new DEBUG_CLIENTBLOCK
+#endif
+
+
 // 全局变量:
 HINSTANCE g_hInstance;				 			// 当前实例
 TCHAR szTitle[MAX_LOADSTRING];					// 标题栏文本
@@ -23,6 +38,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
                      LPTSTR    lpCmdLine,
                      int       nCmdShow)
 {
+
+	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);

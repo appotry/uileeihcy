@@ -275,8 +275,12 @@ void ListCtrlBase::UpdateItemRect( ListItemBase* pStart )
 
 void ListCtrlBase::SetSelectedItem(ListItemBase* pItem, bool& bNeedUpdateObject )
 {
+	if (this->TestStyle(LISTCTRLBASE_DISABLE_SEL)) 
+		return;
+
 	ListItemBase* pOldSelectoinItem = m_pFirstSelectedItem;
 	m_pFirstSelectedItem = pItem;
+
 #if 0
 	RECT rcClient;
 	this->m_MgrScrollbar.GetClientRect(&rcClient);
@@ -734,7 +738,6 @@ void ListCtrlBase::OnLButtonDown(UINT nFlags, POINT point)
 	{
 		m_pPressItem = m_pHoverItem;
 
-		ListItemBase* pSave = m_pFirstSelectedItem;
 		if( this->HitTest(point) == m_pPressItem )
 		{
 			bool bNeedUpdateObject = false;
@@ -755,8 +758,6 @@ void ListCtrlBase::OnLButtonUp(UINT nFlags, POINT point)
 		this->ReDrawItem(pSave);
 		this->ReDrawItem(m_pHoverItem);
 	}
-#ifdef _DEBUG
-#endif
 }
 void ListCtrlBase::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
 {

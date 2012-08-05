@@ -27,9 +27,9 @@
 // Windows 头文件:
 #include <windows.h>
 
-#ifdef _DEBUG
-#include "..\ui_sdk\include\other\vld.h"	// 内存泄露检查
-#endif
+// #ifdef _DEBUG
+// #include "..\ui_sdk\include\other\vld.h"	// 内存泄露检查 <-- 在win7下面无效
+// #endif
 
 #include "..\ui_sdk\include\ui.h"
 

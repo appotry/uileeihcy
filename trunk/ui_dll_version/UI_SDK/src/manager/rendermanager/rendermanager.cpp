@@ -39,17 +39,6 @@ bool RenderOffsetClipHelper::DrawChild(Object* pChild, HRDC hRDC)
 	if (!rcIntersect.IntersectRect(&m_rcClip, &rcParent) )
 		return false;
 
-// 	if (rc.left   > m_rcClip.right  ||
-// 		rc.top    > m_rcClip.bottom ||
-// 		rc.right  < m_rcClip.left   ||
-// 		rc.bottom < m_rcClip.top )
-// 		return false;
-// 
-// 	if (rc.left   > m_rcClip.left)   { m_rcClip.left   = rc.left; }
-// 	if (rc.top    > m_rcClip.top)    { m_rcClip.top    = rc.top; }
-// 	if (rc.right  < m_rcClip.right)  { m_rcClip.right  = rc.right; }
-// 	if (rc.bottom < m_rcClip.bottom) { m_rcClip.bottom = rc.bottom; }
-
 	m_rcClip = rcIntersect;
 	m_rcClip.OffsetRect(-rcParent.left, -rcParent.top);
 

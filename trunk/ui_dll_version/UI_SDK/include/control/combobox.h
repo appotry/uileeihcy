@@ -6,6 +6,7 @@ namespace UI
 #define COMBOBOX_EDIT_ID   _T("combobox_edit")
 #define COMBOBOX_LIST_ID   _T("combobox_list")
 
+
 class UIAPI ComboboxBase : public Control
 {
 public:
@@ -16,8 +17,13 @@ public:
 		UIMSG_WM_STATECHANGED(OnStateChanged)
 		UIMSG_WM_ERASEBKGND(OnEraseBkgnd)
 		UIMSG_WM_SIZE(OnSize)
-		UIMSG_BN_CLICKED2(&m_button, OnBtnClicked)
+	
+	UIALT_MSG_MAP(1)
+		UIMSG_WM_LBUTTONDOWN(OnBtnLButtonDown)
+
+	UI_BEGIN_CHAIN_ALL_MSG_MAP
 		UICHAIN_MSG_MAP(Control)
+	UI_END_CHAIN_ALL_MSG_MAP
 	UI_END_MSG_MAP
 
 	virtual bool SetAttribute( ATTRMAP& mapAttrib, bool bReload );
@@ -28,12 +34,12 @@ protected:
 	void OnStateChanged(int nOld, int nNew);
 	void OnEraseBkgnd(HRDC hRDC);
 	void OnSize( UINT nType, int cx, int cy );
-	void OnBtnClicked( );
+	void OnBtnLButtonDown(UINT nFlags, POINT point);
 
 protected:
-	Edit      m_edit;
-	Button    m_button;
-	ListBox   m_listbox;
+	Edit*      m_edit;
+	Button*    m_button;
+	ListBox*   m_listbox;
 };
 
 class UIAPI Combobox : public ComboboxBase

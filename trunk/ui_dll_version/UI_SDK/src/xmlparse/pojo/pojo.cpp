@@ -504,6 +504,7 @@ long  UICursor::Release()
 		}
 		m_dwRef = 0;
 		delete this;
+		return 0;
 	}
 	return m_dwRef;
 }

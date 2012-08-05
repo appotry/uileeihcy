@@ -567,10 +567,13 @@ void COptionWindow::OnBtnClick2(UINT uNotifyCode, int nID, HWND wndCtl)
 }
 void COptionWindow::OnRButtonUp(UINT nFlags, CPoint point)
 {
-	HMENU hMenu = ::CreatePopupMenu();
-	::AppendMenu(hMenu, MF_STRING, 1002, _T("LLLLLLL"));
-	::AppendMenu(hMenu, MF_STRING, 1003, _T("LLLLLLL"));
-	::AppendMenu(hMenu, MF_STRING, 1004, _T("LLLLLLL"));
-	::TrackPopupMenuEx(hMenu,0, 100,100, m_hWnd, NULL);
-	::DestroyMenu(hMenu);
+	static Menu* pMenu = NULL;
+	if (NULL == pMenu)
+		UICreateInstance(&pMenu);
+
+	pMenu->AddString(_T("aaa"),false);
+
+	POINT pt;
+	GetCursorPos(&pt);
+	pMenu->TrackPopupMenu(0,pt.x,pt.y,0);
 }

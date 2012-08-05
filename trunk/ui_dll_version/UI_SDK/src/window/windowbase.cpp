@@ -119,7 +119,7 @@ bool WindowBase::CreateUI( const String& ID, HWND hWnd )
 	
 	return true;
 }
-bool WindowBase::DestroyUI()
+void WindowBase::DestroyUI()
 {
 	Panel::DestroyUI();
 
@@ -132,8 +132,6 @@ bool WindowBase::DestroyUI()
 		ReleaseHRDC(m_hRenderTarget);
 		m_hRenderTarget = NULL;
 	}
-
-	return true;
 }
 
 //
@@ -210,15 +208,57 @@ void WindowBase::InvalidateObject( Object* pInvalidateObj, RECT* prc, bool bUpda
 	}
 }
 
+void WindowBase::InvalidateObjectBkgnd( Object* pInvalidateObj, RECT* prc, bool bUpdateNow )
+{
+	if( NULL == pInvalidateObj || NULL == m_hRenderTarget )
+		return;
+
+	if( OBJ_HWNDHOST == pInvalidateObj->GetObjectType() )
+	{
+		// 系统控件的刷新由它自己本身负责
+	}
+	else if( OBJ_WINDOW == pInvalidateObj->GetObjectType() )
+	{
+		WindowBase* pWindow = (WindowBase*)pInvalidateObj;
+		::InvalidateRect(pWindow->m_hWnd, prc, TRUE);
+		if( bUpdateNow )
+		{
+			UpdateWindow(pWindow->m_hWnd);
+		}
+	}
+	else
+	{
+		this->_InvalidateObjectBkgnd(pInvalidateObj, NULL);
+	}
+}
+
 void WindowBase::_InvalidateObject(Object* pInvalidateObj, HDC hDestDC)
 {
 	BeginDraw(m_hRenderTarget, hDestDC);
 	RenderOffsetClipHelper roc(this);
-	pInvalidateObj->DrawObjectTransparentBkgnd(m_hRenderTarget, roc);
+	pInvalidateObj->DrawObjectTransparentBkgnd(m_hRenderTarget, roc, pInvalidateObj->IsTransparent());
 	
 	pInvalidateObj->DrawObject(m_hRenderTarget, roc);
 	roc.Reset(m_hRenderTarget);
 	
+	//////////////////////////////////////////////////////////////////////////
+	//
+	//  提交显示
+
+	int nX = roc.m_rcClip.left + roc.m_ptOffset.x;
+	int nY = roc.m_rcClip.top  + roc.m_ptOffset.y;
+	int nW = roc.m_rcClip.Width();
+	int nH = roc.m_rcClip.Height();
+	EndDraw(m_hRenderTarget, nX, nY, nW, nH, nX, nY);
+}
+
+void WindowBase::_InvalidateObjectBkgnd(Object* pInvalidateObj, HDC hDestDC)
+{
+	BeginDraw(m_hRenderTarget, hDestDC);
+	RenderOffsetClipHelper roc(this);
+	pInvalidateObj->DrawObjectTransparentBkgnd(m_hRenderTarget, roc, true);
+	roc.Reset(m_hRenderTarget);
+
 	//////////////////////////////////////////////////////////////////////////
 	//
 	//  提交显示

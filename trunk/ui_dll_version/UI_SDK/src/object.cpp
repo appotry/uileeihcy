@@ -26,9 +26,14 @@ Object::Object(void)
 	m_pCursor = NULL;
 }
 
+ // 注意：不要在构造或者析构函数中调用虚函数
 Object::~Object(void)
 {
-	this->DestroyUI();   // 注意：不要在构造或者析构函数中调用虚函数，因此DestroyUI函数不能声明为一个virtual函数
+}
+
+void Object::InitialRelease()
+{
+	this->DestroyUI();  
 }
 
 void Object::DestroyUI()
@@ -62,6 +67,19 @@ void Object::UpdateObject( bool bUpdateNow )
 	if (NULL != pWindow)
 	{
 		pWindow->InvalidateObject(this, NULL, bUpdateNow);
+	}
+}
+
+// 当对象隐藏/移动的时候，刷新背景
+void Object::UpdateObjectBkgnd( bool bUpdateNow )
+{
+	if( this->testStateBit(CSB_PREVENTREDRAW))
+		return ;
+
+	WindowBase* pWindow = this->GetWindowObject();
+	if (NULL != pWindow)
+	{
+		pWindow->InvalidateObjectBkgnd(this, NULL, bUpdateNow);
 	}
 }
 
@@ -658,9 +676,12 @@ void Object::_drawNcChildObject(HRDC hRDC, RenderOffsetClipHelper& roc)
 
 // 如果是透明背景的话，需要获取父窗口中的背景
 // 但即使是不透明的object，也需要一层层遍历下来获取它的剪裁区域
-void Object::DrawObjectTransparentBkgnd(HRDC hRDC, RenderOffsetClipHelper& roc)
+//
+//   为了适应于对象隐藏的时候能够刷新自己的父对象背景，需要增加一个场景来忽略自己的透明属性
+//   因此增加bSelfTransparent，当普通刷新的时候传递this->IsTransparen()，其它时候直接传递false
+void Object::DrawObjectTransparentBkgnd(HRDC hRDC, RenderOffsetClipHelper& roc, bool bSelfTransparent)
 {
-	bool    bTransparent = this->IsTransparent();
+	bool    bTransparent = bSelfTransparent;
 	Object* pObjFirstParentToDrawBk = NULL;
 	
 	if (bTransparent)
@@ -678,7 +699,7 @@ void Object::DrawObjectTransparentBkgnd(HRDC hRDC, RenderOffsetClipHelper& roc)
 	}
 	else
 	{
-		pObjFirstParentToDrawBk = this;
+		pObjFirstParentToDrawBk = this;   // 虽然不需要绘制，但还是需要依据父对象进行偏移
 	}
 
 	Object* pObjParent = NULL;
@@ -1079,9 +1100,12 @@ void Object::SetVisible( bool b, bool bUpdateNow )
 	if( b != bOld )
 	{
 		this->UpdateLayout(bUpdateNow);	   // 如果对象可见的话，则UpdateLayout会负责更新
-		if( false == b && bUpdateNow )
+		if(bUpdateNow )
 		{
-//			this->UpdateObject(&m_rcWindow, bUpdateNow);  TODO:重写
+			if (b)
+				this->UpdateObject(bUpdateNow); 
+			else
+				this->UpdateObjectBkgnd(bUpdateNow); 
 		}
 	}
 
@@ -1161,9 +1185,9 @@ void Object::SetForceHover( bool b )
 void Object::SetForcePress( bool b )
 {
 	if( b )
-		this->setStateBit( CSB_FORCEHOVER );
+		this->setStateBit( CSB_FORCEPRESS );
 	else
-		this->clearStateBit( CSB_FORCEHOVER );
+		this->clearStateBit( CSB_FORCEPRESS );
 }
 void Object::SetHover( bool b )
 {

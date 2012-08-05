@@ -9,7 +9,7 @@ public:
 	Panel();
 	~Panel();
 protected:
-	void DestroyUI();
+	virtual void  DestroyUI();
 
 public:
 	UI_DECLARE_OBJECT( Panel, OBJ_PANEL )

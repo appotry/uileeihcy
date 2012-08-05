@@ -8,7 +8,7 @@ namespace UI
 		UI_BEGIN_MSG_MAP
 			//UIMSG_WM_ERASEBKGND(OnEraseBkgnd)
 			UIMSG_WM_MOUSEACTIVATE(OnMouseActivate)
-			UIMSG_WM_ACTIVATEAPP(OnActivateApp)
+			//UIMSG_WM_ACTIVATEAPP(OnActivateApp)
 
 			UIMESSAGE_HANDLER_EX(UI_WM_DESTROYPOPUPWINDOW, OnDestroyPopupWindow)
 			UIMESSAGE_HANDLER_EX(UI_WM_BEGINPOPUPLOOP, OnBeginPopupLoop)
@@ -62,9 +62,8 @@ namespace UI
 			UIMSG_WM_KEYDOWN(OnKeyDown)
 			MESSAGE_HANDLER_EX(UI_WM_DESTROYPOPUPWINDOW, OnDestroyPopupWindow)
 
-
 		UIALT_MSG_MAP(ALT_MSG_ID_LISTBOX)
-			UIMSG_WM_SIZE(OnSize)
+		
 		UI_BEGIN_CHAIN_ALL_MSG_MAP
 			UICHAIN_MSG_MAP(PopupControlWindow)
 		UI_END_CHAIN_ALL_MSG_MAP
@@ -81,4 +80,31 @@ namespace UI
 		ListBox*   m_pListBox;
 		Object*    m_pBindOb;
 	};
+
+
+	class MenuBase;
+#define ALT_MSG_ID_MENU 1
+	class PopupMenuWindow : public PopupControlWindow
+	{
+	public:
+		PopupMenuWindow(MenuBase* pMenu);
+
+		UI_BEGIN_MSG_MAP
+			MESSAGE_HANDLER_EX(UI_WM_DESTROYPOPUPWINDOW, OnDestroyPopupWindow)
+
+		UIALT_MSG_MAP(ALT_MSG_ID_MENU)
+		UI_BEGIN_CHAIN_ALL_MSG_MAP
+			UICHAIN_MSG_MAP(PopupControlWindow)
+		UI_END_CHAIN_ALL_MSG_MAP
+		UI_END_MSG_MAP
+
+	protected:
+		virtual BOOL PreCreateWindow( CREATESTRUCT& cs );
+		virtual void OnInitWindow();
+		LRESULT OnDestroyPopupWindow(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+	protected:
+		MenuBase*   m_pMenu;
+	};
+
 }

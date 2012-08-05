@@ -8,7 +8,6 @@ Panel::Panel(void)
 }
 Panel::~Panel()
 {
-	this->DestroyUI();
 }
 
 void Panel::DestroyUI()

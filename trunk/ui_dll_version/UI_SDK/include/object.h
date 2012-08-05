@@ -102,8 +102,9 @@ enum OBJ_TYPE
 #define LISTCTRLBASE_SORT_ASCEND        0x0020    // 升序排序
 #define LISTCTRLBASE_SORT_DESCEND       0x0040    // 降序排序
 #define LISTCTRLBASE_MULTIPLE_SEL       0x0080    // 是否支持多选
-#define LISTCTRLBASE_SIZE_2_CONTENT     0x0100    // 控件大小决定内容，例如不带横向滚动条的列表框
-#define LISTCTRLBASE_CONTENT_2_SIZE     0x0200    // 内容决定控件大小，例如菜单和弹出式列表框
+#define LISTCTRLBASE_DISABLE_SEL        0x0100    // 禁用选择功能，例如combobox的listbox
+#define LISTCTRLBASE_SIZE_2_CONTENT     0x0200    // 控件大小决定内容，例如不带横向滚动条的列表框
+#define LISTCTRLBASE_CONTENT_2_SIZE     0x0400    // 内容决定控件大小，例如菜单和弹出式列表框
 
 // listbox style
 #define LISTBOX_STYLE_MASK              0x000F    // 编辑框类型使用的位
@@ -119,11 +120,14 @@ public:
 	virtual ~Object(void) = 0;
 
 	UI_DECLARE_EMPTY_OBJECT();
-	virtual HRESULT FinalConstruct(){return S_OK;}
-	virtual void    FinalRelease(){};
+	virtual HRESULT InitialConstruct(){return S_OK;}   // 子类在实现该虚函数必须先调用父类的实现
+	virtual HRESULT FinalConstruct(){return S_OK;}     // 子类在实现该虚函数时不必调用父类的实现
+	virtual void    InitialRelease();                  // 子类在实现该虚函数必须先调用父类的实现
+	virtual void    FinalRelease(){};                  // 子类在实现该虚函数时不必调用父类的实现
+	virtual void    ObjectMustCreateByUIObjCreator() = 0;   // 创建一个虚函数，该函数仅UIObjCreator实现。其它对象在直接构建时将报错
 
 protected:
-	void DestroyUI();
+	virtual void    DestroyUI();
 	
 public:
 	String   m_strID;          // 该对象在XML中的标识
@@ -166,6 +170,7 @@ public:
 
 //	void         UpdateRect();
 	void         UpdateObject( bool bUpdateNow = true);
+	void         UpdateObjectBkgnd( bool bUpdateNow = true );
 //	void         UpdateObject( RECT* prc, bool bUpdateNow = true);
 	void         UpdateLayout( bool bUpdate );
 //	int          GetParentList( vector<Object*>& vParents );  -- 用不上，直接使用EnumParentObject即可
@@ -266,7 +271,7 @@ public:
 	
 	// 绘制
 	void         DrawObject(HRDC hRDC, RenderOffsetClipHelper roc);   
-	void         DrawObjectTransparentBkgnd(HRDC hRDC, RenderOffsetClipHelper& roc);
+	void         DrawObjectTransparentBkgnd(HRDC hRDC, RenderOffsetClipHelper& roc, bool bSelfTransparent);
 
 	// 其它
 	HRGN         GetClipRgnInWindow();
