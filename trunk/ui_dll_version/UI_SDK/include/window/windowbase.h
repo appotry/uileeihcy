@@ -14,6 +14,7 @@ public:
 	UI_DECLARE_OBJECT( WindowBase, OBJ_WINDOW )
 	WindowBase();
 	~WindowBase();
+	virtual  void ObjectMustCreateByUIObjCreator(){};   // TODO: 如果需要使用FinalConstruct的窗口可自己去由UIObjCreator实现
 
 public:
 	bool              Create( const String& ID,  HWND hWndParent = NULL );
@@ -31,16 +32,19 @@ public:
 	LRESULT           DefWindowProc( UINT uMsg, WPARAM wParam, LPARAM lParam );
 protected:
 	bool              CreateUI( const String& ID, HWND hWnd );
-	bool              DestroyUI();
+	virtual void      DestroyUI();
 	long              ModalLoop(HWND hWndParent);
 	BOOL              PreTranslateMessage(MSG* pMsg);
 
 public:
 	virtual           void InvalidateObject( Object* pObj, RECT* prc, bool bUpdateNow );
+	virtual           void InvalidateObjectBkgnd( Object* pObj, RECT* prc, bool bUpdateNow );
+	
 	virtual           HRDC BeginDrawObject( Object* pInvalidateObj, HRGN& hClipRgn);
 	virtual           void EndDrawObject( CRect* prcWindow, HRGN& hClipRgn );
 protected:
 	void              _InvalidateObject(Object* pInvalidateObj, HDC hDestDC);
+	void              _InvalidateObjectBkgnd(Object* pInvalidateObj, HDC hDestDC);
 
 public:
 	static void       ForwardMessageToChildObject(Object*,UINT,WPARAM,LPARAM);

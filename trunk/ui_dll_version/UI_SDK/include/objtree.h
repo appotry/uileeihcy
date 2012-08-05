@@ -20,7 +20,7 @@ namespace UI
 
 	protected:
 
-		void DestroyUI()
+		virtual void DestroyUI()
 		{
 			// 1. Client Object
 

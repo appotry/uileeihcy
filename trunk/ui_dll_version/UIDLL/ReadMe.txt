@@ -183,8 +183,6 @@ RedrawWindow(hwnd,
 	VISIBILITY_COLLAPSED,  // 不可见，不占用布局
 68. 考虑下m_pLayout是否可以不作为一个成员变量出现，而是作为一个helper类出现？
 
-*69. 现在重置属性，需要的构造函数中和resetattrib函数中都写一份代码，很容易导致不匹配，急需修改	
-*70. 如何在析构列表控件的时候，还能调用虚函数OnDeleteItem??,同时解决DestroyUI的虚函数继承问题
 	
 疑问：
 1. Message类是否需要一个 m_pCurMsg成员变量？
@@ -215,6 +213,9 @@ Finish
 
 63. 修改optiondlg中焦点切换不刷新的问题 --> Groupbox没有设置为透明导致
 
+*69. 现在重置属性，需要的构造函数中和resetattrib函数中都写一份代码，很容易导致不匹配，急需修改	
+*70. 如何在析构列表控件的时候，还能调用虚函数OnDeleteItem??,同时解决DestroyUI的虚函数继承问题
+     增加一人UIObjCreator InitialConstruct FinalConstruct FinalRelease
 
 CMFCPopupMenu::RecalcLayout, afxmenupopup.cpp L630
 CRect rectScreen;

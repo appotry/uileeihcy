@@ -10,8 +10,11 @@ class UIAPI ButtonBase : public Control
 {
 public:
 	ButtonBase();
+	virtual HRESULT FinalConstruct();
 
 	UI_DECLARE_OBJECT( ButtonBase, OBJ_CONTROL )
+public:
+
 
 	UI_BEGIN_MSG_MAP
 		UIMSG_WM_STATECHANGED(OnStateChanged)
@@ -51,9 +54,9 @@ protected:
 
 public:
 	// object virtual function
-	virtual void ResetAttribute();
-	virtual bool SetAttribute( map<String,String>& mapAttrib, bool bReload=false );
-	virtual SIZE GetAutoSize(HRDC hRDC);
+	virtual void    ResetAttribute();
+	virtual bool    SetAttribute( map<String,String>& mapAttrib, bool bReload=false );
+	virtual SIZE    GetAutoSize(HRDC hRDC);
 
 	// my virtual function
 	virtual void OnClicked(){};         // 自己被点击了（可在子类中用于设置当前check状态）
@@ -115,8 +118,9 @@ protected:
 
 class UIAPI Button : public ButtonBase
 {
-public:
+protected:
 	Button();
+public:
 	~Button();
 
 	UI_DECLARE_OBJECT( Button, OBJ_CONTROL )

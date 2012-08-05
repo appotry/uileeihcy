@@ -4,18 +4,15 @@ ButtonBase::ButtonBase()
 {
 	m_nCheckState = BST_UNCHECKED;
 	this->ModifyStyle(BUTTON_STYLE_PUSHBUTTON);
-
 	this->SetTabstop( true ); 
-
 	m_bSpaceKeyDown = false;
-	::SetRect( &m_rcPadding, 1,1,1,1 );
-
-	m_nAutoSizeType   = BUTTON_RENDER_AUTOSIZE_TYPE_CONTENT;
-	m_nIconMarginText = 0;
-	m_nIconTextFlag   = BUTTON_ICONTEXT_RENDER_FLAG_ICON_POS_LEFT;
-	m_nDrawFocusType  = BUTTON_RENDER_DRAW_FOCUS_TYPE_DOT;
 }
 
+HRESULT ButtonBase::FinalConstruct()
+{
+	this->ResetAttribute();
+	return S_OK;
+}
 
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //
@@ -33,7 +30,6 @@ void ButtonBase::ResetAttribute()
 	m_nDrawFocusType  = BUTTON_RENDER_DRAW_FOCUS_TYPE_DOT;
 
 	::SetRect( &m_rcPadding, 1,1,1,1 );
-//	m_render.ResetAttribute();
 }
 bool ButtonBase::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 {
@@ -404,6 +400,7 @@ void ButtonBase::DrawFocus( HRDC hRDC, CRect* prcIcon, CRect* prcText )
 
 void ButtonBase::OnStateChanged(int nOld, int nNew)
 {
+	UI_LOG_ERROR(_T("OnStateChanged nOld=%x, nNew=%x"),nOld, nNew);
 	this->UpdateObject();
 }
 

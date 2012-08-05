@@ -105,7 +105,7 @@ bool ScrollBarMgr::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 	}
 	else if (NULL == m_pHScrollBar)
 	{
-		m_pHScrollBar = new HScrollBar();
+		UICreateInstance(&m_pHScrollBar);
 		m_pHScrollBar->m_strID = _T("hscrollbar");
 		m_pBindObject->ModifyStyle(OBJECT_STYLE_HSCROLL);
 	}
@@ -117,7 +117,7 @@ bool ScrollBarMgr::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 	}
 	else if (NULL == m_pVScrollBar)
 	{
-		m_pVScrollBar = new VScrollBar();
+		UICreateInstance(&m_pVScrollBar);
 		m_pVScrollBar->m_strID = _T("vscrollbar");
 		m_pBindObject->ModifyStyle(OBJECT_STYLE_VSCROLL);
 	}
@@ -802,7 +802,7 @@ public:
 		m_pBtnLineUpLeft = m_pBtnLineDownRight = NULL;
 		m_nTimer1IDToScroll = m_nTimer2IDToScroll = m_nTimer1IDScrolling = m_nTimer2IDScrolling = 0;
 
-		m_pBtnThumb = new ButtonBase;
+		UICreateInstance(&m_pBtnThumb);
 		m_pBtnThumb->m_strID = _T("thumbbtn");
 		this->m_pScrollBar->AddChild(m_pBtnThumb);
 		m_pBtnThumb->AddHook(this,0,ALT_MSG_ID_THUMB_BTN);
@@ -874,7 +874,7 @@ public:
 //		{
 		if (NULL == m_pBtnLineUpLeft)
 		{
-			m_pBtnLineUpLeft = new ButtonBase;
+			UICreateInstance(&m_pBtnLineUpLeft);
 			m_pBtnLineUpLeft->m_strID = _T("lineupleftbtn");
 			this->m_pScrollBar->AddChild(m_pBtnLineUpLeft);
 			m_pBtnLineUpLeft->AddHook(this,0,ALT_MSG_ID_BUTTON1);
@@ -882,7 +882,7 @@ public:
 		}
 		if (NULL == m_pBtnLineDownRight)
 		{
-			m_pBtnLineDownRight = new ButtonBase;
+			UICreateInstance(&m_pBtnLineDownRight);
 			m_pBtnLineDownRight->m_strID = _T("linedownrightbtn");
 			this->m_pScrollBar->AddChild(m_pBtnLineDownRight);
 			m_pBtnLineDownRight->AddHook(this,0,ALT_MSG_ID_BUTTON2);
@@ -921,9 +921,9 @@ private:
 	UINT_PTR         m_nTimer2IDScrolling;   // 按住linedown button后，连续滚动
 
 protected:
-	ButtonBase*      m_pBtnLineUpLeft;
-	ButtonBase*      m_pBtnLineDownRight;
-	ButtonBase*      m_pBtnThumb;
+	Button*      m_pBtnLineUpLeft;
+	Button*      m_pBtnLineDownRight;
+	Button*      m_pBtnThumb;
 //	SliderCtrlBase*  m_pSliderCtrl;
 };
 

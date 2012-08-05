@@ -45,9 +45,9 @@ extern HINSTANCE g_hInstance;
 #include "atldlgs.h"
 #include "atlctrls.h"
 
-#ifdef _DEBUG
-#include "..\ui_sdk\include\other\vld.h"	// 内存泄露检查
-#endif
+// #ifdef _DEBUG
+// #include "..\ui_sdk\include\other\vld.h"	// 内存泄露检查
+// #endif
 
 #include "ui.h"
 #pragma comment(lib,"uidll.lib")

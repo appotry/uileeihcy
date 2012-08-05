@@ -15,8 +15,11 @@ class UIObjCreator : public T
 public:
 	virtual ~UIObjCreator()
 	{
+		InitialRelease();
 		FinalRelease();
 	}
+
+	virtual void ObjectMustCreateByUIObjCreator(){};
 };
 
 HRESULT UICreateInstance(const String& strXmlName, Object** pOut);
@@ -30,7 +33,9 @@ HRESULT UICreateInstance(T** pOut)
 	UIObjCreator<T>* p = new UIObjCreator<T>();
 
 	HRESULT hr = S_OK;
-	hr = p->FinalConstruct();
+	hr = p->InitialConstruct();
+	if (SUCCEEDED(hr))
+		hr = p->FinalConstruct();
 
 	if (FAILED(hr))
 		delete p;
