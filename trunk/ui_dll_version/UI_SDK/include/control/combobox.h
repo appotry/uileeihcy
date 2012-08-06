@@ -17,6 +17,7 @@ public:
 		UIMSG_WM_STATECHANGED(OnStateChanged)
 		UIMSG_WM_ERASEBKGND(OnEraseBkgnd)
 		UIMSG_WM_SIZE(OnSize)
+		UIMSG_CB_SHOWDROPDOWN(OnCBShowDropDown)
 	
 	UIALT_MSG_MAP(1)
 		UIMSG_WM_LBUTTONDOWN(OnBtnLButtonDown)
@@ -36,6 +37,7 @@ protected:
 	void OnSize( UINT nType, int cx, int cy );
 	void OnBtnLButtonDown(UINT nFlags, POINT point);
 
+	void OnCBShowDropDown(BOOL bShow);
 protected:
 	Edit*      m_edit;
 	Button*    m_button;

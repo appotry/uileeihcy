@@ -138,6 +138,21 @@ void ComboboxBase::OnBtnLButtonDown(UINT nFlags, POINT point)
 	PopupListBoxWindow* p = new PopupListBoxWindow(m_listbox, this);
 	p->Create(_T(""),NULL/*GetHWND()*/);
 	::SetWindowPos(p->m_hWnd, NULL,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_SHOWWINDOW|SWP_NOACTIVATE);
-	m_button->SetForcePress(true);
-	::PostMessage(GetHWND(),WM_MOUSELEAVE,0,0);
+	
+}
+
+// PopupListBoxWindow显示/销毁时，发送过来的消息
+void ComboboxBase::OnCBShowDropDown(BOOL bShow)
+{
+	if (bShow)
+	{
+		m_button->SetForcePress(true);
+		::PostMessage(GetHWND(),WM_MOUSELEAVE,0,0);
+	}
+	else
+	{
+		int nOldStateBits = m_button->GetStateBit();
+		m_button->SetForcePress(false);
+		::UISendMessage(m_button, UI_WM_STATECHANGED, nOldStateBits, m_button->GetStateBit() ); //刷新按钮
+	}
 }

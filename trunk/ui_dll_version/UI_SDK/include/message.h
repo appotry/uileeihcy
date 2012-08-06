@@ -923,6 +923,17 @@ protected:
 			return TRUE;                              \
 	}
 
+// void OnCBNCloseUp(Combobox);
+#define UIMSG_CBN_CLOSEUP(func)                       \
+	if( uMsg == UI_WM_NOTIFY  &&                      \
+	    code == CBN_CLOSEUP )                         \
+	{                                                 \
+		SetMsgHandled(TRUE);                          \
+		func( (BOOL)wParam );                         \
+		if(IsMsgHandled())                            \
+			return TRUE;                              \
+	}
+
 // void OnVScroll(int nSBCode, int nPos, Message* pMsgFrom)
 #define UIMSG_WM_HSCROLL(func)                        \
 	if( uMsg == WM_HSCROLL )                          \

@@ -15,10 +15,12 @@ public:
 	~HwndHost();
 
 	UI_BEGIN_MSG_MAP
+		UIMSG_WM_HITTEST( OnHitTest )
 		UICHAIN_MSG_MAP(Object)
 	UI_END_MSG_MAP
 
 protected:
+	UINT              OnHitTest( POINT* pt );
 
 public:
 	bool              SubclassWindow();

@@ -402,7 +402,6 @@ void ButtonBase::DrawFocus( HRDC hRDC, CRect* prcIcon, CRect* prcText )
 
 void ButtonBase::OnStateChanged(int nOld, int nNew)
 {
-	UI_LOG_ERROR(_T("OnStateChanged nOld=%x, nNew=%x"),nOld, nNew);
 	this->UpdateObject();
 }
 

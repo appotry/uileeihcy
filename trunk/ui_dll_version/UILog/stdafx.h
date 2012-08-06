@@ -30,7 +30,7 @@ using namespace std;
 
 #include "UILog_i.h"
 #include "..\UIUtil\h\Util.h"
-#pragma comment(lib,"uiutil.lib")
+#pragma comment(lib,"uiutil_u.lib")
 using namespace UI;
 
 using namespace ATL;
