@@ -15,9 +15,10 @@ ComboboxBase::ComboboxBase()
 	m_button->SetButtonStyle(BUTTON_STYLE_COMBOBOX);
 	m_button->SetDrawFocusType(BUTTON_RENDER_DRAW_FOCUS_TYPE_NONE);
 	m_button->SetAutoSizeType(BUTTON_RENDER_AUTOSIZE_TYPE_BKIMAGE);
+	m_button->SetTabstop(false);
 
 	m_listbox->m_strID = COMBOBOX_LIST_ID;
-	m_listbox->ModifyStyle(LISTCTRLBASE_DISABLE_SEL|LISTCTRLBASE_CONTENT_2_SIZE, LISTCTRLBASE_SIZE_2_CONTENT);
+	m_listbox->ModifyStyle(LISTCTRLBASE_DISABLE_SEL|LISTCTRLBASE_CONTENT_2_SIZE|LISTCTRLBASE_SORT_ASCEND, LISTCTRLBASE_SIZE_2_CONTENT);
 	m_listbox->SetListBoxStyle(LISTBOX_STYLE_COMBOBOX);
 	
 	this->AddChild(m_edit);
@@ -138,4 +139,5 @@ void ComboboxBase::OnBtnLButtonDown(UINT nFlags, POINT point)
 	p->Create(_T(""),NULL/*GetHWND()*/);
 	::SetWindowPos(p->m_hWnd, NULL,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_SHOWWINDOW|SWP_NOACTIVATE);
 	m_button->SetForcePress(true);
+	::PostMessage(GetHWND(),WM_MOUSELEAVE,0,0);
 }

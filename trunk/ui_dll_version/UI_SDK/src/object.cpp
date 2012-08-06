@@ -1159,6 +1159,14 @@ bool Object::IsPress()
 {
 	return this->testStateBit( CSB_FORCEPRESS ) || this->testStateBit( CSB_PRESS );
 }
+bool Object::IsForeHover()
+{
+	return this->testStateBit( CSB_FORCEHOVER );
+}
+bool Object::IsForePress()
+{
+	return this->testStateBit( CSB_FORCEPRESS );
+}
 
 void Object::SetDefault( bool b )
 {

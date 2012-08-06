@@ -391,6 +391,9 @@ LRESULT MouseManager::MouseLeave( int vkFlag, int xPos, int yPos )
 	this->m_bMouseTrack = TRUE;// ¼ÌÐø¿ªÆôTRACKMOUSEEVENT
 
 	HideToolTip();
+
+	this->SetHoverObject(NULL);
+	this->SetPressObject(NULL);
 	return TRUE;
 }
 

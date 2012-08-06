@@ -62,7 +62,11 @@ class IStyleItemInfo;
 using namespace UI;
 
 #include "..\\UIUtil\\h\\util.h"
-#pragma comment(lib,"..\\UI_SDK\\lib\\uiutil.lib")
+#ifdef _UNICODE
+#	pragma comment(lib,"..\\UI_SDK\\lib\\uiutil_u.lib")
+#else
+#	pragma comment(lib,"..\\UI_SDK\\lib\\uiutil.lib")
+#endif
 #import "..\\UI_SDK\\bin\\UILog.dll" no_namespace named_guids  
 
 
