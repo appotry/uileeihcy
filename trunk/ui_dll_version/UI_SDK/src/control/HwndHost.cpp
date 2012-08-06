@@ -165,3 +165,10 @@ LRESULT	HwndHost::WndProc( UINT uMsg, WPARAM wParam, LPARAM lParam )
 	return DefWindowProc(uMsg,wParam,lParam);
 }
 
+UINT HwndHost::OnHitTest( POINT* pt )
+{
+	POINT point = *pt;
+	MapWindowPoints(GetHWND(), NULL, &point, 1);
+	UINT nRet = ::SendMessage(m_hWnd, WM_NCHITTEST, 0, MAKELPARAM(point.x, point.y));
+	return nRet;
+}

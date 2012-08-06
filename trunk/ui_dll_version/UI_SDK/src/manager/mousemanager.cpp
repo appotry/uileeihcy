@@ -281,8 +281,7 @@ LRESULT MouseManager::HandleMessage( UINT msg, WPARAM w, LPARAM l )
 //			[in]	当前鼠标位置，以窗口左上角为(0,0)起点
 //
 LRESULT MouseManager::MouseMove( int vkFlag, int xPos, int yPos )
-{
-	
+{	
 	// 1. 判断当前鼠标位置
 	POINT pt = { xPos, yPos };
 
@@ -363,6 +362,7 @@ LRESULT MouseManager::MouseMove( int vkFlag, int xPos, int yPos )
 			}
 		}
 	}
+
 	return 0L;
 }
 
@@ -394,13 +394,17 @@ LRESULT MouseManager::MouseLeave( int vkFlag, int xPos, int yPos )
 
 	this->SetHoverObject(NULL);
 	this->SetPressObject(NULL);
+	if (GetCapture() == m_pWindow->m_hWnd)  // 有可能是其它对象直接发送过来WM_MOUSELEAVE，例如COMBOBOX.button.onlbuttondown
+	{
+		::ReleaseCapture();
+	}
 	return TRUE;
 }
 
 
 LRESULT MouseManager::LButtonDown( int vkFlag, int xPos, int yPos )
 {
-	if( this->m_pObjHover != NULL )
+	if (NULL != this->m_pObjHover)
 	{
 		::SetCapture( this->m_pWindow->m_hWnd );
 		this->SetPressObject(m_pObjHover);

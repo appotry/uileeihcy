@@ -30,6 +30,12 @@ LRESULT PopupControlWindow::OnDestroyPopupWindow(UINT uMsg, WPARAM wParam, LPARA
 {
 	this->ClearTreeObject();
 	::DestroyWindow(m_hWnd);
+
+	POINT pt;
+	GetCursorPos(&pt);
+	HWND hWnd = GetActiveWindow();
+	MapWindowPoints(NULL, hWnd, &pt, 1);
+	::PostMessage(GetActiveWindow(), WM_MOUSEMOVE, 0, MAKELPARAM(pt.x, pt.y));
 	return 0;
 }
 
@@ -67,7 +73,6 @@ void PopupControlWindow::PopupLoop()
 		if (bBreak)
 			break;
 	}
-
 }
 BOOL PopupControlWindow::PreTranslatePopupMessage(MSG* pMsg)
 {
@@ -172,6 +177,8 @@ void PopupListBoxWindow::OnInitWindow()
 		m_pListBox->UpdateItemRect(NULL);
 	}
 	this->SetObjectPos(rcWindow.left, rcWindow.bottom, rc.Width(), rc.Height(), 0);
+
+	UISendMessage(m_pBindOb, UI_WM_NOTIFY, TRUE, 0, CB_SHOWDROPDOWN);
 }
 
 void  PopupListBoxWindow::OnListBoxSize(UINT nType, int cx, int cy)
@@ -184,7 +191,7 @@ LRESULT PopupListBoxWindow::OnDestroyPopupWindow(UINT uMsg, WPARAM wParam, LPARA
 	SetMsgHandled(FALSE);
 	m_pListBox->ClearTreeObject();
 
-//	UISendMessage(m_pBindOb, UI_WM_EXIT_
+	UISendMessage(m_pBindOb, UI_WM_NOTIFY, FALSE, 0, CB_SHOWDROPDOWN);
 	return 0;
 }
 

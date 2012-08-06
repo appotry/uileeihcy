@@ -909,7 +909,9 @@ LRESULT WindowBase::_OnHandleMouseMessage( UINT uMsg, WPARAM wParam, LPARAM lPar
 
 	this->m_MgrMouse.HandleMessage( uMsg, wParam, lParam );
 	if( NULL != m_MgrMouse.GetHoverObject() || NULL != m_MgrMouse.GetPressObject() )
+	{
 		bHandled = TRUE;
+	}
 
 	return 0;
 }
