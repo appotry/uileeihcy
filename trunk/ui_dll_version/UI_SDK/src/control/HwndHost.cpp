@@ -149,7 +149,7 @@ LRESULT	HwndHost::WndProc( UINT uMsg, WPARAM wParam, LPARAM lParam )
 			WindowBase* pWindow = this->GetWindowObject();
 			if (NULL != pWindow)
 			{
-				::UISendMessage(this, WM_SETFOCUS, 
+				::UISendMessage(this, WM_KILLFOCUS, 
 					(WPARAM)pWindow->GetKeyboardMgr().GetFocusObject(),
 					0 );
 			}

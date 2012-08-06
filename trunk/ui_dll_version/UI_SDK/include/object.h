@@ -250,6 +250,8 @@ public:
 	bool         IsReadonly();
 	bool         IsHover();
 	bool         IsPress();
+	bool         IsForePress();
+	bool         IsForeHover();
 	void         SetDefault( bool b );
 	void         SetReadonly( bool b );
 	void         SetForceHover( bool b );

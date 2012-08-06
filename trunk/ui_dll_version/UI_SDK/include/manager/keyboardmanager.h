@@ -29,7 +29,7 @@ public:
 	void     OnObjectHideInd(Object* pObj);
 
 private:
-	void     KillFocus();
+	void     KillFocus(HWND hFocusWnd);
 	void     SetFocus();
 	void     OnChar( WPARAM,LPARAM );
 	void     KeyDown( WPARAM,LPARAM );

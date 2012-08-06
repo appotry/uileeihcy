@@ -53,23 +53,25 @@ void KeyboardManager::SetFocusObjectDirect( Object* pObj )
 void KeyboardManager::SetFocusObject( Object* pObj )
 {
 	// TODO: 这个条件会导致焦点从系统的combobox.edit点击到ui combobox.edit时没反应
-// 	 if( m_pFocusObject == pObj )  
-// 		 return;
+	//       但屏蔽这个条件会导致UI COMBOBOX中的EDIT无法拖拽选中（因为一直在KILLFOCUS/SETFOCUS）
+	 if( m_pFocusObject == pObj )  
+		 return;
 
 	 if( NULL != pObj )
 	 {
 		 if( OBJ_HWNDHOST == pObj->GetObjectType() )
 		 {
-			 if( ::GetFocus() != ((HwndHost*)pObj)->m_hWnd )
+			 HWND hWndFocus = ::GetFocus();
+			 HWND hWndHost = ((HwndHost*)pObj)->m_hWnd;
+			 if( hWndFocus != hWndHost && FALSE == ::IsChild(hWndHost, hWndFocus) )  // 有可能点击了combobox中的edit,edit不是一个HOSTWND，但是HOSTWND的子窗口
 			 {
 				 m_pOldFocusObject = m_pFocusObject;   // 在HwndHost::WndProc WM_SETFOCUS中使用
 				 m_pFocusObject = pObj;
 
-				 HWND hWnd = ((HwndHost*)pObj)->m_hWnd;
-				 if (GetWindowLong(hWnd, GWL_EXSTYLE)&WS_EX_NOACTIVATE)
+				 if (GetWindowLong(hWndHost, GWL_EXSTYLE)&WS_EX_NOACTIVATE)
 					{}
 				 else
-					::SetFocus(hWnd);  
+					::SetFocus(hWndHost);  
 				 return;
 			 }
 		 }
@@ -123,7 +125,7 @@ LRESULT KeyboardManager::HandleMessage( UINT msg, WPARAM w, LPARAM l )
 	switch( msg )
 	{
 	case WM_KILLFOCUS:
-		this->KillFocus();
+		this->KillFocus((HWND)w);
 		break;
 
 	case WM_SETFOCUS:
@@ -160,18 +162,25 @@ void KeyboardManager::NcDestroy()
 	this->m_pOldFocusObject = NULL;
 }
 
-void KeyboardManager::KillFocus()
+void KeyboardManager::KillFocus(HWND hFocusWnd)
 {
 	Object* p = this->GetOldFocusObject();
 	if( NULL == p )
 		p = m_pFocusObject;
 
-	if( NULL != p )
+	if( NULL != p )  // 给Focus对象发送焦点消息，但不重置m_pFocusObject。例如鼠标点到桌面上导致的失焦
 	{
-		int nOldStateBits = m_pFocusObject->GetStateBit();
+		int nOldStateBits = p->GetStateBit();
 		p->SetFocus(false);
 		::UISendMessage( p, WM_KILLFOCUS, (WPARAM)NULL, (LPARAM)0 );
 		::UISendMessage( p,UI_WM_STATECHANGED, nOldStateBits, m_pFocusObject->GetStateBit() );
+	}
+
+	// 当鼠标是点在了本窗口上面的一个HOSTWND里的子窗口时，重置m_pFocusObject，否则鼠标再点回m_pFocusObject时将没反应
+	HWND hWnd = m_pWindow->GetHWND();
+	if (IsChild(hWnd, hFocusWnd))
+	{
+		this->SetFocusObjectDirect(NULL);
 	}
 }
  

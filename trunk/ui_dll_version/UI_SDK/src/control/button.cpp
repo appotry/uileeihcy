@@ -223,6 +223,7 @@ void ButtonBase::OnEraseBkgnd(HRDC hRDC)
 		bool  bDisable = !IsEnable();
 		bool  bHover   = IsHover();
 		bool  bPress   = IsPress();
+		bool  bForePress = IsForePress();
 
 		CRect rc(0,0, GetWidth(), GetHeight());
 
@@ -230,7 +231,7 @@ void ButtonBase::OnEraseBkgnd(HRDC hRDC)
 		{
 			this->m_pBkgndRender->DrawState(hRDC, &rc, BUTTON_BKGND_RENDER_STATE_DISABLE);
 		}
-		else if( bPress && bHover )
+		else if( bForePress || (bPress && bHover) )
 		{
 			this->m_pBkgndRender->DrawState(hRDC, &rc, BUTTON_BKGND_RENDER_STATE_PRESS);
 		}
@@ -305,6 +306,7 @@ void ButtonBase::OnPaint(HRDC hRDC)
 	bool  bHover   = IsHover();
 	bool  bPress   = IsPress();
 	bool  bChecked = IsChecked();
+	bool  bForePress = IsForePress();
 
 	if( bDisable )
 	{
@@ -317,7 +319,7 @@ void ButtonBase::OnPaint(HRDC hRDC)
 			m_pTextRender->DrawState( hRDC, &rcText, BUTTON_BKGND_RENDER_STATE_DISABLE, m_strText, DT_VCENTER|DT_CENTER|DT_SINGLELINE|DT_END_ELLIPSIS );
 		}
 	}
-	else if( bPress && bHover )
+	else if( bForePress || (bPress && bHover) )
 	{
 		if ( NULL != m_pForegndRender )
 		{

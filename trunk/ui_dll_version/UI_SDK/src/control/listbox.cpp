@@ -885,7 +885,7 @@ ListBox::ListBox()
 {
 	m_nItemHeight = 24;
 
-	this->ModifyStyle(OBJECT_STYLE_VSCROLL | LISTCTRLBASE_SORT_ASCEND | LISTCTRLBASE_SIZE_2_CONTENT);
+	this->ModifyStyle(OBJECT_STYLE_VSCROLL | LISTCTRLBASE_SIZE_2_CONTENT);
 	__super::SetSortCompareProc( ListBoxCompareProc );
 
 	CRegion4 r(1,1,1,1);

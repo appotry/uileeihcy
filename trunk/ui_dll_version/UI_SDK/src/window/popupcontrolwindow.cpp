@@ -80,7 +80,7 @@ BOOL PopupControlWindow::PreTranslatePopupMessage(MSG* pMsg)
 	
 	if (WM_MOUSEMOVE == pMsg->message ||
 		WM_NCMOUSEMOVE == pMsg->message ||
- 		WM_MOUSELEAVE == pMsg->message ||  
+ 		/*WM_MOUSELEAVE == pMsg->message ||  */
  		WM_NCMOUSELEAVE == pMsg->message
 		)
 	{

@@ -167,6 +167,7 @@ namespace UI { namespace Util {
 
 	BOOL UIUTILAPI GradientFillH( HDC hDC, const RECT* prc, COLORREF colFrom, COLORREF colTo );
 	BOOL UIUTILAPI GradientFillV( HDC hDC, const RECT* prc, COLORREF colFrom, COLORREF colTo );
+
 #endif
 
 }}
