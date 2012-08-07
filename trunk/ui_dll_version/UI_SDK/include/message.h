@@ -124,15 +124,24 @@ enum
 	//UI_WM_GETSCROLLBAROBJECT,
 
 
-	//
-	//	通过给自己Post该消息来销毁当前弹出窗口
-	//
-	UI_WM_DESTROYPOPUPWINDOW,   
-
 	// 
-	//	通过给自己Post该消息来通知自己创建消息循环
+	//	PopupControlWindow通过给自己Post该消息来通知自己创建消息循环
 	//
-	UI_WM_BEGINPOPUPLOOP,
+	UI_WM_ENTERPOPUPLOOP,
+	//
+	//	PopupControlWindow通过给自己Post该消息来停止消息循环，并销毁当前弹出窗口
+	//
+	UI_WM_EXITPOPUPLOOP,   
+
+	//
+	//  PopupControlWindow发送给LISTBOX、MENU的消息，LISTBOX转发给COMBOBOX的消息，COMBOBOX/MENU转发给窗口的消息pObjMsgFrom将指向消息发送方
+	//
+	UI_WM_INITPOPUPCONTROLWINDOW,
+	UI_WM_UNINITPOPUPCONTROLWINDOW,
+
+	
+
+
 };
 
 namespace UI
@@ -865,6 +874,26 @@ protected:
 
 // void OnContextMenu(HWND hWnd, POINT point)
 #define UIMSG_WM_CONTEXTMENU  MSG_WM_CONTEXTMENU
+
+//void OnInitPopupControlWindow(Object* pObjMsgFrom)
+#define UIMSG_WM_INITPOPUPCONTROLWINDOW(func)         \
+	if (uMsg == UI_WM_INITPOPUPCONTROLWINDOW)         \
+	{                                                 \
+		SetMsgHandled(TRUE);                          \
+		func( pObjMsgFrom );                          \
+		if(IsMsgHandled())                            \
+			return TRUE;                              \
+	}
+
+//void OnUnInitPopupControlWindow(Object* pObjMsgFrom)
+#define UIMSG_WM_UNINITPOPUPCONTROLWINDOW(func)       \
+	if (uMsg == UI_WM_UNINITPOPUPCONTROLWINDOW)       \
+	{                                                 \
+		SetMsgHandled(TRUE);                          \
+		func( (dynamic_cast<Object*>(pObjMsgFrom) );  \
+		if(IsMsgHandled())                            \
+			return TRUE;                              \
+	}
 
 //
 // UI_WM_NOTIFY

@@ -1,54 +1,76 @@
 #include "stdafx.h"
 
-void PopupControlWindow::OnInitWindow()
+PopupControlWindow::PopupControlWindow(Object* pObj)
 {
-	__super::OnInitWindow();
-	::PostMessage(m_hWnd, UI_WM_BEGINPOPUPLOOP, 0, 0);
-
-	m_bDestroying = false;
+	m_pObject = pObj;
 }
+
+
 void PopupControlWindow::OnFinalMessage()
 {
+	m_pObject = NULL;
 	delete this;
 }
 
 //(WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE);
-// 注：如果自己的父窗口不是桌面，则不会在任务栏上面显示图标，因此这里没有添加WS_EX_TOOLWINDOW属性
+// 注：如果自己的父窗口不是桌面，则不会在任务栏上面显示图标
 BOOL PopupControlWindow::PreCreateWindow( CREATESTRUCT& cs )
 {
-	cs.dwExStyle |= WS_EX_TOPMOST|WS_EX_NOACTIVATE;
+	cs.dwExStyle |= WS_EX_TOPMOST|WS_EX_NOACTIVATE|WS_EX_TOOLWINDOW;
 	cs.lpszClass = WND_POPUP_CONTROL_SHADOW_NAME;
 	return __super::PreCreateWindow(cs);
 }
 
 void PopupControlWindow::DestroyPopupWindow()
 {
-	m_bDestroying = true;
-	::PostMessage(m_hWnd, UI_WM_DESTROYPOPUPWINDOW, 0, 0);
+	// 退出消息循环，并销毁窗口
+	::PostMessage(m_hWnd, UI_WM_EXITPOPUPLOOP, 0, 0);
 }
-LRESULT PopupControlWindow::OnDestroyPopupWindow(UINT uMsg, WPARAM wParam, LPARAM lParam)
+
+void PopupControlWindow::OnInitWindow()
+{
+	__super::OnInitWindow();
+
+	// 清除原窗口上面的hover、press对象
+	HWND hWnd = GetActiveWindow();
+	::PostMessage(hWnd,WM_MOUSELEAVE,0,0);
+
+	// 准备进入消息循环
+	::PostMessage(m_hWnd, UI_WM_ENTERPOPUPLOOP, 0, 0);
+}
+
+LRESULT PopupControlWindow::OnEnterPopupLoop(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	UISendMessage(m_pObject, UI_WM_INITPOPUPCONTROLWINDOW, 0,0,0, this);
+
+	PopupLoop();
+	return 0;
+}
+
+LRESULT PopupControlWindow::OnExitPopupLoop(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	this->ClearTreeObject();
 	::DestroyWindow(m_hWnd);
 
+	// 给原窗口发送一个鼠标移动消息，重置hover对象。否则会导致popupwnd消失后，原窗口鼠标直接点击无反应
 	POINT pt;
 	GetCursorPos(&pt);
 	HWND hWnd = GetActiveWindow();
 	MapWindowPoints(NULL, hWnd, &pt, 1);
 	::PostMessage(GetActiveWindow(), WM_MOUSEMOVE, 0, MAKELPARAM(pt.x, pt.y));
+
+	// 通知对象窗口被销毁
+	UISendMessage(m_pObject, UI_WM_UNINITPOPUPCONTROLWINDOW, 0,0,0, this);
+
 	return 0;
 }
 
-LRESULT PopupControlWindow::OnBeginPopupLoop(UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	PopupLoop();
-	return 0;
-}
+
 
 // 注：
 //	这里的GetMessage其实是只能拦截PostMessage发送过来的消息，
-//  对于其它SendMessage的消息是不法得知的。
-
+//  对于其它SendMessage的消息是不能得知的。
+//
 void PopupControlWindow::PopupLoop()
 {
 	MSG msg;
@@ -61,7 +83,7 @@ void PopupControlWindow::PopupLoop()
 		}
 
 		bool bBreak = false;
-		if (msg.hwnd == m_hWnd && UI_WM_DESTROYPOPUPWINDOW == msg.message)  // 注：处理完该消息后，m_hWnd将为空
+		if (msg.hwnd == m_hWnd && UI_WM_EXITPOPUPLOOP == msg.message)  // 注：处理完该消息后，m_hWnd将为空，因此先判断再执行
 			bBreak = true;
 
 		if (FALSE == this->PreTranslatePopupMessage(&msg))
@@ -85,8 +107,8 @@ BOOL PopupControlWindow::PreTranslatePopupMessage(MSG* pMsg)
 	
 	if (WM_MOUSEMOVE == pMsg->message ||
 		WM_NCMOUSEMOVE == pMsg->message ||
- 		/*WM_MOUSELEAVE == pMsg->message ||  */
- 		WM_NCMOUSELEAVE == pMsg->message
+ 		/*WM_MOUSELEAVE == pMsg->message ||*/
+ 		/*WM_NCMOUSELEAVE == pMsg->message*/
 		)
 	{
 		if (pMsg->hwnd != m_hWnd)
@@ -130,15 +152,15 @@ BOOL PopupControlWindow::OnEraseBkgnd(HRDC hRDC)
 	return TRUE;
 }
 
-PopupListBoxWindow::PopupListBoxWindow(ListBox* pListBox, Object* pBindObj)
+PopupListBoxWindow::PopupListBoxWindow(ListBox* pListBox, Object* pBindObj) : PopupControlWindow(pListBox)
 {
-	m_pBindOb = pBindObj;
+	m_pBindObj = pBindObj;
 	m_pListBox = pListBox;
 }
 
 BOOL PopupListBoxWindow::PreCreateWindow( CREATESTRUCT& cs )
 {
-	if (NULL == m_pListBox || NULL == m_pBindOb)
+	if (NULL == m_pListBox || NULL == m_pBindObj)
 		return FALSE;
 
 	BOOL bRet = __super::PreCreateWindow(cs);
@@ -156,8 +178,8 @@ void PopupListBoxWindow::OnInitWindow()
 	this->m_pListBox->GetWindowRect(&rc);
 	
 	CRect rcWindow;
-	m_pBindOb->GetWindowRect(&rcWindow);
-	::MapWindowPoints(m_pBindOb->GetHWND(), NULL, (LPPOINT)&rcWindow, 2);
+	m_pBindObj->GetWindowRect(&rcWindow);
+	::MapWindowPoints(m_pBindObj->GetHWND(), NULL, (LPPOINT)&rcWindow, 2);
 
 	ATTRMAP map_temp;
 	map_temp[XML_ID] = _T("PopupListBoxWindow");
@@ -170,15 +192,15 @@ void PopupListBoxWindow::OnInitWindow()
 		pTextRender->SetTextAlignment(DT_SINGLELINE|DT_END_ELLIPSIS|DT_VCENTER);
 	}
 
-	if (rc.Width() < m_pBindOb->GetWidth())  // 将下拉列表的宽度限制为最小与combobox一致
+	if (rc.Width() < m_pBindObj->GetWidth())  // 将下拉列表的宽度限制为最小与combobox一致
 	{
-		rc.right = rc.left + m_pBindOb->GetWidth();
+		rc.right = rc.left + m_pBindObj->GetWidth();
 		m_pListBox->SetObjectPos(0,0,rc.Width(), rc.Height(),SWP_NOMOVE|SWP_NOREDRAW);
 		m_pListBox->UpdateItemRect(NULL);
 	}
 	this->SetObjectPos(rcWindow.left, rcWindow.bottom, rc.Width(), rc.Height(), 0);
 
-	UISendMessage(m_pBindOb, UI_WM_NOTIFY, TRUE, 0, CB_SHOWDROPDOWN);
+	UISendMessage(m_pListBox, UI_WM_INITPOPUPWINDOW, TRUE, 0, CBN_DROPDOWN);
 }
 
 void  PopupListBoxWindow::OnListBoxSize(UINT nType, int cx, int cy)
@@ -186,13 +208,10 @@ void  PopupListBoxWindow::OnListBoxSize(UINT nType, int cx, int cy)
 	SetMsgHandled(FALSE);
 }
 
-LRESULT PopupListBoxWindow::OnDestroyPopupWindow(UINT uMsg, WPARAM wParam, LPARAM lParam)
+void  PopupListBoxWindow::OnFinalMessage()
 {
-	SetMsgHandled(FALSE);
 	m_pListBox->ClearTreeObject();
-
-	UISendMessage(m_pBindOb, UI_WM_NOTIFY, FALSE, 0, CB_SHOWDROPDOWN);
-	return 0;
+	UISendMessage(m_pBindObj, UI_WM_NOTIFY, FALSE, 0, CBN_CLOSEUP);
 }
 
 void PopupListBoxWindow::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
@@ -203,7 +222,7 @@ void PopupListBoxWindow::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
 
 //////////////////////////////////////////////////////////////////////////
 
-PopupMenuWindow::PopupMenuWindow(MenuBase* pMenu)
+PopupMenuWindow::PopupMenuWindow(MenuBase* pMenu) : PopupControlWindow(pMenu)
 {
 	m_pMenu = pMenu;
 }
@@ -240,9 +259,8 @@ void PopupMenuWindow::OnInitWindow()
 
 	this->SetObjectPos(0, 0, 100,100/*rc.Width(), rc.Height()*/, SWP_NOMOVE);
 }
-LRESULT PopupMenuWindow::OnDestroyPopupWindow(UINT uMsg, WPARAM wParam, LPARAM lParam)
+
+void PopupMenuWindow::OnFinalMessage()
 {
-	SetMsgHandled(FALSE);
 	m_pMenu->ClearTreeObject();
-	return 0;
 }

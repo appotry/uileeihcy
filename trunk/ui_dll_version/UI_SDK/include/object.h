@@ -60,7 +60,7 @@ enum OBJ_TYPE
 
 // STYLE样式占位说明
 //   31-24:  OBJECT 通用样式
-//	 23-16:  CONTROL通用样式
+//	 23-16:  CONTROL/WINDOW通用样式
 //   15-1 :  具体控件自己的样式
 //      0 :  表示该控件类型
 
