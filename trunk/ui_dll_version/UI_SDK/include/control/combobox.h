@@ -17,7 +17,8 @@ public:
 		UIMSG_WM_STATECHANGED(OnStateChanged)
 		UIMSG_WM_ERASEBKGND(OnEraseBkgnd)
 		UIMSG_WM_SIZE(OnSize)
-	//	UIMSG_CB_SHOWDROPDOWN(OnCBShowDropDown)
+		UIMSG_WM_INITPOPUPCONTROLWINDOW(OnInitPopupControlWindow)
+		UIMSG_WM_UNINITPOPUPCONTROLWINDOW(OnUnInitPopupControlWindow)
 	
 	UIALT_MSG_MAP(1)
 		UIMSG_WM_LBUTTONDOWN(OnBtnLButtonDown)
@@ -32,12 +33,14 @@ public:
 	virtual SIZE GetAutoSize( HRDC hRDC );
 
 protected:
-	void OnStateChanged(int nOld, int nNew);
-	void OnEraseBkgnd(HRDC hRDC);
-	void OnSize( UINT nType, int cx, int cy );
-	void OnBtnLButtonDown(UINT nFlags, POINT point);
+	void     OnStateChanged(int nOld, int nNew);
+	void     OnEraseBkgnd(HRDC hRDC);
+	void     OnSize( UINT nType, int cx, int cy );
+	void     OnBtnLButtonDown(UINT nFlags, POINT point);
 
-	void OnCBShowDropDown(BOOL bShow);
+	void     OnInitPopupControlWindow(Object* pObjMsgFrom);
+	void     OnUnInitPopupControlWindow(Object* pObjMsgFrom);
+
 protected:
 	Edit*      m_edit;
 	Button*    m_button;

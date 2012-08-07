@@ -102,7 +102,7 @@ enum OBJ_TYPE
 #define LISTCTRLBASE_SORT_ASCEND        0x0020    // 升序排序
 #define LISTCTRLBASE_SORT_DESCEND       0x0040    // 降序排序
 #define LISTCTRLBASE_MULTIPLE_SEL       0x0080    // 是否支持多选
-#define LISTCTRLBASE_DISABLE_SEL        0x0100    // 禁用选择功能，例如combobox的listbox
+//#define LISTCTRLBASE_DISABLE_SEL        0x0100    // 禁用选择功能，例如combobox的listbox
 #define LISTCTRLBASE_SIZE_2_CONTENT     0x0200    // 控件大小决定内容，例如不带横向滚动条的列表框
 #define LISTCTRLBASE_CONTENT_2_SIZE     0x0400    // 内容决定控件大小，例如菜单和弹出式列表框
 

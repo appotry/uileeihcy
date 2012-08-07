@@ -226,7 +226,6 @@ namespace UI
 
 		UI_BEGIN_MSG_MAP
 			UIMSG_WM_RBUTTONDOWN(OnRButtonDown)
-			UIMSG_WM_KEYDOWN(OnKeyDown)
 			UIMSG_WM_INITPOPUPCONTROLWINDOW(OnInitPopupControlWindow)
 			UIMSG_WM_UNINITPOPUPCONTROLWINDOW(OnUnInitPopupControlWindow)
 			UICHAIN_MSG_MAP(ListCtrlBase)
@@ -240,7 +239,6 @@ namespace UI
 		virtual  void OnDeleteItem( ListItemBase* p );
 
 		void     OnRButtonDown(UINT nFlags, CPoint point);
-		void	 OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags );
 		void     OnInitPopupControlWindow(Object* pObjMsgFrom);
 		void     OnUnInitPopupControlWindow(Object* pObjMsgFrom);
 
@@ -250,10 +248,16 @@ namespace UI
 
 		int      GetListBoxStyle();
 		void     SetListBoxStyle(int n);
+		void     SetBindObject(Object* pCombobox);
+
+		void     DropDown();
+		void     CloseUp();
 
 	protected:
 		int      m_nItemHeight;
 		Object*  m_pBindObject;   // 例如从combobox弹出来的列表框，m_pBindObject将指向Combobox*
+
+		PopupListBoxWindow* m_pPopupWrapWnd;
 	};
 
 	//////////////////////////////////////////////////////////////////////////

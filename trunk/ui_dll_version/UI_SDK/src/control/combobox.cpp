@@ -18,8 +18,9 @@ ComboboxBase::ComboboxBase()
 	m_button->SetTabstop(false);
 
 	m_listbox->m_strID = COMBOBOX_LIST_ID;
-	m_listbox->ModifyStyle(LISTCTRLBASE_DISABLE_SEL|LISTCTRLBASE_CONTENT_2_SIZE|LISTCTRLBASE_SORT_ASCEND, LISTCTRLBASE_SIZE_2_CONTENT);
+	m_listbox->ModifyStyle(LISTCTRLBASE_CONTENT_2_SIZE|LISTCTRLBASE_SORT_ASCEND, LISTCTRLBASE_SIZE_2_CONTENT);
 	m_listbox->SetListBoxStyle(LISTBOX_STYLE_COMBOBOX);
+	m_listbox->SetBindObject(this);
 	
 	this->AddChild(m_edit);
 	this->AddChild(m_button);
@@ -63,6 +64,7 @@ bool ComboboxBase::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 		RenderBase* pForeRender = RenderFactory::GetRender(RENDER_TYPE_COLORLIST, m_listbox);
 		ColorListRender* p = dynamic_cast<ColorListRender*>(pForeRender);
 		p->SetStateColor(LISTCTRLITEM_FOREGND_RENDER_STATE_HOVER, RGB(51,153,255),true, 0,false);
+		p->SetStateColor(LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED, RGB(51,153,255),true, 0,false);
 		m_listbox->SetForeRender(pForeRender);
 	}
 
@@ -135,23 +137,17 @@ void ComboboxBase::OnStateChanged(int nOld, int nNew)
 void ComboboxBase::OnBtnLButtonDown(UINT nFlags, POINT point)
 {
 	m_listbox->AddString(_T("Test"),false);
-	PopupListBoxWindow* p = new PopupListBoxWindow(m_listbox, this);
-	p->Create(_T(""),NULL/*GetHWND()*/);
-	::SetWindowPos(p->m_hWnd, NULL,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_SHOWWINDOW|SWP_NOACTIVATE);
-	
+	m_listbox->DropDown();
 }
 
 // PopupListBoxWindow显示/销毁时，发送过来的消息
-void ComboboxBase::OnCBShowDropDown(BOOL bShow)
+void ComboboxBase::OnInitPopupControlWindow(Object* pObjMsgFrom)
 {
-	if (bShow)
-	{
-		m_button->SetForcePress(true);
-	}
-	else
-	{
-		int nOldStateBits = m_button->GetStateBit();
-		m_button->SetForcePress(false);
-		::UISendMessage(m_button, UI_WM_STATECHANGED, nOldStateBits, m_button->GetStateBit() ); //刷新按钮
-	}
+	m_button->SetForcePress(true);
+}
+void ComboboxBase::OnUnInitPopupControlWindow(Object* pObjMsgFrom)
+{
+	int nOldStateBits = m_button->GetStateBit();
+	m_button->SetForcePress(false);
+	::UISendMessage(m_button, UI_WM_STATECHANGED, nOldStateBits, m_button->GetStateBit() ); //刷新按钮
 }

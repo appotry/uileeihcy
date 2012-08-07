@@ -83,8 +83,11 @@ void PopupControlWindow::PopupLoop()
 		}
 
 		bool bBreak = false;
-		if (msg.hwnd == m_hWnd && UI_WM_EXITPOPUPLOOP == msg.message)  // 注：处理完该消息后，m_hWnd将为空，因此先判断再执行
-			bBreak = true;
+		if (UI_WM_EXITPOPUPLOOP == msg.message)  // 注：处理完该消息后，m_hWnd将为空，因此先判断再执行
+		{
+			if (msg.hwnd == m_hWnd)
+				bBreak = true;
+		}
 
 		if (FALSE == this->PreTranslatePopupMessage(&msg))
 		{
@@ -106,10 +109,7 @@ BOOL PopupControlWindow::PreTranslatePopupMessage(MSG* pMsg)
 	}
 	
 	if (WM_MOUSEMOVE == pMsg->message ||
-		WM_NCMOUSEMOVE == pMsg->message ||
- 		/*WM_MOUSELEAVE == pMsg->message ||*/
- 		/*WM_NCMOUSELEAVE == pMsg->message*/
-		)
+		WM_NCMOUSEMOVE == pMsg->message )
 	{
 		if (pMsg->hwnd != m_hWnd)
 		{
@@ -200,7 +200,7 @@ void PopupListBoxWindow::OnInitWindow()
 	}
 	this->SetObjectPos(rcWindow.left, rcWindow.bottom, rc.Width(), rc.Height(), 0);
 
-	UISendMessage(m_pListBox, UI_WM_INITPOPUPWINDOW, TRUE, 0, CBN_DROPDOWN);
+	UISendMessage(m_pListBox, UI_WM_INITPOPUPCONTROLWINDOW, TRUE, 0, CBN_DROPDOWN);
 }
 
 void  PopupListBoxWindow::OnListBoxSize(UINT nType, int cx, int cy)
@@ -211,11 +211,18 @@ void  PopupListBoxWindow::OnListBoxSize(UINT nType, int cx, int cy)
 void  PopupListBoxWindow::OnFinalMessage()
 {
 	m_pListBox->ClearTreeObject();
-	UISendMessage(m_pBindObj, UI_WM_NOTIFY, FALSE, 0, CBN_CLOSEUP);
+	__super::OnFinalMessage();
 }
 
 void PopupListBoxWindow::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
 {
+	SetMsgHandled(FALSE);
+
+	if (VK_DOWN == nChar || VK_UP == nChar) 
+	{
+		SetMsgHandled(TRUE);
+		m_pListBox->ProcessMessage(m_pCurMsg,0);
+	}
 	return;
 }
 
