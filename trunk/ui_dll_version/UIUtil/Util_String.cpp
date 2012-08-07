@@ -314,7 +314,11 @@ void  FormatV( TCHAR* pszFormat, va_list argList, BSTR& bstr )
 	_vstprintf_s( szBuffer, nLength+1, pszFormat, argList );
 	//_vstprintf( szBuffer, pszFormat, argList );
 
+#ifdef _UNICODE
 	bstr = ::SysAllocString(szBuffer);
+#else
+	bstr = ::SysAllocString(CA2W(szBuffer));
+#endif
 	delete [] szBuffer;
 }
 

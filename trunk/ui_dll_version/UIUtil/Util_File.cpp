@@ -268,7 +268,11 @@ BOOL GetPathDir( const TCHAR* szPath, TCHAR* szOutDir )
 	if( NULL == p )
 		return FALSE;
 
+#ifdef _UNICODE
 	*p = _T('');
+#else
+	*p = 0;
+#endif
 	_tcscpy( szOutDir, szCopy );
 	return TRUE;
 }
