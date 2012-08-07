@@ -5,13 +5,15 @@ namespace UI
 	class PopupControlWindow : public CustomWindow
 	{
 	public:
+		PopupControlWindow(Object* pObj);
+
 		UI_BEGIN_MSG_MAP
 			//UIMSG_WM_ERASEBKGND(OnEraseBkgnd)
 			UIMSG_WM_MOUSEACTIVATE(OnMouseActivate)
-			//UIMSG_WM_ACTIVATEAPP(OnActivateApp)
+			UIMSG_WM_ACTIVATEAPP(OnActivateApp)
 
-			UIMESSAGE_HANDLER_EX(UI_WM_DESTROYPOPUPWINDOW, OnDestroyPopupWindow)
-			UIMESSAGE_HANDLER_EX(UI_WM_BEGINPOPUPLOOP, OnBeginPopupLoop)
+			UIMESSAGE_HANDLER_EX(UI_WM_ENTERPOPUPLOOP, OnEnterPopupLoop)
+			UIMESSAGE_HANDLER_EX(UI_WM_EXITPOPUPLOOP, OnExitPopupLoop)
 			UICHAIN_MSG_MAP(CustomWindow)
 		UI_END_MSG_MAP
 
@@ -23,8 +25,9 @@ namespace UI
 
 		BOOL      OnEraseBkgnd(HRDC hRDC);
 		void      DestroyPopupWindow();
-		LRESULT   OnDestroyPopupWindow(UINT uMsg, WPARAM wParam, LPARAM lParam);
-		LRESULT   OnBeginPopupLoop(UINT uMsg, WPARAM wParam, LPARAM lParam);
+		
+		LRESULT   OnEnterPopupLoop(UINT uMsg, WPARAM wParam, LPARAM lParam);
+		LRESULT   OnExitPopupLoop(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 		// 在鼠标点击本窗口的时候，不要去抢占主窗口的焦点
 		// 但是这样同时导致了鼠标消息和键盘消息获取不进来了
@@ -47,8 +50,8 @@ namespace UI
 
 		void PopupLoop();
 
-	private:
-		bool   m_bDestroying;
+	protected:
+		Object*   m_pObject;   // 弹出窗口中装载的对象指针，如ListBox* Menu*
 	};
 
 	class ListBox;
@@ -60,7 +63,6 @@ namespace UI
 		
 		UI_BEGIN_MSG_MAP
 			UIMSG_WM_KEYDOWN(OnKeyDown)
-			MESSAGE_HANDLER_EX(UI_WM_DESTROYPOPUPWINDOW, OnDestroyPopupWindow)
 
 		UIALT_MSG_MAP(ALT_MSG_ID_LISTBOX)
 		
@@ -72,13 +74,13 @@ namespace UI
 	protected:
 		virtual BOOL PreCreateWindow( CREATESTRUCT& cs );
 		virtual void OnInitWindow();
+		virtual void OnFinalMessage();
 
 		void    OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags );
 		void    OnListBoxSize(UINT nType, int cx, int cy);
-		LRESULT OnDestroyPopupWindow(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	protected:
 		ListBox*   m_pListBox;
-		Object*    m_pBindOb;
+		Object*    m_pBindObj;
 	};
 
 
@@ -90,7 +92,6 @@ namespace UI
 		PopupMenuWindow(MenuBase* pMenu);
 
 		UI_BEGIN_MSG_MAP
-			MESSAGE_HANDLER_EX(UI_WM_DESTROYPOPUPWINDOW, OnDestroyPopupWindow)
 
 		UIALT_MSG_MAP(ALT_MSG_ID_MENU)
 		UI_BEGIN_CHAIN_ALL_MSG_MAP
@@ -101,7 +102,7 @@ namespace UI
 	protected:
 		virtual BOOL PreCreateWindow( CREATESTRUCT& cs );
 		virtual void OnInitWindow();
-		LRESULT OnDestroyPopupWindow(UINT uMsg, WPARAM wParam, LPARAM lParam);
+		virtual void OnFinalMessage();
 
 	protected:
 		MenuBase*   m_pMenu;

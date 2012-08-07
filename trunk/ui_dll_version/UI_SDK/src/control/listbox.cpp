@@ -890,6 +890,8 @@ ListBox::ListBox()
 
 	CRegion4 r(1,1,1,1);
 	SetPaddingRegion(&r);
+
+	m_pBindObject = NULL;
 }
 ListBox::~ListBox()
 {
@@ -1044,6 +1046,23 @@ void ListBox::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
 {
 	return;
 }
+
+void ListBox::OnInitPopupControlWindow(Object* pObjMsgFrom)
+{
+	if (NULL != m_pBindObject)
+	{
+		UISendMessage(m_pBindObject, UI_WM_INITPOPUPCONTROLWINDOW, 0,0,0, this);
+	}
+}
+
+void ListBox::OnUnInitPopupControlWindow(Object* pObjMsgFrom)
+{
+	if (NULL != m_pBindObject)
+	{
+		UISendMessage(m_pBindObject, UI_WM_UNINITPOPUPCONTROLWINDOW, 0,0,0, this);
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 void TTPlayerPlaylistCtrl::OnDrawItem(HRDC hRDC, ListItemBase* p)

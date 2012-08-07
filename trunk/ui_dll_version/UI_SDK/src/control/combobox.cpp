@@ -147,7 +147,6 @@ void ComboboxBase::OnCBShowDropDown(BOOL bShow)
 	if (bShow)
 	{
 		m_button->SetForcePress(true);
-		::PostMessage(GetHWND(),WM_MOUSELEAVE,0,0);
 	}
 	else
 	{

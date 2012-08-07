@@ -227,6 +227,8 @@ namespace UI
 		UI_BEGIN_MSG_MAP
 			UIMSG_WM_RBUTTONDOWN(OnRButtonDown)
 			UIMSG_WM_KEYDOWN(OnKeyDown)
+			UIMSG_WM_INITPOPUPCONTROLWINDOW(OnInitPopupControlWindow)
+			UIMSG_WM_UNINITPOPUPCONTROLWINDOW(OnUnInitPopupControlWindow)
 			UICHAIN_MSG_MAP(ListCtrlBase)
 		UI_END_MSG_MAP
 
@@ -239,6 +241,9 @@ namespace UI
 
 		void     OnRButtonDown(UINT nFlags, CPoint point);
 		void	 OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags );
+		void     OnInitPopupControlWindow(Object* pObjMsgFrom);
+		void     OnUnInitPopupControlWindow(Object* pObjMsgFrom);
+
 	public:
 		bool     AddString(const String& strText, bool bUpdate=true);
 		void     SetItemHeight(int nHeight);
@@ -248,6 +253,7 @@ namespace UI
 
 	protected:
 		int      m_nItemHeight;
+		Object*  m_pBindObject;   // 例如从combobox弹出来的列表框，m_pBindObject将指向Combobox*
 	};
 
 	//////////////////////////////////////////////////////////////////////////
