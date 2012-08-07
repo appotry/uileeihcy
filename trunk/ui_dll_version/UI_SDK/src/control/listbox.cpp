@@ -995,23 +995,45 @@ void ListBox::OnDrawItem(HRDC hRDC, ListItemBase* p)
 
 	if (NULL != m_pForegndRender)
 	{
-		if (p->IsDisable())
+		if (LISTBOX_STYLE_COMBOBOX == GetListBoxStyle())
 		{
-			m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_DISABLE);
+			if (p->IsDisable())
+			{
+				m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_DISABLE);
+			}
+			// TODO: 当有HOVER对象时，先绘制HOVER对象，没有HOVER对象再绘制SELECTION对象
+			else if( m_pHoverItem != NULL && (m_pFirstSelectedItem == p || p->GetPrevSelection() != NULL || p->GetNextSelection() != NULL) )
+			{
+				m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED);
+			}
+			else if( m_pPressItem == p )
+			{
+				m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_PRESS);
+			}
+			else if( NULL == m_pPressItem && m_pHoverItem == p )
+			{
+				m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_HOVER);
+			}
 		}
-		else if( m_pFirstSelectedItem == p || p->GetPrevSelection() != NULL || p->GetNextSelection() != NULL )
+		else
 		{
-			m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED);
+			if (p->IsDisable())
+			{
+				m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_DISABLE);
+			}
+			else if( m_pFirstSelectedItem == p || p->GetPrevSelection() != NULL || p->GetNextSelection() != NULL )
+			{
+				m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED);
+			}
+			else if( m_pPressItem == p )
+			{
+				m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_PRESS);
+			}
+			else if( NULL == m_pPressItem && m_pHoverItem == p )
+			{
+				m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_HOVER);
+			}
 		}
-		else if( m_pPressItem == p )
-		{
-			m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_PRESS);
-		}
-		else if( NULL == m_pPressItem && m_pHoverItem == p )
-		{
-			m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_HOVER);
-		}
-		
 		// 正常状态不绘制
 	}
 
