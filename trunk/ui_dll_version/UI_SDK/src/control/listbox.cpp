@@ -275,9 +275,6 @@ void ListCtrlBase::UpdateItemRect( ListItemBase* pStart )
 
 void ListCtrlBase::SetSelectedItem(ListItemBase* pItem, bool& bNeedUpdateObject )
 {
-	if (this->TestStyle(LISTCTRLBASE_DISABLE_SEL)) 
-		return;
-
 	ListItemBase* pOldSelectoinItem = m_pFirstSelectedItem;
 	m_pFirstSelectedItem = pItem;
 
@@ -892,10 +889,15 @@ ListBox::ListBox()
 	SetPaddingRegion(&r);
 
 	m_pBindObject = NULL;
+	m_pPopupWrapWnd = NULL;
 }
 ListBox::~ListBox()
 {
 	this->RemoveAllItem();
+	if (NULL != m_pPopupWrapWnd)
+	{
+		m_pPopupWrapWnd->DestroyPopupWindow();
+	}
 }
 
 int ListBoxCompareProc( ListItemBase* p1, ListItemBase* p2 )
@@ -954,6 +956,10 @@ void ListBox::SetListBoxStyle(int n)
 	m_nStyle |= n;
 }
 
+void ListBox::SetBindObject(Object* pCombobox)
+{
+	m_pBindObject = pCombobox;
+}
 
 bool ListBox::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 {
@@ -1036,15 +1042,27 @@ void ListBox::OnDeleteItem( ListItemBase* p )
 
 void ListBox::OnRButtonDown(UINT nFlags, CPoint point)
 {
-#ifdef _DEBUG
-	//this->AddString(_T("test"));
-	this->SetItemHeight(m_nItemHeight + 10);
-	this->UpdateObject();
-#endif
 }
-void ListBox::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
+
+void ListBox::DropDown()
 {
-	return;
+	if (NULL != m_pPopupWrapWnd)
+	{
+		UI_LOG_WARN(_T("ListBox::DropDown NULL != m_pPopupWrapWnd, the prev dropdown window isnot destroyed"));
+		return;
+	}
+
+	// TODO: 优化，在这里决定popupwindow的位置，而不是让popupwindow自己在里面根据bindobj来计算
+	m_pPopupWrapWnd = new PopupListBoxWindow(this, m_pBindObject);
+	m_pPopupWrapWnd->Create(_T(""), NULL);
+	::SetWindowPos(m_pPopupWrapWnd->m_hWnd, NULL,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_SHOWWINDOW|SWP_NOACTIVATE);
+}
+void ListBox::CloseUp()
+{
+	if (NULL != m_pPopupWrapWnd)
+	{
+		m_pPopupWrapWnd->DestroyPopupWindow();
+	}
 }
 
 void ListBox::OnInitPopupControlWindow(Object* pObjMsgFrom)
@@ -1057,6 +1075,7 @@ void ListBox::OnInitPopupControlWindow(Object* pObjMsgFrom)
 
 void ListBox::OnUnInitPopupControlWindow(Object* pObjMsgFrom)
 {
+	m_pPopupWrapWnd = NULL;
 	if (NULL != m_pBindObject)
 	{
 		UISendMessage(m_pBindObject, UI_WM_UNINITPOPUPCONTROLWINDOW, 0,0,0, this);

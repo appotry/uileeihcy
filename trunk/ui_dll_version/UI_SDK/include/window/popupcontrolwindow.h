@@ -80,7 +80,7 @@ namespace UI
 		void    OnListBoxSize(UINT nType, int cx, int cy);
 	protected:
 		ListBox*   m_pListBox;
-		Object*    m_pBindObj;
+		Object*    m_pBindObj;  // TODO: 后面改进，使该类与m_pBindObj无关系
 	};
 
 

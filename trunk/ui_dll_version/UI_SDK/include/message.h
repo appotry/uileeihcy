@@ -139,9 +139,6 @@ enum
 	UI_WM_INITPOPUPCONTROLWINDOW,
 	UI_WM_UNINITPOPUPCONTROLWINDOW,
 
-	
-
-
 };
 
 namespace UI
@@ -880,7 +877,7 @@ protected:
 	if (uMsg == UI_WM_INITPOPUPCONTROLWINDOW)         \
 	{                                                 \
 		SetMsgHandled(TRUE);                          \
-		func( pObjMsgFrom );                          \
+		func( dynamic_cast<Object*>(pObjMsgFrom) );   \
 		if(IsMsgHandled())                            \
 			return TRUE;                              \
 	}
@@ -890,7 +887,7 @@ protected:
 	if (uMsg == UI_WM_UNINITPOPUPCONTROLWINDOW)       \
 	{                                                 \
 		SetMsgHandled(TRUE);                          \
-		func( (dynamic_cast<Object*>(pObjMsgFrom) );  \
+		func( dynamic_cast<Object*>(pObjMsgFrom) );   \
 		if(IsMsgHandled())                            \
 			return TRUE;                              \
 	}
