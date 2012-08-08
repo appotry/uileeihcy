@@ -997,22 +997,14 @@ void ListBox::OnDrawItem(HRDC hRDC, ListItemBase* p)
 	{
 		if (LISTBOX_STYLE_COMBOBOX == GetListBoxStyle())
 		{
-			if (p->IsDisable())
-			{
-				m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_DISABLE);
-			}
-			// TODO: 当有HOVER对象时，先绘制HOVER对象，没有HOVER对象再绘制SELECTION对象
-			else if( m_pHoverItem != NULL && (m_pFirstSelectedItem == p || p->GetPrevSelection() != NULL || p->GetNextSelection() != NULL) )
-			{
-				m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED);
-			}
-			else if( m_pPressItem == p )
-			{
-				m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_PRESS);
-			}
-			else if( NULL == m_pPressItem && m_pHoverItem == p )
+			if (m_pHoverItem == p)
 			{
 				m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_HOVER);
+			}
+			else if(NULL == m_pHoverItem &&
+				(m_pFirstSelectedItem == p || p->GetPrevSelection() != NULL || p->GetNextSelection() != NULL) )
+			{
+				m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED);
 			}
 		}
 		else
@@ -1062,8 +1054,16 @@ void ListBox::OnDeleteItem( ListItemBase* p )
 	SAFE_DELETE(pData);
 }
 
-void ListBox::OnRButtonDown(UINT nFlags, CPoint point)
+void ListBox::OnLButtonUp(UINT nFlags, CPoint point)
 {
+	if (LISTBOX_STYLE_COMBOBOX == GetListBoxStyle())
+	{
+		this->CloseUp();
+	}
+	else
+	{
+		this->SetMsgHandled(FALSE);
+	}
 }
 
 void ListBox::DropDown()

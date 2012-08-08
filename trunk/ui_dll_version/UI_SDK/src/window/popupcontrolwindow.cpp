@@ -270,4 +270,5 @@ void PopupMenuWindow::OnInitWindow()
 void PopupMenuWindow::OnFinalMessage()
 {
 	m_pMenu->ClearTreeObject();
+	__super::OnFinalMessage();
 }

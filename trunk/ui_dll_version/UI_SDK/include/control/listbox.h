@@ -225,7 +225,7 @@ namespace UI
 		UI_DECLARE_OBJECT( ListBox, OBJ_CONTROL )
 
 		UI_BEGIN_MSG_MAP
-			UIMSG_WM_RBUTTONDOWN(OnRButtonDown)
+			UIMSG_WM_LBUTTONUP(OnLButtonUp)
 			UIMSG_WM_INITPOPUPCONTROLWINDOW(OnInitPopupControlWindow)
 			UIMSG_WM_UNINITPOPUPCONTROLWINDOW(OnUnInitPopupControlWindow)
 			UICHAIN_MSG_MAP(ListCtrlBase)
@@ -238,7 +238,7 @@ namespace UI
 		virtual  SIZE OnMeasureItem( ListItemBase* p);
 		virtual  void OnDeleteItem( ListItemBase* p );
 
-		void     OnRButtonDown(UINT nFlags, CPoint point);
+		void     OnLButtonUp(UINT nFlags, CPoint point);
 		void     OnInitPopupControlWindow(Object* pObjMsgFrom);
 		void     OnUnInitPopupControlWindow(Object* pObjMsgFrom);
 

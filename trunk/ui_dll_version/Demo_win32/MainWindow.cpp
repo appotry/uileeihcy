@@ -349,6 +349,19 @@ void MainWindow::OnContextMenu( HWND wnd, POINT point )
 	if( this->GetHoverObject() != NULL )
 		return;
 
+ 	static Menu* pMenu = NULL;
+ 	if (NULL == pMenu)
+ 		UICreateInstance(&pMenu);
+
+	pMenu->AppendMenu(MF_STRING, 101, _T("Test"));
+ 
+ 	POINT pt;
+ 	GetCursorPos(&pt);
+ 	pMenu->TrackPopupMenu(0,pt.x,pt.y,0);
+
+	return;
+
+
 #define MENU_ID_OPTION    1
 #define MENU_ID_SKIN_BASE 1000
 
@@ -567,13 +580,5 @@ void COptionWindow::OnBtnClick2(UINT uNotifyCode, int nID, HWND wndCtl)
 }
 void COptionWindow::OnRButtonUp(UINT nFlags, CPoint point)
 {
-// 	static Menu* pMenu = NULL;
-// 	if (NULL == pMenu)
-// 		UICreateInstance(&pMenu);
-//
-//	pMenu->AddString(_T("aaa"),false);
-// 
-// 	POINT pt;
-// 	GetCursorPos(&pt);
-// 	pMenu->TrackPopupMenu(0,pt.x,pt.y,0);
+
 }
