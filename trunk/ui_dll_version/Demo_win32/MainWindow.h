@@ -77,6 +77,8 @@ protected:
 	Label*        m_pLabelTime;
 	SliderCtrl*   m_pProgress;
 	SliderCtrl*   m_pVolume;
+
+	Menu*         m_pMenu;
 };
 
 

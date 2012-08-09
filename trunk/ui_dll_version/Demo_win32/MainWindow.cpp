@@ -20,6 +20,7 @@ MainWindow::MainWindow(void)
 	m_lSizeMove = 0;
 	m_ptCursorSizeMove.x = m_ptCursorSizeMove.y = 0;
 	m_ptWndPosSizeMove.x = m_ptWndPosSizeMove.y = 0;
+	m_pMenu = NULL;
 }
 
 MainWindow::~MainWindow(void)
@@ -42,6 +43,7 @@ MainWindow::~MainWindow(void)
 		delete m_pLyricDlg;
 		m_pLyricDlg = NULL;
 	}
+	SAFE_DELETE(m_pMenu);
 }
 
 BOOL MainWindow::PreCreateWindow( CREATESTRUCT& cs )
@@ -349,15 +351,14 @@ void MainWindow::OnContextMenu( HWND wnd, POINT point )
 	if( this->GetHoverObject() != NULL )
 		return;
 
- 	static Menu* pMenu = NULL;
- 	if (NULL == pMenu)
- 		UICreateInstance(&pMenu);
+ 	if (NULL == m_pMenu)
+ 		UICreateInstance(&m_pMenu);
 
-	pMenu->AppendMenu(MF_STRING, 101, _T("Test"));
+	m_pMenu->AppendMenu(MF_STRING, 101, _T("Test"));
  
  	POINT pt;
  	GetCursorPos(&pt);
- 	pMenu->TrackPopupMenu(0,pt.x,pt.y,0);
+ 	m_pMenu->TrackPopupMenu(0,pt.x,pt.y,0);
 
 	return;
 

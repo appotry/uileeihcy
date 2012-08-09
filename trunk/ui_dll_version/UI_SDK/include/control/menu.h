@@ -34,6 +34,8 @@ namespace UI
 			UICHAIN_MSG_MAP(ListCtrlBase)
 		UI_END_MSG_MAP
 
+		virtual  HRESULT FinalConstruct();
+
 	public:
 		int      GetMenuItemCount();
 		int      TrackPopupMenu(UINT nFlag, int x, int y, Message* pNotifyObj);
@@ -52,6 +54,8 @@ namespace UI
 
 	protected:
 		PopupMenuWindow*  m_pPopupWrapWnd;
+		RenderBase*       m_pSeperatorRender;
+		RenderBase*       m_pPopupRender;
 
 		int        m_nItemHeight;
 		int        m_nSeperatorHeight;
@@ -62,5 +66,8 @@ namespace UI
 	public:
 		UI_DECLARE_OBJECT( Menu, OBJ_CONTROL )
 
+	public:
+		virtual  bool SetAttribute(ATTRMAP& mapAttrib, bool bReload);
+		virtual  void ResetAttribute();
 	};
 }

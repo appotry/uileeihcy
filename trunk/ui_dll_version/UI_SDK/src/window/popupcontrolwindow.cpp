@@ -8,6 +8,7 @@ PopupControlWindow::PopupControlWindow(Object* pObj)
 
 void PopupControlWindow::OnFinalMessage()
 {
+	m_pObject->ClearTreeObject();
 	m_pObject = NULL;
 	delete this;
 }
@@ -34,6 +35,9 @@ void PopupControlWindow::OnInitWindow()
 	// 清除原窗口上面的hover、press对象
 	HWND hWnd = GetActiveWindow();
 	::PostMessage(hWnd,WM_MOUSELEAVE,0,0);
+
+	m_pObject->AddHook(this, 0, 1);
+	this->AddChild(m_pObject);
 
 	// 准备进入消息循环
 	::PostMessage(m_hWnd, UI_WM_ENTERPOPUPLOOP, 0, 0);
@@ -137,6 +141,7 @@ BOOL PopupControlWindow::PreTranslatePopupMessage(MSG* pMsg)
 		if (!PtInRect(&rcWindow, pMsg->pt))  // 鼠标在弹出窗口外面点击了，关闭当前窗口
 		{
 			this->DestroyPopupWindow();
+			-- 在主窗口下面单击菜单外部，会导致鼠标拖动窗口
 		}
 	}
 	
@@ -171,9 +176,6 @@ void PopupListBoxWindow::OnInitWindow()
 {
 	__super::OnInitWindow();
 
-	m_pListBox->AddHook(this, 0, ALT_MSG_ID_LISTBOX);
-	this->AddChild(m_pListBox);
-
 	CRect rc;
 	this->m_pListBox->GetWindowRect(&rc);
 	
@@ -199,8 +201,6 @@ void PopupListBoxWindow::OnInitWindow()
 		m_pListBox->UpdateItemRect(NULL);
 	}
 	this->SetObjectPos(rcWindow.left, rcWindow.bottom, rc.Width(), rc.Height(), 0);
-
-	UISendMessage(m_pListBox, UI_WM_INITPOPUPCONTROLWINDOW, TRUE, 0, CBN_DROPDOWN);
 }
 
 void  PopupListBoxWindow::OnListBoxSize(UINT nType, int cx, int cy)
@@ -210,7 +210,6 @@ void  PopupListBoxWindow::OnListBoxSize(UINT nType, int cx, int cy)
 
 void  PopupListBoxWindow::OnFinalMessage()
 {
-	m_pListBox->ClearTreeObject();
 	__super::OnFinalMessage();
 }
 
@@ -245,12 +244,8 @@ void PopupMenuWindow::OnInitWindow()
 {
 	__super::OnInitWindow();
 
-	m_pMenu->AddHook(this, 0, ALT_MSG_ID_MENU);
-	this->AddChild(m_pMenu);
-
 	CRect rc;
 	this->m_pMenu->GetWindowRect(&rc);
-
 
 	ATTRMAP map_temp;
 	map_temp[XML_ID] = _T("PopupMenuWindow");
@@ -263,12 +258,10 @@ void PopupMenuWindow::OnInitWindow()
 		pTextRender->SetTextAlignment(DT_SINGLELINE|DT_END_ELLIPSIS|DT_VCENTER);
 	}
 
-
-	this->SetObjectPos(0, 0, 100,100/*rc.Width(), rc.Height()*/, SWP_NOMOVE);
+	this->SetObjectPos(0, 0, rc.Width(), rc.Height(), SWP_NOMOVE);
 }
 
 void PopupMenuWindow::OnFinalMessage()
 {
-	m_pMenu->ClearTreeObject();
 	__super::OnFinalMessage();
 }

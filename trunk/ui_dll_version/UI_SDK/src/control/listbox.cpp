@@ -51,6 +51,12 @@ ListCtrlBase::ListCtrlBase()
 }
 ListCtrlBase::~ListCtrlBase()
 {
+	
+}
+void ListCtrlBase::InitialRelease()
+{
+	__super::InitialRelease();
+	this->RemoveAllItem();
 }
 
 void ListCtrlBase::RemoveItem(ListItemBase* pItem, bool bUpdate)
@@ -893,7 +899,6 @@ ListBox::ListBox()
 }
 ListBox::~ListBox()
 {
-	this->RemoveAllItem();
 	if (NULL != m_pPopupWrapWnd)
 	{
 		m_pPopupWrapWnd->DestroyPopupWindow();

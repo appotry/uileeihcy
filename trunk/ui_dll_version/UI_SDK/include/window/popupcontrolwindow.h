@@ -55,7 +55,6 @@ namespace UI
 	};
 
 	class ListBox;
-#define ALT_MSG_ID_LISTBOX 1
 	class PopupListBoxWindow : public PopupControlWindow
 	{
 	public:
@@ -64,7 +63,7 @@ namespace UI
 		UI_BEGIN_MSG_MAP
 			UIMSG_WM_KEYDOWN(OnKeyDown)
 
-		UIALT_MSG_MAP(ALT_MSG_ID_LISTBOX)
+		UIALT_MSG_MAP(1)
 		
 		UI_BEGIN_CHAIN_ALL_MSG_MAP
 			UICHAIN_MSG_MAP(PopupControlWindow)
@@ -85,25 +84,31 @@ namespace UI
 
 
 	class MenuBase;
-#define ALT_MSG_ID_MENU 1
 	class PopupMenuWindow : public PopupControlWindow
 	{
 	public:
 		PopupMenuWindow(MenuBase* pMenu);
 
 		UI_BEGIN_MSG_MAP
-
-		UIALT_MSG_MAP(ALT_MSG_ID_MENU)
+			UIMSG_WM_PAINT(OnPaint)
+		UIALT_MSG_MAP(1)
 		UI_BEGIN_CHAIN_ALL_MSG_MAP
 			UICHAIN_MSG_MAP(PopupControlWindow)
 		UI_END_CHAIN_ALL_MSG_MAP
 		UI_END_MSG_MAP
 
 	protected:
+
 		virtual BOOL PreCreateWindow( CREATESTRUCT& cs );
 		virtual void OnInitWindow();
 		virtual void OnFinalMessage();
 
+		void    OnPaint(HRDC hRDC)
+		{
+			SetMsgHandled(FALSE);
+			int a = 0;
+			return;
+		}
 	protected:
 		MenuBase*   m_pMenu;
 	};
