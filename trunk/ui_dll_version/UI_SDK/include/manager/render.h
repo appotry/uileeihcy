@@ -29,6 +29,13 @@ namespace UI
 #define LISTBOX_BKGND_RENDER_STATE_PRESS    2
 #define LISTBOX_BKGND_RENDER_STATE_DISABLE  3
 
+#define MENU_BKGND_RENDER_STATE_NORMAL        0
+
+#define MENU_STRING_ITEM_RENDER_STATE_NORMAL  0
+#define MENU_STRING_ITEM_RENDER_STATE_HOVER   1
+#define MENU_STRING_ITEM_RENDER_STATE_PRESS   2
+#define MENU_STRING_ITEM_RENDER_STATE_DISABLE 3
+
 #define GROUPBOX_BKGND_RENDER_STATE_NORMAL  0
 #define GROUPBOX_BKGND_RENDER_STATE_DISABLE 1
 
@@ -370,6 +377,27 @@ namespace UI
 	{
 	public:
 		virtual const TCHAR* GetThemeName() { return _T("LISTBOX"); }
+		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
+
+		void DrawDisable( HRDC hRDC, const CRect* prc );
+		void DrawNormal( HRDC hRDC, const CRect* prc );
+		void DrawHover( HRDC hRDC, const CRect* prc );
+		void DrawPress( HRDC hRDC, const CRect* prc );	
+	};
+
+	class MenuBkThemeRender : public ThemeRenderBase
+	{
+	public:
+		virtual const TCHAR* GetThemeName() { return _T("MENU"); }
+		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
+
+		void DrawNormal( HRDC hRDC, const CRect* prc );
+	};
+
+	class MenuStringItemRender : public ThemeRenderBase
+	{
+	public:
+		virtual const TCHAR* GetThemeName() { return _T("MENU"); }
 		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
 
 		void DrawDisable( HRDC hRDC, const CRect* prc );

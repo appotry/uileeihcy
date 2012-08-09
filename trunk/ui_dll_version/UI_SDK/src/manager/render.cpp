@@ -239,9 +239,19 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 					pObj->SetBorderRegion(&r);
 				}
 				else
+				{
 					pRender = new ListboxBkThemeRender();
+				}
 			}
 		}
+		else if (_T("Menu") == pObj->GetObjectName())
+		{
+			pRender = new MenuBkThemeRender();
+		}
+	}
+	else if(RENDER_TYPE_THEME_MENUSTRINGITEM == eType)
+	{
+		pRender = new MenuStringItemRender();
 	}
 	else
 	{
@@ -1849,7 +1859,7 @@ void ComboboxBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_BORDER, CBXS_DISABLED, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("EditBkThemeRender::DrawDisable  DrawThemeBackground failed."));
+			UI_LOG_WARN(_T("ComboboxBkThemeRender::DrawDisable  DrawThemeBackground failed."));
 		}
 	}
 	else
@@ -1866,7 +1876,7 @@ void ComboboxBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_BORDER, CBXS_NORMAL, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("EditBkThemeRender::DrawNormal  DrawThemeBackground failed."));
+			UI_LOG_WARN(_T("ComboboxBkThemeRender::DrawNormal  DrawThemeBackground failed."));
 		}
 	}
 	else
@@ -1892,7 +1902,7 @@ void ComboboxBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_BORDER, CBXS_HOT, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("EditBkThemeRender::DrawHover  DrawThemeBackground failed."));
+			UI_LOG_WARN(_T("ComboboxBkThemeRender::DrawHover  DrawThemeBackground failed."));
 		}
 	}
 	else
@@ -1917,7 +1927,7 @@ void ComboboxBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc )
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_BORDER, CBXS_PRESSED, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("EditBkThemeRender::DrawPress  DrawThemeBackground failed."));
+			UI_LOG_WARN(_T("ComboboxBkThemeRender::DrawPress  DrawThemeBackground failed."));
 		}
 	}
 	else
@@ -1969,7 +1979,7 @@ void ListboxBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, LBCP_BORDER_NOSCROLL, LBPSH_DISABLED, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("EditBkThemeRender::DrawDisable  DrawThemeBackground failed."));
+			UI_LOG_WARN(_T("ListboxBkThemeRender::DrawDisable  DrawThemeBackground failed."));
 		}
 	}
 	else
@@ -1986,7 +1996,7 @@ void ListboxBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, LBCP_BORDER_NOSCROLL, LBPSH_NORMAL, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("EditBkThemeRender::DrawNormal  DrawThemeBackground failed."));
+			UI_LOG_WARN(_T("ListboxBkThemeRender::DrawNormal  DrawThemeBackground failed."));
 		}
 	}
 	else
@@ -2012,7 +2022,7 @@ void ListboxBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, LBCP_BORDER_NOSCROLL, LBPSH_HOT, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("EditBkThemeRender::DrawHover  DrawThemeBackground failed."));
+			UI_LOG_WARN(_T("ListboxBkThemeRender::DrawHover  DrawThemeBackground failed."));
 		}
 	}
 	else
@@ -2037,7 +2047,7 @@ void ListboxBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc )
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, LBCP_BORDER_NOSCROLL, LBPSH_FOCUSED, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("EditBkThemeRender::DrawPress  DrawThemeBackground failed."));
+			UI_LOG_WARN(_T("ListboxBkThemeRender::DrawPress  DrawThemeBackground failed."));
 		}
 	}
 	else
@@ -2056,6 +2066,117 @@ void ListboxBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc )
 }
 
 
+//////////////////////////////////////////////////////////////////////////
+
+
+void MenuBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+{
+// 	switch(nState)
+// 	{
+// 	default:
+		this->DrawNormal(hRDC, prc);
+// 		break;
+// 	}
+}
+
+void MenuBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPBACKGROUND, 1, (RECT*)prc, 0);
+		if (SUCCEEDED(hr))
+		{
+			hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPBORDERS, 1, (RECT*)prc, 0);
+			if (S_OK != hr)
+			{
+				UI_LOG_WARN(_T("MenuBkThemeRender::DrawNormal  DrawThemeBackground failed."));
+			}
+		}
+	}
+	else
+	{
+		::FillRect(hDC, (RECT*)prc, (HBRUSH)GetStockObject(WHITE_BRUSH));
+		DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT);
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+
+//////////////////////////////////////////////////////////////////////////
+void MenuStringItemRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+{
+	switch(nState)
+	{
+	case MENU_STRING_ITEM_RENDER_STATE_DISABLE:
+		this->DrawDisable(hRDC, prc);
+		break;
+
+	case MENU_STRING_ITEM_RENDER_STATE_PRESS:
+		this->DrawPress(hRDC, prc);
+		break;
+
+	case MENU_STRING_ITEM_RENDER_STATE_HOVER:
+		this->DrawHover(hRDC, prc);
+		break;;
+
+	default:
+		this->DrawNormal(hRDC, prc);
+		break;
+	}
+}
+
+void MenuStringItemRender::DrawDisable( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPITEM, MPI_DISABLED, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("MenuStringItemRender::DrawDisable  DrawThemeBackground failed."));
+		}
+	}
+	else
+	{
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+void MenuStringItemRender::DrawNormal( HRDC hRDC, const CRect* prc )
+{
+// 	HDC hDC = GetHDC(hRDC);
+// 	if( m_hTheme )
+// 	{
+// 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPITEM, MPI_NORMAL, (RECT*)prc, 0);
+// 		if ( S_OK != hr )
+// 		{
+// 			UI_LOG_WARN(_T("MenuStringItemRender::DrawDisable  DrawThemeBackground failed."));
+// 		}
+// 	}
+// 	else
+// 	{
+// 	}
+// 	ReleaseHDC(hRDC, hDC);
+}
+void MenuStringItemRender::DrawHover( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPITEM, MPI_HOT, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("MenuStringItemRender::DrawDisable  DrawThemeBackground failed."));
+		}
+	}
+	else
+	{
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+void MenuStringItemRender::DrawPress( HRDC hRDC, const CRect* prc )
+{
+
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                      //

@@ -114,6 +114,9 @@ namespace UI
 		ListCtrlBase();
 		~ListCtrlBase();
 
+		void InitialRelease();
+	public:
+
 		UI_BEGIN_MSG_MAP
 			UIMSG_WM_MOUSEMOVE(OnMouseMove)
 			UIMSG_WM_PAINT(OnPaint)

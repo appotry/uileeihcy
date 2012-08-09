@@ -9,16 +9,33 @@ MenuItemData::MenuItemData()
 MenuBase::MenuBase()
 {
 	m_pPopupWrapWnd = NULL;
+	m_pSeperatorRender = NULL;
+	m_pPopupRender = NULL;
+
 	m_nItemHeight = 24;
 	m_nSeperatorHeight = 3;
+
+	this->ModifyStyle(LISTCTRLBASE_CONTENT_2_SIZE);
 }
 
 MenuBase::~MenuBase()
 {
+	SAFE_DELETE(m_pSeperatorRender);
+	SAFE_DELETE(m_pPopupRender);
+
 	if (NULL != m_pPopupWrapWnd)
 	{
 		m_pPopupWrapWnd->DestroyPopupWindow();
 	}
+}
+
+HRESULT MenuBase::FinalConstruct()
+{
+	this->ResetAttribute();
+	ATTRMAP attrmap;
+	this->SetAttribute(attrmap, false);
+
+	return S_OK;
 }
 
 bool  MenuBase::AppendMenu(UINT uFlags, UINT_PTR uIDNewItem, TCHAR* lpNewItem)
@@ -174,4 +191,28 @@ void MenuBase::OnInitPopupControlWindow(Object* pObjMsgFrom)
 void MenuBase::OnUnInitPopupControlWindow(Object* pObjMsgFrom)
 {
 	m_pPopupWrapWnd = NULL;
+}
+
+void Menu::ResetAttribute()
+{
+	CRegion4 rc(3,3,3,3);
+	this->SetPaddingRegion(&rc);
+}
+
+bool Menu::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
+{
+	bool bRet = __super::SetAttribute(mapAttrib, bReload);
+	if (false == bRet)
+		return false;
+
+	if (NULL == m_pBkgndRender)
+	{
+		m_pBkgndRender = RenderFactory::GetRender(RENDER_TYPE_THEME, this);
+	}
+	if (NULL == m_pForegndRender)
+	{
+		m_pForegndRender = RenderFactory::GetRender(RENDER_TYPE_THEME_MENUSTRINGITEM, this);
+	}
+
+	return true;
 }
