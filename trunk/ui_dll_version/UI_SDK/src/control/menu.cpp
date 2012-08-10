@@ -11,6 +11,7 @@ MenuBase::MenuBase()
 	m_pPopupWrapWnd = NULL;
 	m_pSeperatorRender = NULL;
 	m_pPopupRender = NULL;
+	m_pIconBkRender = NULL;
 
 	m_nItemHeight = 24;
 	m_nSeperatorHeight = 3;
@@ -22,6 +23,7 @@ MenuBase::~MenuBase()
 {
 	SAFE_DELETE(m_pSeperatorRender);
 	SAFE_DELETE(m_pPopupRender);
+	SAFE_DELETE(m_pIconBkRender)
 
 	if (NULL != m_pPopupWrapWnd)
 	{
@@ -162,24 +164,31 @@ void MenuBase::OnDrawStringItem(HRDC hRDC, ListItemBase* p, MenuItemData* pMenuD
 	CRect rcItem;
 	p->GetParentRect(&rcItem);
 
+
+	if (NULL != m_pIconBkRender)
+	{
+		CRect rc(rcItem);
+		rc.left = 0;
+		rc.right = rc.left+28;
+		m_pIconBkRender->DrawState(hRDC, &rc, 0);
+	}
+
+	int  nTextState = 0;
 	if (NULL != m_pForegndRender)
 	{
 		if (m_pHoverItem == p)
 		{
 			m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_HOVER);
-		}
-		else if(NULL == m_pHoverItem &&
-			(m_pFirstSelectedItem == p || p->GetPrevSelection() != NULL || p->GetNextSelection() != NULL) )
-		{
-			m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED);
+			nTextState = 1;
 		}
 	}
 
 	if (NULL != pMenuData && NULL != m_pTextRender)
 	{
-		rcItem.DeflateRect(2,0,2,0);
-		m_pTextRender->DrawState(hRDC, &rcItem, 0, pMenuData->GetText());
+		rcItem.DeflateRect(32,0,2,0);
+		m_pTextRender->DrawState(hRDC, &rcItem, nTextState, pMenuData->GetText());
 	}
+	
 }
 
 
@@ -197,13 +206,39 @@ void Menu::ResetAttribute()
 {
 	CRegion4 rc(3,3,3,3);
 	this->SetPaddingRegion(&rc);
+	SAFE_DELETE(m_pSeperatorRender);
+	SAFE_DELETE(m_pPopupRender);
+	SAFE_DELETE(m_pIconBkRender);
 }
 
 bool Menu::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 {
+// 	bool bHaveDefineTextRender = false;
+// 	if( mapAttrib.count( XML_TEXTRENDER_TYPE) )
+// 		bHaveDefineTextRender = true;
+
 	bool bRet = __super::SetAttribute(mapAttrib, bReload);
 	if (false == bRet)
 		return false;
+
+// 	if( !bHaveDefineTextRender )
+// 	{
+// 		SAFE_DELETE(m_pTextRender);
+// 	}
+// 	if( NULL == m_pTextRender )
+// 	{
+// 		m_pTextRender = TextRenderFactory::GetTextRender(TEXTRENDER_TYPE_COLORLIST, this);
+// 		if( NULL != m_pTextRender )
+// 		{
+// 			ColorListTextRender* p = dynamic_cast<ColorListTextRender*>(m_pTextRender);
+// 
+// 			HRFONT hRFont = this->GetFont();
+// 			p->SetHRFont(hRFont);
+// 			p->SetCount(2);
+// 			p->SetColor(0, RGB(0,0,0));
+// 			p->SetColor(1, RGB(255,255,255));
+// 		}
+// 	}
 
 	if (NULL == m_pBkgndRender)
 	{
@@ -212,6 +247,14 @@ bool Menu::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 	if (NULL == m_pForegndRender)
 	{
 		m_pForegndRender = RenderFactory::GetRender(RENDER_TYPE_THEME_MENUSTRINGITEM, this);
+	}
+	if (NULL == m_pSeperatorRender)
+	{
+		m_pSeperatorRender = RenderFactory::GetRender(RENDER_TYPE_THEME_MENUSEPERATOR, this);
+	}
+	if (NULL == m_pIconBkRender)
+	{
+		m_pIconBkRender = RenderFactory::GetRender(RENDER_TYPE_THEME_MENUICONBK, this);
 	}
 
 	return true;

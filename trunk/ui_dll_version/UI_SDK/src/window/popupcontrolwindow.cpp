@@ -56,13 +56,6 @@ LRESULT PopupControlWindow::OnExitPopupLoop(UINT uMsg, WPARAM wParam, LPARAM lPa
 	this->ClearTreeObject();
 	::DestroyWindow(m_hWnd);
 
-	// 给原窗口发送一个鼠标移动消息，重置hover对象。否则会导致popupwnd消失后，原窗口鼠标直接点击无反应
-	POINT pt;
-	GetCursorPos(&pt);
-	HWND hWnd = GetActiveWindow();
-	MapWindowPoints(NULL, hWnd, &pt, 1);
-	::PostMessage(GetActiveWindow(), WM_MOUSEMOVE, 0, MAKELPARAM(pt.x, pt.y));
-
 	// 通知对象窗口被销毁
 	UISendMessage(m_pObject, UI_WM_UNINITPOPUPCONTROLWINDOW, 0,0,0, this);
 
@@ -141,7 +134,15 @@ BOOL PopupControlWindow::PreTranslatePopupMessage(MSG* pMsg)
 		if (!PtInRect(&rcWindow, pMsg->pt))  // 鼠标在弹出窗口外面点击了，关闭当前窗口
 		{
 			this->DestroyPopupWindow();
-			-- 在主窗口下面单击菜单外部，会导致鼠标拖动窗口
+			
+			// 给原窗口发送一个鼠标移动消息，重置hover对象。
+			// 否则会导致popupwnd消失后，原窗口鼠标直接点击无反应
+			// 或者导致窗口接收到lbuttondown之前，还没有更新hover对象
+// 			POINT pt;
+// 			GetCursorPos(&pt);
+			HWND hWnd = GetActiveWindow();
+//			MapWindowPoints(NULL, hWnd, &pt, 1);
+			::SendMessage(GetActiveWindow(), WM_MOUSEMOVE, 0, pMsg->lParam/*MAKELPARAM(pt.x, pt.y)*/);
 		}
 	}
 	

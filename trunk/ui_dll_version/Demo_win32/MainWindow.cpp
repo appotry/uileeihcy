@@ -254,7 +254,7 @@ void MainWindow::OnLButtonDown(UINT nFlags, POINT point)
 }
 void MainWindow::OnLButtonUp(UINT nFlags, POINT point)
 {
-	if ( 2 == m_lSizeMove )
+	if (2 == m_lSizeMove)
 	{
 		this->OnExitSizeMove();
 	}
@@ -516,6 +516,7 @@ void MainWindow::on_mp3_volume_ind(long lVolumn)
 COptionWindow::COptionWindow()
 {
 	m_pListOption = NULL;
+	m_pComboBox = NULL;
 }
 
 
@@ -536,6 +537,12 @@ BOOL COptionWindow::OnInitDialog( HWND, LPARAM )
 			m_pListOption->AddString(strArray[i]);
 		}
 	}
+
+	m_pComboBox = (Combobox*)this->FindChildObject(_T("test_combo1"));
+	m_pComboBox->AddString(_T("123456"));
+	m_pComboBox->AddString(_T("123456"));
+	m_pComboBox->AddString(_T("123456"));
+	m_pComboBox->AddString(_T("123456"));
 
 	CComboBox box = ::GetDlgItem(m_hWnd, IDC_COMBO1);
 	box.AddString(_T("11234"));box.AddString(_T("11234"));box.AddString(_T("11234"));

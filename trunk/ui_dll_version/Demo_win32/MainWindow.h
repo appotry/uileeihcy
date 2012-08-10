@@ -116,4 +116,5 @@ public:
 	void OnRButtonUp(UINT nFlags, CPoint point);
 private:
 	ListBox*   m_pListOption;
+	Combobox* m_pComboBox;
 };

@@ -32,6 +32,9 @@ public:
 	virtual void ResetAttribute();
 	virtual SIZE GetAutoSize( HRDC hRDC );
 
+public:
+	bool     AddString(const String& strText, bool bUpdate=true);
+
 protected:
 	void     OnStateChanged(int nOld, int nNew);
 	void     OnEraseBkgnd(HRDC hRDC);

@@ -405,6 +405,26 @@ namespace UI
 		void DrawHover( HRDC hRDC, const CRect* prc );
 		void DrawPress( HRDC hRDC, const CRect* prc );	
 	};
+
+	
+	class MenuIconBkThemeRender : public ThemeRenderBase
+	{
+	public:
+		virtual const TCHAR* GetThemeName() { return _T("MENU"); }
+		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
+
+		void DrawNormal( HRDC hRDC, const CRect* prc );
+	};
+
+	class MenuSeperatorThemeRender : public ThemeRenderBase
+	{
+	public:
+		virtual const TCHAR* GetThemeName() { return _T("MENU"); }
+		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
+
+		void DrawNormal( HRDC hRDC, const CRect* prc );
+	};
+
 	//////////////////////////////////////////////////////////////////////////
 
 	
@@ -458,14 +478,30 @@ namespace UI
 		HRFONT       m_hFont;
 	};
 
-#if 0
 	class ColorListTextRender : public TextRenderBase
 	{
+	public:
+		ColorListTextRender();
+		~ColorListTextRender();
+
+		virtual bool     SetAttribute( const String& strPrifix, map<String,String>& mapAttrib );
+		virtual void     DrawState(HRDC hRDC, const CRect* prc, int nState, const String& strText, int nDrawTextFlag=-1);
+		virtual HRFONT   GetHRFONT();
+		virtual void     SetHRFont(HRFONT hRFont);
+
+		void SetCount( int nCount );
+		void SetColor( int nIndex, COLORREF col );
+
+	protected:
+		void Clear();
+
 	private:
 		vector<UIColor*>  m_vTextColor;
 		HRFONT            m_hTextFont;
+		int               m_nCount;
 	};
 
+#if 0
 	class FontListTextRender : public TextRenderBase
 	{
 	private:

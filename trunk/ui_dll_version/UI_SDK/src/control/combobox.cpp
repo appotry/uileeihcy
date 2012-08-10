@@ -110,15 +110,15 @@ void ComboboxBase::OnEraseBkgnd(HRDC hRDC)
 	if( NULL != m_pBkgndRender )
 	{
 		CRect rc(0,0,GetWidth(),GetHeight());
-		if( !this->IsEnable() )
+		if (!this->IsEnable())
 		{
 			m_pBkgndRender->DrawState(hRDC, &rc, COMBOBOX_BKGND_RENDER_STATE_DISABLE);
 		}
-		else if( this->IsPress() /*|| m_button->IsPress() || m_edit->IsPress()*/)
+		else if (this->IsPress() /*|| m_button->IsPress() || m_edit->IsPress()*/)
 		{
 			m_pBkgndRender->DrawState(hRDC, &rc, COMBOBOX_BKGND_RENDER_STATE_PRESS);
 		}
-		else if( this->IsHover() /*|| m_button->IsHover() || m_edit->IsHover()*/)
+		else if (this->IsHover() /*|| m_button->IsHover() || m_edit->IsHover()*/)
 		{
 			m_pBkgndRender->DrawState(hRDC, &rc, COMBOBOX_BKGND_RENDER_STATE_HOVER);
 		}
@@ -136,18 +136,29 @@ void ComboboxBase::OnStateChanged(int nOld, int nNew)
 
 void ComboboxBase::OnBtnLButtonDown(UINT nFlags, POINT point)
 {
-	m_listbox->AddString(_T("Test"),false);
+	if (m_button->IsForePress())
+		return;
+
 	m_listbox->DropDown();
+	m_button->SetForcePress(true);
 }
 
 // PopupListBoxWindow显示/销毁时，发送过来的消息
 void ComboboxBase::OnInitPopupControlWindow(Object* pObjMsgFrom)
 {
-	m_button->SetForcePress(true);
+	
 }
 void ComboboxBase::OnUnInitPopupControlWindow(Object* pObjMsgFrom)
 {
 	int nOldStateBits = m_button->GetStateBit();
 	m_button->SetForcePress(false);
 	::UISendMessage(m_button, UI_WM_STATECHANGED, nOldStateBits, m_button->GetStateBit() ); //刷新按钮
+}
+
+bool ComboboxBase::AddString(const String& strText, bool bUpdate)
+{ 
+	if (NULL != m_listbox)
+		return m_listbox->AddString(strText, bUpdate);
+
+	return false;
 }

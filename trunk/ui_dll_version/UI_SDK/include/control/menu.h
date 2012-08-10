@@ -54,11 +54,13 @@ namespace UI
 
 	protected:
 		PopupMenuWindow*  m_pPopupWrapWnd;
+		RenderBase*       m_pIconBkRender;
 		RenderBase*       m_pSeperatorRender;
 		RenderBase*       m_pPopupRender;
 
 		int        m_nItemHeight;
 		int        m_nSeperatorHeight;
+	
 	};
 
 	class UIAPI Menu : public MenuBase

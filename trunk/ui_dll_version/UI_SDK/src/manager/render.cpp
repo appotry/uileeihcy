@@ -253,6 +253,14 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 	{
 		pRender = new MenuStringItemRender();
 	}
+	else if(RENDER_TYPE_THEME_MENUSEPERATOR == eType)
+	{
+		pRender = new MenuSeperatorThemeRender();
+	}
+	else if (RENDER_TYPE_THEME_MENUICONBK == eType)
+	{
+		pRender = new MenuIconBkThemeRender();
+	}
 	else
 	{
 		UI_LOG_WARN(_T("%s invalid render type %d"), _T(__FUNCTION__),  eType );
@@ -2096,8 +2104,12 @@ void MenuBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 	}
 	else
 	{
-		::FillRect(hDC, (RECT*)prc, (HBRUSH)GetStockObject(WHITE_BRUSH));
-		DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT);
+		COLORREF col = GetSysColor(COLOR_BTNFACE);
+		HBRUSH hBrush = CreateSolidBrush(col);
+		::FillRect(hDC, (RECT*)prc, hBrush);
+		SAFE_DELETE_GDIOBJECT(hBrush);
+
+		DrawEdge(hDC, (RECT*)prc, EDGE_RAISED, BF_RECT);
 	}
 	ReleaseHDC(hRDC, hDC);
 }
@@ -2170,6 +2182,10 @@ void MenuStringItemRender::DrawHover( HRDC hRDC, const CRect* prc )
 	}
 	else
 	{
+		COLORREF col = RGB(10,36,106);
+		HBRUSH hBrush = CreateSolidBrush(col);
+		::FillRect(hDC, prc, hBrush);
+		SAFE_DELETE_GDIOBJECT(hBrush);
 	}
 	ReleaseHDC(hRDC, hDC);
 }
@@ -2177,6 +2193,64 @@ void MenuStringItemRender::DrawPress( HRDC hRDC, const CRect* prc )
 {
 
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+void MenuSeperatorThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+{
+	this->DrawNormal(hRDC, prc);
+}
+
+void MenuSeperatorThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPSEPARATOR, 1, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("MenuSeperatorThemeRender::DrawDisable  DrawThemeBackground failed."));
+		}
+	}
+	else
+	{
+// 		COLORREF col = RGB(10,36,106);
+// 		HBRUSH hBrush = CreateSolidBrush(col);
+// 		::FillRect(hDC, prc, hBrush);
+// 		SAFE_DELETE_GDIOBJECT(hBrush);
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+
+void MenuIconBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+{
+	this->DrawNormal(hRDC, prc);
+}
+
+void MenuIconBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPGUTTER, 1, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("MenuSeperatorThemeRender::DrawDisable  DrawThemeBackground failed."));
+		}
+	}
+	else
+	{
+// 		COLORREF col = RGB(10,36,106);
+// 		HBRUSH hBrush = CreateSolidBrush(col);
+// 		::FillRect(hDC, prc, hBrush);
+// 		SAFE_DELETE_GDIOBJECT(hBrush);
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                      //
@@ -2244,6 +2318,10 @@ TextRenderBase* TextRenderFactory::GetTextRender( TEXTRENDER_TYPE eType, Object*
 	else if( TEXTRENDER_TYPE_FONTCOLORLIST == eType )
 	{
 		pTextRender = new FontColorListTextRender();
+	}
+	else if (TEXTRENDER_TYPE_COLORLIST == eType)
+	{
+		pTextRender = new ColorListTextRender();
 	}
 	else
 	{
@@ -2329,6 +2407,129 @@ void TextRender::DrawState(HRDC hRDC, const CRect* prc, int nState, const String
 		int nFlag = nDrawTextFlag==-1 ? m_nDrawTextFlag:nDrawTextFlag;
 		DrawString( hRDC, strText.c_str(), prc, nFlag, m_hFont, col );
 	}
+}
+
+ColorListTextRender::ColorListTextRender()
+{
+	m_nCount = 0;
+	m_hTextFont = NULL;
+}
+ColorListTextRender::~ColorListTextRender()
+{
+	this->Clear();
+	if (NULL != m_hTextFont)
+	{
+		::UI_ReleaseFont(m_hTextFont);
+		m_hTextFont = NULL;
+	}
+}
+void ColorListTextRender::Clear()
+{
+	for (int i = 0; i < m_nCount; i++)
+	{
+		SAFE_RELEASE(m_vTextColor[i]);
+	}
+	m_vTextColor.clear();
+	m_nCount = 0;
+}
+bool ColorListTextRender::SetAttribute( const String& strPrifix, map<String,String>& mapAttrib )
+{
+	String strAttrib = strPrifix + XML_TEXTRENDER_COLORLIST_COUNT;
+	if( mapAttrib.count( strAttrib ) )
+	{
+		this->SetCount( _ttoi( mapAttrib[strAttrib].c_str()) );
+		m_pObject->EraseAttribute(strAttrib);
+	}
+
+	if ( 0 == m_nCount )
+		return true;
+
+	strAttrib = strPrifix + XML_TEXTRENDER_COLOR;
+	if( mapAttrib.count(strAttrib) )
+	{
+		String strColors = mapAttrib[strAttrib];
+
+		vector<String> vColors;
+		UI_Split(strColors, XML_MULTI_SEPERATOR, vColors);
+		int nCount = (int)vColors.size();
+
+		for(int i = 0; i < m_nCount && i < nCount; i++ )
+		{
+			if(! vColors[i].empty() )
+			{
+				::UI_GetColor(vColors[i], &m_vTextColor[i]);
+			}
+		}
+		m_pObject->EraseAttribute(strAttrib);
+	}
+
+	strAttrib = strPrifix + XML_TEXTRENDER_FONT;
+	if( mapAttrib.count(strAttrib) )
+	{
+		String strFont = mapAttrib[strAttrib];
+
+		m_hTextFont = UI_GetFont(strFont, ::GetGraphicsRenderType(m_pObject->GetHWND()) );
+		m_pObject->EraseAttribute(strAttrib);
+	}
+
+	return true;
+}
+void ColorListTextRender::DrawState(HRDC hRDC, const CRect* prc, int nState, const String& strText, int nDrawTextFlag)
+{
+	int nRealState = nState;
+	if( nState >= m_nCount )
+	{
+		nRealState = 0;
+	}
+
+	if( nRealState >= m_nCount )
+		return;
+
+	COLORREF col = RGB(0,0,0);
+	if( NULL != m_vTextColor[nRealState] )
+		col = m_vTextColor[nRealState]->GetColor();
+
+	int nFlag = nDrawTextFlag==-1 ? m_nDrawTextFlag:nDrawTextFlag;
+	DrawString(hRDC, strText.c_str(), prc, nFlag, m_hTextFont, col );
+}
+HRFONT ColorListTextRender::GetHRFONT()
+{
+	return m_hTextFont;
+}
+void ColorListTextRender::SetHRFont(HRFONT hRFont)
+{
+	if( NULL != m_hTextFont )
+	{
+		UI_ReleaseFont(m_hTextFont);
+		m_hTextFont = NULL;
+	}
+	if (NULL != hRFont)
+	{
+		m_hTextFont = UI_CopyFont(hRFont);
+	}
+}
+
+void ColorListTextRender::SetCount( int nCount )
+{
+	this->Clear();
+	m_nCount = nCount;
+
+	for (int i = 0; i < m_nCount; i++)
+	{
+		m_vTextColor.push_back(NULL);
+	}
+}
+void ColorListTextRender::SetColor( int nIndex, COLORREF col )
+{
+	if( nIndex >= m_nCount )
+		return;
+
+	if( NULL != m_vTextColor[nIndex] )
+	{
+		SAFE_DELETE(m_vTextColor[nIndex]);
+	}
+	UIColor::CreateInstance(col, &m_vTextColor[nIndex]);
+	m_vTextColor[nIndex]->AddRef();
 }
 
 FontColorListTextRender::FontColorListTextRender()
