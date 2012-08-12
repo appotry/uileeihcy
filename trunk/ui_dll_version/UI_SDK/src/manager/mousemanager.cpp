@@ -464,7 +464,10 @@ LRESULT MouseManager::LButtonUp( int vkFlag, int xPos, int yPos )
 			::UISendMessage( pNowHover, WM_MOUSEMOVE, (WPARAM) vkFlag, MAKELPARAM( pt.x, pt.y ) );
 		}
 
-		::ReleaseCapture();
+		if (GetCapture() == m_pWindow->m_hWnd) 
+		{
+			::ReleaseCapture();
+		}
 	}
 	 
 	return 0L;
@@ -516,7 +519,11 @@ void MouseManager::KillFocus()
 	}
 	if( this->m_pObjPress != NULL )
 	{
-		::ReleaseCapture();
+		if (GetCapture() == m_pWindow->m_hWnd) 
+		{
+			::ReleaseCapture();
+		}
+
 		if( this->m_pObjPress !=this->m_pObjHover )  // 避免将WM_MOUSELEAVE发送两次
 			::UISendMessage( m_pObjPress, WM_MOUSELEAVE );
 	}

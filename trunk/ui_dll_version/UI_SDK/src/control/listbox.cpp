@@ -18,6 +18,55 @@ ListItemBase::~ListItemBase()
 	m_pData = NULL;
 	m_pCtrl = NULL;
 }
+
+bool ListItemBase::OnMouseMove(POINT pt, UINT nFlag)
+{ 
+	UI_LOG_DEBUG(_T("%s"), _T(__FUNCTION__));
+	return false;
+}
+bool ListItemBase::OnMouseEnter()
+{ 
+	UI_LOG_DEBUG(_T("%s"), _T(__FUNCTION__));
+	return false;
+}
+bool ListItemBase::OnMouseLeave()
+{ 
+	UI_LOG_DEBUG(_T("%s"), _T(__FUNCTION__));
+	return false;
+}
+
+bool ListItemBase::OnLButtonDown(POINT pt, UINT nFlag)
+{ 
+	UI_LOG_DEBUG(_T("%s"), _T(__FUNCTION__));
+	return false;
+}
+bool ListItemBase::OnRButtonDown(POINT pt, UINT nFlag)
+{ 
+	UI_LOG_DEBUG(_T("%s"), _T(__FUNCTION__));
+	return false;
+}
+bool ListItemBase::OnLButtonUp(POINT pt, UINT nFlag)
+{ 
+	UI_LOG_DEBUG(_T("%s"), _T(__FUNCTION__));
+	return false;
+}
+bool ListItemBase::OnRButtonUp(POINT pt, UINT nFlag)
+{ 
+	UI_LOG_DEBUG(_T("%s"), _T(__FUNCTION__));
+	return false;
+}
+bool ListItemBase::OnLButtonDBClick(POINT pt, UINT nFlag)
+{ 
+	UI_LOG_DEBUG(_T("%s"), _T(__FUNCTION__));
+	return false;
+}
+bool ListItemBase::OnRButtonDBClick(POINT pt, UINT nFlag)
+{ 
+	UI_LOG_DEBUG(_T("%s"), _T(__FUNCTION__));
+	return false;
+}
+
+
 TreeListItemBase::TreeListItemBase(ListCtrlBase* pCtrl):ListItemBase(pCtrl)
 {
 	m_pChild = m_pParent = NULL;
@@ -26,7 +75,6 @@ TreeListItemBase::~TreeListItemBase()
 {
 	m_pChild = m_pParent = NULL;
 }
-
 //////////////////////////////////////////////////////////////////////////
 
 
@@ -109,8 +157,7 @@ void ListCtrlBase::RemoveItem(ListItemBase* pItem, bool bUpdate)
 	this->UpdateItemRect(pItem->GetNextItem());
 	
 	this->OnDeleteItem(pItem);
-	delete pItem;
-	pItem = NULL;
+	SAFE_DELETE(pItem);
 
 	m_nItemCount--;
 	if(bNeedUpdateObject && bUpdate)
@@ -401,7 +448,7 @@ void ListCtrlBase::SetScrollPoint(int nX, int nY, bool& bNeedUpdateObject)
 	::MapWindowPoints(NULL, GetHWND(), &pt, 1 );
 	if (xOffsetOld != xOffsetNow || yOffsetOld != yOffsetNow)
 	{
-		m_pHoverItem = this->HitTest(pt);
+		SetHoverItem(this->HitTest(pt));
 		bNeedUpdateObject = true;
 	}
 	else
@@ -713,10 +760,14 @@ void ListCtrlBase::OnMouseMove(UINT nFlags, POINT point)
 	if( pNewHover != m_pHoverItem )
 	{
 		ListItemBase* pSave = m_pHoverItem;
-		m_pHoverItem = pNewHover;
+		SetHoverItem(pNewHover);
 
 		this->ReDrawItem(pSave);
 		this->ReDrawItem(m_pHoverItem);
+	}
+	if (NULL != m_pHoverItem)
+	{
+		m_pHoverItem->OnMouseMove(point, nFlags);
 	}
 }
 
@@ -728,7 +779,8 @@ void ListCtrlBase::OnMouseLeave()
 		bNeedUpdate = true;
 	}
 	ListItemBase* pSave = m_pHoverItem;
-	m_pHoverItem = m_pPressItem = NULL;
+	m_pPressItem = NULL;
+	SetHoverItem(NULL);
 	if( bNeedUpdate )
 	{
 		this->ReDrawItem(pSave);
@@ -880,6 +932,22 @@ bool ListCtrlBase::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 	return true;
 }
 
+void ListCtrlBase::SetHoverItem(ListItemBase* pItem)
+{
+	if (m_pHoverItem == pItem)
+		return;
+
+	if (NULL != m_pHoverItem)
+	{
+		pItem->OnMouseLeave();
+	}
+	if (NULL != pItem)
+	{
+		pItem->OnMouseEnter();
+	}
+
+	m_pHoverItem = pItem;
+}
 //////////////////////////////////////////////////////////////////////////
 
 int ListBoxCompareProc( ListItemBase* p1, ListItemBase* p2 );
@@ -907,8 +975,8 @@ ListBox::~ListBox()
 
 int ListBoxCompareProc( ListItemBase* p1, ListItemBase* p2 )
 {
-	ListItemBase* pItem1 = (ListItemBase*)p1;
-	ListItemBase* pItem2 = (ListItemBase*)p2;
+	ListBoxItem* pItem1 = (ListBoxItem*)p1;
+	ListBoxItem* pItem2 = (ListBoxItem*)p2;
 	
 	if (NULL == pItem1 && NULL == pItem2)
 		return 0;
@@ -916,26 +984,14 @@ int ListBoxCompareProc( ListItemBase* p1, ListItemBase* p2 )
 		return 1;
 	else if (NULL == pItem1)
 		return -1;
-		
-	ListBoxItemData* pData1 = (ListBoxItemData*)pItem1->GetData();
-	ListBoxItemData* pData2 = (ListBoxItemData*)pItem2->GetData();
 
-	if (NULL == pData1 && NULL == pData2)
-		return 0;
-	else if (NULL == pData2)
-		return 1;
-	else if (NULL == pData1)
-		return -1;
-
-	return( pData1->m_strText.compare(pData2->m_strText) );
+	return( pItem1->m_strText.compare(pItem2->m_strText) );
 }
 bool ListBox::AddString(const String& strText, bool bUpdate)
 {
-	ListItemBase* pItem = new ListItemBase(this);
-	ListBoxItemData *pData = new ListBoxItemData;
+	ListBoxItem* pItem = new ListBoxItem(this);
 
-	pData->m_strText = strText;
-	pItem->SetData((void*)pData);
+	pItem->m_strText = strText;
 	this->AddItem(pItem, bUpdate);
 
 	return true;
@@ -993,7 +1049,7 @@ void ListBox::OnDrawItem(HRDC hRDC, ListItemBase* p)
 {
 	if (NULL == p)
 		return;
-	ListBoxItemData* pData = (ListBoxItemData*)p->GetData();
+	ListBoxItem* pData = (ListBoxItem*)p;
 
 	CRect rcItem;
 	p->GetParentRect(&rcItem);
@@ -1049,14 +1105,7 @@ SIZE ListBox::OnMeasureItem( ListItemBase* p)
 }
 void ListBox::OnDeleteItem( ListItemBase* p )
 {
-	if (NULL == p)
-		return;
 
-	ListBoxItemData *pData = (ListBoxItemData*)p->GetData();
-	if (NULL == pData)
-		return;
-
-	SAFE_DELETE(pData);
 }
 
 void ListBox::OnLButtonUp(UINT nFlags, CPoint point)
@@ -1115,7 +1164,7 @@ void TTPlayerPlaylistCtrl::OnDrawItem(HRDC hRDC, ListItemBase* p)
 {
 	if (NULL == p)
 		return;
-	TTPlayerPlaylistItemData* pData = (TTPlayerPlaylistItemData*)p->GetData();
+	TTPlayerPlaylistItem* pData = (TTPlayerPlaylistItem*)p;
 
 	CRect rcItem;
 	p->GetParentRect(&rcItem);
@@ -1198,13 +1247,11 @@ void TTPlayerPlaylistCtrl::OnDrawItem(HRDC hRDC, ListItemBase* p)
 void TTPlayerPlaylistCtrl::AddFileItem(const String& strFilePath, bool bUpdate)
 {
 	int nPos = strFilePath.rfind(_T('\\'), strFilePath.length());
-	TTPlayerPlaylistItemData* pData = new TTPlayerPlaylistItemData;
-	pData->m_strFilePath = strFilePath;
-	pData->m_strFileName = strFilePath.substr(nPos+1, strFilePath.length()-nPos-1);
-	pData->m_strFileTime = _T("3:25");
+	TTPlayerPlaylistItem* pItem = new TTPlayerPlaylistItem(this);
+	pItem->m_strFilePath = strFilePath;
+	pItem->m_strFileName = strFilePath.substr(nPos+1, strFilePath.length()-nPos-1);
+	pItem->m_strFileTime = _T("3:25");
 
-	ListItemBase* pItem = new ListItemBase(this);
-	pItem->SetData((void*)pData);
 	__super::AddItem( pItem, bUpdate );
 }
 
@@ -1215,12 +1262,4 @@ SIZE TTPlayerPlaylistCtrl::OnMeasureItem( ListItemBase* p)
 }
 void TTPlayerPlaylistCtrl::OnDeleteItem( ListItemBase* p )
 {
-	if (NULL == p)
-		return;
-
-	TTPlayerPlaylistItemData* pData = (TTPlayerPlaylistItemData*)p->GetData();
-	if (NULL == pData)
-		return;
-
-	SAFE_DELETE(pData);
 }
