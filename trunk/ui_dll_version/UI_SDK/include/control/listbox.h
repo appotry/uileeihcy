@@ -10,22 +10,6 @@ namespace UI
 {
 	class ListCtrlBase;
 
-	// 列表项数据的释放方式
-// 	enum LIST_ITEM_DATA_DELETE_TYPE   
-// 	{
-// 		LIST_ITEM_DATA_DELETE_TYPE_NONE,
-// 		LIST_ITEM_DATA_DELETE_TYPE_DELETE,
-// 		LIST_ITEM_DATA_DELETE_TYPE_DELETE_ARRAY,
-// 	};
-
-	// 列表框内容与列表框大小的关系
-// 	enum LIST_CTRL_CONTENT_SIZE_TYPE 
-// 	{
-// 		LIST_CTRL_CONTENT_SIZE_NONE,  // 1. 控件大小与内容无关系，例如带横向滚动条的列表框
-// 		LIST_CTRL_CONTENT_2_SIZE,     // 2. 内容决定控件大小，例如菜单和弹出式列表框
-// 		LIST_CTRL_SIZE_2_CONTENT,     // 3. 控件大小决定内容，例如不带横向滚动条的列表框
-// 	};
-
 	//
 	//	列表项内容，真正的列表数据m_pData由子类去维护
 	//
@@ -58,6 +42,18 @@ namespace UI
 		int     GetLineIndex() { return m_nLineIndex; }
 		void    SetLineIndex(int n) { m_nLineIndex = n; }
 
+	public:
+		bool    OnMouseMove(POINT pt, UINT nFlag);
+		bool    OnMouseEnter();
+		bool    OnMouseLeave();
+
+		bool    OnLButtonDown(POINT pt, UINT nFlag);
+		bool    OnRButtonDown(POINT pt, UINT nFlag);
+		bool    OnLButtonUp(POINT pt, UINT nFlag);
+		bool    OnRButtonUp(POINT pt, UINT nFlag);
+		bool    OnLButtonDBClick(POINT pt, UINT nFlag);
+		bool    OnRButtonDBClick(POINT pt, UINT nFlag);
+
 	protected:
 		int            m_nLineIndex;      // 记录该项位于第几行
 //		int            m_nHeight;         // 保存该子项的高度，仅在ListBoxBase::m_bFixedItemHeight=false有效
@@ -73,7 +69,7 @@ namespace UI
 		bool           m_bDisable;        // 该项是否被禁用（如菜单项）
 		bool           m_bChecked;        // 该基是否被标记（如菜单项）
 
-		void*          m_pData;           // 与每一个IListxxxRender的实现相关
+		void*          m_pData;           
 		ListCtrlBase*  m_pCtrl;
 	};
 
@@ -187,6 +183,9 @@ namespace UI
 
 		// Selection 接口
 
+		// 
+		void    SetHoverItem(ListItemBase* pItem);
+
 	protected:
 		// 属性
 		int            m_nFixeddItemHeight;   // 如果m_bFixedItemHeight=true，该项代表每一项的高度
@@ -211,11 +210,22 @@ namespace UI
 	};
 
 
+	// 支持在一行中增加其它元素（按钮，COMBOBOX，Progress)的列表控件
+	class AdvListCtrlBase : public ListItemBase
+	{
+	public:
+
+	};
+
+
 	//////////////////////////////////////////////////////////////////////////
 	// 系统列表框控件
 
-	class ListBoxItemData
+	class ListBoxItem : public ListItemBase
 	{
+	public:
+		ListBoxItem(ListCtrlBase* pCtrl):ListItemBase(pCtrl){};
+
 	public:
 		String   m_strText;
 	};
@@ -266,8 +276,11 @@ namespace UI
 	//////////////////////////////////////////////////////////////////////////
 	// 模仿千千静听播放列表的自绘控件
 
-	class TTPlayerPlaylistItemData
+	class TTPlayerPlaylistItem : public ListItemBase
 	{
+	public:
+		TTPlayerPlaylistItem(ListCtrlBase* pCtrl):ListItemBase(pCtrl){};
+
 	public:
 		String   m_strFilePath;
 		String   m_strFileName;
