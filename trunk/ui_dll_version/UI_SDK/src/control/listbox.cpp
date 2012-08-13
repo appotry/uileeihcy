@@ -791,7 +791,7 @@ void ListCtrlBase::OnLButtonDown(UINT nFlags, POINT point)
 {
 	if( NULL != m_pHoverItem )
 	{
-		m_pPressItem = m_pHoverItem;
+		this->SetPressItem(m_pHoverItem, point, nFlags);
 
 		if( this->HitTest(point) == m_pPressItem )
 		{
@@ -809,7 +809,7 @@ void ListCtrlBase::OnLButtonUp(UINT nFlags, POINT point)
 	if( NULL != m_pPressItem )
 	{
 		ListItemBase* pSave = m_pPressItem;
-		m_pPressItem = NULL;
+		this->SetPressItem(NULL, point, nFlags);
 		this->ReDrawItem(pSave);
 		this->ReDrawItem(m_pHoverItem);
 	}
@@ -894,7 +894,8 @@ void ListCtrlBase::OnPaint(HRDC hRDC)
 		if( pItem->GetParentRect().top - yOffset >= rcClient.bottom )  // last visible item
 			break;
 
-		this->OnDrawItem(hRDC,pItem);
+		this->OnDrawItem(hRDC,pItem);  // »æÖÆ±³¾°
+		pItem->OnDrawItem(hRDC);       // »æÖÆÔªËØ
 		
 		if( pItem == m_pLastItem )
 			break;
@@ -939,7 +940,7 @@ void ListCtrlBase::SetHoverItem(ListItemBase* pItem)
 
 	if (NULL != m_pHoverItem)
 	{
-		pItem->OnMouseLeave();
+		m_pHoverItem->OnMouseLeave();
 	}
 	if (NULL != pItem)
 	{
@@ -947,6 +948,22 @@ void ListCtrlBase::SetHoverItem(ListItemBase* pItem)
 	}
 
 	m_pHoverItem = pItem;
+}
+void ListCtrlBase::SetPressItem(ListItemBase* pItem, const POINT& pt, UINT nFlags)
+{
+	if (m_pPressItem == pItem)
+		return;
+
+	if (NULL != m_pPressItem)
+	{
+		m_pPressItem->OnLButtonUp(pt, nFlags);
+	}
+	if (NULL != pItem)
+	{
+		pItem->OnLButtonDown(pt, nFlags);
+	}
+
+	m_pPressItem = pItem;
 }
 //////////////////////////////////////////////////////////////////////////
 
@@ -1257,7 +1274,7 @@ void TTPlayerPlaylistCtrl::AddFileItem(const String& strFilePath, bool bUpdate)
 
 SIZE TTPlayerPlaylistCtrl::OnMeasureItem( ListItemBase* p)
 {
-	SIZE s = {0,0};
+	SIZE s = {0,20};
 	return s;
 }
 void TTPlayerPlaylistCtrl::OnDeleteItem( ListItemBase* p )

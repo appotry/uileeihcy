@@ -182,7 +182,7 @@ RedrawWindow(hwnd,
 	VISIBILITY_Visible     // 可见，  占用布局
 	VISIBILITY_COLLAPSED,  // 不可见，不占用布局
 68. 考虑下m_pLayout是否可以不作为一个成员变量出现，而是作为一个helper类出现？
-
+69. 为什么在customwindow上面点击一下，还会产生一个WM_MOUSEMOVE的消息？
 	
 疑问：
 1. Message类是否需要一个 m_pCurMsg成员变量？

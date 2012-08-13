@@ -43,16 +43,18 @@ namespace UI
 		void    SetLineIndex(int n) { m_nLineIndex = n; }
 
 	public:
-		bool    OnMouseMove(POINT pt, UINT nFlag);
-		bool    OnMouseEnter();
-		bool    OnMouseLeave();
+		virtual  bool    OnMouseMove(POINT pt, UINT nFlag);
+		virtual  bool    OnMouseEnter();
+		virtual  bool    OnMouseLeave();
 
-		bool    OnLButtonDown(POINT pt, UINT nFlag);
-		bool    OnRButtonDown(POINT pt, UINT nFlag);
-		bool    OnLButtonUp(POINT pt, UINT nFlag);
-		bool    OnRButtonUp(POINT pt, UINT nFlag);
-		bool    OnLButtonDBClick(POINT pt, UINT nFlag);
-		bool    OnRButtonDBClick(POINT pt, UINT nFlag);
+		virtual  bool    OnLButtonDown(POINT pt, UINT nFlag);
+		virtual  bool    OnRButtonDown(POINT pt, UINT nFlag);
+		virtual  bool    OnLButtonUp(POINT pt, UINT nFlag);
+		virtual  bool    OnRButtonUp(POINT pt, UINT nFlag);
+		virtual  bool    OnLButtonDBClick(POINT pt, UINT nFlag);
+		virtual  bool    OnRButtonDBClick(POINT pt, UINT nFlag);
+
+		virtual  void    OnDrawItem(HRDC hRDC) {}
 
 	protected:
 		int            m_nLineIndex;      // 记录该项位于第几行
@@ -182,9 +184,8 @@ namespace UI
 		int     GetMaxDisiredWidth(int* pDesiredHeight=NULL);
 
 		// Selection 接口
-
-		// 
 		void    SetHoverItem(ListItemBase* pItem);
+		void    SetPressItem(ListItemBase* pItem, const POINT& pt, UINT nFlags);
 
 	protected:
 		// 属性
