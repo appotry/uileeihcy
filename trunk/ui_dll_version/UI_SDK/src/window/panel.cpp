@@ -56,6 +56,7 @@ void Panel::ResetAttribute()
 {
 	Object::ResetAttribute();
 	SAFE_DELETE(m_pLayout);
+	this->ModifyStyle(OBJECT_STYLE_TRANSPARENT);
 }
 bool Panel::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 {
