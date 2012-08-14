@@ -42,7 +42,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\UI_SDK\include"
+				AdditionalIncludeDirectories="..\UI_SDK\include;..\UI_SDK\include\3rd\wtl80\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -67,6 +67,7 @@
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\UI_SDK\lib"
 				GenerateDebugInformation="true"
+				ProgramDatabaseFile="..\ui_sdk\bin\pdb\$(TargetName).pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -121,7 +122,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\UI_SDK\include"
+				AdditionalIncludeDirectories="..\UI_SDK\include;..\UI_SDK\include\3rd\wtl80\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="2"
@@ -144,6 +145,7 @@
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\UI_SDK\lib"
 				GenerateDebugInformation="true"
+				ProgramDatabaseFile="..\ui_sdk\bin\pdb\$(TargetName).pdb"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -178,12 +180,34 @@
 	</References>
 	<Files>
 		<Filter
-			Name="源文件"
-			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
+			Name="02. 逻辑处理"
 			>
 			<File
-				RelativePath=".\Demo_win32.cpp"
+				RelativePath=".\PlayerListMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PlayerListMgr.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="01. 界面处理"
+			>
+			<File
+				RelativePath=".\EqualizerDlg.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\EqualizerDlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\LyricDlg.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\LyricDlg.h"
 				>
 			</File>
 			<File
@@ -191,78 +215,88 @@
 				>
 			</File>
 			<File
-				RelativePath=".\playlistdlg.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\stdafx.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-			</File>
-		</Filter>
-		<Filter
-			Name="头文件"
-			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
-			>
-			<File
-				RelativePath=".\Demo_win32.h"
-				>
-			</File>
-			<File
 				RelativePath=".\MainWindow.h"
+				>
+			</File>
+			<File
+				RelativePath=".\playlistdlg.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\Playlistdlg.h"
 				>
 			</File>
-			<File
-				RelativePath=".\Resource.h"
-				>
-			</File>
-			<File
-				RelativePath=".\stdafx.h"
-				>
-			</File>
 		</Filter>
 		<Filter
-			Name="资源文件"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
+			Name="03. 其它"
 			>
-			<File
-				RelativePath=".\Demo_win32.ico"
+			<Filter
+				Name="头文件"
+				Filter="h;hpp;hxx;hm;inl;inc;xsd"
+				UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 				>
-			</File>
-			<File
-				RelativePath=".\Demo_win32.rc"
+				<File
+					RelativePath=".\Demo_win32.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Resource.h"
+					>
+				</File>
+				<File
+					RelativePath=".\stdafx.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="源文件"
+				Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
+				UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 				>
-			</File>
-			<File
-				RelativePath=".\small.ico"
+				<File
+					RelativePath=".\Demo_win32.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\stdafx.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="1"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="1"
+						/>
+					</FileConfiguration>
+				</File>
+			</Filter>
+			<Filter
+				Name="资源文件"
+				Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
+				UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 				>
-			</File>
+				<File
+					RelativePath=".\Demo_win32.ico"
+					>
+				</File>
+				<File
+					RelativePath=".\Demo_win32.rc"
+					>
+				</File>
+				<File
+					RelativePath=".\small.ico"
+					>
+				</File>
+			</Filter>
 		</Filter>
-		<File
-			RelativePath=".\ReadMe.txt"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

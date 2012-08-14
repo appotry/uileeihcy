@@ -1,4 +1,39 @@
 #pragma once
+
+
+//////////////////////////////////////////////////////////////////////////
+// 模仿千千静听播放列表的自绘控件
+
+class TTPlayerPlaylistItem : public ListItemBase
+{
+public:
+	TTPlayerPlaylistItem(ListCtrlBase* pCtrl):ListItemBase(pCtrl){};
+
+public:
+	String   m_strFilePath;
+	String   m_strFileName;
+	String   m_strFileTime;
+};
+class TTPlayerPlaylistCtrl : public ListCtrlBase
+{
+public:
+	UI_DECLARE_OBJECT( TTPlayerPlaylistCtrl, OBJ_CONTROL )
+
+public:
+	virtual  void ResetAttribute();
+	virtual  bool SetAttribute(ATTRMAP& mapAttrib, bool bReload);
+
+public:
+	void    AddFileItem(const String& strFilePath, bool bUpdate=true);
+
+	virtual  void OnDrawItem(HRDC hRDC, ListItemBase* p);
+	virtual  SIZE OnMeasureItem( ListItemBase* p);
+	virtual  void OnDeleteItem( ListItemBase* p );
+};
+
+////////////////////////////////////////////////////////////////////////// 
+// 列表窗口
+
 class CPlayListDlg : public UI::CustomWindow
 {
 public:
@@ -29,40 +64,3 @@ private:
 	TTPlayerPlaylistCtrl*   m_plistctrl;
 };
 
-class CLyricDlg : public UI::CustomWindow
-{
-public:
-	CLyricDlg(){}
-
-	UI_BEGIN_MSG_MAP
-		UIMSG_WM_PAINT(OnPaint)
-		UIMSG_WM_GETRENDERTYPE(OnGetRenderType)
-		UIMSG_WM_CLOSE( OnClose )
-		UIMSG_BN_CLICKED( _T("switch_layered"), OnSwitchLayered )
-		UICHAIN_MSG_MAP(CustomWindow)
-	UI_END_MSG_MAP
-
-public:
-	void    OnPaint( HRDC );
-	void    OnClose();
-	void    OnSwitchLayered();
-	LRESULT OnGetRenderType() { return GRAPHICS_RENDER_TYPE_GDIPLUS; }
-};
-
-class CEqualizerDlg : public UI::CustomWindow
-{
-public:
-	UI_BEGIN_MSG_MAP
-		UIMSG_WM_CLOSE( OnClose )
-		UIMSG_TRBN_POSCHANGED( _T("progress_hue1"), OnHueChanged1 )
-		UIMSG_TRBN_POSCHANGED( _T("progress_hue2"), OnHueChanged2 )
-		UICHAIN_MSG_MAP(CustomWindow)
-	UI_END_MSG_MAP
-
-	virtual void OnInitWindow( );
-
-	void    OnClose();
-	void    OnHueChanged1( int nPos, int nScrollType );
-	void    OnHueChanged2( int nPos, int nScrollType );
-	
-};

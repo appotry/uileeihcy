@@ -97,6 +97,8 @@ bool ScrollBarMgr::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 		m_pBindObject->EraseAttribute(XML_VSCROLLBAR);
 	}
 
+	m_pBindObject->ModifyStyle(0, OBJECT_STYLE_HSCROLL|OBJECT_STYLE_HSCROLL);
+
 	// 根据类型创建实例
 	if (SCROLLBAR_VISIBLE_NONE == m_ehScrollbarVisibleType)
 	{
