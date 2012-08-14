@@ -1,6 +1,128 @@
 #include "StdAfx.h"
 #include "playlistdlg.h"
 
+
+
+
+//////////////////////////////////////////////////////////////////////////
+
+
+void TTPlayerPlaylistCtrl::ResetAttribute()
+{
+	__super::ResetAttribute();
+	m_MgrScrollbar.SetScrollBarVisibleType(HSCROLLBAR, SCROLLBAR_VISIBLE_NONE);
+	m_MgrScrollbar.SetScrollBarVisibleType(VSCROLLBAR, SCROLLBAR_VISIBLE_AUTO);
+}
+
+bool TTPlayerPlaylistCtrl::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
+{
+	return __super::SetAttribute(mapAttrib, bReload);
+}
+void TTPlayerPlaylistCtrl::OnDrawItem(HRDC hRDC, ListItemBase* p)
+{
+	if (NULL == p)
+		return;
+	TTPlayerPlaylistItem* pData = (TTPlayerPlaylistItem*)p;
+
+	CRect rcItem;
+	p->GetParentRect(&rcItem);
+
+	if ( 0 == p->GetLineIndex()%2 )
+	{
+		::FillRect(hRDC, &rcItem, RGB(0,0,0));
+	}
+	else
+	{
+		::FillRect(hRDC, &rcItem, RGB(32,32,32));
+	}
+
+	COLORREF rgbText = RGB(0,128,255);
+	if (0/*NULL != m_pForegndRender*/)
+	{
+		if (p->IsDisable())
+		{
+			m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_DISABLE);
+		}
+		else if( m_pFirstSelectedItem == p || p->GetPrevSelection() != NULL || p->GetNextSelection() != NULL )
+		{
+			m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED);
+		}
+		else if( m_pPressItem == p )
+		{
+			m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_PRESS);
+		}
+		else if( NULL == m_pPressItem && m_pHoverItem == p )
+		{
+			m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_HOVER);
+		}
+	}
+	else
+	{
+		if (p->IsDisable())
+		{
+
+		}
+		else if( m_pFirstSelectedItem == p || p->GetPrevSelection() != NULL || p->GetNextSelection() != NULL )
+		{
+			GradientFillV(hRDC, &rcItem, RGB(47,100,190), RGB(4,10,19));
+			Rectangle(hRDC, &rcItem, RGB(255,255,255), NULL, 1, true);
+
+			rgbText = RGB(255,255,255);
+		}
+		else if( m_pPressItem == p )
+		{
+		}
+		else if( NULL == m_pPressItem && m_pHoverItem == p )
+		{
+		}
+	}
+
+	if (NULL != pData)
+	{
+		CRect rcNum = rcItem;
+		CRect rcTime = rcItem;
+		CRect rcText = rcItem;
+
+		rcText.left = rcNum.right = 20;
+		rcText.right = rcTime.left = rcItem.right - 25;
+		rcTime.right--;
+
+		TCHAR szNum[16] = _T("");
+		_stprintf(szNum, _T("%d."), p->GetLineIndex()+1);
+		DrawString( hRDC, szNum, &rcNum, 
+			DT_SINGLELINE|DT_RIGHT|DT_VCENTER, 
+			this->GetFont(), rgbText );
+
+		DrawString( hRDC, pData->m_strFileName.c_str(), &rcText, 
+			DT_SINGLELINE|DT_END_ELLIPSIS|DT_LEFT|DT_VCENTER, 
+			this->GetFont(), rgbText );
+
+		DrawString( hRDC, pData->m_strFileTime.c_str(), &rcTime, 
+			DT_SINGLELINE|DT_RIGHT|DT_VCENTER, 
+			this->GetFont(), rgbText );
+	}
+}
+void TTPlayerPlaylistCtrl::AddFileItem(const String& strFilePath, bool bUpdate)
+{
+	int nPos = strFilePath.rfind(_T('\\'), strFilePath.length());
+	TTPlayerPlaylistItem* pItem = new TTPlayerPlaylistItem(this);
+	pItem->m_strFilePath = strFilePath;
+	pItem->m_strFileName = strFilePath.substr(nPos+1, strFilePath.length()-nPos-1);
+	pItem->m_strFileTime = _T("3:25");
+
+	__super::AddItem( pItem, bUpdate );
+}
+
+SIZE TTPlayerPlaylistCtrl::OnMeasureItem( ListItemBase* p)
+{
+	SIZE s = {0,20};
+	return s;
+}
+void TTPlayerPlaylistCtrl::OnDeleteItem( ListItemBase* p )
+{
+}
+
+
 CPlayListDlg::CPlayListDlg(void)
 {
 	this->SetWindowResizeType(WRSB_ALL);
@@ -28,38 +150,6 @@ void CPlayListDlg::OnInitWindow( )
 {
 	m_plistctrl = (TTPlayerPlaylistCtrl*)this->FindChildObject(_T("playlistctrl"));
 	UIASSERT(NULL != m_plistctrl);
-}
-
-void CEqualizerDlg::OnInitWindow( )
-{
-	CustomWindow::OnInitWindow();
-
-	SliderCtrl*  p = (SliderCtrl*)this->FindChildObject( _T("progress_hue1"));
-	if( NULL != p )
-	{
-		p->SetRange(0,5);
-		p->SetPos(3);
-	}
-	p = (SliderCtrl*)this->FindChildObject( _T("progress_hue2"));
-	if( NULL != p )
-	{
-		p->SetRange(0,16);
-		p->SetPos(8);
-	}
-}
-void CEqualizerDlg::OnClose()
-{
-	this->HideWindow();
-}
-void CEqualizerDlg::OnHueChanged1( int nPos, int nScrollType )
-{
-	if( nScrollType != SB_ENDSCROLL )
-		UI_ChangeSkinH(nPos*5);
-}
-void CEqualizerDlg::OnHueChanged2( int nPos, int nScrollType )
-{
-	if( nScrollType != SB_ENDSCROLL )
-		UI_ChangeSkinH(100+nPos*5);
 }
 
 void CPlayListDlg::OnClose()
@@ -133,40 +223,4 @@ void CPlayListDlg::AddDirectory(const String& strDir)
 		return;
 
 	Util::EnumFileInDirectory(strDir.c_str(), MyEnumFileInDirProc, (WPARAM)this);
-}
-
-void CLyricDlg::OnPaint( HRDC hRDC )
-{
-	CRect rcClient;
-	this->GetClientRect(&rcClient);
-
-	rcClient.top += 20;
-	DrawString(hRDC, _T("Ç§Ç§¾²ÌýDemo v0.5.100"), &rcClient, DT_SINGLELINE|DT_VCENTER|DT_CENTER, m_hFont, RGB(84,142,165) );
-}
-void CLyricDlg::OnClose()
-{
-	this->HideWindow();
-}
-
-void CLyricDlg::OnSwitchLayered()
-{
-	if( IsWindowLayered() )
-	{
-		this->SetWindowTransparentMaskType(WINDOW_TRANSPARENT_TYPE_MASKALPHA);
-		this->SetWindowTransparentAlphaMask(1);
-		this->SetWindowLayered(false);
-	}
-	else
-	{
-		this->SetWindowTransparentMaskType(WINDOW_TRANSPARENT_TYPE_LAYERED|WINDOW_TRANSPARENT_TYPE_MASKALPHA);
-		this->SetWindowTransparentAlphaMask(230);
-		this->SetWindowLayered(true);
-	}
-
-	// ²âÊÔ·Ö²ã´°¿ÚµÄ¿Ø¼þÒþ²Ø¹¦ÄÜ
-// 	Object* p = FindChildObject(_T("sys_close"));
-// 	if( NULL != p )
-// 	{
-// 		p->SetVisible(!p->IsVisible());
-// 	}
 }

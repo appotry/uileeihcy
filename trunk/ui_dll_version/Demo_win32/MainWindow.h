@@ -1,6 +1,8 @@
 #pragma once
 #include "Resource.h"
 #include "playlistdlg.h"
+#include "LyricDlg.h"
+#include "EqualizerDlg.h"
 
 class MainWindow : public UI::CustomWindow, public IMp3EventCallback
 {

@@ -13,7 +13,7 @@ namespace UI
 	//
 	//	列表项内容，真正的列表数据m_pData由子类去维护
 	//
-	class ListItemBase
+	class UIAPI ListItemBase
 	{
 	public:
 		ListItemBase(ListCtrlBase* pCtrl);
@@ -245,9 +245,11 @@ namespace UI
 			UICHAIN_MSG_MAP(ListCtrlBase)
 		UI_END_MSG_MAP
 
-	protected:
+	public:
+		virtual  void ResetAttribute();
 		virtual  bool SetAttribute(ATTRMAP& mapAttrib, bool bReload);
 
+	protected:
 		virtual  void OnDrawItem( HRDC hRDC, ListItemBase* p ) ;
 		virtual  SIZE OnMeasureItem( ListItemBase* p);
 		virtual  void OnDeleteItem( ListItemBase* p );
@@ -273,31 +275,4 @@ namespace UI
 
 		PopupListBoxWindow* m_pPopupWrapWnd;
 	};
-
-	//////////////////////////////////////////////////////////////////////////
-	// 模仿千千静听播放列表的自绘控件
-
-	class TTPlayerPlaylistItem : public ListItemBase
-	{
-	public:
-		TTPlayerPlaylistItem(ListCtrlBase* pCtrl):ListItemBase(pCtrl){};
-
-	public:
-		String   m_strFilePath;
-		String   m_strFileName;
-		String   m_strFileTime;
-	};
-	class UIAPI TTPlayerPlaylistCtrl : public ListCtrlBase
-	{
-	public:
-		UI_DECLARE_OBJECT( TTPlayerPlaylistCtrl, OBJ_CONTROL )
-		
-		void    AddFileItem(const String& strFilePath, bool bUpdate=true);
-
-		virtual  void OnDrawItem(HRDC hRDC, ListItemBase* p);
-		virtual  SIZE OnMeasureItem( ListItemBase* p);
-		virtual  void OnDeleteItem( ListItemBase* p );
-	};
-
-	
 }

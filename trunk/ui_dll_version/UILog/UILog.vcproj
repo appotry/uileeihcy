@@ -82,7 +82,9 @@
 				AdditionalLibraryDirectories="..\UI_SDK\lib\"
 				ModuleDefinitionFile=".\UILog.def"
 				GenerateDebugInformation="true"
+				ProgramDatabaseFile="..\ui_sdk\bin\pdb\$(TargetName).pdb"
 				SubSystem="2"
+				ImportLibrary="$(IntDir)\$(TargetName).lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -171,9 +173,11 @@
 				AdditionalLibraryDirectories="..\UI_SDK\lib\"
 				ModuleDefinitionFile=".\UILog.def"
 				GenerateDebugInformation="true"
+				ProgramDatabaseFile="..\ui_sdk\bin\pdb\$(TargetName).pdb"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				ImportLibrary="$(IntDir)\$(TargetName).lib"
 				TargetMachine="1"
 			/>
 			<Tool

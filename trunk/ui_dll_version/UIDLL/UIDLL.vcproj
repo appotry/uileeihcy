@@ -42,7 +42,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\UI_SDK\include;..\UI_SDK\include\atl"
+				AdditionalIncludeDirectories="..\UI_SDK\include;..\UI_SDK\include\atl;..\UI_SDK\include\3rd\wtl80\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;UI_DLL_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -67,6 +67,7 @@
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\UI_SDK\lib"
 				GenerateDebugInformation="true"
+				ProgramDatabaseFile="..\ui_sdk\bin\pdb\$(TargetName).pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -122,7 +123,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\UI_SDK\include;..\UI_SDK\include\atl"
+				AdditionalIncludeDirectories="..\UI_SDK\include;..\UI_SDK\include\atl;..\UI_SDK\include\3rd\wtl80\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;UI_DLL_EXPORTS"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="2"
@@ -145,6 +146,7 @@
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\UI_SDK\lib"
 				GenerateDebugInformation="true"
+				ProgramDatabaseFile="..\ui_sdk\bin\pdb\$(TargetName).pdb"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"

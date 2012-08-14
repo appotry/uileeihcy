@@ -23,7 +23,7 @@ HRESULT UICreateInstance(const String& strXmlName, Object** pOut)
 		XML2CLASS( HScrollBar )
 		XML2CLASS( VScrollBar )
 		XML2CLASS( Combobox )
-		END_XML2CLASS;
+	END_XML2CLASS;
 
 	HRESULT hr = S_OK;
 	hr = pObj->FinalConstruct();
