@@ -77,6 +77,7 @@ UIApplication::UIApplication(void)
 	InitCommonControlsEx(&iccex);
 
 	RegisterWndClass();
+	RegisterDefaultUIObject();
 }
 
 UIApplication::~UIApplication(void)
@@ -89,6 +90,15 @@ UIApplication::~UIApplication(void)
 		m_pLog.Release();
 		m_pLog = NULL;
 	}
+
+	int nSize = (int)m_vecUICreateData.size();
+	for (int i = 0; i < nSize; i++)
+	{
+		UI_CREATE_DATA* pData = m_vecUICreateData[i];
+		SAFE_DELETE(pData);
+	}
+	m_vecUICreateData.clear();
+
 	::CoUninitialize(); // do not call CoInitialize, CoInitializeEx, or CoUninitialize from the DllMain function. 
 }
 
@@ -256,4 +266,82 @@ bool UIApplication::InitLog( const String& logXmlPath )
 void UIApplication::Save( HSKIN hSkin, UI_RESOURCE_TYPE eResType )
 {
 	m_ProjectMgr.Save(hSkin,eResType);
+}
+
+//
+//	为了实现UI对象的创建（从字符串来创建其对应的类），在app类中保存了所有UI对象的创建信息。
+//
+//	注: 如果仅仅采用在UICreateObject中添加映射列表，无法处理第三方实现一个UI对象的情况，因些
+//      必须将该映射列表保存为动态数组。当第三方实现了一个UI类时，向app来注册其创建信息。
+//
+
+bool UIApplication::RegisterUICreateData(const String& strXmlName, s_UICreateInstancePtr pfun)
+{
+	if (NULL == pfun || strXmlName.empty())
+	{
+		UI_LOG_WARN(_T("%s invalid arg. name=%s, pfun=%x"), _T(__FUNCTION__), strXmlName.c_str(), pfun);
+		return false;
+	}
+	
+	int nSize = (int)m_vecUICreateData.size();
+	for (int i = 0; i < nSize; i++)
+	{
+		UI_CREATE_DATA* pData = m_vecUICreateData[i];
+		if (NULL != pData && pData->m_strXmlName == strXmlName)
+		{
+			UI_LOG_WARN(_T("%s register duplicate. name=%s, pfun=%x"), _T(__FUNCTION__), strXmlName.c_str(), pfun);
+			return false;
+		}
+	}
+
+	UI_CREATE_DATA* pData = new UI_CREATE_DATA;
+	pData->m_strXmlName = strXmlName;
+	pData->m_fun = pfun;
+	
+	m_vecUICreateData.push_back(pData);
+	return true;
+}
+
+bool UIApplication::GetUICreateInstanceFuncPtr(const String& strXmlName, s_UICreateInstancePtr* pOut)
+{
+	if (NULL == pOut)
+		return false;
+	
+	int nSize = (int)m_vecUICreateData.size();
+	for (int i = 0; i < nSize; i++)
+	{
+		UI_CREATE_DATA* pData = m_vecUICreateData[i];
+		if (NULL != pData && pData->m_strXmlName == strXmlName)
+		{
+			*pOut = pData->m_fun;
+			return true;
+		}
+	}
+
+	UI_LOG_WARN(_T("%s get func ptr failed. name=%s"), _T(__FUNCTION__), strXmlName.c_str());
+	return false;
+}
+
+void UIApplication::RegisterDefaultUIObject()
+{
+
+#define REGISTER_UI_OBJECT(className) \
+	this->RegisterUICreateData(className::XmlName(),(s_UICreateInstancePtr)className::_CreatorClass::UICreateInstance);
+
+	REGISTER_UI_OBJECT( Panel )
+	REGISTER_UI_OBJECT( Button );
+	REGISTER_UI_OBJECT( GroupBox );
+	REGISTER_UI_OBJECT( ScrollPanel );
+	REGISTER_UI_OBJECT( HwndHost );
+	REGISTER_UI_OBJECT( CheckButton );
+	REGISTER_UI_OBJECT( RadioButton );
+	REGISTER_UI_OBJECT( HyperLink );
+	REGISTER_UI_OBJECT( Label );
+	REGISTER_UI_OBJECT( PictureCtrl );
+	REGISTER_UI_OBJECT( Edit );
+	REGISTER_UI_OBJECT( SliderCtrl );
+	REGISTER_UI_OBJECT( ListBox );
+	REGISTER_UI_OBJECT( HScrollBar );
+	REGISTER_UI_OBJECT( VScrollBar );
+	REGISTER_UI_OBJECT( Combobox );
 }

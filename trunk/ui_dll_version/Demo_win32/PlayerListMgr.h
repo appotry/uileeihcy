@@ -1,13 +1,7 @@
 #pragma once
+#include "PlayerListData.h"
+#include "playlistdlg.h"
 
-
-class PlayListItemInfo
-{
-public:
-	String  m_strFilePath;
-	String  m_strFileTime;
-	
-};
 
 class CPlayerListMgr
 {
@@ -19,4 +13,9 @@ public:
 	bool   Load();
 	bool   AddFile(const String& strFile);
 	bool   AddDirectory(const String& strDir);
+
+private:
+	CPlayerListData   m_data;
+	CPlayListDlg      m_dlg;
+
 };

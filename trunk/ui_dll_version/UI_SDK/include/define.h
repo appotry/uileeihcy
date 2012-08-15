@@ -19,6 +19,7 @@ typedef CRect CRegion4;
 
 // 句柄定义
 typedef void *HSKIN;
+typedef HRESULT (*s_UICreateInstancePtr)(void** pOut);
 
 // 窗口类名称
 #define WND_CLASS_NAME                  _T("UI")

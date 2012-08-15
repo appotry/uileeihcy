@@ -93,6 +93,7 @@ namespace UI
 	UIAPI bool     UI_ChangeSkin( int nIndex );
 	UIAPI bool     UI_ChangeSkinH( WORD newH );
 	UIAPI void     UI_SetDesignMode( bool bDesignMode );
+	UIAPI bool     UI_RegisterUIObjectCreateData( const TCHAR* szXmlName, s_UICreateInstancePtr pFunPtr);
 
 //	UIAPI bool     UI_GetImage( const String& strImageID, UIImage** ppImage, HSKIN hSkin = NULL );
 	UIAPI bool     UI_GetColor( const String& strColorID, UIColor** pColor, HSKIN hSkin = NULL  );
@@ -228,6 +229,7 @@ namespace UI
 #include "manager\render.h"
 #include "manager\timermanager.h"
 #include "objtree.h"
+#include "objcreator.h"
 #include "object.h"
 
 #include "control\buttonrender.h"
@@ -252,5 +254,5 @@ namespace UI
 #include "control\combobox.h"
 
 #include "uiapplication.h"
-#include "objcreator.h"
+
 

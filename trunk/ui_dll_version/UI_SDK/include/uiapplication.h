@@ -23,6 +23,14 @@ private:
 	_AtlCreateWndData* m_pCreateWndList;
 };
 
+//
+//	UI对象创建信息
+//
+struct UI_CREATE_DATA 
+{
+	String                 m_strXmlName;
+	s_UICreateInstancePtr  m_fun;
+};
 
 //
 //	全局对象
@@ -34,12 +42,15 @@ public:
 	~UIApplication(void);
 
 private:
-	void RegisterWndClass();
-	bool InitLog( const String& );
+	void  RegisterWndClass();
+	bool  InitLog( const String& );
+	void  RegisterDefaultUIObject();
 
 public:
 	// ---------- 
 	bool Initialize( const String& strUIProjXmlPath );
+	bool RegisterUICreateData(const String& strXmlName, s_UICreateInstancePtr pfun);
+	bool GetUICreateInstanceFuncPtr(const String& strXmlName, s_UICreateInstancePtr* pOut);
 
 	// ----------   from uibuilder manager -------------- 
 public:
@@ -67,12 +78,12 @@ public:
 	CREATE_WND_DATA  m_create_wnd_data;    // 配合UI_AddCreateWndData、UI_ExtractCreateWndData使用
 	CDCCache         m_dcCache;            // 配合UI_GetCacheDC、UI_ReleaseCacheDC使用
 
+	
 private:
 	static HINSTANCE m_hInstance;          // 当前DLL句柄，用于扩展路径
 	bool             m_bDesignMode;        // 是否是设计模式
 
-	
-
+	vector<UI_CREATE_DATA*>  m_vecUICreateData;
 };
 
 }

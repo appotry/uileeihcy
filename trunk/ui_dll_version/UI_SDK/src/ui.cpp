@@ -125,6 +125,17 @@ void UI_SetDesignMode( bool bDesignMode )
 	g_pUIApplication->SetDesignMode(bDesignMode);
 }
 
+// 
+//	注册一个UI对象，这样就可以在XML中配置该对象类，创建由UI创建该类的实例
+//
+bool UI_RegisterUIObjectCreateData( const TCHAR* szXmlName, s_UICreateInstancePtr pFunPtr)
+{
+	if( NULL == g_pUIApplication )
+	{
+		g_pUIApplication = new UIApplication;
+	}
+	return g_pUIApplication->RegisterUICreateData(szXmlName, pFunPtr);
+}
 
 //
 //	创建一个工程
