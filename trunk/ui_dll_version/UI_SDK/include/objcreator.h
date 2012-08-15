@@ -53,19 +53,19 @@ HRESULT UICreateInstance(T** pOut)
 //
 //	通过xml中的标签名来实例化一个对象
 //
-#define BEGIN_XML2CLASS \
-	Object* pObj = NULL;
-
-#define XML2CLASS( CLASS )  \
-	if( CLASS::XmlName() == strXmlName )  \
-	{ \
-		pObj = new UIObjCreator<CLASS>; \
-	} \
-	else 
-
-#define END_XML2CLASS \
-	{ \
-		UI_LOG_ERROR( _T("LayoutXmlParse::mapXmlToClass，未能解析的对象名称：%s"), strXmlName.c_str() ); \
-	}
-
+// #define BEGIN_XML2CLASS \
+// 	Object* pObj = NULL;
+// 
+// #define XML2CLASS( CLASS )  \
+// 	if( CLASS::XmlName() == strXmlName )  \
+// 	{ \
+// 		pObj = new UIObjCreator<CLASS>; \
+// 	} \
+// 	else 
+// 
+// #define END_XML2CLASS \
+// 	{ \
+// 		UI_LOG_ERROR( _T("LayoutXmlParse::mapXmlToClass，未能解析的对象名称：%s"), strXmlName.c_str() ); \
+// 	}
+// 
 

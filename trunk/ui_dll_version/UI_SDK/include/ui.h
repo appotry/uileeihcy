@@ -88,7 +88,7 @@ namespace UI
 	// 外部调用接口
 
 	UIAPI bool     UI_Initialize( const String& strUIProjXmlPath );
-	UIAPI bool     UI_Exit();
+	UIAPI bool     UI_Release();
 	UIAPI bool     UI_ChangeSkin( const String& strSkinName );
 	UIAPI bool     UI_ChangeSkin( int nIndex );
 	UIAPI bool     UI_ChangeSkinH( WORD newH );

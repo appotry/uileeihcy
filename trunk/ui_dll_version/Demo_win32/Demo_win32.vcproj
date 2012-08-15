@@ -191,6 +191,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\player.h"
+				>
+			</File>
+			<File
 				RelativePath=".\PlayerListMgr.cpp"
 				>
 			</File>
@@ -238,54 +242,38 @@
 		<Filter
 			Name="04. 其它"
 			>
-			<Filter
-				Name="头文件"
-				Filter="h;hpp;hxx;hm;inl;inc;xsd"
-				UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+			<File
+				RelativePath=".\Demo_win32.cpp"
 				>
-				<File
-					RelativePath=".\Demo_win32.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Resource.h"
-					>
-				</File>
-				<File
-					RelativePath=".\stdafx.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="源文件"
-				Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
-				UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
+			</File>
+			<File
+				RelativePath=".\Demo_win32.h"
 				>
-				<File
-					RelativePath=".\Demo_win32.cpp"
+			</File>
+			<File
+				RelativePath=".\stdafx.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
 					>
-				</File>
-				<File
-					RelativePath=".\stdafx.cpp"
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="1"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="1"
-						/>
-					</FileConfiguration>
-				</File>
-			</Filter>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\stdafx.h"
+				>
+			</File>
 			<Filter
 				Name="资源文件"
 				Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
@@ -300,6 +288,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Resource.h"
+					>
+				</File>
+				<File
 					RelativePath=".\small.ico"
 					>
 				</File>
@@ -308,6 +300,14 @@
 		<Filter
 			Name="03. 数据处理"
 			>
+			<File
+				RelativePath="..\UI_SDK\include\3rd\markup\markup.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\UI_SDK\include\3rd\markup\markup.h"
+				>
+			</File>
 			<File
 				RelativePath=".\PlayerListData.cpp"
 				>

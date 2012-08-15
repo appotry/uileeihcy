@@ -370,14 +370,14 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="other"
+			Name="3rd"
 			>
 			<File
-				RelativePath="..\UI_SDK\src\xmlparse\markup\markup.cpp"
+				RelativePath="..\UI_SDK\include\3rd\markup\markup.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\UI_SDK\include\xmlparse\markup\markup.h"
+				RelativePath="..\UI_SDK\include\3rd\markup\markup.h"
 				>
 			</File>
 		</Filter>

@@ -66,7 +66,7 @@ bool UI_Initialize( const String& strUIProjXmlPath )
 //
 //	释放所有资源，退出. 但必须保证所有窗口已经退出并析构，否则会导致资源指针野掉
 //
-bool UI_Exit()
+bool UI_Release()
 {
 	if( NULL != g_pUIApplication )
 	{

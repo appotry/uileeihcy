@@ -428,7 +428,7 @@
 						Name="markup"
 						>
 						<File
-							RelativePath="..\UI_SDK\include\xmlparse\markup\markup.h"
+							RelativePath="..\UI_SDK\include\3rd\markup\markup.h"
 							>
 						</File>
 					</Filter>
@@ -584,7 +584,7 @@
 						Name="markup"
 						>
 						<File
-							RelativePath="..\UI_SDK\src\xmlparse\markup\markup.cpp"
+							RelativePath="..\UI_SDK\include\3rd\markup\markup.cpp"
 							>
 						</File>
 					</Filter>
