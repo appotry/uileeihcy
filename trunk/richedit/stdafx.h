@@ -23,6 +23,7 @@
 #include <atlbase.h>
 #include <atlstr.h>
 
+#pragma warning(disable:4996)
 // TODO: reference additional headers your program requires here
 #include <atlbase.h>
 #include <atlapp.h>

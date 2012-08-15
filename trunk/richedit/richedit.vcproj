@@ -42,6 +42,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\ui_dll_version\UI_SDK\include\3rd\wtl80\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -116,6 +117,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="..\ui_dll_version\UI_SDK\include\3rd\wtl80\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -250,6 +252,14 @@
 			</File>
 			<File
 				RelativePath=".\RichEditCtrl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\WindowlessRichEdit.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\WindowlessRichEdit.h"
 				>
 			</File>
 		</Filter>

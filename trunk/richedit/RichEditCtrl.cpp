@@ -1,10 +1,11 @@
 #include "StdAfx.h"
 #include "RichEditCtrl.h"
 #include "EditWordBreak.h"
+#include "Objbase.h"
 
 HMODULE RichEditCtrl::s_RichEditDll = NULL;
 LONG    RichEditCtrl::s_refDll = 0;
-RichEditCtrl* g_pThis = NULL;
+
 int CALLBACK EditWordBreakProc(LPTSTR lpch,
 							   int ichCurrent,
 							   int cch,
@@ -14,7 +15,6 @@ int CALLBACK EditWordBreakProc(LPTSTR lpch,
 
 RichEditCtrl::RichEditCtrl(void)
 {
-	g_pThis = this;
 }
 
 RichEditCtrl::~RichEditCtrl(void)
@@ -56,6 +56,10 @@ bool RichEditCtrl::CreateControl(HWND hWndParent, CRect rect, UINT nCtrlID, bool
 	// 避免英文字体与中文字体不统一的问题
 	this->SendMessage(EM_SETLANGOPTIONS, IMF_DUALFONT, 0);
 
+	this->SendMessage(EM_SETOLECALLBACK, 0, (LPARAM)this);
+
+
+
 	// 换行处理
 	// TODO: 
 //	SetTargetDevice(NULL, 1);
@@ -88,6 +92,135 @@ void RichEditCtrl::ReleaseRichEidtDll()
 	}
 }
 
+// *** IUnknown methods ***
+HRESULT CRichEditOleCallbackImpl::QueryInterface(REFIID riid, LPVOID FAR * lplpObj)
+{
+	return E_NOTIMPL;
+}
+// 创建richedit时被调用
+ULONG   CRichEditOleCallbackImpl::AddRef()
+{
+	return 1;
+}
+// 销毁richedit时被调用
+ULONG   CRichEditOleCallbackImpl::Release()
+{
+	return 0;
+}
+
+// *** IRichEditOleCallback methods ***
+
+// This method must be implemented to allow cut, copy, paste, drag, 
+// and drop operations of Component Object Model (COM) objects.
+// 例如向richedit中随便拖入一个桌面上的图标，就会调用该函数
+HRESULT CRichEditOleCallbackImpl::GetNewStorage(LPSTORAGE FAR * lplpstg)
+{
+	if (NULL == lplpstg)
+	{
+		return E_INVALIDARG;
+	}
+	LPLOCKBYTES lpLockBytes = NULL;
+	SCODE sc = ::CreateILockBytesOnHGlobal(NULL, TRUE, &lpLockBytes);
+	if (sc != S_OK)
+	{
+		return E_OUTOFMEMORY;
+	}
+
+	sc = ::StgCreateDocfileOnILockBytes(lpLockBytes,
+		STGM_SHARE_EXCLUSIVE|STGM_CREATE|STGM_READWRITE, 0, lplpstg);
+	if (sc != S_OK)
+	{
+		return E_OUTOFMEMORY;
+	}
+
+	return S_OK;
+}
+HRESULT CRichEditOleCallbackImpl::GetInPlaceContext(LPOLEINPLACEFRAME FAR * lplpFrame,
+													LPOLEINPLACEUIWINDOW FAR * lplpDoc,
+													LPOLEINPLACEFRAMEINFO lpFrameInfo)
+{
+	return E_NOTIMPL;
+}
+HRESULT CRichEditOleCallbackImpl::ShowContainerUI(BOOL fShow)
+{
+	return E_NOTIMPL;
+}
+// 在从外部拖入一个文件到richedit时，先响应了GetNewStorage成功后，就会再调到这个接口函数
+// 当返回S_OK时，这个对象将被插入，返回FALSE时，对象将不会被插入
+HRESULT CRichEditOleCallbackImpl::QueryInsertObject(LPCLSID lpclsid, LPSTORAGE lpstg,
+													LONG cp)
+{
+	return S_OK;
+}
+// 例如将richedit中的一人COM对象删除，则会调用一次该接口函数
+// 例如将richedit中的一个COM对象用鼠标拖拽到另一个位置，则会调用一次该接口函数
+// 该函数仅是一个通知，告诉我们有一个对象要被deleted from rich edit control;
+HRESULT CRichEditOleCallbackImpl::DeleteObject(LPOLEOBJECT lpoleobj)
+{
+	return S_OK;
+}
+
+// 在richedit中使用 CTRL+V时被调用
+HRESULT CRichEditOleCallbackImpl::QueryAcceptData(LPDATAOBJECT lpdataobj,
+												  CLIPFORMAT FAR * lpcfFormat, DWORD reco,
+												  BOOL fReally, HGLOBAL hMetaPict)
+{
+	return E_NOTIMPL;
+}
+HRESULT CRichEditOleCallbackImpl::ContextSensitiveHelp(BOOL fEnterMode)
+{
+	return E_NOTIMPL;
+}
+// 在richedit中使用 CTRL+C 时被调用
+HRESULT CRichEditOleCallbackImpl::GetClipboardData(CHARRANGE FAR * lpchrg, DWORD reco,
+												   LPDATAOBJECT FAR * lplpdataobj)
+{
+	return E_NOTIMPL;
+}
+
+// 在richedit中使用鼠标拖拽时被调用
+HRESULT CRichEditOleCallbackImpl::GetDragDropEffect(BOOL fDrag, DWORD grfKeyState,
+													LPDWORD pdwEffect)
+{
+	if (!fDrag) // allowable dest effects
+	{
+		DWORD dwEffect;
+		// check for force link
+		if ((grfKeyState & (MK_CONTROL|MK_SHIFT)) == (MK_CONTROL|MK_SHIFT))
+			dwEffect = DROPEFFECT_LINK;
+		// check for force copy
+		else if ((grfKeyState & MK_CONTROL) == MK_CONTROL)
+			dwEffect = DROPEFFECT_COPY;
+		// check for force move
+		else if ((grfKeyState & MK_ALT) == MK_ALT)
+			dwEffect = DROPEFFECT_MOVE;
+		// default -- recommended action is move
+		else
+			dwEffect = DROPEFFECT_MOVE;
+		if (dwEffect & *pdwEffect) // make sure allowed type
+			*pdwEffect = dwEffect;
+	}
+	return S_OK;
+}
+
+// 右击RichEdit时被调用，根据鼠标右键时，鼠标下面的对象的不同，得到的参数也不同，
+// 例如在空白处右击，seltype=0, lpoleobj=NULL
+// 例如在一个COM对象处右击，可能seltype=2, lpoleobj = xxx;
+HRESULT CRichEditOleCallbackImpl::GetContextMenu(WORD seltype, LPOLEOBJECT lpoleobj,
+												 CHARRANGE FAR * lpchrg,
+												 HMENU FAR * lphmenu)
+{
+#ifdef _DEBUG
+	HMENU& hMenu = *lphmenu;
+	TCHAR szInfo[128] = _T("");
+	_stprintf(szInfo, _T("GetContextMenu Args: seltype=%d, lpoleobj=%08x, lpchrg=%d,%d"),
+		seltype, lpoleobj, lpchrg->cpMin, lpchrg->cpMax);
+
+	hMenu = CreatePopupMenu();
+	BOOL bRet = ::AppendMenu(hMenu, MF_STRING, 10001, szInfo);
+#endif
+	return S_OK;
+}
 
 
 
