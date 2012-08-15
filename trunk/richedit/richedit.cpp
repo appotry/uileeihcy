@@ -17,7 +17,16 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	_Module.Init(NULL, hInstance);
 
 	CMainDlg dlg;
-	dlg.DoModal();
+	dlg.Create(NULL);
+	dlg.ShowWindow(SW_SHOW);
+//	dlg.DoModal();  <-- DoModal 会导致Dialog收不到WM_CHAR消息，被IsDialogMessage过滤了
+
+	CMessageLoop theLoop;
+	_Module.AddMessageLoop(&theLoop);
+	theLoop.Run();
+	_Module.RemoveMessageLoop();
+
+
 
 	_Module.Term();
 	return 0;
