@@ -1,6 +1,6 @@
 #pragma once
 
-#include "..\UI_SDK\include\xmlparse\markup\markup.h"
+#include "..\UI_SDK\include\3rd\markup\markup.h"
 
 // »ùÀà
 class IParseBase
