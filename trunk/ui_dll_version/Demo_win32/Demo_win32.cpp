@@ -52,7 +52,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	MyRegisterClass(hInstance);
 
 	// 执行应用程序初始化:
-	UI_RegisterUIObjectCreateData(TTPlayerPlaylistCtrl::XmlName().c_str(), 
+	UI_RegisterUIObjectCreateData(TTPlayerPlaylistCtrl::XmlName(), 
 		(s_UICreateInstancePtr)TTPlayerPlaylistCtrl::_CreatorClass::UICreateInstance);
 
 	TCHAR szPath[MAX_PATH] = _T("");
