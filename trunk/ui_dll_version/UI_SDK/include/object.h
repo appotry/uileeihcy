@@ -20,7 +20,8 @@ typedef map<String,String>  ATTRMAP;
 	virtual OBJ_TYPE GetObjectType()                     \
 	{                                                    \
 		return  type;                                    \
-	}
+	}                                                    \
+	typedef UIObjCreator<className> _CreatorClass; 
 
 #define UI_DECLARE_EMPTY_OBJECT()                        \
 	/* 派生类请使用UI_DECLARE_OBJECT进行声明*/           \

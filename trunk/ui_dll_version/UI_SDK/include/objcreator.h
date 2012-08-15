@@ -18,6 +18,10 @@ public:
 		InitialRelease();
 		FinalRelease();
 	}
+	static HRESULT UICreateInstance(T** pOut)
+	{
+		return ::UICreateInstance(pOut);
+	}
 
 	virtual void ObjectMustCreateByUIObjCreator(){};
 };

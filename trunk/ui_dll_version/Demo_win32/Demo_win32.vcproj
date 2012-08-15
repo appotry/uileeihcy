@@ -183,6 +183,14 @@
 			Name="02. 逻辑处理"
 			>
 			<File
+				RelativePath=".\MainMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MainMgr.h"
+				>
+			</File>
+			<File
 				RelativePath=".\PlayerListMgr.cpp"
 				>
 			</File>
@@ -228,7 +236,7 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="03. 其它"
+			Name="04. 其它"
 			>
 			<Filter
 				Name="头文件"
@@ -296,6 +304,18 @@
 					>
 				</File>
 			</Filter>
+		</Filter>
+		<Filter
+			Name="03. 数据处理"
+			>
+			<File
+				RelativePath=".\PlayerListData.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PlayerListData.h"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
