@@ -7,13 +7,12 @@ namespace UI
 typedef map<String,String>  ATTRMAP;
 
 #define UI_DECLARE_OBJECT( className, type )             \
-	static  String XmlName()                             \
+	static  TCHAR* XmlName()                             \
 	/*warning:该函数不支持多态，仅用于CLASS::XXX来调用*/ \
 	{                                                    \
-		String str =  _T(#className);                    \
-		return str;                                      \
+		return _T(#className);                           \
 	}                                                    \
-	virtual String GetObjectName()                       \
+	virtual TCHAR* GetObjectName()                       \
 	{                                                    \
 		return _T(#className);                           \
 	}                                                    \
@@ -23,10 +22,13 @@ typedef map<String,String>  ATTRMAP;
 	}                                                    \
 	typedef UIObjCreator<className> _CreatorClass; 
 
+// 注：这里不能使用String代替TCHAR*返回。因为一个对象可能是在
+//     其它DLL中继续Object实现的，在UIDLL中再调用其GetObjectName
+//	   会导致heap exception.
 #define UI_DECLARE_EMPTY_OBJECT()                        \
 	/* 派生类请使用UI_DECLARE_OBJECT进行声明*/           \
-	static       String      XmlName(){return _T("Object"); }   \
-	virtual      String      GetObjectName() = 0;        \
+	static       TCHAR*      XmlName(){return _T("Object"); }   \
+	virtual      TCHAR*      GetObjectName() = 0;        \
 	virtual      OBJ_TYPE    GetObjectType() = 0;
 
 

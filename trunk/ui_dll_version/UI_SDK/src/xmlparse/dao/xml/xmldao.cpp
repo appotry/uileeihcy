@@ -2329,7 +2329,7 @@ bool CXmlLayoutParse::LoadLayout(Object* pRootObj)
 		if( !bRet )
 		{
 			UI_LOG_FATAL( _T("LayoutXmlParse::Load, 未找到要加载的对象：name=%s, id=%s"),
-				pRootObj->GetObjectName().c_str(), pRootObj->m_strID.c_str() );
+				pRootObj->GetObjectName(), pRootObj->m_strID.c_str() );
 			break;
 		}
 
@@ -2397,7 +2397,7 @@ bool CXmlLayoutParse::ReLoadLayout( Object* pRootObj, list<Object*>& listAllChil
 		if( !bRet )
 		{
 			UI_LOG_FATAL( _T("LayoutXmlParse::Load, 未找到要加载的对象：name=%s, id=%s"),
-				pRootObj->GetObjectName().c_str(), pRootObj->m_strID.c_str() );
+				pRootObj->GetObjectName(), pRootObj->m_strID.c_str() );
 			break;
 		}
 

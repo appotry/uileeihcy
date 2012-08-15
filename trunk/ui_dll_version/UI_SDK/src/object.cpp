@@ -355,7 +355,7 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 	
 	if (m_strID.empty())
 	{
-		UI_LOG_WARN( _T("Object::SetAttrib, not find name=%s attribute: \"%s\""), this->GetObjectName().c_str(), XML_ID ) ;
+		UI_LOG_WARN( _T("Object::SetAttrib, not find name=%s attribute: \"%s\""), this->GetObjectName(), XML_ID ) ;
 	}
 
 	//  3. 设置布局相关值
