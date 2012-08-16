@@ -62,7 +62,7 @@ protected:
 	virtual void on_mp3_volume_ind(long lVolumn);
 
 protected:
-	CPlayListDlg*   m_pPlaylistDlg;
+	HWND            m_hWndPlayerList;
 	CLyricDlg*      m_pLyricDlg;
 	CEqualizerDlg*  m_pEqualizerDlg;
 

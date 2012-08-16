@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "playlistdlg.h"
-
-
+#include "player.h"
+#include "PlayerListMgr.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -123,8 +123,9 @@ void TTPlayerPlaylistCtrl::OnDeleteItem( ListItemBase* p )
 }
 
 
-CPlayListDlg::CPlayListDlg(void)
+CPlayListDlg::CPlayListDlg(CPlayerListMgr* pPlayerListMgr)
 {
+	m_pPlayerListMgr = pPlayerListMgr;
 	this->SetWindowResizeType(WRSB_ALL);
 	m_plistctrl = NULL;
 }
@@ -177,7 +178,7 @@ void CPlayListDlg::OnBtnClickAdd(Object* pBtnObj, POINT* pt)
 			CFileDialog dlg(TRUE, _T("*.mp3"), 0,4|2, _T("*.mp3\0*.mp3\0\0"));
 			if(IDCANCEL != dlg.DoModal())
 			{
-				this->AddFile(dlg.m_szFileName);
+				::GetPlayerListMgr()->AddFile(dlg.m_szFileName);
 			}
 		}
 		break;
@@ -195,7 +196,7 @@ void CPlayListDlg::OnBtnClickAdd(Object* pBtnObj, POINT* pt)
 	::DestroyMenu(hMenu);
 }
 
-void CPlayListDlg::AddFile(const String& strFile)
+void CPlayListDlg::OnAddFile(const String& strFile)
 {
 	if (NULL == m_plistctrl)
 		return;
@@ -213,7 +214,7 @@ bool CALLBACK MyEnumFileInDirProc(const TCHAR* szDir, const TCHAR* szFileName, W
 	str += szFileName;
 	if( str.substr(str.length()-4,4) == _T(".mp3") )
 	{
-		pThis->AddFile(str);
+		pThis->OnAddFile(str);
 	}
 	return true;
 }

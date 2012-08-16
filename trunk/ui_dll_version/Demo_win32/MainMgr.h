@@ -3,6 +3,7 @@
 #include "PlayerListMgr.h"
 class MainWindow;
 
+
 class CMainMgr : public IMgr
 {
 public:
@@ -12,10 +13,8 @@ public:
 	bool     Initialize();
 	bool     Release();
 
+	bool     ShowPlayerListDlg();
+
 protected:
 	MainWindow*     m_pMainWindow;
-
-protected:
-	CPlayerListMgr  m_MgrPlayerList;
-
 };

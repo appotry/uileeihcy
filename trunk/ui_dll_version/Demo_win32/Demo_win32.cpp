@@ -68,9 +68,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	}
 
 	// 启动应用程序
-	CMainMgr mainMgr;
-	mainMgr.Initialize();
-		
+	::GetMainMgr();
+
 	MSG msg;
 	HACCEL hAccelTable;
 	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_DEMO_WIN32));
@@ -86,7 +85,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	}
 
 	// 退出
-	mainMgr.Release();
+	::GetFrameWork()->Release();
 	::UI_Release();  // 注意，需要在所有的窗口全析构了之后，才可以调用UI_Exit释放资源，否则会导致野指针崩溃
 
 	return 0;

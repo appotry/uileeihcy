@@ -21,7 +21,7 @@ bool CMainMgr::Initialize()
 		m_pMainWindow->Create( _T("mainwindow") );
 	}
 
-	m_MgrPlayerList.Initialize();
+	::GetPlayerListMgr(); // 提前初始化获取插入列表
 
 	m_pMainWindow->ShowWindow();
 	return bRet;
@@ -29,7 +29,7 @@ bool CMainMgr::Initialize()
 
 bool CMainMgr::Release()
 {
-	m_MgrPlayerList.Release();
+	::GetPlayerListMgr()->Release();
 
 	SAFE_DELETE(m_pMainWindow);
 	return ::mp3_release();
