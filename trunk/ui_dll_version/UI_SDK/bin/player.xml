@@ -1,8 +1,10 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <config>
   
   <!--加载的播放文件列表-->
   <playlist>
+    <!--item>E:\编程\workingpath\svn\ui_dll_version\UI_SDK\bin\wine-of-bincos-lunba.mp3</item>
+    <item>E:\编程\workingpath\svn\ui_dll_version\UI_SDK\bin\dida.mp3</item-->
   </playlist>
   
 </config>

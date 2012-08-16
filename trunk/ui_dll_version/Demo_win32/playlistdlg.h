@@ -1,4 +1,5 @@
 #pragma once
+class CPlayerListMgr;
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -37,7 +38,7 @@ public:
 class CPlayListDlg : public UI::CustomWindow
 {
 public:
-	CPlayListDlg(void);
+	CPlayListDlg(CPlayerListMgr* pPlayerListMgr);
 	~CPlayListDlg(void);
 
 	UI_BEGIN_MSG_MAP
@@ -46,21 +47,22 @@ public:
 		UIMSG_BN_CLICKED_EX(_T("playlist_add"), OnBtnClickAdd )
 		UICHAIN_MSG_MAP( CustomWindow )
 	UI_END_MSG_MAP
-
  
 public:
 	virtual BOOL PreCreateWindow( CREATESTRUCT& cs );
 	virtual void OnInitWindow( );
 
-	int  OnCreate(LPCREATESTRUCT lpCreateStruct);
-	void OnClose();
-	void OnBtnClickAdd(Object* pBtnObj, POINT* pt);
+	int     OnCreate(LPCREATESTRUCT lpCreateStruct);
+	void    OnClose();
+	void    OnBtnClickAdd(Object* pBtnObj, POINT* pt);
 
 public:
-	void AddFile(const String& strFile);
-	void AddDirectory(const String& strDir);
+	void    OnAddFile(const String& strFile);
+	void    AddDirectory(const String& strDir);
 
 private:
 	TTPlayerPlaylistCtrl*   m_plistctrl;
+	CPlayerListMgr*         m_pPlayerListMgr;
+
 };
 

@@ -1,9 +1,11 @@
 #include "StdAfx.h"
 #include "MainWindow.h"
+#include "player.h"
+#include "PlayerListMgr.h"
 
 MainWindow::MainWindow(void)
 {
-	m_pPlaylistDlg = NULL;
+	m_hWndPlayerList = NULL;
 	m_pEqualizerDlg = NULL;
 	m_pLyricDlg = NULL;
 
@@ -25,12 +27,6 @@ MainWindow::MainWindow(void)
 
 MainWindow::~MainWindow(void)
 {
-	if( NULL != m_pPlaylistDlg )
-	{
-		::DestroyWindow(m_pPlaylistDlg->m_hWnd);
-		delete m_pPlaylistDlg;
-		m_pPlaylistDlg = NULL;
-	}
 	if( NULL != m_pEqualizerDlg )
 	{
 		::DestroyWindow(m_pEqualizerDlg->m_hWnd);
@@ -181,21 +177,9 @@ void MainWindow::OnBnClickOpen()
 
 void MainWindow::OnBnClickPlaylist()
 {
-	if( NULL == m_pPlaylistDlg )
-	{
-		m_pPlaylistDlg = new CPlayListDlg;
-		m_pPlaylistDlg->Create(_T("playlistdlg"), m_hWnd);
-
-		RECT  rc;
-		::GetWindowRect(m_hWnd, &rc);
-		::SetWindowPos( m_pPlaylistDlg->m_hWnd, NULL, rc.left, rc.bottom, 0,0/*rc.right-rc.left, rc.bottom-rc.top*/, SWP_NOZORDER|SWP_NOSIZE );
-	}
-
-	if(m_pPlaylistDlg->IsVisible())
-		UIAnimateWindow(m_pPlaylistDlg->m_hWnd,UIAW_HIDE_KUOSAN,0);
-	else
-		::ShowWindow(m_pPlaylistDlg->m_hWnd,SW_SHOW);
-
+	HWND hWnd = ::GetPlayerListMgr()->ShowPlayerListDlg(m_hWnd);
+	if (NULL == m_hWndPlayerList)
+		m_hWndPlayerList = hWnd;
 }
 
 void MainWindow::OnBnClickLyric()
@@ -280,7 +264,7 @@ void MainWindow::OnMouseMove(UINT nFlags, POINT point)
 
 		// 计算需要同步移动的窗口数量 
 		int nCount = 1;
-		if( m_pPlaylistDlg != NULL && ::IsWindowVisible(m_pPlaylistDlg->m_hWnd) )
+		if (::IsWindowVisible(m_hWndPlayerList))
 		{ nCount++; }
 		if( m_pEqualizerDlg != NULL && ::IsWindowVisible(m_pEqualizerDlg->m_hWnd) )
 		{ nCount++; }
@@ -290,9 +274,9 @@ void MainWindow::OnMouseMove(UINT nFlags, POINT point)
 		HDWP hdwp = BeginDeferWindowPos(nCount);
 		
 		hdwp = DeferWindowPos(hdwp, m_hWnd, NULL, ptNew.x, ptNew.y, 0,0, SWP_NOZORDER|SWP_NOSIZE|SWP_NOACTIVATE);
-		if( NULL != m_pPlaylistDlg && ::IsWindowVisible(m_pPlaylistDlg->m_hWnd) )
+		if(::IsWindowVisible(m_hWndPlayerList) )
 		{
-			hdwp = DeferWindowPos( hdwp, m_pPlaylistDlg->m_hWnd, NULL, 
+			hdwp = DeferWindowPos( hdwp, m_hWndPlayerList, NULL, 
 				ptNew.x, 
 				ptNew.y + GetHeight(), 
 				0,0, SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE );

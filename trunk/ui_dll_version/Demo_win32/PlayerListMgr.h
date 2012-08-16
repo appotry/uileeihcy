@@ -17,7 +17,9 @@ public:
 	bool   AddFile(const String& strFile);
 	bool   AddDirectory(const String& strDir);
 
+	HWND   ShowPlayerListDlg(HWND hParent);
+
 private:
 	CPlayerListData   m_data;
-	CPlayListDlg      m_dlg;
+	CPlayListDlg*     m_pPlaylistDlg;
 };
