@@ -1,15 +1,10 @@
 #include "stdafx.h"
 #include "PlayerListData.h"
+#include "player.h"
+#include "PlayerListMgr.h"
 
 CPlayerListData::~CPlayerListData()
 {
-	int nSize = (int)m_vecPlayerList.size();
-	for (int i = 0; i < nSize; i++)
-	{
-		PlayerListItemInfo* pInfo = m_vecPlayerList[i];
-		SAFE_DELETE(pInfo);
-	}
-	m_vecPlayerList.clear();
 }
 
 void  CPlayerListData::Load()
@@ -35,30 +30,18 @@ void  CPlayerListData::Load()
 			if (false == xml.FindElem(_T("item")))   break;
 			
 			String strValue = xml.GetData();
-
-			PlayerListItemInfo* pInfo = new PlayerListItemInfo;
-			pInfo->m_strFilePath = strValue;
-
-			m_vecPlayerList.push_back(pInfo);
+			::GetPlayerListMgr()->OnLoadItem(strValue);
 		}
 	}
 	while(0);
 
 
+	
 	return;
 }
 
 
-PlayerListItemInfo* CPlayerListData::GetItem(int i)
-{
-	if (i < 0 )
-		return NULL;
 
-	if (i >= GetItemCount())
-		return NULL;
-
-	return m_vecPlayerList[i];
-}
 
 bool  CPlayerListData::Add(const String& strPath)
 {
@@ -96,3 +79,4 @@ void CPlayerListData::GetConfigXmlPath(String& str)
 
 	str = szPath;
 }
+

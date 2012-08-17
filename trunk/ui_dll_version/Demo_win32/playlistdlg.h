@@ -1,6 +1,6 @@
 #pragma once
 class CPlayerListMgr;
-
+class PlayerListItemInfo;
 
 //////////////////////////////////////////////////////////////////////////
 // 模仿千千静听播放列表的自绘控件
@@ -11,10 +11,9 @@ public:
 	TTPlayerPlaylistItem(ListCtrlBase* pCtrl):ListItemBase(pCtrl){};
 
 public:
-	String   m_strFilePath;
-	String   m_strFileName;
-	String   m_strFileTime;
+	PlayerListItemInfo*   m_pItemInfo;
 };
+
 class TTPlayerPlaylistCtrl : public ListCtrlBase
 {
 public:
@@ -25,7 +24,7 @@ public:
 	virtual  bool SetAttribute(ATTRMAP& mapAttrib, bool bReload);
 
 public:
-	void    AddFileItem(const String& strFilePath, bool bUpdate=true);
+	void    AddFileItem(PlayerListItemInfo* pItemInfo, bool bUpdate=true);
 
 	virtual  void OnDrawItem(HRDC hRDC, ListItemBase* p);
 	virtual  SIZE OnMeasureItem( ListItemBase* p);
@@ -57,8 +56,7 @@ public:
 	void    OnBtnClickAdd(Object* pBtnObj, POINT* pt);
 
 public:
-	void    OnAddFile(const String& strFile);
-	void    AddDirectory(const String& strDir);
+	void    OnAddItem(PlayerListItemInfo* pItemInfo);
 
 private:
 	TTPlayerPlaylistCtrl*   m_plistctrl;

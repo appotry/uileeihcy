@@ -8,7 +8,16 @@ CPlayerListMgr::CPlayerListMgr(void)
 
 CPlayerListMgr::~CPlayerListMgr(void)
 {
+
 	SAFE_DELETE(m_pPlaylistDlg);
+
+	int nSize = (int)m_vecPlayerList.size();
+	for (int i = 0; i < nSize; i++)
+	{
+		PlayerListItemInfo* pInfo = m_vecPlayerList[i];
+		SAFE_DELETE(pInfo);
+	}
+	m_vecPlayerList.clear();
 }
 
 bool CPlayerListMgr::Initialize()
@@ -24,6 +33,7 @@ bool CPlayerListMgr::Release()
 	}
 	return true;
 }
+
 
 HWND CPlayerListMgr::ShowPlayerListDlg(HWND hParent)
 {
@@ -47,13 +57,41 @@ HWND CPlayerListMgr::ShowPlayerListDlg(HWND hParent)
 
 bool CPlayerListMgr::AddFile(const String& strFile)
 {
-	if (m_data.Add(strFile) && NULL != m_pPlaylistDlg)
+	if (m_data.Add(strFile) )
 	{
-		m_pPlaylistDlg->OnAddFile(strFile);
+		this->OnLoadItem(strFile);
 	}
 	return true;
 }
+
+
+void CPlayerListMgr::OnLoadItem(const String& strFile)
+{
+	if ( NULL != m_pPlaylistDlg)
+	{
+		PlayerListItemInfo* pInfo = new PlayerListItemInfo;
+		pInfo->m_strFilePath = strFile;
+		m_pPlaylistDlg->OnAddItem(pInfo);
+	}
+}
+
+bool CALLBACK MyEnumFileInDirProc(const TCHAR* szDir, const TCHAR* szFileName, WPARAM wParam)
+{
+	CPlayerListMgr* pThis = (CPlayerListMgr*)wParam;
+	if (NULL == pThis)
+		return false;
+
+	String str = szDir;
+	str += szFileName;
+	if( str.substr(str.length()-4,4) == _T(".mp3") )
+	{
+		pThis->AddFile(str);
+	}
+	return true;
+}
+
 bool CPlayerListMgr::AddDirectory(const String& strDir)
 {
+	Util::EnumFileInDirectory(strDir.c_str(), MyEnumFileInDirProc, (WPARAM)this);
 	return true;
 }
