@@ -77,7 +77,7 @@ void TTPlayerPlaylistCtrl::OnDrawItem(HRDC hRDC, ListItemBase* p)
 		}
 	}
 
-	if (NULL != pData)
+	if (NULL != pData && NULL != pData->m_pItemInfo)
 	{
 		CRect rcNum = rcItem;
 		CRect rcTime = rcItem;
@@ -93,23 +93,20 @@ void TTPlayerPlaylistCtrl::OnDrawItem(HRDC hRDC, ListItemBase* p)
 			DT_SINGLELINE|DT_RIGHT|DT_VCENTER, 
 			this->GetFont(), rgbText );
 
-		DrawString( hRDC, pData->m_strFileName.c_str(), &rcText, 
+		DrawString( hRDC, pData->m_pItemInfo->m_strFilePath.c_str(), &rcText, 
 			DT_SINGLELINE|DT_END_ELLIPSIS|DT_LEFT|DT_VCENTER, 
 			this->GetFont(), rgbText );
 
-		DrawString( hRDC, pData->m_strFileTime.c_str(), &rcTime, 
+		DrawString( hRDC, pData->m_pItemInfo->m_strFileTime.c_str(), &rcTime, 
 			DT_SINGLELINE|DT_RIGHT|DT_VCENTER, 
 			this->GetFont(), rgbText );
 	}
 }
-void TTPlayerPlaylistCtrl::AddFileItem(const String& strFilePath, bool bUpdate)
+void TTPlayerPlaylistCtrl::AddFileItem(PlayerListItemInfo* pItemInfo, bool bUpdate)
 {
-	int nPos = strFilePath.rfind(_T('\\'), strFilePath.length());
+//	int nPos = strFilePath.rfind(_T('\\'), strFilePath.length());
 	TTPlayerPlaylistItem* pItem = new TTPlayerPlaylistItem(this);
-	pItem->m_strFilePath = strFilePath;
-	pItem->m_strFileName = strFilePath.substr(nPos+1, strFilePath.length()-nPos-1);
-	pItem->m_strFileTime = _T("3:25");
-
+	pItem->m_pItemInfo = pItemInfo;
 	__super::AddItem( pItem, bUpdate );
 }
 
@@ -188,7 +185,7 @@ void CPlayListDlg::OnBtnClickAdd(Object* pBtnObj, POINT* pt)
 			CFolderDialog dlg;
 			if( IDCANCEL != dlg.DoModal() )
 			{
-				this->AddDirectory(dlg.m_szFolderPath);
+				::GetPlayerListMgr()->AddDirectory(dlg.m_szFolderPath);
 			}
 		}
 		break;
@@ -196,32 +193,13 @@ void CPlayListDlg::OnBtnClickAdd(Object* pBtnObj, POINT* pt)
 	::DestroyMenu(hMenu);
 }
 
-void CPlayListDlg::OnAddFile(const String& strFile)
+
+
+
+void CPlayListDlg::OnAddItem(PlayerListItemInfo* pItemInfo)
 {
 	if (NULL == m_plistctrl)
 		return;
 
-	m_plistctrl->AddFileItem(strFile);
-}
-
-bool CALLBACK MyEnumFileInDirProc(const TCHAR* szDir, const TCHAR* szFileName, WPARAM wParam)
-{
-	CPlayListDlg* pThis = (CPlayListDlg*)wParam;
-	if (NULL == pThis)
-		return false;
-
-	String str = szDir;
-	str += szFileName;
-	if( str.substr(str.length()-4,4) == _T(".mp3") )
-	{
-		pThis->OnAddFile(str);
-	}
-	return true;
-}
-void CPlayListDlg::AddDirectory(const String& strDir)
-{
-	if (NULL == m_plistctrl)
-		return;
-
-	Util::EnumFileInDirectory(strDir.c_str(), MyEnumFileInDirProc, (WPARAM)this);
+	m_plistctrl->AddFileItem(pItemInfo);
 }

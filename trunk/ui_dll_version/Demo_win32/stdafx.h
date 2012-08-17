@@ -31,9 +31,8 @@
 
 #pragma comment(linker, "\"/manifestdependency:type='Win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='X86' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
-extern HINSTANCE g_hInstance;
-
 #define  __ATLRES_H__
+extern HINSTANCE g_hInstance;
 
 // C 运行时头文件
 #include <stdlib.h>
