@@ -1,8 +1,13 @@
 #include "stdafx.h"
+
+// 由于内存泄露检测机制的new重定义与Gdiplusbase中定义的new有冲突，因此在这里需要屏蔽该功能
+// 屏蔽之后，虽然能检测出来内存泄露，但是无法显示代码行所在
+#undef new
+
 int GetEncoderClsid(const WCHAR* format, CLSID* pClsid);
 
 
-
+int* a = new int;
 //
 //	Remark
 //
@@ -65,7 +70,7 @@ BYTE* GdiplusRenderBitmap::LockBits()
 		return NULL;
 	}
 
-	m_pBitmapData = new Gdiplus::BitmapData();
+	m_pBitmapData = new Gdiplus::BitmapData;
 	Gdiplus::Rect rect(0,0, m_pBitmap->GetWidth(), m_pBitmap->GetHeight());
 
 	m_pBitmap->LockBits(
@@ -91,7 +96,7 @@ bool  GdiplusRenderBitmap::SaveBits( ImageData* pImageData )
 	if( NULL == pImageData || NULL == m_pBitmap )
 		return false;
 
-	Gdiplus::BitmapData* pBitmapData = new Gdiplus::BitmapData();
+	Gdiplus::BitmapData* pBitmapData = new Gdiplus::BitmapData;
 	Gdiplus::Rect rect(0,0, m_pBitmap->GetWidth(), m_pBitmap->GetHeight());
 
 	m_pBitmap->LockBits(
@@ -140,7 +145,7 @@ bool  GdiplusRenderBitmap::ChangeHue( const ImageData* pOriginImageData, WORD wN
 	if( NULL == pOriginImageData || NULL == m_pBitmap )
 		return false;
 
-	Gdiplus::BitmapData* pBitmapData = new Gdiplus::BitmapData();
+	Gdiplus::BitmapData* pBitmapData = new Gdiplus::BitmapData;
 	Gdiplus::Rect rect(0,0, m_pBitmap->GetWidth(), m_pBitmap->GetHeight());
 
 	int nPixelFormat = PixelFormat32bppARGB;
