@@ -2,6 +2,7 @@
 #include "MainMgr.h"
 #include "MainWindow.h"
 
+
 CMainMgr::CMainMgr()
 {
 	m_pMainWindow = NULL;
@@ -29,8 +30,6 @@ bool CMainMgr::Initialize()
 
 bool CMainMgr::Release()
 {
-	::GetPlayerListMgr()->Release();
-
 	SAFE_DELETE(m_pMainWindow);
 	return ::mp3_release();
 }
