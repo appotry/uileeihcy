@@ -46,26 +46,10 @@ extern HINSTANCE g_hInstance;
 #include "atldlgs.h"
 #include "atlctrls.h"
 
-// #ifdef _DEBUG
-// #include "..\ui_sdk\include\other\vld.h"	// 内存泄露检查
-// #endif
 
 #include "ui.h"
 #pragma comment(lib,"uidll.lib")
 #include "..\player_uip\player_uip.h"
 #pragma comment(lib,"player_uip.lib")
 
-
-//内存泄露检查改进版本
-#ifdef _DEBUG
-#	define DEBUG_CLIENTBLOCK new(_CLIENT_BLOCK, __FILE__, __LINE__)
-#else
-#	define DEBUG_CLIENTBLOCK
-#endif
-
-#define _CRTDBG_MAP_ALLOC
-#include <crtdbg.h>
-
-#ifdef _DEBUG
-#	define new DEBUG_CLIENTBLOCK
-#endif
+#include "..\UI_SDK\include\common\LeakDetect.h"

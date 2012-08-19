@@ -11,14 +11,12 @@
 // Windows 头文件:
 #include <windows.h>
 
-
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS      // 某些 CString 构造函数将是显式的
 
 #include <atlbase.h>
 #include <atlstr.h>
 #include "atlwin.h"
 #include "atlcrack.h"
-#include <string>
 #include <list>
 using namespace std;
 
@@ -26,39 +24,5 @@ using namespace std;
 #pragma comment(lib, "dxguid.lib")
 #pragma comment(lib, "strmiids.lib")
 
-
-
-// 常用缩写定义
-#define SAFE_DELETE(p) \
-	if( NULL != p ) \
-	{ \
-		delete p; \
-		p = NULL; \
-	}
-
-#define SAFE_ARRAY_DELETE(p) \
-	if( NULL != p ) \
-	{ \
-		delete[] p; \
-		p = NULL; \
-	}
-
-#define SAFE_RELEASE(p) \
-	if( NULL != p ) \
-	{ \
-		p->Release(); \
-		p = NULL; \
-	}
-
-#define SAFE_RELEASE2(p) \
-	if( NULL != p ) \
-	{ \
-		p.Release(); \
-		p = NULL; \
-	}
-
-#ifdef _UNICODE
-typedef wstring String;
-#else
-typedef string  String;
-#endif
+#include "..\UI_SDK\include\common\comdef.h"
+#include "..\UI_SDK\include\common\LeakDetect.h"
