@@ -3,13 +3,13 @@
   
   <!--加载的播放文件列表-->
   <playlist>
-    <!--item>G:\Misuc\宁夏.mp3</item>
+    <item>G:\Misuc\宁夏.mp3</item>
 <item>G:\Misuc\又见炊烟.mp3</item>
 <item>G:\Misuc\一生何求.mp3</item>
 <item>G:\Misuc\wine-of-bincos-lunba.mp3</item>
 <item>G:\Misuc\dida.mp3</item>
 <item>E:\编程\workingpath\svn\ui_dll_version\UI_SDK\bin\wine-of-bincos-lunba.mp3</item>
-<item>E:\编程\workingpath\svn\ui_dll_version\UI_SDK\bin\dida.mp3</item-->
+<item>E:\编程\workingpath\svn\ui_dll_version\UI_SDK\bin\dida.mp3</item>
   </playlist>
   
 </config>

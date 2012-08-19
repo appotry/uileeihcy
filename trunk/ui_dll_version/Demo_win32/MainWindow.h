@@ -56,6 +56,8 @@ public:
 	void OnEnterSizeMove();
 	void OnExitSizeMove();
 
+	void SetPlayerListDlgHandle(HWND hWnd) { m_hWndPlayerList = hWnd; }
+
 protected:	
 	virtual void on_mp3_stop();
 	virtual void on_mp3_progress_ind(LONGLONG dCur, LONGLONG dLen);

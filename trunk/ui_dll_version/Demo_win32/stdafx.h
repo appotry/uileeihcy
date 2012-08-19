@@ -39,6 +39,8 @@ extern HINSTANCE g_hInstance;
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
+#include <vector>
+using namespace std;
 
 #include "atlbase.h"
 #include <atlapp.h>
