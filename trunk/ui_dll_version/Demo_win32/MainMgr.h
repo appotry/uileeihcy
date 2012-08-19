@@ -13,7 +13,9 @@ public:
 	bool     Initialize();
 	bool     Release();
 
-	bool     ShowPlayerListDlg();
+	HWND     GetMainWnd();
+
+	void     DoEvent(IMgr* pSource, int nEventType, int nEventId, WPARAM wParam, LPARAM lParam);
 
 protected:
 	MainWindow*     m_pMainWindow;

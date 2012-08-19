@@ -1,6 +1,6 @@
 #include "StdAfx.h"
 #include "PlayerListMgr.h"
-
+#include "MainMgr.h"
 
 CPlayerListMgr::CPlayerListMgr(void)
 {
@@ -23,7 +23,10 @@ CPlayerListMgr::~CPlayerListMgr(void)
 
 bool CPlayerListMgr::Initialize()
 {
+	ShowPlayerListDlg(GetMainMgr()->GetMainWnd());
+
 	m_data.Load();  // 从配置文件中读取历史记录
+
 	return true;
 }
 bool CPlayerListMgr::Release()
@@ -46,6 +49,8 @@ HWND CPlayerListMgr::ShowPlayerListDlg(HWND hParent)
 		RECT  rc;
 		::GetWindowRect(hParent, &rc);
 		::SetWindowPos( m_pPlaylistDlg->m_hWnd, NULL, rc.left, rc.bottom, 0,0/*rc.right-rc.left, rc.bottom-rc.top*/, SWP_NOZORDER|SWP_NOSIZE );
+
+		this->FireEvent(EVENT_TYPE_UI, UI_EVENT_ID_ON_PLAYERLISTDLG_CREATE, (WPARAM)m_pPlaylistDlg->m_hWnd);
 
 		// 加载数据
 		int nSize = (int)m_vecPlayerList.size();
