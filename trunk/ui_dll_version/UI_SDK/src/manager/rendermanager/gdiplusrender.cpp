@@ -7,7 +7,6 @@
 int GetEncoderClsid(const WCHAR* format, CLSID* pClsid);
 
 
-int* a = new int;
 //
 //	Remark
 //

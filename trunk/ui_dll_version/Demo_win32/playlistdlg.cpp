@@ -147,6 +147,7 @@ int CPlayListDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 void CPlayListDlg::OnInitWindow( )
 {
 	m_plistctrl = (TTPlayerPlaylistCtrl*)this->FindChildObject(_T("playlistctrl"));
+	m_plistctrl->GetScrollBarMgr()->SetVScrollLine(2);
 	UIASSERT(NULL != m_plistctrl);
 }
 

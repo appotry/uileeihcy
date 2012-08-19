@@ -1,16 +1,11 @@
 #pragma once
+#include "common/comdef.h"
 
 // 导入导出定义
 #ifdef UI_DLL_EXPORTS
 #define UIAPI __declspec(dllexport)
 #else
 #define UIAPI __declspec(dllimport)
-#endif
-
-#ifdef _UNICODE
-	typedef wstring String;
-#else
-	typedef string  String;
 #endif
 
 typedef RECT  REGION4;
@@ -36,42 +31,6 @@ typedef HRESULT (*s_UICreateInstancePtr)(void** pOut);
 
 #define MAX_STRING_LEN    256                  // 定义一些字符串的最大长度，例如皮肤名称，ID等等
 
-// 常用缩写定义
-#define SAFE_DELETE(p) \
-	{\
-		if( NULL != p ) \
-		{ \
-			delete p; \
-			p = NULL; \
-		}\
-	}
-
-#define SAFE_ARRAY_DELETE(p) \
-	{\
-		if( NULL != p ) \
-		{ \
-			delete[] p; \
-			p = NULL; \
-		} \
-	}
-
-#define SAFE_RELEASE(p) \
-	{\
-		if( NULL != p ) \
-		{ \
-			p->Release(); \
-			p = NULL; \
-		}\
-	}
-
-#define SAFE_DELETE_GDIOBJECT(h) \
-	{\
-		if( NULL != h )\
-		{\
-			::DeleteObject(h);\
-			h = NULL;\
-		}\
-	}
 
 //////////////////////////////////////////////////////////////////////////
 // enum
