@@ -63,8 +63,13 @@ bool WindowlessRichEdit::Create(HWND hWndParent, CRect rcInWnd)
 
 	m_hParentWnd = hWndParent;
 	m_rectInWindow = rcInWnd;
+	//if (GetWindowLong(m_hParentWnd, GWL_EXSTYLE) & WS_EX_LAYERED)
+	{
+		m_caret.SetLayered(true);
+		m_caret.SetTextHost(this);
+	}
 
-//TODO:
+
 	hr = m_spTextServices->OnTxInPlaceActivate(&m_rectInWindow);
 	assert(SUCCEEDED(hr));
 	hr = m_spTextServices->TxSendMessage(WM_SETFOCUS, 0, 0, 0);
@@ -74,6 +79,7 @@ bool WindowlessRichEdit::Create(HWND hWndParent, CRect rcInWnd)
 	// 参数初始化
 	
 
+
 	return true;
 }
 
@@ -82,17 +88,24 @@ void WindowlessRichEdit::Draw(HDC hDC)
 	if(NULL == m_spTextServices)
 		return;
 
+	HBRUSH hBrush = ::CreateSolidBrush(RGB(240,240,240));
+	::FillRect(hDC, &m_rectInWindow,hBrush);
+	::DeleteObject(hBrush);
+
 	m_spTextServices->TxDraw(DVASPECT_CONTENT, 0, NULL, NULL, hDC,
 		NULL, (RECTL *)&m_rectInWindow, NULL, NULL, NULL, NULL, TXTVIEW_ACTIVE);
 }
 
+// handled表示richedit不处理这个消息
 LRESULT WindowlessRichEdit::OnPreHandleMsg( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
 {
 	SetMsgHandled(FALSE);
 	if(NULL == m_spTextServices) 
 	{
 		SetMsgHandled(TRUE);
+		return 0;
 	}
+
 	return 0;
 }
 LRESULT WindowlessRichEdit::OnPostHandleMsg( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
@@ -106,6 +119,12 @@ LRESULT WindowlessRichEdit::OnPostHandleMsg( HWND hWnd, UINT Msg, WPARAM wParam,
 	}
 	return lr;
 }
+
+LRESULT WindowlessRichEdit::OnDefaultHandle(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	return OnPostHandleMsg(m_hParentWnd, uMsg, wParam, lParam);
+}
+
 BOOL WindowlessRichEdit::OnSetCursor(HWND hWnd, UINT nHitTest, UINT message)
 {
 	SetMsgHandled(FALSE);
@@ -136,13 +155,16 @@ BOOL WindowlessRichEdit::OnSetCursor(HWND hWnd, UINT nHitTest, UINT message)
 	return TRUE;
 }
 
-LRESULT WindowlessRichEdit::OnKeyDown(UINT uMsg, WPARAM wParam, LPARAM lParam)
+void WindowlessRichEdit::OnKillFocus(HWND wndFocus)
 {
-	return this->OnPostHandleMsg(m_hParentWnd,uMsg,wParam,lParam);
+	m_caret.DestroyCaret();
+	SetMsgHandled(FALSE);
 }
-LRESULT WindowlessRichEdit::OnChar(UINT uMsg, WPARAM wParam, LPARAM lParam)
+
+void WindowlessRichEdit::OnMoving(UINT fwSide, LPRECT pRect)
 {
-	return this->OnPostHandleMsg(m_hParentWnd,uMsg,wParam,lParam);
+	SetMsgHandled(FALSE);
+	m_caret.OnWindowMove();
 }
 
 bool WindowlessRichEdit::HitTest(POINT pt)
@@ -193,6 +215,7 @@ ITextHostImpl::ITextHostImpl()
 	m_rcBorder.SetRectEmpty();
 	m_nxPerInch = m_nyPerInch = 0;
 	m_hParentWnd = NULL;
+	m_dwStyle = ES_MULTILINE|ES_NOHIDESEL;
 }
 
 
@@ -240,6 +263,7 @@ BOOL ITextHostImpl::TxSetScrollPos (INT fnBar, INT nPos, BOOL fRedraw)
 void ITextHostImpl::TxInvalidateRect(LPCRECT prc, BOOL fMode)
 {
 	::InvalidateRect(m_hParentWnd, prc, fMode);
+	::PostMessage(m_hParentWnd, 1111,0,0);
 }
 
 //@cmember Send a WM_PAINT to the window
@@ -251,22 +275,35 @@ void ITextHostImpl::TxViewChange(BOOL fUpdate)
 //@cmember Create the caret
 BOOL ITextHostImpl::TxCreateCaret(HBITMAP hbmp, INT xWidth, INT yHeight)
 {
-	return ::CreateCaret (m_hParentWnd, hbmp, xWidth, yHeight);
+	//return ::CreateCaret (m_hParentWnd, hbmp, xWidth, yHeight);
+	m_caret.CreateCaret(m_hParentWnd, hbmp, xWidth, yHeight);
+	return TRUE;
 }
 
 //@cmember Show the caret
 BOOL ITextHostImpl::TxShowCaret(BOOL fShow) 
 {
-	if(fShow)
-		return ::ShowCaret(m_hParentWnd);
+// 	if(fShow)
+// 		return ::ShowCaret(m_hParentWnd);
+// 	else
+// 		return ::HideCaret(m_hParentWnd);
+
+	if (fShow)
+		m_caret.ShowCaret();
 	else
-		return ::HideCaret(m_hParentWnd);
+		m_caret.HideCaret();
+
+	return TRUE;
 }
 
 //@cmember Set the caret position
 BOOL ITextHostImpl::TxSetCaretPos(INT x, INT y)
 {
-	return ::SetCaretPos(x, y);
+//	return ::SetCaretPos(x, y);
+
+	m_caret.SetCaretPos(x, y);
+
+	return TRUE;
 }
 
 //@cmember Create a timer with the specified timeout
@@ -380,7 +417,7 @@ COLORREF ITextHostImpl::TxGetSysColor(int nIndex)
 //     不设置或设置其它值后，将会有白色背景
 HRESULT ITextHostImpl::TxGetBackStyle(TXTBACKSTYLE *pstyle)
 {
-	*pstyle = TXTBACK_OPAQUE/*TXTBACK_TRANSPARENT*/;
+	*pstyle = /*TXTBACK_OPAQUE*/TXTBACK_TRANSPARENT;
 	return S_OK;
 }
 
@@ -444,7 +481,61 @@ HRESULT ITextHostImpl::OnTxParaFormatChange (const PARAFORMAT * ppf)
 //@cmember Bulk access to bit properties
 HRESULT ITextHostImpl::TxGetPropertyBits(DWORD dwMask, DWORD *pdwBits)
 {
-	// TODO:
+	DWORD dwProperties = 0;
+
+// 	if (fRich)
+// 	{
+// 		dwProperties = TXTBIT_RICHTEXT;
+// 	}
+
+	if (m_dwStyle & ES_MULTILINE)
+	{
+		dwProperties |= TXTBIT_MULTILINE;
+	}
+
+	if (m_dwStyle & ES_READONLY)
+	{
+		dwProperties |= TXTBIT_READONLY;
+	}
+
+
+	if (m_dwStyle & ES_PASSWORD)
+	{
+		dwProperties |= TXTBIT_USEPASSWORD;
+	}
+
+	if (!(m_dwStyle & ES_NOHIDESEL))
+	{
+		dwProperties |= TXTBIT_HIDESELECTION;
+	}
+
+// 	if (fEnableAutoWordSel)
+// 	{
+// 		dwProperties |= TXTBIT_AUTOWORDSEL;
+// 	}
+// 
+// 	if (fVertical)
+// 	{
+// 		dwProperties |= TXTBIT_VERTICAL;
+// 	}
+// 
+// 	if (fWordWrap)
+// 	{
+// 		dwProperties |= TXTBIT_WORDWRAP;
+// 	}
+// 
+// 	if (fAllowBeep)
+// 	{
+// 		dwProperties |= TXTBIT_ALLOWBEEP;
+// 	}
+// 
+// 	if (fSaveSelection)
+// 	{
+// 		dwProperties |= TXTBIT_SAVESELECTION;
+// 	}
+
+	*pdwBits = dwProperties & dwMask; 
+	return NOERROR;
 	return S_OK;
 }
 
@@ -490,4 +581,16 @@ HRESULT ITextHostImpl::TxGetSelectionBarWidth (LONG *lSelBarWidth)
 {
 	*lSelBarWidth = 0;
 	return S_OK;
+}
+
+LRESULT WindowlessRichEdit::OnChar(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	LRESULT lr = 0;
+	HRESULT hr = m_spTextServices->TxSendMessage(uMsg, wParam, lParam, &lr);
+
+// 	if (hr == S_FALSE)
+// 	{
+// 		lr = ::DefWindowProc(hWnd, Msg, wParam, lParam);
+// 	}
+	return lr;
 }

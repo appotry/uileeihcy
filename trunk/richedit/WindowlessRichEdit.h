@@ -1,5 +1,6 @@
 #pragma once
 #include <TextServ.h>
+#include "CaretWindow.h"
 #pragma comment(lib, "Riched20.lib")
 
 //
@@ -20,6 +21,20 @@
 //	Q4. 怎么输入文字？
 //		a. 将WM_CHAR消息传递给service text即可。需要注意的是模态对话框是收不到WM_CHAR消息的。
 //
+//	Q5. 输入文字后是怎么刷新显示的？
+//		a. 内部将调用TxInvalidateRect接口，在该接口中，我们自己去实现为::InvalidateRect
+//
+//	Q6. 怎么设置它的样式？例如多行编辑功能？
+//		a. TxGetPropertyBits 返回的
+//
+//	Q7. 当有选中区域时，发现光标的位置显示不太准确，怎么才能在有选中区域时不显示光标？
+//		a. 其实这个时候TxCreateCaret(HBITMAP hbmp 这个hbmp是不为空的，使用它创建的caret就不会显示。why?
+//
+//  Q8. 为什么我用CCaretWindow实现光标时，不能做到输入文字时将系统光标隐藏？
+//		
+//
+//	Q9. 光标是怎么销毁的？
+//		a. 向text service传递kill focus消息，而且还得传递set focus消息，否则再次得到焦点时光标不显示。
 //
 
 class ITextHostImpl : public ITextHost
@@ -75,10 +90,13 @@ protected:
 	SIZE    m_sizeExtent;   // text service 用来实现缩放的参数。Each HIMETRIC unit corresponds to 0.01 millimeter.
 	int     m_nxPerInch;
 	int     m_nyPerInch;    
+	DWORD   m_dwStyle;      // 编辑框样式
 
 	CRect   m_rcBorder; 
 	CRect   m_rectInWindow;
+
 	HWND    m_hParentWnd;
+	CCaret  m_caret;
 };
 
 interface ITextEditControl
@@ -117,18 +135,25 @@ public:
 	BEGIN_MSG_MAP_EX(WindowlessRichEdit)
 		PRE_HANDLE_MSG()
 		MSG_WM_SETCURSOR(OnSetCursor)
-		MESSAGE_HANDLER_EX(WM_KEYDOWN, OnKeyDown)
+		MSG_WM_KILLFOCUS(OnKillFocus)
+		MSG_WM_MOVING(OnMoving)
+
+		// 必须要处理的其它消息
+		MESSAGE_HANDLER_EX(WM_KEYDOWN, OnDefaultHandle)
 		MESSAGE_HANDLER_EX(WM_CHAR, OnChar)
-	//	POST_HANDLE_MSG()		
+		MESSAGE_RANGE_HANDLER_EX(WM_MOUSEFIRST,WM_MOUSELAST, OnDefaultHandle)
+		MESSAGE_HANDLER_EX(WM_SETFOCUS, OnDefaultHandle)
+//		POST_HANDLE_MSG()		
 	END_MSG_MAP()
 
 protected:
 	LRESULT OnPreHandleMsg( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam );
 	LRESULT OnPostHandleMsg( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam );
 	BOOL    OnSetCursor(HWND wnd, UINT nHitTest, UINT message);
-	LRESULT OnKeyDown(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	LRESULT OnDefaultHandle(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	void    OnKillFocus(HWND wndFocus);
+	void    OnMoving(UINT fwSide, LPRECT pRect);
 	LRESULT OnChar(UINT uMsg, WPARAM wParam, LPARAM lParam);
-
 
 public:
 	bool    Create(HWND hWndParent, CRect rcInWnd);
