@@ -7,7 +7,7 @@
 
 #define IDR_MAINFRAME			128
 #define IDD_RICHEDIT_DIALOG	102
-#define IDD_ABOUTBOX			103
+#define IDD_MAINDLG			103
 #define IDM_ABOUT				104
 #define IDM_EXIT				105
 #define IDI_RICHEDIT			107

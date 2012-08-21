@@ -23,10 +23,14 @@
 #include <atlbase.h>
 #include <atlstr.h>
 
+#define __ATLTYPES_H__
+//#define  _WTL_NO_WTYPES
+
 #pragma warning(disable:4996)
 // TODO: reference additional headers your program requires here
 #include <atlbase.h>
 #include <atlapp.h>
+//#include <atltypes.h>
 #include <atlwin.h>
 #include <atlcrack.h>
 #include <atlctrls.h>

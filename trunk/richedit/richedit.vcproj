@@ -247,6 +247,18 @@
 			Name="- Control"
 			>
 			<File
+				RelativePath=".\CaretWindow.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CaretWindow.h"
+				>
+			</File>
+			<File
+				RelativePath=".\LayeredWindow.h"
+				>
+			</File>
+			<File
 				RelativePath=".\RichEditCtrl.cpp"
 				>
 			</File>
