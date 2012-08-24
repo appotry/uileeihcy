@@ -87,8 +87,8 @@ void MainWindow::OnInitWindow()
 
 	::SetWindowText(m_hWnd, _T("wine-of-bincos-lunba.mp3"));
 
-//	COptionWindow win;
-//	win.DoModal(g_hInstance, COptionWindow::IDD, _T("OptionWindow"),m_hWnd);
+	COptionWindow win;
+	win.DoModal(g_hInstance, COptionWindow::IDD, _T("OptionWindow"),m_hWnd);
 }
 
 void MainWindow::OnBnClickPlay()
@@ -523,10 +523,13 @@ BOOL COptionWindow::OnInitDialog( HWND, LPARAM )
 	}
 
 	m_pComboBox = (Combobox*)this->FindChildObject(_T("test_combo1"));
-	m_pComboBox->AddString(_T("123456"));
-	m_pComboBox->AddString(_T("123456"));
-	m_pComboBox->AddString(_T("123456"));
-	m_pComboBox->AddString(_T("123456"));
+	if (NULL != m_pComboBox)
+	{
+		m_pComboBox->AddString(_T("123456"));
+		m_pComboBox->AddString(_T("123456"));
+		m_pComboBox->AddString(_T("123456"));
+		m_pComboBox->AddString(_T("123456"));
+	}
 
 	CComboBox box = ::GetDlgItem(m_hWnd, IDC_COMBO1);
 	box.AddString(_T("11234"));box.AddString(_T("11234"));box.AddString(_T("11234"));

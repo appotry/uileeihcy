@@ -216,10 +216,14 @@ LRESULT MouseManager::HandleMessage( UINT msg, WPARAM w, LPARAM l )
 				m_bMouseTrack = FALSE;
 			}
 
+			Object* pOldHover = m_pObjHover;
+			Object* pOldPress = m_pObjPress;
 			LRESULT lRet = this->MouseMove( vkFlag, xPos, yPos );
 
-			// 处理完hover、press消息之后，处理鼠标样式
-			::PostMessage(m_pWindow->m_hWnd, WM_SETCURSOR, NULL, MAKELPARAM(0,1));  // hiword 0表示弹出菜单
+			if (pOldPress==m_pObjPress && pOldHover!=m_pObjHover)  // 鼠标下的对象发生变化，需要重置鼠标样式
+			{
+				::PostMessage(m_pWindow->m_hWnd, WM_SETCURSOR, NULL, MAKELPARAM(0,1));  // hiword 0表示弹出菜单
+			}
 			return lRet;
 		}
 		break;
@@ -416,9 +420,9 @@ LRESULT MouseManager::LButtonDown( int vkFlag, int xPos, int yPos )
 		msg.message   = WM_LBUTTONDOWN;
 		msg.wParam    = (WPARAM)vkFlag;
 		msg.lParam    = MAKELPARAM(xPos,yPos);
-		::UISendMessage( &msg );
+		::UISendMessage( &msg );      // 有可能导致m_pObjPress为NULL了
 
-		if( this->m_pObjPress->GetObjectType() == OBJ_CONTROL )
+		if(NULL != m_pObjPress && this->m_pObjPress->GetObjectType() == OBJ_CONTROL )  
 		{
 			if( this->m_pObjPress->IsTabstop() )
 			{

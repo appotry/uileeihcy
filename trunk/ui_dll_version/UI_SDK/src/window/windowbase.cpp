@@ -754,9 +754,13 @@ LRESULT WindowBase::_OnSetCursor( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 			return DefWindowProc(uMsg,wParam,lParam);
 		}
 
-		return TRUE;   // 由于只有在MOUSEMOVE之后确定了HOVER、PRESS对象后，才可以去SETCURSOR，
-		// 因此在MOUSEMOVE之前的SETCURSOR消息需要被忽略，只处理在MOUSEMOVE后POST出来的
-		// SETCURSOR消息，该消息wParam为0
+//      Removed 20120824 -- 在实现windowless richedit时，不能采用延时发送setcursor的办法，否则在
+//      选择文本时鼠标样式一直闪烁。因此修改方案为：先发送，然后在WM_MOUSEMOVE中检测如果hover obj
+//      发生了变化的话，重新再发送一次WM_SETCURSOR
+//
+//		return TRUE;   // 由于只有在MOUSEMOVE之后确定了HOVER、PRESS对象后，才可以去SETCURSOR，-- x 废弃
+		// 因此在MOUSEMOVE之前的SETCURSOR消息需要被忽略，只处理在MOUSEMOVE后POST出来的        -- x 废弃
+		// SETCURSOR消息，该消息wParam为0                                                     -- x 废弃
 	}
 	if( TRUE == this->m_MgrMouse.HandleMessage( uMsg, wParam, lParam ) ) // 仅发给当前hover object
 	{

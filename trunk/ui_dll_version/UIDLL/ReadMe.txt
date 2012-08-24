@@ -82,6 +82,10 @@
 	  修改办法是，在原始的WM_SETCURSOR处直接返回，不处理。然后在处理完MOUSEMOVE之后POST一个WM_SETCURSOR，其中WPARAM为0，以区分于
 	  原始的消息，在这个消息中再响应鼠标样式的设置 
 	  
+	  --> 方案已修改：在实现windowless richedit时，不能采用延时发送setcursor的办法，否则在
+          选择文本时鼠标样式一直闪烁。因此修改方案为：先发送，然后在WM_MOUSEMOVE中检测如果hover obj
+          发生了变化的话，重新再发送一次WM_SETCURSOR
+	  
 8. Q: 为什么调用 ::SetWindowLong( m_hWnd, GWLP_WNDPROC, (LONG)(LONG_PTR)pProc); 子类化一个对话框总是显示不正常？
    A: 因为要使用DWLP_DLGPROC，而不是使用 GWLP_WNDPROC; 另外，模态对话框的窗口过程只要直接返回0即可，其内部会做
       进一步的处理。例如你可以不用响应WM_PAINT消息也不会导致CPU 100%；不用调用IsDialogMessage也会自动处理键盘消息。

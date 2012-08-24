@@ -361,6 +361,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\UI_SDK\include\control\CaretWindow.h"
+						>
+					</File>
+					<File
 						RelativePath="..\UI_SDK\include\control\combobox.h"
 						>
 					</File>
@@ -381,6 +385,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\UI_SDK\include\control\LayeredWindow.h"
+						>
+					</File>
+					<File
 						RelativePath="..\UI_SDK\include\control\listbox.h"
 						>
 					</File>
@@ -393,11 +401,19 @@
 						>
 					</File>
 					<File
+						RelativePath="..\UI_SDK\include\control\richedit.h"
+						>
+					</File>
+					<File
 						RelativePath="..\UI_SDK\include\control\scrollbar.h"
 						>
 					</File>
 					<File
 						RelativePath="..\UI_SDK\include\control\tooltip.h"
+						>
+					</File>
+					<File
+						RelativePath="..\UI_SDK\include\control\WindowlessRichEdit.h"
 						>
 					</File>
 				</Filter>
@@ -621,6 +637,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\UI_SDK\src\control\CaretWindow.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\UI_SDK\src\control\combobox.cpp"
 						>
 					</File>
@@ -653,11 +673,19 @@
 						>
 					</File>
 					<File
+						RelativePath="..\UI_SDK\src\control\richedit.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\UI_SDK\src\control\scrollbar.cpp"
 						>
 					</File>
 					<File
 						RelativePath="..\UI_SDK\src\control\tooltip.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\UI_SDK\src\control\WindowlessRichEdit.cpp"
 						>
 					</File>
 				</Filter>
