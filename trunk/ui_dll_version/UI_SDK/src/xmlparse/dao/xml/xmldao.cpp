@@ -2558,10 +2558,12 @@ bool CXmlLayoutParse::loadObjects( Object* pObjParent )
 
 		// 默认将该控件的添加一个notify object为窗口对象，并将msgmapid设置为0
 		pObj->AddNotify( pObj->GetWindowObject(), 0 );
-		
 
 		// 递归，加载这个子对象的子对象
 		this->loadObjects( pObj );
+
+		// 发送一个通知消息用于创建其它内部对象
+		UISendMessage(pObj, UI_WM_OBJECTLOADED);
 	}
 	
 	m_xml.OutOfElem();

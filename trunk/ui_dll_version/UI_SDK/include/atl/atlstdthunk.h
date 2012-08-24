@@ -29,8 +29,8 @@
 // 			}
 //
 
-#ifndef __ATLSTDTHUNK_H__
-#define __ATLSTDTHUNK_H__
+#ifndef __UI_ATLSTDTHUNK_H__
+#define __UI_ATLSTDTHUNK_H__
 
 #pragma once
 
@@ -337,29 +337,29 @@ typedef _stdcallthunk CStdCallThunk;
 
 /////////////////////////////////////////////////////////////////////////////
 // WindowProc thunks
-
-struct _AtlCreateWndData		// 在本程序用未使用
-{
-	void* m_pThis;
-	DWORD m_dwThreadID;
-	_AtlCreateWndData* m_pNext;
-};
-
-class CWndProcThunk
-{
-public:
-	::_AtlCreateWndData cd;		// 在本程序用未使用
-	CStdCallThunk thunk;
-
-	BOOL Init(WNDPROC proc, void* pThis)
-	{
-		return thunk.Init((DWORD_PTR)proc, pThis);
-	}
-	WNDPROC GetWNDPROC()
-	{
-		return (WNDPROC)thunk.GetCodeAddress();
-	}
-};
+// Removed <<-- 直接 #include atlwin.h 即可
+// struct _AtlCreateWndData		// 在本程序中未使用
+// {
+// 	void* m_pThis;
+// 	DWORD m_dwThreadID;
+// 	_AtlCreateWndData* m_pNext;
+// };
+// 
+// class CWndProcThunk
+// {
+// public:
+// 	::_AtlCreateWndData cd;		// 在本程序中未使用
+// 	CStdCallThunk thunk;
+// 
+// 	BOOL Init(WNDPROC proc, void* pThis)
+// 	{
+// 		return thunk.Init((DWORD_PTR)proc, pThis);
+// 	}
+// 	WNDPROC GetWNDPROC()
+// 	{
+// 		return (WNDPROC)thunk.GetCodeAddress();
+// 	}
+// };
 
 
 
@@ -371,4 +371,4 @@ public:
 #pragma pop_macro("realloc")
 #pragma pop_macro("malloc")
 
-#endif // __ATLSTDTHUNK_H__
+#endif // __UI_ATLSTDTHUNK_H__

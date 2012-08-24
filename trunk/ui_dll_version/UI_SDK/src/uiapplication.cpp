@@ -344,4 +344,5 @@ void UIApplication::RegisterDefaultUIObject()
 	REGISTER_UI_OBJECT( HScrollBar );
 	REGISTER_UI_OBJECT( VScrollBar );
 	REGISTER_UI_OBJECT( Combobox );
+	REGISTER_UI_OBJECT( RichEdit );
 }

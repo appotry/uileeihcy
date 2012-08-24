@@ -29,7 +29,17 @@ using namespace std;
 #include <atltypes.h>
 #define ATLTYPES_INLINE inline
 #include <atltypes.inl>
-#include <atlcrack.h>
+
+#ifndef __ATLSTDTHUNK_H__  // 如果其它工程已经引用了，则不使用自己修改过了的
+#include "atl\atlstdthunk.h"
+#endif
+#define __ATLSTDTHUNK_H__  // 使用自己的ATLSTDTHUNK.H
+
+#include <atlbase.h>
+#include <atlapp.h>
+#include <atlwin.h>
+
+#include <atlcrack.h>      // TODO: WTL的头文件，可以考虑移植
 
 
 // 前置声明
@@ -70,10 +80,8 @@ using namespace UI;
 #import "..\\UI_SDK\\bin\\UILog.dll" no_namespace named_guids  
 
 
-
 #include "define.h"
 #include "atl\image.h"
-#include "atl\atlstdthunk.h"
 #include "manager\rendermanager\rendermanager.h"
 
 //
@@ -249,6 +257,7 @@ namespace UI
 #include "control\label.h"
 #include "control\progress.h"
 #include "control\edit.h"
+#include "control\richedit.h"
 #include "control\listbox.h"
 #include "control\menu.h"
 #include "control\combobox.h"

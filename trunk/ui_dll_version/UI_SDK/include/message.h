@@ -139,6 +139,16 @@ enum
 	UI_WM_INITPOPUPCONTROLWINDOW,
 	UI_WM_UNINITPOPUPCONTROLWINDOW,
 
+	//
+	//	对象从xml中加载完毕，其属性、子对象、父对象也设置完毕
+	//
+	//		message: UI_WM_OBJECTLOADED
+	//		code:
+	//		wparam:  
+	//		lparam:  
+	//
+	UI_WM_OBJECTLOADED
+
 };
 
 namespace UI
@@ -344,9 +354,6 @@ protected:
 		break;                                        \
 	case msgMapID:                                    
 
-// void OnCommandHandlerEX(UINT uNotifyCode, int nID, HWND wndCtl)
-#define UICOMMAND_HANDLER_EX  COMMAND_HANDLER_EX
-
 ////////////////////////////////////////////////////////////////////////////
 //                                                                        //
 //                               UI消息定义                               //
@@ -398,7 +405,7 @@ protected:
 // 		if(IsMsgHandled()) return TRUE;            \
 // 	}
 
-// void OnEraseBkgnd( HDC hDC )
+// void OnEraseBkgnd( HRDC hRDC )
 //	remark
 //		参数HDC，是已经做过了双缓冲处理了，可以直接使用。原始的WM_ERASEBKGND消息已被过滤了
 //		这里去掉了返回值，以防调用者自己也不知道到底该返回什么（其实这里的返回值没有意思）
@@ -406,19 +413,19 @@ protected:
 	if ( uMsg == WM_ERASEBKGND )                      \
 	{                                                 \
 		SetMsgHandled(TRUE);                          \
-		/*pMsg->lRet = (long)*/func((HRDC)wParam);     \
+		/*pMsg->lRet = (long)*/func((HRDC)wParam);    \
 		if(IsMsgHandled())                            \
 			return TRUE;                              \
 	}
 
-// void OnPaint( HDC hDC )	
+// void OnPaint( HRDC hRDC )	
 //	remark
 //		这里的WM_PAINT消息也是被处理过后，hDC为memdc，已经做了双缓冲处理
 #define UIMSG_WM_PAINT(func)                          \
 	if ( uMsg == WM_PAINT )                           \
 	{                                                 \
 		SetMsgHandled(TRUE);                          \
-		func((HRDC)wParam);                            \
+		func((HRDC)wParam);                           \
 		if(IsMsgHandled())                            \
 			return TRUE;                              \
 	}
@@ -475,13 +482,13 @@ protected:
 
 // BOOL OnSetCursor( HWND hWnd, UINT nHitTest, UINT message );
 #define UIMSG_WM_SETCURSOR  MSG_WM_SETCURSOR
-// #define UIMSG_WM_SETCURSOR(func)                      \
+// #define UIMSG_WM_SETCURSOR(func)                   \
 // 	if( uMsg == WM_SETCURSOR )                        \
 // 	{                                                 \
 // 		HWND hWnd = (HWND)wParam;                     \
 // 		UINT nHitTest = (UINT)LOWORD(lParam);         \
 // 		UINT message  = (UINT)HIWORD(lParam);         \
-// 		SetMsgHandled(TRUE);                           \
+// 		SetMsgHandled(TRUE);                          \
 // 		pMsg->lRet =(long)func(hWnd,nHitTest,message);\
 // 		if(IsMsgHandled())                            \
 //			return TRUE;                              \
@@ -1027,6 +1034,12 @@ protected:
 
 // LRESULT OnMessageHandlerEX(UINT uMsg, WPARAM wParam, LPARAM lParam)
 #define UIMESSAGE_HANDLER_EX  MESSAGE_HANDLER_EX
+
+// void OnCommandHandlerEX(UINT uNotifyCode, int nID, HWND wndCtl)
+#define UICOMMAND_HANDLER_EX  COMMAND_HANDLER_EX
+
+// LRESULT OnMessageRangeHandlerEX(UINT uMsg, WPARAM wParam, LPARAM lParam)
+#define UIMESSAGE_RANGE_HANDLER_EX MESSAGE_RANGE_HANDLER_EX
 
 #ifndef MESSAGE_HANDLER
 #define MESSAGE_HANDLER(msg, func) \
