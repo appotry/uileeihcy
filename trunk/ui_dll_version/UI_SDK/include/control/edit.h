@@ -157,7 +157,7 @@ protected:
 public:
 	// 从Object继承来的虚函数
 	virtual      void        ResetAttribute();
-	virtual      bool        SetAttribute( map<String,String>& mapAttrib, bool bReload=false );
+	virtual      bool        SetAttribute( ATTRMAP& mapAttrib, bool bReload=false );
 
 	// 从Control继承过来的虚函数
 	virtual      SIZE        GetAutoSize( HRDC hDC ); 

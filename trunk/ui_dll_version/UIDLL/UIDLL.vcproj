@@ -389,6 +389,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\UI_SDK\include\control\ledctrl.h"
+						>
+					</File>
+					<File
 						RelativePath="..\UI_SDK\include\control\listbox.h"
 						>
 					</File>
@@ -658,6 +662,10 @@
 					</File>
 					<File
 						RelativePath="..\UI_SDK\src\control\label.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\UI_SDK\src\control\ledctrl.cpp"
 						>
 					</File>
 					<File

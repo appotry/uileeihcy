@@ -302,7 +302,7 @@ public:
 	virtual      void        ResetAttribute();
 
 public:
-	bool   SetChildObjectAttribute( Object* pChildObj, const String& strPrifix, map<String,String>& mapAttrib, bool bReload );
+	bool   SetChildObjectAttribute( Object* pChildObj, const String& strPrefix, map<String,String>& mapAttrib, bool bReload );
 
 public:
 	// 消息处理

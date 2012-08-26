@@ -138,8 +138,8 @@ enum
 	//
 	UI_WM_INITPOPUPCONTROLWINDOW,
 	UI_WM_UNINITPOPUPCONTROLWINDOW,
-
-	//
+	
+		//
 	//	对象从xml中加载完毕，其属性、子对象、父对象也设置完毕
 	//
 	//		message: UI_WM_OBJECTLOADED
@@ -147,7 +147,14 @@ enum
 	//		wparam:  
 	//		lparam:  
 	//
-	UI_WM_OBJECTLOADED
+	UI_WM_OBJECTLOADED,
+
+	//	双击listctrl
+	//		message: UI_WM_NOTIFY
+	//		code:    UI_LCN_DBCLICK
+	//		wparam:  POINT
+	//		lparam:  ListItemBase*
+	UI_LCN_DBCLICK,
 
 };
 
@@ -963,6 +970,18 @@ protected:
 	{                                                 \
 		SetMsgHandled(TRUE);                          \
 		func( (BOOL)wParam );                         \
+		if(IsMsgHandled())                            \
+			return TRUE;                              \
+	}
+
+// void OnLCNDbclick(POINT pt, ListItemBase* pItem)
+#define UIMSG_LCN_DBCLICK(func)                       \
+	if( uMsg == UI_WM_NOTIFY  &&                      \
+	    code == UI_LCN_DBCLICK )                      \
+	{                                                 \
+		SetMsgHandled(TRUE);                          \
+		POINT pt = {LOWORD(wParam), HIWORD(lParam) }; \
+		func( pt, (ListItemBase*)lParam);             \
 		if(IsMsgHandled())                            \
 			return TRUE;                              \
 	}

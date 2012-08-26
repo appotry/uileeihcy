@@ -147,7 +147,7 @@ void UIApplication::RegisterWndClass()
 	
 	// 注册UI普通窗口类
 	wcex.cbSize = sizeof(WNDCLASSEX);
-	wcex.style			= CS_HREDRAW | CS_VREDRAW;
+	wcex.style			= CS_HREDRAW | CS_VREDRAW |CS_DBLCLKS;
 	wcex.lpfnWndProc	= WindowBase::StartWindowProc;//WndProc;   改用windows默认的窗口过程
 	wcex.cbClsExtra		= 0;
 	wcex.cbWndExtra		= 0;
@@ -345,4 +345,5 @@ void UIApplication::RegisterDefaultUIObject()
 	REGISTER_UI_OBJECT( VScrollBar );
 	REGISTER_UI_OBJECT( Combobox );
 	REGISTER_UI_OBJECT( RichEdit );
+	REGISTER_UI_OBJECT( LEDCtrl );
 }

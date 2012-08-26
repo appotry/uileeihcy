@@ -5,9 +5,12 @@
                   bkgnd.render.type="imagesimple" bkgnd.render.image="player_skin.png"
                   transparent.type="maskalpha" transparent.maskalpha="1" >
       <PictureCtrl id="icon"  foregnd.render.image="ttplayer.ico" layout.left="5" layout.top="6"/>
-      <Label id="label_time" text="00:00" layout.right="10" layout.top="60" textrender.color="time_color" width="70" halign="right" />
+      <!--Label id="label_time" text="00:00" layout.right="10" layout.top="60" textrender.color="time_color" width="70" halign="right" /-->
+      <LEDCtrl id="led_time" text=" 00:00" layout.right="10" layout.top="58" indexmap="0123456789:-"
+             foregnd.render.type="imagelist"  foregnd.render.image="number.png" foregnd.render.imagelist.count="12"
+             foregnd.render.imagelist.layout="h"/>
       <Label id="label_voice_status" text="立体声" layout.right="10" layout.top="76" textrender.color="voice_channel"/>
-      <Label id="label_playstatus" text="状态:停止" layout.right="10" layout.top="92" textrender.color="play_statue" transparentbk="1"/>
+      <Label id="label_playstatus" text="状态:停止" layout.right="10" layout.top="93" textrender.color="play_statue" transparentbk="1"/>
       <Panel layout="stack" layout.right="6" layout.top="4" layout.direction="righttoleft">
         <Button id="sys_close"    styleclass="imagebtn" tooltip="退出" bkgnd.render.image="close.png" />
         <Button id="btn_minimode" styleclass="imagebtn" tooltip="迷你模式" bkgnd.render.image="minimode.png" />
@@ -23,7 +26,7 @@
       <Button id="btn_stop"  styleclass="imagebtn" tooltip="停止" bkgnd.render.image="stop.png"  layout.bottom="12" layout.left="43"></Button>
       <Button id="btn_prev"  styleclass="imagebtn" tooltip="上一首" bkgnd.render.image="prev.png"  layout.bottom="12" layout.left="75"></Button>
       <Button id="btn_next"  styleclass="imagebtn" tooltip="下一首" bkgnd.render.image="next.png"  layout.bottom="12" layout.left="100"></Button>
-      <CheckButton id="btn_mute" styleclass="imagecheckbutton" tooltip="静音" foregnd.render.image="mute.png"  layout.bottom="11" layout.left="131"></CheckButton>
+      <CheckButton id="btn_mute" styleclass="imagecheckbutton" tooltip="静音" foregnd.render.image="mute.png"  layout.bottom="10" layout.left="132"></CheckButton>
       <SliderCtrl id="progress_voice" foregnd.render.image="volume_fill.png" height="13" width="67" layout.bottom="18" layout.left="163" trackbtn.bkgnd.render.image="volume_thumb.png" />
       <Button id="btn_open" styleclass="imagebtn" tooltip="播放文件" bkgnd.render.image="open.png"  layout.bottom="13" layout.right="12"></Button>
     </CustomWindow>
@@ -83,10 +86,10 @@
          <Edit        id="test_edit1"  width="120"  layout.left="10" layout.top="130"/>
          <Combobox    id="test_combo1" width="120"  height="20" layout.left="10" layout.top="155"/>
       </GroupBox>
-      <!--RichEdit id="richedit_test" layout.left="10" layout.top="10" width="200" height="200"
+      <RichEdit id="richedit_test" layout.left="10" layout.top="10" width="200" height="200"
                 bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/>
       <RichEdit id="richedit_test2" layout.left="220" layout.top="10" width="200" height="200"
-                bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/-->
+                bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/>
       <HwndHost id="IDC_EDIT1"   controlid="1003" />
       <HwndHost id="IDC_CHECK1"  controlid="1009" />
       <HwndHost id="IDC_RADIO3"  controlid="1008" />

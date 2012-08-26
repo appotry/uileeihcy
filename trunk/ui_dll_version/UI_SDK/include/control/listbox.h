@@ -121,6 +121,7 @@ namespace UI
 			UIMSG_WM_MOUSELEAVE(OnMouseLeave)
 			UIMSG_WM_LBUTTONDOWN(OnLButtonDown)
 			UIMSG_WM_LBUTTONUP(OnLButtonUp)
+			UIMSG_WM_LBUTTONDBLCLK(OnDBClick)
 			UIMSG_WM_KEYDOWN(OnKeyDown)
 			UIMSG_WM_SIZE(OnSize) 
 			UICHAIN_MSG_MAP_MEMBER(m_MgrScrollbar)
@@ -134,6 +135,7 @@ namespace UI
 		void     OnMouseLeave();
 		void     OnLButtonDown(UINT nFlags, POINT point);
 		void     OnLButtonUp(UINT nFlags, POINT point);
+		void     OnDBClick(UINT nFlags, POINT point);
 		void     OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags );
 		void     OnSize( UINT nType, int cx, int cy );
 
@@ -174,10 +176,11 @@ namespace UI
 		void    SetScrollX( int nX, bool& bNeedUpdateObject );
 		void    SetScrollPoint( int nX, int nY, bool& bNeedUpdateObject );
 
-		void    ReDrawItem( ListItemBase* pItem );
-		bool    IsItemVisible( ListItemBase* pItem );
-		bool    IsItemVisibleEx( ListItemBase* pItem, LISTITEM_VISIBLE_POS_TYPE& ePos );
-		void    ItemRect2WindowRect( CRect* prc, CRect* prcRet );
+		void    ReDrawItem(ListItemBase* pItem);
+		bool    IsItemVisible(ListItemBase* pItem);
+		bool    IsItemVisibleEx(ListItemBase* pItem, LISTITEM_VISIBLE_POS_TYPE& ePos);
+		void    ItemRect2WindowRect(CRect* prc, CRect* prcRet);
+		void    MakeItemVisible(ListItemBase* pItem, bool& bNeedUpdateObject);
 
 		void    MeasureItem(ListItemBase* pItem);
 		void    MeasureAllItem();

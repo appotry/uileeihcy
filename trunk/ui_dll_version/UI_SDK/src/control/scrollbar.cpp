@@ -295,10 +295,20 @@ BOOL ScrollBarMgr::ProcessMessage(UIMSG* pMsg, int nMsgMapID)
 	}
 	else if (WM_SIZE == pMsg->message)
 	{
+		// 修改page大小
 		CRect rcClient;
 		m_pBindObject->GetClientRect(&rcClient);
 		if (true == SetScrollPage(rcClient.Width(), rcClient.Height()))
 		{
+            // 处理：保证最后一行总是在末尾，而不会出现在控件中央
+			int xOffset = 0, yOffset = 0;
+			this->GetScrollPos(&xOffset, &yOffset);
+			if (yOffset + GetVScrollPage() > GetVScrollRange())
+				ScrollToBottom();
+			if (xOffset + GetHScrollPage() > GetHScrollRange())
+				ScrollToRightMost();
+
+			// 设置滚动条的位置
 		 	if (NULL != m_pVScrollBar)
 		 	{
 		 		UIMSG msg = *pMsg;
@@ -314,7 +324,6 @@ BOOL ScrollBarMgr::ProcessMessage(UIMSG* pMsg, int nMsgMapID)
 		 		UISendMessage(&msg, ALT_MSG_ID_BINDOBJ);
 		 	}
 		}
-
 	}
 	else if (pMsg->message == UI_WM_GETSCROLLOFFSET)
 	{
@@ -362,14 +371,6 @@ BOOL ScrollBarMgr::ProcessMessage(UIMSG* pMsg, int nMsgMapID)
 // 	return HTNOWHERE;
 // }
 
-void ScrollBarMgr::MakeYVisible(int ny, bool bTopOrBottom)
-{
-	// TODO:
-// 	if (NULL != m_pVScrollBar)
-// 	{
-// 		m_pVScrollBar->MakeVisible(ny, bTopOrBottom);
-// 	}
-}
 
 void ScrollBarMgr::SetScrollPos(int nxPos, int nyPos)
 {
@@ -448,6 +449,22 @@ void ScrollBarMgr::SetHScrollRange(int nX)
 void ScrollBarMgr::SetVScrollRange(int nY)
 {
 }
+int ScrollBarMgr::GetHScrollRange()
+{
+	if (NULL != m_pHScrollBar)
+	{
+		return m_pHScrollBar->GetScrollRange();
+	}
+	return 0;
+}
+int ScrollBarMgr::GetVScrollRange()
+{
+	if (NULL != m_pVScrollBar)
+	{
+		return m_pVScrollBar->GetScrollRange();
+	}
+	return 0;
+}
 void ScrollBarMgr::SetVScrollLine(int nLine)
 {
 	if (NULL != m_pVScrollBar)
@@ -521,7 +538,22 @@ void ScrollBarMgr::SetHScrollPos(int nX)
 	{
 		m_pHScrollBar->SetScrollPos(nX);
 	}
-	
+}
+int ScrollBarMgr::GetVScrollPage()
+{
+	if (NULL != m_pVScrollBar)
+	{
+		return m_pVScrollBar->GetScrollPage();
+	}
+	return 0;
+}
+int ScrollBarMgr::GetHScrollPage()
+{
+	if (NULL != m_pHScrollBar)
+	{
+		return m_pHScrollBar->GetScrollPage();
+	}
+	return 0;
 }
 void ScrollBarMgr::SetVScrollPos(int nY)
 {
@@ -545,6 +577,21 @@ void ScrollBarMgr::SetScrollBarVisibleType(SCROLLBAR_DIRECTION_TYPE eDirType, SC
 		m_ehScrollbarVisibleType = eVisType;
 	else 
 		m_evScrollbarVisibleType = eVisType; 
+}
+
+void ScrollBarMgr::ScrollToBottom()
+{
+	if (NULL != m_pVScrollBar)
+	{
+		m_pVScrollBar->ScrollToEnd();
+	}
+}
+void ScrollBarMgr::ScrollToRightMost()
+{
+	if (NULL != m_pHScrollBar)
+	{
+		m_pHScrollBar->ScrollToEnd();
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -762,6 +809,16 @@ void ScrollBarBase::ScrollPageUpLeft()
 {
 	this->SetScrollPos(m_nPos-m_nPage);
 }
+
+void ScrollBarBase::ScrollToEnd()
+{
+	this->SetScrollPos(m_nRange-m_nPage);
+}
+void ScrollBarBase::ScrollToBegin()
+{
+	this->SetScrollPos(0);
+}
+
 HScrollBar::HScrollBar()
 {
 	m_eScrollDirection = HSCROLLBAR;

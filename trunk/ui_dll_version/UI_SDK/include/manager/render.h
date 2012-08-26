@@ -78,7 +78,7 @@ namespace UI
 		//	另外IRender不需要提供RetAttribute操作，因为Object在Reset的时候，一般是delete irender
 		//	因此这里也没有添加 bool bReload 参数
 		//
-		virtual bool SetAttribute( const String& strPrifix, map<String,String>& mapAttrib ){ return true; };
+		virtual bool SetAttribute( const String& strPrefix, map<String,String>& mapAttrib ){ return true; };
 		virtual void DrawState(HRDC hRDC, const CRect* prc, int nState) {};
 		virtual SIZE GetDesiredSize() { SIZE s = {0,0}; return s; }
 		virtual void Init() {};
@@ -110,7 +110,7 @@ namespace UI
 	public:
 		ColorRender();
 		~ColorRender();
-		virtual bool SetAttribute( const String& strPrifix, map<String,String>& mapAttrib );
+		virtual bool SetAttribute( const String& strPrefix, map<String,String>& mapAttrib );
 		virtual void DrawState(HRDC hRDC, const CRect* prc, int nState);
 
 	public:
@@ -132,7 +132,7 @@ namespace UI
 		GradientRender();
 		~GradientRender();
 
-		virtual bool SetAttribute( const String& strPrifix, map<String,String>& mapAttrib );
+		virtual bool SetAttribute( const String& strPrefix, map<String,String>& mapAttrib );
 		virtual void DrawState(HRDC hRDC, const CRect* prc, int nState);
 
 	public:
@@ -147,7 +147,7 @@ namespace UI
 		SimpleImageRender();
 		~SimpleImageRender();
 
-		virtual bool SetAttribute( const String& strPrifix, map<String,String>& mapAttrib );
+		virtual bool SetAttribute( const String& strPrefix, map<String,String>& mapAttrib );
 		virtual void DrawState(HRDC hRDC, const CRect* prc, int nState);
 		virtual SIZE GetDesiredSize() ;
 	public:
@@ -161,7 +161,7 @@ namespace UI
 		StretchImageRender();
 		~StretchImageRender();
 
-		virtual bool SetAttribute( const String& strPrifix, map<String,String>& mapAttrib );
+		virtual bool SetAttribute( const String& strPrefix, map<String,String>& mapAttrib );
 		virtual void DrawState(HRDC hRDC, const CRect* prc, int nState);
 		virtual SIZE GetDesiredSize() ;
 
@@ -177,7 +177,7 @@ namespace UI
 		TileImageRender();
 		~TileImageRender();
 
-		virtual bool   SetAttribute( const String& strPrifix, map<String,String>& mapAttrib );
+		virtual bool   SetAttribute( const String& strPrefix, map<String,String>& mapAttrib );
 		virtual void   DrawState(HRDC hRDC, const CRect* prc, int nState);
 		virtual SIZE   GetDesiredSize() ;
 
@@ -198,7 +198,7 @@ namespace UI
 		~ColorListRender( );
 		void  Clear();
 
-		virtual bool   SetAttribute( const String& strPrifix, map<String,String>& mapAttrib );
+		virtual bool   SetAttribute( const String& strPrefix, map<String,String>& mapAttrib );
 		virtual void   DrawState(HRDC hRDC, const CRect* prc, int nState);
 		
 		void    SetStateColor(int nState, COLORREF colorBk, bool bSetBk, COLORREF colBorder, bool bSetBorder);
@@ -219,9 +219,12 @@ namespace UI
 		ImageListRender( );
 		~ImageListRender( );
 
-		virtual bool   SetAttribute( const String& strPrifix, map<String,String>& mapAttrib );
+		virtual bool   SetAttribute( const String& strPrefix, map<String,String>& mapAttrib );
 		virtual void   DrawState(HRDC hRDC, const CRect* prc, int nState);
 		virtual SIZE   GetDesiredSize() ;
+
+		int     GetItemWidth()  { return m_nItemWidth; }
+		int     GetItemHeight() { return m_nItemHeight;}
 
 	protected:
 		HRBITMAP   m_hBitmap;
@@ -235,7 +238,7 @@ namespace UI
 	class ImageListStretchRender : public ImageListRender
 	{
 	public:
-		virtual bool   SetAttribute( const String& strPrifix, map<String,String>& mapAttrib );
+		virtual bool   SetAttribute( const String& strPrefix, map<String,String>& mapAttrib );
 		virtual void   DrawState(HRDC hRDC, const CRect* prc, int nState);
 	private:
 		Image9Region    m_9Region;
@@ -435,7 +438,7 @@ namespace UI
 		virtual ~TextRenderBase(){};
 
 	public:
-		virtual bool     SetAttribute( const String& strPrifix, map<String,String>& mapAttrib ){ return true; };
+		virtual bool     SetAttribute( const String& strPrefix, map<String,String>& mapAttrib ){ return true; };
 		virtual void     DrawState(HRDC hRDC, const CRect* prc, int nState, const String& strText, int nDrawTextFlag=-1) {};
 		virtual HRFONT   GetHRFONT() = 0;
 		virtual void     SetHRFont(HRFONT hRFont) = 0;
@@ -468,7 +471,7 @@ namespace UI
 		TextRender();
 		~TextRender();
 
-		virtual bool     SetAttribute( const String& strPrifix, map<String,String>& mapAttrib );
+		virtual bool     SetAttribute( const String& strPrefix, map<String,String>& mapAttrib );
 		virtual void     DrawState(HRDC hRDC, const CRect* prc, int nState, const String& strText, int nDrawTextFlag=-1);
 		virtual HRFONT   GetHRFONT(){ return m_hFont; }
 		virtual void     SetHRFont(HRFONT hRFont);
@@ -484,7 +487,7 @@ namespace UI
 		ColorListTextRender();
 		~ColorListTextRender();
 
-		virtual bool     SetAttribute( const String& strPrifix, map<String,String>& mapAttrib );
+		virtual bool     SetAttribute( const String& strPrefix, map<String,String>& mapAttrib );
 		virtual void     DrawState(HRDC hRDC, const CRect* prc, int nState, const String& strText, int nDrawTextFlag=-1);
 		virtual HRFONT   GetHRFONT();
 		virtual void     SetHRFont(HRFONT hRFont);
@@ -515,7 +518,7 @@ namespace UI
 		FontColorListTextRender();
 		~FontColorListTextRender();
 
-		virtual bool     SetAttribute( const String& strPrifix, map<String,String>& mapAttrib );
+		virtual bool     SetAttribute( const String& strPrefix, map<String,String>& mapAttrib );
 		virtual void     DrawState(HRDC hRDC, const CRect* prc, int nState, const String& strText, int nDrawTextFlag=-1);
 		virtual HRFONT   GetHRFONT();
 		virtual void     SetHRFont(HRFONT hRFont);

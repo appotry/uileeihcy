@@ -261,6 +261,7 @@ namespace UI
 #include "control\listbox.h"
 #include "control\menu.h"
 #include "control\combobox.h"
+#include "control\ledctrl.h"
 
 #include "uiapplication.h"
 

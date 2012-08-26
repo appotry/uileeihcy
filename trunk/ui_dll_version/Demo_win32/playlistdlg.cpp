@@ -5,7 +5,10 @@
 
 
 //////////////////////////////////////////////////////////////////////////
-
+TTPlayerPlaylistCtrl::TTPlayerPlaylistCtrl()
+{
+	m_pPlayingItem = NULL;
+}
 
 void TTPlayerPlaylistCtrl::ResetAttribute()
 {
@@ -194,8 +197,21 @@ void CPlayListDlg::OnBtnClickAdd(Object* pBtnObj, POINT* pt)
 	::DestroyMenu(hMenu);
 }
 
+void CPlayListDlg::OnLCNDbclick(POINT pt, ListItemBase* pItem)
+{
+	if (NULL == pItem)
+		return;
 
+	TTPlayerPlaylistItem* pPlayItem = dynamic_cast<TTPlayerPlaylistItem*>(pItem);
+	if (NULL == pPlayItem)
+		return;
 
+	::mp3_stop();
+	if (::mp3_set_file(pPlayItem->m_pItemInfo->m_strFilePath))
+	{
+		::mp3_play();
+	}
+}
 
 void CPlayListDlg::OnAddItem(PlayerListItemInfo* pItemInfo)
 {
