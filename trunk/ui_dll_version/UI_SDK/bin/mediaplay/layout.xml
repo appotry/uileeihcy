@@ -62,7 +62,7 @@
       <CheckButton id="switch_layered" layout.right="50" layout.top="5" text="切换透明窗口" tooltip="切换透明窗口" />
     </CustomWindow>
     <Window id="OptionWindow" font="normal" width="556" height="440">
-      <!--ListBox id="optionlist" layout.left="10" layout.top="10" width="100" height="368" padding="4"
+      <ListBox id="optionlist" layout.left="10" layout.top="10" width="100" height="368" padding="4"
         foregnd.render.type="imageliststretch" foregnd.render.9region="1" foregnd.render.image="listbox.png"
         foregnd.render.imagelist.count="5"  foregnd.render.imagelist.layout="v"
         bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/>
@@ -82,11 +82,11 @@
          <RadioButton id="test_radio4" tooltip="test" text="单选按钮_4" layout.top="110" layout.left="10"/>
          <Edit        id="test_edit1"  width="120"  layout.left="10" layout.top="130"/>
          <Combobox    id="test_combo1" width="120"  height="20" layout.left="10" layout.top="155"/>
-      </GroupBox-->
-      <RichEdit id="richedit_test" layout.left="10" layout.top="10" width="200" height="200"
+      </GroupBox>
+      <!--RichEdit id="richedit_test" layout.left="10" layout.top="10" width="200" height="200"
                 bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/>
       <RichEdit id="richedit_test2" layout.left="220" layout.top="10" width="200" height="200"
-                bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/>
+                bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/-->
       <HwndHost id="IDC_EDIT1"   controlid="1003" />
       <HwndHost id="IDC_CHECK1"  controlid="1009" />
       <HwndHost id="IDC_RADIO3"  controlid="1008" />
