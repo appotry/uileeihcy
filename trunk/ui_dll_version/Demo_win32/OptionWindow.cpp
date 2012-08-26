@@ -44,11 +44,11 @@ BOOL COptionWindow::OnInitDialog( HWND, LPARAM )
 			{
 				if (0 == i)
 				{
-					pItem->SetData(m_pPanelCtrlDemo);
+					pItem->SetData(m_pPanelRichEditDemo);
 				}
 				else if (1 == i)
 				{
-					pItem->SetData(m_pPanelRichEditDemo);
+					pItem->SetData(m_pPanelCtrlDemo);
 				}
 			}
 		}
@@ -116,7 +116,7 @@ void COptionWindow::OnLCNSelChanged(ListItemBase* pOldSelItem, ListItemBase* pSe
 		Panel* pPanel = (Panel*)pOldSelItem->GetData();
 		if (NULL != pPanel)
 		{
-			pPanel->SetVisible(false, false);
+			pPanel->SetVisible(false, true);
 		}
 	}
 	if (NULL != pSelItem)

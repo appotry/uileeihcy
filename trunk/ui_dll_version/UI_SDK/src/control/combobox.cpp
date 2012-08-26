@@ -158,7 +158,9 @@ void ComboboxBase::OnUnInitPopupControlWindow(Object* pObjMsgFrom)
 bool ComboboxBase::AddString(const String& strText, bool bUpdate)
 { 
 	if (NULL != m_listbox)
-		return m_listbox->AddString(strText, bUpdate);
+	{
+		m_listbox->AddString(strText, bUpdate) == NULL ? false :true;
+	}
 
 	return false;
 }

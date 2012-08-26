@@ -239,6 +239,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\OptionWindow.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\OptionWindow.h"
+				>
+			</File>
+			<File
 				RelativePath=".\playlistdlg.cpp"
 				>
 			</File>
@@ -325,14 +333,6 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath=".\OptionWindow.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\OptionWindow.h"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>
