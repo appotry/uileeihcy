@@ -45,5 +45,6 @@
     <item id="hscrollbar_button_lineright.bmp">hscrollbar_button_lineright.bmp</item>
     <item id="hscrollbar_button_lineleft.bmp">hscrollbar_button_lineleft.bmp</item>
     <item id="hscrollbar_thumb.bmp">hscrollbar_thumb.bmp</item>
+    <item id="number.png">number.png</item>
   </img>
 </ui>

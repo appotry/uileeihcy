@@ -308,9 +308,9 @@ void ColorRender::SetBorderColor( COLORREF col )
 	m_pBorderColor->AddRef();
 }
 
-bool ColorRender::SetAttribute( const String& strPrifix, map<String,String>& mapAttrib )
+bool ColorRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
 {
-	String strAttrib = strPrifix + XML_RENDER_COLOR;
+	String strAttrib = strPrefix + XML_RENDER_COLOR;
 	if( mapAttrib.count( strAttrib ))
 	{
 		const String& strColID = mapAttrib[strAttrib];
@@ -318,7 +318,7 @@ bool ColorRender::SetAttribute( const String& strPrifix, map<String,String>& map
 		this->m_pObject->EraseAttribute(strAttrib);
 	}
 
-	strAttrib = strPrifix + XML_RENDER_BORDERCOLOR;
+	strAttrib = strPrefix + XML_RENDER_BORDERCOLOR;
 	if( mapAttrib.count( strAttrib ))
 	{
 		const String& strColID = mapAttrib[strAttrib];
@@ -369,9 +369,9 @@ GradientRender::~GradientRender()
 	SAFE_RELEASE(m_pBorderColor);
 }
 
-bool GradientRender::SetAttribute( const String& strPrifix, map<String,String>& mapAttrib )
+bool GradientRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
 {
-	String strAttrib = strPrifix + XML_RENDER_COLORFROM;
+	String strAttrib = strPrefix + XML_RENDER_COLORFROM;
 	if( mapAttrib.count( strAttrib ))
 	{
 		const String& strColID = mapAttrib[strAttrib];
@@ -379,7 +379,7 @@ bool GradientRender::SetAttribute( const String& strPrifix, map<String,String>& 
 		this->m_pObject->EraseAttribute(strAttrib);
 	}
 
-	strAttrib = strPrifix + XML_RENDER_COLORTO;
+	strAttrib = strPrefix + XML_RENDER_COLORTO;
 	if( mapAttrib.count( strAttrib ))
 	{
 		const String& strColID = mapAttrib[strAttrib];
@@ -387,7 +387,7 @@ bool GradientRender::SetAttribute( const String& strPrifix, map<String,String>& 
 		this->m_pObject->EraseAttribute(strAttrib);
 	}
 
-	strAttrib = strPrifix + XML_RENDER_BORDERCOLOR;
+	strAttrib = strPrefix + XML_RENDER_BORDERCOLOR;
 	if( mapAttrib.count( strAttrib ))
 	{
 		const String& strColID = mapAttrib[strAttrib];
@@ -447,9 +447,9 @@ SimpleImageRender::~SimpleImageRender()
 	}
 }
 
-bool SimpleImageRender::SetAttribute( const String& strPrifix, map<String,String>& mapAttrib )
+bool SimpleImageRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
 {
-	String strAttrib = strPrifix + XML_RENDER_IMAGE;
+	String strAttrib = strPrefix + XML_RENDER_IMAGE;
 	if( mapAttrib.count( strAttrib ))
 	{
 		const String& strImageID = mapAttrib[strAttrib];
@@ -457,7 +457,7 @@ bool SimpleImageRender::SetAttribute( const String& strPrifix, map<String,String
 		this->m_pObject->EraseAttribute(strAttrib);
 	}
 
-	strAttrib = strPrifix + XML_RENDER_COLOR;
+	strAttrib = strPrefix + XML_RENDER_COLOR;
 	if( mapAttrib.count( strAttrib ))
 	{
 		const String& strColID = mapAttrib[strAttrib];
@@ -512,9 +512,9 @@ StretchImageRender::~StretchImageRender()
 	SAFE_RELEASE(m_pColorBk);
 }
 
-bool StretchImageRender::SetAttribute( const String& strPrifix, map<String,String>& mapAttrib )
+bool StretchImageRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
 {
-	String strAttrib = strPrifix + XML_RENDER_IMAGE;
+	String strAttrib = strPrefix + XML_RENDER_IMAGE;
 	if( mapAttrib.count( strAttrib ))
 	{
 		const String& strImageID = mapAttrib[strAttrib];
@@ -522,7 +522,7 @@ bool StretchImageRender::SetAttribute( const String& strPrifix, map<String,Strin
 		this->m_pObject->EraseAttribute(strAttrib);
 	}
 
-	strAttrib = strPrifix + XML_RENDER_IMAGE9REGION;
+	strAttrib = strPrefix + XML_RENDER_IMAGE9REGION;
 	if( mapAttrib.count( strAttrib ))
 	{
 		const String& str9Region = mapAttrib[strAttrib];
@@ -530,7 +530,7 @@ bool StretchImageRender::SetAttribute( const String& strPrifix, map<String,Strin
 		this->m_pObject->EraseAttribute(strAttrib);
 	}
 
-	strAttrib = strPrifix + XML_RENDER_COLOR;
+	strAttrib = strPrefix + XML_RENDER_COLOR;
 	if( mapAttrib.count( strAttrib ))
 	{
 		const String& strColID = mapAttrib[strAttrib];
@@ -585,9 +585,9 @@ TileImageRender::~TileImageRender()
 	}
 }
 
-bool TileImageRender::SetAttribute( const String& strPrifix, map<String,String>& mapAttrib )
+bool TileImageRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
 {
-	String strAttrib = strPrifix + XML_RENDER_IMAGE;
+	String strAttrib = strPrefix + XML_RENDER_IMAGE;
 	if( mapAttrib.count( strAttrib ))
 	{
 		const String& strImageID = mapAttrib[strAttrib];
@@ -670,9 +670,9 @@ void ColorListRender::SetStateColor(int nState, COLORREF colorBk, bool bSetBk, C
 	}
 
 }
-bool ColorListRender::SetAttribute( const String& strPrifix, map<String,String>& mapAttrib )
+bool ColorListRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
 {
-	String strAttrib = strPrifix + XML_RENDER_COLORLIST_COUNT;
+	String strAttrib = strPrefix + XML_RENDER_COLORLIST_COUNT;
 	if( mapAttrib.count(strAttrib) )
 	{
 		this->Clear();
@@ -691,7 +691,7 @@ bool ColorListRender::SetAttribute( const String& strPrifix, map<String,String>&
 	if ( 0 == m_nCount )
 		return true;
 
-	strAttrib = strPrifix + XML_RENDER_COLOR;
+	strAttrib = strPrefix + XML_RENDER_COLOR;
 	if( mapAttrib.count(strAttrib) )
 	{
 		String strColors = mapAttrib[strAttrib];
@@ -711,7 +711,7 @@ bool ColorListRender::SetAttribute( const String& strPrifix, map<String,String>&
 		m_pObject->EraseAttribute(strAttrib);
 	}
 
-	strAttrib = strPrifix + XML_RENDER_BORDERCOLOR;
+	strAttrib = strPrefix + XML_RENDER_BORDERCOLOR;
 	if( mapAttrib.count(strAttrib) )
 	{
 		String strColors = mapAttrib[strAttrib];
@@ -784,9 +784,9 @@ ImageListRender::~ImageListRender( )
 	}
 }
 
-bool ImageListRender::SetAttribute( const String& strPrifix, map<String,String>& mapAttrib )
+bool ImageListRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
 {
-	String strAttrib = strPrifix + XML_RENDER_IMAGELIST_COUNT;
+	String strAttrib = strPrefix + XML_RENDER_IMAGELIST_COUNT;
 	if( mapAttrib.count(strAttrib) )
 	{
 		m_nCount = _ttoi(mapAttrib[strAttrib].c_str());
@@ -796,7 +796,7 @@ bool ImageListRender::SetAttribute( const String& strPrifix, map<String,String>&
 	if ( 0 == m_nCount )
 		return true;
 
-	strAttrib = strPrifix + XML_RENDER_IMAGE;
+	strAttrib = strPrefix + XML_RENDER_IMAGE;
 	if( 0 != mapAttrib.count(strAttrib) )
 	{
 		if( NULL != m_hBitmap )
@@ -811,7 +811,7 @@ bool ImageListRender::SetAttribute( const String& strPrifix, map<String,String>&
 	if( NULL == m_hBitmap )
 		return true;
 
-	strAttrib = strPrifix + XML_RENDER_IMAGELIST_LAYOUT;
+	strAttrib = strPrefix + XML_RENDER_IMAGELIST_LAYOUT;
 	if( 0 != mapAttrib.count(strAttrib) )
 	{
 		String str = mapAttrib[strAttrib];
@@ -877,13 +877,13 @@ SIZE ImageListRender::GetDesiredSize()
 
 //////////////////////////////////////////////////////////////////////////
 
-bool ImageListStretchRender::SetAttribute( const String& strPrifix, map<String,String>& mapAttrib )
+bool ImageListStretchRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
 {
-	bool  bRet = ImageListRender::SetAttribute(strPrifix, mapAttrib);
+	bool  bRet = ImageListRender::SetAttribute(strPrefix, mapAttrib);
 	if( false == bRet )
 		return false;
 
-	String strAttrib = strPrifix + XML_RENDER_IMAGE9REGION;
+	String strAttrib = strPrefix + XML_RENDER_IMAGE9REGION;
 	if( mapAttrib.count( strAttrib ))
 	{
 		const String& str9Region = mapAttrib[strAttrib];
@@ -2354,17 +2354,17 @@ TextRender::~TextRender()
 	}
 }
 
-bool TextRender::SetAttribute( const String& strPrifix, map<String,String>& mapAttrib )
+bool TextRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
 {
 	// ÑÕÉ«
-	String strAttrib = strPrifix + XML_TEXTRENDER_COLOR;
+	String strAttrib = strPrefix + XML_TEXTRENDER_COLOR;
 	if( mapAttrib.count( strAttrib ) )
 	{
 		UI_GetColor( mapAttrib[strAttrib], &this->m_pColorText );
 		m_pObject->EraseAttribute(strAttrib);
 	}
 
-	strAttrib = strPrifix + XML_TEXTRENDER_FONT;
+	strAttrib = strPrefix + XML_TEXTRENDER_FONT;
 	if( mapAttrib.count( strAttrib ) )
 	{
 		m_hFont = UI_GetFont(mapAttrib[strAttrib], ::GetGraphicsRenderType(m_pObject->GetHWND()) );
@@ -2432,9 +2432,9 @@ void ColorListTextRender::Clear()
 	m_vTextColor.clear();
 	m_nCount = 0;
 }
-bool ColorListTextRender::SetAttribute( const String& strPrifix, map<String,String>& mapAttrib )
+bool ColorListTextRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
 {
-	String strAttrib = strPrifix + XML_TEXTRENDER_COLORLIST_COUNT;
+	String strAttrib = strPrefix + XML_TEXTRENDER_COLORLIST_COUNT;
 	if( mapAttrib.count( strAttrib ) )
 	{
 		this->SetCount( _ttoi( mapAttrib[strAttrib].c_str()) );
@@ -2444,7 +2444,7 @@ bool ColorListTextRender::SetAttribute( const String& strPrifix, map<String,Stri
 	if ( 0 == m_nCount )
 		return true;
 
-	strAttrib = strPrifix + XML_TEXTRENDER_COLOR;
+	strAttrib = strPrefix + XML_TEXTRENDER_COLOR;
 	if( mapAttrib.count(strAttrib) )
 	{
 		String strColors = mapAttrib[strAttrib];
@@ -2463,7 +2463,7 @@ bool ColorListTextRender::SetAttribute( const String& strPrifix, map<String,Stri
 		m_pObject->EraseAttribute(strAttrib);
 	}
 
-	strAttrib = strPrifix + XML_TEXTRENDER_FONT;
+	strAttrib = strPrefix + XML_TEXTRENDER_FONT;
 	if( mapAttrib.count(strAttrib) )
 	{
 		String strFont = mapAttrib[strAttrib];
@@ -2556,9 +2556,9 @@ void FontColorListTextRender::Clear()
 	m_nCount = 0;
 }
 
-bool FontColorListTextRender::SetAttribute( const String& strPrifix, map<String,String>& mapAttrib )
+bool FontColorListTextRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
 {
-	String strAttrib = strPrifix + XML_TEXTRENDER_FONTCOLORLIST_COUNT;
+	String strAttrib = strPrefix + XML_TEXTRENDER_FONTCOLORLIST_COUNT;
 	if( mapAttrib.count( strAttrib ) )
 	{
 		this->SetCount( _ttoi( mapAttrib[strAttrib].c_str()) );
@@ -2568,7 +2568,7 @@ bool FontColorListTextRender::SetAttribute( const String& strPrifix, map<String,
 	if ( 0 == m_nCount )
 		return true;
 
-	strAttrib = strPrifix + XML_TEXTRENDER_COLOR;
+	strAttrib = strPrefix + XML_TEXTRENDER_COLOR;
 	if( mapAttrib.count(strAttrib) )
 	{
 		String strColors = mapAttrib[strAttrib];
@@ -2587,7 +2587,7 @@ bool FontColorListTextRender::SetAttribute( const String& strPrifix, map<String,
 		m_pObject->EraseAttribute(strAttrib);
 	}
 
-	strAttrib = strPrifix + XML_TEXTRENDER_FONT;
+	strAttrib = strPrefix + XML_TEXTRENDER_FONT;
 	if( mapAttrib.count(strAttrib) )
 	{
 		String strFonts = mapAttrib[strAttrib];

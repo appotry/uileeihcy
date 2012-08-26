@@ -175,9 +175,9 @@ UI_RESOURCE_TYPE;
 #define XML_RENDER_IMAGELIST_LAYOUT_V     _T("v")                     // 图片纵向排列
 
 
-#define XML_BACKGND_RENDER_PRIFIX         _T("bkgnd.")                // 背景渲染属性前缀，如bkgnd.render.type="" bkgnd.render.image=""
-#define XML_FOREGND_RENDER_PRIFIX         _T("foregnd.")               // 前景
-#define XML_ICON_RENDER_PRIFIX            _T("icon.")                 // 图标属性渲染前缀
+#define XML_BACKGND_RENDER_PREFIX         _T("bkgnd.")                // 背景渲染属性前缀，如bkgnd.render.type="" bkgnd.render.image=""
+#define XML_FOREGND_RENDER_PREFIX         _T("foregnd.")              // 前景
+#define XML_ICON_RENDER_PREFIX            _T("icon.")                 // 图标属性渲染前缀
 
 enum RENDER_TYPE
 {
@@ -539,3 +539,6 @@ enum SCROLLBAR_TYPE
 #define  XML_COMBOBOX_EDIT_PRIFIX                 _T("edit.")       // 编辑框的属性前缀
 #define  XML_COMBOBOX_BUTTON_PRIFIX               _T("button.")     // 按钮的属性前缀
 #define  XML_COMBOBOX_LISTBOX_PRIFIX              _T("listbox.")    // 下拉列表的属性前缀
+
+// ledctrl
+#define  XML_LEDCTRL_INDEXMAP                     _T("indexmap")    // 图片索引映射关系

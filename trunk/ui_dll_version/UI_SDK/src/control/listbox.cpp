@@ -322,54 +322,16 @@ void ListCtrlBase::SetSelectedItem(ListItemBase* pItem, bool& bNeedUpdateObject 
 	ListItemBase* pOldSelectoinItem = m_pFirstSelectedItem;
 	m_pFirstSelectedItem = pItem;
 
-#if 0
-	RECT rcClient;
-	this->m_MgrScrollbar.GetClientRect(&rcClient);
+	this->MakeItemVisible(m_pFirstSelectedItem, bNeedUpdateObject);
 
-	// 分析滚动
-	if( NULL != m_pFirstSelectedItem )
-	{
-		LISTITEM_VISIBLE_POS_TYPE eType;
-		this->IsItemVisibleEx( m_pFirstSelectedItem, eType );
-
-		switch (eType)
-		{
-		case LISTITEM_VISIBLE_COVERBOTTOM:
-		case LISTITEM_UNVISIBLE_BOTTOM:
-			{
-				int nNewScrollY = m_pFirstSelectedItem->m_rcParent.bottom-rcClient.bottom;
-
-				ListItemBase* pItem = m_pFirstSelectedItem;
-				while( pItem )
-				{
-					if( pItem->m_rcParent.bottom-nNewScrollY <= rcClient.top )
-						break;
-
-					m_pFirstVisibleItem = pItem;
-					pItem = pItem->m_pPrev;
-				}
-				this->SetScrollY( nNewScrollY, bNeedUpdateObject );
-			}
-			break;
-
-		case LISTITEM_VISIBLE_COVERTOP:
-		case LISTITEM_UNVISIBLE_TOP:
-			m_pFirstVisibleItem = m_pFirstSelectedItem;
-			this->SetScrollY(m_pFirstVisibleItem->m_rcParent.top - m_rcPadding.top, bNeedUpdateObject );
-			break;
-		}
-	}
-
-	if( false == bNeedUpdateObject )
-	{
-		if( pOldSelectoinItem != m_pFirstSelectedItem )
-		{
-			this->ReDrawItem(pOldSelectoinItem);
-			this->ReDrawItem(m_pFirstSelectedItem);
-		}
-	}
-#endif
-
+// 	if( false == bNeedUpdateObject )
+// 	{
+// 		if( pOldSelectoinItem != m_pFirstSelectedItem )
+// 		{
+// 			this->ReDrawItem(pOldSelectoinItem);
+// 			this->ReDrawItem(m_pFirstSelectedItem);
+// 		}
+// 	}
 }
 
 void ListCtrlBase::SetScrollY( int nY, bool& bNeedUpdateObject  )
@@ -720,6 +682,35 @@ bool ListCtrlBase::IsItemVisibleEx(ListItemBase* pItem, LISTITEM_VISIBLE_POS_TYP
 	return true;
 }
 
+// 设置滚动条的位置，确保pItem可见
+void ListCtrlBase::MakeItemVisible(ListItemBase* pItem, bool& bNeedUpdateObject)
+{
+	if (NULL == pItem)
+		return;
+
+	LISTITEM_VISIBLE_POS_TYPE ePosType;
+	this->IsItemVisibleEx(pItem, ePosType);
+
+	if (LISTITEM_UNVISIBLE_TOP == ePosType || LISTITEM_VISIBLE_COVERTOP == ePosType)
+	{
+		bNeedUpdateObject = true;
+
+		CRect rc;
+		pItem->GetParentRect(&rc);
+		this->m_MgrScrollbar.SetVScrollPos(rc.top);
+	}
+	else if (LISTITEM_UNVISIBLE_BOTTOM == ePosType || LISTITEM_VISIBLE_COVERBOTTOM == ePosType)
+	{
+		bNeedUpdateObject = true;
+
+		CRect rc, rcClient;
+		pItem->GetParentRect(&rc);
+		this->GetClientRect(&rcClient);
+		
+		this->m_MgrScrollbar.SetVScrollPos(rc.bottom - rcClient.Height());
+	}
+}
+
 void ListCtrlBase::ItemRect2WindowRect( CRect* prc, CRect* prcRet )
 {
 	if( NULL == prc || NULL == prcRet )
@@ -788,6 +779,7 @@ void ListCtrlBase::OnLButtonDown(UINT nFlags, POINT point)
 		{
 			bool bNeedUpdateObject = false;
 			SetSelectedItem(m_pPressItem, bNeedUpdateObject);
+
 			if( bNeedUpdateObject )
 			{
 				this->UpdateObject();
@@ -805,6 +797,21 @@ void ListCtrlBase::OnLButtonUp(UINT nFlags, POINT point)
 		this->ReDrawItem(m_pHoverItem);
 	}
 }
+void ListCtrlBase::OnDBClick(UINT nFlags, POINT point)
+{
+	if (NULL != m_pHoverItem)
+	{
+		UIMSG  msg;
+		msg.message = UI_WM_NOTIFY;
+		msg.code = UI_LCN_DBCLICK;
+		msg.wParam = MAKEWPARAM(point.x, point.y);
+		msg.lParam = (LPARAM)m_pHoverItem;
+		msg.pObjMsgFrom = this;
+
+		this->DoNotify(&msg);
+	}
+}
+
 void ListCtrlBase::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
 {
 	bool bNeedUpdateObject = false;
@@ -843,30 +850,6 @@ void ListCtrlBase::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
 		this->UpdateObject();
 	}
 }
-// BOOL ListCtrlBase::OnMouseWheel(UINT nFlags, short zDelta, POINT pt)
-// {
-// 	int nScroll = 20;
-// 	if( m_bFixedItemHeight )
-// 		nScroll = m_nFixeddItemHeight+m_nItemGap;
-// 
-// 	int xOffset = 0, yOffset = 0;
-// 	this->m_MgrScrollbar.GetScrollPos(&xOffset, &yOffset);
-// 
-// 	if( zDelta > 0 )
-// 		this->m_MgrScrollbar.SetScrollPos(xOffset, yOffset-nScroll);
-// 	else
-// 		this->m_MgrScrollbar.SetScrollPos(xOffset, yOffset+nScroll);
-// 
-// 	int xOffsetNow = 0, yOffsetNow = 0;
-// 	this->m_MgrScrollbar.GetScrollPos(&xOffsetNow, &yOffsetNow);
-// 
-// 	if (xOffset != xOffsetNow || yOffset != yOffsetNow)
-// 		this->UpdateObject();
-// 
-// 	UI_LOG_DEBUG(_T("now x=%d, y=%d"), xOffsetNow, yOffsetNow);
-// 
-// 	return 0;
-// }
 
 void ListCtrlBase::OnPaint(HRDC hRDC)
 {
@@ -882,23 +865,27 @@ void ListCtrlBase::OnPaint(HRDC hRDC)
 
 	while(pItem != NULL)
 	{
+		CRect  rcParent;
+		pItem->GetParentRect(&rcParent);
+		if (rcParent.bottom - yOffset < rcClient.top)  // top cover unvisible item
+		{
+			pItem = pItem->GetNextItem();
+			continue;
+		}
+
 		if( pItem->GetParentRect().top - yOffset >= rcClient.bottom )  // last visible item
 			break;
 
 		this->OnDrawItem(hRDC,pItem);  // 绘制背景
 		pItem->OnDrawItem(hRDC);       // 绘制元素
 		
-		if( pItem == m_pLastItem )
-			break;
-		else
-			pItem = pItem->GetNextItem();
+		pItem = pItem->GetNextItem();
 	}
 }
 
 void ListCtrlBase::OnSize( UINT nType, int cx, int cy )
 {
 	this->m_MgrScrollbar.ProcessMessage(m_pCurMsg, 0);  // 先设置page大小，再做其它处理，否则容易造成死循环
-
 	this->UpdateItemRect(m_pFirstItem);
 }
 

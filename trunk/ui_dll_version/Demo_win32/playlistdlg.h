@@ -17,6 +17,7 @@ public:
 class TTPlayerPlaylistCtrl : public ListCtrlBase
 {
 public:
+	TTPlayerPlaylistCtrl();
 	UI_DECLARE_OBJECT( TTPlayerPlaylistCtrl, OBJ_CONTROL )
 
 public:
@@ -29,6 +30,9 @@ public:
 	virtual  void OnDrawItem(HRDC hRDC, ListItemBase* p);
 	virtual  SIZE OnMeasureItem( ListItemBase* p);
 	virtual  void OnDeleteItem( ListItemBase* p );
+
+protected:
+	TTPlayerPlaylistItem*  m_pPlayingItem;
 };
 
 ////////////////////////////////////////////////////////////////////////// 
@@ -44,6 +48,7 @@ public:
 		UIMSG_WM_CREATE( OnCreate )
 		UIMSG_WM_CLOSE( OnClose )
 		UIMSG_BN_CLICKED_EX(_T("playlist_add"), OnBtnClickAdd )
+		UIMSG_LCN_DBCLICK(OnLCNDbclick)
 		UICHAIN_MSG_MAP( CustomWindow )
 	UI_END_MSG_MAP
  
@@ -54,6 +59,7 @@ public:
 	int     OnCreate(LPCREATESTRUCT lpCreateStruct);
 	void    OnClose();
 	void    OnBtnClickAdd(Object* pBtnObj, POINT* pt);
+	void    OnLCNDbclick(POINT pt, ListItemBase* pItem);
 
 public:
 	void    OnAddItem(PlayerListItemInfo* pItemInfo);

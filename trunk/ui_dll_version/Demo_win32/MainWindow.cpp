@@ -16,6 +16,7 @@ MainWindow::MainWindow(void)
 	m_pbtnMute = NULL;
 	m_pLabelPlaystatus = NULL;
 	m_pLabelTime = NULL;
+	m_pLEDTime = NULL;
 	m_pProgress = NULL;
 	m_pVolume = NULL;
 
@@ -66,6 +67,7 @@ void MainWindow::OnInitWindow()
 	m_pProgress = (SliderCtrl*)this->FindChildObject(_T("progress_music"));
 	m_pVolume = (SliderCtrl*)this->FindChildObject(_T("progress_voice"));
 	m_pLabelTime = (Label*)this->FindChildObject(_T("label_time"));
+	m_pLEDTime = (LEDCtrl*)this->FindChildObject(_T("led_time"));
 
 	if( NULL != m_pbtnStop )
 	{
@@ -149,6 +151,15 @@ void MainWindow::OnBnClickStop()
 		m_pProgress->SetPos(0);
 	}
 
+	if (NULL != m_pLEDTime)
+	{
+		m_pLEDTime->SetText(_T(" 00:00"));
+	}
+	if (NULL != m_pLabelTime)
+	{
+		m_pLabelTime->SetText(_T(" 00:00"));
+	}
+
 	::mp3_stop();
 }
 
@@ -180,8 +191,16 @@ void MainWindow::OnBnClickPlaylist()
 	HWND hWnd = ::GetPlayerListMgr()->ShowPlayerListDlg(m_hWnd);
 	if (NULL == m_hWndPlayerList)
 	{
-		m_hWndPlayerList = hWnd;
-		
+		this->SetPlayerListDlgHandle(hWnd);
+	}
+}
+void MainWindow::SetPlayerListDlgHandle(HWND hWnd)
+{
+	HWND hOldValue = m_hWndPlayerList;
+	m_hWndPlayerList = hWnd;
+
+	if (NULL == hOldValue)
+	{
 		AnchorWindowData data;
 		data.m_hWnd = hWnd;
 		data.m_nAnchorType = ANCHOR_OUT_BOTTOM;
@@ -471,15 +490,19 @@ void MainWindow::on_mp3_progress_ind(LONGLONG llCur, LONGLONG llDuration)
 	TCHAR szTime[32] = _T("");
 	if( h > 0 )
 	{
-		_stprintf(szTime, _T("%02d:%02d:%02d"), h,m,s );
+		_stprintf(szTime, _T(" %02d:%02d:%02d"), h,m,s );
 	}
 	else
 	{
-		_stprintf(szTime, _T("%02d:%02d"), m,s );
+		_stprintf(szTime, _T(" %02d:%02d"), m,s );
 	}
-	if( NULL != m_pLabelTime )
+	if (NULL != m_pLabelTime)
 	{
 		m_pLabelTime->SetText(szTime);
+	}
+	if (NULL != m_pLEDTime)
+	{
+		m_pLEDTime->SetText(szTime);
 	}
 }
 

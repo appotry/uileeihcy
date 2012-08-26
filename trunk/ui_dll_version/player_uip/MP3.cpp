@@ -126,7 +126,7 @@ bool CMP3::RenderFile( const String& strFile )
 		}
 	}	
 
-	return false;
+	return true;
 }
 
 bool CMP3::Play()

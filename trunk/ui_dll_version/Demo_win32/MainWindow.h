@@ -68,7 +68,7 @@ public:
 // 	void    OnEnterSizeMove();
 // 	void    OnExitSizeMove();
 
-	void SetPlayerListDlgHandle(HWND hWnd) { m_hWndPlayerList = hWnd; }
+	void SetPlayerListDlgHandle(HWND hWnd);
 
 protected:	
 	virtual void   on_mp3_stop();
@@ -91,6 +91,7 @@ protected:
 	CheckButton*    m_pbtnMute;
 	Label*          m_pLabelPlaystatus;
 	Label*          m_pLabelTime;
+	LEDCtrl*        m_pLEDTime;
 	SliderCtrl*     m_pProgress;
 	SliderCtrl*     m_pVolume;
 

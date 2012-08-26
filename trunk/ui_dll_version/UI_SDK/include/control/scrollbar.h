@@ -52,7 +52,6 @@ namespace UI
 		Object*  GetBindObject(){ return m_pBindObject; }
 		SCROLLBAR_VISIBLE_TYPE GetScrollBarVisibleType(SCROLLBAR_DIRECTION_TYPE eType);
 
-		void     MakeYVisible(int ny, bool bTopOrBottom=true);
 //		UINT     OnHitTest( POINT* pt );
 		void     UpdateBindObjectNonClientRect();
 
@@ -66,6 +65,8 @@ namespace UI
 		void     SetScrollRange(int nX, int nY);
 		void     SetHScrollRange(int nX);
 		void     SetVScrollRange(int nY);
+		int      GetHScrollRange();
+		int      GetVScrollRange();
 		
 		void     SetVScrollLine(int nLine);
 		void     SetHScrollLine(int nLine);
@@ -73,6 +74,11 @@ namespace UI
 		bool     SetScrollPage(int nxPage, int nyPage);
 		void     SetVScrollPage(int nPage);
 		void     SetHScrollPage(int nPage);
+		int      GetVScrollPage();
+		int      GetHScrollPage();
+
+		void     ScrollToBottom();
+		void     ScrollToRightMost();
 
 		HScrollBar*    GetHScrollBar() { return m_pHScrollBar; }
 		VScrollBar*    GetVScrollBar() { return m_pVScrollBar; }
@@ -136,6 +142,8 @@ namespace UI
 		void    ScrollWheelLineDown();
 		void    ScrollPageDownRight();
 		void    ScrollPageUpLeft();
+		void    ScrollToEnd();
+		void    ScrollToBegin();
 
 		bool    SetScrollInfo(LPUISCROLLINFO lpsi, bool bUpdate=true);
 		bool    SetScrollPos(int nPos/*, bool bUpdate=true*/);

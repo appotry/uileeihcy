@@ -434,38 +434,38 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 	}
 
 	// ÉèÖÃ±³¾°äÖÈ¾Æ÷
-	if( this->m_mapAttribute.count( XML_BACKGND_RENDER_PRIFIX XML_RENDER_TYPE ) )
+	if( this->m_mapAttribute.count( XML_BACKGND_RENDER_PREFIX XML_RENDER_TYPE ) )
 	{
 		SAFE_DELETE(m_pBkgndRender);
 
-		const String& strBkgndRenderType = mapAttrib[XML_BACKGND_RENDER_PRIFIX XML_RENDER_TYPE];
+		const String& strBkgndRenderType = mapAttrib[XML_BACKGND_RENDER_PREFIX XML_RENDER_TYPE];
 		this->m_pBkgndRender = RenderFactory::GetRender( strBkgndRenderType, this );
 		if( NULL != this->m_pBkgndRender )
 		{
-			this->m_pBkgndRender->SetAttribute( XML_BACKGND_RENDER_PRIFIX, mapAttrib );
+			this->m_pBkgndRender->SetAttribute( XML_BACKGND_RENDER_PREFIX, mapAttrib );
 		}
 		else
 		{
-			UI_LOG_WARN( _T("Object::SetAttribute, Invalid %s=\"%s\""), XML_BACKGND_RENDER_PRIFIX XML_RENDER_TYPE, strBkgndRenderType.c_str() );
+			UI_LOG_WARN( _T("Object::SetAttribute, Invalid %s=\"%s\""), XML_BACKGND_RENDER_PREFIX XML_RENDER_TYPE, strBkgndRenderType.c_str() );
 		}
-		this->m_mapAttribute.erase(XML_BACKGND_RENDER_PRIFIX XML_RENDER_TYPE);
+		this->m_mapAttribute.erase(XML_BACKGND_RENDER_PREFIX XML_RENDER_TYPE);
 	}
 	// ÉèÖÃÇ°¾°»æÖÆ
-	if( this->m_mapAttribute.count( XML_FOREGND_RENDER_PRIFIX XML_RENDER_TYPE ) )
+	if( this->m_mapAttribute.count( XML_FOREGND_RENDER_PREFIX XML_RENDER_TYPE ) )
 	{
 		SAFE_DELETE(m_pForegndRender);
 
-		const String& strForegndRenderType = mapAttrib[XML_FOREGND_RENDER_PRIFIX XML_RENDER_TYPE];
+		const String& strForegndRenderType = mapAttrib[XML_FOREGND_RENDER_PREFIX XML_RENDER_TYPE];
 		this->m_pForegndRender = RenderFactory::GetRender( strForegndRenderType, this );
 		if( NULL != this->m_pForegndRender )
 		{
-			this->m_pForegndRender->SetAttribute( XML_FOREGND_RENDER_PRIFIX, mapAttrib );
+			this->m_pForegndRender->SetAttribute( XML_FOREGND_RENDER_PREFIX, mapAttrib );
 		}
 		else
 		{
-			UI_LOG_WARN( _T("Object::SetAttribute, Invalid%s=\"%s\""), XML_FOREGND_RENDER_PRIFIX XML_RENDER_TYPE, strForegndRenderType.c_str() );
+			UI_LOG_WARN( _T("Object::SetAttribute, Invalid%s=\"%s\""), XML_FOREGND_RENDER_PREFIX XML_RENDER_TYPE, strForegndRenderType.c_str() );
 		}
-		this->m_mapAttribute.erase(XML_FOREGND_RENDER_PRIFIX XML_RENDER_TYPE);
+		this->m_mapAttribute.erase(XML_FOREGND_RENDER_PREFIX XML_RENDER_TYPE);
 	}
 
 	if( NULL == m_pTextRender )
