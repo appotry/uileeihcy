@@ -262,7 +262,7 @@ namespace UI
 		void     OnUnInitPopupControlWindow(Object* pObjMsgFrom);
 
 	public:
-		bool     AddString(const String& strText, bool bUpdate=true);
+		ListBoxItem*  AddString(const String& strText, bool bUpdate=true);
 		void     SetItemHeight(int nHeight);
 
 		int      GetListBoxStyle();

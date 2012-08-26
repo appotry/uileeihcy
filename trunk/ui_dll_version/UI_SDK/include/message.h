@@ -23,28 +23,6 @@ enum
 	UI_WM_SHOW_TOOLTIP,
 
 	//
-	//	按钮点击事件
-	//
-	//		message:UI_WM_NOTIFY
-	//		code:   UI_BN_CLICKED
-	//		wparam: POINT*，基于window
-	//		lParam: 
-	//		pObjMsgFrom: this
-	//
-	UI_BN_CLICKED,
-
-	//
-	//	滑动条位置改变通知
-	//
-	//		message:UI_WM_NOTIFY
-	//		code:   UI_TRBN_POSCHANGED
-	//		wparam: new Pos
-	//		lParam: scroll type, SB_LEFT SB_RIGHT SB_THUMBTRACK SB_ENDSCROLL ...
-	//		pObjMsgFrom: this
-	//
-	UI_TRBN_POSCHANGED,
-	
-	//
 	//	滚动条位置改变通知
 	//
 	//		message:UI_WM_HSCROLL/UI_WM_VSCROLL
@@ -138,8 +116,8 @@ enum
 	//
 	UI_WM_INITPOPUPCONTROLWINDOW,
 	UI_WM_UNINITPOPUPCONTROLWINDOW,
-	
-		//
+
+	//
 	//	对象从xml中加载完毕，其属性、子对象、父对象也设置完毕
 	//
 	//		message: UI_WM_OBJECTLOADED
@@ -149,12 +127,50 @@ enum
 	//
 	UI_WM_OBJECTLOADED,
 
+	//
+	//	按钮点击事件
+	//
+	//		message:UI_WM_NOTIFY
+	//		code:   UI_BN_CLICKED
+	//		wparam: POINT*，基于window
+	//		lParam: 
+	//		pObjMsgFrom: this
+	//
+	UI_BN_CLICKED,
+
+	//
+	//	滑动条位置改变通知
+	//
+	//		message:UI_WM_NOTIFY
+	//		code:   UI_TRBN_POSCHANGED
+	//		wparam: new Pos
+	//		lParam: scroll type, SB_LEFT SB_RIGHT SB_THUMBTRACK SB_ENDSCROLL ...
+	//		pObjMsgFrom: this
+	//
+	UI_TRBN_POSCHANGED,
+	
+	
 	//	双击listctrl
 	//		message: UI_WM_NOTIFY
 	//		code:    UI_LCN_DBCLICK
 	//		wparam:  POINT
 	//		lparam:  ListItemBase*
 	UI_LCN_DBCLICK,
+
+	//	listctrl 当前选中项改变
+	//		message: UI_WM_NOTIFY
+	//		code:    UI_LCN_SELCHANGED
+	//		wparam:  ListItemBase* pOld
+	//		lparam:  ListItemBase* pNew
+	UI_LCN_SELCHANGED,
+
+
+	//	祖、父对象中的可见状态发生了改变（主要是用于在父对象隐藏时，能自动将HwndObj对象也隐藏）
+	//		message: UI_WM_PARENT_VISIBLE_CHANGED
+	//		code:    
+	//		wparam:  Object*
+	//		lparam:  bool bVisible
+	UI_WM_PARENT_VISIBLE_CHANGED,
 
 };
 
@@ -267,6 +283,7 @@ public:
 	void RemoveHook( Message* pObj );
 	void ClearHook( );
 	 
+	static void  ForwardMessageToChildObject(Object* pParent,UINT,WPARAM,LPARAM);
 
 	// 返回TRUE，表示该消息已被处理，FALSE表示该消息没被处理
 	virtual BOOL ProcessMessage( UIMSG* pMsg, int nMsgMapID=0 ) = 0 ;
@@ -986,6 +1003,17 @@ protected:
 			return TRUE;                              \
 	}
 
+// void OnLCNSelChanged(ListItemBase* pOldSelItem, ListItemBase* pSelItem)
+#define UIMSG_LCN_SELCHANGED(func)                    \
+	if( uMsg == UI_WM_NOTIFY  &&                      \
+		code == UI_LCN_SELCHANGED )                   \
+	{                                                 \
+		SetMsgHandled(TRUE);                          \
+		func( (ListItemBase*)wParam, (ListItemBase*)lParam); \
+		if(IsMsgHandled())                            \
+			return TRUE;                              \
+	}
+
 // void OnVScroll(int nSBCode, int nPos, Message* pMsgFrom)
 #define UIMSG_WM_HSCROLL(func)                        \
 	if( uMsg == WM_HSCROLL )                          \
@@ -1045,6 +1073,15 @@ protected:
 			return TRUE;                              \
 	}
 
+// void OnParentVisibleChanged(Object* pParent, bool bVisible)
+#define UIMSG_WM_PARENT_VISIBLE_CHANGED(func)         \
+	if(uMsg == UI_WM_PARENT_VISIBLE_CHANGED)          \
+	{                                                 \
+		SetMsgHandled(TRUE);                          \
+		func((Object*)wParam, lParam?true:false);     \
+		if(IsMsgHandled())                            \
+			return TRUE;                              \
+	}
 //////////////////////////////////////////////////////////////////////////
 //
 //                    ATL中的消息兼容

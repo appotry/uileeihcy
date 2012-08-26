@@ -238,7 +238,7 @@ void ListCtrlBase::AddItem(ListItemBase* pItem, bool bUpdate)
 
 	// ²åÈë
 	this->InsertItem(pItem,pInsertAfter);
-	if (bUpdate)
+	if (NULL != pItem && bUpdate)
 	{
 		this->UpdateObject();
 	}
@@ -323,6 +323,18 @@ void ListCtrlBase::SetSelectedItem(ListItemBase* pItem, bool& bNeedUpdateObject 
 	m_pFirstSelectedItem = pItem;
 
 	this->MakeItemVisible(m_pFirstSelectedItem, bNeedUpdateObject);
+
+	if (m_pFirstSelectedItem != pOldSelectoinItem)
+	{
+		bNeedUpdateObject = true;
+
+		UIMSG  msg;
+		msg.message = UI_WM_NOTIFY;
+		msg.code = UI_LCN_SELCHANGED;
+		msg.wParam = (WPARAM)pOldSelectoinItem;
+		msg.lParam = (LPARAM)m_pFirstSelectedItem;
+		this->DoNotify(&msg);
+	}
 
 // 	if( false == bNeedUpdateObject )
 // 	{
@@ -982,14 +994,14 @@ int ListBoxCompareProc( ListItemBase* p1, ListItemBase* p2 )
 
 	return( pItem1->m_strText.compare(pItem2->m_strText) );
 }
-bool ListBox::AddString(const String& strText, bool bUpdate)
+ListBoxItem* ListBox::AddString(const String& strText, bool bUpdate)
 {
 	ListBoxItem* pItem = new ListBoxItem(this);
 
 	pItem->m_strText = strText;
 	this->AddItem(pItem, bUpdate);
 
-	return true;
+	return pItem;
 }
 
 void ListBox::SetItemHeight(int nHeight)

@@ -1199,11 +1199,49 @@ void  DockLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bReD
 SIZE  CardLayout::MeasureChildObject( HRDC hRDC )
 {
 	SIZE size = {0,0};
+
+	Object*  pChild = NULL;
+	while( pChild = this->m_pPanel->EnumChildObject( pChild ) )
+	{
+		SIZE  s = pChild->GetDesiredSize( hRDC );
+
+		if( size.cx < s.cx )
+			size.cx = s.cx;
+		if( size.cy < s.cy )
+			size.cy = s.cy;
+	}
 	return size;
 }
 void  CardLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bReDraw )
 {
+	// 调用该函数时，自己的大小已经被求出来了
+	int  nWidth  = m_pPanel->GetWidth();
+	int  nHeight = m_pPanel->GetHeight();
 
+	Object* pChild = NULL;
+	while( pChild = m_pPanel->EnumChildObject(pChild) )
+	{
+		if( NULL != pObjToArrage && pObjToArrage != pChild )
+			continue;
+
+		if( !pChild->IsVisible() )
+		{
+			if( NULL != pObjToArrage )
+				break;
+			else
+				continue;
+		}
+
+		CRect rcChildObj ;
+		int nChildW = nWidth - pChild->GetMarginW();
+		int nChildH = nHeight - pChild->GetMarginH();
+		rcChildObj.SetRect(0, 0, nChildW, nChildH );
+
+		pChild->SetObjectPos( &rcChildObj, bReDraw?0:SWP_NOREDRAW );
+
+		if( NULL != pObjToArrage && pObjToArrage == pChild )
+			break;
+	}
 }
 
 DesktopLayout::DesktopLayout()
