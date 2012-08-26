@@ -19,9 +19,9 @@ MainWindow::MainWindow(void)
 	m_pProgress = NULL;
 	m_pVolume = NULL;
 
-	m_lSizeMove = 0;
-	m_ptCursorSizeMove.x = m_ptCursorSizeMove.y = 0;
-	m_ptWndPosSizeMove.x = m_ptWndPosSizeMove.y = 0;
+// 	m_lSizeMove = 0;
+// 	m_ptCursorSizeMove.x = m_ptCursorSizeMove.y = 0;
+// 	m_ptWndPosSizeMove.x = m_ptWndPosSizeMove.y = 0;
 	m_pMenu = NULL;
 }
 
@@ -87,8 +87,8 @@ void MainWindow::OnInitWindow()
 
 	::SetWindowText(m_hWnd, _T("wine-of-bincos-lunba.mp3"));
 
-	COptionWindow win;
-	win.DoModal(g_hInstance, COptionWindow::IDD, _T("OptionWindow"),m_hWnd);
+// 	COptionWindow win;
+// 	win.DoModal(g_hInstance, COptionWindow::IDD, _T("OptionWindow"),m_hWnd);
 }
 
 void MainWindow::OnBnClickPlay()
@@ -179,7 +179,16 @@ void MainWindow::OnBnClickPlaylist()
 {
 	HWND hWnd = ::GetPlayerListMgr()->ShowPlayerListDlg(m_hWnd);
 	if (NULL == m_hWndPlayerList)
+	{
 		m_hWndPlayerList = hWnd;
+		
+		AnchorWindowData data;
+		data.m_hWnd = hWnd;
+		data.m_nAnchorType = ANCHOR_OUT_BOTTOM;
+		data.m_rcAnchorData.Width = -1;
+		data.m_rcAnchorData.Height = -1;
+		this->AddAnchorItem(data);
+	}
 }
 
 void MainWindow::OnBnClickLyric()
@@ -230,6 +239,7 @@ void MainWindow::OnBnClickEqualizer()
 	}
 }
 
+#if 0
 void MainWindow::OnLButtonDown(UINT nFlags, POINT point)
 {
 	m_lSizeMove = 1;
@@ -324,7 +334,7 @@ void MainWindow::OnCancelMode()
 {
 	this->OnExitSizeMove();
 }
-
+#endif
 void MainWindow::OnTimer(UINT_PTR nIDEvent)
 {
 

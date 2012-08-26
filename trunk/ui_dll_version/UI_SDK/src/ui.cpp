@@ -2,7 +2,6 @@
 namespace UI
 {
 
-
 //
 //	[global] void  UI_LOG_***** ( String strContent )
 //
