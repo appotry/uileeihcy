@@ -97,6 +97,7 @@
         <HwndHost id="IDC_BUTTON1" controlid="1002" />
         <HwndHost id="IDC_BUTTON2" controlid="1005" />
         <HwndHost id="IDC_COMBO1"  controlid="1010" />
+        <HwndHost id="IDC_GROUPBOX1" controlid="1011"/>"
       </Panel>
       <Panel id="richedit_demo_panel">
         <RichEdit id="richedit_test" layout.left="10" layout.top="10" width="200" height="200"

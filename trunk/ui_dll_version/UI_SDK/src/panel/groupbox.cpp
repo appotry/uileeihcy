@@ -127,8 +127,10 @@ void GroupBox::OnEraseBkgnd( HRDC hRDC )
 	//
 	HRGN hRgnOld = GetClipRgn(hRDC);
 	CRect rc = m_rcClip;
-	rc.OffsetRect(m_rcParent.left, m_rcParent.top);
-	HRGN hRgnClip = ::CreateRectRgnIndirect(&rc);
+	CRect rcWindow;
+	this->GetWindowRect(&rcWindow);
+	rc.OffsetRect(rcWindow.left, rcWindow.top);
+	HRGN hRgnClip = ::CreateRectRgnIndirect(&rc);  // 剪裁区域是基于窗口的，而不是基于偏移
 	SelectClipRgn(hRDC, hRgnClip, RGN_DIFF);
 	::DeleteObject(hRgnClip);
 

@@ -180,14 +180,17 @@ void HwndHost::OnParentVisibleChanged(Object* pParent, bool bVisible)
 
 	if (bVisible)
 	{
-		if (this->IsVisible())
+		// 由于直接调用this->IsVisible是判断IsWindowVisible(m_hWnd)，导致得到的值不正确
+		// 因此在这里采用判断父窗口的可见
+		if (NULL != m_pParent && m_pParent->IsVisible())
 		{
 			ShowWindow(m_hWnd, SW_SHOWNOACTIVATE);
 		}
 	}
 	else
 	{
-		if (::IsWindowVisible(m_hWnd))
+		//if (::IsWindowVisible(m_hWnd)) <-- 注：这里不能加上这个判断，因为当在OnInitDialog中隐藏parent时，HwndHost
+		//                                       的IsWindowVisible会返回FALSE，导致判断错误
 		{
 			ShowWindow(m_hWnd, SW_HIDE);
 		}
