@@ -1097,6 +1097,9 @@ void Object::SetVisible( bool b, bool bUpdateNow )
 	else
 		this->setStateBit( OSB_UNVISIBLE );
 
+	// 通知子对象
+	Message::ForwardMessageToChildObject(this, UI_WM_PARENT_VISIBLE_CHANGED, (WPARAM)this, (LPARAM)b);
+
 	if( b != bOld )
 	{
 		this->UpdateLayout(bUpdateNow);	   // 如果对象可见的话，则UpdateLayout会负责更新
@@ -1108,6 +1111,8 @@ void Object::SetVisible( bool b, bool bUpdateNow )
 				this->UpdateObjectBkgnd(bUpdateNow); 
 		}
 	}
+
+	
 
 	// 如果隐藏的对象是一个焦点对象，则将焦点重新切回到第一个对象
 	if( false == b )

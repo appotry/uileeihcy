@@ -172,3 +172,24 @@ UINT HwndHost::OnHitTest( POINT* pt )
 	UINT nRet = ::SendMessage(m_hWnd, WM_NCHITTEST, 0, MAKELPARAM(point.x, point.y));
 	return nRet;
 }
+
+void HwndHost::OnParentVisibleChanged(Object* pParent, bool bVisible)
+{
+	if (false == this->IsMySelfVisible())
+		return;
+
+	if (bVisible)
+	{
+		if (this->IsVisible())
+		{
+			ShowWindow(m_hWnd, SW_SHOWNOACTIVATE);
+		}
+	}
+	else
+	{
+		if (::IsWindowVisible(m_hWnd))
+		{
+			ShowWindow(m_hWnd, SW_HIDE);
+		}
+	}
+}

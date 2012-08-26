@@ -15,12 +15,14 @@ public:
 	~HwndHost();
 
 	UI_BEGIN_MSG_MAP
+		UIMSG_WM_PARENT_VISIBLE_CHANGED(OnParentVisibleChanged)
 		UIMSG_WM_HITTEST( OnHitTest )
 		UICHAIN_MSG_MAP(Object)
 	UI_END_MSG_MAP
 
 protected:
 	UINT              OnHitTest( POINT* pt );
+	void              OnParentVisibleChanged(Object* pParent, bool bVisible);
 
 public:
 	bool              SubclassWindow();

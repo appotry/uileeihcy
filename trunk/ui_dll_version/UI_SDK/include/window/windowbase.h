@@ -47,8 +47,6 @@ protected:
 	void              _InvalidateObjectBkgnd(Object* pInvalidateObj, HDC hDestDC);
 
 public:
-	static void       ForwardMessageToChildObject(Object*,UINT,WPARAM,LPARAM);
-
 	// 一些公共方法
 	void			  CalcWindowSizeByClientSize( SIZE sizeClient, SIZE* pSizeWindow );
 	void              CalcClientRectByWindowRect( RECT* rcWindow, RECT* rcClient );

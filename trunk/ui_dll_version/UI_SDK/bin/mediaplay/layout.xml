@@ -69,35 +69,42 @@
         foregnd.render.type="imageliststretch" foregnd.render.9region="1" foregnd.render.image="listbox.png"
         foregnd.render.imagelist.count="5"  foregnd.render.imagelist.layout="v"
         bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/>
+     
       <Button id="btn_save_all"  text="全部保存" layout.right="169" layout.bottom="6" width="75" height="21" />
       <Button id="btn_reset_all" text="全部重置" layout.right="88"  layout.bottom="6" width="75" height="21" />
       <Button id="btn_cancel"    text="关闭"     layout.right="8"   layout.bottom="6" width="75" height="21" />
       <Label  text="相关链接:"   layout.left="8" layout.bottom="8" />
-      <HyperLink id="link_homepage" text="软件主页"     tooltip="千千静听软件主页"   href="http://ttplayer.qianqian.com/"           layout.left="66"  layout.bottom="8" />   
+      <HyperLink id="link_homepage" text="软件主页"     tooltip="千千静听软件主页"   href="http://ttplayer.qianqian.com/"           layout.left="66"  layout.bottom="8" />
       <HyperLink id="link_homepage" text="千千音乐在线" tooltip="千千静听在线网站"   href="http://ttplayer.qianqian.com/index.html" layout.left="122" layout.bottom="8" />
       <HyperLink id="link_homepage" text="论坛"         tooltip="千千静听的官方论坛" href="http://bbs.qianqian.com/"                layout.left="202" layout.bottom="8" />
-      <HyperLink id="link_homepage" text="帮助"         tooltip="千千静听的帮助页面" href="http://ttplayer.qianqian.com/help.php"   layout.left="234" layout.bottom="8" />      
-      <GroupBox  id="groupbox1"     text="ui控件" layout.left="230" layout.top="42" width="150" height="250" >
-         <CheckButton id="test_check"  tooltip="test" text="test check button" layout.top="20"  layout.left="10"/>
-         <RadioButton id="test_radio1" tooltip="test" text="单选按钮_1" layout.top="40"  layout.left="10" group="1" />
-         <RadioButton id="test_radio2" tooltip="test" text="单选按钮_2" layout.top="60"  layout.left="10"/>
-         <RadioButton id="test_radio3" tooltip="test" text="单选按钮_3" layout.top="90"  layout.left="10" group="1" />
-         <RadioButton id="test_radio4" tooltip="test" text="单选按钮_4" layout.top="110" layout.left="10"/>
-         <Edit        id="test_edit1"  width="120"  layout.left="10" layout.top="130"/>
-         <Combobox    id="test_combo1" width="120"  height="20" layout.left="10" layout.top="155"/>
-      </GroupBox>
-      <RichEdit id="richedit_test" layout.left="10" layout.top="10" width="200" height="200"
-                bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/>
-      <RichEdit id="richedit_test2" layout.left="220" layout.top="10" width="200" height="200"
-                bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/>
-      <HwndHost id="IDC_EDIT1"   controlid="1003" />
-      <HwndHost id="IDC_CHECK1"  controlid="1009" />
-      <HwndHost id="IDC_RADIO3"  controlid="1008" />
-      <HwndHost id="IDC_RADIO2"  controlid="1007" />
-      <HwndHost id="IDC_RADIO1"  controlid="1006" />
-      <HwndHost id="IDC_BUTTON1" controlid="1002" />
-      <HwndHost id="IDC_BUTTON2" controlid="1005" />
-      <HwndHost id="IDC_COMBO1"  controlid="1010" />
+      <HyperLink id="link_homepage" text="帮助"         tooltip="千千静听的帮助页面" href="http://ttplayer.qianqian.com/help.php"   layout.left="234" layout.bottom="8" />
+      <Panel id="option_list_panel_container" layout="card" layout.left="120" layout.top="10" width="426" height="368">
+      <Panel id="control_demo_panel">
+        <GroupBox  id="groupbox1"     text="ui控件" layout.left="110" layout.top="32" width="150" height="250" >
+          <CheckButton id="test_check"  tooltip="test" text="test check button" layout.top="20"  layout.left="10"/>
+          <RadioButton id="test_radio1" tooltip="test" text="单选按钮_1" layout.top="40"  layout.left="10" group="1" />
+          <RadioButton id="test_radio2" tooltip="test" text="单选按钮_2" layout.top="60"  layout.left="10"/>
+          <RadioButton id="test_radio3" tooltip="test" text="单选按钮_3" layout.top="90"  layout.left="10" group="1" />
+          <RadioButton id="test_radio4" tooltip="test" text="单选按钮_4" layout.top="110" layout.left="10"/>
+          <Edit        id="test_edit1"  width="120"  layout.left="10" layout.top="130"/>
+          <Combobox    id="test_combo1" width="120"  height="20" layout.left="10" layout.top="155"/>
+        </GroupBox>
+        <HwndHost id="IDC_EDIT1"   controlid="1003" />
+        <HwndHost id="IDC_CHECK1"  controlid="1009" />
+        <HwndHost id="IDC_RADIO3"  controlid="1008" />
+        <HwndHost id="IDC_RADIO2"  controlid="1007" />
+        <HwndHost id="IDC_RADIO1"  controlid="1006" />
+        <HwndHost id="IDC_BUTTON1" controlid="1002" />
+        <HwndHost id="IDC_BUTTON2" controlid="1005" />
+        <HwndHost id="IDC_COMBO1"  controlid="1010" />
+      </Panel>
+      <Panel id="richedit_demo_panel">
+        <RichEdit id="richedit_test" layout.left="10" layout.top="10" width="200" height="200"
+                 bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/>
+        <RichEdit id="richedit_test2" layout.left="220" layout.top="10" width="200" height="200"
+                 bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/>
+      </Panel>
+      </Panel>
     </Window>
   </layout>
 </ui>

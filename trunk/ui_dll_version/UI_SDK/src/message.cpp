@@ -290,3 +290,17 @@ void Message::ClearHook( )
 		iter = this->m_lHookMsgMap.erase( iter );
 	}
 }
+
+
+//
+//	static 给pParent的子对象递归转发消息
+//
+void Message::ForwardMessageToChildObject( Object* pParent, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	Object*  pChild = NULL;
+	while ( pChild = pParent->EnumChildObject(pChild) )
+	{
+		::UISendMessage( pChild, uMsg, wParam, lParam );
+		Message::ForwardMessageToChildObject(pChild,uMsg,wParam,lParam);
+	}
+}

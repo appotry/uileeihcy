@@ -719,19 +719,6 @@ LRESULT	WindowBase::WndProc( UINT uMsg, WPARAM wParam, LPARAM lParam )
 	return lRes;
 }
 
-//
-//	static 给pParent的子对象递归转发消息
-//
-void WindowBase::ForwardMessageToChildObject( Object* pParent, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	Object*  pChild = NULL;
-	while ( pChild = pParent->EnumChildObject(pChild) )
-	{
-		::UISendMessage( pChild, uMsg, wParam, lParam );
-		WindowBase::ForwardMessageToChildObject(pChild,uMsg,wParam,lParam);
-	}
-}
-
 LRESULT WindowBase::_OnSetCursor( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
 {
 	bHandled = TRUE;
@@ -963,7 +950,7 @@ LRESULT WindowBase::_OnThemeChange( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 {
 	bHandled = FALSE;
 	
-	WindowBase::ForwardMessageToChildObject(this,uMsg,wParam,lParam);
+	Message::ForwardMessageToChildObject(this,uMsg,wParam,lParam);
 	return 0;
 }
 BOOL WindowBase::OnEraseBkgnd(HRDC hRDC)
