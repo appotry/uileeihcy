@@ -384,6 +384,10 @@ void GDIRenderDC::TileRect( const CRect* lprc, HRBITMAP hBitmap )
 	::DeleteObject(hBrush);
 }
 
+//
+// 注：由于控件绘制时已经被裁剪了区域，这将导致使用pen绘制边框时，有一部分绘制出来的
+//     边框位于控件外面而被剪裁。
+//
 void GDIRenderDC::Rectangle( const CRect* lprc, COLORREF colBorder, COLORREF colBack, int nBorder, bool bNullBack )
 {
 	HPEN hPen = ::CreatePen(PS_SOLID, nBorder, colBorder );

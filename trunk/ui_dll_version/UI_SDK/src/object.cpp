@@ -1262,6 +1262,20 @@ void Object::GetClientRectAsWin32( CRect* prc )
 		this->GetWidth() - m_rcNonClient.Width(), 
 		this->GetHeight()- m_rcNonClient.Height()); 
 }
+
+// clientrect在窗口中的坐标
+void Object::GetClientRectInWindow( CRect* prc )
+{
+	if (NULL == prc)
+		return;
+
+	this->GetWindowRect(prc);
+	prc->left += m_rcNonClient.left;
+	prc->top  += m_rcNonClient.top;
+	prc->right  -= m_rcNonClient.right;
+	prc->bottom -= m_rcNonClient.bottom;
+}
+
 void Object::SetNonClientRegion( CRegion4* prc )
 {
 	m_rcNonClient.SetRect(

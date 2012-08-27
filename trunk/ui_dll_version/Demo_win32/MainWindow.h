@@ -31,10 +31,14 @@ public:
 // 		UIMSG_WM_MOUSEMOVE( OnMouseMove )
 // 		UIMSG_WM_CANCELMODE( OnCancelMode )
 
+#if 1
+		UIMSG_WM_WINDOWPOSCHANGING(AnchorWindowHelper<MainWindow>::__OnWindowPosChanging)
+#else
 		UIMSG_WM_LBUTTONDOWN( AnchorWindowHelper<MainWindow>::OnLButtonDown )
 		UIMSG_WM_LBUTTONUP( AnchorWindowHelper<MainWindow>::OnLButtonUp )
 		UIMSG_WM_MOUSEMOVE( AnchorWindowHelper<MainWindow>::OnMouseMove )
 		UIMSG_WM_CANCELMODE( AnchorWindowHelper<MainWindow>::OnCancelMode )
+#endif
 
 		UIMSG_WM_DESTROY(OnDestroy)
 		UIMSG_WM_TIMER(OnTimer)

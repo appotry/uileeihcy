@@ -207,11 +207,19 @@ public:
 	int          GetMarginH() { return m_rcMargin.top + m_rcMargin.bottom; }
 	void         GetClientRect( CRect* prc );
 	void         GetClientRectAsWin32( CRect* prc );
+	void         GetClientRectInWindow( CRect* prc );
 	void         GetParentRect( CRect* prc );
 	int          GetParentRectL() { return m_rcParent.left; }
 	int          GetParentRectT() { return m_rcParent.top; }
 	int          GetParentRectR() { return m_rcParent.right; }
 	int          GetParentRectB() { return m_rcParent.bottom; }
+
+	POINT        GetRealPosInWindow();
+	void         GetWindowRect(CRect* lprc);
+	void         WindowPoint2ObjectPoint(const POINT* ptWindow, POINT* ptObj);
+	void         WindowPoint2ObjectClientPoint(const POINT* ptWindow, POINT* ptObj);
+	void         ObjectPoint2ObjectClientPoint(const POINT* ptWindow, POINT* ptObj);
+	bool         GetScrollOffset(int* pxOffset, int* pyOffset);
 
 	int          GetWidth();
 	int          GetHeight();
@@ -228,12 +236,6 @@ public:
 	void            SetBkRender(RenderBase* p);
 	void            SetForeRender(RenderBase* p);
 
-	POINT        GetRealPosInWindow();
-	void         GetWindowRect(CRect* lprc);
-	void         WindowPoint2ObjectPoint(const POINT* ptWindow, POINT* ptObj);
-	void         WindowPoint2ObjectClientPoint(const POINT* ptWindow, POINT* ptObj);
-	void         ObjectPoint2ObjectClientPoint(const POINT* ptWindow, POINT* ptObj);
-	bool         GetScrollOffset(int* pxOffset, int* pyOffset);
 	
 	// ÑùÊ½²Ù×÷
 	int          GetStateBit() { return m_nStateBit; }

@@ -116,13 +116,10 @@ namespace UI
 	public:
 		void    SetBkColor( COLORREF col );
 		void    SetBorderColor( COLORREF col );
-		void    SetBorder(int n){ m_nBorder = n; }
-		int     GetBorder(){ return m_nBorder; }
 
 	public:
 		UIColor*     m_pBkColor;
 		UIColor*     m_pBorderColor;
-		int	         m_nBorder;
 	};
 
 	// ∫·œÚΩ•±‰—’…´±≥æ∞
