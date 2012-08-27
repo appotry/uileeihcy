@@ -407,6 +407,7 @@ namespace UI
 	};
 
 	
+#if 0 // ¹ýÆÚ£¬¿ÉÉ¾³ý
 	class MenuIconBkThemeRender : public ThemeRenderBase
 	{
 	public:
@@ -415,6 +416,7 @@ namespace UI
 
 		void DrawNormal( HRDC hRDC, const CRect* prc );
 	};
+#endif
 
 	class MenuSeperatorThemeRender : public ThemeRenderBase
 	{
@@ -424,6 +426,7 @@ namespace UI
 
 		void DrawNormal( HRDC hRDC, const CRect* prc );
 	};
+
 
 	//////////////////////////////////////////////////////////////////////////
 

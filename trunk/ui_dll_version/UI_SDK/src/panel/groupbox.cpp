@@ -31,7 +31,7 @@ GroupBox::~GroupBox()
 
 void GroupBox::ResetAttribute()
 {
-	Panel::ResetAttribute();
+	__super::ResetAttribute();
 
 	this->m_eTextAlign = LABEL_ALIGN_LEFT|LABEL_ALIGN_TOP;
 

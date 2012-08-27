@@ -54,7 +54,7 @@ SIZE Panel::GetDesiredSize( HRDC hRDC )
 
 void Panel::ResetAttribute()
 {
-	Object::ResetAttribute();
+	__super::ResetAttribute();
 	SAFE_DELETE(m_pLayout);
 	this->ModifyStyle(OBJECT_STYLE_TRANSPARENT);
 }

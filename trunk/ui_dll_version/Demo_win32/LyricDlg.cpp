@@ -9,7 +9,7 @@ void CLyricDlg::OnPaint( HRDC hRDC )
 	this->GetClientRect(&rcClient);
 
 	rcClient.top += 20;
-	DrawString(hRDC, _T("Ç§Ç§¾²ÌýDemo v0.5.100"), &rcClient, DT_SINGLELINE|DT_VCENTER|DT_CENTER, m_hFont, RGB(84,142,165) );
+	DrawString(hRDC, _T("Ç§Ç§¾²ÌýDemo v0.6.60"), &rcClient, DT_SINGLELINE|DT_VCENTER|DT_CENTER, m_hFont, RGB(84,142,165) );
 }
 void CLyricDlg::OnClose()
 {

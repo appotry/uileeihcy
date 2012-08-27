@@ -26,7 +26,7 @@ WindowBase::~WindowBase()
 
 void WindowBase::ResetAttribute()
 {
-	Panel::ResetAttribute();
+	__super::ResetAttribute();
 
 	if( NULL != m_hFont )
 	{

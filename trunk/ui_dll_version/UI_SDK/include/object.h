@@ -137,7 +137,7 @@ public:
 protected:
 	CRect    m_rcParent;       // 该对象的范围，相对于parent.对于Window对象客户区域位置，即左上角为0，0
 	
-	CRegion4 m_rcNonClient;    // 如果在没有滚动条、Header等其它占用空间的控件，m_rcNonClient即为m_rcPadding+m_rcBorder
+	CRegion4 m_rcNonClient;    // 如果没有滚动条、Header等其它占用空间的控件，m_rcNonClient即为m_rcPadding+m_rcBorder
 	CRegion4 m_rcMargin;
 	CRegion4 m_rcPadding;
 	CRegion4 m_rcBorder;       

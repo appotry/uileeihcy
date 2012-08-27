@@ -325,6 +325,25 @@ public:
 		return nCount;
 	}
 
+	void   HideAllAnchorItem()
+	{
+		int nSize = m_vecAnchorItems.size()+1;
+		HDWP hdwp = ::BeginDeferWindowPos(nSize);
+
+		T* pThis = static_cast<T*>(this);
+		hdwp = ::DeferWindowPos(hdwp, pThis->m_hWnd, NULL, 0,0,0,0, SWP_NOZORDER|SWP_NOMOVE|SWP_NOSIZE|SWP_HIDEWINDOW );
+
+		vector<AnchorWindowData>::iterator  iter = m_vecAnchorItems.begin();
+		vector<AnchorWindowData>::iterator  iterEnd = m_vecAnchorItems.end();
+		for (; iter!=iterEnd; iter++)
+		{
+			hdwp = ::DeferWindowPos(hdwp, iter->m_hWnd, NULL, 0,0,0,0, SWP_NOZORDER|SWP_NOMOVE|SWP_NOSIZE|SWP_HIDEWINDOW );
+		}
+
+		::EndDeferWindowPos(hdwp);
+	}
+
+
 
 private:
 	vector<AnchorWindowData>   m_vecAnchorItems;
@@ -578,6 +597,24 @@ public:
 			}
 		}
 		return nCount;
+	}
+
+	void   HideAllAnchorItem()
+	{
+		int nSize = m_vecAnchorItems.size()+1;
+		HDWP hdwp = ::BeginDeferWindowPos(nSize);
+
+		T* pThis = static_cast<T*>(this);
+		hdwp = ::DeferWindowPos(hdwp, pThis->m_hWnd, NULL, 0,0,0,0, SWP_NOZORDER|SWP_NOMOVE|SWP_NOSIZE|SWP_HIDEWINDOW );
+	
+		vector<AnchorWindowData>::iterator  iter = m_vecAnchorItems.begin();
+		vector<AnchorWindowData>::iterator  iterEnd = m_vecAnchorItems.end();
+		for (; iter!=iterEnd; iter++)
+		{
+			hdwp = ::DeferWindowPos(hdwp, iter->m_hWnd, NULL, 0,0,0,0, SWP_NOZORDER|SWP_NOMOVE|SWP_NOSIZE|SWP_HIDEWINDOW );
+		}
+
+		::EndDeferWindowPos(hdwp);
 	}
 
 

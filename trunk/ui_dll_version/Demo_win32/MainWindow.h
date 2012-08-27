@@ -40,6 +40,7 @@ public:
 		UIMSG_WM_CANCELMODE( AnchorWindowHelper<MainWindow>::OnCancelMode )
 #endif
 
+		UIMSG_WM_SYSCOMMAND(OnSysCommand)
 		UIMSG_WM_DESTROY(OnDestroy)
 		UIMSG_WM_TIMER(OnTimer)
 		UIMSG_WM_CONTEXTMENU(OnContextMenu);
@@ -63,6 +64,7 @@ public:
 	void    OnVolumnChanged(int nPos, int nScrollType);
 	void    OnTimer(UINT_PTR nIDEvent);
     void    OnContextMenu(HWND wnd, POINT point);
+	void    OnSysCommand(UINT nID, CPoint lParam);
 
 // 	void    OnLButtonDown(UINT nFlags, POINT point);
 // 	void    OnLButtonUp(UINT nFlags, POINT point);

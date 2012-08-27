@@ -11,7 +11,7 @@
 		b. 编译一下，不成功不要紧。这里就没法成功
 		c. 将项目默认值的MFC使用改回去，即“使用标准Windows库”；编译，成功，项目就不再有msvcr90.dll依赖了
 
-
+ 
 2.Q: 多重继承的时候会出现什么问题？
   A: 如下程序代码：
 		class Object
@@ -187,7 +187,9 @@ RedrawWindow(hwnd,
 	VISIBILITY_COLLAPSED,  // 不可见，不占用布局
 68. 考虑下m_pLayout是否可以不作为一个成员变量出现，而是作为一个helper类出现？
 69. 为什么在customwindow上面点击一下，还会产生一个WM_MOUSEMOVE的消息？
-70. Windowless richedit：字体定义，滚动条显示，拖拽文字，只读模式，插入图片，GIF
+70. RICHEDIT在光标出现的时候，隐藏RICHEDIT，结果窗口上会遗留一个光标的图形不刷新。	
+71. Windowless richedit：字体定义，滚动条显示，拖拽文字，只读模式，插入图片，GIF
+72. 如何实现菜单的换扶（不是所有的菜单都配置在XML中的，那么没有配置在XML中的对象是否就没法实现换肤？）
 	
 疑问：
 1. Message类是否需要一个 m_pCurMsg成员变量？

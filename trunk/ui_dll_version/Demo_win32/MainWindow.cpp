@@ -52,6 +52,7 @@ BOOL MainWindow::PreCreateWindow( CREATESTRUCT& cs )
 }
 void MainWindow::OnDestroy()
 {
+	SetMsgHandled(FALSE);
 	::PostQuitMessage(0);
 }
 
@@ -223,6 +224,12 @@ void MainWindow::OnBnClickLyric()
 		::SetWindowPos( m_pLyricDlg->m_hWnd, NULL, rc.right, rc.top, 
 			rc.right-rc.left, rc.bottom-rc.top
 			, SWP_NOZORDER|SWP_NOSIZE );
+
+		AnchorWindowData data;
+		data.m_hWnd = m_pLyricDlg->m_hWnd;
+		data.m_nAnchorType = ANCHOR_OUT_RIGHT;
+		data.m_rcAnchorData.Width = data.m_rcAnchorData.Height = -1;
+		this->AddAnchorItem(data);
 	}
 
 	if(m_pLyricDlg->IsVisible())
@@ -247,6 +254,12 @@ void MainWindow::OnBnClickEqualizer()
 		::SetWindowPos( m_pEqualizerDlg->m_hWnd, NULL, rc.right, rc.bottom, 
 			rc.right-rc.left, rc.bottom-rc.top
 			, SWP_NOZORDER|SWP_NOSIZE );
+
+		AnchorWindowData data;
+		data.m_hWnd = m_pEqualizerDlg->m_hWnd;
+		data.m_nAnchorType = ANCHOR_OUT_RIGHT|ANCHOR_OUT_BOTTOM;
+		data.m_rcAnchorData.Width = data.m_rcAnchorData.Height = -1;
+		this->AddAnchorItem(data);
 	}
 
 	if(m_pEqualizerDlg->IsVisible())
@@ -360,22 +373,30 @@ void MainWindow::OnTimer(UINT_PTR nIDEvent)
 
 }
 
+void MainWindow::OnSysCommand(UINT nID, CPoint lParam)
+{
+	SetMsgHandled(FALSE);
+	if (SC_CLOSE == nID)
+	{
+		this->HideAllAnchorItem();  // 瞬间隐藏所有窗口
+	}
+}
+
 void MainWindow::OnContextMenu( HWND wnd, POINT point )
 {
 	if( this->GetHoverObject() != NULL )
 		return;
- 
-//  if (NULL == m_pMenu)
-//  		UICreateInstance(&m_pMenu);
-// 
-// 	m_pMenu->AppendMenu(MF_STRING, 101, _T("Test"));
-//  
-//  	POINT pt;
-//  	GetCursorPos(&pt);
-//  	m_pMenu->TrackPopupMenu(0,pt.x,pt.y,0);
-// 
-// 	return;
 
+	if (NULL == m_pMenu)
+		UICreateInstance(&m_pMenu);
+
+	m_pMenu->AppendMenu(MF_STRING, 101, _T("Test"));
+ 
+ 	POINT pt;
+ 	GetCursorPos(&pt);
+ 	m_pMenu->TrackPopupMenu(0,pt.x,pt.y,0);
+
+	return;
 
 #define MENU_ID_OPTION    1
 #define MENU_ID_SKIN_BASE 1000
