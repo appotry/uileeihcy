@@ -247,6 +247,8 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 		else if (_T("Menu") == pObj->GetObjectName())
 		{
 			pRender = new MenuBkThemeRender();
+			CRegion4 r(2,2,2,2);
+			pObj->SetBorderRegion(&r);
 		}
 	}
 	else if(RENDER_TYPE_THEME_MENUSTRINGITEM == eType)
@@ -257,10 +259,10 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 	{
 		pRender = new MenuSeperatorThemeRender();
 	}
-	else if (RENDER_TYPE_THEME_MENUICONBK == eType)
-	{
-		pRender = new MenuIconBkThemeRender();
-	}
+// 	else if (RENDER_TYPE_THEME_MENUICONBK == eType)
+// 	{
+// 		pRender = new MenuIconBkThemeRender();
+// 	}
 	else
 	{
 		UI_LOG_WARN(_T("%s invalid render type %d"), _T(__FUNCTION__),  eType );
@@ -2124,6 +2126,24 @@ void MenuBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 				UI_LOG_WARN(_T("MenuBkThemeRender::DrawNormal  DrawThemeBackground failed."));
 			}
 		}
+
+		// 绘制图标列背景
+		MenuBase* pMenu = dynamic_cast<MenuBase*>(m_pObject);
+		if (NULL != pMenu)
+		{
+			CRect rcIconGutter(*prc);
+			CRegion4 rcBorder;
+			pMenu->GetBorderRegion(&rcBorder);
+			
+			Util::DeflatRect(&rcIconGutter, &rcBorder);
+			rcIconGutter.right = rcIconGutter.left + pMenu->GetIconGutterWidth();
+
+			hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPGUTTER, 1, (RECT*)&rcIconGutter, 0);
+			if ( S_OK != hr )
+			{
+				UI_LOG_WARN(_T("%s DrawThemeBackground MENU_POPUPGUTTER failed."), _T(__FUNCTION__));
+			}
+		}
 	}
 	else
 	{
@@ -2248,6 +2268,7 @@ void MenuSeperatorThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 
 //////////////////////////////////////////////////////////////////////////
 
+#if 0 // 过期，可删除
 void MenuIconBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 {
 	this->DrawNormal(hRDC, prc);
@@ -2273,6 +2294,7 @@ void MenuIconBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 	}
 	ReleaseHDC(hRDC, hDC);
 }
+#endif
 
 
 //////////////////////////////////////////////////////////////////////////////////////////

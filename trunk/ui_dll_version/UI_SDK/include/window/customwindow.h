@@ -33,7 +33,7 @@ public:
 		UIMSG_WM_SETCURSOR( OnSetCursor )
 		UIMSG_WM_SIZE( OnSize )
 		UIMSG_WM_HITTEST( OnHitTest )
-		UIMSG_WM_DESTROY(OnDestroy)
+		UIMSG_WM_NCDESTROY(OnNcDestroy)
 		UIMSG_WM_NCACTIVATE( OnNcActivate )
 
 //		UIMSG_WM_NCHITTEST( OnNcHitTest )
@@ -86,7 +86,7 @@ protected:
 	BOOL     OnSetCursor( HWND hWnd, UINT nHitTest, UINT message );
 	void     OnLButtonDown(UINT nFlags, POINT point);
 	UINT     OnHitTest( POINT* p );
-	void     OnDestroy();
+	void     OnNcDestroy();
 	BOOL     OnNcActivate( BOOL bActive );
 
 //	int  OnCreate(LPCREATESTRUCT lpCreateStruct);

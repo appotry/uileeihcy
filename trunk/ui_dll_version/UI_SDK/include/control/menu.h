@@ -52,12 +52,18 @@ namespace UI
 		void     OnInitPopupControlWindow(Object* pObjMsgFrom);
 		void     OnUnInitPopupControlWindow(Object* pObjMsgFrom);
 
+		int      GetIconGutterWidth() { return m_nIconGutterWidth; }
+
 	protected:
 		PopupMenuWindow*  m_pPopupWrapWnd;
-		RenderBase*       m_pIconBkRender;
+//		RenderBase*       m_pIconBkRender;
 		RenderBase*       m_pSeperatorRender;
-		RenderBase*       m_pPopupRender;
+//		RenderBase*       m_pPopupRender;
 
+		int        m_nIconGutterWidth;    // 菜单左侧图标列 的宽度
+		int        m_nTextMarginLeft;
+		int        m_nTextMarginRight;
+		int        m_nPopupTriangleWidth; // 菜单右侧弹出菜单类型的三角形
 		int        m_nItemHeight;
 		int        m_nSeperatorHeight;
 	

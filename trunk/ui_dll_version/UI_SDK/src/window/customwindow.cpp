@@ -54,7 +54,7 @@ void CustomWindow::OnInitWindow( )
 	}
 }
 
-void CustomWindow::OnDestroy()
+void CustomWindow::OnNcDestroy()
 {
 	SetMsgHandled(FALSE);
 	if( NULL != m_pLayeredWindowWrap )
@@ -82,7 +82,7 @@ BOOL CustomWindow::OnNcActivate( BOOL bActive )
 
 void CustomWindow::ResetAttribute()
 {
-	Window::ResetAttribute();
+	__super::ResetAttribute();
 
 	m_bNeedToSetWindowRgn = true;  // 换肤时，重新更新窗口形状
 	m_nWindowTransparentMaskType = WINDOW_TRANSPARENT_TYPE_NULL;

@@ -419,7 +419,7 @@ protected:
 // void OnNcDestroy()
 #define UIMSG_WM_NCDESTROY MSG_WM_NCDESTROY
 
-#define UIMSG_WM_DESTROY MSG_WM_DESTROY
+#define UIMSG_WM_DESTROY   MSG_WM_DESTROY
 // void OnDestroy()
 // #define UIMSG_WM_DESTROY(fun)                         \
 // 	if( uMsg == WM_DESTROY )                          \
@@ -428,6 +428,9 @@ protected:
 // 		fun();                                        \
 // 		if(IsMsgHandled()) return TRUE;            \
 // 	}
+
+// void OnSysCommand(UINT nID, LPARAM lParam)
+#define UIMSG_WM_SYSCOMMAND  MSG_WM_SYSCOMMAND
 
 // void OnEraseBkgnd( HRDC hRDC )
 //	remark

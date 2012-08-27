@@ -10,11 +10,13 @@ MenuBase::MenuBase()
 {
 	m_pPopupWrapWnd = NULL;
 	m_pSeperatorRender = NULL;
-	m_pPopupRender = NULL;
-	m_pIconBkRender = NULL;
+// 	m_pPopupRender = NULL;
+// 	m_pIconBkRender = NULL;
 
+	m_nIconGutterWidth = 28;
 	m_nItemHeight = 24;
 	m_nSeperatorHeight = 3;
+	m_nPopupTriangleWidth = 20;
 
 	this->ModifyStyle(LISTCTRLBASE_CONTENT_2_SIZE);
 }
@@ -22,8 +24,8 @@ MenuBase::MenuBase()
 MenuBase::~MenuBase()
 {
 	SAFE_DELETE(m_pSeperatorRender);
-	SAFE_DELETE(m_pPopupRender);
-	SAFE_DELETE(m_pIconBkRender)
+// 	SAFE_DELETE(m_pPopupRender);
+// 	SAFE_DELETE(m_pIconBkRender)
 
 	if (NULL != m_pPopupWrapWnd)
 	{
@@ -34,13 +36,17 @@ MenuBase::~MenuBase()
 HRESULT MenuBase::FinalConstruct()
 {
 	this->ResetAttribute();
+
 	ATTRMAP attrmap;
+	::UI_LoadStyle( this->GetObjectName(), _T(""), m_strID, attrmap ); // 如何实现换肤？
+
 	this->SetAttribute(attrmap, false);
 
 	return S_OK;
 }
 
-bool  MenuBase::AppendMenu(UINT uFlags, UINT_PTR uIDNewItem, TCHAR* lpNewItem)
+
+bool MenuBase::AppendMenu(UINT uFlags, UINT_PTR uIDNewItem, TCHAR* lpNewItem)
 {
 	if (uFlags & MF_SEPARATOR)
 	{
@@ -91,7 +97,7 @@ int  MenuBase::TrackPopupMenu(UINT nFlag, int x, int y, Message* pNotifyObj)
 	return 0;
 }
 
-int MenuBase::GetMenuItemCount()
+int  MenuBase::GetMenuItemCount()
 {
 	return __super::GetItemCount();
 }
@@ -164,14 +170,13 @@ void MenuBase::OnDrawStringItem(HRDC hRDC, ListItemBase* p, MenuItemData* pMenuD
 	CRect rcItem;
 	p->GetParentRect(&rcItem);
 
-
-	if (NULL != m_pIconBkRender)
-	{
-		CRect rc(rcItem);
-		rc.left = 0;
-		rc.right = rc.left+28;
-		m_pIconBkRender->DrawState(hRDC, &rc, 0);
-	}
+// 	if (NULL != m_pIconBkRender)
+// 	{
+// 		CRect rc(rcItem);
+// 		rc.left = 0;
+// 		rc.right = rc.left+28;
+// 		m_pIconBkRender->DrawState(hRDC, &rc, 0);
+// 	}
 
 	int  nTextState = 0;
 	if (NULL != m_pForegndRender)
@@ -204,11 +209,11 @@ void MenuBase::OnUnInitPopupControlWindow(Object* pObjMsgFrom)
 
 void Menu::ResetAttribute()
 {
-	CRegion4 rc(3,3,3,3);
+	CRegion4 rc(1,1,1,1);
 	this->SetPaddingRegion(&rc);
 	SAFE_DELETE(m_pSeperatorRender);
-	SAFE_DELETE(m_pPopupRender);
-	SAFE_DELETE(m_pIconBkRender);
+//	SAFE_DELETE(m_pPopupRender);
+//	SAFE_DELETE(m_pIconBkRender);
 }
 
 bool Menu::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
@@ -252,10 +257,10 @@ bool Menu::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 	{
 		m_pSeperatorRender = RenderFactory::GetRender(RENDER_TYPE_THEME_MENUSEPERATOR, this);
 	}
-	if (NULL == m_pIconBkRender)
-	{
-		m_pIconBkRender = RenderFactory::GetRender(RENDER_TYPE_THEME_MENUICONBK, this);
-	}
+// 	if (NULL == m_pIconBkRender)
+// 	{
+// 		m_pIconBkRender = RenderFactory::GetRender(RENDER_TYPE_THEME_MENUICONBK, this);
+// 	}
 
 	return true;
 }

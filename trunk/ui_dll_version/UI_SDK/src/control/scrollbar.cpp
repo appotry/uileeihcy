@@ -651,7 +651,7 @@ bool ScrollBarBase::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 
 void ScrollBarBase::ResetAttribute()
 {
-	Control::ResetAttribute();
+	__super::ResetAttribute();
 	SAFE_DELETE(m_pScrollBarRender);
 }
 
@@ -840,12 +840,12 @@ VScrollBar::~VScrollBar()
 
 void HScrollBar::ResetAttribute()
 {
-	ScrollBarBase::ResetAttribute();
+	__super::ResetAttribute();
 	m_eScrollDirection = HSCROLLBAR;
 }
 void VScrollBar::ResetAttribute()
 {
-	ScrollBarBase::ResetAttribute();
+	__super::ResetAttribute();
 	m_eScrollDirection = VSCROLLBAR;
 }
 
