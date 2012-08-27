@@ -234,7 +234,7 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 					pTemp->SetBorderColor(RGB(0,0,0));
 					pRender = static_cast<RenderBase*>(pTemp);
 
-					int nBorder = pTemp->GetBorder();
+					int nBorder = 1;
 					CRegion4 r(nBorder, nBorder, nBorder, nBorder);
 					pObj->SetBorderRegion(&r);
 				}
@@ -287,7 +287,6 @@ ColorRender::ColorRender()
 {
 	m_pBkColor = NULL;
 	m_pBorderColor = NULL;
-	m_nBorder = 1;
 }
 ColorRender::~ColorRender()
 {
@@ -331,20 +330,44 @@ bool ColorRender::SetAttribute( const String& strPrefix, map<String,String>& map
 
 void ColorRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 {
-	if( NULL == m_pBorderColor )   // 不绘制边框
+	if( NULL != m_pBkColor )
 	{
-		if( NULL != m_pBkColor )
-		{
-			FillRect(hRDC, prc, m_pBkColor->GetColor());
-		}
+		FillRect(hRDC, prc, m_pBkColor->GetColor());
 	}
-	else                           // 绘制边框
+	
+	// 绘制边框，由于直接调用Rectangle创建指定宽度的PEN后进行绘制，会导致PEN的
+	// 一半区域位于控件剪裁区域外面。因此在这里用FillRect来实现边框的绘制。
+	// 同时也支持了当各个边框大小不一致时的绘制
+	if (NULL == m_pBorderColor)
+		return;
+	
+	CRegion4 rBorder;
+	m_pObject->GetBorderRegion(&rBorder);
+	if (0 != rBorder.left)
 	{
-		if( NULL != m_pBkColor )
-			Rectangle( hRDC, prc, m_pBorderColor->GetColor(), m_pBkColor->GetColor(), m_nBorder);
-		else
-			Rectangle( hRDC, prc, m_pBorderColor->GetColor(), 0, m_nBorder,true );
+		CRect rcLeft = *prc;
+		rcLeft.right = rBorder.left;
+		FillRect(hRDC, &rcLeft, m_pBorderColor->GetColor());
 	}
+	if (0 != rBorder.top)
+	{
+		CRect rcTop = *prc;
+		rcTop.bottom = rBorder.top;
+		FillRect(hRDC, &rcTop, m_pBorderColor->GetColor());
+	}
+	if (0 != rBorder.right)
+	{
+		CRect rcRight = *prc;
+		rcRight.left = rcRight.right-rBorder.right;
+		FillRect(hRDC, &rcRight, m_pBorderColor->GetColor());
+	}
+	if (0 != rBorder.bottom)
+	{
+		CRect rcBottom = *prc;
+		rcBottom.top = rcBottom.bottom - rBorder.bottom;
+		FillRect(hRDC, &rcBottom, m_pBorderColor->GetColor());
+	}
+
 }
 
 

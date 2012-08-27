@@ -65,7 +65,7 @@
       <CheckButton id="switch_layered" layout.right="50" layout.top="5" text="切换透明窗口" tooltip="切换透明窗口" />
     </CustomWindow>
     <Window id="OptionWindow" font="normal" width="556" height="440">
-      <ListBox id="optionlist" layout.left="10" layout.top="10" width="100" height="368" padding="4"
+      <ListBox id="optionlist" border="1" layout.left="10" layout.top="10" width="100" height="370" padding="4"
         foregnd.render.type="imageliststretch" foregnd.render.9region="1" foregnd.render.image="listbox.png"
         foregnd.render.imagelist.count="5"  foregnd.render.imagelist.layout="v"
         bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/>
@@ -79,32 +79,32 @@
       <HyperLink id="link_homepage" text="论坛"         tooltip="千千静听的官方论坛" href="http://bbs.qianqian.com/"                layout.left="202" layout.bottom="8" />
       <HyperLink id="link_homepage" text="帮助"         tooltip="千千静听的帮助页面" href="http://ttplayer.qianqian.com/help.php"   layout.left="234" layout.bottom="8" />
       <Panel id="option_list_panel_container" layout="card" layout.left="120" layout.top="10" width="426" height="368">
-      <Panel id="control_demo_panel">
-        <GroupBox  id="groupbox1"     text="ui控件" layout.left="110" layout.top="32" width="150" height="250" >
-          <CheckButton id="test_check"  tooltip="test" text="test check button" layout.top="20"  layout.left="10"/>
-          <RadioButton id="test_radio1" tooltip="test" text="单选按钮_1" layout.top="40"  layout.left="10" group="1" />
-          <RadioButton id="test_radio2" tooltip="test" text="单选按钮_2" layout.top="60"  layout.left="10"/>
-          <RadioButton id="test_radio3" tooltip="test" text="单选按钮_3" layout.top="90"  layout.left="10" group="1" />
-          <RadioButton id="test_radio4" tooltip="test" text="单选按钮_4" layout.top="110" layout.left="10"/>
-          <Edit        id="test_edit1"  width="120"  layout.left="10" layout.top="130"/>
-          <Combobox    id="test_combo1" width="120"  height="20" layout.left="10" layout.top="155"/>
-        </GroupBox>
-        <HwndHost id="IDC_EDIT1"   controlid="1003" />
-        <HwndHost id="IDC_CHECK1"  controlid="1009" />
-        <HwndHost id="IDC_RADIO3"  controlid="1008" />
-        <HwndHost id="IDC_RADIO2"  controlid="1007" />
-        <HwndHost id="IDC_RADIO1"  controlid="1006" />
-        <HwndHost id="IDC_BUTTON1" controlid="1002" />
-        <HwndHost id="IDC_BUTTON2" controlid="1005" />
-        <HwndHost id="IDC_COMBO1"  controlid="1010" />
-        <HwndHost id="IDC_GROUPBOX1" controlid="1011"/>"
-      </Panel>
-      <Panel id="richedit_demo_panel">
-        <RichEdit id="richedit_test" layout.left="10" layout.top="10" width="200" height="200"
-                 bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/>
-        <RichEdit id="richedit_test2" layout.left="220" layout.top="10" width="200" height="200"
-                 bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/>
-      </Panel>
+        <Panel id="control_demo_panel">
+          <GroupBox  id="groupbox1"     text="ui控件" layout.left="110" layout.top="32" width="150" height="250" >
+            <CheckButton id="test_check"  tooltip="test" text="test check button" layout.top="20"  layout.left="10"/>
+            <RadioButton id="test_radio1" tooltip="test" text="单选按钮_1" layout.top="40"  layout.left="10" group="1" />
+            <RadioButton id="test_radio2" tooltip="test" text="单选按钮_2" layout.top="60"  layout.left="10"/>
+            <RadioButton id="test_radio3" tooltip="test" text="单选按钮_3" layout.top="90"  layout.left="10" group="1" />
+            <RadioButton id="test_radio4" tooltip="test" text="单选按钮_4" layout.top="110" layout.left="10"/>
+            <Edit        id="test_edit1"  width="120"  layout.left="10" layout.top="130"/>
+            <Combobox    id="test_combo1" width="120"  height="20" layout.left="10" layout.top="155"/>
+          </GroupBox>
+          <HwndHost id="IDC_EDIT1"   controlid="1003" />
+          <HwndHost id="IDC_CHECK1"  controlid="1009" />
+          <HwndHost id="IDC_RADIO3"  controlid="1008" />
+          <HwndHost id="IDC_RADIO2"  controlid="1007" />
+          <HwndHost id="IDC_RADIO1"  controlid="1006" />
+          <HwndHost id="IDC_BUTTON1" controlid="1002" />
+          <HwndHost id="IDC_BUTTON2" controlid="1005" />
+          <HwndHost id="IDC_COMBO1"  controlid="1010" />
+          <HwndHost id="IDC_GROUPBOX1" controlid="1011"/>"
+        </Panel>
+        <Panel id="richedit_demo_panel">
+          <RichEdit id="richedit_test" border="1" layout.left="10" layout.top="10" width="200" height="200"
+                   bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/>
+          <RichEdit id="richedit_test2" layout.left="220" layout.top="10" width="200" height="200"
+                   bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/>
+        </Panel>
       </Panel>
     </Window>
   </layout>

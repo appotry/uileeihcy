@@ -620,7 +620,7 @@ LRESULT WindowlessRichEdit::OnChar(UINT uMsg, WPARAM wParam, LPARAM lParam)
 // @cmember Retrieves the coordinates of a window's client area
 HRESULT WindowlessRichEdit::TxGetClientRect(LPRECT prc)
 {
-	m_pRichEditBase->GetWindowRect((CRect*)prc);
+	m_pRichEditBase->GetClientRectInWindow((CRect*)prc);
 	return S_OK;
 }
 

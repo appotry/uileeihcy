@@ -580,6 +580,9 @@ protected:
 //			return TRUE;                              \
 // 	}
 
+// void OnWindowPosChanging(LPWINDOWPOS lpWndPos)
+#define UIMSG_WM_WINDOWPOSCHANGING  MSG_WM_WINDOWPOSCHANGING
+
 #define UIMSG_WM_GETMINMAXINFO MSG_WM_GETMINMAXINFO
 // void OnGetMinMaxInfo(LPMINMAXINFO lpMMI);
 // #define UIMSG_WM_GETMINMAXINFO(func)                  \
