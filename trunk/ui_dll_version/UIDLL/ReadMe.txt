@@ -190,6 +190,8 @@ RedrawWindow(hwnd,
 70. RICHEDIT在光标出现的时候，隐藏RICHEDIT，结果窗口上会遗留一个光标的图形不刷新。	
 71. Windowless richedit：字体定义，滚动条显示，拖拽文字，只读模式，插入图片，GIF
 72. 如何实现菜单的换扶（不是所有的菜单都配置在XML中的，那么没有配置在XML中的对象是否就没法实现换肤？）
+73. 点击打开一个系统COMBOOX的下拉列表，然后将鼠标放在一个UI控件上面，点击一下，下拉列表消失，再继续点击UI控件，无反应。
+    因为没有人去触发一个WM_MOUSEMOVE来set hover对象
 	
 疑问：
 1. Message类是否需要一个 m_pCurMsg成员变量？

@@ -31,7 +31,7 @@ BOOL COptionWindow::OnInitDialog( HWND, LPARAM )
 	if (NULL != m_pListOption)
 	{
 		m_pListOption->ModifyStyle( 0, LISTCTRLBASE_SORT_ASCEND|LISTCTRLBASE_SORT_DESCEND);
-		m_pListOption->SetFixedItemHeight(24, false);
+		m_pListOption->SetItemHeight(24, false);
 
 		String strArray[] = { _T("关于"),_T("常规"),_T("播放"),_T("快捷键"),_T("视觉效果"),
 			_T("播放列表"),_T("媒体库"),_T("歌词秀"),_T("歌词搜索"),_T("网络连接"),_T("音效插件"),

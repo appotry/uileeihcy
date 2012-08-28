@@ -10,8 +10,6 @@ MenuBase::MenuBase()
 {
 	m_pPopupWrapWnd = NULL;
 	m_pSeperatorRender = NULL;
-// 	m_pPopupRender = NULL;
-// 	m_pIconBkRender = NULL;
 
 	m_nIconGutterWidth = 28;
 	m_nItemHeight = 24;
@@ -24,8 +22,6 @@ MenuBase::MenuBase()
 MenuBase::~MenuBase()
 {
 	SAFE_DELETE(m_pSeperatorRender);
-// 	SAFE_DELETE(m_pPopupRender);
-// 	SAFE_DELETE(m_pIconBkRender)
 
 	if (NULL != m_pPopupWrapWnd)
 	{
@@ -45,6 +41,74 @@ HRESULT MenuBase::FinalConstruct()
 	return S_OK;
 }
 
+
+void MenuBase::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
+{
+	bool bNeedUpdateObject = false;
+	if( VK_DOWN == nChar )
+	{
+		if (NULL == m_pHoverItem)
+		{
+			SetHoverItem(m_pFirstItem);
+		}
+		else   // 在存在HOVER对象的情况下面，选择HOVER的下一个对象
+		{
+			if (NULL != m_pHoverItem->GetNextItem())
+				SetHoverItem(m_pHoverItem->GetNextItem());
+			else
+				SetHoverItem(m_pFirstItem);
+		}
+
+		bNeedUpdateObject = true;
+	}
+	else if( VK_UP == nChar )
+	{
+		if (NULL == m_pHoverItem)
+		{
+			SetHoverItem(m_pLastItem);
+		}
+		else   // 在存在HOVER对象的情况下面，选择HOVER的下一个对象
+		{
+			if (NULL != m_pHoverItem->GetPrevItem())
+				SetHoverItem(m_pHoverItem->GetPrevItem());
+			else
+				SetHoverItem(m_pLastItem);
+		}
+
+		bNeedUpdateObject = true;
+	}
+
+	if( bNeedUpdateObject )
+	{
+		this->UpdateObject();
+	}
+}
+
+
+void MenuBase::OnLButtonDown(UINT nFlags, POINT point)
+{
+	if( NULL != m_pHoverItem )
+	{
+		this->SetPressItem(m_pHoverItem, point, nFlags);
+	}
+
+
+}
+void MenuBase::OnLButtonUp(UINT nFlags, POINT point)
+{
+	if( NULL != m_pPressItem )
+	{
+		ListItemBase* pSave = m_pPressItem;
+		this->SetPressItem(NULL, point, nFlags);
+		this->ReDrawItem(pSave);
+		this->ReDrawItem(m_pHoverItem);
+
+		if (NULL != m_pPopupWrapWnd)
+		{
+			m_pPopupWrapWnd->DestroyPopupWindow();
+		}
+	}
+}
 
 bool MenuBase::AppendMenu(UINT uFlags, UINT_PTR uIDNewItem, TCHAR* lpNewItem)
 {
@@ -74,7 +138,6 @@ bool MenuBase::AppendMenu(UINT uFlags, UINT_PTR uIDNewItem, TCHAR* lpNewItem)
 		
 		this->AddItem(pItem, false);
 	}
-
 	
 	return true;
 }
@@ -179,14 +242,12 @@ void MenuBase::OnDrawStringItem(HRDC hRDC, ListItemBase* p, MenuItemData* pMenuD
 // 	}
 
 	int  nTextState = 0;
-	if (NULL != m_pForegndRender)
+	if (m_pHoverItem == p)
 	{
-		if (m_pHoverItem == p)
-		{
-			m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_HOVER);
-			nTextState = 1;
-		}
+		m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_HOVER);
+		nTextState = 1;
 	}
+
 
 	if (NULL != pMenuData && NULL != m_pTextRender)
 	{
@@ -212,8 +273,6 @@ void Menu::ResetAttribute()
 	CRegion4 rc(1,1,1,1);
 	this->SetPaddingRegion(&rc);
 	SAFE_DELETE(m_pSeperatorRender);
-//	SAFE_DELETE(m_pPopupRender);
-//	SAFE_DELETE(m_pIconBkRender);
 }
 
 bool Menu::SetAttribute(ATTRMAP& mapAttrib, bool bReload)

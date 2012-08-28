@@ -79,13 +79,13 @@ ListCtrlBase::ListCtrlBase()
 	m_pFirstSelectedItem = NULL;
 	m_pHoverItem         = NULL;
 	m_pPressItem         = NULL;
-	m_nFixeddItemHeight  = 20;
+	m_nItemHeight        = 20;
 	m_pCompareProc       = NULL;
 	m_nItemCount         = 0;
 	m_nItemGap           = 0;
 
 	this->m_MgrScrollbar.SetBindObject(this);
-	this->m_MgrScrollbar.SetVScrollLine(m_nFixeddItemHeight);
+	this->m_MgrScrollbar.SetVScrollLine(m_nItemHeight);
 //	this->m_MgrScrollbar.SetScrollBarVisibleType(HSCROLLBAR, SCROLLBAR_VISIBLE_NONE);
 }
 ListCtrlBase::~ListCtrlBase()
@@ -180,16 +180,17 @@ void ListCtrlBase::SetSortCompareProc( ListItemCompareProc p )
 	m_pCompareProc = p;
 }
 
-void ListCtrlBase::SetFixedItemHeight(int nHeight, bool bUpdate)
+void ListCtrlBase::SetItemHeight(int nHeight, bool bUpdate)
 {
-	if (m_nFixeddItemHeight == nHeight)
+	if (m_nItemHeight == nHeight)
 	{
 		return;
 	}
 
-	m_nFixeddItemHeight = nHeight;
-	if (0 == (m_nStyle&LISTCTRLBASE_ITEM_VARIABLE_HEIGHT))
+	m_nItemHeight = nHeight;
+//	if (0 == (m_nStyle&LISTCTRLBASE_ITEM_VARIABLE_HEIGHT))
 	{
+		this->MeasureAllItem();
 		this->UpdateItemRect(m_pFirstItem);
 	}
 	if (bUpdate)
@@ -767,6 +768,9 @@ void ListCtrlBase::OnMouseMove(UINT nFlags, POINT point)
 
 void ListCtrlBase::OnMouseLeave()
 {
+	if (m_nStyle & LISTCTRLBASE_SEL_HOVER_MODE)
+		return;
+
 	bool bNeedUpdate = false;
 	if( NULL != m_pHoverItem || NULL != m_pPressItem )
 	{
@@ -775,6 +779,7 @@ void ListCtrlBase::OnMouseLeave()
 	ListItemBase* pSave = m_pHoverItem;
 	m_pPressItem = NULL;
 	SetHoverItem(NULL);
+
 	if( bNeedUpdate )
 	{
 		this->ReDrawItem(pSave);
@@ -826,37 +831,69 @@ void ListCtrlBase::OnDBClick(UINT nFlags, POINT point)
 
 void ListCtrlBase::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
 {
-	bool bNeedUpdateObject = false;
+   	bool bNeedUpdateObject = false;
 	if( VK_DOWN == nChar )
 	{
-		if( NULL == m_pFirstSelectedItem )
+		if (m_nStyle & LISTCTRLBASE_SEL_HOVER_MODE)  // 菜单或者弹出式列表框
 		{
-			SetSelectedItem(m_pFirstItem, bNeedUpdateObject);
-		}
-		else
-		{
-			if( NULL != m_pFirstSelectedItem->GetNextItem() )
+			if (NULL == m_pHoverItem)
 			{
-				ListItemBase* pSave = m_pFirstSelectedItem;
-				SetSelectedItem(m_pFirstSelectedItem->GetNextItem(), bNeedUpdateObject);
+				if( NULL == m_pFirstSelectedItem )
+					SetSelectedItem(m_pFirstItem, bNeedUpdateObject);
+				else if( NULL != m_pFirstSelectedItem->GetNextItem() )
+					SetSelectedItem(m_pFirstSelectedItem->GetNextItem(), bNeedUpdateObject);
 			}
+			else   // 在存在HOVER对象的情况下面，选择HOVER的下一个对象
+			{
+				if (NULL != m_pHoverItem->GetNextItem())
+					SetSelectedItem(m_pHoverItem->GetNextItem(), bNeedUpdateObject);
+				else
+					SetSelectedItem(m_pHoverItem, bNeedUpdateObject);
+			}
+
+			if(NULL != m_pFirstSelectedItem)  // 清除hover对象，显示selection对象
+				SetHoverItem(NULL);
+		}
+		else  // 正常列表框
+		{
+			if( NULL == m_pFirstSelectedItem )
+				SetSelectedItem(m_pFirstItem, bNeedUpdateObject);
+			else if( NULL != m_pFirstSelectedItem->GetNextItem() )
+				SetSelectedItem(m_pFirstSelectedItem->GetNextItem(), bNeedUpdateObject);
 		}
 	}
 	else if( VK_UP == nChar )
 	{
-		if( NULL == m_pFirstSelectedItem )
+		if (m_nStyle & LISTCTRLBASE_SEL_HOVER_MODE)  // 菜单或者弹出式列表框
 		{
-			SetSelectedItem(m_pFirstItem, bNeedUpdateObject);
-		}
-		else
-		{
-			if( NULL != m_pFirstSelectedItem->GetPrevItem() )
+			
+			if (NULL == m_pHoverItem)
 			{
-				ListItemBase* pSave = m_pFirstSelectedItem;
-				SetSelectedItem(m_pFirstSelectedItem->GetPrevItem(), bNeedUpdateObject);
+				if( NULL == m_pFirstSelectedItem )
+					SetSelectedItem(m_pFirstItem, bNeedUpdateObject);
+				else if( NULL != m_pFirstSelectedItem->GetPrevItem() )
+					SetSelectedItem(m_pFirstSelectedItem->GetPrevItem(), bNeedUpdateObject);
 			}
+			else   // 在存在HOVER对象的情况下面，选择HOVER的下一个对象
+			{
+				if (NULL != m_pHoverItem->GetPrevItem())
+					SetSelectedItem(m_pHoverItem->GetPrevItem(), bNeedUpdateObject);
+				else
+					SetSelectedItem(m_pHoverItem, bNeedUpdateObject);
+			}
+
+			if(NULL != m_pFirstSelectedItem)  // 清除hover对象，显示selection对象
+				SetHoverItem(NULL);
+		}
+		else  // 正常列表框
+		{
+			if( NULL == m_pFirstSelectedItem )
+				SetSelectedItem(m_pFirstItem, bNeedUpdateObject);
+			else if( NULL != m_pFirstSelectedItem->GetPrevItem() )
+				SetSelectedItem(m_pFirstSelectedItem->GetPrevItem(), bNeedUpdateObject);
 		}
 	}
+
 	if( bNeedUpdateObject )
 	{
 		this->UpdateObject();
@@ -1002,13 +1039,6 @@ ListBoxItem* ListBox::AddString(const String& strText, bool bUpdate)
 	this->AddItem(pItem, bUpdate);
 
 	return pItem;
-}
-
-void ListBox::SetItemHeight(int nHeight)
-{
-	m_nItemHeight = nHeight;
-	this->MeasureAllItem();
-	this->UpdateItemRect(m_pFirstItem);
 }
 
 int  ListBox::GetListBoxStyle()

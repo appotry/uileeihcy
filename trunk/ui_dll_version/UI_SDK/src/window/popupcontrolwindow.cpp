@@ -101,7 +101,7 @@ BOOL PopupControlWindow::PreTranslatePopupMessage(MSG* pMsg)
 	if (WM_KEYFIRST <= pMsg->message && WM_KEYLAST >= pMsg->message)
 	{
 		BOOL bHandle = FALSE;
-		UISendMessage(this, pMsg->message, pMsg->wParam, pMsg->lParam, 0, 0, 0, &bHandle);
+		UISendMessage(this->m_pObject, pMsg->message, pMsg->wParam, pMsg->lParam, 0, 0, 0, &bHandle);
 		return bHandle;
 	}
 	

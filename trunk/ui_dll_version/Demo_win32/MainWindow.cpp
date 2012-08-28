@@ -179,6 +179,10 @@ void MainWindow::OnBnClickMute()
 
 void MainWindow::OnBnClickOpen()
 {
+	COptionWindow win;
+	win.DoModal(g_hInstance, COptionWindow::IDD, _T("OptionWindow"),m_hWnd);
+	return;
+
 	CFileDialog dlg(TRUE, _T("*.mp3"), 0,4|2, _T("*.mp3\0*.mp3\0\0"));
 	if(IDCANCEL == dlg.DoModal())
 		return;

@@ -28,7 +28,9 @@ namespace UI
 		~MenuBase();
 
 		UI_BEGIN_MSG_MAP
-		//	UIMSG_WM_LBUTTONUP(OnLButtonUp)
+			UIMSG_WM_LBUTTONDOWN(OnLButtonDown)
+			UIMSG_WM_LBUTTONUP(OnLButtonUp)
+			UIMSG_WM_KEYDOWN(OnKeyDown)
 			UIMSG_WM_INITPOPUPCONTROLWINDOW(OnInitPopupControlWindow)
 			UIMSG_WM_UNINITPOPUPCONTROLWINDOW(OnUnInitPopupControlWindow)
 			UICHAIN_MSG_MAP(ListCtrlBase)
@@ -36,10 +38,16 @@ namespace UI
 
 		virtual  HRESULT FinalConstruct();
 
+	protected:
+		void     OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags );
+		void     OnLButtonDown(UINT nFlags, POINT point);
+		void     OnLButtonUp(UINT nFlags, POINT point);
+
 	public:
 		int      GetMenuItemCount();
 		int      TrackPopupMenu(UINT nFlag, int x, int y, Message* pNotifyObj);
 		bool     AppendMenu(UINT uFlags, UINT_PTR uIDNewItem, TCHAR* lpNewItem);
+	
 
 		virtual  void OnDrawItem( HRDC hRDC, ListItemBase* p ) ;
 		virtual  SIZE OnMeasureItem( ListItemBase* p);
@@ -56,9 +64,7 @@ namespace UI
 
 	protected:
 		PopupMenuWindow*  m_pPopupWrapWnd;
-//		RenderBase*       m_pIconBkRender;
 		RenderBase*       m_pSeperatorRender;
-//		RenderBase*       m_pPopupRender;
 
 		int        m_nIconGutterWidth;    // 菜单左侧图标列 的宽度
 		int        m_nTextMarginLeft;
