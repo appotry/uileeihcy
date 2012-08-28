@@ -18,7 +18,7 @@ ComboboxBase::ComboboxBase()
 	m_button->SetTabstop(false);
 
 	m_listbox->m_strID = COMBOBOX_LIST_ID;
-	m_listbox->ModifyStyle(LISTCTRLBASE_CONTENT_2_SIZE|LISTCTRLBASE_SORT_ASCEND, LISTCTRLBASE_SIZE_2_CONTENT);
+	m_listbox->ModifyStyle(LISTCTRLBASE_CONTENT_2_SIZE|LISTCTRLBASE_SORT_ASCEND|LISTCTRLBASE_SEL_HOVER_MODE, LISTCTRLBASE_SIZE_2_CONTENT);
 	m_listbox->SetListBoxStyle(LISTBOX_STYLE_COMBOBOX);
 	m_listbox->SetBindObject(this);
 	

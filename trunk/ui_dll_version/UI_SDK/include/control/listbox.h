@@ -156,7 +156,7 @@ namespace UI
 		void    RemoveAllItem();
 		void    SetSortCompareProc( ListItemCompareProc p );
 		int     GetItemCount() { return m_nItemCount; }
-		void    SetFixedItemHeight(int nHeight, bool bUpdate=true);
+		void    SetItemHeight(int nHeight, bool bUpdate=true);
 
 		ListItemBase* HitTest(POINT ptWindow);
 		ListItemBase* Index2Item(int nIndex);
@@ -192,9 +192,9 @@ namespace UI
 
 	protected:
 		// 属性
-		int            m_nFixeddItemHeight;   // 如果m_bFixedItemHeight=true，该项代表每一项的高度
 		int            m_nItemGap;            // 两个子项之间的间隔
 		int            m_nItemCount;          // 列表项数量
+		int            m_nItemHeight;
 
 		ListItemCompareProc  m_pCompareProc;  // 排序函数
 
@@ -263,7 +263,6 @@ namespace UI
 
 	public:
 		ListBoxItem*  AddString(const String& strText, bool bUpdate=true);
-		void     SetItemHeight(int nHeight);
 
 		int      GetListBoxStyle();
 		void     SetListBoxStyle(int n);
@@ -273,7 +272,6 @@ namespace UI
 		void     CloseUp();
 
 	protected:
-		int      m_nItemHeight;
 		Object*  m_pBindObject;   // 例如从combobox弹出来的列表框，m_pBindObject将指向Combobox*
 
 		PopupListBoxWindow* m_pPopupWrapWnd;
