@@ -87,6 +87,12 @@ enum
 	//
 	UI_WM_GETSCROLLOFFSET,
 
+	//	祖、父对象中的可见状态发生了改变（主要是用于在父对象隐藏时，能自动将HwndObj对象也隐藏）
+	//		message: UI_WM_PARENT_VISIBLE_CHANGED
+	//		code:    
+	//		wparam:  Object*
+	//		lparam:  bool bVisible
+	UI_WM_PARENT_VISIBLE_CHANGED,
 
 	//
 	//	获取对象附带的滚动条对象
@@ -171,13 +177,13 @@ enum
 	//		lparam:  ListItemBase* pNew
 	UI_LCN_SELCHANGED,
 
-
-	//	祖、父对象中的可见状态发生了改变（主要是用于在父对象隐藏时，能自动将HwndObj对象也隐藏）
-	//		message: UI_WM_PARENT_VISIBLE_CHANGED
-	//		code:    
-	//		wparam:  Object*
-	//		lparam:  bool bVisible
-	UI_WM_PARENT_VISIBLE_CHANGED,
+	//	点击菜单项
+	//		message: UI_WM_NOTIFY
+	//		code:    UI_MENU_CLICK 
+	//      wparam:  
+	//      lparam: 
+	//
+	UI_MENU_CLICK
 
 };
 
@@ -1023,6 +1029,17 @@ protected:
 	{                                                 \
 		SetMsgHandled(TRUE);                          \
 		func( (ListItemBase*)wParam, (ListItemBase*)lParam); \
+		if(IsMsgHandled())                            \
+			return TRUE;                              \
+	}
+
+// void OnMenuClick(MenuItem* pItem);
+#define UIMSG_MENU_CLICK(func)                        \
+	if( uMsg == UI_WM_NOTIFY  &&                      \
+		code == UI_MENU_CLICK )                       \
+	{                                                 \
+		SetMsgHandled(TRUE);                          \
+		func((MenuItem*)wParam);                     \
 		if(IsMsgHandled())                            \
 			return TRUE;                              \
 	}

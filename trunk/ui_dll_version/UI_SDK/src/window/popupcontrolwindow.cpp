@@ -3,6 +3,7 @@
 PopupControlWindow::PopupControlWindow(Object* pObj)
 {
 	m_pObject = pObj;
+	m_bExitLoop = false;
 }
 
 
@@ -39,8 +40,9 @@ void PopupControlWindow::OnInitWindow()
 	m_pObject->AddHook(this, 0, 1);
 	this->AddChild(m_pObject);
 
+	// 由于Menu,listbox的需求不同，有可能需要调用同步SendMessage，因些将该消息的调用放到外面去调用
 	// 准备进入消息循环
-	::PostMessage(m_hWnd, UI_WM_ENTERPOPUPLOOP, 0, 0);
+	//::PostMessage(m_hWnd, UI_WM_ENTERPOPUPLOOP, 0, 0);
 }
 
 LRESULT PopupControlWindow::OnEnterPopupLoop(UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -55,6 +57,8 @@ LRESULT PopupControlWindow::OnExitPopupLoop(UINT uMsg, WPARAM wParam, LPARAM lPa
 {
 	this->ClearTreeObject();
 	::DestroyWindow(m_hWnd);
+
+	m_bExitLoop = true;
 
 	// 通知对象窗口被销毁
 	UISendMessage(m_pObject, UI_WM_UNINITPOPUPCONTROLWINDOW, 0,0,0, this);
@@ -79,12 +83,14 @@ void PopupControlWindow::PopupLoop()
 			return;
 		}
 
-		bool bBreak = false;
-		if (UI_WM_EXITPOPUPLOOP == msg.message)  // 注：处理完该消息后，m_hWnd将为空，因此先判断再执行
-		{
-			if (msg.hwnd == m_hWnd)
-				bBreak = true;
-		}
+		// Removed <-- 不靠谱. 1>. 有可能该消息通过SendMessage发送 2>. 某些场景下面有问题
+		// 因些增加了一个变量m_bExitLoop来设置是否退出本循环
+// 		bool bBreak = false;
+// 		if (UI_WM_EXITPOPUPLOOP == msg.message)  // 注：处理完该消息后，m_hWnd将为空，因此先判断再执行
+// 		{
+// 			if (msg.hwnd == m_hWnd)
+// 				bBreak = true;
+// 		}
 
 		if (FALSE == this->PreTranslatePopupMessage(&msg))
 		{
@@ -92,8 +98,13 @@ void PopupControlWindow::PopupLoop()
 			DispatchMessage(&msg);
 		}
 
-		if (bBreak)
+// 		if (bBreak)
+// 			break;
+		if (m_bExitLoop)
+		{
+			m_bExitLoop = false;
 			break;
+		}
 	}
 }
 BOOL PopupControlWindow::PreTranslatePopupMessage(MSG* pMsg)

@@ -52,6 +52,7 @@ namespace UI
 
 	protected:
 		Object*   m_pObject;   // 弹出窗口中装载的对象指针，如ListBox* Menu*
+		bool      m_bExitLoop; // 在收到WM_EXITPOPUPLOOP之后，该变量为true
 	};
 
 	class ListBox;

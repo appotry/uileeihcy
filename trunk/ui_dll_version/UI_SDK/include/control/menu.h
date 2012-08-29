@@ -2,16 +2,19 @@
 
 namespace UI
 {
-	class MenuItemData
+	class MenuItem : public ListItemBase
 	{
 	public:
-		MenuItemData();
+		MenuItem(ListCtrlBase* pCtrl);
 
 		const String& GetText() { return m_strText; }
 		bool  IsSeperator() { return m_nFlag&MF_SEPARATOR ? true:false; }
 		bool  IsPopup() { return m_nFlag&MF_SEPARATOR ? true:false; }
 		void  SetFlag(UINT nFlag){ m_nFlag = nFlag; }
+		void  SetID(UINT nID) { m_nID = nID; }
 		void  SetText(const String& str){ m_strText = str; }
+		UINT  GetFlag() { return m_nFlag; }
+		UINT  GetID() { return m_nID; }
 
 	protected:
 		String    m_strText;
@@ -51,11 +54,10 @@ namespace UI
 
 		virtual  void OnDrawItem( HRDC hRDC, ListItemBase* p ) ;
 		virtual  SIZE OnMeasureItem( ListItemBase* p);
-		virtual  void OnDeleteItem( ListItemBase* p );
 
-		void     OnDrawSeperatorItem(HRDC hRDC, ListItemBase* p, MenuItemData* pMenuData);
-		void     OnDrawPopupItem(HRDC hRDC, ListItemBase* p, MenuItemData* pMenuData);
-		void     OnDrawStringItem(HRDC hRDC, ListItemBase* p, MenuItemData* pMenuData);
+		void     OnDrawSeperatorItem(HRDC hRDC, ListItemBase* p, MenuItem* pMenu);
+		void     OnDrawPopupItem(HRDC hRDC, ListItemBase* p, MenuItem* pMenu);
+		void     OnDrawStringItem(HRDC hRDC, ListItemBase* p, MenuItem* pMenu);
 
 		void     OnInitPopupControlWindow(Object* pObjMsgFrom);
 		void     OnUnInitPopupControlWindow(Object* pObjMsgFrom);
@@ -70,7 +72,6 @@ namespace UI
 		int        m_nTextMarginLeft;
 		int        m_nTextMarginRight;
 		int        m_nPopupTriangleWidth; // 菜单右侧弹出菜单类型的三角形
-		int        m_nItemHeight;
 		int        m_nSeperatorHeight;
 	
 	};

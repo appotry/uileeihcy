@@ -63,9 +63,24 @@ void CMainMgr::HandleEvent(IMgr* pSource, int nEventType, int nEventId, WPARAM w
 		break;
 	case EVENT_TYPE_PLAY:
 		{
-			if (PLAY_EVENT_ID_ON_START == nEventId && NULL != m_pMainWindow)
+			if (NULL == m_pMainWindow)
+				break;
+
+			if (PLAY_EVENT_ID_ON_START == nEventId )
 			{
 				m_pMainWindow->OnMP3Start((PlayerListItemInfo*)wParam);
+			}
+			else if (PLAY_EVENT_ID_ON_PAUSE == nEventId)
+			{
+				m_pMainWindow->OnMP3Pause();
+			}
+			else if (PLAY_EVENT_ID_ON_STOP == nEventId)
+			{
+				m_pMainWindow->OnMP3Stop();
+			}
+			else if (PLAY_EVENT_ID_ON_CONTINUE == nEventId)
+			{
+				m_pMainWindow->OnMP3Continue();
 			}
 		}
 		break;

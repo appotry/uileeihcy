@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-MenuItemData::MenuItemData()
+MenuItem::MenuItem(ListCtrlBase* pCtrl) : ListItemBase(pCtrl)
 {
 	m_nFlag = MF_STRING;
 	m_nID = 0;
@@ -12,7 +12,6 @@ MenuBase::MenuBase()
 	m_pSeperatorRender = NULL;
 
 	m_nIconGutterWidth = 28;
-	m_nItemHeight = 24;
 	m_nSeperatorHeight = 3;
 	m_nPopupTriangleWidth = 20;
 
@@ -100,19 +99,22 @@ void MenuBase::OnLButtonUp(UINT nFlags, POINT point)
 		this->SetPressItem(NULL, point, nFlags);
 		this->ReDrawItem(pSave);
 		this->ReDrawItem(m_pHoverItem);
-// 
-// 		UIMSG  msg;
-// 		msg.message = WM_COMMAND;
-
 
 		if (NULL != m_pPopupWrapWnd)
 		{
 			m_pPopupWrapWnd->DestroyPopupWindow();
 		}
+
+		UIMSG  msg;
+		msg.message = UI_WM_NOTIFY;
+		msg.code = UI_MENU_CLICK;
+		msg.wParam = (WPARAM)pSave;
+		msg.pObjMsgFrom = this;
+		DoNotify(&msg);
 	}
 }
 
-bool MenuBase::AppendMenu(UINT uFlags, UINT_PTR uIDNewItem, TCHAR* lpNewItem)
+bool MenuBase::AppendMenu(UINT uFlags, UINT_PTR uItemID, TCHAR* lpNewItem)
 {
 	if (uFlags & MF_SEPARATOR)
 	{
@@ -131,13 +133,12 @@ bool MenuBase::AppendMenu(UINT uFlags, UINT_PTR uIDNewItem, TCHAR* lpNewItem)
 		if (NULL == lpNewItem)
 			return false;
 
-		ListItemBase* pItem = new ListItemBase(this);
-		MenuItemData *pData = new MenuItemData;
+		MenuItem *pItem = new MenuItem(this);
 
-		pData->SetFlag(uFlags);
-		pData->SetText(lpNewItem);
-		pItem->SetData((void*)pData);
-		
+		pItem->SetFlag(uFlags);
+		pItem->SetText(lpNewItem);
+		pItem->SetID(uItemID);
+
 		this->AddItem(pItem, false);
 	}
 	
@@ -158,7 +159,9 @@ int  MenuBase::TrackPopupMenu(UINT nFlag, int x, int y, Message* pNotifyObj)
 	m_pPopupWrapWnd = new PopupMenuWindow(this);
 	m_pPopupWrapWnd->Create(_T(""),NULL);
 	::SetWindowPos(m_pPopupWrapWnd->m_hWnd, NULL,x,y,0,0,SWP_NOSIZE|SWP_NOZORDER|SWP_SHOWWINDOW|SWP_NOACTIVATE);
+	this->AddNotify(pNotifyObj, 0);
 
+	::SendMessage(m_pPopupWrapWnd->m_hWnd, UI_WM_ENTERPOPUPLOOP, 0, 0);
 	return 0;
 }
 
@@ -167,24 +170,12 @@ int  MenuBase::GetMenuItemCount()
 	return __super::GetItemCount();
 }
 
-void MenuBase::OnDeleteItem( ListItemBase* p )
-{
-	if (NULL == p)
-		return;
-
-	MenuItemData *pData = (MenuItemData*)p->GetData();
-	if (NULL == pData)
-		return;
-
-	SAFE_DELETE(pData);
-}
-
 SIZE MenuBase::OnMeasureItem( ListItemBase* p)
 {
 	SIZE s = {0,0};
 	if (NULL != p)
 	{
-		MenuItemData* pItemData = (MenuItemData*)p->GetData();
+		MenuItem* pItemData = (MenuItem*)p;
 		if (NULL == pItemData)
 			return s;
 
@@ -206,31 +197,32 @@ void MenuBase::OnDrawItem( HRDC hRDC, ListItemBase* p )
 {
 	if (NULL == p)
 		return;
-	MenuItemData* pData = (MenuItemData*)p->GetData();
 
-	if (pData->IsSeperator())
+	MenuItem* pItem = (MenuItem*)p;
+
+	if (pItem->IsSeperator())
 	{
-		this->OnDrawSeperatorItem(hRDC, p, pData);
+		this->OnDrawSeperatorItem(hRDC, p, pItem);
 	}
-	else if (pData->IsPopup())
+	else if (pItem->IsPopup())
 	{
-		this->OnDrawPopupItem(hRDC, p, pData);
+		this->OnDrawPopupItem(hRDC, p, pItem);
 	}
 	else
 	{
-		this->OnDrawStringItem(hRDC, p, pData);
+		this->OnDrawStringItem(hRDC, p, pItem);
 	}
 }
 
-void MenuBase::OnDrawSeperatorItem(HRDC hRDC, ListItemBase* p, MenuItemData* pMenuData)
+void MenuBase::OnDrawSeperatorItem(HRDC hRDC, ListItemBase* p, MenuItem* pMenuData)
 {
 	
 }
-void MenuBase::OnDrawPopupItem(HRDC hRDC, ListItemBase* p, MenuItemData* pMenuData)
+void MenuBase::OnDrawPopupItem(HRDC hRDC, ListItemBase* p, MenuItem* pMenuData)
 {
 	
 }
-void MenuBase::OnDrawStringItem(HRDC hRDC, ListItemBase* p, MenuItemData* pMenuData)
+void MenuBase::OnDrawStringItem(HRDC hRDC, ListItemBase* p, MenuItem* pMenuData)
 {
 	CRect rcItem;
 	p->GetParentRect(&rcItem);
