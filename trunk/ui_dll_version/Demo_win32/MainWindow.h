@@ -66,6 +66,8 @@ public:
     void    OnContextMenu(HWND wnd, POINT point);
 	void    OnSysCommand(UINT nID, CPoint lParam);
 
+	void    OnMP3Start(PlayerListItemInfo* pItemInfo);
+
 // 	void    OnLButtonDown(UINT nFlags, POINT point);
 // 	void    OnLButtonUp(UINT nFlags, POINT point);
 // 	void    OnMouseMove(UINT nFlags, POINT point);

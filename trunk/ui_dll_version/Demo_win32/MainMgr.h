@@ -15,8 +15,14 @@ public:
 
 	HWND     GetMainWnd();
 
-	void     DoEvent(IMgr* pSource, int nEventType, int nEventId, WPARAM wParam, LPARAM lParam);
+	void     Play(PlayerListItemInfo* pItem);	
+	void     Play();
+	void     Stop();
+	void     Pause();
+
+	void     HandleEvent(IMgr* pSource, int nEventType, int nEventId, WPARAM wParam, LPARAM lParam);
 
 protected:
-	MainWindow*     m_pMainWindow;
+	MainWindow*           m_pMainWindow;
+	PlayerListItemInfo*   m_pCurPlayingItem;  // 当前正在插放的文件
 };

@@ -61,7 +61,7 @@ bool  CPlayerListData::Add(const String& strPath)
 		if (false == xml.FindElem(_T("playlist")))   break;
 		if (false == xml.IntoElem())    break;
 
-		if (false == xml.InsertElem(_T("item"), strPath))  break;
+		if (false == xml.AddElem(_T("item"), strPath))  break;   // 不要调用InsertElem,应该添加到最后面，而不是插入到第一个位置
 		if (false == xml.Save(strConfigXmlPath)) break;
 
 		bRet = true;

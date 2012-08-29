@@ -3,6 +3,7 @@
 #include "player.h"
 #include "PlayerListMgr.h"
 #include "OptionWindow.h"
+#include "MainMgr.h"
 
 MainWindow::MainWindow(void)
 {
@@ -97,6 +98,10 @@ void MainWindow::OnInitWindow()
 
 void MainWindow::OnBnClickPlay()
 {
+	GetMainMgr()->Play();
+}
+void MainWindow::OnMP3Start(PlayerListItemInfo* pItemInfo)
+{
 	if( NULL != m_pbtnStart && NULL != m_pbtnPause )
 	{
 		m_pbtnPause->SetVisible(true, false);
@@ -110,8 +115,6 @@ void MainWindow::OnBnClickPlay()
 	{
 		m_pLabelPlaystatus->SetText(_T("×´Ì¬:²¥·Å"));
 	}
-
-	::mp3_play();
 }
 
 void MainWindow::OnBnClickPause()
@@ -187,9 +190,9 @@ void MainWindow::OnBnClickOpen()
 	if(IDCANCEL == dlg.DoModal())
 		return;
 
-	::mp3_stop();
+	OnBnClickStop();
 	::mp3_set_file(dlg.m_szFileName);
-	::mp3_play();
+	OnBnClickPlay();
 }
 
 void MainWindow::OnBnClickPlaylist()

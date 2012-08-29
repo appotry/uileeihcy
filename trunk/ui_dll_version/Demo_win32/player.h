@@ -1,13 +1,37 @@
 #pragma once
 
+//
+// 事件机制
+//
+//	1. 事件类型
+//		
+//	   事件类型分为两级，以便减少遍历次数：PLAYER_EVENT_TYPE + PLAYER_EVENT_ID
+//
+//	2. 激发/响应
+//	
+//	   IMgr::FireEvent 调用 CFrameWork::FireEvent，CFrameWork将编辑m_vecMgr列表，调用每一个
+//	   Mgr的HandleEvent接口。Mgr即可去处理自己感兴趣的事件
+//
+//	3. 为什么不采用 Mgr去注册自己感兴趣的事件 的方法，却采用了全部遍历？
+//	   
+//	   更简单。
+//		
+//
 enum PLAYER_EVENT_TYPE
 {
 	EVENT_TYPE_UI,
-	EVENT_TPPE_PLAYER
+	EVENT_TYPE_PLAY
 };
-enum PLAYER_EVENT_ID
+enum PLAYER_UI_EVENT_ID
 {
-	UI_EVENT_ID_ON_PLAYERLISTDLG_CREATE
+	UI_EVENT_ID_ON_PLAYERLISTDLG_CREATE,    // 播放列表窗口被创建，WPARAM: 窗口句柄；LPARAM:NA
+};
+enum PLAYER_PALY_EVENT_ID
+{
+	PLAY_EVENT_ID_ON_START,                 // 开始播放一首MP3，WPARAM: PlayItemInfo*
+	PLAY_EVENT_ID_ON_PAUSE,
+	PLAY_EVENT_ID_ON_CONTINUE,
+	PLAY_EVENT_ID_ON_STOP
 };
 
 
@@ -27,8 +51,9 @@ public:
 	virtual  bool  Release() = 0;
 
 public:
-	virtual  void  DoEvent(IMgr* pSource, int nEventType, int nEventId, WPARAM wParam, LPARAM lParam){};
+	virtual  void  HandleEvent(IMgr* pSource, int nEventType, int nEventId, WPARAM wParam, LPARAM lParam){};
 
+protected:
 	void     FireEvent(int nCmdType, int nEventId, WPARAM wParam = 0, LPARAM lParam = 0);
 };
 

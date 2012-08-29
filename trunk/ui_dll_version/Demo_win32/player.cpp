@@ -80,6 +80,6 @@ void CFrameWork::FireEvent(IMgr* pSource,int nEventType, int nEventId, WPARAM wP
 		if (NULL == pMgr)
 			continue;
 
-		pMgr->DoEvent(pSource,nEventType,nEventId, wParam, lParam);
+		pMgr->HandleEvent(pSource,nEventType,nEventId, wParam, lParam);
 	}
 }
