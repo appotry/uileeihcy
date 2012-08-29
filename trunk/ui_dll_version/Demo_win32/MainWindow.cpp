@@ -25,7 +25,6 @@ MainWindow::MainWindow(void)
 // 	m_lSizeMove = 0;
 // 	m_ptCursorSizeMove.x = m_ptCursorSizeMove.y = 0;
 // 	m_ptWndPosSizeMove.x = m_ptWndPosSizeMove.y = 0;
-	m_pMenu = NULL;
 }
 
 MainWindow::~MainWindow(void)
@@ -42,7 +41,6 @@ MainWindow::~MainWindow(void)
 		delete m_pLyricDlg;
 		m_pLyricDlg = NULL;
 	}
-	SAFE_DELETE(m_pMenu);
 }
 
 BOOL MainWindow::PreCreateWindow( CREATESTRUCT& cs )
@@ -104,8 +102,24 @@ void MainWindow::OnMP3Start(PlayerListItemInfo* pItemInfo)
 {
 	if( NULL != m_pbtnStart && NULL != m_pbtnPause )
 	{
-		m_pbtnPause->SetVisible(true, false);
 		m_pbtnStart->SetVisible(false, false);
+		m_pbtnPause->SetVisible(true, true);
+	}
+
+	if( NULL != m_pbtnStop )
+		m_pbtnStop->SetEnable( true );
+
+	if( NULL != m_pLabelPlaystatus )
+	{
+		m_pLabelPlaystatus->SetText(_T("状态:播放"));
+	}
+}
+void MainWindow::OnMP3Continue()
+{
+	if( NULL != m_pbtnStart && NULL != m_pbtnPause )
+	{
+		m_pbtnStart->SetVisible(false, false);
+		m_pbtnPause->SetVisible(true, true);
 	}
 
 	if( NULL != m_pbtnStop )
@@ -117,7 +131,12 @@ void MainWindow::OnMP3Start(PlayerListItemInfo* pItemInfo)
 	}
 }
 
+
 void MainWindow::OnBnClickPause()
+{
+	GetMainMgr()->Pause();
+}
+void MainWindow::OnMP3Pause()
 {
 	if( NULL != m_pbtnStart && NULL != m_pbtnPause )
 	{
@@ -129,11 +148,13 @@ void MainWindow::OnBnClickPause()
 	{
 		m_pLabelPlaystatus->SetText(_T("状态:暂停"));
 	}
-
-	::mp3_pause();
 }
 
 void MainWindow::OnBnClickStop()
+{
+	GetMainMgr()->Stop();
+}
+void MainWindow::OnMP3Stop()
 {
 	if( NULL != m_pbtnStart && NULL != m_pbtnPause )
 	{
@@ -164,10 +185,7 @@ void MainWindow::OnBnClickStop()
 	{
 		m_pLabelTime->SetText(_T(" 00:00"));
 	}
-
-	::mp3_stop();
 }
-
 
 void MainWindow::OnBnClickMute()
 {
@@ -375,10 +393,6 @@ void MainWindow::OnCancelMode()
 	this->OnExitSizeMove();
 }
 #endif
-void MainWindow::OnTimer(UINT_PTR nIDEvent)
-{
-
-}
 
 void MainWindow::OnSysCommand(UINT nID, CPoint lParam)
 {
@@ -394,14 +408,36 @@ void MainWindow::OnContextMenu( HWND wnd, POINT point )
 	if( this->GetHoverObject() != NULL )
 		return;
 
-	if (NULL == m_pMenu)
-		UICreateInstance(&m_pMenu);
+	// Menu是自销毁的
+	Menu* pMenu = NULL;
+	UICreateInstance(&pMenu);
 
-	m_pMenu->AppendMenu(MF_STRING, 101, _T("Test"));
+	int nMenuID = 100;
+	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("千千选项"));
+	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("相关链接"));
+	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("--------"));
+	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("播放控制"));
+	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("音量控制"));
+	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("播放模式"));
+	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("播放曲目"));
+	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("--------"));
+	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("视觉外观"));
+	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("歌词秀"));
+	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("均衡器"));
+	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("--------"));
+	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("皮肤"));
+	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("透明"));
+	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("查看"));
+	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("--------"));
+	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("最小化"));
+	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("全屏显示"));
+	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("退出"));
+
  
  	POINT pt;
  	GetCursorPos(&pt);
- 	m_pMenu->TrackPopupMenu(0,pt.x,pt.y,0);
+ 	pMenu->TrackPopupMenu(0,pt.x,pt.y, static_cast<Message*>(this));
+	SAFE_DELETE(pMenu);
 
 	return;
 
@@ -466,6 +502,22 @@ void MainWindow::OnContextMenu( HWND wnd, POINT point )
 			
 			break;
 		}
+	}
+}
+
+void MainWindow::OnMenuClick(MenuItem* pItem)
+{
+	if (NULL == pItem)
+		return;
+
+	switch( pItem->GetID() )
+	{
+	case 100:
+		{		
+			COptionWindow win;
+			win.DoModal(g_hInstance, COptionWindow::IDD, _T("OptionWindow"),m_hWnd);
+		}		
+		break;
 	}
 }
 

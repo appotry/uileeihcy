@@ -148,7 +148,7 @@ namespace UI
 		// 自己给子类的虚方法
 		virtual  void OnDrawItem( HRDC hRDC, ListItemBase* p ) = 0;
 		virtual  SIZE OnMeasureItem( ListItemBase* p) = 0;
-		virtual  void OnDeleteItem( ListItemBase* p ) = 0;
+		virtual  void OnDeleteItem( ListItemBase* p ){};
 
 	public:
 		// 公用接口
@@ -255,7 +255,6 @@ namespace UI
 	protected:
 		virtual  void OnDrawItem( HRDC hRDC, ListItemBase* p ) ;
 		virtual  SIZE OnMeasureItem( ListItemBase* p);
-		virtual  void OnDeleteItem( ListItemBase* p );
 
 		void     OnLButtonUp(UINT nFlags, CPoint point);
 		void     OnInitPopupControlWindow(Object* pObjMsgFrom);

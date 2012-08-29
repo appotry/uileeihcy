@@ -1165,10 +1165,6 @@ SIZE ListBox::OnMeasureItem( ListItemBase* p)
 	SIZE s = {0,m_nItemHeight};
 	return s;
 }
-void ListBox::OnDeleteItem( ListItemBase* p )
-{
-
-}
 
 void ListBox::OnLButtonUp(UINT nFlags, CPoint point)
 {
@@ -1194,6 +1190,7 @@ void ListBox::DropDown()
 	m_pPopupWrapWnd = new PopupListBoxWindow(this, m_pBindObject);
 	m_pPopupWrapWnd->Create(_T(""), NULL);
 	::SetWindowPos(m_pPopupWrapWnd->m_hWnd, NULL,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_SHOWWINDOW|SWP_NOACTIVATE);
+	::PostMessage(m_pPopupWrapWnd->m_hWnd, UI_WM_ENTERPOPUPLOOP, 0, 0);
 }
 void ListBox::CloseUp()
 {

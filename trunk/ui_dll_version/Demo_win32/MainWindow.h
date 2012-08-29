@@ -30,7 +30,6 @@ public:
 // 		UIMSG_WM_LBUTTONUP( OnLButtonUp )
 // 		UIMSG_WM_MOUSEMOVE( OnMouseMove )
 // 		UIMSG_WM_CANCELMODE( OnCancelMode )
-
 #if 1
 		UIMSG_WM_WINDOWPOSCHANGING(AnchorWindowHelper<MainWindow>::__OnWindowPosChanging)
 #else
@@ -39,11 +38,11 @@ public:
 		UIMSG_WM_MOUSEMOVE( AnchorWindowHelper<MainWindow>::OnMouseMove )
 		UIMSG_WM_CANCELMODE( AnchorWindowHelper<MainWindow>::OnCancelMode )
 #endif
+		UIMSG_WM_CONTEXTMENU(OnContextMenu);
+		UIMSG_MENU_CLICK(OnMenuClick)	
 
 		UIMSG_WM_SYSCOMMAND(OnSysCommand)
 		UIMSG_WM_DESTROY(OnDestroy)
-		UIMSG_WM_TIMER(OnTimer)
-		UIMSG_WM_CONTEXTMENU(OnContextMenu);
 		UICHAIN_MSG_MAP(CustomWindow)
 	UI_END_MSG_MAP
 
@@ -62,11 +61,14 @@ public:
 	void    OnBnClickMute();
 	void    OnMusicProgressPosChanged(int nPos, int nScrollType);
 	void    OnVolumnChanged(int nPos, int nScrollType);
-	void    OnTimer(UINT_PTR nIDEvent);
     void    OnContextMenu(HWND wnd, POINT point);
+	void    OnMenuClick(MenuItem* pItem);
 	void    OnSysCommand(UINT nID, CPoint lParam);
-
+	
 	void    OnMP3Start(PlayerListItemInfo* pItemInfo);
+	void    OnMP3Pause();
+	void    OnMP3Stop();
+	void    OnMP3Continue();
 
 // 	void    OnLButtonDown(UINT nFlags, POINT point);
 // 	void    OnLButtonUp(UINT nFlags, POINT point);
@@ -102,6 +104,4 @@ protected:
 	LEDCtrl*        m_pLEDTime;
 	SliderCtrl*     m_pProgress;
 	SliderCtrl*     m_pVolume;
-
-	Menu*           m_pMenu;
 };
