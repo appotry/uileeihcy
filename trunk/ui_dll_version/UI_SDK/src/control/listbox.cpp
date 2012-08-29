@@ -812,6 +812,15 @@ void ListCtrlBase::OnLButtonUp(UINT nFlags, POINT point)
 		this->SetPressItem(NULL, point, nFlags);
 		this->ReDrawItem(pSave);
 		this->ReDrawItem(m_pHoverItem);
+		
+		UIMSG  msg;
+		msg.message = UI_WM_NOTIFY;
+		msg.code = UI_LCN_CLICK;
+		msg.wParam = MAKEWPARAM(point.x, point.y);
+		msg.lParam = (LPARAM)m_pPressItem;
+		msg.pObjMsgFrom = this;
+
+		this->DoNotify(&msg);
 	}
 }
 void ListCtrlBase::OnDBClick(UINT nFlags, POINT point)
@@ -852,7 +861,12 @@ void ListCtrlBase::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
 			}
 
 			if(NULL != m_pFirstSelectedItem)  // 清除hover对象，显示selection对象
+			{
+				if (m_pHoverItem != NULL)
+					bNeedUpdateObject = true;
+
 				SetHoverItem(NULL);
+			}
 		}
 		else  // 正常列表框
 		{
@@ -883,7 +897,12 @@ void ListCtrlBase::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
 			}
 
 			if(NULL != m_pFirstSelectedItem)  // 清除hover对象，显示selection对象
+			{
+				if (m_pHoverItem != NULL)
+					bNeedUpdateObject = true;
+
 				SetHoverItem(NULL);
+			}
 		}
 		else  // 正常列表框
 		{

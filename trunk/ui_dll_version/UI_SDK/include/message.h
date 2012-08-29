@@ -157,6 +157,13 @@ enum
 	//		lparam:  ListItemBase*
 	UI_LCN_DBCLICK,
 
+	//	点击listctrl
+	//		message: UI_WM_NOTIFY
+	//		code:    UI_LCN_CLICK
+	//		wparam:  POINT
+	//		lparam:  ListItemBase*
+	UI_LCN_CLICK,
+
 	//	listctrl 当前选中项改变
 	//		message: UI_WM_NOTIFY
 	//		code:    UI_LCN_SELCHANGED

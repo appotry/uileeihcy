@@ -2,7 +2,7 @@
 #include "playlistdlg.h"
 #include "player.h"
 #include "PlayerListMgr.h"
-
+#include "MainMgr.h"
 
 //////////////////////////////////////////////////////////////////////////
 TTPlayerPlaylistCtrl::TTPlayerPlaylistCtrl()
@@ -206,11 +206,7 @@ void CPlayListDlg::OnLCNDbclick(POINT pt, ListItemBase* pItem)
 	if (NULL == pPlayItem)
 		return;
 
-	::mp3_stop();
-	if (::mp3_set_file(pPlayItem->m_pItemInfo->m_strFilePath))
-	{
-		::mp3_play();
-	}
+	GetMainMgr()->Play(pPlayItem->m_pItemInfo);
 }
 
 void CPlayListDlg::OnAddItem(PlayerListItemInfo* pItemInfo)

@@ -91,8 +91,6 @@ void MenuBase::OnLButtonDown(UINT nFlags, POINT point)
 	{
 		this->SetPressItem(m_pHoverItem, point, nFlags);
 	}
-
-
 }
 void MenuBase::OnLButtonUp(UINT nFlags, POINT point)
 {
@@ -102,6 +100,10 @@ void MenuBase::OnLButtonUp(UINT nFlags, POINT point)
 		this->SetPressItem(NULL, point, nFlags);
 		this->ReDrawItem(pSave);
 		this->ReDrawItem(m_pHoverItem);
+// 
+// 		UIMSG  msg;
+// 		msg.message = WM_COMMAND;
+
 
 		if (NULL != m_pPopupWrapWnd)
 		{
