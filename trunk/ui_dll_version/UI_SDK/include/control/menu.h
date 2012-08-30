@@ -8,18 +8,25 @@ namespace UI
 		MenuItem(ListCtrlBase* pCtrl);
 
 		const String& GetText() { return m_strText; }
+
 		bool  IsSeperator() { return m_nFlag&MF_SEPARATOR ? true:false; }
-		bool  IsPopup() { return m_nFlag&MF_SEPARATOR ? true:false; }
+		bool  IsPopup() { return m_nFlag&MF_POPUP ? true:false; }
+		
 		void  SetFlag(UINT nFlag){ m_nFlag = nFlag; }
 		void  SetID(UINT nID) { m_nID = nID; }
 		void  SetText(const String& str){ m_strText = str; }
 		UINT  GetFlag() { return m_nFlag; }
 		UINT  GetID() { return m_nID; }
 
+		virtual  bool    OnMouseEnter();
+		virtual  bool    OnMouseLeave();
+
 	protected:
-		String    m_strText;
-		UINT      m_nFlag;
-		int       m_nID;
+		String      m_strText;
+		MenuBase*   m_pSubMenu;   // 如果是一个popup菜单，该成员表示其子菜单
+
+		UINT        m_nFlag;
+		int         m_nID;
 	};
 
 
