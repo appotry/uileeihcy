@@ -80,8 +80,6 @@ void MainWindow::OnInitWindow()
 		m_pbtnPause->SetVisible(false);
 	}
 
-	::mp3_add_event_callback(this);
-
 	TCHAR szPath[MAX_PATH] = _T("");
 	Util::GetAppPath_(szPath);
 	String str =  szPath;
@@ -534,12 +532,8 @@ void MainWindow::OnVolumnChanged( int nPos, int nScrollType )
 		::mp3_set_volumn(nPos);
 }
 
-void MainWindow::on_mp3_stop()
-{
-	this->OnBnClickStop();	
-}
 
-void MainWindow::on_mp3_progress_ind(LONGLONG llCur, LONGLONG llDuration)
+void MainWindow::OnMP3ProgressInd(LONGLONG llCur, LONGLONG llDuration)
 {
 	if( 0 == llDuration )
 		return;
@@ -587,7 +581,7 @@ void MainWindow::on_mp3_progress_ind(LONGLONG llCur, LONGLONG llDuration)
 	}
 }
 
-void MainWindow::on_mp3_volume_ind(long lVolumn)
+void MainWindow::OnMP3VolumeInd(long lVolumn)
 {
 	if( ::GetCapture() == m_hWnd )  // 正在拖拽过程中
 	{
