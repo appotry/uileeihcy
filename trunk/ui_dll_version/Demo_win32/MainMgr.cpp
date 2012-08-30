@@ -16,6 +16,7 @@ CMainMgr::~CMainMgr()
 bool CMainMgr::Initialize()
 {
 	bool bRet = ::mp3_init();
+	::mp3_add_event_callback(this);
 
 	if (NULL == m_pMainWindow)
 	{
@@ -99,7 +100,7 @@ void CMainMgr::Play(PlayerListItemInfo* pItem)
 	{
 		Stop();
 	}
-	if (false == ::mp3_set_file(pItem->m_strFilePath))
+	if (false == ::mp3_set_file(pItem->GetFilePath()))
 		return;
 
 	if (false == ::mp3_play())
@@ -116,6 +117,12 @@ void CMainMgr::Play()
 {
 	if (NULL == m_pCurPlayingItem)
 	{
+		bool bPlay = false;
+		m_pCurPlayingItem = GetPlayerListMgr()->GetNextPlayItem(bPlay);
+		if (bPlay)
+		{
+			Play(m_pCurPlayingItem);
+		}
 		return;
 	}
 
@@ -143,5 +150,40 @@ void CMainMgr::Pause()
 	if (::mp3_pause())
 	{
 		FireEvent(EVENT_TYPE_PLAY, PLAY_EVENT_ID_ON_PAUSE);
+	}
+}
+
+void CMainMgr::PlayNext()
+{
+	
+}
+void CMainMgr::PlayPrev()
+{
+
+}
+
+void CMainMgr::on_mp3_stop()
+{
+	FireEvent(EVENT_TYPE_PLAY, PLAY_EVENT_ID_ON_STOP);
+
+	bool bPlay = false;
+	PlayerListItemInfo* p = GetPlayerListMgr()->GetNextPlayItem(bPlay);
+	if (bPlay)
+	{
+		this->Play(p);
+	}
+}
+void CMainMgr::on_mp3_progress_ind(LONGLONG dCur, LONGLONG dLen)
+{
+	if (NULL != m_pMainWindow)
+	{
+		m_pMainWindow->OnMP3ProgressInd(dCur, dLen);
+	}
+}
+void CMainMgr::on_mp3_volume_ind(long lVolumn)
+{
+	if (NULL != m_pMainWindow)
+	{
+		m_pMainWindow->OnMP3VolumeInd(lVolumn);
 	}
 }

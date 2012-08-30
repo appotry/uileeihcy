@@ -96,11 +96,11 @@ void TTPlayerPlaylistCtrl::OnDrawItem(HRDC hRDC, ListItemBase* p)
 			DT_SINGLELINE|DT_RIGHT|DT_VCENTER, 
 			this->GetFont(), rgbText );
 
-		DrawString( hRDC, pData->m_pItemInfo->m_strFilePath.c_str(), &rcText, 
+		DrawString( hRDC, pData->m_pItemInfo->GetFilePath().c_str(), &rcText, 
 			DT_SINGLELINE|DT_END_ELLIPSIS|DT_LEFT|DT_VCENTER, 
 			this->GetFont(), rgbText );
 
-		DrawString( hRDC, pData->m_pItemInfo->m_strFileTime.c_str(), &rcTime, 
+		DrawString( hRDC, pData->m_pItemInfo->GetFileTime().c_str(), &rcTime, 
 			DT_SINGLELINE|DT_RIGHT|DT_VCENTER, 
 			this->GetFont(), rgbText );
 	}

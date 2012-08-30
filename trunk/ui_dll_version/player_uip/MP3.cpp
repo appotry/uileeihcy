@@ -285,6 +285,8 @@ HRESULT CMessageOnlyWindow::OnNotifyMsg(UINT msg, WPARAM w, LPARAM l)
 	{
 	case EC_COMPLETE:  // ²¥·Å½áÊø
 		{
+                        pThis->EndTimer();
+
 			list<IMp3EventCallback*>::iterator iter = pThis->m_listEventCallback.begin();
 			list<IMp3EventCallback*>::iterator iterEnd = pThis->m_listEventCallback.end();
 
@@ -292,6 +294,7 @@ HRESULT CMessageOnlyWindow::OnNotifyMsg(UINT msg, WPARAM w, LPARAM l)
 			{
 				(*iter)->on_mp3_stop();
 			}
+			
 		}
 		break;
 	}

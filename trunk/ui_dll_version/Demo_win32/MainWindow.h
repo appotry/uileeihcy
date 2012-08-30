@@ -7,7 +7,6 @@
 
 class MainWindow : 
 			public UI::CustomWindow, 
-			public IMp3EventCallback,
 			public AnchorWindowHelper<MainWindow>
 {
 public:
@@ -69,6 +68,8 @@ public:
 	void    OnMP3Pause();
 	void    OnMP3Stop();
 	void    OnMP3Continue();
+	void    OnMP3ProgressInd(LONGLONG dCur, LONGLONG dLen);
+	void    OnMP3VolumeInd(long lVolumn);
 
 // 	void    OnLButtonDown(UINT nFlags, POINT point);
 // 	void    OnLButtonUp(UINT nFlags, POINT point);
@@ -80,10 +81,7 @@ public:
 
 	void SetPlayerListDlgHandle(HWND hWnd);
 
-protected:	
-	virtual void   on_mp3_stop();
-	virtual void   on_mp3_progress_ind(LONGLONG dCur, LONGLONG dLen);
-	virtual void   on_mp3_volume_ind(long lVolumn);
+
 
 protected:
 	HWND            m_hWndPlayerList;
