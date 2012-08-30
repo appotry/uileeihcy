@@ -4,6 +4,20 @@ MenuItem::MenuItem(ListCtrlBase* pCtrl) : ListItemBase(pCtrl)
 {
 	m_nFlag = MF_STRING;
 	m_nID = 0;
+	m_pSubMenu = NULL;
+}
+
+bool MenuItem::OnMouseEnter()
+{
+	if (this->IsPopup() && NULL != m_pSubMenu)
+	{
+//		TimerHelper::SetNewTimer();
+	}
+	return true;
+}
+bool MenuItem::OnMouseLeave()
+{
+	return true;
 }
 
 MenuBase::MenuBase()

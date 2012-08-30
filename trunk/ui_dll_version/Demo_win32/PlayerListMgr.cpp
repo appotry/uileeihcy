@@ -8,7 +8,7 @@ CPlayerListMgr::CPlayerListMgr(void)
 {
 	m_pPlaylistDlg = NULL;
 	m_pCurPlayingItem = NULL;
-	m_ePlayMode = ALL_RAND;
+	m_ePlayMode = SINGLE_ONCE;
 }
 
 CPlayerListMgr::~CPlayerListMgr(void)
