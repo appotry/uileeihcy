@@ -4,11 +4,21 @@
 #include <stdlib.h>
 #include <time.h>
 
+void PlayerListItemInfo::SetFilePath(const String& str) 
+{ 
+	m_strFilePath = str; 
+	
+	// 读取文件属性
+	TCHAR szFileName[MAX_PATH] = _T("");
+	Util::GetPathFileName(str.c_str(), szFileName);
+	m_strFileName = szFileName;
+}
+
 CPlayerListMgr::CPlayerListMgr(void)
 {
 	m_pPlaylistDlg = NULL;
 	m_pCurPlayingItem = NULL;
-	m_ePlayMode = SINGLE_ONCE;
+	m_ePlayMode = ALL_RAND;
 }
 
 CPlayerListMgr::~CPlayerListMgr(void)
@@ -258,6 +268,7 @@ void CPlayerListMgr::HandleEvent(IMgr* pSource, int nEventType, int nEventId, WP
 			if (PLAY_EVENT_ID_ON_START == nEventId )
 			{
 				m_pCurPlayingItem = (PlayerListItemInfo*)wParam;
+				m_pPlaylistDlg->OnMp3Start(m_pCurPlayingItem);
 			}
 		}
 		break;

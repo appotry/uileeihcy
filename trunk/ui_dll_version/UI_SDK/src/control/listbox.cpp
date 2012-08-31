@@ -198,6 +198,25 @@ void ListCtrlBase::SetItemHeight(int nHeight, bool bUpdate)
 		this->UpdateObject();
 	}
 }
+
+ListItemBase* ListCtrlBase::GetItemBase(int nIndex)
+{
+	if (nIndex < 0 || nIndex >= m_nItemCount)
+		return NULL;
+
+	ListItemBase* pItem = m_pFirstItem;
+
+	int i = 0;
+	while(pItem != NULL)
+	{
+		if(i == nIndex)
+			return pItem;
+
+		i++;
+		pItem = pItem->GetNextItem();
+	}
+	return NULL;
+}
 //
 //	在末尾添加一项，根据排序结果，最后调用InsertItem
 //

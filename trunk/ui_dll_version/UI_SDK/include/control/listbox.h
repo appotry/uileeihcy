@@ -156,6 +156,9 @@ namespace UI
 		void    RemoveAllItem();
 		void    SetSortCompareProc( ListItemCompareProc p );
 		int     GetItemCount() { return m_nItemCount; }
+		ListItemBase* GetItemBase(int i);
+		ListItemBase* GetFirstItem() { return m_pFirstItem; }
+		ListItemBase* GetLastItem() { return m_pLastItem; }
 		void    SetItemHeight(int nHeight, bool bUpdate=true);
 
 		ListItemBase* HitTest(POINT ptWindow);

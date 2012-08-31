@@ -21,6 +21,24 @@ bool TTPlayerPlaylistCtrl::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 {
 	return __super::SetAttribute(mapAttrib, bReload);
 }
+
+void TTPlayerPlaylistCtrl::SetPlayingItem(TTPlayerPlaylistItem* pCtrlItem)
+{
+	bool bNeedUpdate = false;
+	if (m_pPlayingItem != pCtrlItem)
+	{
+		bNeedUpdate = true;
+	}
+
+	m_pPlayingItem = pCtrlItem;
+	this->MakeItemVisible(pCtrlItem, bNeedUpdate);	
+
+	if (bNeedUpdate)
+	{
+		this->UpdateObject();
+	}
+}
+
 void TTPlayerPlaylistCtrl::OnDrawItem(HRDC hRDC, ListItemBase* p)
 {
 	if (NULL == p)
@@ -71,6 +89,10 @@ void TTPlayerPlaylistCtrl::OnDrawItem(HRDC hRDC, ListItemBase* p)
 			Rectangle(hRDC, &rcItem, RGB(255,255,255), NULL, 1, true);
 
 			rgbText = RGB(255,255,255);
+		}
+		else if (m_pPlayingItem == p)  // 正在播放的歌曲
+		{
+			rgbText = RGB(0,255,0);
 		}
 		else if( m_pPressItem == p )
 		{
@@ -215,4 +237,33 @@ void CPlayListDlg::OnAddItem(PlayerListItemInfo* pItemInfo)
 		return;
 
 	m_plistctrl->AddFileItem(pItemInfo);
+}
+
+TTPlayerPlaylistItem* CPlayListDlg::GetCtrlItemByPlayItem(PlayerListItemInfo* p)
+{
+	if (NULL == p || NULL == m_plistctrl)
+		return NULL;
+
+	ListItemBase*  pItem = m_plistctrl->GetFirstItem();
+	while (NULL != pItem)
+	{
+		TTPlayerPlaylistItem* pCtrlItem = (TTPlayerPlaylistItem*)pItem;
+		if (pCtrlItem->m_pItemInfo == p)
+		{
+			return pCtrlItem;
+		}
+		pItem = pItem->GetNextItem();
+	}
+	return NULL;
+}
+void CPlayListDlg::OnMp3Start(PlayerListItemInfo* pItemInfo)
+{
+	if (NULL == m_plistctrl)
+		return;
+
+	TTPlayerPlaylistItem* pCtrlItem = this->GetCtrlItemByPlayItem(pItemInfo);
+	if (NULL == pCtrlItem)
+		return;
+
+	m_plistctrl->SetPlayingItem(pCtrlItem);
 }

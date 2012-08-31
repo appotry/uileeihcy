@@ -69,19 +69,19 @@ void CMainMgr::HandleEvent(IMgr* pSource, int nEventType, int nEventId, WPARAM w
 
 			if (PLAY_EVENT_ID_ON_START == nEventId )
 			{
-				m_pMainWindow->OnMP3Start((PlayerListItemInfo*)wParam);
+				m_pMainWindow->OnMp3Start((PlayerListItemInfo*)wParam);
 			}
 			else if (PLAY_EVENT_ID_ON_PAUSE == nEventId)
 			{
-				m_pMainWindow->OnMP3Pause();
+				m_pMainWindow->OnMp3Pause();
 			}
 			else if (PLAY_EVENT_ID_ON_STOP == nEventId)
 			{
-				m_pMainWindow->OnMP3Stop();
+				m_pMainWindow->OnMp3Stop();
 			}
 			else if (PLAY_EVENT_ID_ON_CONTINUE == nEventId)
 			{
-				m_pMainWindow->OnMP3Continue();
+				m_pMainWindow->OnMp3Continue();
 			}
 		}
 		break;
@@ -177,13 +177,13 @@ void CMainMgr::on_mp3_progress_ind(LONGLONG dCur, LONGLONG dLen)
 {
 	if (NULL != m_pMainWindow)
 	{
-		m_pMainWindow->OnMP3ProgressInd(dCur, dLen);
+		m_pMainWindow->OnMp3ProgressInd(dCur, dLen);
 	}
 }
 void CMainMgr::on_mp3_volume_ind(long lVolumn)
 {
 	if (NULL != m_pMainWindow)
 	{
-		m_pMainWindow->OnMP3VolumeInd(lVolumn);
+		m_pMainWindow->OnMp3VolumeInd(lVolumn);
 	}
 }

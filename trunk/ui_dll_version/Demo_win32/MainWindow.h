@@ -64,12 +64,12 @@ public:
 	void    OnMenuClick(MenuItem* pItem);
 	void    OnSysCommand(UINT nID, CPoint lParam);
 	
-	void    OnMP3Start(PlayerListItemInfo* pItemInfo);
-	void    OnMP3Pause();
-	void    OnMP3Stop();
-	void    OnMP3Continue();
-	void    OnMP3ProgressInd(LONGLONG dCur, LONGLONG dLen);
-	void    OnMP3VolumeInd(long lVolumn);
+	void    OnMp3Start(PlayerListItemInfo* pItemInfo);
+	void    OnMp3Pause();
+	void    OnMp3Stop();
+	void    OnMp3Continue();
+	void    OnMp3ProgressInd(LONGLONG dCur, LONGLONG dLen);
+	void    OnMp3VolumeInd(long lVolumn);
 
 // 	void    OnLButtonDown(UINT nFlags, POINT point);
 // 	void    OnLButtonUp(UINT nFlags, POINT point);
@@ -79,7 +79,7 @@ public:
 // 	void    OnEnterSizeMove();
 // 	void    OnExitSizeMove();
 
-	void SetPlayerListDlgHandle(HWND hWnd);
+	void    SetPlayerListDlgHandle(HWND hWnd);
 
 
 
