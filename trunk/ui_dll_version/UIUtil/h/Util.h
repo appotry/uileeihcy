@@ -114,11 +114,13 @@ namespace UI { namespace Util {
 	void UIUTILAPI ExecFile( TCHAR* szFile, BOOL bWait = FALSE );
 	
 	BOOL UIUTILAPI GetPathDir( const TCHAR* szPath, TCHAR* szOutDir );
+	BOOL UIUTILAPI GetPathFileName(const TCHAR* szPath, TCHAR* szOutFileName);
 	BOOL UIUTILAPI IsFullPath( const TCHAR* szPath );
 	BOOL UIUTILAPI CalcRelativePathToDir(const TCHAR* szDir, const TCHAR* szPath, TCHAR* szOutRelativePath );
 	BOOL UIUTILAPI CalcRelativePathToFile(const TCHAR* szFile, const TCHAR* szPath, TCHAR* szOutRelativePath );
 	BOOL UIUTILAPI CalcFullPathByRelative(const TCHAR* szDir, const TCHAR* szRelative, TCHAR* szOut ); 
 	
+
 	//bool EnumFileInDirProc(TCHAR* szFileName);
 	BOOL UIUTILAPI EnumFileInDirectory(const TCHAR* szDir, EnumFileInDirProc proc, WPARAM wParam);
 

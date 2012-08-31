@@ -307,54 +307,80 @@ protected:
 };
 
 
-/*为了可以在消息响应函数中直接访问当前消息结构，将m_pCurMsg作为成员函数进行访问或设置*/
-/*为了防止在处理一个消息A的过程中，必须再发送另外一个消息B，导致A的m_pCurMsg被B篡改，*/
-/*必须再增加一个临时变量保存当前消息m_pCurMsg，这样当B处理完后，m_pCurMsg恢复成A*/
-/*为了实现还原m_pCurMsg，所有的消息不能直接返回，而是将m_pCurMsg还原之后再return*/
+//
+// 为了可以在消息响应函数中直接访问当前消息结构，将m_pCurMsg作为成员函数进行访问或设置
+// 为了防止在处理一个消息A的过程中，必须再发送另外一个消息B，导致A的m_pCurMsg被B篡改，
+// 必须再增加一个临时变量保存当前消息m_pCurMsg，这样当B处理完后，m_pCurMsg恢复成A
+// 为了实现还原m_pCurMsg，所有的消息不能直接返回，而是将m_pCurMsg还原之后再return
+//
+// fix bug: 20120831
+//    为了解决派生类将消息CHAIN给父类时，父类在UI_BEGIN_MSG_MAP又会重新响应一次DoHook，
+//    导致Hook方收到两次消息。因此增加一个ProcessMessageNoHook函数，内部将不再DoHook
+//    同时派生类在CHAIN时
+// 
+//
 #define UI_BEGIN_MSG_MAP                              \
 	BOOL ProcessMessage( UIMSG* pMsg, int nMsgMapID = 0 ) \
 	{                                                 \
-		assert( pMsg != NULL );                       \
+		UIASSERT( pMsg != NULL );                     \
 		if( NULL == pMsg )                            \
 			return FALSE;                             \
 			                                          \
 		UIMSG*  pOldMsg  = m_pCurMsg;                 \
-		BOOL bRet = this->_ProcessMessage(pMsg, nMsgMapID); \
+		BOOL bRet = this->_ProcessMessage(pMsg, nMsgMapID, true); \
 		m_pCurMsg = pOldMsg;                          \
 		                                              \
 		return bRet;                                  \
 	}                                                 \
-	BOOL _ProcessMessage( UIMSG* pMsg, int nMsgMapID=0 ) \
+	BOOL ProcessMessageNoHook( UIMSG* pMsg, int nMsgMapID = 0 ) \
+	{                                                 \
+		UIASSERT( pMsg != NULL );                     \
+		if( NULL == pMsg )                            \
+			return FALSE;                             \
+	                                                  \
+		UIMSG*  pOldMsg  = m_pCurMsg;                 \
+		BOOL bRet = this->_ProcessMessage(pMsg, nMsgMapID, false); \
+		m_pCurMsg = pOldMsg;                          \
+		                                              \
+		return bRet;                                  \
+	}                                                 \
+	BOOL _ProcessMessage( UIMSG* pMsg, int nMsgMapID=0, bool bDoHook=true ) \
 	{                                                 \
 		/*取出wParam,lParam，以便兼容Window消息处理中的wParam,lParam参数*/\
 		WPARAM wParam = pMsg->wParam;                 \
 		LPARAM lParam = pMsg->lParam;                 \
 		UINT   uMsg   = pMsg->message;                \
 		UINT   code   = pMsg->code;                   \
-		Message* pObjMsgFrom = pMsg->pObjMsgFrom;      \
+		Message* pObjMsgFrom = pMsg->pObjMsgFrom;     \
 		long&  lResult = pMsg->lRet; /* 兼容wtl */    \
 		                                              \
 		m_pCurMsg = pMsg;                             \
 		                                              \
 		/*消息HOOK处理*/                              \
-	    if( DoHook(pMsg, nMsgMapID) )                 \
+	    if( bDoHook && DoHook(pMsg, nMsgMapID) )      \
 			return TRUE;                              \
 			                                          \
 		switch( nMsgMapID )                           \
 		{                                             \
 		case 0:                                       
 
-
 #define UI_END_MSG_MAP                                \
+			break;                                    \
+		}                                             \
+		return FALSE;                                 \
+	}
+
+#define UI_END_MSG_MAP_CHAIN_PARENT(baseclass)        \
 		    break;                                    \
 		}                                             \
+		baseclass::ProcessMessageNoHook( pMsg, nMsgMapID ); \
 		return FALSE;                                 \
 	}
 
 //
 // 消息链传递
 //
-//	该宏有个缺点，就是能接收到当前的分支消息，不能传递其它分支消息。可使用带_EX 后缀的改进宏进行替换
+//	该宏有个缺点，就是能接收到当前的分支消息，不能传递其它分支消息。可使用UI_BEGIN_CHAIN_ALL_MSG_MAP改进宏
 
 #define UICHAIN_MSG_MAP( theChainClass )           \
  	if( theChainClass::ProcessMessage( pMsg, nMsgMapID ) ) \

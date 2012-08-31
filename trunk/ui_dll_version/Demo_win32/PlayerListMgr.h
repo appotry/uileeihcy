@@ -6,7 +6,7 @@
 class PlayerListItemInfo
 {
 public:
-	void    SetFilePath(const String& str) { m_strFilePath = str; /* 读取文件属性*/ }
+	void    SetFilePath(const String& str);
 
 	const String& GetFilePath(){ return m_strFilePath; }
 	const String& GetFileName(){ return m_strFileName; }

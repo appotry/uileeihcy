@@ -31,6 +31,9 @@ public:
 	virtual  SIZE OnMeasureItem( ListItemBase* p);
 	virtual  void OnDeleteItem( ListItemBase* p );
 
+	void    SetPlayingItem(TTPlayerPlaylistItem* pCtrlItem);
+	TTPlayerPlaylistItem*  GetPlayingItem(){ return m_pPlayingItem; }
+
 protected:
 	TTPlayerPlaylistItem*  m_pPlayingItem;
 };
@@ -63,6 +66,11 @@ public:
 
 public:
 	void    OnAddItem(PlayerListItemInfo* pItemInfo);
+
+	void    OnMp3Start(PlayerListItemInfo* pItemInfo);
+
+protected:
+	TTPlayerPlaylistItem*  GetCtrlItemByPlayItem(PlayerListItemInfo* p);
 
 private:
 	TTPlayerPlaylistCtrl*   m_plistctrl;

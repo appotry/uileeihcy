@@ -126,8 +126,7 @@ public:
 	UI_DECLARE_OBJECT( Button, OBJ_CONTROL )
 
 	UI_BEGIN_MSG_MAP
-		UICHAIN_MSG_MAP(ButtonBase)
-	UI_END_MSG_MAP
+	UI_END_MSG_MAP_CHAIN_PARENT(ButtonBase)
 };
  
 //
@@ -208,8 +207,7 @@ public:
 
 	UI_BEGIN_MSG_MAP
 		UIMSG_WM_SETCURSOR(OnSetCursor)
-		UICHAIN_MSG_MAP(ButtonBase);
-	UI_END_MSG_MAP
+	UI_END_MSG_MAP_CHAIN_PARENT(ButtonBase)
 
 public:
 	virtual bool SetAttribute( map<String,String>& mapAttrib, bool bReload );

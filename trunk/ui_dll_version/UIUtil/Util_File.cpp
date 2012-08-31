@@ -277,6 +277,23 @@ BOOL GetPathDir( const TCHAR* szPath, TCHAR* szOutDir )
 	return TRUE;
 }
 
+
+//
+//	获取一个路径szPath中的文件名
+//
+BOOL GetPathFileName( const TCHAR* szPath, TCHAR* szOutDir )
+{
+	if( NULL == szPath || NULL == szOutDir )
+		return FALSE;
+
+	const TCHAR* p = _tcsrchr( szPath, _T('\\') );
+	if( NULL == p )
+		return FALSE;
+
+	_tcscpy( szOutDir, p+1 );
+	return TRUE;
+}
+
 //
 //	创建一个空的xml文件，文件内容包含 <? ?> 加上root元素<ui>,再添加一个结点<node>
 //

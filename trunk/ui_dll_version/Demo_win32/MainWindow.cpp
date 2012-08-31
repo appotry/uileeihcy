@@ -80,14 +80,7 @@ void MainWindow::OnInitWindow()
 		m_pbtnPause->SetVisible(false);
 	}
 
-	TCHAR szPath[MAX_PATH] = _T("");
-	Util::GetAppPath_(szPath);
-	String str =  szPath;
-	str += _T("wine-of-bincos-lunba.mp3");
-	::mp3_set_file(str);
-
-	::SetWindowText(m_hWnd, _T("wine-of-bincos-lunba.mp3"));
-
+	::SetWindowText(m_hWnd, _T("Player_Demo"));
 // 	COptionWindow win;
 // 	win.DoModal(g_hInstance, COptionWindow::IDD, _T("OptionWindow"),m_hWnd);
 }
@@ -96,7 +89,7 @@ void MainWindow::OnBnClickPlay()
 {
 	GetMainMgr()->Play();
 }
-void MainWindow::OnMP3Start(PlayerListItemInfo* pItemInfo)
+void MainWindow::OnMp3Start(PlayerListItemInfo* pItemInfo)
 {
 	if( NULL != m_pbtnStart && NULL != m_pbtnPause )
 	{
@@ -111,8 +104,10 @@ void MainWindow::OnMP3Start(PlayerListItemInfo* pItemInfo)
 	{
 		m_pLabelPlaystatus->SetText(_T("状态:播放"));
 	}
+
+	::SetWindowText(m_hWnd, pItemInfo->GetFileName().c_str());
 }
-void MainWindow::OnMP3Continue()
+void MainWindow::OnMp3Continue()
 {
 	if( NULL != m_pbtnStart && NULL != m_pbtnPause )
 	{
@@ -134,7 +129,7 @@ void MainWindow::OnBnClickPause()
 {
 	GetMainMgr()->Pause();
 }
-void MainWindow::OnMP3Pause()
+void MainWindow::OnMp3Pause()
 {
 	if( NULL != m_pbtnStart && NULL != m_pbtnPause )
 	{
@@ -152,7 +147,7 @@ void MainWindow::OnBnClickStop()
 {
 	GetMainMgr()->Stop();
 }
-void MainWindow::OnMP3Stop()
+void MainWindow::OnMp3Stop()
 {
 	if( NULL != m_pbtnStart && NULL != m_pbtnPause )
 	{
@@ -533,7 +528,7 @@ void MainWindow::OnVolumnChanged( int nPos, int nScrollType )
 }
 
 
-void MainWindow::OnMP3ProgressInd(LONGLONG llCur, LONGLONG llDuration)
+void MainWindow::OnMp3ProgressInd(LONGLONG llCur, LONGLONG llDuration)
 {
 	if( 0 == llDuration )
 		return;
@@ -581,7 +576,7 @@ void MainWindow::OnMP3ProgressInd(LONGLONG llCur, LONGLONG llDuration)
 	}
 }
 
-void MainWindow::OnMP3VolumeInd(long lVolumn)
+void MainWindow::OnMp3VolumeInd(long lVolumn)
 {
 	if( ::GetCapture() == m_hWnd )  // 正在拖拽过程中
 	{
