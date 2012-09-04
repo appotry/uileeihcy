@@ -10,8 +10,9 @@ namespace UI
 
 		const String& GetText() { return m_strText; }
 
-		bool  IsSeperator() { return m_nFlag&MF_SEPARATOR ? true:false; }
+		bool  IsSeparator() { return m_nFlag&MF_SEPARATOR ? true:false; }
 		bool  IsPopup() { return m_nFlag&MF_POPUP ? true:false; }
+		bool  IsDisable() { return m_nFlag&MF_DISABLED ? true:false; }
 		
 		void  SetFlag(UINT nFlag){ m_nFlag = nFlag; }
 		void  SetID(UINT nID) { m_nID = nID; }
@@ -19,10 +20,10 @@ namespace UI
 		UINT  GetFlag() { return m_nFlag; }
 		UINT  GetID() { return m_nID; }
 		void  SetSubMenu(MenuBase* p) { m_pSubMenu = p; }
+		MenuBase* GetSubMenu() { return m_pSubMenu; }
 
 		virtual  bool    OnMouseEnter();
 		virtual  bool    OnMouseLeave();
-		void     OnTimer(UINT nIDEvent, TimerItem* pItem);
 
 	protected:
 		MenuBase*   m_pMenu;      // item 所属菜单
@@ -59,21 +60,32 @@ namespace UI
 		void     OnLButtonUp(UINT nFlags, POINT point);
 		void     OnTimer(UINT_PTR nIDEvent, LPARAM lParam);
 
-		void     SetTimer2PopupSubMenu(MenuItem* pItem);
-		void     KillTimer2PopupSubMenu();
-		int      PopupSubMenu(UINT nFlag, int x, int y, Message* pNotifyObj);
+		void     ShowPopupSubMenu(MenuItem* pItem);
+		void     HidePopupSubMenu();
+		int      PopupSubMenu(MenuItem* pSubMenu);
+		int      PopupAsSubMenu(MenuBase* pParentMenu, MenuItem* pItem);
+		void     DestroyPopupWindow();
+
+		bool     IsItemHilight(MenuItem* p);
 
 	public:
 		int      GetMenuItemCount();
 		int      TrackPopupMenu(UINT nFlag, int x, int y, Message* pNotifyObj);
 		bool     AppendMenu(UINT uFlags, UINT_PTR uIDNewItem, LPCTSTR lpNewItem);
+		HWND     GetPopupWindowHandle();
+
+		MenuBase* GetPrevMenu() { return m_pPrevMenu; }
+		MenuBase* GetNextMenu() { return m_pNextMenu; }
+		MenuBase* GetRootMenu();
+		MenuBase* GetLastMenu();
+		MenuBase* GetMenuByHWND(HWND hWnd);
 
 		virtual  void OnDrawItem( HRDC hRDC, ListItemBase* p ) ;
 		virtual  SIZE OnMeasureItem( ListItemBase* p);
 
-		void     OnDrawSeperatorItem(HRDC hRDC, ListItemBase* p, MenuItem* pMenu);
-		void     OnDrawPopupItem(HRDC hRDC, ListItemBase* p, MenuItem* pMenu);
-		void     OnDrawStringItem(HRDC hRDC, ListItemBase* p, MenuItem* pMenu);
+		void     OnDrawSeperatorItem(HRDC hRDC, MenuItem* pMenu);
+		void     OnDrawPopupItem(HRDC hRDC,  MenuItem* pMenu);
+		void     OnDrawStringItem(HRDC hRDC, MenuItem* pMenu);
 
 		void     OnInitPopupControlWindow(Object* pObjMsgFrom);
 		void     OnUnInitPopupControlWindow(Object* pObjMsgFrom);
@@ -82,10 +94,14 @@ namespace UI
 
 	protected:
 		PopupMenuWindow*  m_pPopupWrapWnd;
-		UINT         m_nTimerIDPopupSubMenu;  // 计时器ID，用于弹出子窗口
+		MenuBase*    m_pNextMenu;             // 
+		MenuBase*    m_pPrevMenu;             // 
+		UINT         m_nTimerIDShowPopupSubMenu;  // 计时器ID，用于弹出子窗口
+		UINT         m_nTimerIDHidePopupSubMenu;  // 计时器ID，用于关闭子窗口
 
 		// 绘制相关
 		RenderBase*  m_pSeperatorRender;
+		RenderBase*  m_pPopupTriangleRender;
 
 		int        m_nIconGutterWidth;    // 菜单左侧图标列 的宽度
 		int        m_nTextMarginLeft;

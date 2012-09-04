@@ -419,20 +419,24 @@ void MainWindow::OnContextMenu( HWND wnd, POINT point )
 
 	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("千千选项"));
 	pMenu->AppendMenu(MF_POPUP, (UINT_PTR)pSubMenu,  _T("相关链接"));
-	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("--------"));
+	pMenu->AppendMenu(MF_SEPARATOR, 0, NULL);
+
 	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("播放控制"));
 	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("音量控制"));
 	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("播放模式"));
 	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("播放曲目"));
-	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("--------"));
+	pMenu->AppendMenu(MF_SEPARATOR, 0, NULL);
+
 	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("视觉外观"));
 	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("歌词秀"));
 	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("均衡器"));
-	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("--------"));
+	pMenu->AppendMenu(MF_SEPARATOR, 0, NULL);
+
 	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("皮肤"));
 	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("透明"));
 	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("查看"));
-	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("--------"));
+	pMenu->AppendMenu(MF_SEPARATOR, 0, NULL);
+
 	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("最小化"));
 	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("全屏显示"));
 	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("退出"));
@@ -441,6 +445,7 @@ void MainWindow::OnContextMenu( HWND wnd, POINT point )
  	GetCursorPos(&pt);
  	pMenu->TrackPopupMenu(0,pt.x,pt.y, static_cast<Message*>(this));
 	SAFE_DELETE(pMenu);
+	SAFE_DELETE(pSubMenu);
 
 	return;
 

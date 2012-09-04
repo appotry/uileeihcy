@@ -95,6 +95,7 @@ namespace UI
 	protected:
 
 		virtual BOOL PreCreateWindow( CREATESTRUCT& cs );
+		virtual BOOL PreTranslatePopupMessage(MSG* pMsg);
 		virtual void OnInitWindow();
 		virtual void OnFinalMessage();
 

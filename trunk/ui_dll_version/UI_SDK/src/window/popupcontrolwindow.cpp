@@ -277,3 +277,57 @@ void PopupMenuWindow::OnFinalMessage()
 {
 	__super::OnFinalMessage();
 }
+
+
+BOOL PopupMenuWindow::PreTranslatePopupMessage(MSG* pMsg)
+{
+	if (WM_KEYFIRST <= pMsg->message && WM_KEYLAST >= pMsg->message)
+	{
+		BOOL bHandle = FALSE;
+		UISendMessage(m_pMenu->GetLastMenu(), pMsg->message, pMsg->wParam, pMsg->lParam, 0, 0, 0, &bHandle);
+		return bHandle;
+	}
+
+	if (WM_MOUSEMOVE == pMsg->message ||
+		WM_NCMOUSEMOVE == pMsg->message )
+	{
+		if ( NULL == m_pMenu->GetMenuByHWND(pMsg->hwnd) )
+		{
+			return TRUE;  // 窗口外的鼠标移动事件忽略
+		}
+		else
+		{
+			return FALSE;
+		}
+	}
+	else if (WM_LBUTTONDOWN   == pMsg->message ||
+		WM_LBUTTONDBLCLK == pMsg->message ||
+		WM_RBUTTONDOWN   == pMsg->message ||
+		WM_RBUTTONDBLCLK == pMsg->message ||
+		WM_MBUTTONDOWN   == pMsg->message ||
+		WM_MBUTTONDBLCLK == pMsg->message ||
+		WM_XBUTTONDOWN   == pMsg->message ||
+		WM_XBUTTONDBLCLK == pMsg->message ||
+		WM_NCLBUTTONDOWN == pMsg->message ||
+		WM_NCRBUTTONDOWN == pMsg->message ||
+		WM_NCRBUTTONDBLCLK == pMsg->message )
+	{
+		RECT rcWindow;
+		::GetWindowRect(m_hWnd, &rcWindow);
+		if (!PtInRect(&rcWindow, pMsg->pt))  // 鼠标在弹出窗口外面点击了，关闭当前窗口
+		{
+			this->DestroyPopupWindow();
+
+			// 给原窗口发送一个鼠标移动消息，重置hover对象。
+			// 否则会导致popupwnd消失后，原窗口鼠标直接点击无反应
+			// 或者导致窗口接收到lbuttondown之前，还没有更新hover对象
+			// 			POINT pt;
+			// 			GetCursorPos(&pt);
+			HWND hWnd = GetActiveWindow();
+			//			MapWindowPoints(NULL, hWnd, &pt, 1);
+			::SendMessage(GetActiveWindow(), WM_MOUSEMOVE, 0, pMsg->lParam/*MAKELPARAM(pt.x, pt.y)*/);
+		}
+	}
+
+	return FALSE;
+}

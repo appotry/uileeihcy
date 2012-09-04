@@ -156,12 +156,27 @@ void Message::ClearNotify( )
 	list< MsgNotify* >::iterator  iterEnd = m_lNotifyMsgMap.end();
 	for( ; iter!=iterEnd; )
 	{
-		// TODO 待验证
-		//assert( 0 );
-
 		MsgNotify*  pNotify = *iter;
 		delete      pNotify;
 		iter = this->m_lNotifyMsgMap.erase( iter );
+	}
+}
+
+//
+//  e.g. 菜单子项在弹出时，需要拷贝一次父窗口的notify对象
+//
+void Message::CopyNotify(Message* pObjCopyFrom)
+{
+	if (NULL == pObjCopyFrom)
+		return;
+
+	this->ClearNotify();
+
+	list< MsgNotify* >::iterator  iter    = pObjCopyFrom->m_lNotifyMsgMap.begin();
+	list< MsgNotify* >::iterator  iterEnd = pObjCopyFrom->m_lNotifyMsgMap.end();
+	for( ; iter!=iterEnd; )
+	{
+		this->AddNotify((*iter)->pObj, (*iter)->nMsgMapIDToNotify);
 	}
 }
 

@@ -290,6 +290,7 @@ public:
 	void RemoveNotify( Message* pObj, int nMsgMapID );
 	void RemoveNotify( Message* pObj );
 	void ClearNotify( );
+	void CopyNotify(Message* pObjCopyTo);
 
 	void AddHook( Message* pObj, int nMsgMapIDToHook, int nMsgMapIDToNotify );
 	void RemoveHook( Message* pObj, int nMsgMapIDToHook, int nMsgMapIDToNotify );
