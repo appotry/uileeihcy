@@ -112,8 +112,7 @@ public:
 	UI_BEGIN_MSG_MAP
 		UIMSG_WM_GETRENDERTYPE( OnGetRenderType )
 		UIMSG_WM_ERASEBKGND( OnEraseBkgnd )
-		UICHAIN_MSG_MAP( Panel )
-	UI_END_MSG_MAP
+	UI_END_MSG_MAP_CHAIN_PARENT(Panel)
 
 protected:
 	LRESULT           _OnSetCursor( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );

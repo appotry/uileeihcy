@@ -42,8 +42,7 @@ public:
 
 		UIMSG_WM_SYSCOMMAND(OnSysCommand)
 		UIMSG_WM_DESTROY(OnDestroy)
-		UICHAIN_MSG_MAP(CustomWindow)
-	UI_END_MSG_MAP
+	UI_END_MSG_MAP_CHAIN_PARENT(CustomWindow)
 
 
 public:
@@ -71,6 +70,9 @@ public:
 	void    OnMp3ProgressInd(LONGLONG dCur, LONGLONG dLen);
 	void    OnMp3VolumeInd(long lVolumn);
 
+	void    OnPlayerListDlgCreated(HWND hWnd);
+	void    OnPlayerListDlgVisibleChanged(HWND wParam, BOOL lParam);
+
 // 	void    OnLButtonDown(UINT nFlags, POINT point);
 // 	void    OnLButtonUp(UINT nFlags, POINT point);
 // 	void    OnMouseMove(UINT nFlags, POINT point);
@@ -96,6 +98,9 @@ protected:
 	Button*         m_pbtnPause;
 	Button*         m_pbtnStop;
 	Button*         m_pbtnOpen;
+	CheckButton*    m_pBtnPlaylist;
+	CheckButton*    m_pBtnLyric;
+	CheckButton*    m_pBtnEqualizer;
 	CheckButton*    m_pbtnMute;
 	Label*          m_pLabelPlaystatus;
 	Label*          m_pLabelTime;

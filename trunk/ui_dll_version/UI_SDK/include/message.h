@@ -942,8 +942,18 @@ protected:
 #define UIMSG_WM_THEMECHANGED(fun)
 #endif
 
-// void OnTimer(UINT_PTR nIDEvent)
-#define UIMSG_WM_TIMER        MSG_WM_TIMER
+// 比传递WM_TIMER增加一个LPARAM
+// void OnTimer(UINT_PTR nIDEvent, LPARAM lParam)
+#define UIMSG_WM_TIMER(func)                          \
+	if (uMsg == WM_TIMER)                             \
+	{                                                 \
+		SetMsgHandled(TRUE);                          \
+		func((UINT_PTR)wParam, lParam);               \
+		lResult = 0;                                  \
+		if(IsMsgHandled())                            \
+			return TRUE;                              \
+	}
+
 
 // void OnContextMenu(HWND hWnd, POINT point)
 #define UIMSG_WM_CONTEXTMENU  MSG_WM_CONTEXTMENU

@@ -12,13 +12,13 @@
       <Label id="label_voice_status" text="立体声" layout.right="10" layout.top="76" textrender.color="voice_channel"/>
       <Label id="label_playstatus" text="状态:停止" layout.right="10" layout.top="93" textrender.color="play_statue" transparentbk="1"/>
       <Panel layout="stack" layout.right="6" layout.top="4" layout.direction="righttoleft">
-        <Button id="sys_close"    styleclass="imagebtn" tooltip="退出" bkgnd.render.image="close.png" />
-        <Button id="btn_minimode" styleclass="imagebtn" tooltip="迷你模式" bkgnd.render.image="minimode.png" />
-        <Button id="sys_minimize" styleclass="imagebtn" tooltip="最小化" bkgnd.render.image="minimize.png" />
-        <CheckButton id="btn_playlist"  styleclass="imagecheckbutton" tooltip="播放列表" foregnd.render.image="playlist.png" margin="0,0,8,0" />
+        <Button id="sys_close"     styleclass="imagebtn" tooltip="退出"     bkgnd.render.image="close.png" />
+        <Button id="btn_minimode"  styleclass="imagebtn" tooltip="迷你模式" bkgnd.render.image="minimode.png" />
+        <Button id="sys_minimize"  styleclass="imagebtn" tooltip="最小化"   bkgnd.render.image="minimize.png" />
+        <Button id="btn_playlist"  styleclass="imagebtn" tooltip="播放列表" bkgnd.render.image="playlist.png"  bkgnd.render.imagelist.count="8" margin="0,0,8,0" />
         <CheckButton id="btn_equalizer" styleclass="imagecheckbutton" tooltip="均衡器"   foregnd.render.image="equalizer.png" />
-        <CheckButton id="btn_lyric"     styleclass="imagecheckbutton" tooltip="歌词"     foregnd.render.image="lyric.png" />
-        <Button id="btn_browser"        styleclass="imagebtn"  bkgnd.render.image="browser.png"/>
+        <CheckButton id="btn_lyric"     styleclass="imagecheckbutton" tooltip="歌词"     foregnd.render.image="lyric.png"     />
+        <Button id="btn_browser"   styleclass="imagebtn" bkgnd.render.image="browser.png"/>
       </Panel>
       <SliderCtrl id="progress_music" foregnd.render.image="progress_fill.png" trackbtn.bkgnd.render.image="progress_thumb.png" height="10" width="258" direction="x" layout.left="6" layout.top="112"/>
       <Button id="btn_play"  styleclass="imagebtn" tooltip="开始" bkgnd.render.image="play.png"  layout.bottom="8" layout.left="10"></Button>

@@ -6,7 +6,7 @@
     <class id="imagebtn" cursor="idc_hand" istransparent="1" autosize="bkimage" drawfocus="0"
            bkgnd.render.type="imagelist" bkgnd.render.imagelist.count="4"  />
     
-    <class id="imagecheckbutton"  cursor="idc_hand"  autosize="content" foregnd.render.type="imagelist" 
+    <class id="imagecheckbutton"  cursor="idc_hand" autosize="content" foregnd.render.type="imagelist" 
            drawfocus="0" foregnd.render.imagelist.count="8"/>
     
     <SliderCtrl istransparent="1" foregnd.render.type="imagesimple" cursor="idc_hand"

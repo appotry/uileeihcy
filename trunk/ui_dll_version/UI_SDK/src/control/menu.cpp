@@ -2,22 +2,47 @@
 
 MenuItem::MenuItem(ListCtrlBase* pCtrl) : ListItemBase(pCtrl)
 {
+	m_pMenu = dynamic_cast<MenuBase*>(pCtrl);
 	m_nFlag = MF_STRING;
 	m_nID = 0;
 	m_pSubMenu = NULL;
+}
+MenuItem::~MenuItem()
+{
+	if (NULL != m_pSubMenu)
+	{
+		SAFE_DELETE(m_pSubMenu);
+	}
 }
 
 bool MenuItem::OnMouseEnter()
 {
 	if (this->IsPopup() && NULL != m_pSubMenu)
 	{
-//		TimerHelper::SetNewTimer();
+		m_pMenu->SetTimer2PopupSubMenu(this);
+	}
+	else
+	{
+		m_pMenu->KillTimer2PopupSubMenu();
 	}
 	return true;
 }
 bool MenuItem::OnMouseLeave()
 {
 	return true;
+}
+
+void MenuItem::OnTimer(UINT nIDEvent, TimerItem* pItem)
+{
+	if (NULL == pItem)
+		return ;
+
+	if (NULL == m_pSubMenu)
+		return;
+
+	POINT pt;
+	GetCursorPos(&pt);
+	m_pSubMenu->PopupSubMenu(0,pt.x,pt.y, NULL);
 }
 
 MenuBase::MenuBase()
@@ -28,6 +53,8 @@ MenuBase::MenuBase()
 	m_nIconGutterWidth = 28;
 	m_nSeperatorHeight = 3;
 	m_nPopupTriangleWidth = 20;
+
+	m_nTimerIDPopupSubMenu = 0;
 
 	this->ModifyStyle(LISTCTRLBASE_CONTENT_2_SIZE);
 }
@@ -54,8 +81,39 @@ HRESULT MenuBase::FinalConstruct()
 	return S_OK;
 }
 
+void MenuBase::OnTimer(UINT_PTR nIDEvent, LPARAM lParam)
+{
+	TimerItem* pItem = (TimerItem*)lParam;
+	if (NULL == pItem)
+		return;
 
-void MenuBase::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
+	((MenuItem*)(pItem->wParam))->OnTimer(nIDEvent, pItem);
+
+	m_nTimerIDPopupSubMenu = 0;
+}
+
+void MenuBase::SetTimer2PopupSubMenu(MenuItem* pItem)
+{
+	if (0 != m_nTimerIDPopupSubMenu)
+	{
+		TimerHelper::GetInstance()->KillTimer(m_nTimerIDPopupSubMenu);
+	}
+	TimerItem  ti;
+	ti.nRepeatCount = 1;
+	ti.pNotify = this;
+	ti.wParam = (WPARAM)pItem;
+	m_nTimerIDPopupSubMenu = TimerHelper::GetInstance()->SetNewTimer(500, &ti);
+}
+void MenuBase::KillTimer2PopupSubMenu()
+{
+	if (0 != m_nTimerIDPopupSubMenu)
+	{
+		TimerHelper::GetInstance()->KillTimer(m_nTimerIDPopupSubMenu);
+	}
+}
+
+
+void MenuBase::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	bool bNeedUpdateObject = false;
 	if( VK_DOWN == nChar )
@@ -128,7 +186,7 @@ void MenuBase::OnLButtonUp(UINT nFlags, POINT point)
 	}
 }
 
-bool MenuBase::AppendMenu(UINT uFlags, UINT_PTR uItemID, TCHAR* lpNewItem)
+bool MenuBase::AppendMenu(UINT uFlags, UINT_PTR uItemID, LPCTSTR lpNewItem)
 {
 	if (uFlags & MF_SEPARATOR)
 	{
@@ -142,6 +200,21 @@ bool MenuBase::AppendMenu(UINT uFlags, UINT_PTR uItemID, TCHAR* lpNewItem)
 	{
 		UIASSERT(0);
 	}	
+	else if (uFlags & MF_POPUP)
+	{
+		if (NULL == lpNewItem || NULL == uItemID)
+			return false;
+
+		MenuItem *pItem = new MenuItem(this);
+
+		pItem->SetFlag(uFlags);
+		pItem->SetText(lpNewItem);
+		pItem->SetID(uItemID);
+		pItem->SetSubMenu((MenuBase*)uItemID);
+
+		this->AddItem(pItem, false);
+		
+	}
 	else // MF_STRING
 	{
 		if (NULL == lpNewItem)
@@ -161,12 +234,21 @@ bool MenuBase::AppendMenu(UINT uFlags, UINT_PTR uItemID, TCHAR* lpNewItem)
 
 int  MenuBase::TrackPopupMenu(UINT nFlag, int x, int y, Message* pNotifyObj)
 {
+	if (-1 == this->PopupSubMenu(nFlag, x, y, pNotifyObj))
+		return -1;
+
+	::SendMessage(m_pPopupWrapWnd->m_hWnd, UI_WM_ENTERPOPUPLOOP, 0, 0);
+	return 0;
+}
+
+int MenuBase::PopupSubMenu(UINT nFlag, int x, int y, Message* pNotifyObj)
+{
 	if (0 >= this->GetMenuItemCount())
 		return -1;
 
 	if (NULL != m_pPopupWrapWnd)
 	{
-		UI_LOG_WARN(_T("MenuBase::TrackPopupMenu NULL != m_pPopupWrapWnd, the prev popup window isnot destroyed"));
+		UI_LOG_WARN(_T("%s NULL != m_pPopupWrapWnd, the prev popup window isnot destroyed"), _T(__FUNCTION__));
 		return -1;
 	}
 
@@ -175,10 +257,8 @@ int  MenuBase::TrackPopupMenu(UINT nFlag, int x, int y, Message* pNotifyObj)
 	::SetWindowPos(m_pPopupWrapWnd->m_hWnd, NULL,x,y,0,0,SWP_NOSIZE|SWP_NOZORDER|SWP_SHOWWINDOW|SWP_NOACTIVATE);
 	this->AddNotify(pNotifyObj, 0);
 
-	::SendMessage(m_pPopupWrapWnd->m_hWnd, UI_WM_ENTERPOPUPLOOP, 0, 0);
 	return 0;
 }
-
 int  MenuBase::GetMenuItemCount()
 {
 	return __super::GetItemCount();

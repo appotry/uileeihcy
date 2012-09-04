@@ -224,24 +224,25 @@ void ButtonBase::OnEraseBkgnd(HRDC hRDC)
 		bool  bHover   = IsHover();
 		bool  bPress   = IsPress();
 		bool  bForePress = IsForePress();
+		bool  bChecked = IsChecked();
 
 		CRect rc(0,0, GetWidth(), GetHeight());
 
 		if( bDisable )
 		{
-			this->m_pBkgndRender->DrawState(hRDC, &rc, BUTTON_BKGND_RENDER_STATE_DISABLE);
+			this->m_pBkgndRender->DrawState(hRDC, &rc, bChecked?BUTTON_BKGND_RENDER_STATE_SELECTED_DISABLE:BUTTON_BKGND_RENDER_STATE_DISABLE);
 		}
 		else if( bForePress || (bPress && bHover) )
 		{
-			this->m_pBkgndRender->DrawState(hRDC, &rc, BUTTON_BKGND_RENDER_STATE_PRESS);
+			this->m_pBkgndRender->DrawState(hRDC, &rc, bChecked?BUTTON_BKGND_RENDER_STATE_SELECTED_PRESS:BUTTON_BKGND_RENDER_STATE_PRESS);
 		}
 		else if( bHover || bPress )
 		{
-			this->m_pBkgndRender->DrawState(hRDC, &rc, BUTTON_BKGND_RENDER_STATE_HOVER);
+			this->m_pBkgndRender->DrawState(hRDC, &rc, bChecked?BUTTON_BKGND_RENDER_STATE_SELECTED_HOVER:BUTTON_BKGND_RENDER_STATE_HOVER);
 		}
 		else 
 		{
-			this->m_pBkgndRender->DrawState(hRDC, &rc, BUTTON_BKGND_RENDER_STATE_NORMAL);
+			this->m_pBkgndRender->DrawState(hRDC, &rc, bChecked?BUTTON_BKGND_RENDER_STATE_SELECTED_NORMAL:BUTTON_BKGND_RENDER_STATE_NORMAL);
 		}
 	}
 }
@@ -451,6 +452,9 @@ void ButtonBase::OnLButtonUp(UINT nFlags, POINT point)
 	this->GetParentObject()->WindowPoint2ObjectPoint(&point, &ptObj);
 	if (HTNOWHERE != this->OnHitTest(&ptObj))
 	{
+		// 用于子类扩展
+		this->OnClicked();   // 备注：由于DoNotify可能导致当前press hover对象发生改变，使得本控件丢失刷新，因此将OnClicked提前处理
+
 		// 通知消息
 		UIMSG   msg;
 		msg.message = UI_WM_NOTIFY;
@@ -459,9 +463,6 @@ void ButtonBase::OnLButtonUp(UINT nFlags, POINT point)
 		msg.lParam  = NULL;
 		msg.pObjMsgFrom = this;
 		this->DoNotify( &msg );
-
-		// 用于子类扩展
-		this->OnClicked();
 	}
 
 // 	this->SetPress( false );
@@ -513,7 +514,7 @@ void ButtonBase::SetCheck(int nCheckState)
 		this->SetUnChecked();
 }
 
-void  ButtonBase::SetChecked()
+void ButtonBase::SetChecked()
 {
 	if ( m_nCheckState & BST_CHECKED )
 	{

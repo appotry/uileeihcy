@@ -17,8 +17,7 @@ public:
 	UI_BEGIN_MSG_MAP
 		UIMSG_WM_PARENT_VISIBLE_CHANGED(OnParentVisibleChanged)
 		UIMSG_WM_HITTEST( OnHitTest )
-		UICHAIN_MSG_MAP(Object)
-	UI_END_MSG_MAP
+	UI_END_MSG_MAP_CHAIN_PARENT(Object)
 
 protected:
 	UINT              OnHitTest( POINT* pt );

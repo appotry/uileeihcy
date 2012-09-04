@@ -40,7 +40,8 @@ public:
 	bool   AddFile(const String& strFile);
 	bool   AddDirectory(const String& strDir);
 
-	HWND   ShowPlayerListDlg(HWND hParent);
+	HWND   ToggleShowPlayerListDlg(HWND hParent);
+	void   OnPlayListDlgHide();
 
 	void   OnLoadItem(const String& strFile);
 	

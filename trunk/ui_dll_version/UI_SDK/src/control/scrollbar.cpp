@@ -963,7 +963,7 @@ public:
 
 
 protected:
-	void     OnTimer(UINT_PTR nIDEvent);
+	void     OnTimer(UINT_PTR nIDEvent, LPARAM lParam);
 	void     OnStateChanged(int nOld, int nNew);
 	void     OnBtn1LButtonDown(UINT nFlags, POINT point);
 	void     OnBtn2LButtonDown(UINT nFlags, POINT point);
@@ -1012,11 +1012,7 @@ public:
 		UIMSG_WM_SIZE(OnBindObjSize)
 		UIMSG_WM_NCCALCSIZE(OnNcCalcSize)
 
-	UI_BEGIN_CHAIN_ALL_MSG_MAP
-		UICHAIN_MSG_MAP(SystemScrollBarRender)
-	UI_END_CHAIN_ALL_MSG_MAP
-
-	UI_END_MSG_MAP
+	UI_END_MSG_MAP_CHAIN_PARENT(SystemScrollBarRender)
 
 protected:
 	virtual SCROLLBAR_DIRECTION_TYPE GetScrollBarDirType() { return VSCROLLBAR; }
@@ -1201,10 +1197,7 @@ public:
 	UIALT_MSG_MAP(ALT_MSG_ID_BINDOBJ)
 		UIMSG_WM_SIZE(OnBindObjSize)
 		UIMSG_WM_NCCALCSIZE(OnNcCalcSize)
-	UI_BEGIN_CHAIN_ALL_MSG_MAP
-		UICHAIN_MSG_MAP(SystemScrollBarRender)
-	UI_END_CHAIN_ALL_MSG_MAP
-	UI_END_MSG_MAP
+	UI_END_MSG_MAP_CHAIN_PARENT(SystemScrollBarRender)
 
 protected:
 	virtual SCROLLBAR_DIRECTION_TYPE GetScrollBarDirType() { return HSCROLLBAR; }
@@ -1300,7 +1293,7 @@ protected:
 };
 
 
-void SystemScrollBarRender::OnTimer(UINT_PTR idEvent)
+void SystemScrollBarRender::OnTimer(UINT_PTR idEvent, LPARAM lParam)
 {	
 	if(idEvent == m_nTimer1IDToScroll)
 	{

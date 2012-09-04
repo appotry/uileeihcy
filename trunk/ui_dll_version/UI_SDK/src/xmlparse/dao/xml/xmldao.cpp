@@ -132,7 +132,7 @@ font.xml <- FontXmlParse
 	 </style>
  </...>
 
- style.xml <- StyleXmlParse
+ layout.xml <- LayoutXmlParse
  <?xml version="1.0" encoding="utf-8" ?>
  <...>
 	 <layout>

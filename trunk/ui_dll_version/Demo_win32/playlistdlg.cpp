@@ -179,6 +179,7 @@ void CPlayListDlg::OnInitWindow( )
 void CPlayListDlg::OnClose()
 {
 	this->HideWindow();
+	GetPlayerListMgr()->OnPlayListDlgHide();
 }
 
 void CPlayListDlg::OnBtnClickAdd(Object* pBtnObj, POINT* pt)

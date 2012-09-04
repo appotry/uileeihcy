@@ -21,6 +21,9 @@ MainWindow::MainWindow(void)
 	m_pLEDTime = NULL;
 	m_pProgress = NULL;
 	m_pVolume = NULL;
+	m_pBtnPlaylist = NULL;
+	m_pBtnLyric = NULL;
+	m_pBtnEqualizer = NULL;
 
 // 	m_lSizeMove = 0;
 // 	m_ptCursorSizeMove.x = m_ptCursorSizeMove.y = 0;
@@ -59,16 +62,19 @@ void MainWindow::OnInitWindow()
 {
 	CustomWindow::OnInitWindow();
 
-	m_pbtnStart = (Button*)this->FindChildObject(_T("btn_play") );
-	m_pbtnPause = (Button*)this->FindChildObject(_T("btn_pause") );
-	m_pbtnStop = (Button*)this->FindChildObject(_T("btn_stop") );
-	m_pbtnOpen = (Button*)this->FindChildObject(_T("btn_open") );
-	m_pbtnMute = (CheckButton*)this->FindChildObject(_T("btn_mute") );
+	m_pbtnStart        = (Button*)this->FindChildObject(_T("btn_play") );
+	m_pbtnPause        = (Button*)this->FindChildObject(_T("btn_pause") );
+	m_pbtnStop         = (Button*)this->FindChildObject(_T("btn_stop") );
+	m_pbtnOpen         = (Button*)this->FindChildObject(_T("btn_open") );
+	m_pBtnPlaylist     = (CheckButton*)this->FindChildObject(_T("btn_playlist") );
+	m_pBtnLyric        = (CheckButton*)this->FindChildObject(_T("btn_equalizer") );
+	m_pBtnEqualizer    = (CheckButton*)this->FindChildObject(_T("btn_mute") );
+	m_pbtnMute         = (CheckButton*)this->FindChildObject(_T("btn_lyric") );
 	m_pLabelPlaystatus = (Label*)this->FindChildObject(_T("label_playstatus"));
-	m_pProgress = (SliderCtrl*)this->FindChildObject(_T("progress_music"));
-	m_pVolume = (SliderCtrl*)this->FindChildObject(_T("progress_voice"));
-	m_pLabelTime = (Label*)this->FindChildObject(_T("label_time"));
-	m_pLEDTime = (LEDCtrl*)this->FindChildObject(_T("led_time"));
+	m_pProgress        = (SliderCtrl*)this->FindChildObject(_T("progress_music"));
+	m_pVolume          = (SliderCtrl*)this->FindChildObject(_T("progress_voice"));
+	m_pLabelTime       = (Label*)this->FindChildObject(_T("label_time"));
+	m_pLEDTime         = (LEDCtrl*)this->FindChildObject(_T("led_time"));
 
 	if( NULL != m_pbtnStop )
 	{
@@ -208,7 +214,7 @@ void MainWindow::OnBnClickOpen()
 
 void MainWindow::OnBnClickPlaylist()
 {
-	HWND hWnd = ::GetPlayerListMgr()->ShowPlayerListDlg(m_hWnd);
+	HWND hWnd = ::GetPlayerListMgr()->ToggleShowPlayerListDlg(m_hWnd);
 	if (NULL == m_hWndPlayerList)
 	{
 		this->SetPlayerListDlgHandle(hWnd);
@@ -401,13 +407,18 @@ void MainWindow::OnContextMenu( HWND wnd, POINT point )
 	if( this->GetHoverObject() != NULL )
 		return;
 
+	int nMenuID = 100;
+
 	// Menu是自销毁的
 	Menu* pMenu = NULL;
 	UICreateInstance(&pMenu);
 
-	int nMenuID = 100;
+	Menu* pSubMenu = NULL;
+	UICreateInstance(&pSubMenu);
+	pSubMenu->AppendMenu(MF_STRING,nMenuID++, _T("Test"));
+
 	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("千千选项"));
-	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("相关链接"));
+	pMenu->AppendMenu(MF_POPUP, (UINT_PTR)pSubMenu,  _T("相关链接"));
 	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("--------"));
 	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("播放控制"));
 	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("音量控制"));
@@ -426,7 +437,6 @@ void MainWindow::OnContextMenu( HWND wnd, POINT point )
 	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("全屏显示"));
 	pMenu->AppendMenu(MF_STRING, nMenuID++, _T("退出"));
 
- 
  	POINT pt;
  	GetCursorPos(&pt);
  	pMenu->TrackPopupMenu(0,pt.x,pt.y, static_cast<Message*>(this));
@@ -597,3 +607,15 @@ void MainWindow::OnMp3VolumeInd(long lVolumn)
 	}
 }
 
+void MainWindow::OnPlayerListDlgCreated(HWND hWnd)
+{
+	this->SetPlayerListDlgHandle(hWnd);
+}
+void MainWindow::OnPlayerListDlgVisibleChanged(HWND hWnd, BOOL bVisible)
+{
+	if (NULL != m_pBtnPlaylist)
+	{
+		m_pBtnPlaylist->SetCheck(bVisible?BST_CHECKED:BST_UNCHECKED);
+		m_pBtnPlaylist->UpdateObject();
+	}
+}

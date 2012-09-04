@@ -23,10 +23,7 @@ public:
 	UIALT_MSG_MAP(1)
 		UIMSG_WM_LBUTTONDOWN(OnBtnLButtonDown)
 
-	UI_BEGIN_CHAIN_ALL_MSG_MAP
-		UICHAIN_MSG_MAP(Control)
-	UI_END_CHAIN_ALL_MSG_MAP
-	UI_END_MSG_MAP
+	UI_END_MSG_MAP_CHAIN_PARENT(Control)
 
 	virtual bool SetAttribute( ATTRMAP& mapAttrib, bool bReload );
 	virtual void ResetAttribute();

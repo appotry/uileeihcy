@@ -12,8 +12,7 @@ namespace UI
 		UI_BEGIN_MSG_MAP
 			UIMSG_WM_HITTEST(OnHitTest)
 			UICHAIN_MSG_MAP_MEMBER(m_MgrScrollBar)
-			UICHAIN_MSG_MAP(Panel)
-		UI_END_MSG_MAP
+		UI_END_MSG_MAP_CHAIN_PARENT(Panel)
 
 	public:
 		virtual      void        ResetAttribute();
