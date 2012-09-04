@@ -24,85 +24,6 @@ RenderBase::RenderBase()
 //
 RenderBase* RenderFactory::GetRender( const String& strType, Object* pObj )
 {
-#if 0
-	RenderBase*  pRender = NULL; 
-
-	if( XML_RENDER_TYPE_COLOR == strType )
-	{
-		pRender = new ColorRender();
-		pRender->SetRenderType( RENDER_TYPE_COLOR );
-	}
-
-	else if( XML_RENDER_TYPE_GRADIENT_H == strType )
-	{
-		pRender = new GradientRender();
-		pRender->SetRenderType( RENDER_TYPE_GRADIENTH );
-	}
-	else if( XML_RENDER_TYPE_GRADIENT_V == strType )
-	{
-		pRender = new GradientRender();
-		pRender->SetRenderType( RENDER_TYPE_GRADIENTV );
-	}
-	else if( XML_RENDER_TYPE_IMAGE_SIMPLE == strType )
-	{
-		pRender = new SimpleImageRender();
-		pRender->SetRenderType( RENDER_TYPE_IMAGESIMPLE );
-	}
-	else if( XML_RENDER_TYPE_IMAGE_STRETCH == strType )
-	{
-		pRender = new StretchImageRender();
-		pRender->SetRenderType( RENDER_TYPE_IMAGESTRETCH );
-	}
-	else if( XML_RENDER_TYPE_IMAGE_TILE == strType )
-	{
-		pRender = new TileImageRender();
-		pRender->SetRenderType( RENDER_TYPE_IMAGETILE );
-	}
-	else if( XML_RENDER_TYPE_COLORLIST == strType )
-	{
-		pRender = new ColorListRender();
-		pRender->SetRenderType( RENDER_TYPE_COLORLIST );
-	}
-	else if( XML_RENDER_TYPE_IMAGELIST == strType )
-	{
-		pRender = new ImageListRender();
-		pRender->SetRenderType( RENDER_TYPE_IMAGELIST );
-	}
-	else if( XML_RENDER_TYPE_IMAGELISTSTRETCH == strType )
-	{
-		pRender = new ImageListStretchRender();
-		pRender->SetRenderType( RENDER_TYPE_IMAGELISTSTRETCH );
-	}
-	else if( XML_RENDER_TYPE_THEME == strType )
-	{
-		if( _T("Button") == pObj->GetObjectName() )
-		{
-			pRender = new ButtonBkThemeRender();
-			pRender->SetRenderType( RENDER_TYPE_THEME );
-		}
-		else if( _T("Edit") == pObj->GetObjectName() )
-		{
-			pRender = new EditBkThemeRender();
-			pRender->SetRenderType( RENDER_TYPE_THEME );
-		}
-		else if( _T("GroupBox") == pObj->GetObjectName() )
-		{
-			pRender = new GroupBoxBkThemeRender();
-			pRender->SetRenderType( RENDER_TYPE_THEME );
-		}
-	}
-	else
-	{
-		UI_LOG_WARN(_T("%s invalid render type %s"), _T(__FUNCTION__), strType.c_str() );
-	}
-
-	if( NULL != pRender )
-	{
-		pRender->SetObject(pObj);
-	}
-
-	return pRender;
-#else
 	RENDER_TYPE eType = RENDER_TYPE_THEME;
 
 	if( XML_RENDER_TYPE_COLOR == strType )
@@ -139,7 +60,6 @@ RenderBase* RenderFactory::GetRender( const String& strType, Object* pObj )
 		return NULL;
 
 	return GetRender(eType, pObj);
-#endif
 }
 
 RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
@@ -263,6 +183,10 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 // 	{
 // 		pRender = new MenuIconBkThemeRender();
 // 	}
+	else if (RENDER_TYPE_THEME_MENUPOPUPTRIANGLE == eType)
+	{
+		pRender = new MenuPopupTriangleRender();
+	}
 	else
 	{
 		UI_LOG_WARN(_T("%s invalid render type %d"), _T(__FUNCTION__),  eType );
@@ -2252,15 +2176,31 @@ void MenuSeperatorThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPSEPARATOR, 1, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("MenuSeperatorThemeRender::DrawDisable  DrawThemeBackground failed."));
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
 		}
 	}
 	else
 	{
-// 		COLORREF col = RGB(10,36,106);
-// 		HBRUSH hBrush = CreateSolidBrush(col);
-// 		::FillRect(hDC, prc, hBrush);
-// 		SAFE_DELETE_GDIOBJECT(hBrush);
+		COLORREF col1 = RGB(128,128,128);
+		COLORREF col2 = RGB(255,255,255);
+		HPEN hPen = CreatePen(PS_SOLID,1,col1);
+		HPEN hOldPen = (HPEN)::SelectObject(hDC, hPen);
+		
+		int y = (prc->top+prc->bottom)/2;
+		MoveToEx(hDC, prc->left, y, NULL);
+		LineTo(hDC, prc->right, y);
+
+		::SelectObject(hDC, hOldPen);
+		SAFE_DELETE_GDIOBJECT(hPen);
+		hPen = CreatePen(PS_SOLID,1,col2);
+		::SelectObject(hDC, hPen);
+
+		y++;
+		MoveToEx(hDC, prc->left, y, NULL);
+		LineTo(hDC, prc->right, y);
+
+		SelectObject(hDC, hOldPen);
+		SAFE_DELETE_GDIOBJECT(hPen);
 	}
 	ReleaseHDC(hRDC, hDC);
 }
@@ -2268,34 +2208,114 @@ void MenuSeperatorThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 
 //////////////////////////////////////////////////////////////////////////
 
-#if 0 // 过期，可删除
-void MenuIconBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void MenuPopupTriangleRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 {
-	this->DrawNormal(hRDC, prc);
+	switch(nState)
+	{
+	default:
+		this->DrawNormal(hRDC, prc);
+		break;
+	case MENU_POPUPTRIANGLE_RENDER_STATE_HOVER:
+		this->DrawHover(hRDC, prc);
+		break;
+	case MENU_POPUPTRIANGLE_RENDER_STATE_DISABLE:
+		this->DrawDisable(hRDC, prc);
+		break;
+	}
 }
 
-void MenuIconBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
+void MenuPopupTriangleRender::DrawDisable( HRDC hRDC, const CRect* prc )
 {
 	HDC hDC = GetHDC(hRDC);
 	if( m_hTheme )
 	{
-		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPGUTTER, 1, (RECT*)prc, 0);
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPSUBMENU, MSM_DISABLED, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("MenuSeperatorThemeRender::DrawDisable  DrawThemeBackground failed."));
+			UI_LOG_WARN(_T("MenuPopupTriangleRender::DrawDisable  DrawThemeBackground failed."));
 		}
 	}
 	else
 	{
-// 		COLORREF col = RGB(10,36,106);
-// 		HBRUSH hBrush = CreateSolidBrush(col);
-// 		::FillRect(hDC, prc, hBrush);
-// 		SAFE_DELETE_GDIOBJECT(hBrush);
+		this->DrawTriangle(hDC, prc, false);
 	}
 	ReleaseHDC(hRDC, hDC);
 }
-#endif
 
+void MenuPopupTriangleRender::DrawNormal( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPSUBMENU, MSM_NORMAL, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("MenuPopupTriangleRender::DrawDisable  DrawThemeBackground failed."));
+		}
+	}
+	else
+	{
+		this->DrawTriangle(hDC, prc, false);
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+
+void MenuPopupTriangleRender::DrawHover( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPSUBMENU, MSM_NORMAL, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("MenuPopupTriangleRender::DrawDisable  DrawThemeBackground failed."));
+		}
+	}
+	else
+	{
+		this->DrawTriangle(hDC, prc, true);
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+
+// 绘制箭头
+void MenuPopupTriangleRender::DrawTriangle( HDC hDC, const CRect* prc, int nState )
+{
+	POINT pt[4] = 
+	{
+		{-3,4}, {1,0}, {-3,-4}, {-3,4}
+	};
+
+	int x = 0; int y = 0;
+	x = (prc->left + prc->right)/2;
+	y = (prc->top + prc->bottom)/2;
+
+	for (int i = 0; i < 4; i++)
+	{
+		pt[i].x += x;
+		pt[i].y += y;
+	}
+
+	HBRUSH hBrush = NULL;
+	switch(nState)
+	{
+	case MENU_POPUPTRIANGLE_RENDER_STATE_HOVER:
+		hBrush = (HBRUSH)GetStockObject(WHITE_BRUSH);
+		break;
+		
+	case MENU_POPUPTRIANGLE_RENDER_STATE_DISABLE:
+		hBrush = (HBRUSH)GetStockObject(GRAY_BRUSH);
+		break;
+
+	default:
+		hBrush = (HBRUSH)GetStockObject(BLACK_BRUSH);
+		break;
+	}
+
+	HBRUSH hOldBrush = (HBRUSH)::SelectObject(hDC, hBrush);
+	::Polygon(hDC, pt, 4);
+	::SelectObject(hDC,hOldBrush);
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                      //
