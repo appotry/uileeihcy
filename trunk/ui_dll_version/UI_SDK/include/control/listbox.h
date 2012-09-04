@@ -72,7 +72,7 @@ namespace UI
 		bool           m_bChecked;        // 该基是否被标记（如菜单项）
 
 		void*          m_pData;           
-		ListCtrlBase*  m_pCtrl;
+		ListCtrlBase*  m_pListCtrl;
 	};
 
 	class TreeListItemBase : public ListItemBase
@@ -125,8 +125,7 @@ namespace UI
 			UIMSG_WM_KEYDOWN(OnKeyDown)
 			UIMSG_WM_SIZE(OnSize) 
 			UICHAIN_MSG_MAP_MEMBER(m_MgrScrollbar)
-			UICHAIN_MSG_MAP(Control)
-		UI_END_MSG_MAP
+		UI_END_MSG_MAP_CHAIN_PARENT(Control)
 
 	protected:
 		// 消息处理
@@ -248,8 +247,7 @@ namespace UI
 			UIMSG_WM_LBUTTONUP(OnLButtonUp)
 			UIMSG_WM_INITPOPUPCONTROLWINDOW(OnInitPopupControlWindow)
 			UIMSG_WM_UNINITPOPUPCONTROLWINDOW(OnUnInitPopupControlWindow)
-			UICHAIN_MSG_MAP(ListCtrlBase)
-		UI_END_MSG_MAP
+		UI_END_MSG_MAP_CHAIN_PARENT(ListCtrlBase)
 
 	public:
 		virtual  void ResetAttribute();

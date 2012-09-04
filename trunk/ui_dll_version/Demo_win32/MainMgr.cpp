@@ -53,12 +53,16 @@ void CMainMgr::HandleEvent(IMgr* pSource, int nEventType, int nEventId, WPARAM w
 	{
 	case EVENT_TYPE_UI:
 		{
+			if (NULL == m_pMainWindow)
+				break;
+
 			if (UI_EVENT_ID_ON_PLAYERLISTDLG_CREATE == nEventId)
 			{
-				if (NULL != m_pMainWindow)
-				{
-					m_pMainWindow->SetPlayerListDlgHandle((HWND)wParam);
-				}
+				m_pMainWindow->SetPlayerListDlgHandle((HWND)wParam);
+			}
+			else if (UI_EVENT_ID_ON_PLAYERLISTDLG_VISIBLE_CHANGED == nEventId)
+			{
+				m_pMainWindow->OnPlayerListDlgVisibleChanged((HWND)wParam, (BOOL)lParam);
 			}
 		}
 		break;

@@ -14,8 +14,7 @@ namespace UI
 
 			UIMESSAGE_HANDLER_EX(UI_WM_ENTERPOPUPLOOP, OnEnterPopupLoop)
 			UIMESSAGE_HANDLER_EX(UI_WM_EXITPOPUPLOOP, OnExitPopupLoop)
-			UICHAIN_MSG_MAP(CustomWindow)
-		UI_END_MSG_MAP
+		UI_END_MSG_MAP_CHAIN_PARENT(CustomWindow)
 
 		virtual void OnInitWindow();
 		virtual void OnFinalMessage();
@@ -66,10 +65,7 @@ namespace UI
 
 		UIALT_MSG_MAP(1)
 		
-		UI_BEGIN_CHAIN_ALL_MSG_MAP
-			UICHAIN_MSG_MAP(PopupControlWindow)
-		UI_END_CHAIN_ALL_MSG_MAP
-		UI_END_MSG_MAP
+		UI_END_MSG_MAP_CHAIN_PARENT(PopupControlWindow)
 
 	protected:
 		virtual BOOL PreCreateWindow( CREATESTRUCT& cs );
@@ -93,10 +89,8 @@ namespace UI
 		UI_BEGIN_MSG_MAP
 			UIMSG_WM_PAINT(OnPaint)
 		UIALT_MSG_MAP(1)
-		UI_BEGIN_CHAIN_ALL_MSG_MAP
-			UICHAIN_MSG_MAP(PopupControlWindow)
-		UI_END_CHAIN_ALL_MSG_MAP
-		UI_END_MSG_MAP
+
+		UI_END_MSG_MAP_CHAIN_PARENT(PopupControlWindow)
 
 	protected:
 

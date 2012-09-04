@@ -30,8 +30,7 @@ public:
 		UIMSG_WM_KILLFOCUS( OnKillFocus )
 		UIMSG_WM_SETFOCUS( OnSetFocus )
 //		UICHAIN_MSG_MAP_MEMBER(m_render)
-		UICHAIN_MSG_MAP(Control)
-	UI_END_MSG_MAP
+	UI_END_MSG_MAP_CHAIN_PARENT(Control)
 
 
 	// 消息处理
@@ -139,10 +138,6 @@ public:
 
 	UI_DECLARE_OBJECT( CheckButtonBase, OBJ_CONTROL )
 
-	UI_BEGIN_MSG_MAP
-		UICHAIN_MSG_MAP( ButtonBase );
-	UI_END_MSG_MAP
-
 public:
 	virtual bool SetAttribute( map<String,String>& mapAttrib, bool bReload );
 	virtual void OnClicked();
@@ -161,10 +156,6 @@ public:
 
 	UI_DECLARE_OBJECT( CheckButton, OBJ_CONTROL )
 
-	UI_BEGIN_MSG_MAP
-		UICHAIN_MSG_MAP(CheckButtonBase)
-	UI_END_MSG_MAP
-
 };
 
 //
@@ -177,10 +168,6 @@ public:
 
 	UI_DECLARE_OBJECT( RadioButtonBase, OBJ_CONTROL )
 
-	UI_BEGIN_MSG_MAP
-		UICHAIN_MSG_MAP( ButtonBase );
-	UI_END_MSG_MAP
-
 public:
 	virtual bool SetAttribute( map<String,String>& mapAttrib, bool bReload );
 	virtual void OnClicked();
@@ -191,10 +178,6 @@ class UIAPI RadioButton : public RadioButtonBase
 public:
 
 	UI_DECLARE_OBJECT( RadioButton, OBJ_CONTROL )
-
-	UI_BEGIN_MSG_MAP
-		UICHAIN_MSG_MAP(RadioButtonBase)
-	UI_END_MSG_MAP
 
 };
 

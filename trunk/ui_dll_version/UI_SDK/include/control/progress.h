@@ -17,10 +17,6 @@ class UIAPI ProgressCtrlBase : public Control
 public:
 	ProgressCtrlBase();
 
-	UI_BEGIN_MSG_MAP
-		UICHAIN_MSG_MAP(Control)
-	UI_END_MSG_MAP
-
 public:
 	// 从Object继承来的虚函数
 	virtual      bool  SetAttribute(ATTRMAP& mapAttrib, bool bReload=false);
@@ -71,7 +67,6 @@ public:
 //		UIMSG_WM_SETCURSOR(OnSetCursor)
 		UIMSG_WM_KEYDOWN(OnKeyDown)
 		UIMSG_WM_KEYUP(OnKeyUp)
-	UICHAIN_MSG_MAP(ProgressCtrlBase)
 
 	// 按钮的事件
 	UIALT_MSG_MAP(1)   
@@ -81,7 +76,8 @@ public:
 		UIMSG_WM_LBUTTONUP(OnBtnLButtonUp)
 		UIMSG_WM_KEYDOWN(OnKeyDown)
 		UIMSG_WM_KEYUP(OnKeyUp)
-	UI_END_MSG_MAP
+
+	UI_END_MSG_MAP_CHAIN_PARENT(ProgressCtrlBase)
 
 public:
 	virtual       void ResetAttribute();
@@ -128,9 +124,6 @@ public:
 
 	UI_DECLARE_OBJECT( SliderCtrl, OBJ_CONTROL )
 
-// 	UI_BEGIN_MSG_MAP
-// 	UICHAIN_MSG_MAP_EX(SliderCtrlBase)
-// 	UI_END_MSG_MAP
 };
 
 }

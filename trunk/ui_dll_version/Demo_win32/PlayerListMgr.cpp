@@ -36,7 +36,7 @@ CPlayerListMgr::~CPlayerListMgr(void)
 
 bool CPlayerListMgr::Initialize()
 {
-	ShowPlayerListDlg(GetMainMgr()->GetMainWnd());
+	ToggleShowPlayerListDlg(GetMainMgr()->GetMainWnd());
 
 	srand( (unsigned)time( NULL ) );
 
@@ -53,8 +53,8 @@ bool CPlayerListMgr::Release()
 	return true;
 }
 
-
-HWND CPlayerListMgr::ShowPlayerListDlg(HWND hParent)
+// 切换播放列表窗口的显示：如点击了主界面的播放列表按钮
+HWND CPlayerListMgr::ToggleShowPlayerListDlg(HWND hParent)
 {
 	if( NULL == m_pPlaylistDlg )
 	{
@@ -75,12 +75,21 @@ HWND CPlayerListMgr::ShowPlayerListDlg(HWND hParent)
 		}
 	}
 
-	if(m_pPlaylistDlg->IsVisible())
+	BOOL bVisible = m_pPlaylistDlg->IsVisible();
+	if (bVisible)
 		UIAnimateWindow(m_pPlaylistDlg->m_hWnd,UIAW_HIDE_KUOSAN,0);
 	else
 		::ShowWindow(m_pPlaylistDlg->m_hWnd,SW_SHOW);
 
+	this->FireEvent(EVENT_TYPE_UI, UI_EVENT_ID_ON_PLAYERLISTDLG_VISIBLE_CHANGED, (WPARAM)m_pPlaylistDlg->m_hWnd, (LPARAM)!bVisible);
+
 	return m_pPlaylistDlg->m_hWnd;
+}
+
+// 关闭了播放列表窗口
+void CPlayerListMgr::OnPlayListDlgHide()
+{
+	this->FireEvent(EVENT_TYPE_UI, UI_EVENT_ID_ON_PLAYERLISTDLG_VISIBLE_CHANGED, (WPARAM)m_pPlaylistDlg->m_hWnd, (LPARAM)FALSE);
 }
 
 bool CPlayerListMgr::AddFile(const String& strFile)

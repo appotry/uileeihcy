@@ -17,8 +17,7 @@ public:
 		UIMSG_BN_CLICKED( _T("sys_minimize"), OnSysMinimize )
 		UIMSG_BN_CLICKED( _T("sys_maximize"), OnSysMaximize )
 		UIMSG_BN_CLICKED( _T("sys_restore"), OnSysRestore )
-		UICHAIN_MSG_MAP(WindowBase)
-	UI_END_MSG_MAP
+	UI_END_MSG_MAP_CHAIN_PARENT(WindowBase)
 
 	// 内部方法
 protected:

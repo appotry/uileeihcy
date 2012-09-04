@@ -12,10 +12,6 @@ public:
 
 	UI_DECLARE_OBJECT( Control, OBJ_CONTROL )
 
-// 	UI_BEGIN_MSG_MAP
-// 		UICHAIN_MSG_MAP(Object)
-// 	UI_END_MSG_MAP
-
 protected:
 
 public:

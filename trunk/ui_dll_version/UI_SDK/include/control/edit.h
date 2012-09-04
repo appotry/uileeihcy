@@ -118,8 +118,7 @@ public:
 		UIMSG_WM_LBUTTONDBLCLK( OnLButtonDblClk )
  		UIMSG_WM_SETFOCUS( OnSetFocus )
  		UIMSG_WM_KILLFOCUS( OnKillFocus )
-		UICHAIN_MSG_MAP(Control)
-	UI_END_MSG_MAP
+	UI_END_MSG_MAP_CHAIN_PARENT(Control)
 
 
 	// 消息处理

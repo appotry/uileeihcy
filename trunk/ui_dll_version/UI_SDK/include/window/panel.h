@@ -14,10 +14,6 @@ protected:
 public:
 	UI_DECLARE_OBJECT( Panel, OBJ_PANEL )
 
-	UI_BEGIN_MSG_MAP
-		UICHAIN_MSG_MAP( Object )
-	UI_END_MSG_MAP
-
 	// 公共方法
 public:
 	Layout*      GetLayout();

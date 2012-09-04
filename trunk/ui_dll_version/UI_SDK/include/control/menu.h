@@ -6,6 +6,7 @@ namespace UI
 	{
 	public:
 		MenuItem(ListCtrlBase* pCtrl);
+		~MenuItem();
 
 		const String& GetText() { return m_strText; }
 
@@ -17,11 +18,14 @@ namespace UI
 		void  SetText(const String& str){ m_strText = str; }
 		UINT  GetFlag() { return m_nFlag; }
 		UINT  GetID() { return m_nID; }
+		void  SetSubMenu(MenuBase* p) { m_pSubMenu = p; }
 
 		virtual  bool    OnMouseEnter();
 		virtual  bool    OnMouseLeave();
+		void     OnTimer(UINT nIDEvent, TimerItem* pItem);
 
 	protected:
+		MenuBase*   m_pMenu;      // item 所属菜单
 		String      m_strText;
 		MenuBase*   m_pSubMenu;   // 如果是一个popup菜单，该成员表示其子菜单
 
@@ -41,23 +45,28 @@ namespace UI
 			UIMSG_WM_LBUTTONDOWN(OnLButtonDown)
 			UIMSG_WM_LBUTTONUP(OnLButtonUp)
 			UIMSG_WM_KEYDOWN(OnKeyDown)
+			UIMSG_WM_TIMER(OnTimer)
 			UIMSG_WM_INITPOPUPCONTROLWINDOW(OnInitPopupControlWindow)
 			UIMSG_WM_UNINITPOPUPCONTROLWINDOW(OnUnInitPopupControlWindow)
-			UICHAIN_MSG_MAP(ListCtrlBase)
-		UI_END_MSG_MAP
+		UI_END_MSG_MAP_CHAIN_PARENT(ListCtrlBase)
 
 		virtual  HRESULT FinalConstruct();
 
+		friend   class   MenuItem;
 	protected:
 		void     OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags );
 		void     OnLButtonDown(UINT nFlags, POINT point);
 		void     OnLButtonUp(UINT nFlags, POINT point);
+		void     OnTimer(UINT_PTR nIDEvent, LPARAM lParam);
+
+		void     SetTimer2PopupSubMenu(MenuItem* pItem);
+		void     KillTimer2PopupSubMenu();
+		int      PopupSubMenu(UINT nFlag, int x, int y, Message* pNotifyObj);
 
 	public:
 		int      GetMenuItemCount();
 		int      TrackPopupMenu(UINT nFlag, int x, int y, Message* pNotifyObj);
-		bool     AppendMenu(UINT uFlags, UINT_PTR uIDNewItem, TCHAR* lpNewItem);
-	
+		bool     AppendMenu(UINT uFlags, UINT_PTR uIDNewItem, LPCTSTR lpNewItem);
 
 		virtual  void OnDrawItem( HRDC hRDC, ListItemBase* p ) ;
 		virtual  SIZE OnMeasureItem( ListItemBase* p);
@@ -73,13 +82,18 @@ namespace UI
 
 	protected:
 		PopupMenuWindow*  m_pPopupWrapWnd;
-		RenderBase*       m_pSeperatorRender;
+		UINT         m_nTimerIDPopupSubMenu;  // 计时器ID，用于弹出子窗口
+
+		// 绘制相关
+		RenderBase*  m_pSeperatorRender;
 
 		int        m_nIconGutterWidth;    // 菜单左侧图标列 的宽度
 		int        m_nTextMarginLeft;
 		int        m_nTextMarginRight;
 		int        m_nPopupTriangleWidth; // 菜单右侧弹出菜单类型的三角形
 		int        m_nSeperatorHeight;
+
+	
 	
 	};
 

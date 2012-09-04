@@ -8,8 +8,7 @@ public:
 		UIMSG_WM_CLOSE( OnClose )
 		UIMSG_TRBN_POSCHANGED( _T("progress_hue1"), OnHueChanged1 )
 		UIMSG_TRBN_POSCHANGED( _T("progress_hue2"), OnHueChanged2 )
-		UICHAIN_MSG_MAP(CustomWindow)
-	UI_END_MSG_MAP
+	UI_END_MSG_MAP_CHAIN_PARENT(CustomWindow)
 
 	virtual void OnInitWindow( );
 

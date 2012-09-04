@@ -11,7 +11,7 @@ public:
 
 	UI_BEGIN_MSG_MAP
 		UIMSG_WM_PAINT(OnPaint)	
-	UI_END_MSG_MAP
+	UI_END_MSG_MAP_CHAIN_PARENT(Control)
 
 public:
 	void     OnPaint(HRDC);

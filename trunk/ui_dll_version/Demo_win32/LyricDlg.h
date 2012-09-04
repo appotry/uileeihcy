@@ -11,8 +11,7 @@ public:
 		UIMSG_WM_GETRENDERTYPE(OnGetRenderType)
 		UIMSG_WM_CLOSE( OnClose )
 		UIMSG_BN_CLICKED( _T("switch_layered"), OnSwitchLayered )
-		UICHAIN_MSG_MAP(CustomWindow)
-	UI_END_MSG_MAP
+	UI_END_MSG_MAP_CHAIN_PARENT(CustomWindow)
 
 public:
 	void    OnPaint( HRDC );

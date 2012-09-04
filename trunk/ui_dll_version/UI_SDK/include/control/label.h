@@ -15,8 +15,7 @@ public:
 
 	UI_BEGIN_MSG_MAP
 		UIMSG_WM_PAINT(OnPaint)
-		UICHAIN_MSG_MAP(Control)
-	UI_END_MSG_MAP
+	UI_END_MSG_MAP_CHAIN_PARENT(Control)
 
 
 	// 消息处理
@@ -58,8 +57,7 @@ public:
 
 	UI_BEGIN_MSG_MAP
 		UIMSG_WM_PAINT(OnPaint)
-		UICHAIN_MSG_MAP(Control)
-	UI_END_MSG_MAP
+	UI_END_MSG_MAP_CHAIN_PARENT(Control)
 
 	// virtual 函数
 	SIZE   GetAutoSize( HRDC hDC );

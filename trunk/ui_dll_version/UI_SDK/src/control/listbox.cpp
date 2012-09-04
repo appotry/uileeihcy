@@ -10,13 +10,13 @@ ListItemBase::ListItemBase(ListCtrlBase* pCtrl)
 	m_bDisable = false;
 	m_bChecked = false;
 	m_pData = NULL;
-	m_pCtrl = pCtrl;
+	m_pListCtrl = pCtrl;
 }
 ListItemBase::~ListItemBase()
 {
 	m_pPrev = m_pNext = m_pPrevSelection = m_pNextSelection = NULL;
 	m_pData = NULL;
-	m_pCtrl = NULL;
+	m_pListCtrl = NULL;
 }
 
 bool ListItemBase::OnMouseMove(POINT pt, UINT nFlag)

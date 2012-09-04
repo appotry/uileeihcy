@@ -15,8 +15,7 @@ namespace UI
 			UIMSG_WM_PAINT(OnPaint)
 			UIMSG_WM_ERASEBKGND(OnEraseBkgnd)
 			UIMSG_WM_SIZE(OnSize)
-			UICHAIN_MSG_MAP(Panel)
-			UI_END_MSG_MAP
+		UI_END_MSG_MAP_CHAIN_PARENT(Panel)
 
 			void   OnPaint( HRDC hRDC );
 		void   OnEraseBkgnd( HRDC hRDC );

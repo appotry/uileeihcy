@@ -52,8 +52,7 @@ public:
 		UIMSG_WM_CLOSE( OnClose )
 		UIMSG_BN_CLICKED_EX(_T("playlist_add"), OnBtnClickAdd )
 		UIMSG_LCN_DBCLICK(OnLCNDbclick)
-		UICHAIN_MSG_MAP( CustomWindow )
-	UI_END_MSG_MAP
+	UI_END_MSG_MAP_CHAIN_PARENT( CustomWindow )
  
 public:
 	virtual BOOL PreCreateWindow( CREATESTRUCT& cs );

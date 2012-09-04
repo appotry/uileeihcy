@@ -50,8 +50,7 @@ public:
 // 		UIMSG_WM_NCMBUTTONUP    ( OnNcMButtonUp )
 // 		UIMSG_WM_NCMBUTTONDBLCLK( OnNcMButtonDblClk )
 
-		UICHAIN_MSG_MAP( Window )
-	UI_END_MSG_MAP
+	UI_END_MSG_MAP_CHAIN_PARENT(Window)
 
 
 	// 公共方法
