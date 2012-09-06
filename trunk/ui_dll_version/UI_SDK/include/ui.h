@@ -118,6 +118,8 @@ namespace UI
 	UIAPI GRAPHICS_RENDER_TYPE UI_GetFontRenderType(HRFONT hRFont);
 	UIAPI HFONT    UI_GetFontHFONT(HRFONT hRFont);
 
+	UIAPI Menu*    UI_LoadMenu( const String& strMenuID );
+
 	UIAPI HRBITMAP UI_GetBitmap( const String& strImageID, GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI, HSKIN hSkin = NULL );
 	UIAPI void     UI_ReleaseBitmap( HRBITMAP hBitmap );
 	UIAPI int      UI_GetBitmapWidth( HRBITMAP hBitmap );
@@ -201,7 +203,6 @@ namespace UI
 	bool     UI_LoadLayout( Object* pRootObj );
 	bool     UI_LoadStyle( const String& strTagName, const String& strStyleClass, const String& strID, map<String,String>& mapStyle );
 	void     UI_UpdateTopWindowLayout( WindowBase* pWindow );
-	bool     UI_LoadMenu( const String& strMenuID );
 
 	void     _cdecl MOUSE_LOG_DEBUG( TCHAR*, ... );
 

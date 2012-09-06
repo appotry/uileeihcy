@@ -454,12 +454,12 @@ bool SkinManager::LoadStyle( const String& strTagName, const String& strStyleCla
 	return m_pStyleMgr->LoadStyle( strTagName, strStyleClass, strID, mapStyle );
 }
 
-bool SkinManager::LoadMenu( const String& strMenuId )
+Menu* SkinManager::LoadMenu( const String& strMenuId )
 {
 	if( NULL == m_pLayoutMgr )
 	{
 		UI_LOG_ERROR(_T("%s m_pLayoutMgr == NULL."), _T(__FUNCTION__));
-		return false;
+		return NULL;
 	}
 
 	return m_pLayoutMgr->LoadMenu( strMenuId );

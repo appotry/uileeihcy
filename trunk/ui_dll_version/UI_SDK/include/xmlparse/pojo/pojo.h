@@ -172,7 +172,7 @@ namespace UI
 		String    m_strID;      // image id
 		String    m_strPath;    // image path
 
-		bool                  m_bUseSkinHue;         // 该图片是否参数皮肤色调改变 
+		bool                  m_bUseSkinHue;         // 该图片是否参与皮肤色调改变 
 		ImageData*            m_pOriginImageData;    // 该图片的原始数据（改变图片色调时使用）
 
 		GDIRenderBitmap*      m_pGdiBitmap;          // 外部引用
@@ -200,7 +200,7 @@ namespace UI
 		vector<CPojo_ImageItem*>   m_vImages;
 
 	public:
-		int   GetImageCount(); 
+		int  GetImageCount(); 
 		CPojo_ImageItem* GetImageItem( int nIndex );
 		CPojo_ImageItem* GetImageItem( const String& strID );
 
@@ -275,6 +275,68 @@ namespace UI
 	private:
 		vector<CPojo_CursorItem*>   m_vCursors;
 	};
+
+	
+	//
+	//	图标样式
+	//
+// 	class UIAPI UIIcon
+// 	{
+// 	private:
+// 		UIIcon( UIIcon** ppOutRef );
+// 	public:
+// 		~UIIcon();
+// 
+// 		static void CreateInstance( const String strCurFilePath, UIIcon** pOutRef );
+// 		static void CreateInstance( LPTSTR nCursorID, UIIcon** ppOutRef );
+// 		HCURSOR  GetCursor();
+// 		bool     Load( LPTSTR nCursorID );
+// 		void     Attach(HCURSOR hCursor);
+// 		HCURSOR  Detach();
+// 		long     AddRef();
+// 		long     Release();
+// 
+// 	private:
+// 		long      m_dwRef;
+// 		HICON     m_hIcon;
+// 
+// 		UICursor** m_pOutRef;
+// 	};
+// 	class CPojo_IconItem
+// 	{
+// 	public:
+// 		CPojo_IconItem();
+// 
+// 		DECLARE_STRING_SETGET( ID );
+// 		DECLARE_STRING_SETGET( IconFilePath );
+// 
+// 		bool  GetIcon( UIIcon** ppIcon );
+// 		bool  ModifyCursor( const String& strIconFilePath );
+// 
+// 	public:
+// 		String     m_strID;
+// 		String     m_strIconFilePath;     // .cur文件路径
+// 		UIIcon*    m_pIcon;             
+// 	};
+// 	class CPojo_Icon
+// 	{
+// 	public:
+// 		CPojo_Icon();
+// 		~CPojo_Icon();
+// 
+// 	public:
+// 		CPojo_Icon* GetCursorItem( int nIndex );
+// 		CPojo_Icon* GetCursorItem( const String& strID );
+// 		int   GetIconCount();
+// 		bool  GetIcon( const String& strID, UICursor** pCursorRet );
+// 		bool  InsertIcon( const String& strID, const String& strCurFilePath );
+// 		bool  ModifyIcon( const String& strID, const String& strCursor );
+// 		bool  RemoveIcon( const String& strID );
+// 		void  Clear();
+// 
+// 	private:
+// 		vector<CPojo_IconItem*>   m_vIcons;
+// 	};
 
 	//
 	//	让外界通过指针来获取颜色资源，这样每次颜色变化时，可经立即通过获取指针指向的内容来刷新界面

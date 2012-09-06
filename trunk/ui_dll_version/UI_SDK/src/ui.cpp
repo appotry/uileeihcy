@@ -768,10 +768,10 @@ void UI_UpdateLayout( WindowBase* pObj, BOOL bRedraw )
 		pObj->UpdateObject();
 }
 
-bool UI_LoadMenu( const String& strMenuID )
+Menu* UI_LoadMenu( const String& strMenuID )
 {
 	if( NULL == g_pUIApplication )
-		return false;
+		return NULL;
 
 	return g_pUIApplication->m_ProjectMgr.LoadMenu( strMenuID );
 }

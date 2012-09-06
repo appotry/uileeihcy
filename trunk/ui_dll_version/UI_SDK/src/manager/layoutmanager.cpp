@@ -99,13 +99,13 @@ bool LayoutManager::ReLoadLayout( Object* pRootObj, list<Object*>& listAllChild 
 	return m_pLayoutParse->ReLoadLayout(pRootObj, listAllChild);
 }
 
-bool LayoutManager::LoadMenu( const String& strMenuId )
+Menu* LayoutManager::LoadMenu( const String& strMenuId )
 {
 
 	if( NULL == m_pLayoutParse )
 	{
 		UI_LOG_ERROR(_T("%s m_pLayoutParse == NULL"),_T(__FUNCTION__));
-		return false;
+		return NULL;
 	}
 
 	return m_pLayoutParse->LoadMenu(strMenuId);

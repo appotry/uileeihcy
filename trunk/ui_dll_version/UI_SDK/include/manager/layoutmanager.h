@@ -20,7 +20,7 @@ namespace UI
 		void     Clear();
 		bool     LoadLayout(Object* pRootObj);
 		bool     ReLoadLayout( Object* pRootObj, list<Object*>& listAllChild );
-		bool     LoadMenu( const String& strMenuId );
+		Menu*    LoadMenu( const String& strMenuId );
 
 		ILayoutParse* GetLayoutParse() { return m_pLayoutParse; }
 

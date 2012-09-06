@@ -191,7 +191,7 @@ namespace UI
 		virtual  bool Load( CPojo_Layout* pLayoutInfo );
 		virtual  bool LoadLayout(Object* pRootObj);
 		virtual  bool ReLoadLayout( Object* pRootObj, list<Object*>& listAllChild );
-		virtual  bool LoadMenu( const String& strMenuId );
+		virtual  Menu* LoadMenu( const String& strMenuId );
 
 	private:
 		bool  load_from_file( CMarkup* pXml, const String& strDataSource, CPojo_Layout *pLayoutInfo );

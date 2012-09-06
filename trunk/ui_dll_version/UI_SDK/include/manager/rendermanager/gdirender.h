@@ -17,8 +17,8 @@ public:
 	virtual bool  LoadFromFile( const String& strPath );
 	virtual bool  Create(int nWidth, int nHeight);
 
-	virtual int GetWidth();
-	virtual int GetHeight();
+	virtual int   GetWidth();
+	virtual int   GetHeight();
 
 	virtual BYTE* LockBits();
 	virtual void  UnlockBits();

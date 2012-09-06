@@ -772,12 +772,12 @@ bool ProjectManager::LoadStyle( const String& strTagName, const String& strStyle
 
 	return this->m_pCurActiveSkinMgr->LoadStyle(strTagName, strStyleClass, strID, mapStyle );
 }
-bool ProjectManager::LoadMenu( const String& strMenuId )
+Menu* ProjectManager::LoadMenu( const String& strMenuId )
 {
 	if( NULL == m_pCurActiveSkinMgr )
 	{
 		UI_LOG_ERROR( _T("%s m_pCurActiveSkinMgr == NULL."), _T(__FUNCTION__) );
-		return false;
+		return NULL;
 	}
 
 	return this->m_pCurActiveSkinMgr->LoadMenu(strMenuId);
