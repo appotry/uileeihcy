@@ -55,6 +55,7 @@ class Panel;
 class Control;
 class WindowBase;
 class Window;
+class Menu;
 
 class UIApplication;
 class IProjectSkinItemInfo;
@@ -200,7 +201,8 @@ namespace UI
 	bool     UI_LoadLayout( Object* pRootObj );
 	bool     UI_LoadStyle( const String& strTagName, const String& strStyleClass, const String& strID, map<String,String>& mapStyle );
 	void     UI_UpdateTopWindowLayout( WindowBase* pWindow );
-	
+	bool     UI_LoadMenu( const String& strMenuID );
+
 	void     _cdecl MOUSE_LOG_DEBUG( TCHAR*, ... );
 
 	// helper ·½·¨

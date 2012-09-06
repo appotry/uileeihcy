@@ -768,7 +768,13 @@ void UI_UpdateLayout( WindowBase* pObj, BOOL bRedraw )
 		pObj->UpdateObject();
 }
 
+bool UI_LoadMenu( const String& strMenuID )
+{
+	if( NULL == g_pUIApplication )
+		return false;
 
+	return g_pUIApplication->m_ProjectMgr.LoadMenu( strMenuID );
+}
 
 //
 //	将当前路径扩展为全路径，以uidll作为当前路径

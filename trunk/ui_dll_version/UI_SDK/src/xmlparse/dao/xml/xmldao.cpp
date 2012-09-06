@@ -2423,48 +2423,119 @@ bool CXmlLayoutParse::ReLoadLayout( Object* pRootObj, list<Object*>& listAllChil
 	return bRet;
 }
 
-#if 0
-//
-//	通过xml中的标签名来实例化一个对象
-//
-#define BEGIN_XML2CLASS \
-	Object* pObj = NULL;
+bool CXmlLayoutParse::LoadMenu( const String& strMenuId )
+{
+	Menu*    pMenu = NULL;
+	bool     bRet = false;
 
-#define XML2CLASS( CLASS )  \
-	if( CLASS::XmlName() == strXmlName )  \
-	{ \
-		pObj = new CLASS; \
-	} \
-	else 
-#define END_XML2CLASS \
-	{ \
-		UI_LOG_ERROR( _T("LayoutXmlParse::mapXmlToClass，未能解析的对象名称：%s"), strXmlName.c_str() ); \
+	this->m_xml.ResetPos();
+
+	do
+	{
+		//
+		//  1. 在xml中定位到pRootOb这个对象（依据对象xml名称和对象id属性）
+		//
+		if( false == m_xml.FindElem( ) )             break;     // 忽略root结点的名称
+		if( false == m_xml.IntoElem() )              break;
+
+		if( false == m_xml.FindElem( XML_LAYOUT) )   break;
+		if( false == m_xml.IntoElem() )              break;
+
+		while(true )
+		{
+			if( false == m_xml.FindElem( XML_MENU ) )
+			{
+				bRet = false;
+				break;
+			}
+
+			if( m_xml.GetAttrib(XML_ID) != strMenuId )
+			{
+				continue;
+			}
+			else
+			{
+				bRet = true;
+				break;
+			}
+		}
+		if( !bRet )
+		{
+			UI_LOG_FATAL( _T("%s, 未找到要加载的对象：name=%s, id=%s"),
+				       _T(__FUNCTION__), XML_MENU, strMenuId.c_str() );
+			break;
+		}
+
+		bRet = false;      // reset
+
+		UICreateInstance(&pMenu);
+
+		//
+		//  2. 
+		//
+		this->loadAttributeForCurrentObjectInXml( pMenu );
+
+		bRet = true;
+	}
+	while(false);
+
+	//
+	//	3. 现在开始递归加载这个窗口的控件对象了
+	//
+	if( true == bRet )
+	{
+		this->loadMenuItems( pMenu );
 	}
 
-Object*  CXmlLayoutParse::mapXmlToClass( String strXmlName )
-{
-	BEGIN_XML2CLASS
-		XML2CLASS( Panel )
-		XML2CLASS( GroupBox )
-		XML2CLASS( ScrollPanel )
-		XML2CLASS( HwndHost )
-		XML2CLASS( Button )
-		XML2CLASS( CheckButton )
-		XML2CLASS( RadioButton )
-		XML2CLASS( HyperLink )
-		XML2CLASS( Label )
-		XML2CLASS( PictureCtrl )
-		XML2CLASS( Edit )
-		XML2CLASS( SliderCtrl )
-		XML2CLASS( ListBox )
-		XML2CLASS( TTPlayerPlaylistCtrl )
-		XML2CLASS( HScrollBar )
-		XML2CLASS( VScrollBar )
-		XML2CLASS( Combobox )
-	END_XML2CLASS
-	return pObj;
+	return bRet;
 }
-#endif
+bool CXmlLayoutParse::loadMenuItems(Menu* pParentMenu)
+{
+	bool bRet = false;
+
+	if( false == m_xml.IntoElem() )
+		return false;
+
+	// 遍历所有子对象
+	while(true)
+	{
+		bool bRet = this->m_xml.FindElem();
+		if( false == bRet )     break;
+
+		Object*  pObj = NULL;
+		String   tagName = this->m_xml.GetTagName();
+		if( _T("") == tagName )
+		{
+			UI_LOG_WARN( _T("%s, xml invalid tag name."), _T(__FUNCTION__) );
+			return false;
+		}
+
+		String strText = m_xml.GetAttrib(XML_TEXT);
+		String strID = m_xml.GetAttrib(XML_ID);
+
+		if (tagName == XML_MENU_STRINGITEM)
+		{
+			pParentMenu->AppendMenu(MF_STRING, _ttoi(strID.c_str()), strText.c_str());
+		}
+		else if (tagName == XML_MENU_SEPARATORITEM)
+		{
+			pParentMenu->AppendMenu(MF_SEPARATOR, XML_MENU_SEPARATOR_ID, NULL);
+		}
+		else if (tagName == XML_MENU_POPUPITEM)
+		{
+			pParentMenu->AppendMenu(MF_POPUP, XML_MENU_POPUP_ID, NULL);
+
+			Menu* pSubMenu = NULL;
+			UICreateInstance(&pSubMenu);
+			this->loadAttributeForCurrentObjectInXml( pSubMenu );
+			
+		}
+	}
+
+	m_xml.OutOfElem();
+
+	return bRet;
+}
 
 Object*  CXmlLayoutParse::mapXmlToClass( String strXmlName )
 {
@@ -2473,9 +2544,9 @@ Object*  CXmlLayoutParse::mapXmlToClass( String strXmlName )
 	return p;
 }
 
-/*
-**	为m_mxl当前指向的对象加载它的属性
-*/
+//
+//	为m_mxl当前指向的对象加载它的属性
+//
 bool CXmlLayoutParse::loadAttributeForCurrentObjectInXml( Object* pObj, bool bReload/*=false*/ )
 {
 	map<String, String> mapAttrib;

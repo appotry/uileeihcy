@@ -164,5 +164,7 @@ namespace UI
 		virtual bool LoadLayout(Object* pRootObj) = 0;
 
 		virtual  bool ReLoadLayout( Object* pRootObj, list<Object*>& listAllChild ) = 0;
+
+		virtual  bool LoadMenu( const String& strMenuId ) = 0;
 	};
 }
