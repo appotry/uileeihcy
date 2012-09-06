@@ -107,7 +107,7 @@
         </Panel>
       </Panel>
     </Window>
-    <Menu>
+    <Menu id="main_menu" styleclass="mainmenu">
       <String id="1001" text="千千选项"/>
       <Popup  text="相关链接">
         <String text="千千主页"/>

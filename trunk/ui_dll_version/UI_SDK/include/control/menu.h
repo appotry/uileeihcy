@@ -51,8 +51,6 @@ namespace UI
 			UIMSG_WM_UNINITPOPUPCONTROLWINDOW(OnUnInitPopupControlWindow)
 		UI_END_MSG_MAP_CHAIN_PARENT(ListCtrlBase)
 
-		virtual  HRESULT FinalConstruct();
-
 		friend   class   MenuItem;
 	protected:
 		void     OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags );
@@ -71,7 +69,7 @@ namespace UI
 	public:
 		int      GetMenuItemCount();
 		int      TrackPopupMenu(UINT nFlag, int x, int y, Message* pNotifyObj);
-		bool     AppendMenu(UINT uFlags, UINT_PTR uIDNewItem, LPCTSTR lpNewItem);
+		MenuItem* AppendMenu(UINT uFlags, UINT_PTR uIDNewItem, LPCTSTR lpNewItem);
 		HWND     GetPopupWindowHandle();
 
 		MenuBase* GetPrevMenu() { return m_pPrevMenu; }
@@ -79,6 +77,7 @@ namespace UI
 		MenuBase* GetRootMenu();
 		MenuBase* GetLastMenu();
 		MenuBase* GetMenuByHWND(HWND hWnd);
+		MenuBase* GetMenuByPos(POINT ptScreen);
 
 		virtual  void OnDrawItem( HRDC hRDC, ListItemBase* p ) ;
 		virtual  SIZE OnMeasureItem( ListItemBase* p);

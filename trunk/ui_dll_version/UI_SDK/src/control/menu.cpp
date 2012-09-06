@@ -49,6 +49,8 @@ MenuBase::MenuBase()
 	m_nTimerIDHidePopupSubMenu = 0;
 
 	this->ModifyStyle(LISTCTRLBASE_CONTENT_2_SIZE);
+	m_MgrScrollbar.SetScrollBarVisibleType(HSCROLLBAR,SCROLLBAR_VISIBLE_NONE);
+	m_MgrScrollbar.SetScrollBarVisibleType(VSCROLLBAR,SCROLLBAR_VISIBLE_NONE);
 }
 
 MenuBase::~MenuBase()
@@ -66,7 +68,7 @@ void MenuBase::DestroyPopupWindow()
 	}
 	if (NULL != m_pPopupWrapWnd)
 	{
-		m_pPopupWrapWnd->DestroyPopupWindow();
+		m_pPopupWrapWnd->DestroyPopupWindow(); 
 		m_pPopupWrapWnd = NULL;
 	}
 	if (0 != m_nTimerIDHidePopupSubMenu)
@@ -80,17 +82,6 @@ void MenuBase::DestroyPopupWindow()
 	m_pPrevMenu = NULL;
 }
 
-HRESULT MenuBase::FinalConstruct()
-{
-	this->ResetAttribute();
-
-	ATTRMAP attrmap;
-	::UI_LoadStyle( this->GetObjectName(), _T(""), m_strID, attrmap ); // 如何实现换肤？
-
-	this->SetAttribute(attrmap, false);
-
-	return S_OK;
-}
 
 void MenuBase::OnTimer(UINT_PTR nIDEvent, LPARAM lParam)
 {
@@ -104,6 +95,9 @@ void MenuBase::OnTimer(UINT_PTR nIDEvent, LPARAM lParam)
 		{
 			m_pNextMenu->DestroyPopupWindow();
 			m_pNextMenu = NULL;
+
+//			this->ReDrawItem(m_pNextMenu->get)
+			this->UpdateObject(); // TODO: 更新当前弹出项即可
 		}
 		m_nTimerIDHidePopupSubMenu = 0;
 	}
@@ -219,10 +213,11 @@ void MenuBase::OnLButtonUp(UINT nFlags, POINT point)
 		this->ReDrawItem(pSave);
 		this->ReDrawItem(m_pHoverItem);
 
-		if (NULL != m_pPopupWrapWnd)
-		{
-			m_pPopupWrapWnd->DestroyPopupWindow();
-		}
+// 		if (NULL != m_pPopupWrapWnd)
+// 		{
+// 			m_pPopupWrapWnd->DestroyPopupWindow();
+// 		}
+		this->GetRootMenu()->DestroyPopupWindow();
 
 		UIMSG  msg;
 		msg.message = UI_WM_NOTIFY;
@@ -233,12 +228,14 @@ void MenuBase::OnLButtonUp(UINT nFlags, POINT point)
 	}
 }
 
-bool MenuBase::AppendMenu(UINT uFlags, UINT_PTR uItemID, LPCTSTR lpNewItem)
+MenuItem* MenuBase::AppendMenu(UINT uFlags, UINT_PTR uItemID, LPCTSTR lpNewItem)
 {
+	MenuItem *pItem = NULL;
 	if (uFlags & MF_SEPARATOR)
 	{
-		MenuItem *pItem = new MenuItem(this);
+		pItem = new MenuItem(this);
 		pItem->SetFlag(uFlags);
+		pItem->SetID(XML_MENU_SEPARATOR_ID);
 		this->AddItem(pItem, false);
 	}
 	else if (uFlags & MF_BITMAP)
@@ -254,11 +251,11 @@ bool MenuBase::AppendMenu(UINT uFlags, UINT_PTR uItemID, LPCTSTR lpNewItem)
 		if (NULL == lpNewItem || NULL == uItemID)
 			return false;
 
-		MenuItem *pItem = new MenuItem(this);
+		pItem = new MenuItem(this);
 
 		pItem->SetFlag(uFlags);
 		pItem->SetText(lpNewItem);
-		pItem->SetID(uItemID);
+		pItem->SetID(XML_MENU_POPUP_ID);
 		pItem->SetSubMenu((MenuBase*)uItemID);
 
 		this->AddItem(pItem, false);
@@ -269,7 +266,7 @@ bool MenuBase::AppendMenu(UINT uFlags, UINT_PTR uItemID, LPCTSTR lpNewItem)
 		if (NULL == lpNewItem)
 			return false;
 
-		MenuItem *pItem = new MenuItem(this);
+		pItem = new MenuItem(this);
 
 		pItem->SetFlag(uFlags);
 		pItem->SetText(lpNewItem);
@@ -278,7 +275,7 @@ bool MenuBase::AppendMenu(UINT uFlags, UINT_PTR uItemID, LPCTSTR lpNewItem)
 		this->AddItem(pItem, false);
 	}
 	
-	return true;
+	return pItem;
 }
 
 int  MenuBase::TrackPopupMenu(UINT nFlag, int x, int y, Message* pNotifyObj)
@@ -598,4 +595,9 @@ MenuBase* MenuBase::GetMenuByHWND(HWND hWnd)
 		pMenu = pMenu->GetNextMenu();
 	}
 	return NULL;
+}
+MenuBase* MenuBase::GetMenuByPos(POINT ptScreen)
+{
+	HWND hWnd = WindowFromPoint(ptScreen);
+	return GetMenuByHWND(hWnd);
 }

@@ -89,7 +89,7 @@ namespace UI
 		bool             GetCursor( const String& strCursorID, UICursor** ppCursor, HSKIN hSkin = NULL );
 		bool             LoadLayout(Object* pRootObj);
 		bool             LoadStyle( const String& strTagName, const String& strStyleClass, const String& strID, map<String,String>& mapStyle );
-		bool             LoadMenu( const String& strMenuId );
+		Menu*            LoadMenu( const String& strMenuId );
 
 		HRFONT           GetFont( const String& strFontID, GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI, HSKIN hSkin = NULL );
 		HRFONT           GetDefaultFont( GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI, HSKIN hSkin = NULL );

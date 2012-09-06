@@ -2423,7 +2423,7 @@ bool CXmlLayoutParse::ReLoadLayout( Object* pRootObj, list<Object*>& listAllChil
 	return bRet;
 }
 
-bool CXmlLayoutParse::LoadMenu( const String& strMenuId )
+Menu* CXmlLayoutParse::LoadMenu( const String& strMenuId )
 {
 	Menu*    pMenu = NULL;
 	bool     bRet = false;
@@ -2487,7 +2487,7 @@ bool CXmlLayoutParse::LoadMenu( const String& strMenuId )
 		this->loadMenuItems( pMenu );
 	}
 
-	return bRet;
+	return pMenu;
 }
 bool CXmlLayoutParse::loadMenuItems(Menu* pParentMenu)
 {
@@ -2510,11 +2510,11 @@ bool CXmlLayoutParse::loadMenuItems(Menu* pParentMenu)
 			return false;
 		}
 
-		String strText = m_xml.GetAttrib(XML_TEXT);
-		String strID = m_xml.GetAttrib(XML_ID);
-
 		if (tagName == XML_MENU_STRINGITEM)
 		{
+			String strText = m_xml.GetAttrib(XML_TEXT);
+			String strID = m_xml.GetAttrib(XML_ID);
+
 			pParentMenu->AppendMenu(MF_STRING, _ttoi(strID.c_str()), strText.c_str());
 		}
 		else if (tagName == XML_MENU_SEPARATORITEM)
@@ -2523,12 +2523,26 @@ bool CXmlLayoutParse::loadMenuItems(Menu* pParentMenu)
 		}
 		else if (tagName == XML_MENU_POPUPITEM)
 		{
-			pParentMenu->AppendMenu(MF_POPUP, XML_MENU_POPUP_ID, NULL);
+			String strText = m_xml.GetAttrib(XML_TEXT);
 
 			Menu* pSubMenu = NULL;
 			UICreateInstance(&pSubMenu);
 			this->loadAttributeForCurrentObjectInXml( pSubMenu );
-			
+
+			MenuItem* pItem = pParentMenu->AppendMenu(MF_POPUP, (UINT_PTR)pSubMenu, strText.c_str());
+			if (NULL == pItem)
+			{
+				UI_LOG_WARN(_T("%s AppendMenu failed."), FUNC_NAME);
+				SAFE_DELETE(pSubMenu);
+			}
+			else
+			{
+				this->loadMenuItems(pSubMenu);
+			}
+		}
+		else
+		{
+			UI_LOG_WARN(_T("%s unknown tagname:%s"), FUNC_NAME, tagName.c_str());
 		}
 	}
 

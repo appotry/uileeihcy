@@ -88,6 +88,9 @@ namespace UI
 				Object* pObjEnum = NULL;
 				while (pObjEnum = EnumChildObject(pObjEnum))
 				{
+					if (pObjEnum == pObj)
+						return;
+
 					if (NULL == pObjEnum->m_pNext)
 					{
 						pObjEnum->m_pNext = pObj;
@@ -111,6 +114,9 @@ namespace UI
 				T* pObjEnum = NULL;
 				while(pObjEnum = EnumNcChildObject(pObjEnum))
 				{
+					if (pObjEnum == pObj)
+						return;
+
 					if (NULL == pObjEnum->m_pNext)
 					{
 						pObjEnum->m_pNext = pObj;

@@ -44,8 +44,9 @@
              thubmbtn.bkgnd.render.image="scrollbar_thumb.bmp"
              thubmbtn.cursor="idc_arrow"
                   />
-    <Menu
-             border="24,2,2,2" bkgnd.render.type="imagestretch" bkgnd.render.image="menu_bk.png" bkgnd.render.9region="50,5,5,135"
-      ></Menu>
+
+    <Menu    border="2,2,2,2" bkgnd.render.type="imagestretch" bkgnd.render.image="menu_bk.png" bkgnd.render.9region="2,2,2,2" ></Menu>
+
+    <class   id="mainmenu"   border="24,2,2,2"  bkgnd.render.9region="50,5,5,135"/>
   </style>
 </ui>

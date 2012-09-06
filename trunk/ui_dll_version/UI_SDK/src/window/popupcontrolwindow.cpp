@@ -278,7 +278,9 @@ void PopupMenuWindow::OnFinalMessage()
 	__super::OnFinalMessage();
 }
 
-
+//
+//	注：只有根菜单才会有MenuLoop，子菜单没有
+//
 BOOL PopupMenuWindow::PreTranslatePopupMessage(MSG* pMsg)
 {
 	if (WM_KEYFIRST <= pMsg->message && WM_KEYLAST >= pMsg->message)
@@ -314,7 +316,7 @@ BOOL PopupMenuWindow::PreTranslatePopupMessage(MSG* pMsg)
 	{
 		RECT rcWindow;
 		::GetWindowRect(m_hWnd, &rcWindow);
-		if (!PtInRect(&rcWindow, pMsg->pt))  // 鼠标在弹出窗口外面点击了，关闭当前窗口
+		if (NULL == m_pMenu->GetMenuByPos(pMsg->pt))  // 鼠标在弹出窗口外面点击了，关闭当前窗口
 		{
 			this->DestroyPopupWindow();
 

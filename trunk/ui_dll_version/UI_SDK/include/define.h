@@ -11,6 +11,7 @@
 typedef RECT  REGION4;
 typedef CRect CRegion4;
 
+#define FUNC_NAME  _T(__FUNCTION__)
 
 // ¾ä±ú¶¨Òå
 typedef void *HSKIN;
