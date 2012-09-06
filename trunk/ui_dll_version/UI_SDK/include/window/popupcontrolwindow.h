@@ -23,7 +23,7 @@ namespace UI
 		virtual BOOL PreTranslatePopupMessage(MSG* pMsg);
 
 		BOOL      OnEraseBkgnd(HRDC hRDC);
-		void      DestroyPopupWindow();
+		void      DestroyPopupWindow(bool bDestroyNow=false);
 		
 		LRESULT   OnEnterPopupLoop(UINT uMsg, WPARAM wParam, LPARAM lParam);
 		LRESULT   OnExitPopupLoop(UINT uMsg, WPARAM wParam, LPARAM lParam);

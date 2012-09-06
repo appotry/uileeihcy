@@ -44,6 +44,8 @@ MenuBase::MenuBase()
 	m_nIconGutterWidth = 28;
 	m_nSeperatorHeight = 3;
 	m_nPopupTriangleWidth = 20;
+	m_nTextMarginLeft = 0;
+	m_nTextMarginRight = 0;
 
 	m_nTimerIDShowPopupSubMenu = 0;
 	m_nTimerIDHidePopupSubMenu = 0;
@@ -68,7 +70,7 @@ void MenuBase::DestroyPopupWindow()
 	}
 	if (NULL != m_pPopupWrapWnd)
 	{
-		m_pPopupWrapWnd->DestroyPopupWindow(); 
+		m_pPopupWrapWnd->DestroyPopupWindow(true); 
 		m_pPopupWrapWnd = NULL;
 	}
 	if (0 != m_nTimerIDHidePopupSubMenu)
@@ -199,6 +201,24 @@ void MenuBase::OnLButtonDown(UINT nFlags, POINT point)
 	{
 		this->SetPressItem(m_pHoverItem, point, nFlags);
 	}
+	if (NULL != m_pPressItem && ((MenuItem*)m_pPressItem)->IsPopup())
+	{
+		if (0 != m_nTimerIDHidePopupSubMenu)
+		{
+			TimerHelper::GetInstance()->KillTimer(m_nTimerIDHidePopupSubMenu);
+		}
+		if (0 != m_nTimerIDShowPopupSubMenu)
+		{
+			TimerHelper::GetInstance()->KillTimer(m_nTimerIDShowPopupSubMenu);
+		}
+		MenuBase* pSubMenu = ((MenuItem*)m_pPressItem)->GetSubMenu();
+		if (NULL != pSubMenu)
+		{
+			this->PopupSubMenu(((MenuItem*)m_pPressItem));
+		}
+
+		return;
+	}
 }
 void MenuBase::OnLButtonUp(UINT nFlags, POINT point)
 {
@@ -209,6 +229,7 @@ void MenuBase::OnLButtonUp(UINT nFlags, POINT point)
 
 		if(pSave->IsSeparator() || pSave->IsDisable())
 			return;
+
 
 		this->ReDrawItem(pSave);
 		this->ReDrawItem(m_pHoverItem);
@@ -355,13 +376,13 @@ int  MenuBase::PopupAsSubMenu(MenuBase* pParentMenu, MenuItem* pItem)
 	this->GetWindowRect(&rcWindow);
 	pItem->GetParentRect(&rcItem);
 
-	x = rcParent.right;
+	x = rcParent.right-2;
 	y = rcParent.top + rcItem.top;
 
 	CRect  rcWorkArea;
 	SystemParametersInfo(SPI_GETWORKAREA,0,&rcWorkArea,0);
 	if (x + rcWindow.Width() > rcWorkArea.right)
-		x = rcParent.left - rcWindow.Width();
+		x = rcParent.left - rcWindow.Width()+2;
 	if (x < rcWorkArea.left)
 		x = rcWorkArea.left;
 

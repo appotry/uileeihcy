@@ -23,10 +23,13 @@ BOOL PopupControlWindow::PreCreateWindow( CREATESTRUCT& cs )
 	return __super::PreCreateWindow(cs);
 }
 
-void PopupControlWindow::DestroyPopupWindow()
+void PopupControlWindow::DestroyPopupWindow(bool bDestroyNow)
 {
 	// 退出消息循环，并销毁窗口
-	::PostMessage(m_hWnd, UI_WM_EXITPOPUPLOOP, 0, 0);
+	if (bDestroyNow)
+		::SendMessage(m_hWnd, UI_WM_EXITPOPUPLOOP, 0, 0);
+	else
+		::PostMessage(m_hWnd, UI_WM_EXITPOPUPLOOP, 0, 0);
 }
 
 void PopupControlWindow::OnInitWindow()
@@ -55,13 +58,13 @@ LRESULT PopupControlWindow::OnEnterPopupLoop(UINT uMsg, WPARAM wParam, LPARAM lP
 
 LRESULT PopupControlWindow::OnExitPopupLoop(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	// 通知对象窗口被销毁
+	UISendMessage(m_pObject, UI_WM_UNINITPOPUPCONTROLWINDOW, 0,0,0, this);
+
 	this->ClearTreeObject();
 	::DestroyWindow(m_hWnd);
 
 	m_bExitLoop = true;
-
-	// 通知对象窗口被销毁
-	UISendMessage(m_pObject, UI_WM_UNINITPOPUPCONTROLWINDOW, 0,0,0, this);
 
 	return 0;
 }
@@ -318,7 +321,7 @@ BOOL PopupMenuWindow::PreTranslatePopupMessage(MSG* pMsg)
 		::GetWindowRect(m_hWnd, &rcWindow);
 		if (NULL == m_pMenu->GetMenuByPos(pMsg->pt))  // 鼠标在弹出窗口外面点击了，关闭当前窗口
 		{
-			this->DestroyPopupWindow();
+			this->DestroyPopupWindow(true);
 
 			// 给原窗口发送一个鼠标移动消息，重置hover对象。
 			// 否则会导致popupwnd消失后，原窗口鼠标直接点击无反应
