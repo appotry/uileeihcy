@@ -47,5 +47,6 @@
     <item id="hscrollbar_thumb.bmp">hscrollbar_thumb.bmp</item>
     <item id="number.png">number.png</item>
     <item id="menu_bk.png">menu_bk.png</item>
+    <item id="main_menu_bk.png">main_menu_bk.png</item>
   </img>
 </ui>
