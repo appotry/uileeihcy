@@ -174,7 +174,7 @@ void Message::CopyNotify(Message* pObjCopyFrom)
 
 	list< MsgNotify* >::iterator  iter    = pObjCopyFrom->m_lNotifyMsgMap.begin();
 	list< MsgNotify* >::iterator  iterEnd = pObjCopyFrom->m_lNotifyMsgMap.end();
-	for( ; iter!=iterEnd; )
+	for( ; iter!=iterEnd; iter++ )
 	{
 		this->AddNotify((*iter)->pObj, (*iter)->nMsgMapIDToNotify);
 	}

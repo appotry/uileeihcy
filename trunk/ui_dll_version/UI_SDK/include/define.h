@@ -544,4 +544,9 @@ enum SCROLLBAR_TYPE
 #define  XML_LEDCTRL_INDEXMAP                     _T("indexmap")    // 图片索引映射关系
 
 // menu
-#define  XML_MENU_
+#define  XML_MENU                 _T("Menu")      // layout.xml中菜单结点的tag name
+#define  XML_MENU_STRINGITEM      _T("String")    //
+#define  XML_MENU_POPUPITEM       _T("Popup")     //
+#define  XML_MENU_SEPARATORITEM   _T("Separator") // 
+#define  XML_MENU_SEPARATOR_ID    -1
+#define  XML_MENU_POPUP_ID        0

@@ -78,7 +78,7 @@ bool LayoutManager::LoadLayout(Object* pRootObj)
 {
 	if( NULL == m_pLayoutParse )
 	{
-		UI_LOG_ERROR(_T("LayoutManager::LoadLayout m_pLayoutParse == NULL"));
+		UI_LOG_ERROR(_T("%s m_pLayoutParse == NULL"),_T(__FUNCTION__));
 		return false;
 	}
 	
@@ -97,4 +97,16 @@ bool LayoutManager::ReLoadLayout( Object* pRootObj, list<Object*>& listAllChild 
 	}
 
 	return m_pLayoutParse->ReLoadLayout(pRootObj, listAllChild);
+}
+
+bool LayoutManager::LoadMenu( const String& strMenuId )
+{
+
+	if( NULL == m_pLayoutParse )
+	{
+		UI_LOG_ERROR(_T("%s m_pLayoutParse == NULL"),_T(__FUNCTION__));
+		return false;
+	}
+
+	return m_pLayoutParse->LoadMenu(strMenuId);
 }

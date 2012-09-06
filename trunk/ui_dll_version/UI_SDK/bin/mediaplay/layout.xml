@@ -58,7 +58,7 @@
       <Button     id="btn_profile"  styleclass="imagebtn"  bkgnd.render.image="eq_profile.png" layout.top="36" layout.left="39"/>
       <Button     id="btn_reset"    styleclass="imagebtn"  bkgnd.render.image="reset.png" margin="3,0,3,0" layout.top="36" layout.left="59"/>
     </CustomWindow>
-     <CustomWindow id="lyricdlg"  width="270" height="168" layout.left="570" layout.top="200"
+    <CustomWindow id="lyricdlg"  width="270" height="168" layout.left="570" layout.top="200"
                    bkgnd.render.type="imagestretch" bkgnd.render.image="lyric_skin.png" bkgnd.render.9region="100,60,50,15,15,15,20,15"
                    transparent.type="layered" transparent.maskalpha="230" >
       <Button id="sys_close" styleclass="imagebtn" bkgnd.render.image="close.png" layout.right="6" layout.top="4"/>
@@ -107,5 +107,21 @@
         </Panel>
       </Panel>
     </Window>
-  </layout>
+    <Menu>
+      <String id="1001" text="千千选项"/>
+      <Popup  text="相关链接">
+        <String text="千千主页"/>
+        <String text="千千音乐在线"/>
+        <String text="论坛"/>
+      </Popup>
+      <Separator/>
+      <String id="1002" text="千千选项"/>
+      <String id="1003" text="千千选项"/>
+      <String id="1004" text="千千选项"/>
+      <String id="1005" text="千千选项"/>
+      <String id="1006" text="千千选项"/>
+      <String id="1007" text="千千选项"/>
+      <String id="1008" text="千千选项"/>
+    </Menu>  
+</layout>
 </ui>
