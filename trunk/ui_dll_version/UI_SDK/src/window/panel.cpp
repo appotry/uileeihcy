@@ -66,6 +66,8 @@ bool Panel::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 	// 布局类型
 	if( this->m_mapAttribute.count( XML_LAYOUT ) )
 	{
+		SAFE_DELETE(m_pLayout);
+
 		String strLayout = this->m_mapAttribute[ XML_LAYOUT ];
 		this->m_pLayout = LayoutManagerFactory::GetLayout( strLayout, this );
 		if( NULL == this->m_pLayout )
@@ -78,7 +80,7 @@ bool Panel::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 		}
 		this->m_mapAttribute.erase( XML_LAYOUT );
 	}
-	else
+	else if(NULL == m_pLayout)
 	{
 		// 默认为canvas布局
 		this->m_pLayout = LayoutManagerFactory::GetLayout( XML_LAYOUT_CANVAS, this );

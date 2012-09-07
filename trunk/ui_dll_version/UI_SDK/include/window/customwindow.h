@@ -71,6 +71,7 @@ protected:
 	virtual   HRDC BeginDrawObject( Object* pInvalidateObj, HRGN& hClipRgn );
 	virtual   void EndDrawObject( CRect* prcWindow, HRGN& hClipRgn );
 
+public:
 	// object Ðéº¯Êý
 	virtual   void ResetAttribute();
 	virtual   bool SetAttribute( map<String,String>& mapAttrib, bool bReload=false );

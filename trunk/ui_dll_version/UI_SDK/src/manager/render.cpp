@@ -2442,6 +2442,11 @@ bool TextRender::SetAttribute( const String& strPrefix, map<String,String>& mapA
 		{
 			m_hFont = UI_CopyFont(m_pObject->GetFont());
 		}
+		else
+		{
+			// 可能是没有窗口对象，比如是一个 popup listbox或者menu，窗口还没有创建。获取默认字体
+			m_hFont = UI_GetDefaultFont((GRAPHICS_RENDER_TYPE)UISendMessage(m_pObject, UI_WM_GETRENDERTYPE));
+		}
 	}
 	return true;
 }

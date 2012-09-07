@@ -468,13 +468,22 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 		this->m_mapAttribute.erase(XML_FOREGND_RENDER_PREFIX XML_RENDER_TYPE);
 	}
 
+	// ×ÖÌå
+	if (this->m_mapAttribute.count(XML_TEXTRENDER_TYPE))
+	{
+		SAFE_DELETE(m_pTextRender);
+		const String& strTextRenderType = mapAttrib[XML_TEXTRENDER_TYPE];
+		m_pTextRender = TextRenderFactory::GetTextRender(strTextRenderType, this);
+		this->m_mapAttribute.erase(XML_TEXTRENDER_TYPE);
+	}
 	if( NULL == m_pTextRender )
 	{
-		m_pTextRender = TextRenderFactory::GetTextRender( TEXTRENDER_TYPE_NORMAL, this );
+		m_pTextRender = TextRenderFactory::GetTextRender(TEXTRENDER_TYPE_NORMAL, this);
 	}
 	m_pTextRender->SetAttribute(_T(""),mapAttrib);
 
-	if( this->m_mapAttribute.count( XML_BACKGND_IS_TRANSPARENT ) )
+	// Ë¢ÐÂÊôÐÔ
+	if (this->m_mapAttribute.count(XML_BACKGND_IS_TRANSPARENT))
 	{
 		if( _ttoi(this->m_mapAttribute[ XML_BACKGND_IS_TRANSPARENT ].c_str() ) )
 		{
@@ -505,7 +514,7 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 		}
 		else
 		{
-			m_nStyle &= ~ CONTROL_STYLE_TABSTOP;
+			m_nStyle &= ~CONTROL_STYLE_TABSTOP;
 		}
 	}
 

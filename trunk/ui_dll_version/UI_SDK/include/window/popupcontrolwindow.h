@@ -11,11 +11,12 @@ namespace UI
 			//UIMSG_WM_ERASEBKGND(OnEraseBkgnd)
 			UIMSG_WM_MOUSEACTIVATE(OnMouseActivate)
 			UIMSG_WM_ACTIVATEAPP(OnActivateApp)
-
+			UIMSG_WM_DESTROY(OnDestroy)
 			UIMESSAGE_HANDLER_EX(UI_WM_ENTERPOPUPLOOP, OnEnterPopupLoop)
 			UIMESSAGE_HANDLER_EX(UI_WM_EXITPOPUPLOOP, OnExitPopupLoop)
 		UI_END_MSG_MAP_CHAIN_PARENT(CustomWindow)
 
+	protected:
 		virtual void OnInitWindow();
 		virtual void OnFinalMessage();
 		virtual BOOL PreCreateWindow( CREATESTRUCT& cs );
@@ -23,31 +24,19 @@ namespace UI
 		virtual BOOL PreTranslatePopupMessage(MSG* pMsg);
 
 		BOOL      OnEraseBkgnd(HRDC hRDC);
-		void      DestroyPopupWindow(bool bDestroyNow=false);
+		void      OnDestroy();
 		
 		LRESULT   OnEnterPopupLoop(UINT uMsg, WPARAM wParam, LPARAM lParam);
 		LRESULT   OnExitPopupLoop(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-		// 在鼠标点击本窗口的时候，不要去抢占主窗口的焦点
-		// 但是这样同时导致了鼠标消息和键盘消息获取不进来了
-		// WM_NCHITTEST能收到
-		int OnMouseActivate(HWND wndTopLevel, UINT nHitTest, UINT message)
-		{
-			return MA_NOACTIVATE;
-		}
+		int       OnMouseActivate(HWND wndTopLevel, UINT nHitTest, UINT message);
+		void      OnActivateApp(BOOL bActive, DWORD dwThreadID);
 
-		// 这个消息是用于针对鼠标点击了桌面/其它顶层窗口的时候，
-		// 将窗口隐藏的通知。对于点击了自己的顶层窗口却处理不了
-		void OnActivateApp(BOOL bActive, DWORD dwThreadID)
-		{
-			SetMsgHandled(FALSE);
-			if (FALSE == bActive)
-			{
-				DestroyPopupWindow();
-			}
-		}
+	protected:
+		void      PopupLoop();
 
-		void PopupLoop();
+	public:
+		void      DestroyPopupWindow();
 
 	protected:
 		Object*   m_pObject;   // 弹出窗口中装载的对象指针，如ListBox* Menu*

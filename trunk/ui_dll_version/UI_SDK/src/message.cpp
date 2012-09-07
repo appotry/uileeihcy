@@ -283,9 +283,6 @@ void Message::RemoveHook( Message* pObj )
 		MsgHook*  pHook = *iter;
 		if( pObj == pHook->pObj )
 		{
-			// TODO ´ýÑéÖ¤
-			assert( 0 );
-
 			delete    pHook;
 			iter = this->m_lHookMsgMap.erase( iter );
 			continue;

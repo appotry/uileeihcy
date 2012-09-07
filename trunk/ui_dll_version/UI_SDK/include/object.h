@@ -109,12 +109,14 @@ enum OBJ_TYPE
 #define LISTCTRLBASE_SIZE_2_CONTENT     0x0200    // 控件大小决定内容，例如不带横向滚动条的列表框
 #define LISTCTRLBASE_CONTENT_2_SIZE     0x0400    // 内容决定控件大小，例如菜单和弹出式列表框
 
-
 // listbox style
 #define LISTBOX_STYLE_MASK              0x000F    // 编辑框类型使用的位
 #define LISTBOX_STYLE_COMBOBOX          0x0001    // 组合框中使用的列表框
 
-
+// menu style
+#define MENU_STYLE_AUTO_DELETE_SUBMENU  0x1000    // 父窗口销毁时，是否自动释放子菜单内存。主要用于从xml中load的菜单
+                                                  // 因为是内部创建的子菜单，内部负责销毁子菜单。而外部自己create出来
+                                                  // 的菜单自己要去再创建子菜单，因此外部自己去释放内存
 
 // 所有UI类对象的统一基类 
 class UIAPI Object : public ObjTree<Object, Message>

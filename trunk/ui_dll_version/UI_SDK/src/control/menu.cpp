@@ -9,11 +9,10 @@ MenuItem::MenuItem(ListCtrlBase* pCtrl) : ListItemBase(pCtrl)
 }
 MenuItem::~MenuItem()
 {
-//  目前是由外部负责销毁的
-// 	if (NULL != m_pSubMenu)
-// 	{
-// 		SAFE_DELETE(m_pSubMenu);
-// 	}
+	if (NULL != m_pSubMenu && m_pMenu->m_nStyle & MENU_STYLE_AUTO_DELETE_SUBMENU)
+	{
+		SAFE_DELETE(m_pSubMenu);
+	}
 }
 
 bool MenuItem::OnMouseEnter()
@@ -40,6 +39,7 @@ MenuBase::MenuBase()
 	m_pPrevMenu = NULL;
 	m_pSeperatorRender = NULL;
 	m_pPopupTriangleRender = NULL;
+	m_bLayered = false;
 
 	m_nIconGutterWidth = 28;
 	m_nSeperatorHeight = 3;
@@ -63,14 +63,10 @@ MenuBase::~MenuBase()
 }
 void MenuBase::DestroyPopupWindow()
 {
-	if(NULL != m_pNextMenu)
-	{
-		m_pNextMenu->DestroyPopupWindow();
-		m_pNextMenu = NULL;
-	}
+	m_pNextMenu = NULL;
 	if (NULL != m_pPopupWrapWnd)
 	{
-		m_pPopupWrapWnd->DestroyPopupWindow(true); 
+		m_pPopupWrapWnd->DestroyPopupWindow(); 
 		m_pPopupWrapWnd = NULL;
 	}
 	if (0 != m_nTimerIDHidePopupSubMenu)
@@ -151,6 +147,18 @@ void MenuBase::HidePopupSubMenu()
 	}
 }
 
+// 用于支持分层窗口样式的菜单 
+// 由于菜单刚创建时没有窗口，因此给Menu分配字体时，不知道使用哪种类型
+// 因此给Menu发一个GetRenderType来获取
+LRESULT MenuBase::OnGetRenderType()
+{
+	if (m_mapAttribute.count(XML_WINDOW_TRANSPARENT_TYPE) &&
+		m_mapAttribute[XML_WINDOW_TRANSPARENT_TYPE] == XML_WINDOW_TRANSPARENT_TYPE_LAYERED )
+	{
+		return GRAPHICS_RENDER_TYPE_GDIPLUS;
+	}
+	return GRAPHICS_RENDER_TYPE_GDI;
+}
 
 void MenuBase::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
@@ -216,6 +224,7 @@ void MenuBase::OnLButtonDown(UINT nFlags, POINT point)
 		{
 			this->PopupSubMenu(((MenuItem*)m_pPressItem));
 		}
+		this->SetPressItem(NULL, point, nFlags);
 
 		return;
 	}
@@ -312,6 +321,11 @@ int  MenuBase::TrackPopupMenu(UINT nFlag, int x, int y, Message* pNotifyObj)
 
 	m_pPopupWrapWnd = new PopupMenuWindow(this);
 	m_pPopupWrapWnd->Create(_T(""),NULL);
+
+	ATTRMAP map = m_mapAttribute;
+	map[XML_ID] = _T("PopupMenuWindow");
+	m_pPopupWrapWnd->SetAttribute(map, false);  // 使用剩下的属性给窗口赋值
+
 	CRect rcWindow;
 	this->GetWindowRect(&rcWindow);
 
@@ -341,6 +355,9 @@ int  MenuBase::PopupSubMenu(MenuItem* pItem)
 	MenuBase* pSubMenu = pItem->GetSubMenu();
 	if (NULL == pSubMenu)
 		return -1;
+
+	if(pSubMenu == m_pNextMenu)
+		return 0;
 
 	if (m_pNextMenu != NULL)
 	{
@@ -393,7 +410,13 @@ int  MenuBase::PopupAsSubMenu(MenuBase* pParentMenu, MenuItem* pItem)
 	//
 	m_pPopupWrapWnd = new PopupMenuWindow(this);
 	m_pPopupWrapWnd->Create(_T(""), hParentWnd);
+
+	ATTRMAP map = m_mapAttribute;
+	map[XML_ID] = _T("SubPopupMenuWindow");
+	m_pPopupWrapWnd->SetAttribute(map, false);  // 使用剩下的属性给窗口赋值
+
 	::SetWindowPos(m_pPopupWrapWnd->m_hWnd, NULL,x,y,0,0,SWP_NOSIZE|SWP_NOZORDER|SWP_SHOWWINDOW|SWP_NOACTIVATE);
+	this->ClearNotify();
 	this->CopyNotify(pParentMenu);
 
 	m_pPrevMenu = pParentMenu;
@@ -410,18 +433,20 @@ SIZE MenuBase::OnMeasureItem( ListItemBase* p)
 	SIZE s = {0,0};
 	if (NULL != p)
 	{
-		MenuItem* pItemData = (MenuItem*)p;
-		if (NULL == pItemData)
+		MenuItem* pItem = (MenuItem*)p;
+		if (NULL == pItem)
 			return s;
 
-		if (pItemData->IsSeparator())
+		if (pItem->IsSeparator())
 		{
 			s.cx = 0;
 			s.cy = m_nSeperatorHeight;
 		}
 		else
 		{
-			s.cx = 100;
+			HRFONT hRFont = this->GetFont();
+			int nTextWidth = ::MeasureString(hRFont, pItem->GetText().c_str() ).cx;
+			s.cx = nTextWidth + m_nIconGutterWidth + m_nTextMarginLeft + m_nTextMarginRight + m_nPopupTriangleWidth;
 			s.cy = m_nItemHeight;
 		}
 	}
@@ -550,6 +575,10 @@ bool Menu::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 // 		}
 // 	}
 
+	if( NULL != m_pTextRender )
+	{	
+		m_pTextRender->SetTextAlignment(DT_SINGLELINE|DT_VCENTER|DT_LEFT);
+	}
 	if (NULL == m_pBkgndRender)
 	{
 		m_pBkgndRender = RenderFactory::GetRender(RENDER_TYPE_THEME, this);
