@@ -238,6 +238,7 @@ public:
 	RenderBase*     GetForeRender() { return m_pForegndRender; }
 	void            SetBkRender(RenderBase* p);
 	void            SetForeRender(RenderBase* p);
+	void            SetTextRender(TextRenderBase* p);
 
 	
 	// ÑùÊ½²Ù×÷

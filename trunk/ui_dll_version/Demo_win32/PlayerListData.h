@@ -8,8 +8,8 @@ public:
 
 	void  Load();
 	bool  Add(const String& strPath);
-	void  Remove(const String& strPath);
-	
+	bool  Remove(const String& strPath);
+	bool  RemoveAll();
 
 private:
 	void  GetConfigXmlPath(String& str);

@@ -174,6 +174,25 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 	else if(RENDER_TYPE_THEME_MENUSTRINGITEM == eType)
 	{
 		pRender = new MenuStringItemRender();
+
+		// 注：由于不同的主题下面，字体render也不一样。为了解决在使用主题样式下面字体颜色的问题，
+		//     当菜单使用了主题前景时，自动修改它的字体颜色样式
+		TextRenderBase* pTextRender = TextRenderFactory::GetTextRender(TEXTRENDER_TYPE_COLORLIST, pObj);
+		if( NULL != pTextRender )
+		{
+			ColorListTextRender* p = dynamic_cast<ColorListTextRender*>(pTextRender);
+
+			HRFONT hRFont = pObj->GetFont();
+			p->SetHRFont(hRFont);
+			p->SetCount(4);
+			p->SetColor(0, RGB(0,0,0));
+			p->SetColor(1, RGB(255,255,255));
+			p->SetColor(2, RGB(0,0,0));
+			p->SetColor(3, RGB(192,192,192));
+
+			pObj->SetTextRender(p);
+		}
+		
 	}
 	else if(RENDER_TYPE_THEME_MENUSEPERATOR == eType)
 	{
@@ -2297,24 +2316,32 @@ void MenuPopupTriangleRender::DrawTriangle( HDC hDC, const CRect* prc, int nStat
 	}
 
 	HBRUSH hBrush = NULL;
+	HPEN   hPen = NULL;
 	switch(nState)
 	{
 	case MENU_POPUPTRIANGLE_RENDER_STATE_HOVER:
 		hBrush = (HBRUSH)GetStockObject(WHITE_BRUSH);
+		hPen = CreatePen(PS_SOLID, 1, RGB(255,255,255));
 		break;
 		
 	case MENU_POPUPTRIANGLE_RENDER_STATE_DISABLE:
 		hBrush = (HBRUSH)GetStockObject(GRAY_BRUSH);
+		hPen = CreatePen(PS_SOLID, 1, RGB(192,192,192));
 		break;
 
 	default:
 		hBrush = (HBRUSH)GetStockObject(BLACK_BRUSH);
+		hPen = CreatePen(PS_SOLID, 1, RGB(0,0,0));
 		break;
 	}
 
 	HBRUSH hOldBrush = (HBRUSH)::SelectObject(hDC, hBrush);
+	HPEN   hOldPen   = (HPEN)::SelectObject(hDC, hPen);
 	::Polygon(hDC, pt, 4);
 	::SelectObject(hDC,hOldBrush);
+	::SelectObject(hDC, hOldPen);
+	SAFE_DELETE_GDIOBJECT(hBrush);
+	SAFE_DELETE_GDIOBJECT(hPen);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

@@ -54,6 +54,8 @@ public:
 		UIMSG_WM_CREATE( OnCreate )
 		UIMSG_WM_CLOSE( OnClose )
 		UIMSG_BN_CLICKED_EX(_T("playlist_add"), OnBtnClickAdd )
+		UIMSG_BN_CLICKED_EX(_T("playlist_del"), OnBtnClickDel )
+		UIMSG_BN_CLICKED_EX(_T("playlist_mode"), OnBtnClickMode )
 		UIMSG_LCN_DBCLICK(OnLCNDbclick)
 	UI_END_MSG_MAP_CHAIN_PARENT( CustomWindow )
  
@@ -64,6 +66,8 @@ public:
 	int     OnCreate(LPCREATESTRUCT lpCreateStruct);
 	void    OnClose();
 	void    OnBtnClickAdd(Object* pBtnObj, POINT* pt);
+	void    OnBtnClickDel(Object* pBtnObj, POINT* pt);
+	void    OnBtnClickMode(Object* pBtnObj, POINT* pt);
 	void    OnLCNDbclick(POINT pt, ListItemBase* pItem);
 
 public:

@@ -92,16 +92,36 @@ void CPlayerListMgr::OnPlayListDlgHide()
 	this->FireEvent(EVENT_TYPE_UI, UI_EVENT_ID_ON_PLAYERLISTDLG_VISIBLE_CHANGED, (WPARAM)m_pPlaylistDlg->m_hWnd, (LPARAM)FALSE);
 }
 
-bool CPlayerListMgr::AddFile(const String& strFile)
+//
+// 通过OnAddItem回调通知窗口结果
+//
+void CPlayerListMgr::AddFile(const String& strFile)
 {
 	if (m_data.Add(strFile) )
 	{
 		this->OnLoadItem(strFile);
 	}
+}
+
+bool CPlayerListMgr::RemoveAllFile()
+{
+	GetMainMgr()->Stop();
+	if (m_data.RemoveAll())
+	{
+		int nSize = (int)m_vecPlayerList.size();
+		for (int i = 0; i < nSize; i++)
+		{
+			PlayerListItemInfo* pInfo = m_vecPlayerList[i];
+			SAFE_DELETE(pInfo);
+		}
+		m_vecPlayerList.clear();
+	}
 	return true;
 }
 
-
+//
+// 可能是添加文件时被调用，也可能是启动时读取配置文件调用
+//
 void CPlayerListMgr::OnLoadItem(const String& strFile)
 {
 

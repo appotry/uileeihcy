@@ -192,8 +192,10 @@ RedrawWindow(hwnd,
 72. 如何实现菜单的换扶（不是所有的菜单都配置在XML中的，那么没有配置在XML中的对象是否就没法实现换肤？）
 73. 点击打开一个系统COMBOOX的下拉列表，然后将鼠标放在一个UI控件上面，点击一下，下拉列表消失，再继续点击UI控件，无反应。
     因为没有人去触发一个WM_MOUSEMOVE来set hover对象
-74. ListCtrlBase::ReDrawItem目前没有用
+74. ListCtrlBase::ReDrawItem目前没用
 75. 分层菜单设置
+76. 菜单提示条问题
+77. 菜单项radio check功能	
 	
 疑问：
 1. Message类是否需要一个 m_pCurMsg成员变量？

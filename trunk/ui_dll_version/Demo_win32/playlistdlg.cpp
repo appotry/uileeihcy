@@ -191,20 +191,27 @@ void CPlayListDlg::OnClose()
 
 void CPlayListDlg::OnBtnClickAdd(Object* pBtnObj, POINT* pt)
 {
-	::MapWindowPoints( m_hWnd, NULL, pt, 1);
-	HMENU hMenu = ::CreatePopupMenu();
-	AppendMenu( hMenu, MF_STRING, 100, _T("文件"));
-	AppendMenu( hMenu, MF_STRING, 101, _T("文件夹"));
-	AppendMenu( hMenu, MF_STRING, 102, _T("本地搜索"));
-	AppendMenu( hMenu, MF_STRING, 103, _T("网络搜索"));
-	
+//	::MapWindowPoints( m_hWnd, NULL, pt, 1);
+	Menu* pMenu = UI_LoadMenu(_T("menu_playlist_add"));
+	if (NULL == pMenu)
+		return;
+
 	CRect rc;
 	pBtnObj->GetWindowRect(&rc);
 	::MapWindowPoints(m_hWnd, NULL, (LPPOINT)&rc, 2);
-	UINT nRet = ::TrackPopupMenu(hMenu, TPM_RETURNCMD, rc.left, rc.bottom, 0, m_hWnd, NULL );
+	UINT nRet = pMenu->TrackPopupMenu(TPM_RETURNCMD, rc.left, rc.bottom, this);
+	SAFE_DELETE(pMenu);
+
+// 	HMENU hMenu = ::CreatePopupMenu();
+// 	AppendMenu( hMenu, MF_STRING, 100, _T("文件"));
+// 	AppendMenu( hMenu, MF_STRING, 101, _T("文件夹"));
+// 	AppendMenu( hMenu, MF_STRING, 102, _T("本地搜索"));
+// 	AppendMenu( hMenu, MF_STRING, 103, _T("网络搜索"));
+// 	
+// 	UINT nRet = ::TrackPopupMenu(hMenu, TPM_RETURNCMD, rc.left, rc.bottom, 0, m_hWnd, NULL );
 	switch(nRet)
 	{
-	case 100:
+	case 1101:
 		{
 			CFileDialog dlg(TRUE, _T("*.mp3"), 0,4|2, _T("*.mp3\0*.mp3\0\0"));
 			if(IDCANCEL != dlg.DoModal())
@@ -214,7 +221,7 @@ void CPlayListDlg::OnBtnClickAdd(Object* pBtnObj, POINT* pt)
 		}
 		break;
 
-	case 101:
+	case 1102:
 		{
 			CFolderDialog dlg;
 			if( IDCANCEL != dlg.DoModal() )
@@ -224,8 +231,84 @@ void CPlayListDlg::OnBtnClickAdd(Object* pBtnObj, POINT* pt)
 		}
 		break;
 	}
-	::DestroyMenu(hMenu);
+//	::DestroyMenu(hMenu);
 }
+
+
+void CPlayListDlg::OnBtnClickDel(Object* pBtnObj, POINT* pt)
+{
+	Menu* pMenu = UI_LoadMenu(_T("menu_playlist_delete"));
+	if (NULL == pMenu)
+		return;
+
+	CRect rc;
+	pBtnObj->GetWindowRect(&rc);
+	::MapWindowPoints(m_hWnd, NULL, (LPPOINT)&rc, 2);
+	UINT nRet = pMenu->TrackPopupMenu(TPM_RETURNCMD, rc.left, rc.bottom, this);
+	SAFE_DELETE(pMenu);
+
+	switch(nRet)
+	{
+	case 1204:
+		{
+			if(GetPlayerListMgr()->RemoveAllFile())
+			{
+				m_plistctrl->RemoveAllItem();
+				m_plistctrl->UpdateObject();
+				m_plistctrl->SetPlayingItem(NULL);
+			}
+		}
+		break;
+	}
+}
+
+void CPlayListDlg::OnBtnClickMode(Object* pBtnObj, POINT* pt)
+{
+	Menu* pMenu = UI_LoadMenu(_T("menu_playlist_mode"));
+	if (NULL == pMenu)
+		return;
+
+	CRect rc;
+	pBtnObj->GetWindowRect(&rc);
+	::MapWindowPoints(m_hWnd, NULL, (LPPOINT)&rc, 2);
+	UINT nRet = pMenu->TrackPopupMenu(TPM_RETURNCMD, rc.left, rc.bottom, this);
+	SAFE_DELETE(pMenu);
+
+	switch(nRet)
+	{
+	case 1701:
+		{
+			GetPlayerListMgr()->SetPlayMode(SINGLE_ONCE);
+			break;
+		}
+		break;
+	case 1702:
+		{
+			GetPlayerListMgr()->SetPlayMode(SINGLE_LOOP);
+			break;
+		}
+		break;
+	case 1703:
+		{
+			GetPlayerListMgr()->SetPlayMode(ALL_ONCE);
+			break;
+		}
+		break;
+	case 1704:
+		{
+			GetPlayerListMgr()->SetPlayMode(ALL_LOOP);
+			break;
+		}
+		break;
+	case 1705:
+		{
+			GetPlayerListMgr()->SetPlayMode(ALL_RAND);
+			break;
+		}
+		break;
+	}
+}
+
 
 void CPlayListDlg::OnLCNDbclick(POINT pt, ListItemBase* pItem)
 {

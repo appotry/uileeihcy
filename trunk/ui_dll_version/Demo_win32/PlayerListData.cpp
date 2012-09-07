@@ -35,12 +35,8 @@ void  CPlayerListData::Load()
 	}
 	while(0);
 
-
-	
 	return;
 }
-
-
 
 
 bool  CPlayerListData::Add(const String& strPath)
@@ -58,11 +54,43 @@ bool  CPlayerListData::Add(const String& strPath)
 		if (false == xml.FindElem())    break;
 		if (false == xml.IntoElem())    break;
 
-		if (false == xml.FindElem(_T("playlist")))   break;
+		if (false == xml.FindElem(_T("playlist")))
+		{
+			xml.AddElem(_T("playlist"));
+		}
 		if (false == xml.IntoElem())    break;
 
 		if (false == xml.AddElem(_T("item"), strPath))  break;   // 不要调用InsertElem,应该添加到最后面，而不是插入到第一个位置
 		if (false == xml.Save(strConfigXmlPath)) break;
+
+		bRet = true;
+
+	}while(0);
+
+	return bRet;
+}
+
+bool CPlayerListData::Remove(const String& strPath)
+{
+	return false;
+}
+bool CPlayerListData::RemoveAll()
+{
+	String  strConfigXmlPath;
+	this->GetConfigXmlPath(strConfigXmlPath);
+
+	CMarkup xml;
+	if (false == xml.Load(strConfigXmlPath))
+		return false;
+
+	bool bRet = false;
+	do
+	{
+		if (false == xml.FindElem())    break;
+		if (false == xml.IntoElem())    break;
+
+		if (false == xml.FindElem(_T("playlist")))   break;
+		if (false == xml.RemoveChildElem())          break;
 
 		bRet = true;
 

@@ -1390,6 +1390,12 @@ void Object::SetForeRender(RenderBase* p)
 	SAFE_DELETE(m_pForegndRender);
 	m_pForegndRender = p;
 }
+
+void Object::SetTextRender(TextRenderBase* p)
+{
+	SAFE_DELETE(m_pTextRender);
+	m_pTextRender = p;
+}
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //
 //                               œ˚œ¢”≥…‰                               //

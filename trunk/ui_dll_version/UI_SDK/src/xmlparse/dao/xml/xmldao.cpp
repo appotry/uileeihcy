@@ -2515,8 +2515,13 @@ bool CXmlLayoutParse::loadMenuItems(Menu* pParentMenu)
 		{
 			String strText = m_xml.GetAttrib(XML_TEXT);
 			String strID = m_xml.GetAttrib(XML_ID);
+			String strDisable = m_xml.GetAttrib(XML_MENU_DISABLE);
+			bool bDisable = strDisable==_T("1") || strDisable== _T("true");
 
-			pParentMenu->AppendMenu(MF_STRING, _ttoi(strID.c_str()), strText.c_str());
+			UINT nFlag = MF_STRING;
+			if (bDisable)
+				nFlag |= MF_DISABLED;
+			pParentMenu->AppendMenu(nFlag, _ttoi(strID.c_str()), strText.c_str());
 		}
 		else if (tagName == XML_MENU_SEPARATORITEM)
 		{
@@ -2525,6 +2530,12 @@ bool CXmlLayoutParse::loadMenuItems(Menu* pParentMenu)
 		else if (tagName == XML_MENU_POPUPITEM)
 		{
 			String strText = m_xml.GetAttrib(XML_TEXT);
+			String strDisable = m_xml.GetAttrib(XML_MENU_DISABLE);
+			bool bDisable = strDisable==_T("1") || strDisable== _T("true");
+
+			UINT nFlag = MF_POPUP;
+			if (bDisable)
+				nFlag |= MF_DISABLED;
 
 			Menu* pSubMenu = NULL;
 			UICreateInstance(&pSubMenu);
@@ -2532,7 +2543,7 @@ bool CXmlLayoutParse::loadMenuItems(Menu* pParentMenu)
 
 			this->loadAttributeForCurrentObjectInXml( pSubMenu );
 
-			MenuItem* pItem = pParentMenu->AppendMenu(MF_POPUP, (UINT_PTR)pSubMenu, strText.c_str());
+			MenuItem* pItem = pParentMenu->AppendMenu(nFlag, (UINT_PTR)pSubMenu, strText.c_str());
 			if (NULL == pItem)
 			{
 				UI_LOG_WARN(_T("%s AppendMenu failed."), FUNC_NAME);
