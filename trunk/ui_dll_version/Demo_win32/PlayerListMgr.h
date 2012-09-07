@@ -37,17 +37,20 @@ public:
 	bool   Initialize();
 	bool   Release();
 
-	bool   AddFile(const String& strFile);
+	void   AddFile(const String& strFile);
 	bool   AddDirectory(const String& strDir);
+	bool   RemoveAllFile();
 
 	HWND   ToggleShowPlayerListDlg(HWND hParent);
 	void   OnPlayListDlgHide();
+	void   SetPlayMode(PLAY_MODE e) { m_ePlayMode = e; }
 
 	void   OnLoadItem(const String& strFile);
 	
 	int   GetItemCount() { return (int)m_vecPlayerList.size(); }
 	PlayerListItemInfo*  GetItem(int i);
 	int   GetItemIndex(PlayerListItemInfo*);
+
 
 	PlayerListItemInfo*  GetNextPlayItem(bool& bPlay);
 	PlayerListItemInfo*  GetPrevItem();

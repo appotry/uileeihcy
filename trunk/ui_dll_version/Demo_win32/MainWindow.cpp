@@ -542,11 +542,17 @@ void MainWindow::OnMenuClick(MenuItem* pItem)
 
 	switch( pItem->GetID() )
 	{
-	case 100:
+	case 1001:
 		{		
 			COptionWindow win;
 			win.DoModal(g_hInstance, COptionWindow::IDD, _T("OptionWindow"),m_hWnd);
 		}		
+		break;
+
+	case 1014:
+		{
+			OnSysClose();
+		}
 		break;
 	}
 }

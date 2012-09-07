@@ -39,6 +39,8 @@ MenuBase::MenuBase()
 	m_pPrevMenu = NULL;
 	m_pSeperatorRender = NULL;
 	m_pPopupTriangleRender = NULL;
+	m_nTrackPopupMenuFlag = 0;
+	m_nRetCmd = 0;
 	m_bLayered = false;
 
 	m_nIconGutterWidth = 28;
@@ -239,22 +241,24 @@ void MenuBase::OnLButtonUp(UINT nFlags, POINT point)
 		if(pSave->IsSeparator() || pSave->IsDisable())
 			return;
 
-
 		this->ReDrawItem(pSave);
 		this->ReDrawItem(m_pHoverItem);
 
-// 		if (NULL != m_pPopupWrapWnd)
-// 		{
-// 			m_pPopupWrapWnd->DestroyPopupWindow();
-// 		}
 		this->GetRootMenu()->DestroyPopupWindow();
 
-		UIMSG  msg;
-		msg.message = UI_WM_NOTIFY;
-		msg.code = UI_MENU_CLICK;
-		msg.wParam = (WPARAM)pSave;
-		msg.pObjMsgFrom = this;
-		DoNotify(&msg);
+		if(m_nTrackPopupMenuFlag & TPM_RETURNCMD)
+		{
+			this->GetRootMenu()->SetReturnCmd(pSave->GetID());
+		}
+		else
+		{
+			UIMSG  msg;
+			msg.message = UI_WM_NOTIFY;
+			msg.code = UI_MENU_CLICK;
+			msg.wParam = (WPARAM)pSave;
+			msg.pObjMsgFrom = this;
+			DoNotify(&msg);
+		}
 	}
 }
 
@@ -319,6 +323,9 @@ int  MenuBase::TrackPopupMenu(UINT nFlag, int x, int y, Message* pNotifyObj)
 		return -1;
 	}
 
+	m_nTrackPopupMenuFlag = nFlag;
+	m_nRetCmd = 0;
+
 	m_pPopupWrapWnd = new PopupMenuWindow(this);
 	m_pPopupWrapWnd->Create(_T(""),NULL);
 
@@ -344,7 +351,7 @@ int  MenuBase::TrackPopupMenu(UINT nFlag, int x, int y, Message* pNotifyObj)
 	this->AddNotify(pNotifyObj, 0);
 
 	::SendMessage(m_pPopupWrapWnd->m_hWnd, UI_WM_ENTERPOPUPLOOP, 0, 0);
-	return 0;
+	return m_nRetCmd;
 }
 
 int  MenuBase::PopupSubMenu(MenuItem* pItem)
@@ -365,7 +372,7 @@ int  MenuBase::PopupSubMenu(MenuItem* pItem)
 		m_pNextMenu = NULL;
 	}
 
-	int nRet = pSubMenu->PopupAsSubMenu(this, pItem);
+	int nRet = pSubMenu->PopupAsSubMenu(m_nTrackPopupMenuFlag, this, pItem);
 	if( -1 != nRet )
 	{
 		m_pNextMenu = pSubMenu;
@@ -374,7 +381,7 @@ int  MenuBase::PopupSubMenu(MenuItem* pItem)
 }
 
 // 自己作为子菜单弹出来
-int  MenuBase::PopupAsSubMenu(MenuBase* pParentMenu, MenuItem* pItem)
+int  MenuBase::PopupAsSubMenu(UINT nFlags, MenuBase* pParentMenu, MenuItem* pItem)
 {
 	if (0 >= this->GetMenuItemCount())
 		return -1;
@@ -384,6 +391,8 @@ int  MenuBase::PopupAsSubMenu(MenuBase* pParentMenu, MenuItem* pItem)
 		UI_LOG_WARN(_T("%s NULL != m_pPopupWrapWnd, the prev popup window hasnot been destroyed"), _T(__FUNCTION__));
 		return -1;
 	}
+
+	m_nTrackPopupMenuFlag = nFlags;
 
 	// 计算弹出位置
 	HWND hParentWnd = pParentMenu->GetPopupWindowHandle();
@@ -511,13 +520,17 @@ void MenuBase::OnDrawStringItem(HRDC hRDC, MenuItem* pMenuItem)
 	CRect rcItem;
 	pMenuItem->GetParentRect(&rcItem);
 
-	int  nTextState = 0;
-	if (IsItemHilight(pMenuItem))
+	int  nTextState = MENU_STRING_ITEM_RENDER_STATE_NORMAL;
+	if (pMenuItem->IsDisable())
+	{
+		nTextState = MENU_STRING_ITEM_RENDER_STATE_DISABLE;
+	}
+	else if (IsItemHilight(pMenuItem))
 	{
 		if (NULL != m_pForegndRender)
 		{
 			m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_HOVER);
-			nTextState = 1;
+			nTextState = MENU_STRING_ITEM_RENDER_STATE_HOVER;
 		}
 	}
 
@@ -544,41 +557,47 @@ void Menu::ResetAttribute()
 	CRegion4 rc(1,1,1,1);
 	this->SetPaddingRegion(&rc);
 	SAFE_DELETE(m_pSeperatorRender);
+	SAFE_DELETE(m_pPopupTriangleRender);
+
+	m_nIconGutterWidth = 28;
+	m_nSeperatorHeight = 3;
+	m_nPopupTriangleWidth = 20;
+	m_nTextMarginLeft = 0;
+	m_nTextMarginRight = 0;
 }
 
 bool Menu::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 {
-// 	bool bHaveDefineTextRender = false;
-// 	if( mapAttrib.count( XML_TEXTRENDER_TYPE) )
-// 		bHaveDefineTextRender = true;
-
 	bool bRet = __super::SetAttribute(mapAttrib, bReload);
 	if (false == bRet)
 		return false;
 
-// 	if( !bHaveDefineTextRender )
-// 	{
-// 		SAFE_DELETE(m_pTextRender);
-// 	}
-// 	if( NULL == m_pTextRender )
-// 	{
-// 		m_pTextRender = TextRenderFactory::GetTextRender(TEXTRENDER_TYPE_COLORLIST, this);
-// 		if( NULL != m_pTextRender )
-// 		{
-// 			ColorListTextRender* p = dynamic_cast<ColorListTextRender*>(m_pTextRender);
-// 
-// 			HRFONT hRFont = this->GetFont();
-// 			p->SetHRFont(hRFont);
-// 			p->SetCount(2);
-// 			p->SetColor(0, RGB(0,0,0));
-// 			p->SetColor(1, RGB(255,255,255));
-// 		}
-// 	}
-
-	if( NULL != m_pTextRender )
-	{	
-		m_pTextRender->SetTextAlignment(DT_SINGLELINE|DT_VCENTER|DT_LEFT);
+	if (m_mapAttribute.count(XML_MENU_ICONGUTTERWIDTH))
+	{
+		m_nIconGutterWidth = _ttoi(m_mapAttribute[XML_MENU_ICONGUTTERWIDTH].c_str());
+		m_mapAttribute.erase(XML_MENU_ICONGUTTERWIDTH);
 	}
+	if (m_mapAttribute.count(XML_MENU_TEXTMARGINLEFT))
+	{
+		m_nTextMarginLeft = _ttoi(m_mapAttribute[XML_MENU_TEXTMARGINLEFT].c_str());
+		m_mapAttribute.erase(XML_MENU_TEXTMARGINLEFT);
+	}
+	if (m_mapAttribute.count(XML_MENU_TEXTMARGINRIGHT))
+	{
+		m_nTextMarginRight = _ttoi(m_mapAttribute[XML_MENU_TEXTMARGINRIGHT].c_str());
+		m_mapAttribute.erase(XML_MENU_TEXTMARGINRIGHT);
+	}
+	if (m_mapAttribute.count(XML_MENU_POPUPTRIANGLEWIDTH))
+	{
+		m_nPopupTriangleWidth = _ttoi(m_mapAttribute[XML_MENU_POPUPTRIANGLEWIDTH].c_str());
+		m_mapAttribute.erase(XML_MENU_POPUPTRIANGLEWIDTH);
+	}
+	if (m_mapAttribute.count(XML_MENU_SEPARATORHEIGHT))
+	{
+		m_nSeperatorHeight = _ttoi(m_mapAttribute[XML_MENU_SEPARATORHEIGHT].c_str());
+		m_mapAttribute.erase(XML_MENU_SEPARATORHEIGHT);
+	}
+
 	if (NULL == m_pBkgndRender)
 	{
 		m_pBkgndRender = RenderFactory::GetRender(RENDER_TYPE_THEME, this);
@@ -594,6 +613,10 @@ bool Menu::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 	if (NULL == m_pPopupTriangleRender)
 	{
 		m_pPopupTriangleRender = RenderFactory::GetRender(RENDER_TYPE_THEME_MENUPOPUPTRIANGLE, this);
+	}
+	if( NULL != m_pTextRender )
+	{	
+		m_pTextRender->SetTextAlignment(DT_SINGLELINE|DT_VCENTER|DT_LEFT);
 	}
 
 	return true;

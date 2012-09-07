@@ -124,6 +124,7 @@ namespace UI
 			UIMSG_WM_LBUTTONDBLCLK(OnDBClick)
 			UIMSG_WM_KEYDOWN(OnKeyDown)
 			UIMSG_WM_SIZE(OnSize) 
+			UIMSG_WM_GETRENDERTYPE(OnGetRenderType)
 			UICHAIN_MSG_MAP_MEMBER(m_MgrScrollbar)
 		UI_END_MSG_MAP_CHAIN_PARENT(Control)
 
@@ -137,7 +138,7 @@ namespace UI
 		void     OnDBClick(UINT nFlags, POINT point);
 		void     OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags );
 		void     OnSize( UINT nType, int cx, int cy );
-
+		LRESULT  OnGetRenderType(){return GRAPHICS_RENDER_TYPE_GDI;}  // 用于popup listbox获取字体
 	public:
 		// 虚函数
 		virtual  SIZE GetAutoSize( HRDC hRDC );

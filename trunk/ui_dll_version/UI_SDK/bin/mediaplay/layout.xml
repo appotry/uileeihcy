@@ -34,14 +34,14 @@
                      bkgnd.render.type="imagestretch" bkgnd.render.image="playlist_skin.bmp" bkgnd.render.9region="100,60,50,15,15,15,20,15"
                      transparent.type="maskcolor" transparent.maskcolor="maskcolor" transparent.part="customcorner" transparent.part.9region="14,14,14,14,0,0,0,0">
       <Button id="sys_close" styleclass="imagebtn"  bkgnd.render.image="close.png" layout.right="5" layout.top="4"/>
-      <Panel layout="stack" layout.left="15" layout.top="31">
-          <Button id="playlist_add"  styleclass="imagebtn" tooltip="添加" bkgnd.render.image="playlist_add.png"  bkgnd.render.imagelist.layout="v"/>
-          <Button id="playlist_del"  styleclass="imagebtn" tooltip="删除" bkgnd.render.image="playlist_del.png"  bkgnd.render.imagelist.layout="v"/>
-          <Button id="playlist_list" styleclass="imagebtn" tooltip="列表" bkgnd.render.image="playlist_list.png" bkgnd.render.imagelist.layout="v"/>
-          <Button id="playlist_sort" styleclass="imagebtn" tooltip="排序" bkgnd.render.image="playlist_sort.png" bkgnd.render.imagelist.layout="v"/>
-          <Button id="playlist_find" styleclass="imagebtn" tooltip="查找" bkgnd.render.image="playlist_find.png" bkgnd.render.imagelist.layout="v"/>
-          <Button id="playlist_edit" styleclass="imagebtn" tooltip="编辑" bkgnd.render.image="playlist_edit.png" bkgnd.render.imagelist.layout="v"/>
-          <Button id="playlist_mode" styleclass="imagebtn" tooltip="模式" bkgnd.render.image="playlist_mode.png" bkgnd.render.imagelist.layout="v"/>
+      <Panel layout="stack" layout.left="10" layout.top="31">
+          <Button id="playlist_add"  styleclass="imagebtn" tooltip="添加" bkgnd.render.image="playlist_add.png"  bkgnd.render.imagelist.layout="v" margin="0,0,4,0"/>
+          <Button id="playlist_del"  styleclass="imagebtn" tooltip="删除" bkgnd.render.image="playlist_del.png"  bkgnd.render.imagelist.layout="v" margin="0,0,4,0"/>
+          <Button id="playlist_list" styleclass="imagebtn" tooltip="列表" bkgnd.render.image="playlist_list.png" bkgnd.render.imagelist.layout="v" margin="0,0,4,0"/>
+          <Button id="playlist_sort" styleclass="imagebtn" tooltip="排序" bkgnd.render.image="playlist_sort.png" bkgnd.render.imagelist.layout="v" margin="0,0,4,0"/>
+          <Button id="playlist_find" styleclass="imagebtn" tooltip="查找" bkgnd.render.image="playlist_find.png" bkgnd.render.imagelist.layout="v" margin="0,0,4,0"/>
+          <Button id="playlist_edit" styleclass="imagebtn" tooltip="编辑" bkgnd.render.image="playlist_edit.png" bkgnd.render.imagelist.layout="v" margin="0,0,4,0"/>
+          <Button id="playlist_mode" styleclass="imagebtn" tooltip="模式" bkgnd.render.image="playlist_mode.png" bkgnd.render.imagelist.layout="v" margin="0,0,4,0"/>
       </Panel>
       <TTPlayerPlaylistCtrl id="playlistctrl" layout.left="6" layout.top="51"  layout.right="6"  layout.bottom="6"
                foregnd.render.type="imageliststretch" foregnd.render.9region="1" foregnd.render.image="listbox.png"
@@ -107,21 +107,60 @@
         </Panel>
       </Panel>
     </Window>
-    <Menu id="main_menu" styleclass="mainmenu" transparent.typex="layered" transparent.maskalphax="200">
-      <String id="1001" text="千千选项"/>
-      <Popup  text="相关链接">
-        <String text="千千主页"/>
-        <String text="千千音乐在线"/>
-        <String text="论坛"/>
-      </Popup>
-      <Separator/>
-      <String id="1002" text="千千选项"/>
-      <String id="1003" text="千千选项千千选项千千选项千千选项千千选项千千选项千千选项千千选项"/>
-      <String id="1004" text="千千选项"/>
-      <String id="1005" text="千千选项"/>
-      <String id="1006" text="千千选项"/>
-      <String id="1007" text="千千选项"/>
-      <String id="1008" text="千千选项"/>
-    </Menu>  
+
+  <Menu id="main_menu" styleclass="mainmenu" transparent.typex="layered" transparent.maskalphax="200">
+    <String id="1001" text="千千选项"/>
+    <Popup  text="相关链接">
+      <String text="千千主页"/>
+      <String text="千千音乐在线"/>
+      <String text="论坛"/>
+    </Popup>
+    <Separator/>
+    <String id="1002" text="播放控制"/>
+    <String id="1003" text="音量控制"/>
+    <String id="1004" text="播放模式"/>
+    <String id="1005" text="播放曲目"/>
+    <Separator/>
+    <String id="1006" text="视觉外观"/>
+    <String id="1007" text="歌词秀"/>
+    <String id="1008" text="均衡器"/>
+    <Separator/>
+    <String id="1009" text="皮肤"/>
+    <String id="1010" text="透明"/>
+    <String id="1011" text="查看"/>
+    <Separator/>
+    <String id="1012" text="最小化"/>
+    <String id="1013" text="全屏显示"/>
+    <String id="1014" text="退出"/>
+  </Menu>
+
+  <Menu id="menu_playlist_add">
+    <String id="1101" text="文件"/>
+    <String id="1102" text="文件夹"/>
+    <String id="1103" text="本地搜索" disable="1" />
+    <String id="1104" text="网络搜索" disable="1"/>
+  </Menu>
+
+  <Menu id="menu_playlist_delete">
+    <String id="1201" text="选中的文件" disable="1" />
+    <String id="1202" text="重复的文件" disable="1" />
+    <String id="1203" text="错误的文件" disable="1" />
+    <Separator/>
+    <String id="1204" text="全部删除"/>
+    <Separator/>
+    <String id="1204" text="物理删除"   disable="1"/>
+  </Menu>
+
+  <Menu id="menu_playlist_mode">
+    <String id="1701" text="单曲播放(S)"/>
+    <String id="1702" text="单曲循环(I)"/>
+    <String id="1703" text="顺序播放(N)"/>
+    <String id="1704" text="循环播放(C)"/>
+    <String id="1705" text="随机播放(R)"/>
+    <Separator/>
+    <String id="1706" text="播放跟随光标(F)" disable="1" />
+    <String id="1707" text="自动切换列表(A)" disable="1" />
+  </Menu>
+  
 </layout>
 </ui>

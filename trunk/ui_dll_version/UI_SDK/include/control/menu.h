@@ -63,16 +63,16 @@ namespace UI
 		void     ShowPopupSubMenu(MenuItem* pItem);
 		void     HidePopupSubMenu();
 		int      PopupSubMenu(MenuItem* pSubMenu);
-		int      PopupAsSubMenu(MenuBase* pParentMenu, MenuItem* pItem);
+		int      PopupAsSubMenu(UINT nFlags, MenuBase* pParentMenu, MenuItem* pItem);
 		void     DestroyPopupWindow();
-
 		bool     IsItemHilight(MenuItem* p);
 
 	public:
-		int      GetMenuItemCount();
-		int      TrackPopupMenu(UINT nFlag, int x, int y, Message* pNotifyObj);
+		int       GetMenuItemCount();
+		int       TrackPopupMenu(UINT nFlag, int x, int y, Message* pNotifyObj);
 		MenuItem* AppendMenu(UINT uFlags, UINT_PTR uIDNewItem, LPCTSTR lpNewItem);
-		HWND     GetPopupWindowHandle();
+		HWND      GetPopupWindowHandle();
+		void      SetReturnCmd(UINT n) { m_nRetCmd = n; }
 
 		MenuBase* GetPrevMenu() { return m_pPrevMenu; }
 		MenuBase* GetNextMenu() { return m_pNextMenu; }
@@ -94,11 +94,13 @@ namespace UI
 		int      GetIconGutterWidth() { return m_nIconGutterWidth; }
 
 	protected:
-		PopupMenuWindow*  m_pPopupWrapWnd;
-		MenuBase*    m_pNextMenu;             // 
-		MenuBase*    m_pPrevMenu;             // 
+		PopupMenuWindow*  m_pPopupWrapWnd;    // 用于包装菜单的窗口
+		MenuBase*    m_pNextMenu;             // 当前弹出的菜单列表中，自己的子菜单
+		MenuBase*    m_pPrevMenu;             // 当前弹出的菜单列表中，自己的父菜单
 		UINT         m_nTimerIDShowPopupSubMenu;  // 计时器ID，用于弹出子窗口
 		UINT         m_nTimerIDHidePopupSubMenu;  // 计时器ID，用于关闭子窗口
+		UINT         m_nTrackPopupMenuFlag;   // 菜单弹出样式，例如指定TPM_RETURNCMD
+		UINT         m_nRetCmd;               // 当指定TPM_RETURNCMD类型时，返回的ID
 		bool         m_bLayered;              // 是否使用分层样式
 
 		// 绘制相关

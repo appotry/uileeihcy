@@ -51,7 +51,7 @@ public:
 		UINT_PTR nTimerID = ::SetTimer(NULL, 0, nElapse, TimerHelper::TimerProc);
 		m_mapTimerItem[nTimerID] = *pItem;
 
-		UI_LOG_DEBUG(_T("%s timerid:%d, pNotify:%x"), _T(__FUNCTION__), nTimerID, pItem->pNotify);
+//		UI_LOG_DEBUG(_T("%s timerid:%d, pNotify:%x"), _T(__FUNCTION__), nTimerID, pItem->pNotify);
 		return nTimerID;
 	}
 	void KillTimer(UINT_PTR& nTimerIdRef)
@@ -59,7 +59,7 @@ public:
 		if (m_mapTimerItem.count(nTimerIdRef))
 		{
 			::KillTimer(0, nTimerIdRef);
-			UI_LOG_DEBUG(_T("%s timerid:%d, pNotify:%x"), _T(__FUNCTION__), nTimerIdRef);
+//			UI_LOG_DEBUG(_T("%s timerid:%d, pNotify:%x"), _T(__FUNCTION__), nTimerIdRef);
 
 			m_mapTimerItem.erase(nTimerIdRef);
 			nTimerIdRef = 0;

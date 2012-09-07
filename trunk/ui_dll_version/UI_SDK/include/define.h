@@ -549,5 +549,13 @@ enum SCROLLBAR_TYPE
 #define  XML_MENU_STRINGITEM      _T("String")    //
 #define  XML_MENU_POPUPITEM       _T("Popup")     //
 #define  XML_MENU_SEPARATORITEM   _T("Separator") // 
+#define  XML_MENU_DISABLE         _T("disable")   // menu item是否可用，为1或者true表示被禁用
+
+#define  XML_MENU_ICONGUTTERWIDTH     _T("icongutterwidth")  // 菜单图标列的宽度
+#define  XML_MENU_TEXTMARGINLEFT      _T("textmarginleft")   // 文字距离图标的距离
+#define  XML_MENU_TEXTMARGINRIGHT     _T("textmarginright")  // 文字距离弹出箭头的距离
+#define  XML_MENU_POPUPTRIANGLEWIDTH  _T("trianglewidth")    // 右侧三角形的占用宽度
+#define  XML_MENU_SEPARATORHEIGHT     _T("separatorheight")  // 分隔条的高度
+
 #define  XML_MENU_SEPARATOR_ID    -1
 #define  XML_MENU_POPUP_ID        0

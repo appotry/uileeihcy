@@ -45,7 +45,9 @@
              thubmbtn.cursor="idc_arrow"
                   />
 
-    <Menu    border="2,2,2,2" bkgnd.render.type="imagestretch" bkgnd.render.image="menu_bk.png" bkgnd.render.9region="24,2,2,2" ></Menu>
+    <Menu    border="2,2,2,2" bkgnd.render.type="imagestretch" bkgnd.render.image="menu_bk.png" bkgnd.render.9region="24,2,2,2"
+             icongutterwidth="22" textmarginleft="3" textmarginright="10" separatorheight="8"
+             ></Menu>
 
     <class   id="mainmenu"   border="24,2,2,2" bkgnd.render.image="main_menu_bk.png" bkgnd.render.9region="50,5,5,135"/>
   </style>
