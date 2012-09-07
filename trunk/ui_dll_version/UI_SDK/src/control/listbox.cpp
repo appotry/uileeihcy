@@ -1208,6 +1208,10 @@ void ListBox::DropDown()
 	// TODO: 优化，在这里决定popupwindow的位置，而不是让popupwindow自己在里面根据bindobj来计算
 	m_pPopupWrapWnd = new PopupListBoxWindow(this, m_pBindObject);
 	m_pPopupWrapWnd->Create(_T(""), NULL);
+	ATTRMAP  attr = m_mapAttribute;
+	attr[XML_ID] = _T("PopupListBoxWindow");
+	m_pPopupWrapWnd->SetAttribute(attr, false);
+
 	::SetWindowPos(m_pPopupWrapWnd->m_hWnd, NULL,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_SHOWWINDOW|SWP_NOACTIVATE);
 	::PostMessage(m_pPopupWrapWnd->m_hWnd, UI_WM_ENTERPOPUPLOOP, 0, 0);
 }
@@ -1230,6 +1234,7 @@ void ListBox::OnInitPopupControlWindow(Object* pObjMsgFrom)
 void ListBox::OnUnInitPopupControlWindow(Object* pObjMsgFrom)
 {
 	m_pPopupWrapWnd = NULL;
+
 	if (NULL != m_pBindObject)
 	{
 		UISendMessage(m_pBindObject, UI_WM_UNINITPOPUPCONTROLWINDOW, 0,0,0, this);

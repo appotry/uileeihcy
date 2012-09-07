@@ -109,11 +109,11 @@ enum
 
 
 	// 
-	//	PopupControlWindow通过给自己Post该消息来通知自己创建消息循环
+	//	控件给PopupControlWindow Post/Send该消息来通知窗口创建消息循环
 	//
 	UI_WM_ENTERPOPUPLOOP,
 	//
-	//	PopupControlWindow通过给自己Post该消息来停止消息循环，并销毁当前弹出窗口
+	//	控件给PopupControlWindow Post该消息来停止消息循环，并销毁当前弹出窗口
 	//
 	UI_WM_EXITPOPUPLOOP,   
 

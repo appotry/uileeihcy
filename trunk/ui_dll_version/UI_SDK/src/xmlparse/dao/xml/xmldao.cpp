@@ -2469,6 +2469,7 @@ Menu* CXmlLayoutParse::LoadMenu( const String& strMenuId )
 		bRet = false;      // reset
 
 		UICreateInstance(&pMenu);
+		pMenu->ModifyStyle(MENU_STYLE_AUTO_DELETE_SUBMENU);
 
 		//
 		//  2. 
@@ -2527,6 +2528,8 @@ bool CXmlLayoutParse::loadMenuItems(Menu* pParentMenu)
 
 			Menu* pSubMenu = NULL;
 			UICreateInstance(&pSubMenu);
+			pSubMenu->ModifyStyle(MENU_STYLE_AUTO_DELETE_SUBMENU);
+
 			this->loadAttributeForCurrentObjectInXml( pSubMenu );
 
 			MenuItem* pItem = pParentMenu->AppendMenu(MF_POPUP, (UINT_PTR)pSubMenu, strText.c_str());

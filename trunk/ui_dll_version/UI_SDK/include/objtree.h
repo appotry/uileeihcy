@@ -378,6 +378,8 @@ namespace UI
 			 return GetNeighbourTabObject(true);
 		}
 
+		// 注：该函数不负责将关联的对象的相应指针置空
+		//     例如不会将parent中的child中的自己清除
 		void ClearTreeObject()
 		{
 			this->m_pParent = NULL;
@@ -393,6 +395,10 @@ namespace UI
 			
 			pThis->ClearHook();
 			pThis->ClearNotify();
+		}
+		void ClearParentObject()
+		{
+			this->m_pParent = NULL;
 		}
 	
 	protected:

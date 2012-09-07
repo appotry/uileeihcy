@@ -49,6 +49,7 @@ namespace UI
 			UIMSG_WM_TIMER(OnTimer)
 			UIMSG_WM_INITPOPUPCONTROLWINDOW(OnInitPopupControlWindow)
 			UIMSG_WM_UNINITPOPUPCONTROLWINDOW(OnUnInitPopupControlWindow)
+			UIMSG_WM_GETRENDERTYPE(OnGetRenderType)
 		UI_END_MSG_MAP_CHAIN_PARENT(ListCtrlBase)
 
 		friend   class   MenuItem;
@@ -57,6 +58,7 @@ namespace UI
 		void     OnLButtonDown(UINT nFlags, POINT point);
 		void     OnLButtonUp(UINT nFlags, POINT point);
 		void     OnTimer(UINT_PTR nIDEvent, LPARAM lParam);
+		LRESULT  OnGetRenderType();
 
 		void     ShowPopupSubMenu(MenuItem* pItem);
 		void     HidePopupSubMenu();
@@ -97,6 +99,7 @@ namespace UI
 		MenuBase*    m_pPrevMenu;             // 
 		UINT         m_nTimerIDShowPopupSubMenu;  // 计时器ID，用于弹出子窗口
 		UINT         m_nTimerIDHidePopupSubMenu;  // 计时器ID，用于关闭子窗口
+		bool         m_bLayered;              // 是否使用分层样式
 
 		// 绘制相关
 		RenderBase*  m_pSeperatorRender;
@@ -107,9 +110,6 @@ namespace UI
 		int        m_nTextMarginRight;
 		int        m_nPopupTriangleWidth; // 菜单右侧弹出菜单类型的三角形
 		int        m_nSeperatorHeight;
-
-	
-	
 	};
 
 	class UIAPI Menu : public MenuBase
