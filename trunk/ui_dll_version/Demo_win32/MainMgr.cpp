@@ -159,11 +159,11 @@ void CMainMgr::Pause()
 
 void CMainMgr::PlayNext()
 {
-	
+	Play(GetPlayerListMgr()->GetNextItem());
 }
 void CMainMgr::PlayPrev()
 {
-
+	Play(GetPlayerListMgr()->GetPrevItem());
 }
 
 void CMainMgr::on_mp3_stop()
