@@ -50,6 +50,8 @@ public:
 	int   GetItemIndex(PlayerListItemInfo*);
 
 	PlayerListItemInfo*  GetNextPlayItem(bool& bPlay);
+	PlayerListItemInfo*  GetPrevItem();
+	PlayerListItemInfo*  GetNextItem();
 
 	virtual  void  HandleEvent(IMgr* pSource, int nEventType, int nEventId, WPARAM wParam, LPARAM lParam);
 
@@ -58,6 +60,7 @@ private:
 	CPlayListDlg*     m_pPlaylistDlg;   // 播放列表窗口
 
 	vector<PlayerListItemInfo*>  m_vecPlayerList;  // 播放列表
+	list<PlayerListItemInfo*>    m_lstPlayHistory; // 随机播放历史，用于播放上一首时返回
 	PlayerListItemInfo*   m_pCurPlayingItem;  // 当前正在插放的文件
 	PLAY_MODE             m_ePlayMode;        // 当前播放模式
 };

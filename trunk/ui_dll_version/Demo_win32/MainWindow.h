@@ -22,6 +22,8 @@ public:
 		UIMSG_BN_CLICKED( _T("btn_pause"), OnBnClickPause )
 		UIMSG_BN_CLICKED( _T("btn_stop"),  OnBnClickStop )
 		UIMSG_BN_CLICKED( _T("btn_mute"),  OnBnClickMute )
+		UIMSG_BN_CLICKED( _T("btn_prev"),  OnBnClickPrev )
+		UIMSG_BN_CLICKED( _T("btn_next"),  OnBnClickNext )
 		UIMSG_TRBN_POSCHANGED( _T("progress_music"), OnMusicProgressPosChanged )
 		UIMSG_TRBN_POSCHANGED( _T("progress_voice"), OnVolumnChanged )
 
@@ -57,6 +59,8 @@ public:
 	void    OnBnClickPause();
 	void    OnBnClickStop();
 	void    OnBnClickMute();
+	void    OnBnClickPrev();
+	void    OnBnClickNext();
 	void    OnMusicProgressPosChanged(int nPos, int nScrollType);
 	void    OnVolumnChanged(int nPos, int nScrollType);
     void    OnContextMenu(HWND wnd, POINT point);

@@ -6,6 +6,7 @@
 #include "MainMgr.h"
 #include "Playlistdlg.h"
 
+
 // 全局变量:
 HINSTANCE g_hInstance;
 int APIENTRY _tWinMain(HINSTANCE hInstance,
@@ -15,6 +16,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 {
 	g_hInstance = hInstance;
 	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+
 
 	// 注册自有控件
 	UI_RegisterUIObjectCreateData(TTPlayerPlaylistCtrl::XmlName(), 

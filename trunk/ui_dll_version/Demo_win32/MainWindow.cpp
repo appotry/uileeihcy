@@ -197,6 +197,15 @@ void MainWindow::OnBnClickMute()
 		mp3_mute(true);
 }
 
+void MainWindow::OnBnClickPrev()
+{
+	GetMainMgr()->PlayPrev();
+}
+void MainWindow::OnBnClickNext()
+{
+	GetMainMgr()->PlayNext();
+}
+
 void MainWindow::OnBnClickOpen()
 {
 	COptionWindow win;
@@ -407,6 +416,7 @@ void MainWindow::OnContextMenu( HWND wnd, POINT point )
 	if( this->GetHoverObject() != NULL )
 		return;
 
+#if 0 // 手动创建菜单 
 	int nMenuID = 100;
 
 	// Menu是自销毁的
@@ -447,6 +457,18 @@ void MainWindow::OnContextMenu( HWND wnd, POINT point )
 	SAFE_DELETE(pMenu);
 	SAFE_DELETE(pSubMenu);
 
+#else  // 从配置文件中加载
+
+	Menu*  pMenu = UI_LoadMenu(_T("main_menu"));
+	if (NULL == pMenu)
+		return;
+
+	POINT pt;
+	GetCursorPos(&pt);
+	pMenu->TrackPopupMenu(0,pt.x,pt.y, static_cast<Message*>(this));
+
+	SAFE_DELETE(pMenu);
+#endif
 	return;
 
 #define MENU_ID_OPTION    1

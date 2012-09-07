@@ -252,7 +252,9 @@ PlayerListItemInfo* CPlayerListMgr::GetNextPlayItem(bool& bPlay)
 
 			int nResult = rand()%nCount;
 			bPlay = true;
-			return GetItem(nResult);
+			PlayerListItemInfo* p = GetItem(nResult);
+			m_lstPlayHistory.push_back(p);
+			return p;
 		}
 		break;
 
@@ -263,6 +265,95 @@ PlayerListItemInfo* CPlayerListMgr::GetNextPlayItem(bool& bPlay)
 	return NULL;
 }
 
+//
+// 获取上一首播放MP3
+//
+PlayerListItemInfo* CPlayerListMgr::GetPrevItem()
+{
+	switch (m_ePlayMode)
+	{
+	case ALL_RAND:
+		{
+			if (NULL != m_pCurPlayingItem && m_lstPlayHistory.size()>0 && m_lstPlayHistory.back() == m_pCurPlayingItem)
+				m_lstPlayHistory.pop_back();
+
+			PlayerListItemInfo* p = NULL;
+			if (m_lstPlayHistory.size() > 0)
+				p = m_lstPlayHistory.back();
+			
+			if (NULL == p)
+			{
+				p = GetItem(0);
+			}
+			else
+			{
+				m_lstPlayHistory.pop_back();
+			}
+			return p;
+		}
+		break;
+
+	default:
+		{
+			if (NULL == m_pCurPlayingItem)
+			{
+				return GetItem(0);
+			}
+			else
+			{
+				int nIndex = GetItemIndex(m_pCurPlayingItem);
+				if (-1 == nIndex)
+					return NULL;
+
+				PlayerListItemInfo* p = GetItem(nIndex-1);
+				if (NULL == p)
+				{
+					p = GetItem(GetItemCount()-1);
+				}
+				return p;
+			}
+		}
+		break;
+	}
+	return NULL;
+}
+
+// 播放下一首MP3
+PlayerListItemInfo*  CPlayerListMgr::GetNextItem()
+{
+	switch (m_ePlayMode)
+	{
+	case ALL_RAND:
+		{
+			bool bPlay = false;
+			return GetNextPlayItem(bPlay);
+		}
+		break;
+
+	default:
+		{
+			if (NULL == m_pCurPlayingItem)
+			{
+				return GetItem(0);
+			}
+			else
+			{
+				int nIndex = GetItemIndex(m_pCurPlayingItem);
+				if (-1 == nIndex)
+					return NULL;
+
+				PlayerListItemInfo* p = GetItem(nIndex+1);
+				if (NULL == p)
+				{
+					p = GetItem(0);
+				}
+				return p;
+			}
+		}
+		break;
+	}
+	return NULL;
+}
 
 void CPlayerListMgr::HandleEvent(IMgr* pSource, int nEventType, int nEventId, WPARAM wParam, LPARAM lParam)
 {

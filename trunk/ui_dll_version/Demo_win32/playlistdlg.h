@@ -35,6 +35,9 @@ public:
 	TTPlayerPlaylistItem*  GetPlayingItem(){ return m_pPlayingItem; }
 
 protected:
+	void    BuildItemText(TTPlayerPlaylistItem* pCtrlItem, String& strOut);
+
+protected:
 	TTPlayerPlaylistItem*  m_pPlayingItem;
 };
 

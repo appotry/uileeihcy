@@ -43,7 +43,7 @@ void TTPlayerPlaylistCtrl::OnDrawItem(HRDC hRDC, ListItemBase* p)
 {
 	if (NULL == p)
 		return;
-	TTPlayerPlaylistItem* pData = (TTPlayerPlaylistItem*)p;
+	TTPlayerPlaylistItem* pItem = (TTPlayerPlaylistItem*)p;
 
 	CRect rcItem;
 	p->GetParentRect(&rcItem);
@@ -102,7 +102,7 @@ void TTPlayerPlaylistCtrl::OnDrawItem(HRDC hRDC, ListItemBase* p)
 		}
 	}
 
-	if (NULL != pData && NULL != pData->m_pItemInfo)
+	if (NULL != pItem && NULL != pItem->m_pItemInfo)
 	{
 		CRect rcNum = rcItem;
 		CRect rcTime = rcItem;
@@ -118,15 +118,22 @@ void TTPlayerPlaylistCtrl::OnDrawItem(HRDC hRDC, ListItemBase* p)
 			DT_SINGLELINE|DT_RIGHT|DT_VCENTER, 
 			this->GetFont(), rgbText );
 
-		DrawString( hRDC, pData->m_pItemInfo->GetFilePath().c_str(), &rcText, 
+		String strText;
+		this->BuildItemText(pItem, strText);
+		DrawString( hRDC, strText.c_str(), &rcText, 
 			DT_SINGLELINE|DT_END_ELLIPSIS|DT_LEFT|DT_VCENTER, 
 			this->GetFont(), rgbText );
 
-		DrawString( hRDC, pData->m_pItemInfo->GetFileTime().c_str(), &rcTime, 
+		DrawString( hRDC, pItem->m_pItemInfo->GetFileTime().c_str(), &rcTime, 
 			DT_SINGLELINE|DT_RIGHT|DT_VCENTER, 
 			this->GetFont(), rgbText );
 	}
 }
+void TTPlayerPlaylistCtrl::BuildItemText(TTPlayerPlaylistItem* pCtrlItem, String& strOut)
+{
+	strOut = pCtrlItem->m_pItemInfo->GetFileName();
+}
+
 void TTPlayerPlaylistCtrl::AddFileItem(PlayerListItemInfo* pItemInfo, bool bUpdate)
 {
 //	int nPos = strFilePath.rfind(_T('\\'), strFilePath.length());
