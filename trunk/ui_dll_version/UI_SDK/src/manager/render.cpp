@@ -190,6 +190,21 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 			p->SetColor(2, RGB(0,0,0));
 			p->SetColor(3, RGB(192,192,192));
 
+			OSVERSIONINFOEX os;
+			::ZeroMemory(&os,sizeof(os));
+			os.dwOSVersionInfoSize=sizeof(os);
+			::GetVersionEx(reinterpret_cast<LPOSVERSIONINFO>(&os));
+
+			// 在WIN7开户主题的情况下，将菜单项的hover颜色改成黑色
+			if(os.dwPlatformId==VER_PLATFORM_WIN32_NT && os.dwMajorVersion > 5)  // visita or higher
+			{
+				HTHEME h = OpenThemeData(NULL, _T("MENU"));
+				if (NULL != h)
+				{
+					p->SetColor(1, RGB(0,0,0));
+					CloseThemeData(h);
+				}
+			}
 			pObj->SetTextRender(p);
 		}
 		
