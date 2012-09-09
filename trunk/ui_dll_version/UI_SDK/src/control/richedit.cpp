@@ -33,10 +33,9 @@ void RichEditBase::ResetAttribute()
 	__super::ResetAttribute();
 }
 
-LRESULT RichEditBase::OnObjectLoaded(UINT uMsg, WPARAM wParam, LPARAM lParam)
+void RichEditBase::OnObjectLoaded()
 {
 	m_wrapRichEidt.Create(GetHWND());
-	return 0;
 }
 void RichEditBase::OnEraseBkgnd( HRDC hRDC )
 {
