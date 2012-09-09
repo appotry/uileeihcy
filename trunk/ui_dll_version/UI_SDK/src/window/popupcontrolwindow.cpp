@@ -40,10 +40,6 @@ void PopupControlWindow::OnInitWindow()
 {
 	__super::OnInitWindow();
 
-	// 清除原窗口上面的hover、press对象
-	HWND hWnd = GetActiveWindow();
-	::PostMessage(hWnd,WM_MOUSELEAVE,0,0);
-
 	m_pObject->AddHook(this, 0, 1);
 	this->AddChild(m_pObject);
 
@@ -54,6 +50,8 @@ void PopupControlWindow::OnInitWindow()
 void PopupControlWindow::OnDestroy()
 {
 	SetMsgHandled(FALSE);
+
+	UISendMessage(m_pObject, UI_WM_UNINITPOPUPCONTROLWINDOW, 0,0,0, this);  // 将该消息放在这里发送，保证每一个子菜单窗口销毁时都能收到该消息
 
 	// 避免窗口在DestroyUI中delete child object
 	// 同时避免在销毁root menu时，会先销毁子菜单的窗口，因此在这里将子菜单的parent也清理掉
@@ -98,7 +96,6 @@ LRESULT PopupControlWindow::OnExitPopupLoop(UINT uMsg, WPARAM wParam, LPARAM lPa
 // 	this->ClearTreeObject();
 // 	m_pObject->ClearParentObject();
 
-	UISendMessage(m_pObject, UI_WM_UNINITPOPUPCONTROLWINDOW, 0,0,0, this);
 	::DestroyWindow(m_hWnd);
 
 	m_bExitLoop = true;
@@ -189,11 +186,7 @@ BOOL PopupControlWindow::PreTranslatePopupMessage(MSG* pMsg)
 			// 给原窗口发送一个鼠标移动消息，重置hover对象。
 			// 否则会导致popupwnd消失后，原窗口鼠标直接点击无反应
 			// 或者导致窗口接收到lbuttondown之前，还没有更新hover对象
-// 			POINT pt;
-// 			GetCursorPos(&pt);
-			HWND hWnd = GetActiveWindow();
-//			MapWindowPoints(NULL, hWnd, &pt, 1);
-			::SendMessage(GetActiveWindow(), WM_MOUSEMOVE, 0, pMsg->lParam/*MAKELPARAM(pt.x, pt.y)*/);
+			::SendMessage(pMsg->hwnd, WM_MOUSEMOVE, 0, pMsg->lParam);
 		}
 	}
 	
@@ -227,6 +220,10 @@ BOOL PopupListBoxWindow::PreCreateWindow( CREATESTRUCT& cs )
 void PopupListBoxWindow::OnInitWindow()
 {
 	__super::OnInitWindow();
+
+	// 清除原窗口上面的hover、press对象
+	HWND hWnd = GetActiveWindow();
+	::PostMessage(hWnd,WM_MOUSELEAVE,0,0);
 
 	CRect rc;
 	this->m_pListBox->GetWindowRect(&rc);
@@ -295,6 +292,13 @@ BOOL PopupMenuWindow::PreCreateWindow( CREATESTRUCT& cs )
 void PopupMenuWindow::OnInitWindow()
 {
 	__super::OnInitWindow();
+
+	// 清除原窗口上面的hover、press对象
+	if (m_pMenu->GetRootMenu() == m_pMenu) // 子菜单弹出来时,activeWindow是父菜单，因此不需要再发送mouseleave消息
+	{
+		HWND hWnd = GetActiveWindow();
+		::PostMessage(hWnd,WM_MOUSELEAVE,0,0);
+	}
 
 	CRect rc;
 	this->m_pMenu->GetWindowRect(&rc);

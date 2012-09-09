@@ -43,6 +43,7 @@ namespace UI
 		~MenuBase();
 
 		UI_BEGIN_MSG_MAP
+			UIMSG_WM_MOUSEMOVE(OnMouseMove)
 			UIMSG_WM_LBUTTONDOWN(OnLButtonDown)
 			UIMSG_WM_LBUTTONUP(OnLButtonUp)
 			UIMSG_WM_KEYDOWN(OnKeyDown)
@@ -59,6 +60,7 @@ namespace UI
 		void     OnLButtonUp(UINT nFlags, POINT point);
 		void     OnTimer(UINT_PTR nIDEvent, LPARAM lParam);
 		LRESULT  OnGetRenderType();
+		void     OnMouseMove(UINT nFlags, CPoint point);
 
 		void     ShowPopupSubMenu(MenuItem* pItem);
 		void     HidePopupSubMenu();
@@ -73,6 +75,7 @@ namespace UI
 		MenuItem* AppendMenu(UINT uFlags, UINT_PTR uIDNewItem, LPCTSTR lpNewItem);
 		HWND      GetPopupWindowHandle();
 		void      SetReturnCmd(UINT n) { m_nRetCmd = n; }
+		void      OnSubMenuMouseMove(MenuBase* pSubMenu);
 
 		MenuBase* GetPrevMenu() { return m_pPrevMenu; }
 		MenuBase* GetNextMenu() { return m_pNextMenu; }

@@ -204,7 +204,36 @@ void MenuBase::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	}
 }
 
-
+//
+//  鼠标在子菜单上移动时，在父窗口上显示高亮路径（递归）
+//
+void MenuBase::OnMouseMove(UINT nFlags, CPoint point)
+{
+	SetMsgHandled(FALSE);
+	if (NULL != m_pPrevMenu)
+	{
+		m_pPrevMenu->OnSubMenuMouseMove(this);
+	}
+}
+void MenuBase::OnSubMenuMouseMove(MenuBase* pSubMenu)
+{
+	MenuItem* pItem = (MenuItem*)m_pFirstItem;
+	while(NULL != pItem)
+	{
+		if (pItem->GetSubMenu() == pSubMenu)
+		{
+			SetHoverItem(pItem);
+			this->ReDrawItem(pItem);
+			
+			if (NULL != m_pPrevMenu)
+			{
+				m_pPrevMenu->OnSubMenuMouseMove(this);
+			}
+			break;
+		}
+		pItem = (MenuItem*)pItem->GetNextItem();
+	}
+}
 void MenuBase::OnLButtonDown(UINT nFlags, POINT point)
 {
 	if( NULL != m_pHoverItem )
@@ -364,7 +393,10 @@ int  MenuBase::PopupSubMenu(MenuItem* pItem)
 		return -1;
 
 	if(pSubMenu == m_pNextMenu)
-		return 0;
+	{
+		UI_LOG_WARN(_T("%s m_pNextMenu is same to pSubMenu"), FUNC_NAME);
+		return -1;
+	}
 
 	if (m_pNextMenu != NULL)
 	{
@@ -393,6 +425,7 @@ int  MenuBase::PopupAsSubMenu(UINT nFlags, MenuBase* pParentMenu, MenuItem* pIte
 	}
 
 	m_nTrackPopupMenuFlag = nFlags;
+	m_pPrevMenu = pParentMenu;
 
 	// 计算弹出位置
 	HWND hParentWnd = pParentMenu->GetPopupWindowHandle();
@@ -427,8 +460,6 @@ int  MenuBase::PopupAsSubMenu(UINT nFlags, MenuBase* pParentMenu, MenuItem* pIte
 	::SetWindowPos(m_pPopupWrapWnd->m_hWnd, NULL,x,y,0,0,SWP_NOSIZE|SWP_NOZORDER|SWP_SHOWWINDOW|SWP_NOACTIVATE);
 	this->ClearNotify();
 	this->CopyNotify(pParentMenu);
-
-	m_pPrevMenu = pParentMenu;
 
 	return 0;
 }
@@ -485,7 +516,9 @@ void MenuBase::OnDrawItem( HRDC hRDC, ListItemBase* p )
 
 bool MenuBase::IsItemHilight(MenuItem* p)
 {
-	if (m_pHoverItem == p || (m_pHoverItem == NULL && m_pNextMenu!=NULL && m_pNextMenu==p->GetSubMenu())) // 鼠标Hover或者弹出了子菜单 
+	if (m_pHoverItem == p 
+		/*|| (m_pHoverItem == NULL && m_pNextMenu!=NULL && m_pNextMenu==p->GetSubMenu())*/ // 鼠标Hover或者弹出了子菜单 
+		)
 		return true;
 	else
 		return false;
@@ -547,9 +580,13 @@ void MenuBase::OnInitPopupControlWindow(Object* pObjMsgFrom)
 
 }
 
+// 菜单窗口销毁了
 void MenuBase::OnUnInitPopupControlWindow(Object* pObjMsgFrom)
 {
 	m_pPopupWrapWnd = NULL;
+	m_pPrevMenu = NULL;
+	m_pNextMenu = NULL;
+	this->SetHoverItem(NULL);
 }
 
 void Menu::ResetAttribute()

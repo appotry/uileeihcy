@@ -114,6 +114,13 @@
       <String text="千千主页"/>
       <String text="千千音乐在线"/>
       <String text="论坛"/>
+      <Popup  text="论坛">
+        <String text="testtesttesttest"/>
+        <Separator></Separator>
+        <Popup  text="test">
+          <String text="ssss"/>
+        </Popup>
+      </Popup>
     </Popup>
     <Separator/>
     <String id="1002" text="播放控制"/>
