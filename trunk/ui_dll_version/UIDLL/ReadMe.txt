@@ -97,7 +97,6 @@
   
  未实现：
  1. Min max width/height 限制
- 3. PrepareDC( hDC ); 对应的SaveDC RestoreDC是否正确使用
  4. 由uibuilder启动时，ui的日志没有输出到 console 中
  5. 在拖动窗口大小的时候，EDIT位置变化时，CARAT没有随者变化
  7. 测试font的效果，是否可以改变
@@ -114,7 +113,6 @@
  25.优化SetWindowRgn缩放功能
  27.Gdi+下面的MeasureString偏大的原因，以及DrawString放不下的原因
  28.换肤时，崩溃。先打开三个窗口，再关闭第二个窗口，换肤，崩溃。
- 29.CustomWindow收编LayeredWindow
  30.提供一个方法：DoVerb( "action", xxx ); "press" "click" "unpress" "hover" "unhover"
  31.考虑将WndProc做成virtual
  32.Direct3D + GDI 
@@ -129,23 +127,9 @@
 		pSurface->ReleaseDC(hDC);
 		
 	2). d3dpp.Flags = D3DPRESENTFALG_LOCKABLE_BACKBUFFER;
-33. visible enable  的继承关系 	
+
 34. 从无主题切换到其他主题的时候，界面显示异常
-35. 去除一个窗口的透明属性
-To make this window completely opaque again, remove the WS_EX_LAYERED bit by calling SetWindowLong and then ask the window to repaint. Removing the bit is desired to let the system know that it can free up some memory associated with layering and redirection. The code might look like this:
-
-// Remove WS_EX_LAYERED from this window styles
-SetWindowLong(hwnd, 
-              GWL_EXSTYLE,
-              GetWindowLong(hwnd, GWL_EXSTYLE) & ~WS_EX_LAYERED);
-
-// Ask the window and its children to repaint
-RedrawWindow(hwnd, 
-             NULL, 
-             NULL, 
-             RDW_ERASE | RDW_INVALIDATE | RDW_FRAME | RDW_ALLCHILDREN);
  
-36. 考虑下，取消PrePareDC，每个对象都有一个FONT*属性，每次创建一个对象，，都会发送一个WM_SETFONT的消息
 39. 考虑所有的virtual函数，能不需要的全都不做成virtual函数！
 	为什么不能用虚函数来实现消息映射？ -- 深入解析MFC	
 	虽然这一方法符合C++和OOP风格，但它仍存在问题。请记住，虚函数是用类的虚函数表(virtual fuction table)
@@ -177,7 +161,6 @@ RedrawWindow(hwnd,
 59. 去掉ResetAttribute方法
 60. 将BkRender, ForeRender移到IObjectRender当中，子类controlRender可继承
 61. LISTBOX的局部刷新
-62. 需要一套更灵活的classname <-> xmlname 的注册映射关系
 64. 关于DrawThemexxx的Gdiplus，可以考虑先画在一个HDC的BITMAP上面，然后转成Gdiplus::Bitmap
 65. TextRender可以考虑增加一个文字阴影效果，仿XP STYLE
 66. Edit中，字体改变后/换肤后，m_nCaretHeight没有更新，将导致绘制位置出错
@@ -229,7 +212,26 @@ Finish
 *69. 现在重置属性，需要的构造函数中和resetattrib函数中都写一份代码，很容易导致不匹配，急需修改	
 *70. 如何在析构列表控件的时候，还能调用虚函数OnDeleteItem??,同时解决DestroyUI的虚函数继承问题
      增加一人UIObjCreator InitialConstruct FinalConstruct FinalRelease
+62. 需要一套更灵活的classname <-> xmlname 的注册映射关系
+36. 考虑下，取消PrePareDC，每个对象都有一个FONT*属性，每次创建一个对象，，都会发送一个WM_SETFONT的消息
+ 3. PrepareDC( hDC ); 对应的SaveDC RestoreDC是否正确使用
+29. CustomWindow收编LayeredWindow	
+33. visible enable  的继承关系 
+35. 去除一个窗口的透明属性
+To make this window completely opaque again, remove the WS_EX_LAYERED bit by calling SetWindowLong and then ask the window to repaint. Removing the bit is desired to let the system know that it can free up some memory associated with layering and redirection. The code might look like this:
 
+// Remove WS_EX_LAYERED from this window styles
+SetWindowLong(hwnd, 
+              GWL_EXSTYLE,
+              GetWindowLong(hwnd, GWL_EXSTYLE) & ~WS_EX_LAYERED);
+
+// Ask the window and its children to repaint
+RedrawWindow(hwnd, 
+             NULL, 
+             NULL, 
+             RDW_ERASE | RDW_INVALIDATE | RDW_FRAME | RDW_ALLCHILDREN);
+             
+	 
 CMFCPopupMenu::RecalcLayout, afxmenupopup.cpp L630
 CRect rectScreen;
 
