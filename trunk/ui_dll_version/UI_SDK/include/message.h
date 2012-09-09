@@ -521,6 +521,8 @@ protected:
 //			return TRUE;                              \
 // 	}
 
+// void OnShowWindow(BOOL bShow, UINT nStatus)
+#define UIMSG_WM_SHOWWINDOW  MSG_WM_SHOWWINDOW
 
 // LRESULT OnNcHitTest( POINT pt )
 // remark
@@ -625,6 +627,9 @@ protected:
 
 // void OnWindowPosChanging(LPWINDOWPOS lpWndPos)
 #define UIMSG_WM_WINDOWPOSCHANGING  MSG_WM_WINDOWPOSCHANGING
+
+// void OnWindowPosChanged(LPWINDOWPOS lpWndPos)
+#define UIMSG_WM_WINDOWPOSCHANGED  MSG_WM_WINDOWPOSCHANGED
 
 #define UIMSG_WM_GETMINMAXINFO MSG_WM_GETMINMAXINFO
 // void OnGetMinMaxInfo(LPMINMAXINFO lpMMI);
@@ -978,6 +983,18 @@ protected:
 		if(IsMsgHandled())                            \
 			return TRUE;                              \
 	}
+
+// void OnObjectLoaded();
+#define UIMSG_WM_OBJECTLOADED(func)                   \
+	if (uMsg == UI_WM_OBJECTLOADED)                   \
+	{                                                 \
+		SetMsgHandled(TRUE);                          \
+		func(  );                                     \
+		if(IsMsgHandled())                            \
+			return TRUE;                              \
+	}
+
+
 
 //
 // UI_WM_NOTIFY

@@ -80,6 +80,23 @@ BOOL CustomWindow::OnNcActivate( BOOL bActive )
 	return 1;
 }
 
+
+//
+// 对于分层窗口，在显示的时候需要重新更新一次。因为当分层窗口隐藏的时候内存位图没有得到更新，invisible false后，直接return了
+//
+// 注：在这里没有使用响应WM_SHOWWINDOW来通过分层窗口刷新，因为在响应WM_SHOWWINDOW的时候，IsWindowVisible还是FALSE
+//     因此改用OnWindowPosChanged来得到窗口显示的时机，通过分层窗口刷新
+//   
+void CustomWindow::OnWindowPosChanged(LPWINDOWPOS lpWndPos)
+{
+	SetMsgHandled(FALSE);
+	if (lpWndPos->flags & SWP_SHOWWINDOW && NULL != m_pLayeredWindowWrap)
+	{
+		m_pLayeredWindowWrap->OnShowWindow();
+	}
+}
+
+
 void CustomWindow::ResetAttribute()
 {
 	__super::ResetAttribute();
@@ -1022,6 +1039,11 @@ void LayeredWindowWrap::OnSize( UINT nType, int cx, int cy )
 	this->InvalidateObject(m_pWindow, TRUE);
 }
 
+void LayeredWindowWrap::OnShowWindow()
+{
+	this->InvalidateObject(m_pWindow, TRUE);
+}
+
 void LayeredWindowWrap::InvalidateObject( Object* pInvalidateObj, bool bUpdateNow )
 {
 	if( NULL == pInvalidateObj )
@@ -1116,6 +1138,18 @@ void LayeredWindowWrap::Commit2LayeredWindow()
 			nFlag = ULW_COLORKEY;
 		}
 	}
+
+// 	{
+// 		Image image;
+// 		image.Attach(m_hLayeredBitmap);
+// 		static int a = 0;
+// 		a++;
+// 		TCHAR szTitle[256] ;
+// 		_stprintf(szTitle, _T("C:\\aaa%d.png"), a);
+// 		image.Save(szTitle, Gdiplus::ImageFormatPNG);
+// 		image.Detach();
+// 		::SelectObject(m_hLayeredMemDC, m_hLayeredBitmap);
+// 	}
 
 	BOOL bRet = ::UpdateLayeredWindow( m_pWindow->m_hWnd, NULL, &leftTop, &size, m_hLayeredMemDC, &ptMemDC, dwColorMask, &bf, nFlag ); 
 	if( FALSE == bRet )

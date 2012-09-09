@@ -18,7 +18,7 @@ public:
 		UIMSG_WM_KILLFOCUS(OnKillFocus)
 		UIMESSAGE_RANGE_HANDLER_EX(WM_MOUSEFIRST,WM_MOUSELAST, OnMouseRangeMsg)
 
-		UIMESSAGE_HANDLER_EX(UI_WM_OBJECTLOADED, OnObjectLoaded)
+		UIMSG_WM_OBJECTLOADED(OnObjectLoaded)
 	UI_END_MSG_MAP_CHAIN_PARENT(Control)
 
 public:
@@ -29,7 +29,7 @@ public:
 	virtual  void   ResetAttribute();
 
 protected:
-	LRESULT  OnObjectLoaded(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	void     OnObjectLoaded();
 	void     OnEraseBkgnd( HRDC hRDC );
 	void     OnPaint( HRDC hRDC );
 

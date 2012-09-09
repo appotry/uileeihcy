@@ -2350,6 +2350,9 @@ bool CXmlLayoutParse::LoadLayout(Object* pRootObj)
 	if( true == bRet )
 	{
 		this->loadObjects( pRootObj );
+
+		// 发送一个通知消息用于创建其它内部对象
+		UISendMessage(pRootObj, UI_WM_OBJECTLOADED);
 	}
 
 	return bRet;

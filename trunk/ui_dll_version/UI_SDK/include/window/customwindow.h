@@ -35,6 +35,7 @@ public:
 		UIMSG_WM_HITTEST( OnHitTest )
 		UIMSG_WM_NCDESTROY(OnNcDestroy)
 		UIMSG_WM_NCACTIVATE( OnNcActivate )
+		UIMSG_WM_WINDOWPOSCHANGED(OnWindowPosChanged)
 
 //		UIMSG_WM_NCHITTEST( OnNcHitTest )
 // 		UIMSG_WM_NCMOUSEMOVE    ( OnNcMouseMove )
@@ -88,6 +89,7 @@ protected:
 	UINT     OnHitTest( POINT* p );
 	void     OnNcDestroy();
 	BOOL     OnNcActivate( BOOL bActive );
+	void     OnWindowPosChanged(LPWINDOWPOS lpWndPos);
 
 //	int  OnCreate(LPCREATESTRUCT lpCreateStruct);
 //	LRESULT  OnNcHitTest( POINT pt );
@@ -152,6 +154,7 @@ public:
 	void      InitLayeredWindow();
 	void      ReleaseLayeredWindow();
 	void      OnSize( UINT nType, int cx, int cy );
+	void      OnShowWindow();
 	void      InvalidateObject( Object* pInvalidateObj, bool bUpdateNow );
 	HRDC      BeginDrawObject( Object* pInvalidateObj, HRGN& hClipRgn);
 	void      EndDrawObject( CRect* prcWindow, HRGN& hClipRgn );
