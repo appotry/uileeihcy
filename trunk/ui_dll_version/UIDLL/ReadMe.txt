@@ -179,6 +179,7 @@
 75. 分层菜单设置
 76. 菜单提示条问题
 77. 菜单项radio check功能	
+78. 将layout.xml增加一个<#include>标签，允许将一些资源抽取出来 
 	
 疑问：
 1. Message类是否需要一个 m_pCurMsg成员变量？

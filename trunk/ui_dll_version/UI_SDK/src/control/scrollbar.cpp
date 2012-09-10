@@ -868,6 +868,7 @@ public:
 
 		m_nOldPage = m_nOldRange = m_nOldPos = 0;
 	}
+
 	~SystemScrollBarRender()
 	{
 		SAFE_DELETE(m_pBtnLineDownRight);

@@ -468,6 +468,39 @@ int  MenuBase::GetMenuItemCount()
 	return __super::GetItemCount();
 }
 
+MenuItem* MenuBase::GetMenuItemByPos(int nPos)
+{
+	MenuItem* pItem = (MenuItem*)__super::GetItemBase(nPos);
+	return pItem;
+}
+MenuItem* MenuBase::GetMenuItemByID(int nID)
+{
+	MenuItem* pItem = (MenuItem*)m_pFirstItem;
+
+	while(pItem != NULL)
+	{
+		if(pItem->GetID() == nID)
+			return pItem;
+
+		pItem = (MenuItem*)pItem->GetNextItem();
+	}
+	return NULL;
+}
+MenuBase* MenuBase::GetSubMenuByPos(int nPos)
+{
+	MenuItem* pItem = this->GetMenuItemByPos(nPos);
+	if (NULL == pItem)
+		return NULL;
+	return pItem->GetSubMenu();
+}
+MenuBase* MenuBase::GetSubMenuByID(int nID)
+{
+	MenuItem* pItem = this->GetMenuItemByID(nID);
+	if (NULL == pItem)
+		return NULL;
+	return pItem->GetSubMenu();
+}
+
 SIZE MenuBase::OnMeasureItem( ListItemBase* p)
 {
 	SIZE s = {0,0};

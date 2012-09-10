@@ -35,18 +35,18 @@ interface ILogItem : IUnknown
 interface ILog : IDispatch
 {
 	[id(1), helpstring("Create")] HRESULT Create([in] BSTR strXmlPath, [out, retval]LONG* pIsDirty);
-	[id(2), helpstring("Load")] HRESULT Load([in] BSTR strXmlPath, [out, retval]LONG* pIsDirty);
+	[id(2), helpstring("Load")] HRESULT Load([in] BSTR strXmlPath, [out, retval]LONG* lRet);
 	[id(3), helpstring("Log")] HRESULT Log([in] BSTR bstrModule, [in] LONG level, [in] BSTR bstrContent);
 	[id(4), helpstring("EnableLog")]HRESULT EnableLog( [in] LONG bSwitch, [out, retval]LONG* pIsDirty );
 	[id(5), helpstring("AddLogItem")] HRESULT AddLogItem([in] BSTR bstrModule, [in] LONG bSwitch,
-		[in] LONG level, [in] BSTR bstrLogPath,
-		[in] LONG lLogFlag, [in] LONG lFileLog,
-		[out, retval]LONG* pIsDirty );
+											[in] LONG level, [in] BSTR bstrLogPath,
+											[in] LONG lLogFlag, [in] LONG lFileLog,
+											[out, retval]LONG* pIsDirty );
 	[id(6), helpstring("ModifyLogItem")] HRESULT ModifyLogItem([in] BSTR bstrOldModuleName, [in] BSTR bstrNewModuleName, 
-		[in] LONG bSwitch, 
-		[in] LONG level, [in] BSTR bstrLogPath,
-		[in] LONG lLogFlag, [in] LONG lFileLog,
-		[out, retval]LONG* pIsDirty);
+											[in] LONG bSwitch, 
+											[in] LONG level, [in] BSTR bstrLogPath,
+											[in] LONG lLogFlag, [in] LONG lFileLog,
+											[out, retval]LONG* pIsDirty);
 	[id(7), helpstring("RemoveLogItem")] HRESULT RemoveLogItem([in] BSTR bstrModuleName, [out, retval]LONG* pIsDirty );
 	[id(8), helpstring("Save")]HRESULT Save([out, retval]LONG* pRetVal);
 	[id(9), helpstring("IsDirty")]HRESULT IsDirty([out, retval]LONG* pRetVal);

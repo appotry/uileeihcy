@@ -63,7 +63,9 @@ UI_RESOURCE_TYPE;
 #define LOG_LEVEL(pLog,module,level,content)         \
 	if( NULL == pLog )                               \
 		return;                                      \
-	if( 0 == pLog->TestCanLog(module,level) )        \
+	long lRet = 0;                                   \
+	pLog->TestCanLog(module,level, &lRet);           \
+	if (0 == lRet)                                   \
 		return;                                      \
 	va_list argList;                                 \
 	va_start(argList, content );                     \

@@ -374,7 +374,8 @@ protected:
 #define UI_END_MSG_MAP_CHAIN_PARENT(baseclass)        \
 		    break;                                    \
 		}                                             \
-		baseclass::ProcessMessageNoHook( pMsg, nMsgMapID ); \
+		if (baseclass::ProcessMessageNoHook( pMsg, nMsgMapID )) \
+			return TRUE;                              \
 		return FALSE;                                 \
 	}
 
