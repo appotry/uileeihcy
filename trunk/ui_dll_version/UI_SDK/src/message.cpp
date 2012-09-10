@@ -38,6 +38,19 @@ long UISendMessage(UIMSG* pMsg, int nMsgMapID, BOOL* pbHandled)
 	return pMsg->lRet;
 }
 
+long  UIPostMessage( UIMSG* pMsg, int nMsgMapID )
+{
+	HWND hDestWnd = UI_GetForwardPostMessageWnd();
+	if (NULL == hDestWnd)
+		return -1;
+
+	UIMSG* pCloneMsg = new UIMSG;
+	memcpy(pCloneMsg, pMsg, sizeof(UIMSG));
+	::PostMessage(hDestWnd, UI_WM_POSTMESSAGE, (WPARAM)pCloneMsg, (LPARAM)nMsgMapID);
+
+	return 0;
+}
+
 long UISendMessage( Message* pObjMsgTo,  UINT message, 
 					WPARAM   wParam,     LPARAM lParam, 
 					UINT     code,       Message* pObjMsgFrom,
@@ -181,7 +194,7 @@ void Message::CopyNotify(Message* pObjCopyFrom)
 }
 
 // 发送Notify消息到注册过Notify的对象
-void Message::DoNotify( UIMSG* pMsg )
+void Message::DoNotify( UIMSG* pMsg, bool bPost )
 {
 	if (NULL != pMsg->pObjMsgTo)
 	{
@@ -194,7 +207,17 @@ void Message::DoNotify( UIMSG* pMsg )
 	{
 		MsgNotify*  pNotify = *iter;
 		if (pNotify->pObj != pMsg->pObjMsgTo)
-			pNotify->pObj->ProcessMessage( pMsg, pNotify->nMsgMapIDToNotify );
+		{
+			if (bPost)
+			{
+				pMsg->pObjMsgTo = pNotify->pObj;
+				UIPostMessage(pMsg, pNotify->nMsgMapIDToNotify);
+			}
+			else
+			{
+				pNotify->pObj->ProcessMessage( pMsg, pNotify->nMsgMapIDToNotify );
+			}
+		}
 	}
 }
 

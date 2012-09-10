@@ -112,8 +112,8 @@ void TopWindowManager::ChangeSkin(SkinManager* pNewSkinMgr)
 		int nOldHeight = pWindow->GetHeight();
 
 		::UI_UpdateTopWindowLayout(pWindow);
-		::SetWindowPos( pWindow->m_hWnd, NULL, pWindow->GetParentRectL(), pWindow->GetParentRectT(), 
-			pWindow->GetWidth(), pWindow->GetHeight(), SWP_NOZORDER|SWP_NOACTIVATE );  // 在这里由于资源都已经销毁了，应该防止窗口再刷新
+//		::SetWindowPos( pWindow->m_hWnd, NULL, pWindow->GetParentRectL(), pWindow->GetParentRectT(), 
+//			pWindow->GetWidth(), pWindow->GetHeight(), SWP_NOZORDER|SWP_NOACTIVATE );  // 在这里由于资源都已经销毁了，应该防止窗口再刷新
 
 		if( nOldWidth == pWindow->GetWidth() && nOldHeight == pWindow->GetHeight() )
 		{

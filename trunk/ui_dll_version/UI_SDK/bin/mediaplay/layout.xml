@@ -132,7 +132,7 @@
     <String id="1007" text="歌词秀"/>
     <String id="1008" text="均衡器"/>
     <Separator/>
-    <String id="1009" text="皮肤"/>
+    <Popup id="1009" text="皮肤"/>
     <String id="1010" text="透明"/>
     <String id="1011" text="查看"/>
     <Separator/>

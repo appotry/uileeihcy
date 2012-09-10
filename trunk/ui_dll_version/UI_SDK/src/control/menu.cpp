@@ -284,9 +284,9 @@ void MenuBase::OnLButtonUp(UINT nFlags, POINT point)
 			UIMSG  msg;
 			msg.message = UI_WM_NOTIFY;
 			msg.code = UI_MENU_CLICK;
-			msg.wParam = (WPARAM)pSave;
+			msg.wParam = (WPARAM)pSave->GetID();
 			msg.pObjMsgFrom = this;
-			DoNotify(&msg);
+			DoNotify(&msg, true);
 		}
 	}
 }

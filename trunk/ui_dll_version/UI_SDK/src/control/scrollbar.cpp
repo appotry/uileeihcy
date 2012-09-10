@@ -612,7 +612,6 @@ ScrollBarBase::~ScrollBarBase()
 {
 	SAFE_DELETE(m_pScrollBarRender);
 }
-
 bool ScrollBarBase::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 {
 	if (NULL == m_pScrollBarMgr || NULL == m_pScrollBarMgr->GetBindObject())
@@ -652,6 +651,7 @@ bool ScrollBarBase::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 void ScrollBarBase::ResetAttribute()
 {
 	__super::ResetAttribute();
+	m_pScrollBarRender->ResetAttribute(); // 释放控件内存
 	SAFE_DELETE(m_pScrollBarRender);
 }
 
@@ -869,11 +869,13 @@ public:
 		m_nOldPage = m_nOldRange = m_nOldPos = 0;
 	}
 
-	~SystemScrollBarRender()
+	virtual ~SystemScrollBarRender()
 	{
-		SAFE_DELETE(m_pBtnLineDownRight);
-		SAFE_DELETE(m_pBtnLineUpLeft);
-		SAFE_DELETE(m_pBtnThumb);
+		// 这三个对象会在parent的destroyui中被释放，因此这里只需要置空就行
+		// 但是在ResetAttribute的时候，又必须我们自己释放这三个对象
+		m_pBtnLineDownRight = NULL;
+		m_pBtnLineUpLeft = NULL;
+		m_pBtnThumb = NULL;
 	}
 
 	UI_BEGIN_MSG_MAP
@@ -923,6 +925,12 @@ public:
 	}
 	virtual bool UpdateThumbButtonPos(bool bNeedUpdateThumbButtonSize) = 0; 
 
+	virtual  void  ResetAttribute()
+	{
+		SAFE_DELETE(m_pBtnLineDownRight);
+		SAFE_DELETE(m_pBtnLineUpLeft);
+		SAFE_DELETE(m_pBtnThumb);
+	}
 	virtual  bool  SetAttribute(ATTRMAP& mapAttrib)
 	{
 // 		if( mapAttrib.count(XML_SCROLLBAR_HIDE_LINEBTN) )

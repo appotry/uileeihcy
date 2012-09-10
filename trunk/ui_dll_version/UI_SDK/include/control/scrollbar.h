@@ -99,6 +99,7 @@ namespace UI
 		virtual ~IScrollBarRender() = 0{} ;
 		IScrollBarRender(ScrollBarBase* p){ m_pScrollBar = p; }
 		virtual SCROLLBAR_DIRECTION_TYPE GetScrollBarDirType() = 0;
+		virtual void  ResetAttribute() = 0;
 		virtual bool  SetAttribute(ATTRMAP& mapAttrib) = 0;
 		virtual SIZE  GetAutoSize() = 0;
 		virtual void  UpdateScrollBarVisible() = 0;

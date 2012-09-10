@@ -861,6 +861,13 @@ void*  UI_ExtractCreateWndData()
 	return g_pUIApplication->m_create_wnd_data.ExtractCreateWndData();
 }
 
+HWND UI_GetForwardPostMessageWnd()
+{
+	if( NULL == g_pUIApplication )
+		return NULL;
+
+	return g_pUIApplication->m_WndForwardPostMsg.m_hWnd;
+}
 
 BOOL  UI_IsDialogMessage( MSG* pMsg )
 {

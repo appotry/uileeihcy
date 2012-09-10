@@ -62,6 +62,22 @@ void*  CREATE_WND_DATA::ExtractCreateWndData()
 	return pv;
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+BOOL CForwardPostMessageWindow::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID)
+{
+	if(uMsg==UI_WM_POSTMESSAGE)
+	{
+		UIMSG* pMsg = (UIMSG*)wParam;
+		UISendMessage(pMsg, lParam);
+		delete pMsg;
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+//////////////////////////////////////////////////////////////////////////
 
 HINSTANCE UIApplication::m_hInstance = NULL;
 UIApplication::UIApplication(void)
@@ -99,6 +115,10 @@ UIApplication::~UIApplication(void)
 	}
 	m_vecUICreateData.clear();
 
+	if (m_WndForwardPostMsg.IsWindow())
+	{
+		m_WndForwardPostMsg.DestroyWindow();
+	}
 	::CoUninitialize(); // do not call CoInitialize, CoInitializeEx, or CoUninitialize from the DllMain function. 
 }
 
@@ -115,6 +135,9 @@ bool UIApplication::Initialize( const String& strUIProjXmlPath )
 
 	// 初始化Gdiplus
 	Image::InitGDIPlus();
+
+	// 创建一个用于转发消息的窗口，实现post ui message
+	m_WndForwardPostMsg.Create(HWND_MESSAGE);
 
 	return m_ProjectMgr.Initialize( strUIProjXmlPath );
 }

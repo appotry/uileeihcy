@@ -64,7 +64,7 @@ public:
 	void    OnMusicProgressPosChanged(int nPos, int nScrollType);
 	void    OnVolumnChanged(int nPos, int nScrollType);
     void    OnContextMenu(HWND wnd, POINT point);
-	void    OnMenuClick(MenuItem* pItem);
+	void    OnMenuClick(UINT nMenuID);
 	void    OnSysCommand(UINT nID, CPoint lParam);
 	
 	void    OnMp3Start(PlayerListItemInfo* pItemInfo);

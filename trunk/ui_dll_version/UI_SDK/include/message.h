@@ -11,6 +11,12 @@ enum
 	UI_WM_NOTIFY = WM_USER+WM_USER,
 
 	//
+	//	在ui中实现post message（稍后再响应）
+	//	见CForwardPostMessageWindow
+	//
+	UI_WM_POSTMESSAGE,
+
+	//
 	//	弹出提示条通知
 	//		message:UI_WM_SHOW_TOOLTIP
 	//		code:   0
@@ -196,6 +202,7 @@ class Message;
 // 
 // 消息通知函数
 long  UIAPI UISendMessage( UIMSG* pMsg, int nMsgMapID=0, BOOL* pbHandled = NULL );
+long  UIAPI UIPostMessage( UIMSG* pMsg, int nMsgMapID=0 );
 long  UIAPI UISendMessage( Message* pObjMsgTo, 
 						   UINT     message, 
 						   WPARAM   wParam=0,  
@@ -303,7 +310,7 @@ public:
 	virtual BOOL ProcessMessage( UIMSG* pMsg, int nMsgMapID=0 ) = 0 ;
 
 protected:
-	void DoNotify( UIMSG* pMsg );
+	void DoNotify( UIMSG* pMsg, bool bPost=false );
 	BOOL DoHook( UIMSG* pMsg, int nMsgMapID );
 };
 
@@ -1088,13 +1095,13 @@ protected:
 			return TRUE;                              \
 	}
 
-// void OnMenuClick(MenuItem* pItem);
+// void OnMenuClick(UINT nMenuID);
 #define UIMSG_MENU_CLICK(func)                        \
 	if( uMsg == UI_WM_NOTIFY  &&                      \
 		code == UI_MENU_CLICK )                       \
 	{                                                 \
 		SetMsgHandled(TRUE);                          \
-		func((MenuItem*)wParam);                     \
+		func((UINT)wParam);                           \
 		if(IsMsgHandled())                            \
 			return TRUE;                              \
 	}

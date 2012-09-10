@@ -219,6 +219,7 @@ namespace UI
 	void     UI_ReleaseCacheDC(HDC hDC);
 	void     UI_AddCreateWndData(_AtlCreateWndData* pData, void* pThis);
 	void*    UI_ExtractCreateWndData();
+	HWND     UI_GetForwardPostMessageWnd();
 
 	BOOL     UI_IsDialogMessage(MSG* pMsg);
 }
