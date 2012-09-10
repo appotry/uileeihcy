@@ -393,8 +393,9 @@ namespace UI
 				this->m_pNcChild = NULL;
 			}
 			
-			pThis->ClearHook();
-			pThis->ClearNotify();
+			// 不要清除hook/notify，因为换肤时需要保留这些信息
+// 			pThis->ClearHook();
+// 			pThis->ClearNotify();
 		}
 		void ClearParentObject()
 		{

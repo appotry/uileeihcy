@@ -498,12 +498,9 @@ void MainWindow::OnContextMenu( HWND wnd, POINT point )
 #endif
 }
 
-void MainWindow::OnMenuClick(MenuItem* pItem)
+void MainWindow::OnMenuClick(UINT nMenuID)
 {
-	if (NULL == pItem)
-		return;
-
-	switch( pItem->GetID() )
+	switch( nMenuID )
 	{
 	case 1001:
 		{		
@@ -520,13 +517,13 @@ void MainWindow::OnMenuClick(MenuItem* pItem)
 	}
 
 	int nCount = ::UI_GetSkinCount();
-	int nID = pItem->GetID();
+	int nID = nMenuID;
 	if (nID >= MENU_ID_SKIN_BASE &&  nID < (MENU_ID_SKIN_BASE+nCount))
 	{
 		int nActiveIndex = ::UI_GetActiveSkinIndex();
 		if( nID != nActiveIndex+MENU_ID_SKIN_BASE )
 		{
-			UI_ChangeSkin(pItem->GetID()-MENU_ID_SKIN_BASE);
+			UI_ChangeSkin(nMenuID-MENU_ID_SKIN_BASE);
 		}
 	}
 

@@ -32,6 +32,17 @@ struct UI_CREATE_DATA
 	s_UICreateInstancePtr  m_fun;
 };
 
+
+// 创建一个隐藏消息窗口，用于实现post ui message
+class CForwardPostMessageWindow : public CWindowImpl<CForwardPostMessageWindow>
+{
+public:
+// 	BEGIN_MSG_MAP_EX(CForwardPostMessageWindow)
+// 	END_MSG_MAP()
+	
+	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID = 0);
+};
+
 //
 //	全局对象
 //
@@ -77,13 +88,14 @@ public:
 
 	CREATE_WND_DATA  m_create_wnd_data;    // 配合UI_AddCreateWndData、UI_ExtractCreateWndData使用
 	CDCCache         m_dcCache;            // 配合UI_GetCacheDC、UI_ReleaseCacheDC使用
-
+	CForwardPostMessageWindow   m_WndForwardPostMsg;
 	
 private:
 	static HINSTANCE m_hInstance;          // 当前DLL句柄，用于扩展路径
 	bool             m_bDesignMode;        // 是否是设计模式
 
-	vector<UI_CREATE_DATA*>  m_vecUICreateData;
+	vector<UI_CREATE_DATA*>   m_vecUICreateData;
+
 };
 
 }

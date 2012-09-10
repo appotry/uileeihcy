@@ -115,7 +115,6 @@ long IRenderResource::Release()
 	m_dwRef--;
 	if( 0 >= m_dwRef )
 	{
-		m_dwRef = 0;
 		delete this;
 		return 0;
 	}
