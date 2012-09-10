@@ -8,18 +8,99 @@
 TTPlayerPlaylistCtrl::TTPlayerPlaylistCtrl()
 {
 	m_pPlayingItem = NULL;
+	m_pBkColor1 = NULL;
+	m_pBkColor2 = NULL;
+	m_pIndexTextColor = NULL;
+	m_pIndexTextColorSelect = NULL;
+	m_pIndexTextColorPlaying = NULL;
+	m_pTextColor = NULL;
+	m_pTextColorSelect = NULL;
+	m_pTextColorPlaying = NULL;
+	m_pTimeTextColor = NULL;
+	m_pTimeTextColorSelect = NULL;
+	m_pTimeTextColorPlaying = NULL;
+	m_pSelectBorderColor = NULL;
+	m_pSelectColor1 = NULL;
+	m_pSelectColor2 = NULL;
+
+}
+
+TTPlayerPlaylistCtrl::~TTPlayerPlaylistCtrl()
+{
+	SAFE_RELEASE(m_pBkColor1);
+	SAFE_RELEASE(m_pBkColor2);
+	SAFE_RELEASE(m_pIndexTextColor);
+	SAFE_RELEASE(m_pIndexTextColorSelect);
+	SAFE_RELEASE(m_pIndexTextColorPlaying);
+	SAFE_RELEASE(m_pTextColor);
+	SAFE_RELEASE(m_pTextColorSelect);
+	SAFE_RELEASE(m_pTextColorPlaying);
+	SAFE_RELEASE(m_pTimeTextColor);
+	SAFE_RELEASE(m_pTimeTextColorSelect);
+	SAFE_RELEASE(m_pTimeTextColorPlaying);
+	SAFE_RELEASE(m_pSelectBorderColor);
+	SAFE_RELEASE(m_pSelectColor1);
+	SAFE_RELEASE(m_pSelectColor2);
+
 }
 
 void TTPlayerPlaylistCtrl::ResetAttribute()
 {
 	__super::ResetAttribute();
+
+	SAFE_RELEASE(m_pBkColor1);
+	SAFE_RELEASE(m_pBkColor2);
+	SAFE_RELEASE(m_pIndexTextColor);
+	SAFE_RELEASE(m_pIndexTextColorSelect);
+	SAFE_RELEASE(m_pIndexTextColorPlaying);
+	SAFE_RELEASE(m_pTextColor);
+	SAFE_RELEASE(m_pTextColorSelect);
+	SAFE_RELEASE(m_pTextColorPlaying);
+	SAFE_RELEASE(m_pTimeTextColor);
+	SAFE_RELEASE(m_pTimeTextColorSelect);
+	SAFE_RELEASE(m_pTimeTextColorPlaying);
+	SAFE_RELEASE(m_pSelectBorderColor);
+	SAFE_RELEASE(m_pSelectColor1);
+	SAFE_RELEASE(m_pSelectColor2);
+
 	m_MgrScrollbar.SetScrollBarVisibleType(HSCROLLBAR, SCROLLBAR_VISIBLE_NONE);
 	m_MgrScrollbar.SetScrollBarVisibleType(VSCROLLBAR, SCROLLBAR_VISIBLE_AUTO);
 }
 
 bool TTPlayerPlaylistCtrl::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 {
-	return __super::SetAttribute(mapAttrib, bReload);
+	bool bRet = __super::SetAttribute(mapAttrib, bReload);
+	if (false == bRet)
+		return false;
+	
+#define GET_COLOR(xml, p) \
+	if (mapAttrib.count(xml)) \
+	{ \
+		const String& str = mapAttrib[xml]; \
+		UI_GetColor(str, &p); \
+		this->EraseAttribute(xml); \
+	}
+
+	GET_COLOR(XML_TTPLAYER_PLAYLIST_BKCOLOR1, m_pBkColor1);
+	GET_COLOR(XML_TTPLAYER_PLAYLIST_BKCOLOR2, m_pBkColor2);
+	GET_COLOR(XML_TTPLAYER_PLAYLIST_INDEX_TEXT_COLOR, m_pIndexTextColor);
+	GET_COLOR(XML_TTPLAYER_PLAYLIST_INDEX_TEXT_COLOR_SELECT, m_pIndexTextColorSelect);
+	GET_COLOR(XML_TTPLAYER_PLAYLIST_INDEX_TEXT_COLOR_PLAYING, m_pIndexTextColorPlaying);
+
+	GET_COLOR(XML_TTPLAYER_PLAYLIST_TEXT_COLOR, m_pTextColor);
+	GET_COLOR(XML_TTPLAYER_PLAYLIST_TEXT_COLOR_SELECT, m_pTextColorSelect);
+	GET_COLOR(XML_TTPLAYER_PLAYLIST_TEXT_COLOR_PLAYING, m_pTextColorPlaying);
+
+	GET_COLOR(XML_TTPLAYER_PLAYLIST_TIME_COLOR, m_pTimeTextColor);
+	GET_COLOR(XML_TTPLAYER_PLAYLIST_TIME_COLOR_SELECT, m_pTimeTextColorSelect);
+	GET_COLOR(XML_TTPLAYER_PLAYLIST_TIME_COLOR_PLAYING, m_pTimeTextColorPlaying);
+
+	GET_COLOR(XML_TTPLAYER_PLAYLIST_SELECT_BORDER_COLOR, m_pSelectBorderColor);
+	GET_COLOR(XML_TTPLAYER_PLAYLIST_SELECT_COLOR1, m_pSelectColor1);
+	GET_COLOR(XML_TTPLAYER_PLAYLIST_SELECT_COLOR2, m_pSelectColor2);
+
+
+	return true;
 }
 
 void TTPlayerPlaylistCtrl::SetPlayingItem(TTPlayerPlaylistItem* pCtrlItem)
@@ -50,57 +131,43 @@ void TTPlayerPlaylistCtrl::OnDrawItem(HRDC hRDC, ListItemBase* p)
 
 	if ( 0 == p->GetLineIndex()%2 )
 	{
-		::FillRect(hRDC, &rcItem, RGB(0,0,0));
+		if (NULL != m_pBkColor1)
+			::FillRect(hRDC, &rcItem, m_pBkColor1->GetColor());
 	}
 	else
 	{
-		::FillRect(hRDC, &rcItem, RGB(32,32,32));
+		if (NULL != m_pBkColor2)
+			::FillRect(hRDC, &rcItem, m_pBkColor2->GetColor());
 	}
 
-	COLORREF rgbText = RGB(0,128,255);
-	if (0/*NULL != m_pForegndRender*/)
+	COLORREF rgbText = m_pTextColor? m_pTextColor->GetColor():RGB(0,128,255);
+	
+	if (p->IsDisable())
 	{
-		if (p->IsDisable())
-		{
-			m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_DISABLE);
-		}
-		else if( m_pFirstSelectedItem == p || p->GetPrevSelection() != NULL || p->GetNextSelection() != NULL )
-		{
-			m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED);
-		}
-		else if( m_pPressItem == p )
-		{
-			m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_PRESS);
-		}
-		else if( NULL == m_pPressItem && m_pHoverItem == p )
-		{
-			m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_HOVER);
-		}
+
 	}
-	else
+	else if( m_pFirstSelectedItem == p || p->GetPrevSelection() != NULL || p->GetNextSelection() != NULL )
 	{
-		if (p->IsDisable())
-		{
+		COLORREF colBorder = m_pSelectBorderColor?m_pSelectBorderColor->GetColor():RGB(255,255,255);
+		COLORREF colSelect1 = m_pSelectColor1?m_pSelectColor1->GetColor():RGB(47,100,190);
+		COLORREF colSelect2 = m_pSelectColor2?m_pSelectColor2->GetColor():RGB(4,10,19);
 
-		}
-		else if( m_pFirstSelectedItem == p || p->GetPrevSelection() != NULL || p->GetNextSelection() != NULL )
-		{
-			GradientFillV(hRDC, &rcItem, RGB(47,100,190), RGB(4,10,19));
-			Rectangle(hRDC, &rcItem, RGB(255,255,255), NULL, 1, true);
+		GradientFillV(hRDC, &rcItem, colSelect1, colSelect2);
+		Rectangle(hRDC, &rcItem, colBorder, NULL, 1, true);
 
-			rgbText = RGB(255,255,255);
-		}
-		else if (m_pPlayingItem == p)  // 正在播放的歌曲
-		{
-			rgbText = RGB(0,255,0);
-		}
-		else if( m_pPressItem == p )
-		{
-		}
-		else if( NULL == m_pPressItem && m_pHoverItem == p )
-		{
-		}
+		rgbText = m_pTextColorSelect? m_pTextColorSelect->GetColor():RGB(255,255,255);
 	}
+	else if (m_pPlayingItem == p)  // 正在播放的歌曲
+	{
+		rgbText = m_pTextColorPlaying? m_pTextColorPlaying->GetColor() : RGB(0,255,0);
+	}
+	else if( m_pPressItem == p )
+	{
+	}
+	else if( NULL == m_pPressItem && m_pHoverItem == p )
+	{
+	}
+	
 
 	if (NULL != pItem && NULL != pItem->m_pItemInfo)
 	{

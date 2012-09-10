@@ -5,6 +5,25 @@ class PlayerListItemInfo;
 //////////////////////////////////////////////////////////////////////////
 // 模仿千千静听播放列表的自绘控件
 
+#define XML_TTPLAYER_PLAYLIST_BKCOLOR1   _T("bkcolor1")
+#define XML_TTPLAYER_PLAYLIST_BKCOLOR2   _T("bkcolor2")
+
+#define XML_TTPLAYER_PLAYLIST_INDEX_TEXT_COLOR          _T("indextextcolor")
+#define XML_TTPLAYER_PLAYLIST_INDEX_TEXT_COLOR_SELECT   _T("indextextcolor.select")
+#define XML_TTPLAYER_PLAYLIST_INDEX_TEXT_COLOR_PLAYING  _T("indextextcolor.playing")
+
+#define XML_TTPLAYER_PLAYLIST_TEXT_COLOR                _T("textcolor")
+#define XML_TTPLAYER_PLAYLIST_TEXT_COLOR_SELECT         _T("textcolor.select")
+#define XML_TTPLAYER_PLAYLIST_TEXT_COLOR_PLAYING        _T("textcolor.playing")
+
+#define XML_TTPLAYER_PLAYLIST_TIME_COLOR                _T("timetextcolor")
+#define XML_TTPLAYER_PLAYLIST_TIME_COLOR_SELECT         _T("timetextcolor.select")
+#define XML_TTPLAYER_PLAYLIST_TIME_COLOR_PLAYING        _T("timetextcolor.playing")
+
+#define XML_TTPLAYER_PLAYLIST_SELECT_BORDER_COLOR       _T("selectcolor.border")
+#define XML_TTPLAYER_PLAYLIST_SELECT_COLOR1             _T("selectcolor1")
+#define XML_TTPLAYER_PLAYLIST_SELECT_COLOR2             _T("selectcolor2")
+
 class TTPlayerPlaylistItem : public ListItemBase
 {
 public:
@@ -18,6 +37,7 @@ class TTPlayerPlaylistCtrl : public ListCtrlBase
 {
 public:
 	TTPlayerPlaylistCtrl();
+	~TTPlayerPlaylistCtrl();
 	UI_DECLARE_OBJECT( TTPlayerPlaylistCtrl, OBJ_CONTROL )
 
 public:
@@ -25,7 +45,7 @@ public:
 	virtual  bool SetAttribute(ATTRMAP& mapAttrib, bool bReload);
 
 public:
-	void    AddFileItem(PlayerListItemInfo* pItemInfo, bool bUpdate=true);
+	void     AddFileItem(PlayerListItemInfo* pItemInfo, bool bUpdate=true);
 
 	virtual  void OnDrawItem(HRDC hRDC, ListItemBase* p);
 	virtual  SIZE OnMeasureItem( ListItemBase* p);
@@ -39,6 +59,25 @@ protected:
 
 protected:
 	TTPlayerPlaylistItem*  m_pPlayingItem;
+	UIColor*   m_pBkColor1;
+	UIColor*   m_pBkColor2;
+	
+	UIColor*   m_pIndexTextColor;
+	UIColor*   m_pIndexTextColorSelect;
+	UIColor*   m_pIndexTextColorPlaying;
+
+	UIColor*   m_pTextColor;
+	UIColor*   m_pTextColorSelect;
+	UIColor*   m_pTextColorPlaying;
+
+	UIColor*   m_pTimeTextColor;
+	UIColor*   m_pTimeTextColorSelect;
+	UIColor*   m_pTimeTextColorPlaying;
+
+	UIColor*   m_pSelectBorderColor;
+	UIColor*   m_pSelectColor1;
+	UIColor*   m_pSelectColor2;
+
 };
 
 ////////////////////////////////////////////////////////////////////////// 

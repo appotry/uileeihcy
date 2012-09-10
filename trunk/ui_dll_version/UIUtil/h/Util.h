@@ -146,7 +146,7 @@ namespace UI { namespace Util {
 //	int  UIUTILAPI RectW( const RECT* prc );
 //	int  UIUTILAPI RectH( const RECT* prc );
 	void UIUTILAPI DeflatRect( RECT* pfc, RECT* pDeflatRc );
-
+	
 #endif
 
 #ifdef UTIL_DEBUG
@@ -164,8 +164,8 @@ namespace UI { namespace Util {
 #endif
 
 #ifdef UTIL_GDI
-	int UIUTILAPI FontSize2Height(int nSize);
-	int UIUTILAPI FontHeight2Size(int nHeight);
+	int  UIUTILAPI FontSize2Height(int nSize);
+	int  UIUTILAPI FontHeight2Size(int nHeight);
 
 	BOOL UIUTILAPI GradientFillH( HDC hDC, const RECT* prc, COLORREF colFrom, COLORREF colTo );
 	BOOL UIUTILAPI GradientFillV( HDC hDC, const RECT* prc, COLORREF colFrom, COLORREF colTo );

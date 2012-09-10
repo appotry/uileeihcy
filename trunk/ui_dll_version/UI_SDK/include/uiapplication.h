@@ -70,7 +70,7 @@ public:
 	//LogManager     m_MgrLog;
 	
 public:
-	ILogPtr          m_pLog;
+	CComPtr<ILog>    m_pLog;
 	TopWindowManager m_TopWindowMgr; 
 	ProjectManager   m_ProjectMgr;
 	RenderManager    m_RenderMgr;

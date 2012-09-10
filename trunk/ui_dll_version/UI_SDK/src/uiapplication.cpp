@@ -190,14 +190,16 @@ bool UIApplication::InitLog( const String& logXmlPath )
 	HRESULT hr = S_OK;
 	if ( NULL == m_pLog )
 	{
-		hr = m_pLog.CreateInstance(__uuidof(Log) );
+		hr = m_pLog.CoCreateInstance(__uuidof(Log) );
 		if( FAILED(hr) )
 			return false;
 	}
 	
-	_bstr_t bstr = logXmlPath.c_str();
-	hr = m_pLog->Load( bstr );
-	if( FAILED(hr))
+	//_bstr_t bstr = logXmlPath.c_str();
+	CComBSTR bstr(logXmlPath.c_str());
+	long lRet = 0;
+	hr = m_pLog->Load( bstr, &lRet );
+	if( FAILED(hr) || 0 == lRet )
 		return false;
 
 	return true;

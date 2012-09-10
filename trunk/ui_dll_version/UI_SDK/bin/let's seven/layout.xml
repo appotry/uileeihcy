@@ -50,9 +50,13 @@
         <Button id="playlist_mode" styleclass="imagebtn" tooltip="模式" bkgnd.render.image="playlist_mode.bmp" bkgnd.render.imagelist.layout="v"/>
       </Panel>
       <TTPlayerPlaylistCtrl id="playlistctrl" layout.left="16" layout.top="51"  layout.right="16"  layout.bottom="10"
-               foregnd.render.type="imageliststretch" foregnd.render.9region="1" foregnd.render.image="listbox.png"
-               foregnd.render.imagelist.count="5"  foregnd.render.imagelist.layout="v"
-               bkgnd.render.type="color" bkgnd.render.color="black"/>
+               bkgnd.render.type="color" bkgnd.render.color="playlistbk_color"
+               bkcolor2="playlistbk_color2" 
+               indextextcolor="playlist_textcolor_normal" textcolor="playlist_textcolor_normal" timetextcolor="playlist_textcolor_normal" 
+               indextextcolor.select="playlist_textcolor_select" textcolor.select="playlist_textcolor_select" timetextcolor.select="playlist_textcolor_select" 
+               indextextcolor.playing="playlist_textcolor_playing" textcolor.playing="playlist_textcolor_playing" timetextcolor.playing="playlist_textcolor_playing" 
+               selectcolor1="playlist_select_color1" selectcolor2="playlist_select_color2"
+                            />
     </CustomWindow>
     <CustomWindow id="equalizerdlg" layout.left="622" layout.top="365" width="322" height="165" 
                   bkgnd.render.type="imagesimple" bkgnd.render.image="eq_skin.png"
@@ -139,7 +143,7 @@
     <String id="1007" text="歌词秀"/>
     <String id="1008" text="均衡器"/>
     <Separator/>
-    <String id="1009" text="皮肤"/>
+    <Popup id="1009" text="皮肤"/>
     <String id="1010" text="透明"/>
     <String id="1011" text="查看"/>
     <Separator/>
@@ -302,6 +306,13 @@
     <item id="status_bk_color">0,0,0</item>
     <item id="time_color">255,255,255</item>
     <item id="border_color">137,140,149</item>
+    <item id="playlistbk_color">29,56,64</item>
+    <item id="playlistbk_color2">24,51,60</item>
+    <item id="playlist_textcolor_normal">84,142,165</item>
+    <item id="playlist_textcolor_select">255,255,255</item>
+    <item id="playlist_textcolor_playing">212,245,255</item>
+    <item id="playlist_select_color1">127,198,240</item>
+    <item id="playlist_select_color2">38,70,81</item>
   </color>
 </ui>
 

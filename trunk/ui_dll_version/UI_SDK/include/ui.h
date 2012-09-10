@@ -78,7 +78,12 @@ using namespace UI;
 #else
 #	pragma comment(lib,"..\\UI_SDK\\lib\\uiutil.lib")
 #endif
-#import "..\\UI_SDK\\bin\\UILog.dll" no_namespace named_guids  
+
+// 不需要使用import，直接include就行了
+//#import "..\\UI_SDK\\bin\\UILog.dll" no_namespace named_guids  
+// #include <comutil.h>  .. _bstr_t 的头文件
+// #pragma comment(lib, "comsuppw.lib") .. _bstr_t 的库文件
+#include "..\UILog\UILog_i.h"
 
 
 #include "define.h"

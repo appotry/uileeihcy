@@ -54,6 +54,8 @@ namespace UI
 		UI_END_MSG_MAP_CHAIN_PARENT(ListCtrlBase)
 
 		friend   class   MenuItem;
+		friend   class   PopupMenuWindow;
+
 	protected:
 		void     OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags );
 		void     OnLButtonDown(UINT nFlags, POINT point);
@@ -61,6 +63,8 @@ namespace UI
 		void     OnTimer(UINT_PTR nIDEvent, LPARAM lParam);
 		LRESULT  OnGetRenderType();
 		void     OnMouseMove(UINT nFlags, CPoint point);
+		void     OnSubMenuMouseMove(MenuBase* pSubMenu);
+		void     SetReturnCmd(UINT n) { m_nRetCmd = n; }
 
 		void     ShowPopupSubMenu(MenuItem* pItem);
 		void     HidePopupSubMenu();
@@ -69,20 +73,22 @@ namespace UI
 		void     DestroyPopupWindow();
 		bool     IsItemHilight(MenuItem* p);
 
-	public:
-		int       GetMenuItemCount();
-		int       TrackPopupMenu(UINT nFlag, int x, int y, Message* pNotifyObj);
-		MenuItem* AppendMenu(UINT uFlags, UINT_PTR uIDNewItem, LPCTSTR lpNewItem);
-		HWND      GetPopupWindowHandle();
-		void      SetReturnCmd(UINT n) { m_nRetCmd = n; }
-		void      OnSubMenuMouseMove(MenuBase* pSubMenu);
-
 		MenuBase* GetPrevMenu() { return m_pPrevMenu; }
 		MenuBase* GetNextMenu() { return m_pNextMenu; }
 		MenuBase* GetRootMenu();
 		MenuBase* GetLastMenu();
 		MenuBase* GetMenuByHWND(HWND hWnd);
 		MenuBase* GetMenuByPos(POINT ptScreen);
+		HWND      GetPopupWindowHandle();
+
+	public:
+		int       GetMenuItemCount();
+		int       TrackPopupMenu(UINT nFlag, int x, int y, Message* pNotifyObj);
+		MenuItem* AppendMenu(UINT uFlags, UINT_PTR uIDNewItem, LPCTSTR lpNewItem);
+		MenuBase* GetSubMenuByPos(int nPos);
+		MenuBase* GetSubMenuByID(int nID);
+		MenuItem* GetMenuItemByPos(int nPos);
+		MenuItem* GetMenuItemByID(int nID);
 
 		virtual  void OnDrawItem( HRDC hRDC, ListItemBase* p ) ;
 		virtual  SIZE OnMeasureItem( ListItemBase* p);

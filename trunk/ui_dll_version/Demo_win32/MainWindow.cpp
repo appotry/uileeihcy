@@ -411,6 +411,7 @@ void MainWindow::OnSysCommand(UINT nID, CPoint lParam)
 	}
 }
 
+#define MENU_ID_SKIN_BASE 900
 void MainWindow::OnContextMenu( HWND wnd, POINT point )
 {
 	if( this->GetHoverObject() != NULL )
@@ -463,76 +464,38 @@ void MainWindow::OnContextMenu( HWND wnd, POINT point )
 	if (NULL == pMenu)
 		return;
 
+
+
+	MenuBase* pSkinMenuItem = pMenu->GetSubMenuByPos(12);
+	if (NULL != pSkinMenuItem)
+	{
+		// 皮肤列表
+		int nCount = ::UI_GetSkinCount();
+		int nActiveIndex = ::UI_GetActiveSkinIndex();
+		for( int i = 0; i < nCount; i++ )
+		{
+			int nSize = ::UI_GetSkinName( i, NULL, 0 );
+			TCHAR* pszName = new TCHAR[nSize];
+			nSize = ::UI_GetSkinName( i, pszName, nSize );
+			String strSkinName = pszName ;
+			delete [] pszName;
+			pszName = NULL;
+
+			UINT nFlag = MF_STRING;
+			if( nActiveIndex == i )
+			{
+				nFlag |= MF_CHECKED;
+			}
+			pSkinMenuItem->AppendMenu(nFlag, i+MENU_ID_SKIN_BASE, strSkinName.c_str() );
+		}
+	}
+
 	POINT pt;
 	GetCursorPos(&pt);
 	pMenu->TrackPopupMenu(0,pt.x,pt.y, static_cast<Message*>(this));
 
 	SAFE_DELETE(pMenu);
 #endif
-	return;
-
-#define MENU_ID_OPTION    1
-#define MENU_ID_SKIN_BASE 1000
-
-	HMENU hMenu = ::CreatePopupMenu();
-	HMENU hSkinListMenu = ::CreatePopupMenu();
-	::AppendMenu(hMenu, MF_STRING, (UINT_PTR)MENU_ID_OPTION, _T("选项") );
-	::AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hSkinListMenu, _T("皮肤") );
-
-	// 皮肤列表
-	int nCount = ::UI_GetSkinCount();
-	int nActiveIndex = ::UI_GetActiveSkinIndex();
-	for( int i = 0; i < nCount; i++ )
-	{
-		int nSize = ::UI_GetSkinName( i, NULL, 0 );
-		TCHAR* pszName = new TCHAR[nSize];
-		nSize = ::UI_GetSkinName( i, pszName, nSize );
-		String strSkinName = pszName ;
-		delete [] pszName;
-		pszName = NULL;
-
-		UINT nFlag = MF_STRING;
-		if( nActiveIndex == i )
-		{
-			nFlag |= MF_CHECKED;
-		}
-		::AppendMenu(hSkinListMenu, nFlag, i+MENU_ID_SKIN_BASE, strSkinName.c_str() );
-	}
-
-	
-	UINT nRet = ::TrackPopupMenu(hMenu, TPM_RETURNCMD, point.x, point.y, 0, m_hWnd, NULL );
-	::DestroyMenu(hSkinListMenu);
-	::DestroyMenu(hMenu);
-	hMenu = NULL;
-	hSkinListMenu = NULL;
-
-
-	if( nRet >= MENU_ID_SKIN_BASE )
-	{
-		if( nRet != nActiveIndex+MENU_ID_SKIN_BASE )
-		{
-			UI_ChangeSkin(nRet-MENU_ID_SKIN_BASE);
-		}
-	}
-	else
-	{
-		switch(nRet)
-		{
-		case MENU_ID_OPTION:
-			{
-				COptionWindow win;
-				win.DoModal(g_hInstance, COptionWindow::IDD, _T("OptionWindow"),m_hWnd);
-				//win.DoModal(_T("OptionWindow"),m_hWnd);
-				//win.DoModeless(g_hInstance, COptionWindow::IDD, _T("OptionWindow"),m_hWnd);
-				//win.DoModeless(_T("OptionWindow"),m_hWnd);
-				//win.ShowWindow();
-			}
-			break;
-		default:
-			
-			break;
-		}
-	}
 }
 
 void MainWindow::OnMenuClick(MenuItem* pItem)
@@ -555,6 +518,18 @@ void MainWindow::OnMenuClick(MenuItem* pItem)
 		}
 		break;
 	}
+
+	int nCount = ::UI_GetSkinCount();
+	int nID = pItem->GetID();
+	if (nID >= MENU_ID_SKIN_BASE &&  nID < (MENU_ID_SKIN_BASE+nCount))
+	{
+		int nActiveIndex = ::UI_GetActiveSkinIndex();
+		if( nID != nActiveIndex+MENU_ID_SKIN_BASE )
+		{
+			UI_ChangeSkin(pItem->GetID()-MENU_ID_SKIN_BASE);
+		}
+	}
+
 }
 
 void MainWindow::OnMusicProgressPosChanged( int nPos, int nScrollType )

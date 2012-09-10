@@ -96,6 +96,7 @@ namespace UI
 	class IScrollBarRender : public Message
 	{
 	public:
+		virtual ~IScrollBarRender() = 0{} ;
 		IScrollBarRender(ScrollBarBase* p){ m_pScrollBar = p; }
 		virtual SCROLLBAR_DIRECTION_TYPE GetScrollBarDirType() = 0;
 		virtual bool  SetAttribute(ATTRMAP& mapAttrib) = 0;
