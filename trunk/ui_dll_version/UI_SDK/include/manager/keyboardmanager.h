@@ -27,6 +27,7 @@ public:
 	Object*  GetOldFocusObject( bool bRemove = true );
 	
 	void     OnObjectHideInd(Object* pObj);
+	void     OnObjectDeleteInd(Object* pObj);
 
 private:
 	void     KillFocus(HWND hFocusWnd);

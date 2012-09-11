@@ -31,6 +31,9 @@ public:
 	Object*  GetHoverObject();
 	Object*  GetPressObject();
 
+	void     OnObjectHideInd(Object* pObj);
+	void     OnObjectDeleteInd(Object* pObj);
+
 private:
 	LRESULT  MouseMove ( int vkFlag, int xPos, int yPos );
 	LRESULT  MouseLeave( int vkFlag, int xPos, int yPos );

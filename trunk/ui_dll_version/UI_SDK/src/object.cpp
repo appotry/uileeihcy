@@ -34,6 +34,14 @@ Object::~Object(void)
 void Object::InitialRelease()
 {
 	this->DestroyUI();  
+
+	// 防止调用中途或者换肤过程中，一些对象突然被销毁，导致的野指针错误
+	WindowBase* pWindow = GetWindowObject();
+	if (NULL != pWindow)
+	{
+		pWindow->GetKeyboardMgr().OnObjectDeleteInd(this);
+		pWindow->GetMouseMgr().OnObjectDeleteInd(this);
+	}
 }
 
 void Object::DestroyUI()
@@ -1130,6 +1138,7 @@ void Object::SetVisible( bool b, bool bUpdateNow )
 		if (NULL != pWindow)
 		{
 			pWindow->GetKeyboardMgr().OnObjectHideInd(this);
+			pWindow->GetMouseMgr().OnObjectHideInd(this);
 		}
 	}
 }

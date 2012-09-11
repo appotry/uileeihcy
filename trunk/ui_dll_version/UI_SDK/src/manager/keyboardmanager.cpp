@@ -274,3 +274,18 @@ void KeyboardManager::OnObjectHideInd(Object* pObj)
 		this->Tab_2_NextControl();
 	}
 }
+
+void KeyboardManager::OnObjectDeleteInd(Object* pObj)
+{
+	if( NULL == pObj )
+		return;
+
+	if (pObj == m_pFocusObject)
+	{
+		m_pFocusObject = NULL;
+	}
+	if (pObj == m_pOldFocusObject)
+	{
+		m_pOldFocusObject = NULL;
+	}
+}

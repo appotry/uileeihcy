@@ -454,6 +454,7 @@ namespace UI
 		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
 
 		void DrawNormal( HRDC hRDC, const CRect* prc );
+		void DrawHover( HRDC hRDC, const CRect* prc );
 		void DrawDisable( HRDC hRDC, const CRect* prc );
 	};
 
@@ -464,6 +465,7 @@ namespace UI
 		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
 
 		void DrawNormal( HRDC hRDC, const CRect* prc );
+		void DrawHover( HRDC hRDC, const CRect* prc );
 		void DrawDisable( HRDC hRDC, const CRect* prc );
 	};
 

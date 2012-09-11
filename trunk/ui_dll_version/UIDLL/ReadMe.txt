@@ -181,6 +181,8 @@
 77. 菜单项radio check功能	
 78. 将layout.xml增加一个<#include>标签，允许将一些资源抽取出来 
 	
+80. 需要解决鼠标同时在两个popup menuitem上移动时，需要将上一个popup menu隐藏
+	
 疑问：
 1. Message类是否需要一个 m_pCurMsg成员变量？
  
@@ -232,6 +234,9 @@ RedrawWindow(hwnd,
              NULL, 
              RDW_ERASE | RDW_INVALIDATE | RDW_FRAME | RDW_ALLCHILDREN);
              
+79. 换肤后，点击滚动条的line down，崩溃	             
+    换肤前line down button 为 focus对象保存在keyboard mgr中，换肤过程中该对象被销毁，导致后面在切换焦点时
+    继续引用原指针而崩溃
 	 
 CMFCPopupMenu::RecalcLayout, afxmenupopup.cpp L630
 CRect rectScreen;
