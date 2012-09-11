@@ -10,9 +10,11 @@ namespace UI
 
 		const String& GetText() { return m_strText; }
 
-		bool  IsSeparator() { return m_nFlag&MF_SEPARATOR ? true:false; }
-		bool  IsPopup() { return m_nFlag&MF_POPUP ? true:false; }
-		bool  IsDisable() { return m_nFlag&MF_DISABLED ? true:false; }
+		bool  IsSeparator()    { return m_nFlag&MF_SEPARATOR   ? true:false; }
+		bool  IsPopup()        { return m_nFlag&MF_POPUP       ? true:false; }
+		bool  IsDisable()      { return m_nFlag&MF_DISABLED    ? true:false; }
+		bool  IsChecked()      { return m_nFlag&MF_CHECKED     ? true:false; }
+		bool  IsRadioChecked() { return m_nFlag&MFT_RADIOCHECK ? true:false; }
 		
 		void  SetFlag(UINT nFlag){ m_nFlag = nFlag; }
 		void  SetID(UINT nID) { m_nID = nID; }
@@ -115,6 +117,8 @@ namespace UI
 		// 绘制相关
 		RenderBase*  m_pSeperatorRender;
 		RenderBase*  m_pPopupTriangleRender;
+		RenderBase*  m_pRadioIconRender;
+		RenderBase*  m_pCheckIconRender;
 
 		int        m_nIconGutterWidth;    // 菜单左侧图标列 的宽度
 		int        m_nTextMarginLeft;

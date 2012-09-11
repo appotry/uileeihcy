@@ -142,11 +142,12 @@ void TTPlayerPlaylistCtrl::OnDrawItem(HRDC hRDC, ListItemBase* p)
 
 	COLORREF rgbText = m_pTextColor? m_pTextColor->GetColor():RGB(0,128,255);
 	
-	if (p->IsDisable())
-	{
-
-	}
-	else if( m_pFirstSelectedItem == p || p->GetPrevSelection() != NULL || p->GetNextSelection() != NULL )
+// 	if (p->IsDisable())
+// 	{
+// 
+// 	}
+// 	else
+	if( m_pFirstSelectedItem == p || p->GetPrevSelection() != NULL || p->GetNextSelection() != NULL )
 	{
 		COLORREF colBorder = m_pSelectBorderColor?m_pSelectBorderColor->GetColor():RGB(255,255,255);
 		COLORREF colSelect1 = m_pSelectColor1?m_pSelectColor1->GetColor():RGB(47,100,190);
@@ -337,6 +338,13 @@ void CPlayListDlg::OnBtnClickMode(Object* pBtnObj, POINT* pt)
 	Menu* pMenu = UI_LoadMenu(_T("menu_playlist_mode"));
 	if (NULL == pMenu)
 		return;
+
+	PLAY_MODE eMode = GetPlayerListMgr()->GetPlayMode();
+	MenuItem* pMenuItem = pMenu->GetMenuItemByPos((int)eMode);
+	if (NULL != pMenuItem)
+	{
+		pMenuItem->SetFlag(pMenuItem->GetFlag() | MF_CHECKED);
+	}
 
 	CRect rc;
 	pBtnObj->GetWindowRect(&rc);

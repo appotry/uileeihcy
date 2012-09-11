@@ -40,6 +40,16 @@ namespace UI
 #define MENU_STRING_ITEM_RENDER_STATE_PRESS     2
 #define MENU_STRING_ITEM_RENDER_STATE_DISABLE   3
 
+#define MENU_ITEM_CHECKED_RENDER_STATE_NORMAL   0
+#define MENU_ITEM_CHECKED_RENDER_STATE_HOVER    1
+#define MENU_ITEM_CHECKED_RENDER_STATE_PRESS    2
+#define MENU_ITEM_CHECKED_RENDER_STATE_DISABLE  3
+
+#define MENU_ITEM_RADIO_RENDER_STATE_NORMAL   0
+#define MENU_ITEM_RADIO_RENDER_STATE_HOVER    1
+#define MENU_ITEM_RADIO_RENDER_STATE_PRESS    2
+#define MENU_ITEM_RADIO_RENDER_STATE_DISABLE  3
+
 #define MENU_POPUPTRIANGLE_RENDER_STATE_NORMAL  0
 #define MENU_POPUPTRIANGLE_RENDER_STATE_HOVER   1
 #define MENU_POPUPTRIANGLE_RENDER_STATE_PRESS   2
@@ -437,6 +447,25 @@ namespace UI
 		void DrawNormal( HRDC hRDC, const CRect* prc );
 	};
 
+	class MenuCheckedIconThemeRender : public ThemeRenderBase
+	{
+	public:
+		virtual const TCHAR* GetThemeName() { return _T("MENU"); }
+		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
+
+		void DrawNormal( HRDC hRDC, const CRect* prc );
+		void DrawDisable( HRDC hRDC, const CRect* prc );
+	};
+
+	class MenuRadioIconThemeRender : public ThemeRenderBase
+	{
+	public:
+		virtual const TCHAR* GetThemeName() { return _T("MENU"); }
+		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
+
+		void DrawNormal( HRDC hRDC, const CRect* prc );
+		void DrawDisable( HRDC hRDC, const CRect* prc );
+	};
 
 	//////////////////////////////////////////////////////////////////////////
 

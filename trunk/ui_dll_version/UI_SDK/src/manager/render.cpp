@@ -213,13 +213,17 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 	{
 		pRender = new MenuSeperatorThemeRender();
 	}
-// 	else if (RENDER_TYPE_THEME_MENUICONBK == eType)
-// 	{
-// 		pRender = new MenuIconBkThemeRender();
-// 	}
 	else if (RENDER_TYPE_THEME_MENUPOPUPTRIANGLE == eType)
 	{
 		pRender = new MenuPopupTriangleRender();
+	}
+	else if (RENDER_TYPE_THEME_MENUCHECKICON == eType)
+	{
+		pRender = new MenuCheckedIconThemeRender();
+	}
+	else if (RENDER_TYPE_THEME_MENURADIOICON == eType)
+	{
+		pRender = new MenuRadioIconThemeRender();
 	}
 	else
 	{
@@ -2239,6 +2243,131 @@ void MenuSeperatorThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 	ReleaseHDC(hRDC, hDC);
 }
 
+
+//////////////////////////////////////////////////////////////////////////
+
+void MenuCheckedIconThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+{
+	switch(nState)
+	{
+	case MENU_ITEM_CHECKED_RENDER_STATE_DISABLE:
+		this->DrawDisable(hRDC, prc);
+		break;
+	default:
+		this->DrawNormal(hRDC, prc);
+		break;
+	}
+}
+
+void MenuCheckedIconThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECKBACKGROUND, MCB_NORMAL, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
+		}
+		hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECK, MC_CHECKMARKNORMAL, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
+		}
+	}
+	else
+	{
+
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+
+
+void MenuCheckedIconThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECKBACKGROUND, MCB_DISABLED, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
+		}
+		hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECK, MC_CHECKMARKDISABLED, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
+		}
+	}
+	else
+	{
+
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+
+void MenuRadioIconThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+{
+	switch(nState)
+	{
+	case MENU_ITEM_RADIO_RENDER_STATE_DISABLE:
+		this->DrawDisable(hRDC, prc);
+		break;
+	default:
+		this->DrawNormal(hRDC, prc);
+		break;
+	}
+}
+
+void MenuRadioIconThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECKBACKGROUND, MCB_NORMAL, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
+		}
+		hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECK, MC_BULLETNORMAL, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
+		}
+	}
+	else
+	{
+
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+
+
+void MenuRadioIconThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECK, MC_BULLETDISABLED, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
+		}
+		hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECKBACKGROUND, MCB_DISABLED, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
+		}
+	}
+	else
+	{
+
+	}
+	ReleaseHDC(hRDC, hDC);
+}
 
 //////////////////////////////////////////////////////////////////////////
 

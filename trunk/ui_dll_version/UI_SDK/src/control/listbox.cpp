@@ -7,8 +7,6 @@ ListItemBase::ListItemBase(ListCtrlBase* pCtrl)
 	m_pPrev = m_pNext = m_pPrevSelection = m_pNextSelection = NULL;
 	m_rcParent.SetRectEmpty();
 
-	m_bDisable = false;
-	m_bChecked = false;
 	m_pData = NULL;
 	m_pListCtrl = pCtrl;
 }
@@ -1151,11 +1149,12 @@ void ListBox::OnDrawItem(HRDC hRDC, ListItemBase* p)
 		}
 		else
 		{
-			if (p->IsDisable())
-			{
-				m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_DISABLE);
-			}
-			else if( m_pFirstSelectedItem == p || p->GetPrevSelection() != NULL || p->GetNextSelection() != NULL )
+// 			if (p->IsDisable())
+// 			{
+// 				m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_DISABLE);
+// 			}
+// 			else 
+			if( m_pFirstSelectedItem == p || p->GetPrevSelection() != NULL || p->GetNextSelection() != NULL )
 			{
 				m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED);
 			}

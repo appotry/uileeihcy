@@ -32,8 +32,6 @@ namespace UI
 		CRect   GetParentRect() { return m_rcParent; }
 		void    GetParentRect(CRect* prc){ prc->CopyRect(&m_rcParent); }
 		void    SetParentRect(CRect* prc){ m_rcParent.CopyRect(prc); }
-		bool    IsDisable() { return m_bDisable; }
-		bool    IsChecked() { return m_bChecked; }
 
 		void*   GetData(){ return m_pData; }
 		void    SetData(void* p) { m_pData = p; }
@@ -67,9 +65,6 @@ namespace UI
 
 		ListItemBase*  m_pNextSelection;  // 下一个被选中的对象(自己已被选中)
 		ListItemBase*  m_pPrevSelection;  // 上一个被选中的对象(自己已被选中)
-
-		bool           m_bDisable;        // 该项是否被禁用（如菜单项）
-		bool           m_bChecked;        // 该基是否被标记（如菜单项）
 
 		void*          m_pData;           
 		ListCtrlBase*  m_pListCtrl;
