@@ -2253,6 +2253,9 @@ void MenuCheckedIconThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nSta
 	case MENU_ITEM_CHECKED_RENDER_STATE_DISABLE:
 		this->DrawDisable(hRDC, prc);
 		break;
+	case MENU_ITEM_CHECKED_RENDER_STATE_HOVER:
+		this->DrawHover(hRDC, prc);
+		break;
 	default:
 		this->DrawNormal(hRDC, prc);
 		break;
@@ -2277,11 +2280,55 @@ void MenuCheckedIconThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 	}
 	else
 	{
+		// 注：直接使用DrawFrameControl得到的图片是白底黑字（√）的，因此需要进行二次处理
+		//     将白色背景去掉。见MSDN
+		HDC hMemDC = UI_GetCacheDC();
+		HBITMAP hBitmap = ::CreateCompatibleBitmap(hMemDC, prc->Width(), prc->Height());
+		HBITMAP hOldBmp = (HBITMAP)::SelectObject(hMemDC, hBitmap);
 
+		RECT rc = {0,0, prc->Width(), prc->Height()};
+		::DrawFrameControl(hMemDC, (LPRECT)&rc, DFC_MENU, DFCS_MENUCHECK);
+		::BitBlt(hDC, prc->left, prc->top, prc->Width(), prc->Height(), hMemDC, 0,0, SRCAND);
+
+		SelectObject(hMemDC, hOldBmp);
+		SAFE_DELETE_GDIOBJECT(hBitmap);
+		UI_ReleaseCacheDC(hMemDC);
 	}
 	ReleaseHDC(hRDC, hDC);
 }
 
+void MenuCheckedIconThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECKBACKGROUND, MCB_NORMAL, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
+		}
+		hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECK, MC_CHECKMARKNORMAL, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
+		}
+	}
+	else
+	{
+		HDC hMemDC = UI_GetCacheDC();
+		HBITMAP hBitmap = ::CreateCompatibleBitmap(hMemDC, prc->Width(), prc->Height());
+		HBITMAP hOldBmp = (HBITMAP)::SelectObject(hMemDC, hBitmap);
+
+		RECT rc = {0,0, prc->Width(), prc->Height()};
+		::DrawFrameControl(hMemDC, (LPRECT)&rc, DFC_MENU, DFCS_MENUCHECK);
+		::BitBlt(hDC, prc->left, prc->top, prc->Width(), prc->Height(), hMemDC, 0,0, MERGEPAINT);
+
+		SelectObject(hMemDC, hOldBmp);
+		SAFE_DELETE_GDIOBJECT(hBitmap);
+		UI_ReleaseCacheDC(hMemDC);
+	}
+	ReleaseHDC(hRDC, hDC);
+}
 
 void MenuCheckedIconThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
 {
@@ -2301,7 +2348,18 @@ void MenuCheckedIconThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
 	}
 	else
 	{
+		// TODO: 有办法绘制Disable状态的样式吗？
+		HDC hMemDC = UI_GetCacheDC();
+		HBITMAP hBitmap = ::CreateCompatibleBitmap(hMemDC, prc->Width(), prc->Height());
+		HBITMAP hOldBmp = (HBITMAP)::SelectObject(hMemDC, hBitmap);
 
+		RECT rc = {0,0, prc->Width(), prc->Height()};
+		::DrawFrameControl(hMemDC, (LPRECT)&rc, DFC_MENU, DFCS_MENUCHECK);
+		::BitBlt(hDC, prc->left, prc->top, prc->Width(), prc->Height(), hMemDC, 0,0, SRCAND);
+
+		SelectObject(hMemDC, hOldBmp);
+		SAFE_DELETE_GDIOBJECT(hBitmap);
+		UI_ReleaseCacheDC(hMemDC);
 	}
 	ReleaseHDC(hRDC, hDC);
 }
@@ -2315,6 +2373,9 @@ void MenuRadioIconThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState
 	{
 	case MENU_ITEM_RADIO_RENDER_STATE_DISABLE:
 		this->DrawDisable(hRDC, prc);
+		break;
+	case MENU_ITEM_RADIO_RENDER_STATE_HOVER:
+		this->DrawHover(hRDC, prc);
 		break;
 	default:
 		this->DrawNormal(hRDC, prc);
@@ -2340,11 +2401,53 @@ void MenuRadioIconThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 	}
 	else
 	{
+		HDC hMemDC = UI_GetCacheDC();
+		HBITMAP hBitmap = ::CreateCompatibleBitmap(hMemDC, prc->Width(), prc->Height());
+		HBITMAP hOldBmp = (HBITMAP)::SelectObject(hMemDC, hBitmap);
 
+		RECT rc = {0,0, prc->Width(), prc->Height()};
+		::DrawFrameControl(hMemDC, (LPRECT)&rc, DFC_MENU, DFCS_MENUBULLET);
+		::BitBlt(hDC, prc->left, prc->top, prc->Width(), prc->Height(), hMemDC, 0,0, SRCAND);
+
+		SelectObject(hMemDC, hOldBmp);
+		SAFE_DELETE_GDIOBJECT(hBitmap);
+		UI_ReleaseCacheDC(hMemDC);
 	}
 	ReleaseHDC(hRDC, hDC);
 }
 
+void MenuRadioIconThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECKBACKGROUND, MCB_NORMAL, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
+		}
+		hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECK, MC_BULLETNORMAL, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
+		}
+	}
+	else
+	{
+		HDC hMemDC = UI_GetCacheDC();
+		HBITMAP hBitmap = ::CreateCompatibleBitmap(hMemDC, prc->Width(), prc->Height());
+		HBITMAP hOldBmp = (HBITMAP)::SelectObject(hMemDC, hBitmap);
+
+		RECT rc = {0,0, prc->Width(), prc->Height()};
+		::DrawFrameControl(hMemDC, (LPRECT)&rc, DFC_MENU, DFCS_MENUBULLET);
+		::BitBlt(hDC, prc->left, prc->top, prc->Width(), prc->Height(), hMemDC, 0,0, MERGEPAINT);
+
+		SelectObject(hMemDC, hOldBmp);
+		SAFE_DELETE_GDIOBJECT(hBitmap);
+		UI_ReleaseCacheDC(hMemDC);
+	}
+	ReleaseHDC(hRDC, hDC);
+}
 
 void MenuRadioIconThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
 {
@@ -2364,7 +2467,17 @@ void MenuRadioIconThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
 	}
 	else
 	{
+		HDC hMemDC = UI_GetCacheDC();
+		HBITMAP hBitmap = ::CreateCompatibleBitmap(hMemDC, prc->Width(), prc->Height());
+		HBITMAP hOldBmp = (HBITMAP)::SelectObject(hMemDC, hBitmap);
 
+		RECT rc = {0,0, prc->Width(), prc->Height()};
+		::DrawFrameControl(hMemDC, (LPRECT)&rc, DFC_MENU, DFCS_MENUBULLET);
+		::BitBlt(hDC, prc->left, prc->top, prc->Width(), prc->Height(), hMemDC, 0,0, SRCAND);
+
+		SelectObject(hMemDC, hOldBmp);
+		SAFE_DELETE_GDIOBJECT(hBitmap);
+		UI_ReleaseCacheDC(hMemDC);
 	}
 	ReleaseHDC(hRDC, hDC);
 }

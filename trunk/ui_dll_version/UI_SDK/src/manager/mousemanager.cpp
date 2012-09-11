@@ -564,6 +564,24 @@ void MouseManager::NcDestroy()
 	m_pObjHover = m_pObjPress = NULL;  // 不调用SetHoverObject/SetPressObject
 }
 
+void MouseManager::OnObjectHideInd(Object* pObj)
+{
+	this->OnObjectDeleteInd(pObj);
+}
+void MouseManager::OnObjectDeleteInd(Object* pObj)
+{
+	if (NULL == pObj)
+		return;
+	if (m_pObjHover == pObj)
+	{
+		m_pObjHover = NULL;
+	}
+	if (m_pObjPress == pObj)
+	{
+		m_pObjPress = NULL;
+	}
+}
+
 //
 //	[递归+遍历] [public] [static] 
 //

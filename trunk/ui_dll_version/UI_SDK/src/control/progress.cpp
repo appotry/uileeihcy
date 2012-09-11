@@ -144,6 +144,7 @@ void SliderCtrlBase::ResetAttribute()
 	if( NULL != m_pButton )
 	{
 		m_pButton->ResetAttribute();
+		m_pButton->SetObjectPos(0,0,0,0,SWP_NOMOVE|SWP_NOREDRAW); // 强制换肤后，刷新按钮的大小 TODO: 优化整个逻辑
 	}
 }	
 bool SliderCtrlBase::SetAttribute( map<String,String>& mapAttrib, bool bReload )
@@ -199,10 +200,7 @@ void SliderCtrlBase::SetRange(int nLower, int nUpper, bool bUpdate)
 	if( m_nCur < m_nMin )
 		m_nCur = m_nMin;
 
-	if (this->GetProgressStyle() & PROGRESS_STYLE_SCROLLBAR)
-		this->UpdateUIData(true, true);
-	else
-		this->UpdateUIData(false, true);
+	this->UpdateUIData(false, true);
 
 	if (bUpdate)
 		this->UpdateObject();
@@ -212,19 +210,12 @@ int SliderCtrlBase::SetPage(int nPage, bool bUpdate)
 	int nOldPage = m_nScrollPage;
 	m_nScrollPage = nPage;
 
-/*	int nRange = GetRange();*/
-
 	if (m_nScrollPage < 0)
 		m_nScrollPage = 0;
-// 	if (m_nScrollPage > nRange)
-// 		m_nScrollPage = nRange;
 
 	if (nOldPage != m_nScrollPage)
 	{
-		if (this->GetProgressStyle() & PROGRESS_STYLE_SCROLLBAR)
-			this->UpdateUIData(true, true);
-		else
-			this->UpdateUIData(false, true);
+		this->UpdateUIData(false, true);
 		if (bUpdate)
 			this->UpdateObject();
 	}
@@ -381,66 +372,13 @@ void SliderCtrlBase::UpdateUIData(bool bCalBeginEnd, bool bUpdateButtonRect)
 	SIZE s = {0,0};
 	if(NULL != m_pButton)
 	{
-		if (this->GetProgressStyle() & PROGRESS_STYLE_SCROLLBAR)
+		s.cx = m_pButton->GetWidth();
+		s.cy = m_pButton->GetHeight();
+
+		if(s.cx == 0 || s.cy == 0)
 		{
-			switch(m_eDirectionType)
-			{
-			case PROGRESS_SCROLL_BOTTOM_2_TOP:
-			case PROGRESS_SCROLL_TOP_2_BOTTOM:
-				{
-					int nRange = m_nMax - m_nMin;
-					if(nRange == 0) nRange = 1;
-
-					int nBtnLength = 0;
-					if (m_nScrollPage < nRange)
-					{
-						nBtnLength = this->GetHeight() * m_nScrollPage / nRange;
-						if (nBtnLength < 10)
-							nBtnLength = 10; // 最小大小
-					}
-
-					if (nBtnLength<0)
-						nBtnLength = 0;
-
-					s.cx = this->GetWidth();
-					s.cy = nBtnLength;
-				}
-				break;
-
-			case PROGRESS_SCROLL_LEFT_2_RIGHT:
-			case PROGRESS_SCROLL_RIGHT_2_LEFT:
-				{
-					int nRange = GetRange();
-					if(nRange == 0) nRange = 1;
-
-					int nBtnLength = 0;
-					if (m_nScrollPage < nRange)
-					{
-						nBtnLength = this->GetWidth() * m_nScrollPage / nRange;
-						if (nBtnLength < 10)
-							nBtnLength = 10; // 最小大小
-					}
-
-					if (nBtnLength<0)
-						nBtnLength = 0;
-
-					s.cy = this->GetHeight();
-					s.cx = nBtnLength;
-				}
-				break;
-			}
+			s = m_pButton->GetDesiredSize(NULL);
 		}
-		else
-		{
-			s.cx = m_pButton->GetWidth();
-			s.cy = m_pButton->GetHeight();
-
-			if(s.cx == 0 || s.cy == 0)
-			{
-				s = m_pButton->GetDesiredSize(NULL);
-			}
-		}
-		
 	}
 
 	CRect rcClient;

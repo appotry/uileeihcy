@@ -127,7 +127,7 @@ void MenuBase::ShowPopupSubMenu(MenuItem* pItem)
 	{
 		TimerHelper::GetInstance()->KillTimer(m_nTimerIDShowPopupSubMenu);
 	}
-	if (NULL != m_pNextMenu)
+	if (NULL != m_pNextMenu && pItem->GetSubMenu() == m_pNextMenu)
 	{
 		return;
 	}
@@ -550,6 +550,7 @@ void MenuBase::OnDrawItem( HRDC hRDC, ListItemBase* p )
 		this->OnDrawStringItem(hRDC, pItem);
 	}
 
+	// TODO: 将背景和 check,radio 分开绘制，这样当已经有图标的时候，只需要把背景绘制上就行了
 	if (pItem->IsChecked() && NULL != m_pCheckIconRender)
 	{
 		CRect rcItem;
@@ -558,6 +559,8 @@ void MenuBase::OnDrawItem( HRDC hRDC, ListItemBase* p )
 
 		if(pItem->IsDisable())
 			m_pCheckIconRender->DrawState(hRDC, &rcItem, MENU_ITEM_CHECKED_RENDER_STATE_DISABLE);
+		else if(this->IsItemHilight(pItem))
+			m_pCheckIconRender->DrawState(hRDC, &rcItem, MENU_ITEM_CHECKED_RENDER_STATE_HOVER);
 		else
 			m_pCheckIconRender->DrawState(hRDC, &rcItem, MENU_ITEM_CHECKED_RENDER_STATE_NORMAL);
 	}
@@ -569,6 +572,8 @@ void MenuBase::OnDrawItem( HRDC hRDC, ListItemBase* p )
 
 		if(pItem->IsDisable())
 			m_pRadioIconRender->DrawState(hRDC, &rcItem, MENU_ITEM_RADIO_RENDER_STATE_DISABLE);
+		else if (IsItemHilight(pItem))
+			m_pRadioIconRender->DrawState(hRDC, &rcItem, MENU_ITEM_RADIO_RENDER_STATE_HOVER);
 		else
 			m_pRadioIconRender->DrawState(hRDC, &rcItem, MENU_ITEM_RADIO_RENDER_STATE_NORMAL);
 	}

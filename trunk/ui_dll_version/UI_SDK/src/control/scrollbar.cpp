@@ -897,9 +897,6 @@ public:
 
 	UI_END_MSG_MAP
 
-	int  m_nOldPage;
-	int  m_nOldRange;
-	int  m_nOldPos;
 
 	void OnPaint(HRDC)
 	{
@@ -992,7 +989,11 @@ protected:
 	Button*      m_pBtnLineUpLeft;
 	Button*      m_pBtnLineDownRight;
 	Button*      m_pBtnThumb;
-//	SliderCtrlBase*  m_pSliderCtrl;
+
+	// 用于检测数据发生改变时，刷新thumbbtn的位置
+	int  m_nOldPage;
+	int  m_nOldRange;
+	int  m_nOldPos;
 };
 
 class SystemVScrollBarRender : public SystemScrollBarRender
@@ -1171,9 +1172,15 @@ protected:
 		m_pScrollBar->GetClientRect(prc);
 
 		if (NULL != m_pBtnLineUpLeft)
-			prc->top += m_pBtnLineUpLeft->GetHeight();
+		{
+			int nHeight = m_pBtnLineUpLeft->GetHeight();
+			prc->top += nHeight;
+		}
 		if (NULL != m_pBtnLineDownRight)
-			prc->bottom -= m_pBtnLineDownRight->GetHeight();
+		{
+			int nHeight = m_pBtnLineDownRight->GetHeight();
+			prc->bottom -= nHeight;
+		}
 	}
 	int   CalcThumbButtonSize()
 	{
@@ -1528,6 +1535,7 @@ void SystemHScrollBarRender::OnSize(UINT nType, int cx, int cy)
 
 		nX2 -= s.cx;
 	}
+	this->UpdateThumbButtonPos(true);  // <-- 为了解决换肤后，由于lineup,linedown btn还没有更新位置，导致thumbbtn位置不正确的问题  TODO: 优化
 }
 
 void SystemVScrollBarRender::OnSize(UINT nType, int cx, int cy)
@@ -1571,6 +1579,7 @@ void SystemVScrollBarRender::OnSize(UINT nType, int cx, int cy)
 			rcClient.Width(), s.cy, 0 );
 		nY2 -= s.cy;
 	}
+	this->UpdateThumbButtonPos(true); // <-- 为了解决换肤后，由于lineup,linedown btn还没有更新位置，导致thumbbtn位置不正确的问题  TODO: 优化
 }
 LRESULT SystemHScrollBarRender::OnNcCalcSize(BOOL bCalcValidRects, LPARAM lprc)
 {

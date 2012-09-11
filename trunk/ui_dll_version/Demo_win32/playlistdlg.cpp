@@ -136,8 +136,9 @@ void TTPlayerPlaylistCtrl::OnDrawItem(HRDC hRDC, ListItemBase* p)
 	}
 	else
 	{
-		if (NULL != m_pBkColor2)
-			::FillRect(hRDC, &rcItem, m_pBkColor2->GetColor());
+		//if (NULL != m_pBkColor2)
+		COLORREF col = m_pBkColor2?m_pBkColor2->GetColor() : RGB(32,32,32);
+		::FillRect(hRDC, &rcItem, col);
 	}
 
 	COLORREF rgbText = m_pTextColor? m_pTextColor->GetColor():RGB(0,128,255);
@@ -343,7 +344,7 @@ void CPlayListDlg::OnBtnClickMode(Object* pBtnObj, POINT* pt)
 	MenuItem* pMenuItem = pMenu->GetMenuItemByPos((int)eMode);
 	if (NULL != pMenuItem)
 	{
-		pMenuItem->SetFlag(pMenuItem->GetFlag() | MF_CHECKED);
+		pMenuItem->SetFlag(pMenuItem->GetFlag() | MFT_RADIOCHECK );
 	}
 
 	CRect rc;
