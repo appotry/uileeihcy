@@ -39,6 +39,8 @@ MenuBase::MenuBase()
 	m_pPrevMenu = NULL;
 	m_pSeperatorRender = NULL;
 	m_pPopupTriangleRender = NULL;
+	m_pCheckIconRender = NULL;
+	m_pRadioIconRender = NULL;
 	m_nTrackPopupMenuFlag = 0;
 	m_nRetCmd = 0;
 	m_bLayered = false;
@@ -62,6 +64,8 @@ MenuBase::~MenuBase()
 	DestroyPopupWindow();
 	SAFE_DELETE(m_pSeperatorRender);
 	SAFE_DELETE(m_pPopupTriangleRender);
+	SAFE_DELETE(m_pCheckIconRender);
+	SAFE_DELETE(m_pRadioIconRender);
 }
 void MenuBase::DestroyPopupWindow()
 {
@@ -545,6 +549,29 @@ void MenuBase::OnDrawItem( HRDC hRDC, ListItemBase* p )
 	{
 		this->OnDrawStringItem(hRDC, pItem);
 	}
+
+	if (pItem->IsChecked() && NULL != m_pCheckIconRender)
+	{
+		CRect rcItem;
+		pItem->GetParentRect(&rcItem);
+		rcItem.right = rcItem.left + m_nIconGutterWidth;
+
+		if(pItem->IsDisable())
+			m_pCheckIconRender->DrawState(hRDC, &rcItem, MENU_ITEM_CHECKED_RENDER_STATE_DISABLE);
+		else
+			m_pCheckIconRender->DrawState(hRDC, &rcItem, MENU_ITEM_CHECKED_RENDER_STATE_NORMAL);
+	}
+	else if (pItem->IsRadioChecked() && NULL != m_pRadioIconRender)
+	{
+		CRect rcItem;
+		pItem->GetParentRect(&rcItem);
+		rcItem.right = rcItem.left + m_nIconGutterWidth;
+
+		if(pItem->IsDisable())
+			m_pRadioIconRender->DrawState(hRDC, &rcItem, MENU_ITEM_RADIO_RENDER_STATE_DISABLE);
+		else
+			m_pRadioIconRender->DrawState(hRDC, &rcItem, MENU_ITEM_RADIO_RENDER_STATE_NORMAL);
+	}
 }
 
 bool MenuBase::IsItemHilight(MenuItem* p)
@@ -562,7 +589,7 @@ void MenuBase::OnDrawSeperatorItem(HRDC hRDC, MenuItem* pMenuItem)
 	{
 		CRect rcItem;
 		pMenuItem->GetParentRect(&rcItem);
-		rcItem.left += m_nIconGutterWidth;
+		rcItem.left += m_nIconGutterWidth + m_nTextMarginLeft;
 
 		m_pSeperatorRender->DrawState(hRDC, &rcItem, 0);
 	}
@@ -602,7 +629,7 @@ void MenuBase::OnDrawStringItem(HRDC hRDC, MenuItem* pMenuItem)
 
 	if (NULL != pMenuItem && NULL != m_pTextRender)
 	{
-		rcItem.DeflateRect(m_nIconGutterWidth,0,m_nPopupTriangleWidth,0);
+		rcItem.DeflateRect(m_nIconGutterWidth + m_nTextMarginLeft,0,m_nPopupTriangleWidth+m_nTextMarginRight,0);
 		m_pTextRender->DrawState(hRDC, &rcItem, nTextState, pMenuItem->GetText());
 	}
 }
@@ -628,6 +655,8 @@ void Menu::ResetAttribute()
 	this->SetPaddingRegion(&rc);
 	SAFE_DELETE(m_pSeperatorRender);
 	SAFE_DELETE(m_pPopupTriangleRender);
+	SAFE_DELETE(m_pCheckIconRender);
+	SAFE_DELETE(m_pRadioIconRender);
 
 	m_nIconGutterWidth = 28;
 	m_nSeperatorHeight = 3;
@@ -684,9 +713,17 @@ bool Menu::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 	{
 		m_pPopupTriangleRender = RenderFactory::GetRender(RENDER_TYPE_THEME_MENUPOPUPTRIANGLE, this);
 	}
-	if( NULL != m_pTextRender )
+	if (NULL != m_pTextRender)
 	{	
 		m_pTextRender->SetTextAlignment(DT_SINGLELINE|DT_VCENTER|DT_LEFT);
+	}
+	if (NULL == m_pCheckIconRender)
+	{
+		m_pCheckIconRender = RenderFactory::GetRender(RENDER_TYPE_THEME_MENUCHECKICON, this);
+	}
+	if (NULL == m_pRadioIconRender)
+	{
+		m_pRadioIconRender = RenderFactory::GetRender(RENDER_TYPE_THEME_MENURADIOICON, this);
 	}
 
 	return true;

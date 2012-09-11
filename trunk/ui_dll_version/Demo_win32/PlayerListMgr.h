@@ -44,6 +44,7 @@ public:
 	HWND   ToggleShowPlayerListDlg(HWND hParent);
 	void   OnPlayListDlgHide();
 	void   SetPlayMode(PLAY_MODE e) { m_ePlayMode = e; }
+	PLAY_MODE GetPlayMode() { return m_ePlayMode; }
 
 	void   OnLoadItem(const String& strFile);
 	
