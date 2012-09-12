@@ -40,9 +40,9 @@ bool  GDIRenderBitmap::SaveBits( ImageData* pImageData )
 {
 	return m_image.SaveBits(pImageData);
 }
-bool  GDIRenderBitmap::ChangeHue( const ImageData* pOriginImageData, WORD wNewHue )
+bool  GDIRenderBitmap::ChangeHLS( const ImageData* pOriginImageData, short h, short l , short s, int nFlag)
 {
-	return m_image.ChangeHue(pOriginImageData, wNewHue );
+	return m_image.ChangeHLS(pOriginImageData, h, l, s, nFlag );
 }
 
 //

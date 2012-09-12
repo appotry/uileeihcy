@@ -188,9 +188,9 @@ bool ProjectManager::ChangeSkin( CPojo_ProjectSkinItem* pSkinItem )
 	
 	return true;
 }
-bool ProjectManager::ChangeSkinH( WORD wNewH )
+bool ProjectManager::ChangeSkinHLS( short h, short l, short s, int nFlag )
 {
-	bool bRet = m_pCurActiveSkinMgr->ChangeSkinH(wNewH);
+	bool bRet = m_pCurActiveSkinMgr->ChangeSkinHLS(h,l,s,nFlag);
 	if( false == bRet )
 		return false;
 

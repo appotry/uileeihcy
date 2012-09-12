@@ -29,7 +29,7 @@ public:
 	bool       InsertImageItem( const String& strID, const String& strPath );
 	bool       ModifyImageItem( const String& strID, const String& strPath );
 	bool       RemoveImageItem( const String& strID );
-	bool       ChangeSkinH(WORD wNewH);
+	bool       ChangeSkinHLS(short h, short l, short s, int nFlag);
 
 	HRBITMAP   GetImage( const String& strID, GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI );
 

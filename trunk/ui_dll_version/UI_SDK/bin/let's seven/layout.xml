@@ -234,7 +234,7 @@
              linebtn2.cursor="idc_arrow"
              thubmbtn.bkgnd.render.imagelist.count="3"
              thubmbtn.bkgnd.render.type="imageliststretch"
-             thubmbtn.bkgnd.render.9region="2,8,2,8"
+             thubmbtn.bkgnd.render.9region="2,5,2,5"
              thubmbtn.styleclass="imagebtn"      
              thubmbtn.bkgnd.render.image="scrollbar_thumb.bmp"
              thubmbtn.cursor="idc_arrow"
@@ -252,7 +252,6 @@
     <item id="player_skin.bmp">player_skin.bmp</item>
     <item id="playlist_skin.bmp">playlist_skin.bmp</item>
     <item id="close.bmp">close.bmp</item>
-    
     <item id="progress_thumb.bmp">progress_thumb.bmp</item>
     <item id="prev.bmp">prev.bmp</item>
     <item id="play.bmp">play.bmp</item>

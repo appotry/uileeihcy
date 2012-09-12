@@ -113,9 +113,9 @@ bool ImageManager::Reload()
 	return  m_pImageParse->Reload( &m_pojoImage );
 }
 
-bool ImageManager::ChangeSkinH(WORD wNewH)
+bool ImageManager::ChangeSkinHLS(short h, short l, short s, int nFlag)
 {
-	return m_pojoImage.ChangeSkinH(wNewH);
+	return m_pojoImage.ChangeSkinHLS(h,l,s,nFlag);
 }
 
 void ImageManager::Clear()

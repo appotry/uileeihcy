@@ -17,6 +17,16 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	g_hInstance = hInstance;
 	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 
+	COLORREF col = RGB(58,60,191);
+	WORD h = 0, s = 0, l = 0;
+	::ColorRGBToHLS(col, &h, &l, &s);
+
+	COLORREF col2 = RGB(0,255,255);
+	::ColorRGBToHLS(col2, &h,&l,&s);
+	
+	col2 = RGB(0,0,255);
+	ColorRGBToHLS(col2, &h,&l,&s);
+	int a = 0;
 
 	// ×¢²á×ÔÓÐ¿Ø¼þ
 	UI_RegisterUIObjectCreateData(TTPlayerPlaylistCtrl::XmlName(), 

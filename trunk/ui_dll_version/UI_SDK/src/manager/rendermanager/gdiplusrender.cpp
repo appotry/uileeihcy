@@ -139,7 +139,7 @@ bool  GdiplusRenderBitmap::SaveBits( ImageData* pImageData )
 
 	return true;
 }
-bool  GdiplusRenderBitmap::ChangeHue( const ImageData* pOriginImageData, WORD wNewHue )
+bool  GdiplusRenderBitmap::ChangeHLS( const ImageData* pOriginImageData, short h, short l , short s, int nFlag )
 {
 	if( NULL == pOriginImageData || NULL == m_pBitmap )
 		return false;
@@ -177,6 +177,13 @@ bool  GdiplusRenderBitmap::ChangeHue( const ImageData* pOriginImageData, WORD wN
 	int   bytesperline  = abs(pBitmapData->Stride);
 	int   bytesperpx    = pOriginImageData->m_nbpp/8;
 
+	bool bChangeH = nFlag & CHANGE_SKIN_HLS_FLAG_H ? true:false;
+	bool bChangeL = nFlag & CHANGE_SKIN_HLS_FLAG_L ? true:false;
+	bool bChangeS = nFlag & CHANGE_SKIN_HLS_FLAG_S ? true:false;
+
+	if(false == bChangeH && false == bChangeL && false == bChangeS)
+		return false;
+
 	for (int row = 0; row < (int)pBitmapData->Height; row ++ )
 	{
 		for( int i = 0; i < bytesperline; i += bytesperpx )
@@ -192,9 +199,36 @@ bool  GdiplusRenderBitmap::ChangeHue( const ImageData* pOriginImageData, WORD wN
 			}
 			else
 			{
-				WORD h=0,l=0,s=0;
-				::ColorRGBToHLS(color, &h,&l,&s);
-				color = ::ColorHLSToRGB(wNewHue,l,s);
+				WORD hLast=0,lLast=0,sLast=0;
+				::ColorRGBToHLS(color, &hLast,&lLast,&sLast);
+				if (bChangeH)
+				{
+					short h2 = hLast + h;
+					while(h2 < MIN_HUE_VALUE)
+						h2 += MAX_HUE_VALUE;
+					while (h2 >= MAX_HUE_VALUE)
+						h2 -= MAX_HUE_VALUE;
+					hLast = h2;
+				}
+				if (bChangeL)
+				{
+					short l2 = lLast + l;
+					while(l2 < MIN_LUMINANCE_VALUE)
+						l2 += MAX_LUMINANCE_VALUE;
+					while (l2 >= MAX_LUMINANCE_VALUE)
+						l2 -= MAX_LUMINANCE_VALUE;
+					hLast = l2;
+				}
+				if (bChangeS)
+				{
+					short s2 = sLast + s;
+					while(s2 < MIN_SATURATION_VALUE)
+						s2 += MAX_SATURATION_VALUE;
+					while (s2 >= MAX_SATURATION_VALUE)
+						s2 -= MAX_SATURATION_VALUE;
+					sLast = s2;
+				}
+				color = ::ColorHLSToRGB(hLast,lLast,sLast);
 			}
 
 			pNewImageBits[i] = GetRValue(color);

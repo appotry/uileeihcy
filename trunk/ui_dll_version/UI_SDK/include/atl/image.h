@@ -346,7 +346,7 @@ namespace UI
 		bool   HasAlphaChannel() const { return m_bHasAlphaChannel; }
 		bool   ChangeDIB2DDB(HDC hMemDC);                     // libo add 20120318 TransparentBlt只能适应于DDB，因此提供一个接口将DIB转换成DDB
 		bool   CloneGrayImage( const Image* pImage );         // libo add 20120321 去色
-		bool   ChangeHue( const ImageData* pOriginImageData, WORD newH );
+		bool   ChangeHLS( const ImageData* pOriginImageData, short h, short l , short s, int nFlag );
 		bool   SaveBits( ImageData* pImageData );
 		void   RestoreBits( ImageData* pImageData );
 		bool   ImageList_Draw(HDC hDestDC, int x, int y, int col, int row, int cx, int cy );  // libo add 20120401 增加图像列表绘制方法
@@ -2083,6 +2083,7 @@ namespace UI
 		{
 			for( int i = 0; i < bytesperrow; i += bytesperpx )
 			{
+				// TODO: 修改浮点运算为整数运算
 				int rgb = (int)(pImageBits[i]*0.11 + pImageBits[i+1]*0.59 + pImageBits[i+2]*0.3);  // 去色算法，可优化为 8 64 32 / 100 ??
 				pNewImageBits[i] = pNewImageBits[i+1] = pNewImageBits[i+2] = rgb;
 
@@ -2138,11 +2139,11 @@ namespace UI
 	}
 
 	//
-	//	根据参数中提供的原始数据pSaveBits，将自己修改为相应wNewH色调
+	//	根据参数中提供的原始数据pSaveBits，将自己偏移wNewH色调
 	//
-	//	wNewH的范围应该是在 0--200以内?
+	//	H的取值范围是0 - 240的环形值，到达240之后又回到0起点
 	//	
-	inline bool Image::ChangeHue( const ImageData* pOriginImageData, WORD wNewH )
+	inline bool Image::ChangeHLS( const ImageData* pOriginImageData, short h, short l , short s, int nFlag )
 	{
 		if( NULL == pOriginImageData )
 			return false;
@@ -2154,6 +2155,13 @@ namespace UI
 		BYTE* pNewImageBits = (BYTE*)m_pBits;
 		int   bytesperline   = abs(m_nPitch);
 		int   bytesperpx    = m_nBPP/8;
+
+		bool bChangeH = nFlag & CHANGE_SKIN_HLS_FLAG_H ? true:false;
+		bool bChangeL = nFlag & CHANGE_SKIN_HLS_FLAG_L ? true:false;
+		bool bChangeS = nFlag & CHANGE_SKIN_HLS_FLAG_S ? true:false;
+
+		if(false == bChangeH && false == bChangeL && false == bChangeS)
+			return false;
 
 		for (int row = 0; row < m_nHeight; row ++ )
 		{
@@ -2170,9 +2178,36 @@ namespace UI
 				}
 				else
 				{
-					WORD h=0,l=0,s=0;
-					::ColorRGBToHLS(color, &h,&l,&s);
-					color = ::ColorHLSToRGB(wNewH,l,s);
+					WORD hLast=0,lLast=0,sLast=0;
+					::ColorRGBToHLS(color, &hLast,&lLast,&sLast);
+					if (bChangeH)
+					{
+						short h2 = hLast + h;
+						while(h2 < MIN_HUE_VALUE)
+							h2 += MAX_HUE_VALUE;
+						while (h2 >= MAX_HUE_VALUE)
+							h2 -= MAX_HUE_VALUE;
+						hLast = h2;
+					}
+					if (bChangeL)
+					{
+						short l2 = lLast + l;
+						while(l2 < MIN_LUMINANCE_VALUE)
+							l2 += MAX_LUMINANCE_VALUE;
+						while (l2 >= MAX_LUMINANCE_VALUE)
+							l2 -= MAX_LUMINANCE_VALUE;
+						hLast = l2;
+					}
+					if (bChangeS)
+					{
+						short s2 = sLast + s;
+						while(s2 < MIN_SATURATION_VALUE)
+							s2 += MAX_SATURATION_VALUE;
+						while (s2 >= MAX_SATURATION_VALUE)
+							s2 -= MAX_SATURATION_VALUE;
+						sLast = s2;
+					}
+					color = ::ColorHLSToRGB(hLast,lLast,sLast);
 				}
 
 				pNewImageBits[i] = GetRValue(color);

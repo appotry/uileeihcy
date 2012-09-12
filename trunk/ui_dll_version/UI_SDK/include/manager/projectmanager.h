@@ -21,7 +21,7 @@ namespace UI
 		bool Initialize( const String& strUIProjXmlPath );
 		bool ChangeSkin( const String& strSkinName );
 		bool ChangeSkin( int nIndex );
-		bool ChangeSkinH( WORD wNewH );
+		bool ChangeSkinHLS( short h, short l, short s, int nFlag );
 		bool ChangeSkin( CPojo_ProjectSkinItem* pSkinItem );
 
 		// ---------

@@ -57,7 +57,7 @@ public:
 	virtual void  UnlockBits() = 0;
 
 	virtual bool  SaveBits( ImageData* pImageData ) = 0;
-	virtual bool  ChangeHue( const ImageData* pOriginImageData, WORD wNewHue ) = 0;
+	virtual bool  ChangeHLS( const ImageData* pOriginImageData, short h, short l, short s, int nFlag ) = 0;
 };
 
 class  IRenderFont : public IRenderResource

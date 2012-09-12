@@ -88,7 +88,7 @@ namespace UI
 		bool                 LoadLayout(Object* pRootObj);
 		bool                 ReLoadLayout( Object* pRootObj, list<Object*>& listAllChild );
 		bool                 LoadStyle( const String& strTagName, const String& strStyleClass, const String& strID, map<String,String>& mapStyle );
-		bool                 ChangeSkinH(WORD wNewH);
+		bool                 ChangeSkinHLS(short h, short l, short s, int nFlag);
 		Menu*                LoadMenu( const String& strMenuId );
 
 		int                  GetImageCount( );

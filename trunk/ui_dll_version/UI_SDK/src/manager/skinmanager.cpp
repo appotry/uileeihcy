@@ -524,10 +524,10 @@ bool SkinManager::GetStyleItemInfo( int nIndex, IStyleItemInfo** ppStyleItemInfo
 	return m_pStyleMgr->GetStyleItemInfo( nIndex, ppStyleItemInfo );
 }
 
-bool SkinManager::ChangeSkinH(WORD wNewH)
+bool SkinManager::ChangeSkinHLS(short h, short l, short s, int nFlag)
 {
 	if( NULL == m_pImageMgr )
 		return false;
 
-	return m_pImageMgr->ChangeSkinH(wNewH);
+	return m_pImageMgr->ChangeSkinHLS(h,l,s,nFlag);
 }
