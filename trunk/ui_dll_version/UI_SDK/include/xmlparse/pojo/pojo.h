@@ -184,7 +184,7 @@ namespace UI
 		DECLARE_bool_SETGET(UseSkinHue);
 
 		bool     ModifyImage( const String& strPath );
-		bool     ModifyH(WORD wNewH);
+		bool     ModifyHLS( short h, short l, short s, int nFlag );
 		HRBITMAP GetImage( GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI );
 	};
 
@@ -208,7 +208,7 @@ namespace UI
 		bool ModifyImage( const String& strID, const String& strPath );
 		bool RemoveImage( const String& strID );
 		bool Clear();
-		bool ChangeSkinH(WORD wNewH);
+		bool ChangeSkinHLS(short h, short l, short s, int nFlag);
 
 		HRBITMAP GetImage( const String& strID, GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI );
 	};

@@ -24,7 +24,7 @@ public:
 	virtual void  UnlockBits();
 
 	virtual bool  SaveBits( ImageData* pImageData );;
-	virtual bool  ChangeHue( const ImageData* pOriginImageData, WORD wNewHue );
+	virtual bool  ChangeHLS( const ImageData* pOriginImageData, short h, short l , short s, int nFlag );
 
 private:
 	Gdiplus::Bitmap*     m_pBitmap;

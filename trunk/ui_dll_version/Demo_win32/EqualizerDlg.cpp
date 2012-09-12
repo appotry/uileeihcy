@@ -26,10 +26,10 @@ void CEqualizerDlg::OnClose()
 void CEqualizerDlg::OnHueChanged1( int nPos, int nScrollType )
 {
 	if( nScrollType != SB_ENDSCROLL )
-		UI_ChangeSkinH(nPos*5);
+		UI_ChangeSkinHLS(nPos*10, 0, 0, CHANGE_SKIN_HLS_FLAG_H);
 }
 void CEqualizerDlg::OnHueChanged2( int nPos, int nScrollType )
 {
 	if( nScrollType != SB_ENDSCROLL )
-		UI_ChangeSkinH(100+nPos*5);
+		UI_ChangeSkinHLS(0, nPos*5, 0, CHANGE_SKIN_HLS_FLAG_L);
 }

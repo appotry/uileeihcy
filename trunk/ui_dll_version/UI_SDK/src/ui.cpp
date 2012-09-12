@@ -101,14 +101,14 @@ bool UI_ChangeSkin( int nIndex )
 	return g_pUIApplication->m_ProjectMgr.ChangeSkin( nIndex );
 }
 
-bool UI_ChangeSkinH( WORD newH )
+bool UI_ChangeSkinHLS( short h, short l, short s, int nFlag )
 {
 	if( NULL == g_pUIApplication )
 	{
 		return false;
 	}
 
-	return g_pUIApplication->m_ProjectMgr.ChangeSkinH( newH );
+	return g_pUIApplication->m_ProjectMgr.ChangeSkinHLS( h,l,s,nFlag );
 }
 
 

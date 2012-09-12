@@ -104,8 +104,8 @@ namespace UI
 	UIAPI bool     UI_Initialize( const String& strUIProjXmlPath );
 	UIAPI bool     UI_Release();
 	UIAPI bool     UI_ChangeSkin( const String& strSkinName );
-	UIAPI bool     UI_ChangeSkin( int nIndex );
-	UIAPI bool     UI_ChangeSkinH( WORD newH );
+	UIAPI bool     UI_ChangeSkin( int nSkinIndex );
+	UIAPI bool     UI_ChangeSkinHLS( short h, short l, short s, int nFlag );
 	UIAPI void     UI_SetDesignMode( bool bDesignMode );
 	UIAPI bool     UI_RegisterUIObjectCreateData( const TCHAR* szXmlName, s_UICreateInstancePtr pFunPtr);
 

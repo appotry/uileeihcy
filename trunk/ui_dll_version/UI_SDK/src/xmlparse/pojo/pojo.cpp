@@ -238,7 +238,7 @@ HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType )
 	return NULL;
 }
 
-bool CPojo_ImageItem::ModifyH(WORD wNewH)
+bool CPojo_ImageItem::ModifyHLS(short h, short l, short s, int nFlag)
 {
 	if( false == m_bUseSkinHue )
 		return true;
@@ -256,7 +256,7 @@ bool CPojo_ImageItem::ModifyH(WORD wNewH)
 				return false;
 			}
 		}
-		m_pGdiBitmap->ChangeHue(m_pOriginImageData,wNewH);
+		m_pGdiBitmap->ChangeHLS(m_pOriginImageData, h,l,s,nFlag);
 	}
 	if( NULL != m_pGdiplusBitmap )
 	{
@@ -270,7 +270,7 @@ bool CPojo_ImageItem::ModifyH(WORD wNewH)
 				SAFE_DELETE(m_pOriginImageData);
 			}
 		}
-		m_pGdiplusBitmap->ChangeHue(m_pOriginImageData,wNewH);
+		m_pGdiplusBitmap->ChangeHLS(m_pOriginImageData,  h,l,s,nFlag);
 	}
 	return true;
 }
@@ -406,7 +406,7 @@ bool CPojo_Image::Clear()
 	return true;
 }
 
-bool CPojo_Image::ChangeSkinH(WORD wNewH)
+bool CPojo_Image::ChangeSkinHLS(short h, short l, short s, int nFlag)
 {
 	vector<CPojo_ImageItem*>::iterator  iter = m_vImages.begin();
 	vector<CPojo_ImageItem*>::iterator  iterEnd = m_vImages.end();
@@ -414,7 +414,7 @@ bool CPojo_Image::ChangeSkinH(WORD wNewH)
 	for( ; iter != iterEnd; iter++ )
 	{
 		CPojo_ImageItem* p = *iter;
-		p->ModifyH(wNewH);
+		p->ModifyHLS(h,l,s,nFlag);
 	}
 
 	return true;
