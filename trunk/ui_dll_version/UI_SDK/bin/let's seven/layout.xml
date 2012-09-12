@@ -59,16 +59,16 @@
                             />
     </CustomWindow>
     <CustomWindow id="equalizerdlg" layout.left="622" layout.top="365" width="322" height="165" 
-                  bkgnd.render.type="imagesimple" bkgnd.render.image="eq_skin.png"
+                  bkgnd.render.type="imagesimple" bkgnd.render.image="lyric_bk.png"
                   transparent.type="maskalpha" transparent.maskalpha="1">
       <Button id="sys_close" styleclass="imagebtn" bkgnd.render.image="close.bmp" layout.right="5" layout.top="0"/>
-      <SliderCtrl id="progress_hue1" foregnd.render.image="progress_fill.bmp" height="8" width="53" layout.left="23" layout.top="54" />
-      <SliderCtrl id="progress_hue2" foregnd.render.image="progress_fill.bmp" height="8" width="53" layout.left="23" layout.top="85" />
-      <Panel layout="stack" layout.left="20" layout.bottom="13">
+      <SliderCtrl id="progress_hue1" foregnd.render.image="progress_fill.bmp" height="8" width="270" layout.left="23" layout.top="54" />
+      <SliderCtrl id="progress_hue2" foregnd.render.image="progress_fill.bmp" height="8" width="270" layout.left="23" layout.top="85" />
+      <!--Panel layout="stack" layout.left="20" layout.bottom="13">
         <Button id="btn_enable"   styleclass="imagebtn"  bkgnd.render.image="eq_enabled.bmp"></Button>
         <Button id="btn_reset"    styleclass="imagebtn"  bkgnd.render.image="reset.bmp" margin="3,0,3,0"></Button>
         <Button id="btn_profile"  styleclass="imagebtn"  bkgnd.render.image="eq_profile.png"></Button>
-      </Panel>
+      </Panel-->
     </CustomWindow>
     <CustomWindow id="lyricdlg" layout.left="622" layout.top="200" width="322" height="165"
                   bkgnd.render.type="imagestretch" bkgnd.render.image="lyric_bk.png" bkgnd.render.9region="100,60,50,15,15,15,20,15"
@@ -204,7 +204,7 @@
     <class id="imagecheckbutton"  cursor="idc_hand" autosize="content" foregnd.render.type="imagelist" 
            drawfocus="0" foregnd.render.imagelist.count="8"/>
     
-    <SliderCtrl istransparent="1" foregnd.render.type="imagesimple" cursor="idc_hand"
+    <SliderCtrl istransparent="1" foregnd.render.type="imagestretch" cursor="idc_hand"
            trackbtn.bkgnd.render.type="imagelist" trackbtn.bkgnd.render.imagelist.count="4" trackbtn.styleclass="imagebtn"/>
     
     <PictureCtrl foregnd.render.type="imagesimple"/>

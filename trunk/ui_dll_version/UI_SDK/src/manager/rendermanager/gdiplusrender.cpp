@@ -193,43 +193,49 @@ bool  GdiplusRenderBitmap::ChangeHLS( const ImageData* pOriginImageData, short h
 			BYTE B = pTemp[i+2];
 
 			COLORREF color = RGB(R,G,B);
-			if( R==G && G==B ) 
-			{
-				// 灰色系不能改变它的色调
-			}
-			else
-			{
-				WORD hLast=0,lLast=0,sLast=0;
-				::ColorRGBToHLS(color, &hLast,&lLast,&sLast);
 				if (bChangeH)
 				{
-					short h2 = hLast + h;
-					while(h2 < MIN_HUE_VALUE)
-						h2 += MAX_HUE_VALUE;
-					while (h2 >= MAX_HUE_VALUE)
-						h2 -= MAX_HUE_VALUE;
-					hLast = h2;
+					if(R==G && G==B)
+					{
+						continue;  // 灰色系不能改变它的色调
+					}
+						WORD hLast=0,lLast=0,sLast=0;
+						::ColorRGBToHLS(color, &hLast,&lLast,&sLast);
+
+						short h2 = hLast + h;
+						while(h2 < MIN_HUE_VALUE)
+							h2 += MAX_HUE_VALUE;
+						while (h2 >= MAX_HUE_VALUE)
+							h2 -= MAX_HUE_VALUE;
+						hLast = h2;
+
+						color = ::ColorHLSToRGB(hLast,lLast,sLast);
 				}
 				if (bChangeL)
 				{
-					short l2 = lLast + l;
-					while(l2 < MIN_LUMINANCE_VALUE)
-						l2 += MAX_LUMINANCE_VALUE;
-					while (l2 >= MAX_LUMINANCE_VALUE)
-						l2 -= MAX_LUMINANCE_VALUE;
-					hLast = l2;
+					if (l > 0)  
+					{  
+						R = R + (255 - R) * l / 100;  
+						G = G + (255 - G) * l / 100;  
+						B = B + (255 - B) * l / 100;  
+					}  
+					else if (l < 0)  
+					{  
+						R = R + R * l / 100;  
+						G = G + G * l / 100;   
+						B = B + B * l / 100;  
+					}  
+					color = RGB(R,G,B);
 				}
-				if (bChangeS)
-				{
-					short s2 = sLast + s;
-					while(s2 < MIN_SATURATION_VALUE)
-						s2 += MAX_SATURATION_VALUE;
-					while (s2 >= MAX_SATURATION_VALUE)
-						s2 -= MAX_SATURATION_VALUE;
-					sLast = s2;
-				}
-				color = ::ColorHLSToRGB(hLast,lLast,sLast);
-			}
+// 				if (bChangeS)
+// 				{
+// 					short s2 = sLast + s;
+// 					while(s2 < MIN_SATURATION_VALUE)
+// 						s2 += MAX_SATURATION_VALUE;
+// 					while (s2 >= MAX_SATURATION_VALUE)
+// 						s2 -= MAX_SATURATION_VALUE;
+// 					sLast = s2;
+// 				}
 
 			pNewImageBits[i] = GetRValue(color);
 			pNewImageBits[i+1] = GetGValue(color);
