@@ -32,16 +32,17 @@ typedef HRESULT (*s_UICreateInstancePtr)(void** pOut);
 
 #define MAX_STRING_LEN    256                  // 定义一些字符串的最大长度，例如皮肤名称，ID等等
 
-#define MIN_HUE_VALUE           0              // HLS范围定义
+#define MIN_HUE_VALUE           0              // HLS范围定义色调
 #define MAX_HUE_VALUE           240
-#define MIN_LUMINANCE_VALUE     0
-#define MAX_LUMINANCE_VALUE     240
-#define MIN_SATURATION_VALUE    0
-#define MAX_SATURATION_VALUE    240
+#define MIN_LUMINANCE_VALUE     0              // 亮度
+#define MAX_LUMINANCE_VALUE     240            
+#define MIN_SATURATION_VALUE    0              // 饱和度
+#define MAX_SATURATION_VALUE    240            
 
 #define CHANGE_SKIN_HLS_FLAG_H  1
 #define CHANGE_SKIN_HLS_FLAG_L  2
 #define CHANGE_SKIN_HLS_FLAG_S  4
+#define CHANGE_SKIN_HLS_FALG_ // 着色模式
 
 //////////////////////////////////////////////////////////////////////////
 // enum
