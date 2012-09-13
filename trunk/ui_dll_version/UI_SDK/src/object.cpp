@@ -940,7 +940,12 @@ UINT Object::OnHitTest( POINT* pt )
 
 	return HTNOWHERE;
 }
-
+void Object::OnThemeChanged()
+{
+	SetMsgHandled(FALSE);
+	ON_RENDER_THEME_CHANGED(m_pBkgndRender);
+	ON_RENDER_THEME_CHANGED(m_pForegndRender);
+}
 
 /*
 **	[private] bool    testStateBit( BYTE nbit );

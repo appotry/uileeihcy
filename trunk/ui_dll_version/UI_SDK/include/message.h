@@ -950,6 +950,7 @@ protected:
 //			return TRUE;                              \
 // 	}
 
+// OnThemeChanged()
 #if(_WIN32_WINNT >= 0x0501)
 #define UIMSG_WM_THEMECHANGED MSG_WM_THEMECHANGED
 #else

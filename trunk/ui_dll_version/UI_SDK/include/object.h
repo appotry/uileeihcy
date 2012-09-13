@@ -31,6 +31,12 @@ typedef map<String,String>  ATTRMAP;
 	virtual      TCHAR*      GetObjectName() = 0;        \
 	virtual      OBJ_TYPE    GetObjectType() = 0;
 
+#define ON_RENDER_THEME_CHANGED(pRender)  \
+	if (NULL != pRender && pRender->IsThemeRender())  \
+	{ \
+		ThemeRenderBase* p = dynamic_cast<ThemeRenderBase*>(pRender); \
+		p->OnThemeChanged(); \
+	}
 
 // 对象类型
 enum OBJ_TYPE
@@ -317,6 +323,7 @@ public:
 		UIMSG_WM_ERASEBKGND( OnEraseBkgnd )
 		UIMSG_WM_HITTEST( OnHitTest )
 		UIMSG_WM_GETFONT( OnGetFont )
+		UIMSG_WM_THEMECHANGED(OnThemeChanged)
 	UI_END_MSG_MAP
 
 protected:
@@ -324,6 +331,7 @@ protected:
 	BOOL    OnSetCursor( HWND hWnd, UINT nHitTest, UINT message );
 	HRFONT  OnGetFont();
 	UINT    OnHitTest( POINT* pt );
+	void    OnThemeChanged();
 
 	inline  bool testStateBit( UINT bit );
 	inline  void setStateBit( UINT bit );

@@ -1,35 +1,60 @@
 #include "stdafx.h"
 #include "EqualizerDlg.h"
 
-
+CEqualizerDlg::CEqualizerDlg()
+{
+	m_pH = NULL;
+	m_pL = NULL;
+	m_pS = NULL;
+}
 void CEqualizerDlg::OnInitWindow( )
 {
 	CustomWindow::OnInitWindow();
 
-	SliderCtrl*  p = (SliderCtrl*)this->FindChildObject( _T("progress_hue1"));
-	if( NULL != p )
+	m_pH = (SliderCtrl*)this->FindChildObject( _T("progress_hls_h"));
+	if( NULL != m_pH )
 	{
-		p->SetRange(MIN_HUE_VALUE,MAX_HUE_VALUE);
-		p->SetPos(0);
+		m_pH->SetRange(-120,120);
+		m_pH->SetPos(0);
 	}
-	p = (SliderCtrl*)this->FindChildObject( _T("progress_hue2"));
-	if( NULL != p )
+	m_pL = (SliderCtrl*)this->FindChildObject( _T("progress_hls_l"));
+	if( NULL != m_pL )
 	{
-		p->SetRange(-100,100);
-		p->SetPos(0);
+		m_pL->SetRange(-100,100);
+		m_pL->SetPos(0);
+	}
+	m_pS = (SliderCtrl*)this->FindChildObject( _T("progress_hls_s"));
+	if( NULL != m_pS )
+	{
+		m_pS->SetRange(-100,100);
+		m_pS->SetPos(0);
 	}
 }
 void CEqualizerDlg::OnClose()
 {
 	this->HideWindow();
 }
-void CEqualizerDlg::OnHueChanged1( int nPos, int nScrollType )
+void CEqualizerDlg::OnHLSChanged_H( int nPos, int nScrollType )
 {
 	if( nScrollType != SB_ENDSCROLL )
-		UI_ChangeSkinHLS(nPos, 0, 0, CHANGE_SKIN_HLS_FLAG_H);
+	{
+	//	UI_ChangeSkinHLS(nPos, 0, 0, CHANGE_SKIN_HLS_FLAG_H);
+		UI_ChangeSkinHLS(nPos, m_pL->GetPos(), m_pS->GetPos(), CHANGE_SKIN_HLS_FLAG_HLS);
+	}
 }
-void CEqualizerDlg::OnHueChanged2( int nPos, int nScrollType )
+void CEqualizerDlg::OnHLSChanged_L( int nPos, int nScrollType )
 {
 	if( nScrollType != SB_ENDSCROLL )
-		UI_ChangeSkinHLS(0, nPos, 0, CHANGE_SKIN_HLS_FLAG_L);
+	{
+	//	UI_ChangeSkinHLS(0, nPos, 0, CHANGE_SKIN_HLS_FLAG_L);
+		UI_ChangeSkinHLS(m_pH->GetPos(), nPos, m_pS->GetPos(), CHANGE_SKIN_HLS_FLAG_HLS);
+	}
+}
+void CEqualizerDlg::OnHLSChanged_S( int nPos, int nScrollType )
+{
+	if( nScrollType != SB_ENDSCROLL )
+	{
+	//	UI_ChangeSkinHLS(0, 0, nPos, CHANGE_SKIN_HLS_FLAG_S);
+		UI_ChangeSkinHLS(m_pH->GetPos(), m_pL->GetPos(), nPos, CHANGE_SKIN_HLS_FLAG_HLS);
+	}
 }

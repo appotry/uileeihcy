@@ -328,7 +328,7 @@ void Message::ClearHook( )
 
 
 //
-//	static 给pParent的子对象递归转发消息
+//	static 给pParent的子子孙孙对象递归转发消息
 //
 void Message::ForwardMessageToChildObject( Object* pParent, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {

@@ -104,8 +104,6 @@
  11.xml文件可否考虑分开，而不是全放在一个文件中？
  12.把所有的xmldao都用find_elem_in_xml/find_elem_under_style来实现
  13.load xml时，没有都转换成小写的
- 14.将pojp.h -> pojo.cpp
- 15.优化mapXml2Class
  17.CMainFrame::OnMenuSave只实现了保存所有的文件，没有实现保存当前文件
  18.使用快捷键资源来实现快捷键 ctrl+s save 
  19.style 编辑器不应该可以编辑继续得到的属性，也无法保存继续得到的属性问题
@@ -144,16 +142,11 @@
 41. 当窗口失活时，不显示FOCUS
 42. 按钮的空格键
 43. Win7 Style Builder <-- win7按钮素材
-44. 当父窗口的字体改变后，如何同步给人它的子对象？怎么区分子对象是有字体的？
 45. 考虑将按钮的多态背景做成可复用的。例如EDIT的多态背景。
 46. 考虑当对象隐藏时，模拟一个 MSG_WM_SHOWWINDOW的消息
 47. 修改了GetHDC的字体选择，会对theme绘制造成什么影响？
-48. 直接UpdateObject刷新子对象时，会刷新在父对象的外面。例如将progress高度调小，上面的
-    按钮就会刷新到外面。将panel大小调小，上面的按钮会刷新到外面
 51. FONTCOLORLISTTEXTRENDER <-- xml属性测试
 52. 需要增加一下变量，保存当前皮肤的hue值，后面加载的图片都要进行转换 （同时将active skin功能也做一下）
-53. 恢复skinh
-54. theme change消息的响应
 55. render增加一个接口，判断DrawState，这个状态是否支持
 56. LOG 支持__FUNCTION__ 参数！
 57. 考虑支持缩放效果
@@ -178,19 +171,18 @@
 74. ListCtrlBase::ReDrawItem目前没用
 75. 分层菜单设置
 76. 菜单提示条问题
-77. 菜单项radio check功能	
 78. 将layout.xml增加一个<#include>标签，允许将一些资源抽取出来 
+81. 图标列表的功能、icon大小读取的功能	
 	
-80. 需要解决鼠标同时在两个popup menuitem上移动时，需要将上一个popup menu隐藏
 	
-疑问：
+==================================疑问==================================
 1. Message类是否需要一个 m_pCurMsg成员变量？
  
-当前正在进行的任务
+==================================当前正在进行的任务==================================
 
  
  
-Finish
+==================================Finish=============================
  
 8. 子控件可以超出parent的区域进行绘制，但不会刷新，例如sliderctrl的滑动按钮
  
@@ -221,24 +213,20 @@ Finish
 29. CustomWindow收编LayeredWindow	
 33. visible enable  的继承关系 
 35. 去除一个窗口的透明属性
-To make this window completely opaque again, remove the WS_EX_LAYERED bit by calling SetWindowLong and then ask the window to repaint. Removing the bit is desired to let the system know that it can free up some memory associated with layering and redirection. The code might look like this:
-
-// Remove WS_EX_LAYERED from this window styles
-SetWindowLong(hwnd, 
-              GWL_EXSTYLE,
-              GetWindowLong(hwnd, GWL_EXSTYLE) & ~WS_EX_LAYERED);
-
-// Ask the window and its children to repaint
-RedrawWindow(hwnd, 
-             NULL, 
-             NULL, 
-             RDW_ERASE | RDW_INVALIDATE | RDW_FRAME | RDW_ALLCHILDREN);
-             
 79. 换肤后，点击滚动条的line down，崩溃	             
     换肤前line down button 为 focus对象保存在keyboard mgr中，换肤过程中该对象被销毁，导致后面在切换焦点时
     继续引用原指针而崩溃
-	 
-/============================================================================	 
+80. 需要解决鼠标同时在两个popup menuitem上移动时，需要将上一个popup menu隐藏
+77. 菜单项radio check功能	
+54. theme change消息的响应
+53. 恢复skinh
+48. 直接UpdateObject刷新子对象时，会刷新在父对象的外面。例如将progress高度调小，上面的
+    按钮就会刷新到外面。将panel大小调小，上面的按钮会刷新到外面
+44. 当父窗口的字体改变后，如何同步给人它的子对象？怎么区分子对象是有字体的？
+14. 将pojp.h -> pojo.cpp
+15. 优化mapXml2Class
+     
+/====================双屏坐标处理代码=================================================	 
 	CMFCPopupMenu::RecalcLayout, afxmenupopup.cpp L630
 	CRect rectScreen;
 
@@ -271,6 +259,7 @@ RGB(0,255,255)    -180  ->  HLS(120,120,240)
 ==>可以推断出来，H色调真的是一个环形的结构。 0->120相当于ps的 +0 -> +180； 240->120相当于ps的 +0 -> -180
    最后都在120处交接。
    240就是0，0就是240，H的范围应该是从(0 - 240)
+   其它PS中的+180 -180应该是 +180度角度，-180度角度的意思。加起来就是360度了
 
   ==》着色模式应该是以前的算法，将所有像素的H都替换为newH
 -------------------   
@@ -292,18 +281,16 @@ RGB(0,255,0)      +180  ->  HLS(80,120,240)
 /============================L值的规律========================================	
 
 RGB(255,0,0) 红色 +0    ->  HLS(0,120,240)
+
 RGB(0,0,0)        -100  ->  HLS(160,0,0)  
 RGB(64,0,0)       -75   ->  HLS(0,30,240)
 RGB(128,0,0)      -50   ->  HLS(0,60,240)
 RGB(192,0,0)      -25   ->  HLS(0,90,240)
-
 RGB(255,0,0)      +0    ->  HLS(0,120,240)
-
 RGB(255,63,63)    +25   ->  HLS(0,150,240)
 RGB(255,127,127)  +50   ->  HLS(0,180,240)
 RGB(255,191,191)  +75   ->  HLS(0,210,240)
 RGB(255,255,255)  +100  ->  HLS(160,240,0) 
-
 
 ----------------------
 
@@ -322,7 +309,54 @@ RGB(228,242,242)  +75   ->  HLS(120,221,84)
 RGB(255,255,255)  +100  ->  HLS(160,240,0) 
 
 --> 可以推断出亮度的修改貌似和HLS没有直接关系，而是RGB呈现出一种线性变化的关系
+    超过255时取值255，低于0时，取值0
+    
 http://blog.csdn.net/maozefa/article/details/4155835
+
+
+/============================S值的规律========================================	
+RGB(255,0,0) 红色 +0    ->  HLS(0,120,240)
+RGB(255,0,0)      +100  ->  HLS(0,120,240)
+RGB(255,0,0)      +50   ->  HLS(0,120,240)
+RGB(255,0,0)      +25   ->  HLS(0,120,240)
+ 
+RGB(223,32,32)    -25   ->  HLS(0,120,180)
+RGB(191,64,64)    -50   ->  HLS(0,120,120)
+RGB(159,95,95)    -75   ->  HLS(0,120,60)
+RGB(127,127,127)  -100  ->  HLS(160,120,0)
+
+
+RGB(97,159,202)   +0    ->  HLS(136,141,119)
+
+RGB(44,168,255)   +100  ->  HLS(136,141,240)
+RGB(44,168,255)   +75   ->  HLS(136,141,240)
+RGB(45,168,254)   +50   ->  HLS(136,141,238)
+RGB(80,162,219)   +25   ->  HLS(126,141,158)
+RGB(97,159,202)   +0    ->  HLS(136,141,119)
+RGB(110,157,189)  -25   ->  HLS(136,141,90)
+RGB(123,154,175)  -50   ->  HLS(136,140,59)
+RGB(136,151,162)  -75   ->  HLS(137,140,29)
+RGB(149,149,149)  -100  ->  HLS(160,140,0)
+
+
+RGB(44,169,255)   +75  ->  HLS(136,141,240)
+RGB(71,164,228)   +50  ->  HLS(136,141,179)
+RGB(97,159,202)   +25  ->  HLS(136,141,119)
+RGB(110,157,189)  +0   ->  HLS(136,141,90)
+RGB(120,155,179)  -25  ->  HLS(136,141,67)
+RGB(130,153,169)  -50  ->  HLS(136,141,44)
+RGB(139,151,159)  -75  ->  HLS(136,140,23)
+
+RGB(32,126,1)     +75  ->  HLS(70,60,236)
+RGB(48,96,32)     +50  ->  HLS(70,60,120)
+RGB(53,85,43)     +25  ->  HLS(70,60,79)
+RGB(56,80,48)     +0   ->  HLS(70,60,60)
+
+-->通过参考网上的资料和数据推断,饱和度的变化规律是： dS = s/100;
+   当dS > 0, newS = S / (1-dS)
+   当dS < 0, newS = S * (1+dS)
+
+Windows下S值为0时，H值始终为160（2/3*240）
 
 饱和度调节算法
 http://blog.csdn.net/maozefa/article/details/1781208
