@@ -2,8 +2,8 @@
 <ui>
   <layout>
     <CustomWindow id="mainwindow" layout.left="300" layout.top="200"  width="322" height="165" 
-                   bkgnd.render.type="imagesimple" bkgnd.render.image="player_skin.bmp" 
-                   transparent.type="maskcolor" transparent.maskcolor="maskcolor">
+                   bkgnd.render.type="imagesimple" bkgnd.render.image="player_skin.png" 
+                   transparent.type="maskalpha">
       <PictureCtrl id="icon" foregnd.render.image="ttplayer.ico" layout.left="10" layout.top="6"/>
       <Panel layout="stack" layout.right="5" layout.top="0" layout.direction="righttoleft">
         <Button id="sys_close"    styleclass="imagebtn" tooltip="退出"     bkgnd.render.image="close.bmp" />
@@ -36,8 +36,8 @@
                          trackbtn.bkgnd.render.image="progress_thumb.bmp" />
     </CustomWindow>
     <CustomWindow id="playlistdlg"  bktype="frame" width="322" height="165"
-             bkgnd.render.type="imagestretch" bkgnd.render.image="playlist_skin.bmp" bkgnd.render.9region="100,60,50,15,15,15,20,15"
-             transparent.type="maskcolor" transparent.maskcolor="maskcolor" transparent.part.type="4corner" transparent.part.9region="14,14,14,14,14,14,14,14"
+             bkgnd.render.type="imagestretch" bkgnd.render.image="playlist_skin.png" bkgnd.render.9region="100,60,50,15,15,15,20,15"
+             transparent.type="maskalpha" transparent.part.type="4corner" transparent.part.9region="14,14,14,14,14,14,14,14"
              layout.left="300" layout.top="365" >
       <Button id="sys_close" styleclass="imagebtn" bkgnd.render.image="close.bmp" layout.right="5" layout.top="0"/>
       <Panel layout="stack" layout.left="15" layout.top="31">
@@ -254,8 +254,8 @@
   <img>
     <item id="minimize.bmp">minimize.bmp</item>
     <item id="minimode.bmp">minimode.bmp</item>
-    <item id="player_skin.bmp">player_skin.bmp</item>
-    <item id="playlist_skin.bmp">playlist_skin.bmp</item>
+    <item id="player_skin.png">player_skin.png</item>
+    <item id="playlist_skin.png">playlist_skin.png</item>
     <item id="close.bmp">close.bmp</item>
     <item id="progress_thumb.bmp">progress_thumb.bmp</item>
     <item id="prev.bmp">prev.bmp</item>

@@ -667,7 +667,7 @@ EditBase::EditBase()
 	m_nXCaretPos   = 0;
 
 	m_EditData.BindToEdit(this);
-	m_caret.SetLayered(true);
+	m_caret.SetLayered(false);
 }
 
 
@@ -1427,8 +1427,8 @@ void EditBase::OnKeyDown_Ctrl_V()
 
 	// 强制刷新
 //	HWND hWnd = GetHWND();
-//	::HideCaret(hWnd);
-	m_caret.HideCaret();
+//	::HideCaret(hWnd);  
+	m_caret.HideCaret();  // <- 防止残影
 	this->UpdateObject();
 //	::ShowCaret(hWnd);
 	m_caret.ShowCaret();
