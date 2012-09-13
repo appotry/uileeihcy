@@ -202,6 +202,9 @@ bool  GdiplusRenderBitmap::ChangeHLS( const ImageData* pOriginImageData, short h
 			if (nPixelFormat == PixelFormat32bppARGB)
 				pNewImageBits[i+3] = pTemp[i+3];
 
+			if (bChangeL)
+				ChangeColorLuminance(R,G,B,l,dL);
+
 			if (bChangeH && bChangeS)
 			{
 				ChangeColorHueAndSaturation(R,G,B,h,bSetHueMode,s,ds);

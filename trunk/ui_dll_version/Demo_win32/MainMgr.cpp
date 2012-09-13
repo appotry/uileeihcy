@@ -25,6 +25,7 @@ bool CMainMgr::Initialize()
 	}
 
 	::GetPlayerListMgr(); // 提前初始化获取插入列表
+	::GetEqualizerMgr();  // 初始化均衡器Mgr
 
 	m_pMainWindow->ShowWindow();
 	return bRet;
@@ -58,11 +59,19 @@ void CMainMgr::HandleEvent(IMgr* pSource, int nEventType, int nEventId, WPARAM w
 
 			if (UI_EVENT_ID_ON_PLAYERLISTDLG_CREATE == nEventId)
 			{
-				m_pMainWindow->SetPlayerListDlgHandle((HWND)wParam);
+				m_pMainWindow->OnPlayerListDlgCreated((HWND)wParam);
 			}
 			else if (UI_EVENT_ID_ON_PLAYERLISTDLG_VISIBLE_CHANGED == nEventId)
 			{
 				m_pMainWindow->OnPlayerListDlgVisibleChanged((HWND)wParam, (BOOL)lParam);
+			}
+			else if (UI_EVENT_ID_ON_EQUALIZERDLG_CREATE == nEventId)
+			{
+				m_pMainWindow->OnEqualizerDlgCreated((HWND)wParam);
+			}
+			else if(UI_EVENT_ID_ON_EQUALIZERDLG_VISIBLE_CHANGED == nEventId)
+			{
+				m_pMainWindow->OnEqualizerDlgVisibleChanged((HWND)wParam, (BOOL)lParam);
 			}
 		}
 		break;

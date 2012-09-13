@@ -1,5 +1,7 @@
 #include "stdafx.h"
+#include "player.h"
 #include "EqualizerDlg.h"
+#include "EqualizerMgr.h"
 
 CEqualizerDlg::CEqualizerDlg()
 {
@@ -33,6 +35,7 @@ void CEqualizerDlg::OnInitWindow( )
 void CEqualizerDlg::OnClose()
 {
 	this->HideWindow();
+	GetEqualizerMgr()->OnEqualizerDlgHide();
 }
 void CEqualizerDlg::OnHLSChanged_H( int nPos, int nScrollType )
 {

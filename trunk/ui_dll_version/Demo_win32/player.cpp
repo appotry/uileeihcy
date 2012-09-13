@@ -2,7 +2,7 @@
 #include "player.h"
 #include "MainMgr.h"
 #include "PlayerListMgr.h"
-
+#include "EqualizerMgr.h"
 
 CFrameWork*  GetFrameWork()
 {
@@ -16,7 +16,10 @@ CPlayerListMgr* GetPlayerListMgr()
 {
 	return ::GetFrameWork()->GetPlayerListMgr();
 }
-
+CEqualizerMgr*  GetEqualizerMgr()
+{
+	return ::GetFrameWork()->GetEqualizerMgr();
+}
 
 void IMgr::FireEvent(int nCmdType, int nCmdId, WPARAM wParam, LPARAM lParam)
 {
@@ -28,6 +31,7 @@ CFrameWork::CFrameWork()
 {
 	m_pMgrPlayerList = NULL;
 	m_pMgrMain = NULL;
+	m_pMgrEqualizer = NULL;
 }
 CFrameWork::~CFrameWork()
 {
@@ -35,6 +39,12 @@ CFrameWork::~CFrameWork()
 }
 void CFrameWork::Release()
 {
+	if (NULL != m_pMgrEqualizer)
+	{
+		m_pMgrEqualizer->Release();
+		SAFE_DELETE(m_pMgrEqualizer);
+	}
+
 	if (NULL != m_pMgrPlayerList)
 	{
 		m_pMgrPlayerList->Release();
@@ -69,6 +79,18 @@ CPlayerListMgr* CFrameWork::GetPlayerListMgr()
 		m_pMgrPlayerList->Initialize();
 	}
 	return m_pMgrPlayerList;
+}
+
+CEqualizerMgr*  CFrameWork::GetEqualizerMgr()
+{
+	if (NULL == m_pMgrEqualizer)
+	{
+		m_pMgrEqualizer = new CEqualizerMgr;
+		m_vecMgr.push_back(m_pMgrEqualizer);
+
+		m_pMgrEqualizer->Initialize();
+	}
+	return m_pMgrEqualizer;
 }
 
 void CFrameWork::FireEvent(IMgr* pSource,int nEventType, int nEventId, WPARAM wParam, LPARAM lParam)

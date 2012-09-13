@@ -19,8 +19,8 @@
              foregnd.render.imagelist.layout="h"/>
       <Label id="label_voice_status" text="立体声"    layout.right="112" layout.top="91"  textrender.color="voice_channel"/>
       <Label id="label_playstatus"   text="状态:停止" layout.right="112" layout.top="111" textrender.color="play_statue"/>
-      <Button      id="btn_playlist"  styleclass="imagebtn"  tooltip="播放列表" bkgnd.render.image="playlist.png" bkgnd.render.imagelist.count="8" layout.top="64"  layout.right="72"/>
-      <CheckButton id="btn_equalizer" styleclass="imagecheckbutton"  tooltip="均衡器"   foregnd.render.image="equalizer.png" layout.top="64"  layout.right="47"/>
+      <Button      id="btn_playlist"  styleclass="imagebtn"  tooltip="播放列表" bkgnd.render.image="playlist.png"  bkgnd.render.imagelist.count="8" layout.top="64"  layout.right="72"/>
+      <Button      id="btn_equalizer" styleclass="imagebtn"  tooltip="均衡器"   bkgnd.render.image="equalizer.png" bkgnd.render.imagelist.count="8" layout.top="64"  layout.right="47"/>
       <CheckButton id="btn_lyric"     styleclass="imagecheckbutton"  tooltip="歌词"     foregnd.render.image="lyric.png"     layout.top="64"  layout.right="18"/>
       <Button id="btn_browser" styleclass="imagebtn"  bkgnd.render.image="browser.bmp"  layout.top="108" layout.right="24"/>
       <Panel  layout="stack"   layout.left="20" layout.bottom="8" layout.direction="lefttoright">

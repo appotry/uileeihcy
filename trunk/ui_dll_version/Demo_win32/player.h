@@ -26,7 +26,8 @@ enum PLAYER_UI_EVENT_ID
 {
 	UI_EVENT_ID_ON_PLAYERLISTDLG_CREATE,              // 播放列表窗口被创建，WPARAM: 窗口句柄； LPARAM:
 	UI_EVENT_ID_ON_PLAYERLISTDLG_VISIBLE_CHANGED,     // 播放列表窗口显示，  WPARAM：窗口句柄； LPARAM:BOOL bVisible
-
+	UI_EVENT_ID_ON_EQUALIZERDLG_CREATE,               // 均衡器窗口被创建，  WPARAM: 窗口句柄
+	UI_EVENT_ID_ON_EQUALIZERDLG_VISIBLE_CHANGED,      // 均衡器窗口显示，    WPARAM：窗口句柄； LPARAM:BOOL bVisible
 };
 enum PLAYER_PALY_EVENT_ID
 {
@@ -41,10 +42,13 @@ enum PLAYER_PALY_EVENT_ID
 class   CFrameWork;
 class   CMainMgr;
 class   CPlayerListMgr;
+class   CEqualizerMgr;
 
 CFrameWork*     GetFrameWork();
 CMainMgr*       GetMainMgr();
 CPlayerListMgr* GetPlayerListMgr();
+CEqualizerMgr*  GetEqualizerMgr();
+
 
 class IMgr
 {
@@ -74,6 +78,7 @@ public:
 
 	CMainMgr*       GetMainMgr();
 	CPlayerListMgr* GetPlayerListMgr();
+	CEqualizerMgr*  GetEqualizerMgr();
 
 	void            Release();
 
@@ -82,5 +87,6 @@ public:
 private:
 	CMainMgr*         m_pMgrMain;
 	CPlayerListMgr*   m_pMgrPlayerList;
+	CEqualizerMgr*    m_pMgrEqualizer;
 	vector<IMgr*>     m_vecMgr;
 };
