@@ -173,16 +173,23 @@ bool  GdiplusRenderBitmap::ChangeHLS( const ImageData* pOriginImageData, short h
 	if( NULL == pTemp )
 		return false;
 
+	bool bChangeH = nFlag & CHANGE_SKIN_HLS_FLAG_H ? true:false;
+	bool bChangeL = nFlag & CHANGE_SKIN_HLS_FLAG_L ? true:false;
+	bool bChangeS = nFlag & CHANGE_SKIN_HLS_FLAG_S ? true:false;
+	bool bSetHueMode = nFlag & CHANGE_SKIN_HLS_FALG_REPLACE_MODE ? false:true;
+
+	if(false == bChangeH && false == bChangeL && false == bChangeS)
+		return false;
+
 	BYTE* pNewImageBits = (BYTE*)pBitmapData->Scan0;
 	int   bytesperline  = abs(pBitmapData->Stride);
 	int   bytesperpx    = pOriginImageData->m_nbpp/8;
 
-	bool bChangeH = nFlag & CHANGE_SKIN_HLS_FLAG_H ? true:false;
-	bool bChangeL = nFlag & CHANGE_SKIN_HLS_FLAG_L ? true:false;
-	bool bChangeS = nFlag & CHANGE_SKIN_HLS_FLAG_S ? true:false;
-
-	if(false == bChangeH && false == bChangeL && false == bChangeS)
-		return false;
+	float dL = 0, ds = 0;
+	if (bChangeL)
+		dL = (float)(l/100.0);   // 避免在循环中重复计算该值
+	if (bChangeS)
+		ds = (float)(s/100.0);
 
 	for (int row = 0; row < (int)pBitmapData->Height; row ++ )
 	{
@@ -192,57 +199,24 @@ bool  GdiplusRenderBitmap::ChangeHLS( const ImageData* pOriginImageData, short h
 			BYTE G = pTemp[i+1];
 			BYTE B = pTemp[i+2];
 
-			COLORREF color = RGB(R,G,B);
-				if (bChangeH)
-				{
-					if(R==G && G==B)
-					{
-						continue;  // 灰色系不能改变它的色调
-					}
-						WORD hLast=0,lLast=0,sLast=0;
-						::ColorRGBToHLS(color, &hLast,&lLast,&sLast);
-
-						short h2 = hLast + h;
-						while(h2 < MIN_HUE_VALUE)
-							h2 += MAX_HUE_VALUE;
-						while (h2 >= MAX_HUE_VALUE)
-							h2 -= MAX_HUE_VALUE;
-						hLast = h2;
-
-						color = ::ColorHLSToRGB(hLast,lLast,sLast);
-				}
-				if (bChangeL)
-				{
-					if (l > 0)  
-					{  
-						R = R + (255 - R) * l / 100;  
-						G = G + (255 - G) * l / 100;  
-						B = B + (255 - B) * l / 100;  
-					}  
-					else if (l < 0)  
-					{  
-						R = R + R * l / 100;  
-						G = G + G * l / 100;   
-						B = B + B * l / 100;  
-					}  
-					color = RGB(R,G,B);
-				}
-// 				if (bChangeS)
-// 				{
-// 					short s2 = sLast + s;
-// 					while(s2 < MIN_SATURATION_VALUE)
-// 						s2 += MAX_SATURATION_VALUE;
-// 					while (s2 >= MAX_SATURATION_VALUE)
-// 						s2 -= MAX_SATURATION_VALUE;
-// 					sLast = s2;
-// 				}
-
-			pNewImageBits[i] = GetRValue(color);
-			pNewImageBits[i+1] = GetGValue(color);
-			pNewImageBits[i+2] = GetBValue(color);
-
-			if( nPixelFormat == PixelFormat32bppARGB )
+			if (nPixelFormat == PixelFormat32bppARGB)
 				pNewImageBits[i+3] = pTemp[i+3];
+
+			if (bChangeH && bChangeS)
+			{
+				ChangeColorHueAndSaturation(R,G,B,h,bSetHueMode,s,ds);
+			}
+			else
+			{
+				if (bChangeH)
+					ChangeColorHue(R,G,B,h,bSetHueMode);
+				if (bChangeS)
+					ChangeColorSaturation(R,G,B,s,ds);
+			}
+
+			pNewImageBits[i]   = R;
+			pNewImageBits[i+1] = G;
+			pNewImageBits[i+2] = B;
 		}
 
 		pNewImageBits += pBitmapData->Stride;

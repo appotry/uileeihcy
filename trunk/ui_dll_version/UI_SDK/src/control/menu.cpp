@@ -108,6 +108,12 @@ void MenuBase::OnTimer(UINT_PTR nIDEvent, LPARAM lParam)
 	else if (nIDEvent == m_nTimerIDShowPopupSubMenu)
 	{
 		MenuBase* pSubMenu = ((MenuItem*)(pItem->wParam))->GetSubMenu();
+		if (NULL != m_pNextMenu && pSubMenu != m_pNextMenu)  // 上一个未关闭的popup菜单
+		{
+			m_pNextMenu->DestroyPopupWindow();
+			m_pNextMenu = NULL;
+		}
+
 		if (NULL != pSubMenu)
 		{
 			this->PopupSubMenu((MenuItem*)(pItem->wParam));
@@ -119,24 +125,17 @@ void MenuBase::OnTimer(UINT_PTR nIDEvent, LPARAM lParam)
 
 void MenuBase::ShowPopupSubMenu(MenuItem* pItem)
 {
-	if (0 != m_nTimerIDHidePopupSubMenu)
-	{
-		TimerHelper::GetInstance()->KillTimer(m_nTimerIDHidePopupSubMenu);
-	}
 	if (0 != m_nTimerIDShowPopupSubMenu)
-	{
 		TimerHelper::GetInstance()->KillTimer(m_nTimerIDShowPopupSubMenu);
-	}
-	if (NULL != m_pNextMenu && pItem->GetSubMenu() == m_pNextMenu)
-	{
+	
+	if (NULL != m_pNextMenu && pItem->GetSubMenu() == m_pNextMenu) // 当前显示的就是该子菜单
 		return;
-	}
 
 	TimerItem  ti;
 	ti.nRepeatCount = 1;
 	ti.pNotify = this;
 	ti.wParam = (WPARAM)pItem;
-	m_nTimerIDShowPopupSubMenu = TimerHelper::GetInstance()->SetNewTimer(500, &ti);
+	m_nTimerIDShowPopupSubMenu = TimerHelper::GetInstance()->SetNewTimer(501, &ti);
 }
 void MenuBase::HidePopupSubMenu()
 {
@@ -221,6 +220,9 @@ void MenuBase::OnMouseMove(UINT nFlags, CPoint point)
 }
 void MenuBase::OnSubMenuMouseMove(MenuBase* pSubMenu)
 {
+	 if (0 != m_nTimerIDHidePopupSubMenu)  // 防止父菜单的销毁定时器将子菜单又销毁了
+	 	TimerHelper::GetInstance()->KillTimer(m_nTimerIDHidePopupSubMenu);
+
 	MenuItem* pItem = (MenuItem*)m_pFirstItem;
 	while(NULL != pItem)
 	{
@@ -294,7 +296,14 @@ void MenuBase::OnLButtonUp(UINT nFlags, POINT point)
 		}
 	}
 }
-
+void MenuBase::OnThemeChanged()
+{
+	SetMsgHandled(FALSE);
+	ON_RENDER_THEME_CHANGED(m_pSeperatorRender);
+	ON_RENDER_THEME_CHANGED(m_pPopupTriangleRender);
+	ON_RENDER_THEME_CHANGED(m_pRadioIconRender);
+	ON_RENDER_THEME_CHANGED(m_pCheckIconRender);
+}
 MenuItem* MenuBase::AppendMenu(UINT uFlags, UINT_PTR uItemID, LPCTSTR lpNewItem)
 {
 	MenuItem *pItem = NULL;

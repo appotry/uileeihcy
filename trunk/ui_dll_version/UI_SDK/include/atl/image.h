@@ -2141,8 +2141,147 @@ namespace UI
 	//
 	//	根据参数中提供的原始数据pSaveBits，将自己偏移wNewH色调
 	//
-	//	H的取值范围是0 - 240的环形值，到达240之后又回到0起点
+	//  色调调节方法：
+	//    1)正常模式：将所有像素的H值偏移h，
+	//    2)着色模式：将所有像素的H值设置为h
+	//
+	//	  H的取值范围是0 - 240的环形值，到达240之后又回到0起点
+	//
+	//	饱和度调节方法：
+	//   饱和度的变化规律是： dS = s/100;
+	//	  当dS > 0, newS = S / (1-dS)
+	//	  当dS < 0, newS = S * (1+dS)
+	//
+	//	  S的取值范围为 -100 ~ +100
+	//
+	//	亮度调节方法：
+	//    不需要转换为HLS模式，采用的方法是将一张白色图片或者一张黑色图片盖上原图上的方法
+	//    R = 255*d + R*(1-d) = 255*d + R - R*d = R + (255-R)*d
+	//    R = 0*d + R*(1-d) = R - R*d
+	//    
+	//    L的取值范围为 -100 ~ +100
 	//	
+	inline bool ChangeColorHue(BYTE& R, BYTE& G, BYTE& B, short h, bool bOffsetOrReplace)
+	{
+		if( R==G && G==B )  // 灰色系不能改变它的色调，永远为160
+			return false;
+		
+		WORD hTemp=0,lTemp=0,sTemp=0;
+		::ColorRGBToHLS(RGB(R,G,B), &hTemp,&lTemp,&sTemp);
+
+		short h2 = h;
+		if (bOffsetOrReplace)
+			h2 = hTemp + h;
+		else
+			h2 = h;
+
+		while(h2 < MIN_HUE_VALUE)
+			h2 += MAX_HUE_VALUE;
+		while (h2 >= MAX_HUE_VALUE)
+			h2 -= MAX_HUE_VALUE;
+		hTemp = h2;
+
+		COLORREF color = ::ColorHLSToRGB(hTemp,lTemp,sTemp);
+		R = GetRValue(color);
+		G = GetGValue(color);
+		B = GetBValue(color);
+
+		return true;
+	}
+	inline void ChangeColorLuminance(BYTE& R, BYTE& G, BYTE& B, short l, float dL)  // dL = l/100;
+	{
+		if (l > 0)  // 相当于是在背景图上面盖了一张全白的图片（alpha为dL)
+		{  
+			R = R + (BYTE)((255 - R) * dL);  
+			G = G + (BYTE)((255 - G) * dL);  
+			B = B + (BYTE)((255 - B) * dL);  
+		}  
+		else if (l < 0)  // 相当于是在背景图上面盖了一张全黑的图片(alpha为dL)
+		{  
+			R = R + (BYTE)(R * dL);  
+			G = G + (BYTE)(G * dL);   
+			B = B + (BYTE)(B * dL);  
+		}  
+#define CHECK_RGB_RANGE(x)  \
+		if (x>255) x = 255; \
+		if (x<0)   x = 0;
+
+		CHECK_RGB_RANGE(R);
+		CHECK_RGB_RANGE(G);
+		CHECK_RGB_RANGE(B);
+	}
+	inline bool ChangeColorHueAndSaturation(BYTE& R, BYTE& G, BYTE& B, short h, bool bOffsetOrReplace, short s, float dS)
+	{
+		if( R==G && G==B )  // 灰色系不能改变它的色调，永远为160
+			return false;
+
+		WORD hTemp=0,lTemp=0,sTemp=0;
+		::ColorRGBToHLS(RGB(R,G,B), &hTemp,&lTemp,&sTemp);
+
+		// hue
+		short h2 = h;
+		if (bOffsetOrReplace)
+			h2 = hTemp + h;
+		else
+			h2 = h;
+
+		while(h2 < MIN_HUE_VALUE)
+			h2 += MAX_HUE_VALUE;
+		while (h2 >= MAX_HUE_VALUE)
+			h2 -= MAX_HUE_VALUE;
+		hTemp = h2;
+
+		// saturation
+		short s2 = sTemp;
+		if (s > 0)
+			s2 = (short)(s2 / (1-dS));
+		else
+			s2 = (short)(s2 * (1+dS));
+
+		if(s2 <= MIN_SATURATION_VALUE)
+			s2 = 0, hTemp = 160;  // 灰色系了
+
+		if (s2 > MAX_SATURATION_VALUE)
+			s2 = MAX_SATURATION_VALUE;
+
+		sTemp = s2;
+
+		COLORREF color = ::ColorHLSToRGB(hTemp,lTemp,sTemp);
+		R = GetRValue(color);
+		G = GetGValue(color);
+		B = GetBValue(color);
+
+		return true;
+	}
+	inline bool ChangeColorSaturation(BYTE& R, BYTE& G, BYTE& B, short s, float dS)
+	{
+		if( R==G && G==B )  // 灰色系不能改变它的色调，永远为160
+			return false;
+
+		WORD hTemp=0,lTemp=0,sTemp=0;
+		::ColorRGBToHLS(RGB(R,G,B), &hTemp,&lTemp,&sTemp);
+
+		short s2 = sTemp;
+		if (s > 0)
+			s2 = (short)(s2 / (1-dS));
+		else
+			s2 = (short)(s2 * (1+dS));
+
+		if(s2 <= MIN_SATURATION_VALUE)
+			s2 = 0, hTemp = 160;  // 灰色系了
+
+		if (s2 > MAX_SATURATION_VALUE)
+			s2 = MAX_SATURATION_VALUE;
+
+		sTemp = s2;
+
+		COLORREF color = ::ColorHLSToRGB(hTemp,lTemp,sTemp);
+		R = GetRValue(color);
+		G = GetGValue(color);
+		B = GetBValue(color);
+
+		return true;
+	}
 	inline bool Image::ChangeHLS( const ImageData* pOriginImageData, short h, short l , short s, int nFlag )
 	{
 		if( NULL == pOriginImageData )
@@ -2152,16 +2291,24 @@ namespace UI
 		if( NULL == pTemp )
 			return false;
 
-		BYTE* pNewImageBits = (BYTE*)m_pBits;
-		int   bytesperline   = abs(m_nPitch);
-		int   bytesperpx    = m_nBPP/8;
-
 		bool bChangeH = nFlag & CHANGE_SKIN_HLS_FLAG_H ? true:false;
 		bool bChangeL = nFlag & CHANGE_SKIN_HLS_FLAG_L ? true:false;
 		bool bChangeS = nFlag & CHANGE_SKIN_HLS_FLAG_S ? true:false;
+		bool bSetHueMode = nFlag & CHANGE_SKIN_HLS_FALG_REPLACE_MODE ? false:true;
 
 		if(false == bChangeH && false == bChangeL && false == bChangeS)
 			return false;
+
+		BYTE* pNewImageBits = (BYTE*)m_pBits;
+		int   bytesperline   = abs(m_nPitch);
+		int   bytesperpx    = m_nBPP/8;
+		bool  bHaveAlphaChannel = GetBPP() == 32;
+
+		float dL = 0, ds = 0;
+		if (bChangeL)
+			dL = (float)(l/100.0);   // 避免在循环中重复计算该值
+		if (bChangeS)
+			ds = (float)(s/100.0);
 
 		for (int row = 0; row < m_nHeight; row ++ )
 		{
@@ -2171,69 +2318,27 @@ namespace UI
 				BYTE G = pTemp[i+1];
 				BYTE B = pTemp[i+2];
 
-				COLORREF color = RGB(R,G,B);
-				
-					if (bChangeH)
-					{
-						if( R==G && G==B ) 
-						{
-							// 灰色系不能改变它的色调
-							continue;
-						}
-						WORD hLast=0,lLast=0,sLast=0;
-						::ColorRGBToHLS(color, &hLast,&lLast,&sLast);
-
-						short h2 = hLast + h;
-						while(h2 < MIN_HUE_VALUE)
-							h2 += MAX_HUE_VALUE;
-						while (h2 >= MAX_HUE_VALUE)
-							h2 -= MAX_HUE_VALUE;
-						hLast = h2;
-
-						color = ::ColorHLSToRGB(hLast,lLast,sLast);
-					}
-					if (bChangeL)
-					{
-						if (l > 0)  
-						{  
-							R = R + (255 - R) * l / 100;  
-							G = G + (255 - G) * l / 100;  
-							B = B + (255 - B) * l / 100;  
-						}  
-						else if (l < 0)  
-						{  
-							R = R + R * l / 100;  
-							G = G + G * l / 100;   
-							B = B + B * l / 100;  
-						}  
-						if (R>255) R = 255;
-						if (R<0) R=0;
-						if (G>255) G = 255;
-						if (G<0) G=0;
-						if (B>255) B = 255;
-						if (B<0) B=0;
-						color = RGB(R,G,B);
-					}
-					// 				if (bChangeS)
-					// 				{
-					// 					short s2 = sLast + s;
-					// 					while(s2 < MIN_SATURATION_VALUE)
-					// 						s2 += MAX_SATURATION_VALUE;
-					// 					while (s2 >= MAX_SATURATION_VALUE)
-					// 						s2 -= MAX_SATURATION_VALUE;
-					// 					sLast = s2;
-					// 				}
-
-				pNewImageBits[i] = GetRValue(color);
-				pNewImageBits[i+1] = GetGValue(color);
-				pNewImageBits[i+2] = GetBValue(color);
-
-				if( GetBPP() == 32 )
+				if (bHaveAlphaChannel)
 					pNewImageBits[i+3] = pTemp[i+3];
+
+				if (bChangeL)
+					ChangeColorLuminance(R,G,B,l,dL);
+
+				if (bChangeH && bChangeS)
+				{
+					ChangeColorHueAndSaturation(R,G,B,h,bSetHueMode,s,ds);
+				}
 				else
 				{
-					int a = 0;
+					if (bChangeH)
+						ChangeColorHue(R,G,B,h,bSetHueMode);
+					if (bChangeS)
+						ChangeColorSaturation(R,G,B,s,ds);
 				}
+
+				pNewImageBits[i]   = R;
+				pNewImageBits[i+1] = G;
+				pNewImageBits[i+2] = B;
 			}
 
 			pNewImageBits += m_nPitch;

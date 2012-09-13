@@ -53,6 +53,7 @@ namespace UI
 			UIMSG_WM_INITPOPUPCONTROLWINDOW(OnInitPopupControlWindow)
 			UIMSG_WM_UNINITPOPUPCONTROLWINDOW(OnUnInitPopupControlWindow)
 			UIMSG_WM_GETRENDERTYPE(OnGetRenderType)
+			UIMSG_WM_THEMECHANGED(OnThemeChanged)
 		UI_END_MSG_MAP_CHAIN_PARENT(ListCtrlBase)
 
 		friend   class   MenuItem;
@@ -67,6 +68,7 @@ namespace UI
 		void     OnMouseMove(UINT nFlags, CPoint point);
 		void     OnSubMenuMouseMove(MenuBase* pSubMenu);
 		void     SetReturnCmd(UINT n) { m_nRetCmd = n; }
+		void     OnThemeChanged();
 
 		void     ShowPopupSubMenu(MenuItem* pItem);
 		void     HidePopupSubMenu();

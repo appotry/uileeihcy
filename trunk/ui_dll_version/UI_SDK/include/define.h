@@ -32,17 +32,33 @@ typedef HRESULT (*s_UICreateInstancePtr)(void** pOut);
 
 #define MAX_STRING_LEN    256                  // 定义一些字符串的最大长度，例如皮肤名称，ID等等
 
-#define MIN_HUE_VALUE           0              // HLS范围定义色调
+
+/*  附表（HSL/V/B在各种环境下的取值范围）：
+Applications       Space       H Range      S Range      L/V/B Range
+
+Paint Shop Pro     HSL         0 - 255      0 - 255      L  0 - 255
+Gimp               HSV         0 - 360°     0 - 100      V  0 - 100
+Photoshop          HSV         0 - 360°     0 - 100%     B  0 - 100%
+Windows            HSL         0 - 240      0 - 240      L  0 - 240
+Linux / KDE        HSV         0 - 360°     0 - 255      V  0 - 255
+GTK                HSV         0 - 360°     0 - 1.0      V  0 - 1.0
+Java (awt.Color)   HSV         0 - 1.0      0 - 1.0      B  0 - 1.0
+Apple              HSV         0 - 360°     0 - 100%     L  0 - 100%
+*/
+#define MIN_HUE_VALUE           0              // 色调  HLS范围定义
 #define MAX_HUE_VALUE           240
 #define MIN_LUMINANCE_VALUE     0              // 亮度
 #define MAX_LUMINANCE_VALUE     240            
 #define MIN_SATURATION_VALUE    0              // 饱和度
 #define MAX_SATURATION_VALUE    240            
 
-#define CHANGE_SKIN_HLS_FLAG_H  1
-#define CHANGE_SKIN_HLS_FLAG_L  2
-#define CHANGE_SKIN_HLS_FLAG_S  4
-#define CHANGE_SKIN_HLS_FALG_ // 着色模式
+
+
+#define CHANGE_SKIN_HLS_FLAG_H             1
+#define CHANGE_SKIN_HLS_FLAG_L             2
+#define CHANGE_SKIN_HLS_FLAG_S             4
+#define CHANGE_SKIN_HLS_FLAG_HLS           (CHANGE_SKIN_HLS_FLAG_H|CHANGE_SKIN_HLS_FLAG_L|CHANGE_SKIN_HLS_FLAG_S)
+#define CHANGE_SKIN_HLS_FALG_REPLACE_MODE  8 // 着色模式
 
 //////////////////////////////////////////////////////////////////////////
 // enum
@@ -205,12 +221,15 @@ enum RENDER_TYPE
 	RENDER_TYPE_COLORLIST,
 	RENDER_TYPE_IMAGELIST,
 	RENDER_TYPE_IMAGELISTSTRETCH,
+	
+	RENDER_TYPE_THEME_FIRST,
 	RENDER_TYPE_THEME,
 	RENDER_TYPE_THEME_MENUSTRINGITEM,
 	RENDER_TYPE_THEME_MENUSEPERATOR,
 	RENDER_TYPE_THEME_MENUPOPUPTRIANGLE,
 	RENDER_TYPE_THEME_MENUCHECKICON,
 	RENDER_TYPE_THEME_MENURADIOICON,
+	RENDER_TYPE_THEME_LAST,
 };
 
 enum IMAGELIST_LAYOUT_TYPE

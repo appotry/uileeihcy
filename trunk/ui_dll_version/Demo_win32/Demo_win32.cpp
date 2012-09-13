@@ -17,7 +17,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	g_hInstance = hInstance;
 	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 
-	COLORREF col = RGB(16,25,24);
+	COLORREF col = RGB(32,126,1);
 	WORD h = 0, s = 0, l = 0;
 	::ColorRGBToHLS(col, &h, &l, &s);
 
@@ -25,7 +25,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	::ColorRGBToHLS(col2, &h,&l,&s);
 	
 	col2 = RGB(0,0,255);
-	ColorRGBToHLS(col2, &h,&l,&s);
+	col2 = ColorHLSToRGB(60,60,60);
 	int a = 0;
 
 	// ×¢²á×ÔÓÐ¿Ø¼þ

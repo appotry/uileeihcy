@@ -106,6 +106,7 @@ namespace UI
 		void         SetObject( Object* pObject ) { this->m_pObject = pObject; }
 		void         SetRenderType( const RENDER_TYPE& nType ){ m_nRenderType = nType ; }
 		RENDER_TYPE  GetRenderType() { return m_nRenderType; }
+		bool         IsThemeRender() {return m_nRenderType > RENDER_TYPE_THEME_FIRST && m_nRenderType < RENDER_TYPE_THEME_LAST; }
 
 	protected:
 		Object*        m_pObject;      // 绑定的对象，要绘制谁的背景
