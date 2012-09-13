@@ -265,6 +265,7 @@ namespace UI
 #include "control\button.h"
 #include "control\label.h"
 #include "control\progress.h"
+#include "control\CaretWindow.h"
 #include "control\edit.h"
 #include "control\richedit.h"
 #include "control\listbox.h"

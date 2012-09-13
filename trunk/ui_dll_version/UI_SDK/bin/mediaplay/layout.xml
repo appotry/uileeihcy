@@ -62,7 +62,7 @@
                    bkgnd.render.type="imagestretch" bkgnd.render.image="lyric_skin.png" bkgnd.render.9region="100,60,50,15,15,15,20,15"
                    transparent.type="layered" transparent.maskalpha="230" >
       <Button id="sys_close" styleclass="imagebtn" bkgnd.render.image="close.png" layout.right="6" layout.top="4"/>
-      <CheckButton id="switch_layered" layout.right="50" layout.top="5" text="切换透明窗口" tooltip="切换透明窗口" />
+      <CheckButton id="switch_layered" layout.right="50" layout.top="5" text="切换透明窗口" tooltip="切换透明窗口" />   
     </CustomWindow>
     <Window id="OptionWindow" font="normal" width="556" height="440">
       <ListBox id="optionlist" border="1" layout.left="10" layout.top="10" width="100" height="370" padding="4"

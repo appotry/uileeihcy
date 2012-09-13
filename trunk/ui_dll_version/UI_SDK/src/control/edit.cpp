@@ -667,6 +667,7 @@ EditBase::EditBase()
 	m_nXCaretPos   = 0;
 
 	m_EditData.BindToEdit(this);
+	m_caret.SetLayered(true);
 }
 
 
@@ -974,7 +975,8 @@ void EditBase::UpdateCaretByPos()
 	this->GetClientRect(&rcClient);
 	int y = ptWindow.y + m_rcNonClient.top + (rcClient.Height()-m_nCaretHeight)/2;
 
-	::SetCaretPos( m_nXCaretPos + ptWindow.x + m_rcPadding.left, y );
+	//::SetCaretPos( m_nXCaretPos + ptWindow.x + m_rcPadding.left, y );
+	m_caret.SetCaretPos(m_nXCaretPos + ptWindow.x + m_rcPadding.left, y);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1028,15 +1030,18 @@ BOOL EditBase::OnSetCursor( HWND hWnd, UINT nHitTest, UINT message )
 void EditBase::OnSetFocus( Object* )
 {
 	HWND hWnd = GetHWND();
-	::CreateCaret( hWnd, NULL, 1, m_nCaretHeight );
+	//::CreateCaret( hWnd, NULL, 1, m_nCaretHeight );
+	m_caret.CreateCaret(hWnd, NULL, 1, m_nCaretHeight);
 	this->UpdateCaretByPos();
 //	::ShowCaret( hWnd );  // 在响应完OnStateChanged刷新之后，再显示光标
 }
 void EditBase::OnKillFocus( Object* )
 {
 	m_bMouseDrag = false;
-	::HideCaret(GetHWND());
-	::DestroyCaret(); 
+//	::HideCaret(GetHWND());
+	m_caret.HideCaret();
+//	::DestroyCaret(); 
+	m_caret.DestroyCaret();
 }
 
 void EditBase::OnStateChanged(int nOld, int nNew)
@@ -1050,7 +1055,8 @@ void EditBase::OnStateChanged(int nOld, int nNew)
 		this->UpdateObject();
 		if( nNew & CSB_FOCUS )
 		{
-			::ShowCaret( GetHWND() );
+			//::ShowCaret( GetHWND() );
+			m_caret.ShowCaret();
 		}
 	}
 }	
@@ -1138,9 +1144,11 @@ void EditBase::OnInputChar(UINT nChar)
 
 	if( bUpdate1 || bUpdate2 )
 	{
-		HideCaret(GetHWND());
+	//	HideCaret(GetHWND());
+		m_caret.HideCaret();
 		UpdateObject();
-		ShowCaret(GetHWND());
+	//	ShowCaret(GetHWND());
+		m_caret.ShowCaret();
 	}
 	if(nOldXCaretPos != m_nXCaretPos)
 	{
@@ -1171,10 +1179,12 @@ void EditBase::OnLButtonDown(UINT nFlags, POINT point)
 
 	if( bUpdate1 || bUpdate2 )
 	{
-		HWND hWnd = GetHWND();
-		::HideCaret(hWnd);
+	//	HWND hWnd = GetHWND();
+	//	::HideCaret(hWnd);
+		m_caret.HideCaret();
 		this->UpdateObject();
-		::ShowCaret(hWnd);
+	//	::ShowCaret(hWnd);
+		m_caret.ShowCaret();
 	}
 	if( nOldXCaretPos != m_nXCaretPos && this->IsFocus() )
 	{
@@ -1206,10 +1216,12 @@ void EditBase::OnLButtonDblClk(UINT nFlags, POINT point)
 	m_EditData.SetCaret(nCaretEnd, false,  bUpdate1 );
 	this->CalcCaretPos( m_EditData.GetCaretIndex(), bUpdate2 );
 
-	HWND hWnd = GetHWND();
-	::HideCaret(hWnd);
+	//HWND hWnd = GetHWND();
+	//::HideCaret(hWnd);
+	m_caret.HideCaret();
 	this->UpdateObject();
-	::ShowCaret(hWnd);
+	//::ShowCaret(hWnd);
+	m_caret.ShowCaret();
 	
 	if( nOldXCaretPos != m_nXCaretPos )
 	{
@@ -1239,10 +1251,12 @@ void EditBase::OnMouseMove(UINT nFlags, POINT point)
 
 		if( bUpdate1 || bUpdate2 )
 		{
-			HWND hWnd = GetHWND();
-			::HideCaret(hWnd);
+		//	HWND hWnd = GetHWND();
+		//	::HideCaret(hWnd);
+			m_caret.HideCaret();
 			this->UpdateObject();
-			::ShowCaret(hWnd);
+		//	::ShowCaret(hWnd);
+			m_caret.ShowCaret();
 		}
 		if( nOldXCaretPos != m_nXCaretPos )
 		{
@@ -1353,10 +1367,12 @@ void EditBase::OnKeyDown_Ctrl_A()
 
 	if( nOldSelectionLen != m_EditData.GetTextLength() || bUpdate2 )  // 注：这里不由于是调用了两次SetCaret，导致第二次调用的bUpdate1必定为true，因此在这里通过判断旧的选区长度来决定是否需要刷新
 	{
-		HWND hWnd = GetHWND();
-		::HideCaret(hWnd);
+	//	HWND hWnd = GetHWND();
+	//	::HideCaret(hWnd);
+		m_caret.HideCaret();
 		this->UpdateObject();
-		::ShowCaret(hWnd);
+	//	::ShowCaret(hWnd);
+		m_caret.ShowCaret();
 	}
 	if( nOldXCaretPos != m_nXCaretPos )
 	{
@@ -1380,10 +1396,12 @@ void EditBase::OnKeyDown_Ctrl_X()
 		int  nOldXCaretPos = m_nXCaretPos;
 		this->CalcCaretPos(m_EditData.GetCaretIndex(), bUpdate);
 
-		HWND hWnd = GetHWND();
-		::HideCaret(hWnd);
+	//	HWND hWnd = GetHWND();
+	//	::HideCaret(hWnd);
+		m_caret.HideCaret();
 		this->UpdateObject();
-		::ShowCaret(hWnd);
+	//	::ShowCaret(hWnd);
+		m_caret.ShowCaret();
 		
 		if( nOldXCaretPos != m_nXCaretPos )
 		{
@@ -1408,10 +1426,12 @@ void EditBase::OnKeyDown_Ctrl_V()
 	this->CalcCaretPos(m_EditData.GetCaretIndex(), bUpdate);
 
 	// 强制刷新
-	HWND hWnd = GetHWND();
-	::HideCaret(hWnd);
+//	HWND hWnd = GetHWND();
+//	::HideCaret(hWnd);
+	m_caret.HideCaret();
 	this->UpdateObject();
-	::ShowCaret(hWnd);
+//	::ShowCaret(hWnd);
+	m_caret.ShowCaret();
 
 	if( nOldXCaretPos != m_nXCaretPos )
 	{
@@ -1439,10 +1459,12 @@ void EditBase::OnKeyDown_Backspace(bool bCtrlDown)
 
 	if( bUpdate1 || bUpdate2 )
 	{
-		HWND hWnd = GetHWND();
-		::HideCaret(hWnd);
+	//	HWND hWnd = GetHWND();
+	//	::HideCaret(hWnd);
+		m_caret.HideCaret();
 		this->UpdateObject();
-		::ShowCaret(hWnd);
+	//	::ShowCaret(hWnd);
+		m_caret.ShowCaret();
 	}
 	if( nOldXCaretPos != m_nXCaretPos )
 	{
@@ -1471,10 +1493,12 @@ void EditBase::OnKeyDown_Delete(bool bCtrlDown)
 
 	if( bUpdate1 || bUpdate2 )
 	{
-		HWND hWnd = GetHWND();
-		::HideCaret(hWnd);
+	//	HWND hWnd = GetHWND();
+	//	::HideCaret(hWnd);
+		m_caret.HideCaret();
 		this->UpdateObject();
-		::ShowCaret(hWnd);
+	//	::ShowCaret(hWnd);
+		m_caret.ShowCaret();
 	}
 	if( nOldXCaretPos != m_nXCaretPos )
 	{
@@ -1504,10 +1528,12 @@ void EditBase::OnKeyDown_Left_Top(bool bCtrlDown)
 
 	if( bUpdate1 || bUpdate2 )
 	{
-		HWND hWnd = GetHWND();
-		::HideCaret(hWnd);
+	//	HWND hWnd = GetHWND();
+	//	::HideCaret(hWnd);
+		m_caret.HideCaret();
 		this->UpdateObject();
-		::ShowCaret(hWnd);
+	//	::ShowCaret(hWnd);
+		m_caret.ShowCaret();
 	}
 	if( nOldXCaretPos != m_nXCaretPos )
 	{
@@ -1536,10 +1562,12 @@ void EditBase::OnKeyDown_Right_Down(bool bCtrlDown)
 
 	if( bUpdate1 || bUpdate2 )
 	{
-		HWND hWnd = GetHWND();
-		::HideCaret(hWnd);
+	//	HWND hWnd = GetHWND();
+	//	::HideCaret(hWnd);
+		m_caret.HideCaret();
 		this->UpdateObject();
-		::ShowCaret(hWnd);
+	//	::ShowCaret(hWnd);
+		m_caret.ShowCaret();
 	}
 	if( m_nXCaretPos != nOldXCaretPos )
 	{
@@ -1558,10 +1586,12 @@ void EditBase::OnKeyDown_Home(bool bCtrlDown)
 
 	if( bUpdate1 || bUpdate2 )
 	{
-		HWND hWnd = GetHWND();
-		::HideCaret(hWnd);
+	//	HWND hWnd = GetHWND();
+	//	::HideCaret(hWnd);
+		m_caret.HideCaret();
 		this->UpdateObject();
-		::ShowCaret(hWnd);
+	//	::ShowCaret(hWnd);
+		m_caret.ShowCaret();
 	}
 	if( m_nXCaretPos != nOldXCaretPos )
 	{
@@ -1580,10 +1610,12 @@ void EditBase::OnKeyDown_End(bool bCtrlDown)
 
 	if( bUpdate1 || bUpdate2 )
 	{
-		HWND hWnd = GetHWND();
-		::HideCaret(hWnd);
+	//	HWND hWnd = GetHWND();
+	//	::HideCaret(hWnd);
+		m_caret.HideCaret();
 		this->UpdateObject();
-		::ShowCaret(hWnd);
+	//	::ShowCaret(hWnd);
+		m_caret.ShowCaret();
 	}
 	if( m_nXCaretPos != nOldXCaretPos )
 	{
