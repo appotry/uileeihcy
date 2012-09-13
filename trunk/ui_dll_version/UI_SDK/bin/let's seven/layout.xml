@@ -79,6 +79,7 @@
                   transparent.type="layered" transparent.maskalpha="230" >
       <Button      id="sys_close"      layout.right="5"  layout.top="0" styleclass="imagebtn" bkgnd.render.image="close.bmp" />
       <CheckButton id="switch_layered" layout.right="50" layout.top="5" text="切换透明窗口" tooltip="切换透明窗口" />
+      <Edit id="edit_test" width="200" height="30" layout.left="50" layout.top="50"/>
     </CustomWindow>
     <Window id="OptionWindow" font="normal" width="556" height="440">
       <ListBox id="optionlist" border="1" layout.left="10" layout.top="10" width="100" height="370" padding="4"

@@ -1,5 +1,4 @@
 #pragma  once
-
 //////////////////////////////////////////////////////////////////////////
 //
 //                             编辑框控件
@@ -9,6 +8,8 @@
 //
 //	2012.6.2
 //		libo  重写
+//  2012.9.13
+//      libo  修改分层窗口下光标无法显示的问题
 //
 //
 //	TODO:
@@ -95,7 +96,7 @@ private:
 	SCRIPT_STRING_ANALYSIS	m_Analysis;     // For cp2x, x2cp...
 	int             m_nTextWidth;           // 当前字符的总长度
 
-	EditBase*           m_pEdit;
+	EditBase*       m_pEdit;
 };
 
 class UIAPI EditBase : public Control
@@ -200,6 +201,7 @@ private:
 	UIColor*    m_pColor;
 	UIColor*    m_pColorSelect;
 	UIColor*    m_pColorSelectBk;
+	CCaret      m_caret;     // 用于实现分层窗口上的光标显示
 };
 
 class Edit : public EditBase
