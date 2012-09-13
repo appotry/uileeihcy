@@ -76,6 +76,8 @@ public:
 
 	void    OnPlayerListDlgCreated(HWND hWnd);
 	void    OnPlayerListDlgVisibleChanged(HWND wParam, BOOL lParam);
+	void    OnEqualizerDlgCreated(HWND hWnd);
+	void    OnEqualizerDlgVisibleChanged(HWND wParam, BOOL lParam);
 
 // 	void    OnLButtonDown(UINT nFlags, POINT point);
 // 	void    OnLButtonUp(UINT nFlags, POINT point);
@@ -86,13 +88,13 @@ public:
 // 	void    OnExitSizeMove();
 
 	void    SetPlayerListDlgHandle(HWND hWnd);
-
-
+	void    SetEqualizerDlgHandle(HWND hWnd);
 
 protected:
 	HWND            m_hWndPlayerList;
 	CLyricDlg*      m_pLyricDlg;
-	CEqualizerDlg*  m_pEqualizerDlg;
+//	CEqualizerDlg*  m_pEqualizerDlg;
+	HWND            m_hWndEqualizer;
 
 // 	long            m_lSizeMove;    // 0 没开始，1鼠标左键已按下，2鼠标开始拖拽
 // 	POINT           m_ptCursorSizeMove;

@@ -183,6 +183,14 @@
 			Name="02. Âß¼­´¦Àí"
 			>
 			<File
+				RelativePath=".\EqualizerMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\EqualizerMgr.h"
+				>
+			</File>
+			<File
 				RelativePath=".\MainMgr.cpp"
 				>
 			</File>

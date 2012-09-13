@@ -175,14 +175,17 @@ void CCaretWindow::SetCaretPos(int x, int y)
 	if (NULL == m_hWnd)
 		return;
 
-	BOOL bRet = KillTimer(1);
+	BOOL bRet = KillTimer(1);  // 如果返回TRUE，则表示光标已显示
 
 	POINT pt = {x,y};
 	::MapWindowPoints(GetParent(),NULL, &pt, 1);
 
-	SetWindowPos(NULL, pt.x, pt.y, 0,0, SWP_NOZORDER|SWP_NOSIZE|SWP_NOACTIVATE);
+	UINT nFlag = SWP_NOZORDER|SWP_NOSIZE|SWP_NOACTIVATE;
+	if (bRet) nFlag |= SWP_SHOWWINDOW;  // 在光标显示前，不要加该标志。在光标显示后，每次移动位置后必须显示光标，以标识出光标位置的改变
+
+	SetWindowPos(NULL, pt.x, pt.y, 0,0, nFlag);
 	
-	if (bRet)
+	if (bRet)                 // 在光标显示前，没有定时器，不用恢复
 		SetTimer(1,GetCaretBlinkTime());
 
 	m_ptOldPos.x = x;

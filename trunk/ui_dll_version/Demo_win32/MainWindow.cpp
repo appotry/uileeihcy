@@ -4,11 +4,12 @@
 #include "PlayerListMgr.h"
 #include "OptionWindow.h"
 #include "MainMgr.h"
+#include "EqualizerMgr.h"
 
 MainWindow::MainWindow(void)
 {
 	m_hWndPlayerList = NULL;
-	m_pEqualizerDlg = NULL;
+	m_hWndEqualizer = NULL;
 	m_pLyricDlg = NULL;
 
 	m_pbtnStart = NULL;
@@ -32,12 +33,6 @@ MainWindow::MainWindow(void)
 
 MainWindow::~MainWindow(void)
 {
-	if( NULL != m_pEqualizerDlg )
-	{
-		::DestroyWindow(m_pEqualizerDlg->m_hWnd);
-		delete m_pEqualizerDlg;
-		m_pEqualizerDlg = NULL;
-	}
 	if( NULL != m_pLyricDlg )
 	{
 		::DestroyWindow(m_pLyricDlg->m_hWnd);
@@ -67,9 +62,9 @@ void MainWindow::OnInitWindow()
 	m_pbtnStop         = (Button*)this->FindChildObject(_T("btn_stop") );
 	m_pbtnOpen         = (Button*)this->FindChildObject(_T("btn_open") );
 	m_pBtnPlaylist     = (CheckButton*)this->FindChildObject(_T("btn_playlist") );
-	m_pBtnLyric        = (CheckButton*)this->FindChildObject(_T("btn_equalizer") );
-	m_pBtnEqualizer    = (CheckButton*)this->FindChildObject(_T("btn_mute") );
-	m_pbtnMute         = (CheckButton*)this->FindChildObject(_T("btn_lyric") );
+	m_pBtnLyric        = (CheckButton*)this->FindChildObject(_T("btn_lyric") );
+	m_pBtnEqualizer    = (CheckButton*)this->FindChildObject(_T("btn_equalizer") );
+	m_pbtnMute         = (CheckButton*)this->FindChildObject(_T("btn_mute") );
 	m_pLabelPlaystatus = (Label*)this->FindChildObject(_T("label_playstatus"));
 	m_pProgress        = (SliderCtrl*)this->FindChildObject(_T("progress_music"));
 	m_pVolume          = (SliderCtrl*)this->FindChildObject(_T("progress_voice"));
@@ -245,6 +240,21 @@ void MainWindow::SetPlayerListDlgHandle(HWND hWnd)
 	}
 }
 
+void MainWindow::SetEqualizerDlgHandle(HWND hWnd)
+{
+	HWND hOldValue = m_hWndEqualizer;
+	m_hWndEqualizer = hWnd;
+
+	if (NULL == hOldValue)
+	{
+		AnchorWindowData data;
+		data.m_hWnd = hWnd;
+		data.m_nAnchorType = ANCHOR_OUT_RIGHT|ANCHOR_OUT_BOTTOM;
+		data.m_rcAnchorData.Width = data.m_rcAnchorData.Height = -1;
+		this->AddAnchorItem(data);
+	}
+}
+
 void MainWindow::OnBnClickLyric()
 {
 	if( NULL == m_pLyricDlg )
@@ -277,32 +287,7 @@ void MainWindow::OnBnClickLyric()
 
 void MainWindow::OnBnClickEqualizer()
 {
-	if( NULL == m_pEqualizerDlg )
-	{
-		m_pEqualizerDlg = new CEqualizerDlg;
-		m_pEqualizerDlg->Create(_T("equalizerdlg"), m_hWnd);
-
-		RECT  rc;
-		::GetWindowRect(m_hWnd, &rc);
-		::SetWindowPos( m_pEqualizerDlg->m_hWnd, NULL, rc.right, rc.bottom, 
-			rc.right-rc.left, rc.bottom-rc.top
-			, SWP_NOZORDER|SWP_NOSIZE );
-
-		AnchorWindowData data;
-		data.m_hWnd = m_pEqualizerDlg->m_hWnd;
-		data.m_nAnchorType = ANCHOR_OUT_RIGHT|ANCHOR_OUT_BOTTOM;
-		data.m_rcAnchorData.Width = data.m_rcAnchorData.Height = -1;
-		this->AddAnchorItem(data);
-	}
-
-	if(m_pEqualizerDlg->IsVisible())
-	{
-		::ShowWindow(m_pEqualizerDlg->m_hWnd, SW_HIDE);
-	}
-	else
-	{
-		::ShowWindow(m_pEqualizerDlg->m_hWnd,SW_SHOW);
-	}
+	::GetEqualizerMgr()->ToggleShowEqualizerDlg();
 }
 
 #if 0
@@ -622,5 +607,17 @@ void MainWindow::OnPlayerListDlgVisibleChanged(HWND hWnd, BOOL bVisible)
 	{
 		m_pBtnPlaylist->SetCheck(bVisible?BST_CHECKED:BST_UNCHECKED);
 		m_pBtnPlaylist->UpdateObject();
+	}
+}
+void MainWindow::OnEqualizerDlgCreated(HWND hWnd)
+{
+	this->SetEqualizerDlgHandle(hWnd);
+}
+void MainWindow::OnEqualizerDlgVisibleChanged(HWND wParam, BOOL bVisible)
+{
+	if (NULL != m_pBtnEqualizer)
+	{
+		m_pBtnEqualizer->SetCheck(bVisible?BST_CHECKED:BST_UNCHECKED);
+		m_pBtnEqualizer->UpdateObject();
 	}
 }
