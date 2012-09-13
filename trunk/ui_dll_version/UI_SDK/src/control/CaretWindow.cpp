@@ -175,18 +175,16 @@ void CCaretWindow::SetCaretPos(int x, int y)
 	if (NULL == m_hWnd)
 		return;
 
+	BOOL bRet = KillTimer(1);
+
 	POINT pt = {x,y};
 	::MapWindowPoints(GetParent(),NULL, &pt, 1);
 
-// 	if (NULL == GetCursor())
-// 	{
-// 		g_b = true;
-// 	}
-	SetWindowPos(NULL, pt.x, pt.y, 0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE|SWP_NOACTIVATE);
-// 	if (b)
-// 	{
-// 	}
+	SetWindowPos(NULL, pt.x, pt.y, 0,0, SWP_NOZORDER|SWP_NOSIZE|SWP_NOACTIVATE);
 	
+	if (bRet)
+		SetTimer(1,GetCaretBlinkTime());
+
 	m_ptOldPos.x = x;
 	m_ptOldPos.y = y;
 }
@@ -205,6 +203,11 @@ void CCaretWindow::OnControlMove()
 void CCaret::CreateCaret(HWND hWndParent, HBITMAP hbmp, int nWidth, int nHeight)
 {
 	m_hWnd = hWndParent;
+
+	if(GetWindowLong(m_hWnd, GWL_EXSTYLE) & WS_EX_LAYERED)
+		SetLayered(true);
+	else
+		SetLayered(false);
 
 	if (m_bLayered)
 	{
