@@ -960,6 +960,31 @@ LRESULT WindowBase::_OnThemeChange( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 	Message::ForwardMessageToChildObject(this,uMsg,wParam,lParam);
 	return 0;
 }
+
+LRESULT WindowBase::_OnWindowPosChanging( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
+{
+	bHandled = TRUE;
+
+	SyncWindowHelper<WindowBase>::_OnWindowPosChanging((LPWINDOWPOS)lParam);
+	return 0;
+}
+LRESULT WindowBase::_OnSyncWindow( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
+{
+	const SyncWindowData& data = *(SyncWindowData*)(lParam);
+	switch(wParam)
+	{
+	case ADD_SYNC_WINDOW:
+		this->AddAnchorItem(data);
+		break;
+	case MODIFY_SYNC_WINDOW:
+		this->ModifyAnchorItem(data);
+		break;
+	case REMOVE_SYNC_WINDOW:
+		this->RemoveAnchorItem(data.m_hWnd);
+		break;
+	}
+	return 0;
+}
 BOOL WindowBase::OnEraseBkgnd(HRDC hRDC)
 {
 	BOOL bRet = __super::OnEraseBkgnd(hRDC);  // 如果m_pEraseBkgndRender没有处理，在这里调用系统过程

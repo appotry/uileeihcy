@@ -47,7 +47,6 @@ void RichEditBase::OnPaint( HRDC hRDC )
 	m_wrapRichEidt.Draw(hDC);
 	ReleaseHDC(hRDC, hDC);
 }
-
 LRESULT RichEditBase::OnMouseRangeMsg(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	LRESULT lRet = 0;

@@ -1,7 +1,10 @@
 #include "stdafx.h"
 #include "LyricDlg.h"
 
-
+CLyricDlg::CLyricDlg()
+{
+	this->SetWindowResizeType(WRSB_ALL);
+}
 
 void CLyricDlg::OnPaint( HRDC hRDC )
 {

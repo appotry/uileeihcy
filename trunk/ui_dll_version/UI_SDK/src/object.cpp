@@ -1317,6 +1317,14 @@ void Object::GetParentRect( CRect* prc )
 
 void Object::SetObjectPos( int x, int y, int cx, int cy, int nFlag )
 {
+	WINDOWPOS wndpos =  {NULL, NULL, x, y, cx, cy, nFlag};
+	UISendMessage(this, WM_WINDOWPOSCHANGING, 0, (LPARAM)&wndpos);
+	x = wndpos.x;
+	y = wndpos.y;
+	cx = wndpos.cx;
+	cy = wndpos.cy;
+	nFlag = wndpos.flags;
+
 	bool bMove = (nFlag&SWP_NOMOVE)?false:true;
 	bool bSize = (nFlag&SWP_NOSIZE)?false:true;
 
@@ -1354,6 +1362,14 @@ void Object::SetObjectPos( int x, int y, int cx, int cy, int nFlag )
 		WindowBase* pThis = (WindowBase*)this;
 		::SetWindowPos(pThis->m_hWnd, NULL, x, y, cx, cy, SWP_NOZORDER|SWP_NOACTIVATE);
 		::GetClientRect(pThis->m_hWnd, &m_rcParent);
+		return;
+	}
+	else if (this->GetObjectType() == OBJ_HWNDHOST)
+	{
+		HwndHost* pThis = (HwndHost*)this;
+		::SetWindowPos(pThis->m_hWnd, NULL, x, y, cx, cy, SWP_NOZORDER|SWP_NOACTIVATE);
+		::GetClientRect(pThis->m_hWnd, &m_rcParent);
+		return;
 	}
 	else
 	{
@@ -1374,6 +1390,9 @@ void Object::SetObjectPos( int x, int y, int cx, int cy, int nFlag )
 		UISendMessage( this, WM_MOVE, 0, MAKELPARAM(m_rcParent.left,m_rcParent.top) );
 	if (bSize)
 		UISendMessage( this, WM_SIZE, 0, MAKELPARAM(m_rcParent.Width(),m_rcParent.Height()) );
+
+	WINDOWPOS wndpos2 =  {NULL, NULL, x, y, cx, cy, nFlag};
+	UISendMessage(this, WM_WINDOWPOSCHANGED, NULL, (LPARAM)&wndpos2);
 }
 void Object::SetObjectPos( CRect* prc, int nFlag )
 {

@@ -80,7 +80,7 @@
       <Button      id="sys_close"      layout.right="5"  layout.top="0" styleclass="imagebtn" bkgnd.render.image="close.bmp" />
       <CheckButton id="switch_layered" layout.right="50" layout.top="5" text="切换透明窗口" tooltip="切换透明窗口" />
       <Edit id="edit_test" width="200" height="30" layout.left="50" layout.top="50"/>
-      <RichEdit id="richedit_test" border="1" layout.left="50" layout.top="90" width="200" height="50"
+      <RichEdit id="richedit_test" border="1" layout.right="50" layout.top="90" width="200" height="50"
                    bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/>
     </CustomWindow>
     <Window id="OptionWindow" font="normal" width="556" height="440">

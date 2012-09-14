@@ -28,13 +28,15 @@ public:
 		MSG_WM_DESTROY(OnDestroy)
 		MSG_WM_PAINT(OnPaint)
 		MSG_WM_TIMER(OnTimer)
+		MESSAGE_HANDLER(UI_WM_SYNC_WINDOWPOSCHANING, OnSyncWindowPosChanging);
 	END_MSG_MAP()
 
 protected:
-	int    OnCreate(LPCREATESTRUCT lpCreateStruct);
-	void   OnDestroy();
-	void   OnPaint(HDC hDC);
-	void   OnTimer(UINT_PTR nIDEvent);
+	int     OnCreate(LPCREATESTRUCT lpCreateStruct);
+	void    OnDestroy();
+	void    OnPaint(HDC hDC);
+	void    OnTimer(UINT_PTR nIDEvent);
+	LRESULT OnSyncWindowPosChanging( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
 public:
 	void   CreateCaret(HWND hWndParent, int nWidth, int nHeight);
 	void   DestroyCaret();

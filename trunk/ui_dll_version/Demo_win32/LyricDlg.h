@@ -4,7 +4,7 @@
 class CLyricDlg : public UI::CustomWindow
 {
 public:
-	CLyricDlg(){}
+	CLyricDlg();
 
 	UI_BEGIN_MSG_MAP
 		UIMSG_WM_PAINT(OnPaint)

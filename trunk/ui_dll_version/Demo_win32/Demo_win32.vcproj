@@ -219,10 +219,6 @@
 			Name="01. 界面处理"
 			>
 			<File
-				RelativePath=".\AnchorWindowHelper.h"
-				>
-			</File>
-			<File
 				RelativePath=".\EqualizerDlg.cpp"
 				>
 			</File>

@@ -6,17 +6,25 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-#define ANCHOR_NONE        0
-#define ANCHOR_LEFT        0x0001
-#define ANCHOR_RIGHT       0x0002
-#define ANCHOR_TOP         0x0004
-#define ANCHOR_BOTTOM      0x0008
-#define ANCHOR_OUT_LEFT    0x0010
-#define ANCHOR_OUT_RIGHT   0x0020
-#define ANCHOR_OUT_TOP     0x0040
-#define ANCHOR_OUT_BOTTOM  0x0080
+#define SYNC_NONE        0
+#define SYNC_LEFT        0x0001
+#define SYNC_RIGHT       0x0002
+#define SYNC_TOP         0x0004
+#define SYNC_BOTTOM      0x0008
+#define SYNC_OUT_LEFT    0x0010
+#define SYNC_OUT_RIGHT   0x0020
+#define SYNC_OUT_TOP     0x0040
+#define SYNC_OUT_BOTTOM  0x0080
+#define SYNC_CUSTOM      0x0100   // 发送UI_WM_SYNC_WINDOWPOSCHANGING消息给窗口，由窗口自行决定如何移动自己
 
-struct  AnchorData
+enum SYNC_WINDOW_EVENT_TYPE
+{
+	ADD_SYNC_WINDOW,
+	MODIFY_SYNC_WINDOW,
+	REMOVE_SYNC_WINDOW
+};
+
+struct  SyncData
 {
 	int  xOffset;
 	int  yOffset;
@@ -30,21 +38,21 @@ struct  AnchorData
 		int Height;
 	};
 
-	AnchorData()
+	SyncData()
 	{
 		xOffset = yOffset = xOffset2 = yOffset2 = 0;
 	}
 };
-struct  AnchorWindowData
+struct  SyncWindowData
 {
 	HWND         m_hWnd;           
 	UINT         m_nAnchorType;   
-	AnchorData   m_rcAnchorData;  // 当m_nAnchorType相应位有值时，m_rcAnchorData的该位有效
+	SyncData     m_rcAnchorData;  // 当m_nAnchorType相应位有值时，m_rcAnchorData的该位有效
 
-	AnchorWindowData()
+	SyncWindowData()
 	{
 		m_hWnd = NULL;
-		m_nAnchorType = ANCHOR_NONE;
+		m_nAnchorType = SYNC_NONE;
 	}
 };
 
@@ -60,34 +68,21 @@ struct  AnchorWindowData
 //		1. 处理不好容易产生死循环
 //
 template<class T>
-class AnchorWindowHelper
+class SyncWindowHelper
 {
 public:
-	AnchorWindowHelper()
+	SyncWindowHelper()
 	{
 		m_bSendByDeferWindowPos = false;
 	}
 
 protected:
 
-	void OnMouseMove(UINT nFlags, POINT point)
+	void _OnWindowPosChanging(LPWINDOWPOS lpWndPos)
 	{
-		vector<AnchorWindowData>::iterator  iter = m_vecAnchorItems.begin();
-		vector<AnchorWindowData>::iterator  iterEnd = m_vecAnchorItems.end();
-		for (; iter != iterEnd; iter++)
-		{
-			HWND hWnd = iter->m_hWnd;
-			if (NULL != hWnd && IsWindowVisible(hWnd))
-			{
-				hdwp = HandleWindowAnchor(hdwp, rcSourceWnd, *iter);
-			}
-		}
+		if (0 == m_vecAnchorItems.size())
+			return;
 
-		EndDeferWindowPos(hdwp);
-	}
-
-	void __OnWindowPosChanging(LPWINDOWPOS lpWndPos)
-	{
 		if (m_bSendByDeferWindowPos)
 		{
 			m_bSendByDeferWindowPos = false;  // DeferWindowPos传递过来的消息，放行。
@@ -137,12 +132,12 @@ protected:
 			if (NULL == hdwp) break;
 
 			bool bLoopResult = true;
-			vector<AnchorWindowData>::iterator  iter = m_vecAnchorItems.begin();
-			vector<AnchorWindowData>::iterator  iterEnd = m_vecAnchorItems.end();
+			vector<SyncWindowData>::iterator  iter = m_vecAnchorItems.begin();
+			vector<SyncWindowData>::iterator  iterEnd = m_vecAnchorItems.end();
 			for (; iter != iterEnd; iter++)
 			{
 				HWND hWnd = iter->m_hWnd;
-				if (NULL != hWnd && IsWindowVisible(hWnd))
+				if (NULL != hWnd /*&& IsWindowVisible(hWnd)*/)
 				{
 					hdwp = HandleWindowAnchor(hdwp, rc, *iter);
 					if (NULL == hdwp) 
@@ -164,8 +159,8 @@ protected:
 		} while (0);
 
 		// 失败了，调用默认过程
-		vector<AnchorWindowData>::iterator  iter = m_vecAnchorItems.begin();
-		vector<AnchorWindowData>::iterator  iterEnd = m_vecAnchorItems.end();
+		vector<SyncWindowData>::iterator  iter = m_vecAnchorItems.begin();
+		vector<SyncWindowData>::iterator  iterEnd = m_vecAnchorItems.end();
 		for (; iter != iterEnd; iter++)
 		{
 			HWND hWnd = iter->m_hWnd;
@@ -178,8 +173,14 @@ protected:
 	}
 
 
-	HDWP   HandleWindowAnchor(HDWP& hdwp, const CRect& rcSrcWindow, const AnchorWindowData& rData)
+	HDWP   HandleWindowAnchor(HDWP& hdwp, const CRect& rcSrcWindow, const SyncWindowData& rData)
 	{
+		if (rData.m_nAnchorType == SYNC_CUSTOM)
+		{
+			CRect rcCopy = rcSrcWindow;
+			return (HDWP)::SendMessage(rData.m_hWnd, UI_WM_SYNC_WINDOWPOSCHANING, (WPARAM)hdwp, (LPARAM)&rcCopy);
+		}
+
 		int x=0, y=0, w=0, h=0;
 		int nFlag = SWP_NOZORDER|SWP_NOACTIVATE;
 
@@ -189,15 +190,15 @@ protected:
 		h = rcThisWindow.Height();
 
 		// 分析对齐方式
-		bool bLeft   = rData.m_nAnchorType&ANCHOR_LEFT? true:false;
-		bool bRight  = rData.m_nAnchorType&ANCHOR_RIGHT? true:false;
-		bool bTop    = rData.m_nAnchorType&ANCHOR_TOP? true:false;
-		bool bBottom = rData.m_nAnchorType&ANCHOR_BOTTOM? true:false;
+		bool bLeft   = rData.m_nAnchorType&SYNC_LEFT? true:false;
+		bool bRight  = rData.m_nAnchorType&SYNC_RIGHT? true:false;
+		bool bTop    = rData.m_nAnchorType&SYNC_TOP? true:false;
+		bool bBottom = rData.m_nAnchorType&SYNC_BOTTOM? true:false;
 
-		bool bOutLeft   = rData.m_nAnchorType&ANCHOR_OUT_LEFT? true:false;
-		bool bOutRight  = rData.m_nAnchorType&ANCHOR_OUT_RIGHT? true:false;
-		bool bOutTop    = rData.m_nAnchorType&ANCHOR_OUT_TOP? true:false;
-		bool bOutBottom = rData.m_nAnchorType&ANCHOR_OUT_BOTTOM? true:false;
+		bool bOutLeft   = rData.m_nAnchorType&SYNC_OUT_LEFT? true:false;
+		bool bOutRight  = rData.m_nAnchorType&SYNC_OUT_RIGHT? true:false;
+		bool bOutTop    = rData.m_nAnchorType&SYNC_OUT_TOP? true:false;
+		bool bOutBottom = rData.m_nAnchorType&SYNC_OUT_BOTTOM? true:false;
 
 		if (bLeft && bRight)
 		{
@@ -256,7 +257,7 @@ protected:
 	}
 
 public:
-	bool   AddAnchorItem(const AnchorWindowData& data)
+	bool   AddAnchorItem(const SyncWindowData& data)
 	{
 		if (NULL == data.m_hWnd)
 			return false;
@@ -272,8 +273,8 @@ public:
 	}
 	bool   RemoveAnchorItem(HWND hWnd)
 	{
-		vector<AnchorWindowData>::iterator  iter = m_vecAnchorItems.begin();
-		vector<AnchorWindowData>::iterator  iterEnd = m_vecAnchorItems.end();
+		vector<SyncWindowData>::iterator  iter = m_vecAnchorItems.begin();
+		vector<SyncWindowData>::iterator  iterEnd = m_vecAnchorItems.end();
 		for (; iter!=iterEnd; iter++)
 		{
 			if (iter->m_hWnd == hWnd)
@@ -284,17 +285,19 @@ public:
 		}
 		return false;
 	}
-	bool   ModifyAnchorItem(const AnchorWindowData& data)
+	bool   ModifyAnchorItem(const SyncWindowData& data)
 	{
-		if (-1 == this->FindAnchorItem(data.m_hWnd))
+		int nIndex = this->FindAnchorItem(data.m_hWnd);
+		if (-1 == nIndex)
 			return false;
 
-		m_vecAnchorItems[i] = data;
+		m_vecAnchorItems[nIndex] = data;
 		return true;
 	}
 	bool   ClearAnchorItem()
 	{
 		m_vecAnchorItems.clear();
+		return true;
 	}
 
 	int    FindAnchorItem(HWND hWnd)
@@ -310,14 +313,14 @@ public:
 		return -1;
 	}
 
-	int    GetVisibleHWNDCount()
+	int    GetVisibleHWNDCount()  // 放弃判断是否可见。有时不可见也需要调整，要不然再显示时，位置就不正确了
 	{
 		int nCount = 0;
 		int nSize = (int)m_vecAnchorItems.size();
 		for (int i = 0; i < nSize; i++)
 		{
 			HWND hWnd = m_vecAnchorItems[i].m_hWnd;
-			if (NULL != hWnd && ::IsWindowVisible(hWnd))
+			if (NULL != hWnd /*&& ::IsWindowVisible(hWnd)*/)
 			{
 				nCount++;
 			}
@@ -333,8 +336,8 @@ public:
 		T* pThis = static_cast<T*>(this);
 		hdwp = ::DeferWindowPos(hdwp, pThis->m_hWnd, NULL, 0,0,0,0, SWP_NOZORDER|SWP_NOMOVE|SWP_NOSIZE|SWP_HIDEWINDOW );
 
-		vector<AnchorWindowData>::iterator  iter = m_vecAnchorItems.begin();
-		vector<AnchorWindowData>::iterator  iterEnd = m_vecAnchorItems.end();
+		vector<SyncWindowData>::iterator  iter = m_vecAnchorItems.begin();
+		vector<SyncWindowData>::iterator  iterEnd = m_vecAnchorItems.end();
 		for (; iter!=iterEnd; iter++)
 		{
 			hdwp = ::DeferWindowPos(hdwp, iter->m_hWnd, NULL, 0,0,0,0, SWP_NOZORDER|SWP_NOMOVE|SWP_NOSIZE|SWP_HIDEWINDOW );
@@ -346,7 +349,7 @@ public:
 
 
 private:
-	vector<AnchorWindowData>   m_vecAnchorItems;
+	vector<SyncWindowData>   m_vecAnchorItems;
 	bool   m_bSendByDeferWindowPos;  // WM_WINDOWPOSCHANGING消息的发送者
 };
 #else
@@ -359,10 +362,10 @@ private:
 //    2. 只能拦截鼠标拖拽的情况，通过代码移动窗口的情况无法拦截，窗口最大化最小化不好处理
 //
 template<class T>
-class AnchorWindowHelper
+class SyncWindowHelper
 {
 public:
-	AnchorWindowHelper()
+	SyncWindowHelper()
 	{
 		m_lSizeMove = 0;
 		m_ptCursorSizeMove.x = m_ptCursorSizeMove.y = 0;
@@ -416,8 +419,8 @@ protected:
 			// 需要将最新的源窗口RECT传递进去，否则直接调用GetWindowRect得到的值将是旧的
 			rcSourceWnd = CRect(ptNew.x, ptNew.y, ptNew.x+rcSourceWnd.Width(), ptNew.y+rcSourceWnd.Height());
 
-			vector<AnchorWindowData>::iterator  iter = m_vecAnchorItems.begin();
-			vector<AnchorWindowData>::iterator  iterEnd = m_vecAnchorItems.end();
+			vector<SyncWindowData>::iterator  iter = m_vecAnchorItems.begin();
+			vector<SyncWindowData>::iterator  iterEnd = m_vecAnchorItems.end();
 			for (; iter != iterEnd; iter++)
 			{
 				HWND hWnd = iter->m_hWnd;
@@ -460,7 +463,7 @@ protected:
 		this->OnExitSizeMove();
 	}
 
-	HDWP   HandleWindowAnchor(HDWP& hdwp, const CRect& rcSrcWindow, const AnchorWindowData& rData)
+	HDWP   HandleWindowAnchor(HDWP& hdwp, const CRect& rcSrcWindow, const SyncWindowData& rData)
 	{
 		int x=0, y=0, w=0, h=0;
 		int nFlag = SWP_NOZORDER|SWP_NOACTIVATE;
@@ -471,15 +474,15 @@ protected:
 		h = rcThisWindow.Height();
 
 		// 分析对齐方式
-		bool bLeft   = rData.m_nAnchorType&ANCHOR_LEFT? true:false;
-		bool bRight  = rData.m_nAnchorType&ANCHOR_RIGHT? true:false;
-		bool bTop    = rData.m_nAnchorType&ANCHOR_TOP? true:false;
-		bool bBottom = rData.m_nAnchorType&ANCHOR_BOTTOM? true:false;
+		bool bLeft   = rData.m_nAnchorType&SYNC_LEFT? true:false;
+		bool bRight  = rData.m_nAnchorType&SYNC_RIGHT? true:false;
+		bool bTop    = rData.m_nAnchorType&SYNC_TOP? true:false;
+		bool bBottom = rData.m_nAnchorType&SYNC_BOTTOM? true:false;
 
-		bool bOutLeft   = rData.m_nAnchorType&ANCHOR_OUT_LEFT? true:false;
-		bool bOutRight  = rData.m_nAnchorType&ANCHOR_OUT_RIGHT? true:false;
-		bool bOutTop    = rData.m_nAnchorType&ANCHOR_OUT_TOP? true:false;
-		bool bOutBottom = rData.m_nAnchorType&ANCHOR_OUT_BOTTOM? true:false;
+		bool bOutLeft   = rData.m_nAnchorType&SYNC_OUT_LEFT? true:false;
+		bool bOutRight  = rData.m_nAnchorType&SYNC_OUT_RIGHT? true:false;
+		bool bOutTop    = rData.m_nAnchorType&SYNC_OUT_TOP? true:false;
+		bool bOutBottom = rData.m_nAnchorType&SYNC_OUT_BOTTOM? true:false;
 
 		if (bLeft && bRight)
 		{
@@ -530,7 +533,7 @@ protected:
 	}
 
 public:
-	bool   AddAnchorItem(const AnchorWindowData& data)
+	bool   AddAnchorItem(const SyncWindowData& data)
 	{
 		if (NULL == data.m_hWnd)
 			return false;
@@ -546,8 +549,8 @@ public:
 	}
 	bool   RemoveAnchorItem(HWND hWnd)
 	{
-		vector<AnchorWindowData>::iterator  iter = m_vecAnchorItems.begin();
-		vector<AnchorWindowData>::iterator  iterEnd = m_vecAnchorItems.end();
+		vector<SyncWindowData>::iterator  iter = m_vecAnchorItems.begin();
+		vector<SyncWindowData>::iterator  iterEnd = m_vecAnchorItems.end();
 		for (; iter!=iterEnd; iter++)
 		{
 			if (iter->m_hWnd == hWnd)
@@ -558,7 +561,7 @@ public:
 		}
 		return false;
 	}
-	bool   ModifyAnchorItem(const AnchorWindowData& data)
+	bool   ModifyAnchorItem(const SyncWindowData& data)
 	{
 		if (-1 == this->FindAnchorItem(data.m_hWnd))
 			return false;
@@ -607,8 +610,8 @@ public:
 		T* pThis = static_cast<T*>(this);
 		hdwp = ::DeferWindowPos(hdwp, pThis->m_hWnd, NULL, 0,0,0,0, SWP_NOZORDER|SWP_NOMOVE|SWP_NOSIZE|SWP_HIDEWINDOW );
 	
-		vector<AnchorWindowData>::iterator  iter = m_vecAnchorItems.begin();
-		vector<AnchorWindowData>::iterator  iterEnd = m_vecAnchorItems.end();
+		vector<SyncWindowData>::iterator  iter = m_vecAnchorItems.begin();
+		vector<SyncWindowData>::iterator  iterEnd = m_vecAnchorItems.end();
 		for (; iter!=iterEnd; iter++)
 		{
 			hdwp = ::DeferWindowPos(hdwp, iter->m_hWnd, NULL, 0,0,0,0, SWP_NOZORDER|SWP_NOMOVE|SWP_NOSIZE|SWP_HIDEWINDOW );
@@ -623,7 +626,7 @@ private:
 	POINT    m_ptCursorSizeMove;
 	POINT    m_ptWndPosSizeMove;
 
-	vector<AnchorWindowData>   m_vecAnchorItems;
+	vector<SyncWindowData>   m_vecAnchorItems;
 };
 #endif
 
