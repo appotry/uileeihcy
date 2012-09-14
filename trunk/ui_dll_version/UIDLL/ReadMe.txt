@@ -176,8 +176,7 @@
 82. 音乐插件的功能，目前不支持WMA的文件
 83. 音乐频谱功能 
 84. 实现新的一类换肤功能：背景主题图片	
-86. 分层窗口下面，对EDIT进行双击取词，发现选中部分会被第二次截断。就是因为caretwindow在mouse up之前又发送了一次mouse move的消息，
-    导致的选区被修改...怎么办？
+87. 使用CaretWindow时，如果移动窗口，光标不会跟随
 	
 ==================================疑问==================================
 1. Message类是否需要一个 m_pCurMsg成员变量？
@@ -230,7 +229,9 @@
 14. 将pojp.h -> pojo.cpp
 15. 优化mapXml2Class
 85. 分层窗口为什么没有参与亮度的改变 : 错把gdiplus bitmap中的亮度改变的代码删除了
-     
+86. 分层窗口下面，对EDIT进行双击取词，发现选中部分会被第二次截断。就是因为caretwindow在mouse up之前又发送了一次mouse move的消息，
+    导致的选区被修改...怎么办？  -- 在dbclick中将m_bDrag = false;
+         
 /====================双屏坐标处理代码=================================================	 
 	CMFCPopupMenu::RecalcLayout, afxmenupopup.cpp L630
 	CRect rectScreen;

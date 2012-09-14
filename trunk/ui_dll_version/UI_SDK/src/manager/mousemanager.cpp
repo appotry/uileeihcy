@@ -129,6 +129,7 @@ void MouseManager::CreateToolTip()
 	m_toolinfo.rect.left = m_toolinfo.rect.top = m_toolinfo.rect.bottom = m_toolinfo.rect.right = 0; 
 
 	::SendMessage(m_hToolTip, TTM_ADDTOOL, 0, (LPARAM)&m_toolinfo);
+	::SendMessage(m_hToolTip, TTM_SETMAXTIPWIDTH, 0, (LPARAM)256);   // 备注：该属性如果不和6.0控件一起使用的话，在碰到一个很长的单词时，将无视max width，仅显示一行。
 }
 
 void MouseManager::HideToolTip()

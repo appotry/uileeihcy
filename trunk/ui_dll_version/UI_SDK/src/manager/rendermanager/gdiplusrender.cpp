@@ -1120,12 +1120,18 @@ Gdiplus::Bitmap*  GdiplusMemRenderDC::GetMemBitmap()
 	return m_pMemBitmap->GetBitmap(); 
 }
 
-void GdiplusMemRenderDC::BeginDraw( HDC hDC )
+bool GdiplusMemRenderDC::BeginDraw( HDC hDC )
 {
+	if (NULL != m_pGraphics)
+	{
+		UI_LOG_WARN(_T("%s pre invoke has not been finish."),FUNC_NAME);
+		return false;
+	}
+
 	if (NULL == m_pMemBitmap)
 	{
 		UI_LOG_WARN(_T("GdiplusMemRenderDC::BeginDraw NULL == m_pMemBitmap"));
-		return;
+		return false;
 	}
 
 	if( NULL != m_pWndGraphics )
@@ -1148,6 +1154,7 @@ void GdiplusMemRenderDC::BeginDraw( HDC hDC )
 	{
 		m_pWndGraphics = Gdiplus::Graphics::FromHWND(m_hWnd);
 	}
+	return true;
 }
 
 void GdiplusMemRenderDC::EndDraw( )

@@ -87,7 +87,7 @@ public:
 // 	virtual COLORREF GetTextColor() ;
 
 	// 只有GdiplusMemRenderDC才支持
-	virtual void     BeginDraw( HDC hDC ) {}  
+	virtual bool     BeginDraw( HDC hDC ) {return false;}  
 	virtual void     EndDraw( ){};
 	virtual void     EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc ){};
 	virtual void     ResizeRenderTarget( int nWidth, int nHeight ){}; 
@@ -133,7 +133,7 @@ public:
 public:
 	Gdiplus::Bitmap*  GetMemBitmap();
 
-	virtual void     BeginDraw( HDC hDC );
+	virtual bool     BeginDraw( HDC hDC );
 	virtual void     EndDraw( );
 	virtual void     EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc );
 	virtual void     ResizeRenderTarget( int nWidth, int nHeight );

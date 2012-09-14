@@ -80,9 +80,11 @@
       <Button      id="sys_close"      layout.right="5"  layout.top="0" styleclass="imagebtn" bkgnd.render.image="close.bmp" />
       <CheckButton id="switch_layered" layout.right="50" layout.top="5" text="切换透明窗口" tooltip="切换透明窗口" />
       <Edit id="edit_test" width="200" height="30" layout.left="50" layout.top="50"/>
+      <RichEdit id="richedit_test" border="1" layout.left="50" layout.top="90" width="200" height="50"
+                   bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/>
     </CustomWindow>
     <Window id="OptionWindow" font="normal" width="556" height="440">
-      <ListBox id="optionlist" border="1" layout.left="10" layout.top="10" width="100" height="370" padding="4"
+      <!--ListBox id="optionlist" border="1" layout.left="10" layout.top="10" width="100" height="370" padding="4"
         foregnd.render.type="imageliststretch" foregnd.render.9region="1" foregnd.render.image="listbox.png"
         foregnd.render.imagelist.count="5"  foregnd.render.imagelist.layout="v"
         bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/>
@@ -94,7 +96,7 @@
       <HyperLink id="link_homepage" text="软件主页"     tooltip="千千静听软件主页"   href="http://ttplayer.qianqian.com/"           layout.left="66"  layout.bottom="8" />
       <HyperLink id="link_homepage" text="千千音乐在线" tooltip="千千静听在线网站"   href="http://ttplayer.qianqian.com/index.html" layout.left="122" layout.bottom="8" />
       <HyperLink id="link_homepage" text="论坛"         tooltip="千千静听的官方论坛" href="http://bbs.qianqian.com/"                layout.left="202" layout.bottom="8" />
-      <HyperLink id="link_homepage" text="帮助"         tooltip="千千静听的帮助页面" href="http://ttplayer.qianqian.com/help.php"   layout.left="234" layout.bottom="8" />
+      <HyperLink id="link_homepage" text="帮助"         tooltip="千千静听的帮助页面" href="http://ttplayer.qianqian.com/help.php"   layout.left="234" layout.bottom="8" /-->
       <Panel id="option_list_panel_container" layout="card" layout.left="120" layout.top="10" width="426" height="368">
         <Panel id="control_demo_panel">
           <GroupBox  id="groupbox1"     text="ui控件" layout.left="110" layout.top="32" width="150" height="250" >

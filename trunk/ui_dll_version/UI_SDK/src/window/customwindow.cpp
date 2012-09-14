@@ -1070,7 +1070,9 @@ HRDC LayeredWindowWrap::BeginDrawObject( Object* pInvalidateObj, HRGN& hClipRgn)
 	if( NULL == pInvalidateObj )
 		return NULL;
 
-	BeginDraw(m_pWindow->m_hRenderTarget, m_hLayeredMemDC);
+	if (false == BeginDraw(m_pWindow->m_hRenderTarget, m_hLayeredMemDC))
+		return NULL;
+
 	SetViewportOrgEx(m_pWindow->m_hRenderTarget, pInvalidateObj->GetParentRectL(), pInvalidateObj->GetParentRectT(), NULL );
 	if( this->m_pWindow->m_hRgn != NULL )
 	{

@@ -100,7 +100,7 @@ void WindowlessRichEdit::Draw(HDC hDC)
 	::OffsetRect(&rcClient, -rcClient.left, -rcClient.top);
 
 	m_spTextServices->TxDraw(DVASPECT_CONTENT, 0, NULL, NULL, hDC,
-		NULL, (RECTL *)&rcClient, NULL, NULL, NULL, NULL, TXTVIEW_ACTIVE);
+							NULL, (RECTL *)&rcClient, NULL, NULL, NULL, NULL, TXTVIEW_ACTIVE);
 }
 
 // handled表示richedit不处理这个消息
@@ -270,12 +270,6 @@ BOOL ITextHostImpl::TxSetScrollPos (INT fnBar, INT nPos, BOOL fRedraw)
 	return FALSE;
 }
 
-//@cmember InvalidateRect
-void ITextHostImpl::TxInvalidateRect(LPCRECT prc, BOOL fMode)
-{
-	::InvalidateRect(m_hParentWnd, prc, fMode);
-	::PostMessage(m_hParentWnd, 1111,0,0);
-}
 
 //@cmember Send a WM_PAINT to the window
 void ITextHostImpl::TxViewChange(BOOL fUpdate)
@@ -624,3 +618,14 @@ HRESULT WindowlessRichEdit::TxGetClientRect(LPRECT prc)
 	return S_OK;
 }
 
+//@cmember InvalidateRect
+void /*ITextHostImpl*/WindowlessRichEdit::TxInvalidateRect(LPCRECT prc, BOOL fMode)
+{
+ 	if (NULL != m_pRichEditBase)
+ 	{
+		m_pRichEditBase->UpdateObject();
+ 	}
+
+	//	::InvalidateRect(m_hParentWnd, prc, fMode);
+	//	::PostMessage(m_hParentWnd, 1111,0,0);
+}

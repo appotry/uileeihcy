@@ -54,7 +54,7 @@ public:
 	virtual BOOL 		TxEnableScrollBar (INT fuSBFlags, INT fuArrowflags);
 	virtual BOOL 		TxSetScrollRange(INT fnBar,LONG nMinPos,INT nMaxPos,BOOL fRedraw);
 	virtual BOOL 		TxSetScrollPos (INT fnBar, INT nPos, BOOL fRedraw);
-	virtual void		TxInvalidateRect(LPCRECT prc, BOOL fMode);
+//	virtual void		TxInvalidateRect(LPCRECT prc, BOOL fMode);
 	virtual void 		TxViewChange(BOOL fUpdate);
 	virtual BOOL		TxCreateCaret(HBITMAP hbmp, INT xWidth, INT yHeight);
 	virtual BOOL		TxShowCaret(BOOL fShow);
@@ -169,7 +169,8 @@ public:
 	virtual ULONG   STDMETHODCALLTYPE Release(void);
 
 	// ITextHost Interface
-	HRESULT TxGetClientRect(LPRECT prc);
+	virtual HRESULT TxGetClientRect(LPRECT prc);
+	virtual void    TxInvalidateRect(LPCRECT prc, BOOL fMode);
 
 protected:
 	CComPtr<ITextServices>  m_spTextServices;

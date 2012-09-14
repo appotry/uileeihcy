@@ -128,7 +128,7 @@ bool UIApplication::Initialize( const String& strUIProjXmlPath )
 	if( false == this->InitLog(strUIProjXmlPath) )
 	{
 #ifdef _DEBUG
-		::MessageBox(NULL,_T("Initialize log module failed."), _T("Warning"), MB_OK|MB_ICONWARNING );
+		//::MessageBox(NULL,_T("Initialize log module failed."), _T("Warning"), MB_OK|MB_ICONWARNING );
 #endif
 	//	return false; <-- 有可能是没有注册uilog.dll导致的，暂不返回错误
 	}

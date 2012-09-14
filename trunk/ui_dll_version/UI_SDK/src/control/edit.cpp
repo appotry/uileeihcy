@@ -1205,6 +1205,9 @@ void EditBase::OnLButtonUp(UINT nFlags, POINT point)
 //
 void EditBase::OnLButtonDblClk(UINT nFlags, POINT point)
 {
+	m_bMouseDrag = false;  // 为了防止窗口光标的位置改变，导致又给本窗口发送了一个MOUSEMOVE消息，使得双击选中的选区被重新修改
+						   // 这里强制将m_bMouseDrag置空，不再处理拖拽
+
 	bool bUpdate1 = false, bUpdate2 = false;
 	int  nOldXCaretPos = m_nXCaretPos;
 
@@ -1215,6 +1218,7 @@ void EditBase::OnLButtonDblClk(UINT nFlags, POINT point)
 	m_EditData.SetCaret(nCaretStart, true,  bUpdate1 );
 	m_EditData.SetCaret(nCaretEnd, false,  bUpdate1 );
 	this->CalcCaretPos( m_EditData.GetCaretIndex(), bUpdate2 );
+
 
 	//HWND hWnd = GetHWND();
 	//::HideCaret(hWnd);
