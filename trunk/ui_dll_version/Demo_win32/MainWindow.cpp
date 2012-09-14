@@ -82,8 +82,8 @@ void MainWindow::OnInitWindow()
 	}
 
 	::SetWindowText(m_hWnd, _T("Player_Demo"));
-	COptionWindow win;
-	win.DoModal(g_hInstance, COptionWindow::IDD, _T("OptionWindow"),m_hWnd);
+// 	COptionWindow win;
+// 	win.DoModal(g_hInstance, COptionWindow::IDD, _T("OptionWindow"),m_hWnd);
 }
 
 void MainWindow::OnBnClickPlay()
@@ -231,9 +231,9 @@ void MainWindow::SetPlayerListDlgHandle(HWND hWnd)
 
 	if (NULL == hOldValue)
 	{
-		AnchorWindowData data;
+		SyncWindowData data;
 		data.m_hWnd = hWnd;
-		data.m_nAnchorType = ANCHOR_OUT_BOTTOM;
+		data.m_nAnchorType = SYNC_OUT_BOTTOM;
 		data.m_rcAnchorData.Width = -1;
 		data.m_rcAnchorData.Height = -1;
 		this->AddAnchorItem(data);
@@ -247,9 +247,9 @@ void MainWindow::SetEqualizerDlgHandle(HWND hWnd)
 
 	if (NULL == hOldValue)
 	{
-		AnchorWindowData data;
+		SyncWindowData data;
 		data.m_hWnd = hWnd;
-		data.m_nAnchorType = ANCHOR_OUT_RIGHT|ANCHOR_OUT_BOTTOM;
+		data.m_nAnchorType = SYNC_OUT_RIGHT|SYNC_OUT_BOTTOM;
 		data.m_rcAnchorData.Width = data.m_rcAnchorData.Height = -1;
 		this->AddAnchorItem(data);
 	}
@@ -268,9 +268,9 @@ void MainWindow::OnBnClickLyric()
 			rc.right-rc.left, rc.bottom-rc.top
 			, SWP_NOZORDER|SWP_NOSIZE );
 
-		AnchorWindowData data;
+		SyncWindowData data;
 		data.m_hWnd = m_pLyricDlg->m_hWnd;
-		data.m_nAnchorType = ANCHOR_OUT_RIGHT;
+		data.m_nAnchorType = SYNC_OUT_RIGHT;
 		data.m_rcAnchorData.Width = data.m_rcAnchorData.Height = -1;
 		this->AddAnchorItem(data);
 	}

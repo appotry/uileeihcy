@@ -433,6 +433,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\UI_SDK\include\window\SyncWindowHelper.h"
+						>
+					</File>
+					<File
 						RelativePath="..\UI_SDK\include\window\window.h"
 						>
 					</File>

@@ -155,6 +155,11 @@ void CCaretWindow::CreateCaret(HWND hWndParent, int nWidth, int nHeight)
 #else
 		this->Create(hWndParent, rc, 0, WS_POPUP|WS_DISABLED, WS_EX_TOOLWINDOW);
 #endif
+
+		SyncWindowData data;
+		data.m_hWnd = m_hWnd;
+		data.m_nAnchorType = SYNC_CUSTOM;
+		::SendMessage(hWndParent, UI_WM_SYNC_WINDOW, (WPARAM)ADD_SYNC_WINDOW, (LPARAM)&data);
 	}
 	else
 	{
@@ -167,6 +172,11 @@ void CCaretWindow::DestroyCaret()
 		return;
 
 	KillTimer(1);
+
+	SyncWindowData data;
+	data.m_hWnd = m_hWnd;
+	::SendMessage(GetParent(), UI_WM_SYNC_WINDOW, (WPARAM)REMOVE_SYNC_WINDOW, (LPARAM)&data);
+
 	this->DestroyWindow();
 }
 
@@ -192,6 +202,27 @@ void CCaretWindow::SetCaretPos(int x, int y)
 	m_ptOldPos.y = y;
 }
 
+LRESULT CCaretWindow::OnSyncWindowPosChanging( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
+{
+	HDWP hdwp = (HDWP)wParam;
+	CRect* prc = (CRect*)lParam;  // 主窗口的新坐标
+
+	// 计算client rect
+	NCCALCSIZE_PARAMS     np;
+	WINDOWPOS             wp;
+	np.lppos = &wp;
+	::CopyRect( &np.rgrc[0], prc );
+	::SendMessage( GetParent(), WM_NCCALCSIZE, (WPARAM)FALSE, (LPARAM)&np );
+	CRect rcClient(np.rgrc[0]);
+
+	POINT pt = {m_ptOldPos.x, m_ptOldPos.y};
+	pt.x += rcClient.left;
+	pt.y += rcClient.top;
+
+	UINT nFlag = SWP_NOZORDER|SWP_NOSIZE|SWP_NOACTIVATE;
+	hdwp = DeferWindowPos(hdwp, NULL, pt.x, pt.y, 0,0, nFlag);
+	return (LRESULT)hdwp;
+}
 void CCaretWindow::OnWindowMove()
 {
 	this->SetCaretPos(m_ptOldPos.x, m_ptOldPos.y);

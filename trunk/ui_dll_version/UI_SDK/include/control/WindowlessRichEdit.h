@@ -138,7 +138,7 @@ public:
 		PRE_HANDLE_MSG()
 		MSG_WM_SETCURSOR(OnSetCursor)
 		MSG_WM_KILLFOCUS(OnKillFocus)
-		MSG_WM_MOVING(OnMoving)
+		MSG_WM_WINDOWPOSCHANGED(OnWindowPosChanged)
 
 		// 必须要处理的其它消息
 		MESSAGE_HANDLER_EX(WM_KEYDOWN, OnDefaultHandle)
@@ -154,8 +154,9 @@ protected:
 	BOOL    OnSetCursor(HWND wnd, UINT nHitTest, UINT message);
 	LRESULT OnDefaultHandle(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	void    OnKillFocus(HWND wndFocus);
-	void    OnMoving(UINT fwSide, LPRECT pRect);
+	void    OnObjectPosChanged(UINT fwSide, LPRECT pRect);
 	LRESULT OnChar(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	void    OnWindowPosChanged(LPWINDOWPOS);
 
 public:
 	bool    Create(HWND hWndParent);

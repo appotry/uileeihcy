@@ -101,6 +101,21 @@ enum
 	UI_WM_PARENT_VISIBLE_CHANGED,
 
 	//
+	//  非UI消息，采用::SendMessage发送
+	//  处理一个同步移动窗口事件(添加、修改、删除)
+	//		wparam:  SYNC_WINDOW_EVENT_TYPE
+	//		lparam:  SyncWindowData*
+	UI_WM_SYNC_WINDOW,
+
+	//
+	//  非UI消息，采用::SendMessage发送
+	//	当主窗口移动时，向SYNC_CUMTOM类型的窗口发送一个消息去同步自己的位置
+	//		wparam:  HDWP
+	//		lparam:  RECT* 
+	//  return:  HWDP
+	UI_WM_SYNC_WINDOWPOSCHANING,
+
+	//
 	//	获取对象附带的滚动条对象
 	//
 	//		message: UI_WM_GETSCROLLBAROBJECT

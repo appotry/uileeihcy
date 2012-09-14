@@ -8,7 +8,8 @@
 
 namespace UI
 {
-class UIAPI WindowBase : public Panel
+	class UIAPI WindowBase : public Panel,
+							 public SyncWindowHelper<WindowBase>
 {
 public:
 	UI_DECLARE_OBJECT( WindowBase, OBJ_WINDOW )
@@ -85,6 +86,8 @@ public:
 		MESSAGE_HANDLER( WM_MOUSEMOVE,     _OnHandleMouseMessage )
 		MESSAGE_HANDLER( WM_ERASEBKGND,    _OnEraseBkgnd )
 		MESSAGE_HANDLER( WM_PAINT,         _OnPaint )
+		MESSAGE_HANDLER( WM_WINDOWPOSCHANGING, _OnWindowPosChanging )
+		MESSAGE_HANDLER( UI_WM_SYNC_WINDOW,    _OnSyncWindow)
 		MESSAGE_HANDLER( WM_MOUSELEAVE,    _OnHandleMouseMessage )
 		MESSAGE_HANDLER( WM_LBUTTONDOWN,   _OnHandleMouseMessage )
 		MESSAGE_HANDLER( WM_LBUTTONUP,     _OnHandleMouseMessage )
@@ -100,12 +103,12 @@ public:
 		MESSAGE_HANDLER( WM_MOUSEWHEEL,    _OnHandleKeyboardMessage )
 		MESSAGE_HANDLER( WM_SETFOCUS,      _OnSetFocus )
 		MESSAGE_HANDLER( WM_KILLFOCUS,     _OnKillFocus )
-#if(_WIN32_WINNT >= 0x0501)
-		MESSAGE_HANDLER( WM_THEMECHANGED,  _OnThemeChange )
-#endif
 		MESSAGE_HANDLER( WM_CREATE,        _OnCreate )
 		MESSAGE_HANDLER( WM_INITDIALOG,    _OnCreate )
 		MESSAGE_HANDLER( WM_NCDESTROY,     _OnNcDestroy )
+#if(_WIN32_WINNT >= 0x0501)
+		MESSAGE_HANDLER( WM_THEMECHANGED,  _OnThemeChange )
+#endif
 	END_MSG_MAP()
 
 	// UI事件的消息处理
@@ -126,6 +129,8 @@ protected:
 	LRESULT           _OnSetFocus( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
 	LRESULT           _OnKillFocus( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
 	LRESULT           _OnThemeChange( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+	LRESULT           _OnWindowPosChanging( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+	LRESULT           _OnSyncWindow( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
 	
 	BOOL              OnEraseBkgnd(HRDC);
 	LRESULT           OnGetRenderType();

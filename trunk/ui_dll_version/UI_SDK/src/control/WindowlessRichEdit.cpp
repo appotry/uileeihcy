@@ -171,10 +171,11 @@ void WindowlessRichEdit::OnKillFocus(HWND wndFocus)
 	SetMsgHandled(FALSE);
 }
 
-void WindowlessRichEdit::OnMoving(UINT fwSide, LPRECT pRect)
+void WindowlessRichEdit::OnWindowPosChanged(LPWINDOWPOS)
 {
 	SetMsgHandled(FALSE);
-	m_caret.OnWindowMove();
+//	m_caret.OnWindowMove();
+	
 }
 
 bool WindowlessRichEdit::HitTest(POINT pt)
