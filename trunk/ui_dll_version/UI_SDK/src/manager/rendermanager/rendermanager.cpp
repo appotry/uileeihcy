@@ -310,11 +310,11 @@ HRDC CreateRenderTarget( HWND hWnd, int nWidth, int nHeight )
 //	GDIPLUS，创建Graphics::FromBitmap,创建Graphic for draw
 //	Direct2d，不需要参数
 //
-void BeginDraw(HRDC hRDC, HDC hDC)
+bool BeginDraw(HRDC hRDC, HDC hDC)
 {
 	if( NULL == hRDC )
 	{
-		return;
+		return false;
 	}
 	return ((IRenderDC*)hRDC)->BeginDraw(hDC);
 }

@@ -502,7 +502,7 @@ GDIMemRenderDC::GDIMemRenderDC(HDC hDC, int nWidth, int nHeight )
 	m_pMemBitmap = NULL;
 	GDIRenderBitmap::CreateInstance((IRenderBitmap**)&m_pMemBitmap);
 	m_pMemBitmap->Create(nWidth, -nHeight);
-	::SelectObject(m_hDC, m_pMemBitmap->GetBitmap()->GetHBITMAP() );
+	m_hOldBitmap = (HBITMAP)::SelectObject(m_hDC, m_pMemBitmap->GetBitmap()->GetHBITMAP() );
 
 	::SetBkMode(m_hDC, TRANSPARENT);   // 不去支持带背景的文字，如果需要就使用背景填充
 	::SetStretchBltMode(m_hDC, COLORONCOLOR);
@@ -513,6 +513,7 @@ GDIMemRenderDC::GDIMemRenderDC(HWND hWnd, int nWidth, int nHeight )
 	m_hWndDC = NULL;
 	m_hOldWndDC = NULL;
 	m_hDC    = NULL;
+	m_hOldBitmap = NULL;
 
 	m_nWidth = nWidth;
 	m_nHeight = nHeight;
@@ -523,6 +524,18 @@ GDIMemRenderDC::GDIMemRenderDC(HWND hWnd, int nWidth, int nHeight )
 }
 GDIMemRenderDC::~GDIMemRenderDC()
 {
+	if (NULL != m_hOldBitmap)
+	{
+	    if (NULL != m_hDC)
+		{
+			::SelectObject(m_hDC, m_hOldBitmap);
+			m_hOldBitmap = NULL;
+		}
+		else
+		{
+			UI_LOG_WARN(_T("%s old bitmap is not selected back into dc"),FUNC_NAME);
+		}		
+	}
 	SAFE_DELETE(m_pMemBitmap);
 
 	if( NULL != m_hDC )
@@ -533,19 +546,45 @@ GDIMemRenderDC::~GDIMemRenderDC()
 	m_hWndDC = NULL;
 }
 
-void GDIMemRenderDC::BeginDraw( HDC hDC )
+bool GDIMemRenderDC::BeginDraw( HDC hDC )
 {
+	// 注：在这里排查了一天。有时候发现窗口变成空白了，没有内容。
+	//     然后调试过程中，流程也正常，不知道是哪的问题，打印出来的图片显示mem bmp只显示了一部分控件，然后后面一直也没有再变化
+	//     通过加了一句FillRect(RGB(0,0,0)),发现mem bmp的内容居然没有发生变化。因此可以推断是mem bmp没有被正确选入到m_hDC中。
+	//     然后在BeginDraw中发现，出现问题的时候，selectobject返回为空，失败了。再观察堆栈，发现BeginDraw嵌套响应了两次，而
+	//     EndDraw没有响应，导致第一次的m_hDC被重写，同时mem bmp也由于被第一次的m_hDC选入了而无法释放，因此也不能再被
+	//     其它DC选入。所以才导致所有的绘制操作都无效了。
+	//     
+	if (NULL != m_hDC)  
+	{
+		UI_LOG_WARN(_T("%s pre invoke has not been finish."),FUNC_NAME);
+		return false;
+	}
+
 	m_hOldWndDC = hDC;
 	m_hWndDC = hDC == NULL ? ::GetDC(m_hWnd):hDC;
 	m_hDC = ::CreateCompatibleDC(m_hWndDC);
-	::SelectObject(m_hDC, m_pMemBitmap->GetBitmap()->GetHBITMAP() );
+	m_hOldBitmap = (HBITMAP)::SelectObject(m_hDC, m_pMemBitmap->GetBitmap()->GetHBITMAP() );
+	UIASSERT(NULL != m_hOldBitmap);
+
 	::SetBkMode(m_hDC, TRANSPARENT);
 	::SetStretchBltMode(m_hDC, COLORONCOLOR);
+
+	return true;
 }
 
 void GDIMemRenderDC::EndDraw( )
 {
+    if (NULL == m_hDC)
+		return;
+		
 	::BitBlt(m_hWndDC, 0,0, m_nWidth, m_nHeight, m_hDC, 0,0, SRCCOPY );
+
+	if (NULL != m_hOldBitmap)
+	{
+		::SelectObject(m_hDC, m_hOldBitmap);
+		m_hOldBitmap = NULL;
+	}
 
 	::DeleteDC(m_hDC);
 	if( NULL == m_hOldWndDC )
@@ -558,8 +597,16 @@ void GDIMemRenderDC::EndDraw( )
 }
 void GDIMemRenderDC::EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc )
 {
+	if (NULL == m_hDC)
+		return;
+
 	::BitBlt(m_hWndDC, xDest, yDest, wDest, hDest, m_hDC, xSrc,ySrc, SRCCOPY );
 
+	if (NULL != m_hOldBitmap)
+	{
+		::SelectObject(m_hDC, m_hOldBitmap);
+		m_hOldBitmap = NULL;
+	}
 	::DeleteDC(m_hDC);
 	if( NULL == m_hOldWndDC )
 	{
@@ -578,6 +625,11 @@ void GDIMemRenderDC::ResizeRenderTarget( int nWidth, int nHeight )
 	m_nWidth = nWidth;
 	m_nHeight = nHeight;
 	
+	if (NULL != m_hDC && NULL != m_hOldBitmap)
+	{
+		SelectObject(m_hDC, m_hOldBitmap);
+		m_hOldBitmap = NULL;
+	}
 	SAFE_DELETE(m_pMemBitmap);
 
 	GDIRenderBitmap::CreateInstance((IRenderBitmap**)&m_pMemBitmap);
@@ -585,7 +637,7 @@ void GDIMemRenderDC::ResizeRenderTarget( int nWidth, int nHeight )
 
 	if( NULL != m_hDC )
 	{
-		::SelectObject( m_hDC, m_pMemBitmap->GetBitmap()->GetHBITMAP() );
+		m_hOldBitmap = (HBITMAP)::SelectObject( m_hDC, m_pMemBitmap->GetBitmap()->GetHBITMAP() );
 	}
 }
 BYTE* GDIMemRenderDC::LockBits()
@@ -622,6 +674,24 @@ void GDIMemRenderDC::Save( const String& strPath )
 {
 	if( m_pMemBitmap->GetBitmap() )
 	{
-		m_pMemBitmap->GetBitmap()->Save( strPath.c_str(), Gdiplus::ImageFormatPNG);
+		REFGUID guidType = Gdiplus::ImageFormatBMP;
+		String strExt = strPath.substr(strPath.length()-3,3);
+		if (0 == _tcsicmp(strExt.c_str(), _T("bmp")))
+		{
+		}
+		else if (0 == _tcsicmp(strExt.c_str(), _T("png")))
+		{
+			memcpy((void*)&guidType, & Gdiplus::ImageFormatPNG, sizeof(GUID));
+		}
+		else if (0 == _tcsicmp(strExt.c_str(), _T("jpg")))
+		{
+			memcpy((void*)&guidType, & Gdiplus::ImageFormatJPEG, sizeof(GUID));
+		}
+		else
+		{
+			return ;
+		}
+
+		m_pMemBitmap->GetBitmap()->Save( strPath.c_str(), guidType);
 	}
 }

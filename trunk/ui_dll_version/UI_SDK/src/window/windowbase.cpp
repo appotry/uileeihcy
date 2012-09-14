@@ -234,7 +234,9 @@ void WindowBase::InvalidateObjectBkgnd( Object* pInvalidateObj, RECT* prc, bool 
 
 void WindowBase::_InvalidateObject(Object* pInvalidateObj, HDC hDestDC)
 {
-	BeginDraw(m_hRenderTarget, hDestDC);
+	if (false ==BeginDraw(m_hRenderTarget, hDestDC))
+		return;
+
 	RenderOffsetClipHelper roc(this);
 	pInvalidateObj->DrawObjectTransparentBkgnd(m_hRenderTarget, roc, pInvalidateObj->IsTransparent());
 	
@@ -254,7 +256,9 @@ void WindowBase::_InvalidateObject(Object* pInvalidateObj, HDC hDestDC)
 
 void WindowBase::_InvalidateObjectBkgnd(Object* pInvalidateObj, HDC hDestDC)
 {
-	BeginDraw(m_hRenderTarget, hDestDC);
+	if (false == BeginDraw(m_hRenderTarget, hDestDC))
+		return;
+
 	RenderOffsetClipHelper roc(this);
 	pInvalidateObj->DrawObjectTransparentBkgnd(m_hRenderTarget, roc, true);
 	roc.Reset(m_hRenderTarget);
@@ -278,7 +282,8 @@ HRDC WindowBase::BeginDrawObject( Object* pInvalidateObj, HRGN& hClipRgn)
 	if( NULL == pInvalidateObj )
 		return NULL;
 
-	BeginDraw(m_hRenderTarget, NULL);
+	if (false ==BeginDraw(m_hRenderTarget, NULL))
+		return NULL;
 
 	if( this->m_hRgn != NULL )
 	{
@@ -809,11 +814,13 @@ LRESULT WindowBase::_OnPaint( UINT uMsg, WPARAM wParam,LPARAM lParam, BOOL& bHan
 			UI_LOG_ERROR(_T("WindowBase::WndProc CreateRenderTarget Failed."));
 	}
 
-	BeginDraw(m_hRenderTarget, hDC);
-	RenderOffsetClipHelper roc(this);
-	this->DrawObject(m_hRenderTarget, roc);
-	roc.Reset(m_hRenderTarget);
-	EndDraw(m_hRenderTarget);
+	if (BeginDraw(m_hRenderTarget, hDC))
+	{
+		RenderOffsetClipHelper roc(this);
+		this->DrawObject(m_hRenderTarget, roc);
+		roc.Reset(m_hRenderTarget);
+		EndDraw(m_hRenderTarget);
+	}
 
 	if( NULL == wParam )
 		EndPaint(m_hWnd,&ps);

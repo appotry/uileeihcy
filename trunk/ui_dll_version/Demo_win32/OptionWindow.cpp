@@ -22,10 +22,10 @@ BOOL COptionWindow::OnInitDialog( HWND, LPARAM )
 	{
 		m_pPanelCtrlDemo->SetVisible(false, false);
 	}
-	if (NULL != m_pPanelRichEditDemo)
-	{
-		m_pPanelRichEditDemo->SetVisible(false, false);
-	}
+// 	if (NULL != m_pPanelRichEditDemo)
+// 	{
+// 		m_pPanelRichEditDemo->SetVisible(false, false);
+// 	}
 
 	m_pListOption = (ListBox*)this->FindChildObject(_T("optionlist") );
 	if (NULL != m_pListOption)

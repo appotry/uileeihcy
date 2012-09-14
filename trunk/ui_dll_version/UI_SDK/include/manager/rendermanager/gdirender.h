@@ -85,7 +85,7 @@ public:
 // 	virtual COLORREF GetTextColor() ;
 
 	// 只有GdiMemRenderDC才支持 DoNothing
-	virtual void     BeginDraw( HDC hDC ) {}
+	virtual bool     BeginDraw( HDC hDC ) {return false;}
 	virtual void     EndDraw( ) {}
 	virtual void     EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc ){}
 	virtual void     ResizeRenderTarget( int nWidth, int nHeight ){}
@@ -121,7 +121,7 @@ public:
 	GDIMemRenderDC(HWND hWnd, int nWidth, int nHeight);
 	virtual ~GDIMemRenderDC();
 
-	virtual void     BeginDraw( HDC hDC ) ;
+	virtual bool     BeginDraw( HDC hDC ) ;
 	virtual void     EndDraw( );
 	virtual void     EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc );
 	virtual void     ResizeRenderTarget( int nWidth, int nHeight );
@@ -131,9 +131,10 @@ public:
 
 protected:
 	GDIRenderBitmap*  m_pMemBitmap;
+	HBITMAP   m_hOldBitmap; // selectobject的返回值，用于将m_pMemBitmap从m_hDC中选出
 
-	HDC       m_hWndDC;    // m_hWnd对应的HDC，有可能等于m_hOldWndDC，有可能是直接GetDC(m_hWnd)
-	HDC       m_hOldWndDC; // 需要根据m_hOldWndDC是否为空来判断是否需要ReleaseDC(m_hWndDC)
+	HDC       m_hWndDC;     // m_hWnd对应的HDC，有可能等于m_hOldWndDC，有可能是直接GetDC(m_hWnd)
+	HDC       m_hOldWndDC;  // 需要根据m_hOldWndDC是否为空来判断是否需要ReleaseDC(m_hWndDC)
 
 	int       m_nWidth;
 	int       m_nHeight;

@@ -102,7 +102,7 @@ public:
 // 	virtual COLORREF SetTextColor( COLORREF color, byte Alpha = 255 ) = 0;
 // 	virtual COLORREF GetTextColor( ) = 0;
 	
-	virtual void     BeginDraw( HDC hDC ) = 0;
+	virtual bool     BeginDraw( HDC hDC ) = 0;
 	virtual void     EndDraw( ) = 0;
 	virtual void     EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc ) = 0;
 	virtual void     ResizeRenderTarget( int nWidth, int nHeight ) = 0;
@@ -187,7 +187,7 @@ UIAPI HRDC     GetHRDC(HWND hWnd);
 UIAPI void     ReleaseHRDC(HRDC hRDC);
 UIAPI HRDC     CreateCompatibleHRDC( HRDC hRDC, int nWidth, int nHeight );
 UIAPI HRDC     CreateRenderTarget( HWND hWnd, int nWidth, int nHeight );
-UIAPI void     BeginDraw(HRDC hRDC, HDC hDC);
+UIAPI bool     BeginDraw(HRDC hRDC, HDC hDC);
 UIAPI void     EndDraw( HRDC hRDC );
 UIAPI void     EndDraw( HRDC hRDC, int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc );
 UIAPI void     ResizeRenderTarget( HRDC hRDC, int nWidth, int nHeight );
