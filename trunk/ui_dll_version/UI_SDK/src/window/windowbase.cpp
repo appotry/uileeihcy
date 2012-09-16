@@ -41,9 +41,10 @@ bool WindowBase::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 		return false;
 
 	// ×ÖÌåÑùÊ½ 
-	if( this->m_mapAttribute.count( XML_FONT ) )
+	ATTRMAP::iterator iter = mapAttrib.find(XML_FONT);
+	if (mapAttrib.end() != iter)
 	{
-		m_hFont = ::UI_GetFont( mapAttrib[XML_FONT], GetGraphicsRenderType(GetHWND()));
+		m_hFont = ::UI_GetFont(iter->second, GetGraphicsRenderType(GetHWND()));
 		m_mapAttribute.erase(XML_FONT);
 	}
 

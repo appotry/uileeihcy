@@ -10,14 +10,15 @@ ProgressCtrlBase::ProgressCtrlBase()
 	m_eDirectionType = PROGRESS_SCROLL_LEFT_2_RIGHT;
 }
 
-bool ProgressCtrlBase::SetAttribute( map<String,String>& mapAttrib, bool bReload )
+bool ProgressCtrlBase::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 {
 	if( false == Control::SetAttribute(mapAttrib,bReload) )
 		return false;
 
-	if( 0 != mapAttrib.count(XML_PROGRESSCTRL_DIRECTION) )
+	ATTRMAP::iterator iter = mapAttrib.find(XML_PROGRESSCTRL_DIRECTION);
+	if (mapAttrib.end() != iter )
 	{
-		String str = mapAttrib[XML_PROGRESSCTRL_DIRECTION];
+		String& str = iter->second;
 		if ( str == XML_PROGRESSCTRL_DIRECTION_X )
 		{
 			m_eDirectionType = PROGRESS_SCROLL_LEFT_2_RIGHT;

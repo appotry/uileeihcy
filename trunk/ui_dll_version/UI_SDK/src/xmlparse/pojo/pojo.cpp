@@ -1547,9 +1547,10 @@ void CPojo_StyleItem::SetAttribute( const String& key, const String& value )
 
 bool CPojo_StyleItem::GetAttribute( const String& key, String& retValue )
 {
-	if( 0 != m_mapAttributes.count(key) )
+	ATTRMAP::iterator iter = m_mapAttributes.find(key);
+	if (m_mapAttributes.end() != iter)
 	{
-		retValue = m_mapAttributes[key];
+		retValue = iter->second;
 		return true;
 	}
 	return false;

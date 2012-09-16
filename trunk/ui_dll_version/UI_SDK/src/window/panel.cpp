@@ -58,17 +58,18 @@ void Panel::ResetAttribute()
 	SAFE_DELETE(m_pLayout);
 	this->ModifyStyle(OBJECT_STYLE_TRANSPARENT);
 }
-bool Panel::SetAttribute( map<String,String>& mapAttrib, bool bReload )
+bool Panel::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 {
 	bool bRet = Object::SetAttribute( mapAttrib, bReload );
 	if( false == bRet )	return false;
 
 	// 布局类型
-	if( this->m_mapAttribute.count( XML_LAYOUT ) )
+	ATTRMAP::iterator iter = mapAttrib.find(XML_LAYOUT);
+	if (mapAttrib.end() != iter)
 	{
 		SAFE_DELETE(m_pLayout);
 
-		String strLayout = this->m_mapAttribute[ XML_LAYOUT ];
+		String& strLayout = iter->second;
 		this->m_pLayout = LayoutManagerFactory::GetLayout( strLayout, this );
 		if( NULL == this->m_pLayout )
 		{

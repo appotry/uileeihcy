@@ -2599,13 +2599,16 @@ bool CXmlLayoutParse::loadAttributeForCurrentObjectInXml( Object* pObj, bool bRe
 	// 特殊处理：扩展style
 	//
 	String strTagName, strStyleClass, strID;
-	if( 0 != mapAttrib.count( XML_ID) )
+
+	ATTRMAP::iterator iter = mapAttrib.find(XML_ID);
+	if (mapAttrib.end() != iter)
 	{
-		strID = mapAttrib[XML_ID];
+		strID = iter->second;
 	}
-	if( 0 != mapAttrib.count( XML_STYLECLASS ) )
+	iter = mapAttrib.find(XML_STYLECLASS);
+	if (mapAttrib.end() != iter)
 	{
-		strStyleClass = mapAttrib[XML_STYLECLASS];
+		strStyleClass = iter->second;
 	}
 	strTagName = pObj->GetObjectName();
 

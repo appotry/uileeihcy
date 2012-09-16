@@ -53,9 +53,10 @@ void ScrollBarMgr::ResetAttribute()
 }
 bool ScrollBarMgr::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 {
-	if (mapAttrib.count(XML_HSCROLLBAR))
+	ATTRMAP::iterator iter = mapAttrib.find(XML_HSCROLLBAR);
+	if (mapAttrib.end() != iter)
 	{
-		String str = mapAttrib[XML_HSCROLLBAR];
+		String& str = iter->second;
 		if (XML_SCROLLBAR_NONE == str) 
 		{
 			m_ehScrollbarVisibleType = SCROLLBAR_VISIBLE_NONE;
@@ -75,9 +76,11 @@ bool ScrollBarMgr::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 		
 		m_pBindObject->EraseAttribute(XML_HSCROLLBAR);
 	}
-	if (mapAttrib.count(XML_VSCROLLBAR))
+
+	iter = mapAttrib.find(XML_VSCROLLBAR);
+	if (mapAttrib.end() != iter)
 	{
-		String str = mapAttrib[XML_VSCROLLBAR];
+		String& str = iter->second;
 		if (XML_SCROLLBAR_NONE == str) 
 		{
 			m_evScrollbarVisibleType = SCROLLBAR_VISIBLE_NONE;
@@ -622,9 +625,10 @@ bool ScrollBarBase::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 		return false;
 
 	SCROLLBAR_TYPE eType = SCROLLBAR_TYPE_SYSTEM;
-	if (mapAttrib.count(XML_HSCROLLBAR_PRIFIX XML_SCROLLBAR_TYPE) )
+	ATTRMAP::iterator iter = mapAttrib.find(XML_HSCROLLBAR_PRIFIX XML_SCROLLBAR_TYPE);
+	if (mapAttrib.end() != iter)
 	{
-		String strAttr = mapAttrib[XML_HSCROLLBAR_PRIFIX XML_SCROLLBAR_TYPE];
+		String& strAttr = iter->second;
 		if (XML_SCROLLBAR_TYPE_SLIDER == strAttr)
 		{
 			eType = SCROLLBAR_TYPE_SLIDER;

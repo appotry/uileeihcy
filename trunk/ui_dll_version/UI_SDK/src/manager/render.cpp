@@ -274,17 +274,19 @@ void ColorRender::SetBorderColor( COLORREF col )
 bool ColorRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
 {
 	String strAttrib = strPrefix + XML_RENDER_COLOR;
-	if( mapAttrib.count( strAttrib ))
+	ATTRMAP::iterator iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
 	{
-		const String& strColID = mapAttrib[strAttrib];
+		const String& strColID = iter->second;
 		::UI_GetColor( strColID, &m_pBkColor );
 		this->m_pObject->EraseAttribute(strAttrib);
 	}
 
 	strAttrib = strPrefix + XML_RENDER_BORDERCOLOR;
-	if( mapAttrib.count( strAttrib ))
+	iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
 	{
-		const String& strColID = mapAttrib[strAttrib];
+		const String& strColID = iter->second;
 		::UI_GetColor( strColID, &m_pBorderColor );
 		this->m_pObject->EraseAttribute(strAttrib);
 	}
@@ -356,28 +358,32 @@ GradientRender::~GradientRender()
 	SAFE_RELEASE(m_pBorderColor);
 }
 
-bool GradientRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
+bool GradientRender::SetAttribute( const String& strPrefix, ATTRMAP& mapAttrib )
 {
 	String strAttrib = strPrefix + XML_RENDER_COLORFROM;
-	if( mapAttrib.count( strAttrib ))
+
+	ATTRMAP::iterator iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
 	{
-		const String& strColID = mapAttrib[strAttrib];
+		const String& strColID = iter->second;
 		::UI_GetColor( strColID, &m_pColorFrom );
 		this->m_pObject->EraseAttribute(strAttrib);
 	}
 
 	strAttrib = strPrefix + XML_RENDER_COLORTO;
-	if( mapAttrib.count( strAttrib ))
+	iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
 	{
-		const String& strColID = mapAttrib[strAttrib];
+		const String& strColID = iter->second;
 		::UI_GetColor( strColID, &m_pColorTo );
 		this->m_pObject->EraseAttribute(strAttrib);
 	}
 
 	strAttrib = strPrefix + XML_RENDER_BORDERCOLOR;
-	if( mapAttrib.count( strAttrib ))
+	iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
 	{
-		const String& strColID = mapAttrib[strAttrib];
+		const String& strColID = iter->second;
 		::UI_GetColor( strColID, &m_pBorderColor );
 		this->m_pObject->EraseAttribute(strAttrib);
 	}
@@ -437,17 +443,19 @@ SimpleImageRender::~SimpleImageRender()
 bool SimpleImageRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
 {
 	String strAttrib = strPrefix + XML_RENDER_IMAGE;
-	if( mapAttrib.count( strAttrib ))
+	ATTRMAP::iterator iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
 	{
-		const String& strImageID = mapAttrib[strAttrib];
+		const String& strImageID = iter->second;
 		m_hBitmap = ::UI_GetBitmap( strImageID, ::GetGraphicsRenderType(m_pObject) );
 		this->m_pObject->EraseAttribute(strAttrib);
 	}
 
 	strAttrib = strPrefix + XML_RENDER_COLOR;
-	if( mapAttrib.count( strAttrib ))
+	iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
 	{
-		const String& strColID = mapAttrib[strAttrib];
+		const String& strColID = iter->second;
 		::UI_GetColor( strColID, &m_pColorBk );
 		this->m_pObject->EraseAttribute(strAttrib);
 	}
@@ -502,25 +510,28 @@ StretchImageRender::~StretchImageRender()
 bool StretchImageRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
 {
 	String strAttrib = strPrefix + XML_RENDER_IMAGE;
-	if( mapAttrib.count( strAttrib ))
+	ATTRMAP::iterator iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
 	{
-		const String& strImageID = mapAttrib[strAttrib];
+		const String& strImageID = iter->second;
 		m_hBitmap = ::UI_GetBitmap( strImageID, ::GetGraphicsRenderType(m_pObject) );
 		this->m_pObject->EraseAttribute(strAttrib);
 	}
 
 	strAttrib = strPrefix + XML_RENDER_IMAGE9REGION;
-	if( mapAttrib.count( strAttrib ))
+	iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
 	{
-		const String& str9Region = mapAttrib[strAttrib];
+		const String& str9Region = iter->second;
 		Util::TranslateImage9Region( str9Region, (void*)&m_region );
 		this->m_pObject->EraseAttribute(strAttrib);
 	}
 
 	strAttrib = strPrefix + XML_RENDER_COLOR;
-	if( mapAttrib.count( strAttrib ))
+	iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
 	{
-		const String& strColID = mapAttrib[strAttrib];
+		const String& strColID = iter->second;
 		::UI_GetColor( strColID, &m_pColorBk );
 		this->m_pObject->EraseAttribute(strAttrib);
 	}
@@ -575,9 +586,10 @@ TileImageRender::~TileImageRender()
 bool TileImageRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
 {
 	String strAttrib = strPrefix + XML_RENDER_IMAGE;
-	if( mapAttrib.count( strAttrib ))
+	ATTRMAP::iterator iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
 	{
-		const String& strImageID = mapAttrib[strAttrib];
+		const String& strImageID = iter->second;
 		m_hBitmap = ::UI_GetBitmap( strImageID, ::GetGraphicsRenderType(m_pObject) );
 		this->m_pObject->EraseAttribute(strAttrib);
 	}
@@ -660,11 +672,12 @@ void ColorListRender::SetStateColor(int nState, COLORREF colorBk, bool bSetBk, C
 bool ColorListRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
 {
 	String strAttrib = strPrefix + XML_RENDER_COLORLIST_COUNT;
-	if( mapAttrib.count(strAttrib) )
+	ATTRMAP::iterator iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
 	{
 		this->Clear();
 
-		m_nCount = _ttoi(mapAttrib[strAttrib].c_str());
+		m_nCount = _ttoi(iter->second.c_str());
 
 		for(int i = 0; i < m_nCount; i++ )
 		{
@@ -679,9 +692,10 @@ bool ColorListRender::SetAttribute( const String& strPrefix, map<String,String>&
 		return true;
 
 	strAttrib = strPrefix + XML_RENDER_COLOR;
-	if( mapAttrib.count(strAttrib) )
+	iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
 	{
-		String strColors = mapAttrib[strAttrib];
+		String& strColors = iter->second;
 
 		vector<String> vColors;
 		UI_Split(strColors, XML_MULTI_SEPERATOR, vColors);
@@ -699,9 +713,10 @@ bool ColorListRender::SetAttribute( const String& strPrefix, map<String,String>&
 	}
 
 	strAttrib = strPrefix + XML_RENDER_BORDERCOLOR;
-	if( mapAttrib.count(strAttrib) )
+	iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
 	{
-		String strColors = mapAttrib[strAttrib];
+		String& strColors = iter->second;
 
 		vector<String> vColors;
 		UI_Split(strColors, XML_MULTI_SEPERATOR, vColors);
@@ -774,9 +789,10 @@ ImageListRender::~ImageListRender( )
 bool ImageListRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
 {
 	String strAttrib = strPrefix + XML_RENDER_IMAGELIST_COUNT;
-	if( mapAttrib.count(strAttrib) )
+	ATTRMAP::iterator iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
 	{
-		m_nCount = _ttoi(mapAttrib[strAttrib].c_str());
+		m_nCount = _ttoi(iter->second.c_str());
 		m_pObject->EraseAttribute(strAttrib);
 	}
 
@@ -784,14 +800,15 @@ bool ImageListRender::SetAttribute( const String& strPrefix, map<String,String>&
 		return true;
 
 	strAttrib = strPrefix + XML_RENDER_IMAGE;
-	if( 0 != mapAttrib.count(strAttrib) )
+	iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
 	{
 		if( NULL != m_hBitmap )
 		{
 			::UI_ReleaseBitmap(m_hBitmap);
 			m_hBitmap = NULL;
 		}
-		m_hBitmap = ::UI_GetBitmap( mapAttrib[strAttrib], ::GetGraphicsRenderType(m_pObject->GetHWND()) );
+		m_hBitmap = ::UI_GetBitmap( iter->second, ::GetGraphicsRenderType(m_pObject->GetHWND()) );
 
 		this->m_pObject->EraseAttribute(strAttrib);
 	}
@@ -799,9 +816,10 @@ bool ImageListRender::SetAttribute( const String& strPrefix, map<String,String>&
 		return true;
 
 	strAttrib = strPrefix + XML_RENDER_IMAGELIST_LAYOUT;
-	if( 0 != mapAttrib.count(strAttrib) )
+	iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
 	{
-		String str = mapAttrib[strAttrib];
+		String& str = iter->second;
 		if ( str == XML_RENDER_IMAGELIST_LAYOUT_H )
 		{
 			m_eImageLayout = IMAGELIST_LAYOUT_TYPE_H;
@@ -862,6 +880,16 @@ SIZE ImageListRender::GetDesiredSize()
 	return s;
 }
 
+int ImageListRender::GetStateIndex(int nState)
+{
+	map<int, int>::iterator iter = m_mapState2Index.find(nState);
+	if (m_mapState2Index.end() == iter)
+	{
+
+	}
+	return -1;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 bool ImageListStretchRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
@@ -871,9 +899,10 @@ bool ImageListStretchRender::SetAttribute( const String& strPrefix, map<String,S
 		return false;
 
 	String strAttrib = strPrefix + XML_RENDER_IMAGE9REGION;
-	if( mapAttrib.count( strAttrib ))
+	ATTRMAP::iterator iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
 	{
-		const String& str9Region = mapAttrib[strAttrib];
+		const String& str9Region = iter->second;
 		Util::TranslateImage9Region( str9Region, (void*)&m_9Region );
 		this->m_pObject->EraseAttribute(strAttrib);
 	}
@@ -2707,16 +2736,18 @@ bool TextRender::SetAttribute( const String& strPrefix, map<String,String>& mapA
 {
 	// ÑÕÉ«
 	String strAttrib = strPrefix + XML_TEXTRENDER_COLOR;
-	if( mapAttrib.count( strAttrib ) )
+	ATTRMAP::iterator iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
 	{
-		UI_GetColor( mapAttrib[strAttrib], &this->m_pColorText );
+		UI_GetColor( iter->second, &this->m_pColorText );
 		m_pObject->EraseAttribute(strAttrib);
 	}
 
 	strAttrib = strPrefix + XML_TEXTRENDER_FONT;
-	if( mapAttrib.count( strAttrib ) )
+	iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
 	{
-		m_hFont = UI_GetFont(mapAttrib[strAttrib], ::GetGraphicsRenderType(m_pObject->GetHWND()) );
+		m_hFont = UI_GetFont(iter->second, ::GetGraphicsRenderType(m_pObject->GetHWND()) );
 		m_pObject->EraseAttribute(strAttrib);
 	}
 	if( NULL == m_hFont )
@@ -2789,9 +2820,10 @@ void ColorListTextRender::Clear()
 bool ColorListTextRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
 {
 	String strAttrib = strPrefix + XML_TEXTRENDER_COLORLIST_COUNT;
-	if( mapAttrib.count( strAttrib ) )
+	ATTRMAP::iterator iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
 	{
-		this->SetCount( _ttoi( mapAttrib[strAttrib].c_str()) );
+		this->SetCount( _ttoi(iter->second.c_str()) );
 		m_pObject->EraseAttribute(strAttrib);
 	}
 
@@ -2799,9 +2831,10 @@ bool ColorListTextRender::SetAttribute( const String& strPrefix, map<String,Stri
 		return true;
 
 	strAttrib = strPrefix + XML_TEXTRENDER_COLOR;
-	if( mapAttrib.count(strAttrib) )
+	iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
 	{
-		String strColors = mapAttrib[strAttrib];
+		String& strColors = iter->second;
 
 		vector<String> vColors;
 		UI_Split(strColors, XML_MULTI_SEPERATOR, vColors);
@@ -2818,9 +2851,10 @@ bool ColorListTextRender::SetAttribute( const String& strPrefix, map<String,Stri
 	}
 
 	strAttrib = strPrefix + XML_TEXTRENDER_FONT;
-	if( mapAttrib.count(strAttrib) )
+	iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
 	{
-		String strFont = mapAttrib[strAttrib];
+		String strFont = iter->second;
 
 		m_hTextFont = UI_GetFont(strFont, ::GetGraphicsRenderType(m_pObject->GetHWND()) );
 		m_pObject->EraseAttribute(strAttrib);
@@ -2913,9 +2947,10 @@ void FontColorListTextRender::Clear()
 bool FontColorListTextRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
 {
 	String strAttrib = strPrefix + XML_TEXTRENDER_FONTCOLORLIST_COUNT;
-	if( mapAttrib.count( strAttrib ) )
+	ATTRMAP::iterator iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
 	{
-		this->SetCount( _ttoi( mapAttrib[strAttrib].c_str()) );
+		this->SetCount( _ttoi(iter->second.c_str()) );
 		m_pObject->EraseAttribute(strAttrib);
 	}
 
@@ -2923,9 +2958,10 @@ bool FontColorListTextRender::SetAttribute( const String& strPrefix, map<String,
 		return true;
 
 	strAttrib = strPrefix + XML_TEXTRENDER_COLOR;
-	if( mapAttrib.count(strAttrib) )
+	iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
 	{
-		String strColors = mapAttrib[strAttrib];
+		String& strColors = iter->second;
 
 		vector<String> vColors;
 		UI_Split(strColors, XML_MULTI_SEPERATOR, vColors);
@@ -2942,9 +2978,10 @@ bool FontColorListTextRender::SetAttribute( const String& strPrefix, map<String,
 	}
 
 	strAttrib = strPrefix + XML_TEXTRENDER_FONT;
-	if( mapAttrib.count(strAttrib) )
+	iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
 	{
-		String strFonts = mapAttrib[strAttrib];
+		String& strFonts = iter->second;
 
 		vector<String> vFont;
 		UI_Split(strFonts, XML_MULTI_SEPERATOR, vFont);

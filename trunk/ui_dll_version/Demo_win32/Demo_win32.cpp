@@ -16,17 +16,37 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 {
 	g_hInstance = hInstance;
 	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+ 
+	map<int, int> m;
+	for (int i = 0; i < 100; i++)
+	{
+		m[i] = i;
+	}
 
-	COLORREF col = RGB(32,126,1);
-	WORD h = 0, s = 0, l = 0;
-	::ColorRGBToHLS(col, &h, &l, &s);
+	int nTick1 = GetTickCount();
+	for (int i = 0; i < 100000; i++)
+	{
+		if (m.count(99))
+		{
+			int n = m[99];
+		}
+	}
+	int nTick2= GetTickCount();
+	int nDiff1 = nTick2 - nTick1;  // 1310
 
-	COLORREF col2 = RGB(0,255,255);
-	::ColorRGBToHLS(col2, &h,&l,&s);
+	nTick1 = GetTickCount();
+
+	for (int i = 0; i < 100000; i++)
+	{
+		map<int,int>::iterator iter = m.find(99);
+		if (m.end() != iter)
+		{
+			int n = iter->second;
+		}
+	}
 	
-	col2 = RGB(0,0,255);
-	col2 = ColorHLSToRGB(60,60,60);
-	int a = 0;
+	nTick2= GetTickCount();
+	int nDiff2 = nTick2 - nTick1;  // 1310
 
 	// ×¢²á×ÔÓÐ¿Ø¼þ
 	UI_RegisterUIObjectCreateData(TTPlayerPlaylistCtrl::XmlName(), 

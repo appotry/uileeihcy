@@ -36,9 +36,10 @@ bool ButtonBase::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 	if( false == Control::SetAttribute(mapAttrib, bReload) )
 		return false;
 
-	if( 0 != mapAttrib.count(XML_BUTTON_RENDER_AUTOSIZE_TYPE) )
+	ATTRMAP::iterator iter = mapAttrib.find(XML_BUTTON_RENDER_AUTOSIZE_TYPE);
+	if (mapAttrib.end() != iter)
 	{
-		String strType = mapAttrib[XML_BUTTON_RENDER_AUTOSIZE_TYPE];
+		String& strType = iter->second;
 		if( strType == XML_BUTTON_RENDER_AUTOSIZE_TYPE_BKIMAGE )
 		{
 			m_nAutoSizeType = BUTTON_RENDER_AUTOSIZE_TYPE_BKIMAGE;
@@ -64,14 +65,16 @@ bool ButtonBase::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 		this->ModifyStyle(OBJECT_STYLE_TRANSPARENT,0);
 	}
 
-	if (false == bReload && 0 != mapAttrib.count(XML_BUTTON_TEXT))
+	iter = mapAttrib.find(XML_BUTTON_TEXT);
+	if (false == bReload && mapAttrib.end() != iter)
 	{
-		m_strText = mapAttrib[XML_BUTTON_TEXT];
+		m_strText = iter->second;
 		this->EraseAttribute(XML_BUTTON_TEXT);
 	}
-	if (0 != mapAttrib.count(XML_BUTTON_RENDER_DRAW_FOCUS_FLAG))
+	iter = mapAttrib.find(XML_BUTTON_RENDER_DRAW_FOCUS_FLAG);
+	if (mapAttrib.end() != iter)
 	{
-		m_nDrawFocusType = _ttoi( mapAttrib[XML_BUTTON_RENDER_DRAW_FOCUS_FLAG].c_str() );
+		m_nDrawFocusType = _ttoi( iter->second.c_str() );
 		this->EraseAttribute(XML_BUTTON_RENDER_DRAW_FOCUS_FLAG);
 	}
 

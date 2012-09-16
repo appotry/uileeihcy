@@ -355,9 +355,10 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 	//
 	//	2. 设置id属性
 	//
-	if( this->m_mapAttribute.count( XML_ID ) )
+	ATTRMAP::iterator iter = mapAttrib.find(XML_ID);
+	if (mapAttrib.end() != iter)
 	{
-		this->m_strID = this->m_mapAttribute[ XML_ID ];
+		this->m_strID = iter->second;
 		this->m_mapAttribute.erase( XML_ID );
 	}
 	
@@ -367,9 +368,10 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 	}
 
 	//  3. 设置布局相关值
-	if( this->m_mapAttribute.count( XML_WIDTH ) )
+	iter = mapAttrib.find(XML_WIDTH);
+	if (mapAttrib.end() != iter)
 	{
-		String str = this->m_mapAttribute[ XML_WIDTH ];
+		String& str = iter->second;
 		if( XML_AUTO == str )
 		{
 			this->m_nConfigWidth = AUTO;
@@ -379,9 +381,10 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 
 		this->m_mapAttribute.erase( XML_WIDTH );
 	}
-	if( this->m_mapAttribute.count( XML_HEIGHT ) )
+	iter = mapAttrib.find(XML_HEIGHT);
+	if (mapAttrib.end() != iter)
 	{
-		String str = this->m_mapAttribute[ XML_HEIGHT ];
+		String& str = iter->second;
 		if( XML_AUTO == str )
 		{
 			this->m_nConfigHeight = AUTO;
@@ -416,24 +419,27 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 // 		this->m_mapAttribute.erase( XML_MAXWIDTH );
 //	}
 
-	if( this->m_mapAttribute.count( XML_MARGIN ) )
+	iter = mapAttrib.find(XML_MARGIN);
+	if (mapAttrib.end() != iter)
 	{
-		String str = this->m_mapAttribute[ XML_MARGIN ];
-		Util::TranslateRECT( str, &this->m_rcMargin );
+		String& str = iter->second;
+		Util::TranslateRECT(str, &this->m_rcMargin);
 		this->m_mapAttribute.erase( XML_MARGIN );
 	}
-	if( this->m_mapAttribute.count( XML_PADDING ) )
+	iter = mapAttrib.find(XML_PADDING);
+	if (mapAttrib.end() != iter)
 	{
-		String str = this->m_mapAttribute[ XML_PADDING ];
+		String& str = iter->second;
 		REGION4 rcPadding;
 		Util::TranslateRECT( str, &rcPadding );
 		this->m_mapAttribute.erase( XML_PADDING );
 
 		this->SetPaddingRegion((CRegion4*)&rcPadding);
 	}
-	if( this->m_mapAttribute.count( XML_BORDER ) )
+	iter = mapAttrib.find(XML_BORDER);
+	if (mapAttrib.end() != iter)
 	{
-		String str = this->m_mapAttribute[ XML_BORDER ];
+		String& str = iter->second;
 		REGION4 rcBorder;
 		Util::TranslateRECT( str, &rcBorder );
 		this->m_mapAttribute.erase( XML_BORDER );
@@ -442,11 +448,12 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 	}
 
 	// 设置背景渲染器
-	if( this->m_mapAttribute.count( XML_BACKGND_RENDER_PREFIX XML_RENDER_TYPE ) )
+	iter = mapAttrib.find(XML_BACKGND_RENDER_PREFIX XML_RENDER_TYPE);
+	if (mapAttrib.end() != iter)
 	{
 		SAFE_DELETE(m_pBkgndRender);
 
-		const String& strBkgndRenderType = mapAttrib[XML_BACKGND_RENDER_PREFIX XML_RENDER_TYPE];
+		const String& strBkgndRenderType = iter->second;
 		this->m_pBkgndRender = RenderFactory::GetRender( strBkgndRenderType, this );
 		if( NULL != this->m_pBkgndRender )
 		{
@@ -459,11 +466,12 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 		this->m_mapAttribute.erase(XML_BACKGND_RENDER_PREFIX XML_RENDER_TYPE);
 	}
 	// 设置前景绘制
-	if( this->m_mapAttribute.count( XML_FOREGND_RENDER_PREFIX XML_RENDER_TYPE ) )
+	iter = mapAttrib.find(XML_FOREGND_RENDER_PREFIX XML_RENDER_TYPE);
+	if (mapAttrib.end() != iter)
 	{
 		SAFE_DELETE(m_pForegndRender);
 
-		const String& strForegndRenderType = mapAttrib[XML_FOREGND_RENDER_PREFIX XML_RENDER_TYPE];
+		const String& strForegndRenderType = iter->second;
 		this->m_pForegndRender = RenderFactory::GetRender( strForegndRenderType, this );
 		if( NULL != this->m_pForegndRender )
 		{
@@ -477,10 +485,11 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 	}
 
 	// 字体
-	if (this->m_mapAttribute.count(XML_TEXTRENDER_TYPE))
+	iter = mapAttrib.find(XML_TEXTRENDER_TYPE);
+	if (mapAttrib.end() != iter)
 	{
 		SAFE_DELETE(m_pTextRender);
-		const String& strTextRenderType = mapAttrib[XML_TEXTRENDER_TYPE];
+		const String& strTextRenderType = iter->second;
 		m_pTextRender = TextRenderFactory::GetTextRender(strTextRenderType, this);
 		this->m_mapAttribute.erase(XML_TEXTRENDER_TYPE);
 	}
@@ -491,9 +500,10 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 	m_pTextRender->SetAttribute(_T(""),mapAttrib);
 
 	// 刷新属性
-	if (this->m_mapAttribute.count(XML_BACKGND_IS_TRANSPARENT))
+	iter = mapAttrib.find(XML_BACKGND_IS_TRANSPARENT);
+	if (mapAttrib.end() != iter)
 	{
-		if( _ttoi(this->m_mapAttribute[ XML_BACKGND_IS_TRANSPARENT ].c_str() ) )
+		if(_ttoi(iter->second.c_str()))
 		{
 			this->ModifyStyle(OBJECT_STYLE_TRANSPARENT);
 		}
@@ -505,18 +515,20 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 	}
 	
 	// 鼠标样式
-	if( this->m_mapAttribute.count( XML_CURSOR ) )
+	iter = mapAttrib.find(XML_CURSOR);
+	if (mapAttrib.end() != iter)
 	{
-		String str = this->m_mapAttribute[ XML_CURSOR ];
+		String& str = iter->second;
 		::UI_GetCursor( str, &m_pCursor );
 		this->m_mapAttribute.erase( XML_CURSOR );
 	}
 
 	// 控件样式
-	if( this->m_mapAttribute.count( XML_CONTROL_STYLE_TABABLE ))
+	iter = mapAttrib.find(XML_CONTROL_STYLE_TABABLE);
+	if (mapAttrib.end() != iter)
 	{
-		String str = this->m_mapAttribute[XML_CONTROL_STYLE_TABABLE];
-		if(_T("1") == str)
+		String& str = iter->second;
+		if(_T("1") == str || _T("true") == str)
 		{
 			m_nStyle |= CONTROL_STYLE_TABSTOP;
 		}
@@ -526,10 +538,11 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 		}
 	}
 
-	if( this->m_mapAttribute.count( XML_CONTROL_STYLE_GROUP ))
+	iter = mapAttrib.find(XML_CONTROL_STYLE_GROUP);
+	if (mapAttrib.end() != iter)
 	{
-		String str = this->m_mapAttribute[XML_CONTROL_STYLE_GROUP];
-		if(_T("1") == str)
+		String& str = iter->second;
+		if(_T("1") == str || _T("true") == str)
 		{
 			m_nStyle |= CONTROL_STYLE_GROUP;
 		}

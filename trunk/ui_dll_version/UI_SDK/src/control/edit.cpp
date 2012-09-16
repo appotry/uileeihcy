@@ -658,6 +658,7 @@ EditBase::EditBase()
 	this->m_pColorSelectBk= NULL;
 	
 	m_bMouseDrag   = false;
+	m_bNeedUpdateCaretPos = false;
 
 	m_nXScroll     = 0;
 	m_nCaretHeight = 16;
@@ -727,32 +728,38 @@ void EditBase::ResetAttribute()
 	CRegion4 r(3,0,3,0);
 	this->SetPaddingRegion(&r);
 }
-bool EditBase::SetAttribute( map<String,String>& mapAttrib, bool bReload )
+bool EditBase::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 {
 	bool bRet = Control::SetAttribute( mapAttrib,bReload );
 	if( false == bRet )	return bRet;
 
 	// 颜色
-	if( mapAttrib.count( XML_EDIT_COLOR ) )
+	ATTRMAP::iterator iter = mapAttrib.find(XML_EDIT_COLOR);
+	if (mapAttrib.end() != iter)
 	{
-		UI_GetColor( mapAttrib[XML_EDIT_COLOR], &this->m_pColor );
+		UI_GetColor(iter->second, &this->m_pColor );
 		__super::m_mapAttribute.erase(XML_EDIT_COLOR);
 	}
-	if( mapAttrib.count( XML_EDIT_SELECT_COLOR ) )
+
+	iter = mapAttrib.find(XML_EDIT_SELECT_COLOR);
+	if (mapAttrib.end() != iter)
 	{
-		UI_GetColor( mapAttrib[XML_EDIT_SELECT_COLOR], &this->m_pColorSelect );
+		UI_GetColor( iter->second, &this->m_pColorSelect );
 		__super::m_mapAttribute.erase(XML_EDIT_SELECT_COLOR);
 	}
-	if( mapAttrib.count( XML_EDIT_SELECT_BK_COLOR ) )
+
+	iter = mapAttrib.find(XML_EDIT_SELECT_BK_COLOR);
+	if ( mapAttrib.end() != iter )
 	{
-		UI_GetColor( mapAttrib[XML_EDIT_SELECT_BK_COLOR], &this->m_pColorSelectBk );
+		UI_GetColor( iter->second, &this->m_pColorSelectBk );
 		__super::m_mapAttribute.erase(XML_EDIT_SELECT_BK_COLOR);
 	}
 
 	// 最大值
-	if( mapAttrib.count( XML_EDIT_MAX_LENGTH ) )
+	iter = mapAttrib.find(XML_EDIT_MAX_LENGTH);
+	if( mapAttrib.end() != iter)
 	{
-		this->m_EditData.SetMaxChar( _ttoi( mapAttrib[XML_EDIT_MAX_LENGTH].c_str() ) );
+		this->m_EditData.SetMaxChar( _ttoi( iter->second.c_str() ) );
 		__super::m_mapAttribute.erase( XML_EDIT_MAX_LENGTH );
 	}
 
@@ -1015,6 +1022,12 @@ void EditBase::OnPaint( HRDC hRDC )
 
 	if( this->IsFocus() )
 		this->DrawFocus( hRDC );
+
+	if (m_bNeedUpdateCaretPos)
+	{
+		m_bNeedUpdateCaretPos = false;
+		this->UpdateCaretByPos();
+	}
 }
 
 BOOL EditBase::OnSetCursor( HWND hWnd, UINT nHitTest, UINT message )
@@ -1061,6 +1074,16 @@ void EditBase::OnStateChanged(int nOld, int nNew)
 	}
 }	
 
+void EditBase::OnObjectPosChanged(LPWINDOWPOS)
+{
+	// 注：在这里如果直接去设置光标的位置，会导致光标先移动到新位置
+	//     然后界面刷新，界面更新到新位置，因此光标和内容没同步移动。
+	if (m_caret.IsLayered())
+	{
+		m_bNeedUpdateCaretPos = true;
+	}
+}
+	
 //
 //	BACKSPACE 往前删除会产生一个WM_CHAR事件
 //
