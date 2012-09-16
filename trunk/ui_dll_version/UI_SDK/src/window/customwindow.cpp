@@ -114,28 +114,29 @@ void CustomWindow::ResetAttribute()
 	SAFE_DELETE_GDIOBJECT(m_hRgn_bottomleft);
 	SAFE_DELETE_GDIOBJECT(m_hRgn_bottomright);
 }
-bool CustomWindow::SetAttribute( map<String,String>& mapAttrib, bool bReload )
+bool CustomWindow::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 {
 	bool bRet = Window::SetAttribute(mapAttrib, bReload);
 	if( false == bRet )
 		return false;
 
-	if( mapAttrib.count(XML_WINDOW_TRANSPARENT_PART) )
+	ATTRMAP::iterator iter = mapAttrib.find(XML_WINDOW_TRANSPARENT_PART);
+	if (mapAttrib.end() != iter)
 	{
-		String strType = mapAttrib[XML_WINDOW_TRANSPARENT_PART];
-		if( strType == XML_WINDOW_TRANSPARENT_PART_4_CORNER )
+		String& strType = iter->second;
+		if (strType == XML_WINDOW_TRANSPARENT_PART_4_CORNER)
 		{
 			m_eTransparentRgnType = WINDOW_TRANSPARENT_PART_4_CORNER;
 		}
-		else if( strType == XML_WINDOW_TRANSPARENT_PART_8_BORDER )
+		else if (strType == XML_WINDOW_TRANSPARENT_PART_8_BORDER)
 		{
 			m_eTransparentRgnType = WINDOW_TRANSPARENT_PART_8_BORDER;
 		}
-		else if( strType == XML_WINDOW_TRANSPARENT_PART_FULL )
+		else if (strType == XML_WINDOW_TRANSPARENT_PART_FULL)
 		{
 			m_eTransparentRgnType = WINDOW_TRANSPARENT_PART_FULL;
 		}
-		else if( strType == XML_WINDOW_TRANSPARENT_PART_CUSTOM_CORNER )
+		else if (strType == XML_WINDOW_TRANSPARENT_PART_CUSTOM_CORNER)
 		{
 			m_eTransparentRgnType = WINDOW_TRANSPARENT_PART_CUSTOM_CORNER;
 		}
@@ -150,9 +151,10 @@ bool CustomWindow::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 			m_eTransparentRgnType == WINDOW_TRANSPARENT_PART_8_BORDER ||
 			m_eTransparentRgnType == WINDOW_TRANSPARENT_PART_CUSTOM_CORNER )
 		{
-			if( mapAttrib.count(XML_WINDOW_TRANSPARENT_PART_9REGION) )
+			iter = mapAttrib.find(XML_WINDOW_TRANSPARENT_PART_9REGION);
+			if (mapAttrib.end() != iter)
 			{
-				String str9Region = mapAttrib[XML_WINDOW_TRANSPARENT_PART_9REGION];
+				String& str9Region = iter->second;
 				Util::TranslateImage9Region(str9Region, &m_TransparentRgn9Region );
 				this->m_mapAttribute.erase(XML_WINDOW_TRANSPARENT_PART_9REGION);
 			}
@@ -163,9 +165,10 @@ bool CustomWindow::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 		}
 	}
 
-	if( mapAttrib.count( XML_WINDOW_TRANSPARENT_TYPE) )
+	iter = mapAttrib.find(XML_WINDOW_TRANSPARENT_TYPE);
+	if (mapAttrib.end() != iter)
 	{
-		String strType = mapAttrib[XML_WINDOW_TRANSPARENT_TYPE];
+		String& strType = iter->second;
 		m_mapAttribute.erase(XML_WINDOW_TRANSPARENT_TYPE);
 
 		if( XML_WINDOW_TRANSPARENT_TYPE_LAYERED == strType )
@@ -183,9 +186,10 @@ bool CustomWindow::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 		}
 
 		// 透明色
-		if( mapAttrib.count( XML_WINDOW_TRANSPARENT_TYPE_MASKCOLOR_VALUE ) )
+		iter = mapAttrib.find(XML_WINDOW_TRANSPARENT_TYPE_MASKCOLOR_VALUE);
+		if (mapAttrib.end() != iter)
 		{
-			const String& strColorID =  mapAttrib[XML_WINDOW_TRANSPARENT_TYPE_MASKCOLOR_VALUE];
+			const String& strColorID =  iter->second;
 			::UI_GetColor( strColorID, &m_pColMask );
 			this->m_mapAttribute.erase(XML_WINDOW_TRANSPARENT_TYPE_MASKCOLOR_VALUE);
 
@@ -193,9 +197,10 @@ bool CustomWindow::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 		}
 
 		// 透明度
-		if ( mapAttrib.count( XML_WINDOW_TRANSPARENT_TYPE_MASKALPHA_VALUE ) )
+		iter = mapAttrib.find(XML_WINDOW_TRANSPARENT_TYPE_MASKALPHA_VALUE);
+		if (mapAttrib.end() != iter)
 		{
-			m_nAlphaMask = _ttoi( mapAttrib[XML_WINDOW_TRANSPARENT_TYPE_MASKALPHA_VALUE].c_str() );
+			m_nAlphaMask = _ttoi(iter->second.c_str() );
 			this->m_mapAttribute.erase(XML_WINDOW_TRANSPARENT_TYPE_MASKALPHA_VALUE);
 
 			m_nWindowTransparentMaskType |= WINDOW_TRANSPARENT_TYPE_MASKALPHA;

@@ -120,10 +120,10 @@ LRESULT WindowlessRichEdit::OnPostHandleMsg( HWND hWnd, UINT Msg, WPARAM wParam,
 	LRESULT lr = 0;
 	HRESULT hr = m_spTextServices->TxSendMessage(Msg, wParam, lParam, &lr);
 
-	if (hr == S_FALSE)
-	{
-		lr = ::DefWindowProc(hWnd, Msg, wParam, lParam);
-	}
+// 	if (hr == S_FALSE)
+// 	{
+// 		lr = ::DefWindowProc(hWnd, Msg, wParam, lParam);
+// 	}
 	return lr;
 }
 
@@ -174,7 +174,21 @@ void WindowlessRichEdit::OnKillFocus(HWND wndFocus)
 void WindowlessRichEdit::OnWindowPosChanged(LPWINDOWPOS)
 {
 	SetMsgHandled(FALSE);
-//	m_caret.OnWindowMove();
+
+	// 让windowless richedit重新设置光标的位置
+	if (NULL != m_spTextServices && m_pRichEditBase->IsFocus())
+	{
+		m_spTextServices->OnTxPropertyBitsChange(TXTBIT_CLIENTRECTCHANGE, TRUE);  // 会强制显示光标，因此加了个isfocus判断
+		// 该操作并不是立即去更新光标位置，而是会在下一个更新中调整，堆栈如下：
+		// UIDLL.dll!CCaret::SetCaretPos(int x=232, int y=91)  行282	C++
+		// UIDLL.dll!ITextHostImpl::TxSetCaretPos(int x=232, int y=91)  行317	C++
+		// riched20.dll!CTxtSelection::CreateCaret()  + 0xfe 字节	
+		// riched20.dll!CTxtSelection::UpdateCaret()  + 0x12d7f 字节	
+		// riched20.dll!CDisplay::Draw()  + 0x151 字节	
+		// riched20.dll!CTxtEdit::TxDraw()  + 0xeb 字节	
+		// UIDLL.dll!WindowlessRichEdit::Draw(HDC__ * hDC=0xd90112c6)  行103 + 0x42 字节	C++
+		// UIDLL.dll!RichEditBase::OnPaint(UI::IRenderDC * hRDC=0x01f98bd0)  行48	C++
+	}
 	
 }
 

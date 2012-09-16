@@ -157,8 +157,9 @@ void MenuBase::HidePopupSubMenu()
 // 因此给Menu发一个GetRenderType来获取
 LRESULT MenuBase::OnGetRenderType()
 {
-	if (m_mapAttribute.count(XML_WINDOW_TRANSPARENT_TYPE) &&
-		m_mapAttribute[XML_WINDOW_TRANSPARENT_TYPE] == XML_WINDOW_TRANSPARENT_TYPE_LAYERED )
+	ATTRMAP::iterator iter = m_mapAttribute.find(XML_WINDOW_TRANSPARENT_TYPE);
+	if (m_mapAttribute.end() != iter &&
+		iter->second == XML_WINDOW_TRANSPARENT_TYPE_LAYERED )
 	{
 		return GRAPHICS_RENDER_TYPE_GDIPLUS;
 	}
@@ -685,29 +686,38 @@ bool Menu::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 	if (false == bRet)
 		return false;
 
-	if (m_mapAttribute.count(XML_MENU_ICONGUTTERWIDTH))
+	ATTRMAP::iterator iter = mapAttrib.find(XML_MENU_ICONGUTTERWIDTH);
+	if (m_mapAttribute.end() != iter)
 	{
-		m_nIconGutterWidth = _ttoi(m_mapAttribute[XML_MENU_ICONGUTTERWIDTH].c_str());
+		m_nIconGutterWidth = _ttoi(iter->second.c_str());
 		m_mapAttribute.erase(XML_MENU_ICONGUTTERWIDTH);
 	}
-	if (m_mapAttribute.count(XML_MENU_TEXTMARGINLEFT))
+
+	iter = mapAttrib.find(XML_MENU_TEXTMARGINLEFT);
+	if (m_mapAttribute.end() != iter)
 	{
-		m_nTextMarginLeft = _ttoi(m_mapAttribute[XML_MENU_TEXTMARGINLEFT].c_str());
+		m_nTextMarginLeft = _ttoi(iter->second.c_str());
 		m_mapAttribute.erase(XML_MENU_TEXTMARGINLEFT);
 	}
-	if (m_mapAttribute.count(XML_MENU_TEXTMARGINRIGHT))
+
+	iter = mapAttrib.find(XML_MENU_TEXTMARGINRIGHT);
+	if (m_mapAttribute.end() != iter)
 	{
-		m_nTextMarginRight = _ttoi(m_mapAttribute[XML_MENU_TEXTMARGINRIGHT].c_str());
+		m_nTextMarginRight = _ttoi(iter->second.c_str());
 		m_mapAttribute.erase(XML_MENU_TEXTMARGINRIGHT);
 	}
-	if (m_mapAttribute.count(XML_MENU_POPUPTRIANGLEWIDTH))
+
+	iter = mapAttrib.find(XML_MENU_POPUPTRIANGLEWIDTH);
+	if (m_mapAttribute.end() != iter)
 	{
-		m_nPopupTriangleWidth = _ttoi(m_mapAttribute[XML_MENU_POPUPTRIANGLEWIDTH].c_str());
+		m_nPopupTriangleWidth = _ttoi(iter->second.c_str());
 		m_mapAttribute.erase(XML_MENU_POPUPTRIANGLEWIDTH);
 	}
-	if (m_mapAttribute.count(XML_MENU_SEPARATORHEIGHT))
+
+	iter = mapAttrib.find(XML_MENU_SEPARATORHEIGHT);
+	if (m_mapAttribute.end() != iter)
 	{
-		m_nSeperatorHeight = _ttoi(m_mapAttribute[XML_MENU_SEPARATORHEIGHT].c_str());
+		m_nSeperatorHeight = _ttoi(iter->second.c_str());
 		m_mapAttribute.erase(XML_MENU_SEPARATORHEIGHT);
 	}
 

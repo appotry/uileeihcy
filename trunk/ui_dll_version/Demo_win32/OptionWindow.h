@@ -37,6 +37,7 @@ public:
 private:
 	ListBox*   m_pListOption;
 	Combobox*  m_pComboBox;
+	Panel*     m_pPanelAbout;
 	Panel*     m_pPanelCtrlDemo;
 	Panel*     m_pPanelRichEditDemo;
 };

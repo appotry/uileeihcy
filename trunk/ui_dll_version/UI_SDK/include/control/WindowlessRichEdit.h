@@ -41,7 +41,10 @@ class   RichEditBase;
 //  Q10.为什么我向textservice发送SETFOCUS消息后，却不会响应TxCreateCaret消息
 //		a. 因为没有调用OnTxInPlaceActivate
 //
-
+//	Q11.在控件位置改变后，怎么去同步光标的位置？
+//      a. 向txt service发送一个通知：m_spTextServices->OnTxPropertyBitsChange(TXTBIT_CLIENTRECTCHANGE, TRUE);
+//
+//
 class ITextHostImpl : public ITextHost
 {
 public:

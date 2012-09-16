@@ -243,6 +243,7 @@ namespace UI
 		int     GetItemWidth()  { return m_nItemWidth; }
 		int     GetItemHeight() { return m_nItemHeight;}
 
+		int     GetStateIndex(int nState);
 	protected:
 		HRBITMAP   m_hBitmap;
 
@@ -250,6 +251,7 @@ namespace UI
 		int        m_nCount;              // 图片项数
 		int        m_nItemWidth;          // 图片项的宽度
 		int        m_nItemHeight;         // 图片项的高度
+		map<int,int> m_mapState2Index;    // 要绘制的状态对应图片的哪个item
 	};
 
 	class ImageListStretchRender : public ImageListRender

@@ -81,17 +81,19 @@ bool Label::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 	}
 
 	// ÄÚÈÝ
-	if( false==bReload && mapAttrib.count( XML_TEXT ) )
+	ATTRMAP::iterator iter = mapAttrib.find(XML_TEXT);
+	if (false==bReload && mapAttrib.end() != iter)
 	{
-		this->m_strText = mapAttrib[XML_TEXT];
+		this->m_strText = iter->second;
 		__super::m_mapAttribute.erase( XML_TEXT );
 	}
 
-	if( mapAttrib.count( XML_LABEL_ALIGN_H ))
+	iter = mapAttrib.find(XML_LABEL_ALIGN_H);
+	if(mapAttrib.end() != iter)
 	{
 		m_eTextAlign = m_eTextAlign & 0xF0;
 
-		String str = mapAttrib[XML_LABEL_ALIGN_H];
+		String& str = iter->second;
 		if( str == XML_LABEL_ALIGN_LEFT )
 		{
 			m_eTextAlign |= LABEL_ALIGN_LEFT;
@@ -107,11 +109,12 @@ bool Label::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 		__super::m_mapAttribute.erase( XML_LABEL_ALIGN_H );
 	}
 
-	if( mapAttrib.count( XML_LABEL_ALIGN_V ))
+	iter = mapAttrib.find(XML_LABEL_ALIGN_V);
+	if (mapAttrib.end() != iter)
 	{
 		m_eTextAlign = m_eTextAlign & 0x0F;
 
-		String str = mapAttrib[XML_LABEL_ALIGN_V];
+		String str = iter->second;
 		if( str == XML_LABEL_ALIGN_TOP )
 		{
 			m_eTextAlign |= LABEL_ALIGN_TOP;

@@ -119,6 +119,7 @@ public:
 		UIMSG_WM_LBUTTONDBLCLK( OnLButtonDblClk )
  		UIMSG_WM_SETFOCUS( OnSetFocus )
  		UIMSG_WM_KILLFOCUS( OnKillFocus )
+		UIMSG_WM_WINDOWPOSCHANGED(OnObjectPosChanged)
 	UI_END_MSG_MAP_CHAIN_PARENT(Control)
 
 
@@ -130,6 +131,7 @@ protected:
 	void        OnSetFocus( Object* );
 	void        OnKillFocus( Object* );
 	void        OnStateChanged(int nOld, int nNew);
+	void        OnObjectPosChanged(LPWINDOWPOS);
 
 	void        OnChar( UINT nChar, UINT nRepCnt, UINT nFlags );
 	void        OnLButtonDown(UINT nFlags, POINT point);
@@ -186,6 +188,7 @@ protected:
 	// 数据
 private:
 	bool		m_bMouseDrag;				// 是否正在用鼠标进行拖动选择
+	bool        m_bNeedUpdateCaretPos;      // 是否需要在下次刷新的时候更新光标位置
 
 	int			m_nXScroll;	                // 字符滚动的长度
 	int			m_nCaretHeight;				// 光标的高度

@@ -43,35 +43,40 @@ void GroupBox::ResetAttribute()
 	this->m_9RegionBorderBitmap.Set(2,2,2,3);
 
 }
-bool GroupBox::SetAttribute( map<String,String>& mapAttrib, bool bReload )
+bool GroupBox::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 {
 	bool bRet = Panel::SetAttribute( mapAttrib,bReload );
 	if( false == bRet )	return bRet;
 
 	// ÄÚÈÝ
-	if( mapAttrib.count( XML_TEXT ) )
+	ATTRMAP::iterator iter = mapAttrib.find(XML_TEXT);
+	if (mapAttrib.end() != iter)
 	{
-		this->m_strText = mapAttrib[XML_TEXT];
+		this->m_strText = iter->second;
 		__super::m_mapAttribute.erase( XML_TEXT );
 	}
 
 	// ±ß¿ò
-	if( mapAttrib.count( XML_GROUPBOX_BORDERIMAGE) )
+	iter = mapAttrib.find(XML_GROUPBOX_BORDERIMAGE);
+	if (mapAttrib.end() != iter)
 	{
-		m_hBorderBitmap = UI_GetBitmap( mapAttrib[XML_GROUPBOX_BORDERIMAGE], GetGraphicsRenderType(GetHWND()) );
+		m_hBorderBitmap = UI_GetBitmap(iter->second, GetGraphicsRenderType(GetHWND()) );
 		__super::m_mapAttribute.erase( XML_GROUPBOX_BORDERIMAGE );
 	}
-	if( mapAttrib.count( XML_GOURPBOX_BORDERIMAGE_9REGION) )
+
+	iter = mapAttrib.find(XML_GOURPBOX_BORDERIMAGE_9REGION);
+	if (mapAttrib.end() != iter)
 	{
-		Util::TranslateImage9Region( mapAttrib[XML_GOURPBOX_BORDERIMAGE_9REGION], (void*)&m_9RegionBorderBitmap );
+		Util::TranslateImage9Region(iter->second, (void*)&m_9RegionBorderBitmap );
 		__super::m_mapAttribute.erase( XML_GOURPBOX_BORDERIMAGE_9REGION );
 	}
 
-	if( mapAttrib.count( XML_LABEL_ALIGN_H ))
+	iter = mapAttrib.find(XML_LABEL_ALIGN_H);
+	if (mapAttrib.end() != iter)
 	{
 		m_eTextAlign = m_eTextAlign & 0xF0;
 
-		String str = mapAttrib[XML_LABEL_ALIGN_H];
+		String& str = iter->second;
 		if( str == XML_LABEL_ALIGN_LEFT )
 		{
 			m_eTextAlign |= LABEL_ALIGN_LEFT;
@@ -87,11 +92,12 @@ bool GroupBox::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 		__super::m_mapAttribute.erase( XML_LABEL_ALIGN_H );
 	}
 
-	if( mapAttrib.count( XML_LABEL_ALIGN_V ))
+	iter = mapAttrib.find(XML_LABEL_ALIGN_V);
+	if (mapAttrib.end() != iter)
 	{
 		m_eTextAlign = m_eTextAlign & 0x0F;
 
-		String str = mapAttrib[XML_LABEL_ALIGN_V];
+		String& str = iter->second;
 		if( str == XML_LABEL_ALIGN_TOP )
 		{
 			m_eTextAlign |= LABEL_ALIGN_TOP;

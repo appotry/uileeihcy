@@ -8,6 +8,7 @@ COptionWindow::COptionWindow()
 {
 	m_pListOption = NULL;
 	m_pComboBox = NULL;
+	m_pPanelAbout = NULL;
 	m_pPanelCtrlDemo = NULL;
 	m_pPanelRichEditDemo = NULL;
 }
@@ -15,13 +16,17 @@ COptionWindow::COptionWindow()
 
 BOOL COptionWindow::OnInitDialog( HWND, LPARAM )
 {
+	m_pPanelAbout = (Panel*)this->FindChildObject(_T("about_panel"));
 	m_pPanelRichEditDemo = (Panel*)this->FindChildObject(_T("richedit_demo_panel"));
 	m_pPanelCtrlDemo = (Panel*)this->FindChildObject(_T("control_demo_panel"));
 
 	if (NULL != m_pPanelCtrlDemo)
-	{
 		m_pPanelCtrlDemo->SetVisible(false, false);
-	}
+	if (NULL != m_pPanelRichEditDemo)
+		m_pPanelRichEditDemo->SetVisible(false, false);
+	if (NULL != m_pPanelAbout)
+		m_pPanelAbout->SetVisible(false,false);
+	
 // 	if (NULL != m_pPanelRichEditDemo)
 // 	{
 // 		m_pPanelRichEditDemo->SetVisible(false, false);
@@ -42,13 +47,17 @@ BOOL COptionWindow::OnInitDialog( HWND, LPARAM )
 			ListBoxItem* pItem = m_pListOption->AddString(strArray[i]);
 			if (NULL != pItem)
 			{
-				if (0 == i)
+				switch(i)
 				{
+				case 0:
+					pItem->SetData(m_pPanelAbout);
+					break;
+				case 13:
 					pItem->SetData(m_pPanelRichEditDemo);
-				}
-				else if (1 == i)
-				{
+					break;
+				case 14:
 					pItem->SetData(m_pPanelCtrlDemo);
+					break;
 				}
 			}
 		}
