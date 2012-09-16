@@ -327,13 +327,13 @@ void EndDraw(HRDC hRDC)
 	}
 	return ((IRenderDC*)hRDC)->EndDraw();
 }
-void EndDraw( HRDC hRDC, int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc )
+void EndDraw( HRDC hRDC, int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish )
 {
 	if( NULL == hRDC )
 	{
 		return;
 	}
-	return ((IRenderDC*)hRDC)->EndDraw(xDest,yDest,wDest,hDest,xSrc,ySrc);
+	return ((IRenderDC*)hRDC)->EndDraw(xDest,yDest,wDest,hDest,xSrc,ySrc,bFinish);
 }
 void ResizeRenderTarget( HRDC hRDC, int nWidth, int nHeight )
 {

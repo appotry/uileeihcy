@@ -71,7 +71,10 @@ namespace UI
 #define LISTCTRLITEM_FOREGND_RENDER_STATE_HOVER    1
 #define LISTCTRLITEM_FOREGND_RENDER_STATE_PRESS    2
 #define LISTCTRLITEM_FOREGND_RENDER_STATE_DISABLE  3
-#define LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED 4
+#define LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_NORMAL  4
+#define LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_HOVER   5
+#define LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_PRESS   6
+#define LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE 7
 
 	class IconTextRenderBase
 	{
@@ -227,18 +230,26 @@ namespace UI
 
 	};
 
+	class ListRenderBase : public RenderBase
+	{
+	public:
+		virtual bool   SetAttribute(const String& strPrefix, ATTRMAP& mapAttrib);
+
+	protected:
+		map<int,int>   m_mapState2Index;    // 要绘制的状态对应图片的哪个item
+	};
 	//
 	//	图片背景按钮
 	//
-	class ImageListRender : public RenderBase
+	class ImageListRender : public ListRenderBase
 	{
 	public:
 		ImageListRender( );
 		~ImageListRender( );
 
-		virtual bool   SetAttribute( const String& strPrefix, map<String,String>& mapAttrib );
+		virtual bool   SetAttribute( const String& strPrefix, ATTRMAP& mapAttrib );
 		virtual void   DrawState(HRDC hRDC, const CRect* prc, int nState);
-		virtual SIZE   GetDesiredSize() ;
+		virtual SIZE   GetDesiredSize();
 
 		int     GetItemWidth()  { return m_nItemWidth; }
 		int     GetItemHeight() { return m_nItemHeight;}
@@ -251,7 +262,6 @@ namespace UI
 		int        m_nCount;              // 图片项数
 		int        m_nItemWidth;          // 图片项的宽度
 		int        m_nItemHeight;         // 图片项的高度
-		map<int,int> m_mapState2Index;    // 要绘制的状态对应图片的哪个item
 	};
 
 	class ImageListStretchRender : public ImageListRender
@@ -544,7 +554,7 @@ namespace UI
 
 	private:
 		vector<UIColor*>  m_vTextColor;
-		HRFONT            m_hTextFont;
+		HRFONT            m_hFont;
 		int               m_nCount;
 	};
 

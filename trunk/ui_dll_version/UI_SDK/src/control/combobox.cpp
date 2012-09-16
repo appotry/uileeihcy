@@ -64,7 +64,7 @@ bool ComboboxBase::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 		RenderBase* pForeRender = RenderFactory::GetRender(RENDER_TYPE_COLORLIST, m_listbox);
 		ColorListRender* p = dynamic_cast<ColorListRender*>(pForeRender);
 		p->SetStateColor(LISTCTRLITEM_FOREGND_RENDER_STATE_HOVER, RGB(51,153,255),true, 0,false);
-		p->SetStateColor(LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED, RGB(51,153,255),true, 0,false);
+		p->SetStateColor(LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_HOVER, RGB(51,153,255),true, 0,false);
 		m_listbox->SetForeRender(pForeRender);
 	}
 

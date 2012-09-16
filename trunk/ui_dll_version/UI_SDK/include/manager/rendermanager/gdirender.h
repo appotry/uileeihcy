@@ -87,7 +87,7 @@ public:
 	// 只有GdiMemRenderDC才支持 DoNothing
 	virtual bool     BeginDraw( HDC hDC ) {return false;}
 	virtual void     EndDraw( ) {}
-	virtual void     EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc ){}
+	virtual void     EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish ){}
 	virtual void     ResizeRenderTarget( int nWidth, int nHeight ){}
 	virtual BYTE*    LockBits() {return NULL;};
 	virtual void     UnlockBits(){};
@@ -123,7 +123,7 @@ public:
 
 	virtual bool     BeginDraw( HDC hDC ) ;
 	virtual void     EndDraw( );
-	virtual void     EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc );
+	virtual void     EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish );
 	virtual void     ResizeRenderTarget( int nWidth, int nHeight );
 	virtual BYTE*    LockBits();
 	virtual void     UnlockBits();

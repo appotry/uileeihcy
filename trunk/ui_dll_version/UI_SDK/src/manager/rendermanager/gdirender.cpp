@@ -595,12 +595,14 @@ void GDIMemRenderDC::EndDraw( )
 	m_hOldWndDC = NULL;
 	m_hDC = NULL;
 }
-void GDIMemRenderDC::EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc )
+void GDIMemRenderDC::EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish )
 {
 	if (NULL == m_hDC)
 		return;
 
 	::BitBlt(m_hWndDC, xDest, yDest, wDest, hDest, m_hDC, xSrc,ySrc, SRCCOPY );
+	if (!bFinish)
+		return;
 
 	if (NULL != m_hOldBitmap)
 	{

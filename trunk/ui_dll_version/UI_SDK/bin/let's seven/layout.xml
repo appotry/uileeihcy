@@ -82,12 +82,13 @@
       <Edit id="edit_test" width="200" height="30" layout.right="50" layout.top="50"/>
       <RichEdit id="richedit_test" border="1" layout.right="50" layout.top="90" width="200" height="50"
                    bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/>
-    </CustomWindow>
+    </CustomWindow> 
     <Window id="OptionWindow" font="normal" width="556" height="440">
       <ListBox id="optionlist" border="1" layout.left="10" layout.top="10" width="100" height="370" padding="4"
-        foregnd.render.type="imageliststretch" foregnd.render.9region="1" foregnd.render.image="listbox.png"
-        foregnd.render.imagelist.count="5"  foregnd.render.imagelist.layout="v"
-        bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/>
+        foregnd.render.type="imageliststretch" foregnd.render.9region="20,1,1,1" foregnd.render.image="listbox.png"
+        foregnd.render.imagelist.count="8"  foregnd.render.imagelist.layout="v"
+        bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"
+        />
      
       <Button id="btn_save_all"  text="全部保存" layout.right="169" layout.bottom="6" width="75" height="21" />
       <Button id="btn_reset_all" text="全部重置" layout.right="88"  layout.bottom="6" width="75" height="21" />

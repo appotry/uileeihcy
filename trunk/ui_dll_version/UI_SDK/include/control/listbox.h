@@ -53,6 +53,7 @@ namespace UI
 		virtual  bool    OnRButtonDBClick(POINT pt, UINT nFlag);
 
 		virtual  void    OnDrawItem(HRDC hRDC) {}
+		virtual  bool    IsDisable() { return false; }  // 由子类去负责具体的实现(例如菜单是用MF_DISABLE，其它的可能是m_bDisable)
 
 	protected:
 		int            m_nLineIndex;      // 记录该项位于第几行
@@ -174,7 +175,7 @@ namespace UI
 		void    SetScrollX( int nX, bool& bNeedUpdateObject );
 		void    SetScrollPoint( int nX, int nY, bool& bNeedUpdateObject );
 
-		void    ReDrawItem(ListItemBase* pItem);
+		void    ReDrawItem(ListItemBase* pItem, ListItemBase* pItem2 = NULL);
 		bool    IsItemVisible(ListItemBase* pItem);
 		bool    IsItemVisibleEx(ListItemBase* pItem, LISTITEM_VISIBLE_POS_TYPE& ePos);
 		void    ItemRect2WindowRect(CRect* prc, CRect* prcRet);

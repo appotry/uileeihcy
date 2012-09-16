@@ -588,26 +588,26 @@ void CustomWindow::InvalidateObject( Object* pInvalidateObj, RECT* prc, bool bUp
 	}
 }
 
-HRDC CustomWindow::BeginDrawObject( Object* pInvalidateObj, HRGN& hClipRgn)
+HRDC CustomWindow::BeginDrawObject( Object* pInvalidateObj )
 {
 	if( NULL == m_pLayeredWindowWrap )
 	{
-		return __super::BeginDrawObject(pInvalidateObj, hClipRgn);
+		return __super::BeginDrawObject(pInvalidateObj);
 	}
 	else
 	{
-		return m_pLayeredWindowWrap->BeginDrawObject(pInvalidateObj, hClipRgn);
+		return m_pLayeredWindowWrap->BeginDrawObject(pInvalidateObj);
 	}
 }
-void CustomWindow::EndDrawObject( CRect* prcWindow, HRGN& hClipRgn )
+void CustomWindow::EndDrawObject( CRect* prcWindow, bool bFinish)
 {
 	if( NULL == m_pLayeredWindowWrap )
 	{
-		return __super::EndDrawObject(prcWindow, hClipRgn);
+		return __super::EndDrawObject(prcWindow, bFinish);
 	}
 	else
 	{
-		return m_pLayeredWindowWrap->EndDrawObject(prcWindow, hClipRgn);
+		return m_pLayeredWindowWrap->EndDrawObject(prcWindow,bFinish);
 	}
 }
 
@@ -1070,7 +1070,7 @@ void LayeredWindowWrap::InvalidateObject( Object* pInvalidateObj, bool bUpdateNo
 	this->Commit2LayeredWindow();
 }
 
-HRDC LayeredWindowWrap::BeginDrawObject( Object* pInvalidateObj, HRGN& hClipRgn)
+HRDC LayeredWindowWrap::BeginDrawObject( Object* pInvalidateObj)
 {
 	if( NULL == pInvalidateObj )
 		return NULL;
@@ -1078,39 +1078,24 @@ HRDC LayeredWindowWrap::BeginDrawObject( Object* pInvalidateObj, HRGN& hClipRgn)
 	if (false == BeginDraw(m_pWindow->m_hRenderTarget, m_hLayeredMemDC))
 		return NULL;
 
-	SetViewportOrgEx(m_pWindow->m_hRenderTarget, pInvalidateObj->GetParentRectL(), pInvalidateObj->GetParentRectT(), NULL );
-	if( this->m_pWindow->m_hRgn != NULL )
-	{
-		hClipRgn = this->m_pWindow->m_hRgn;
-	}
-	else
-	{
-		hClipRgn = ::CreateRectRgn( pInvalidateObj->GetParentRectL(), pInvalidateObj->GetParentRectT(), 
-			pInvalidateObj->GetParentRectR(), pInvalidateObj->GetParentRectB() );
-	}
-	SelectClipRgn( m_pWindow->m_hRenderTarget, hClipRgn );
-
+	RenderOffsetClipHelper roc(m_pWindow);
+	pInvalidateObj->DrawObjectTransparentBkgnd(m_pWindow->m_hRenderTarget, roc, true);
+	roc.Reset(m_pWindow->m_hRenderTarget);
 
 	::UISendMessage(pInvalidateObj, WM_ERASEBKGND, (WPARAM)m_pWindow->m_hRenderTarget, (LPARAM)1 );
 
+	roc.DrawClient(m_pWindow->m_hRenderTarget, pInvalidateObj, false);
+	roc.Scroll(m_pWindow->m_hRenderTarget, pInvalidateObj, false);
+	roc.Update(m_pWindow->m_hRenderTarget);
+
 	return m_pWindow->m_hRenderTarget;
 }
-void LayeredWindowWrap::EndDrawObject( CRect* prcWindow, HRGN& hClipRgn )
+void LayeredWindowWrap::EndDrawObject(CRect* prcWindow, bool bFinish)
 {
-	SetViewportOrgEx(m_pWindow->m_hRenderTarget, 0,0 , NULL );
-	if( this->m_pWindow->m_hRgn != hClipRgn )
-	{
-		::DeleteObject(hClipRgn);
-	}
-	SelectClipRgn( m_pWindow->m_hRenderTarget, NULL );
-
-
-	EndDraw(m_pWindow->m_hRenderTarget, 
-		prcWindow->left, prcWindow->top,
-		prcWindow->Width(), prcWindow->Height(),
-		prcWindow->left, prcWindow->top);
-
-	this->Commit2LayeredWindow();
+	m_pWindow->EndDrawObject(prcWindow, bFinish);
+	
+	if (bFinish)
+		this->Commit2LayeredWindow();
 }
 void LayeredWindowWrap::Commit2LayeredWindow()
 {

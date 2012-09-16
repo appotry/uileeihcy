@@ -353,15 +353,6 @@ void ListCtrlBase::SetSelectedItem(ListItemBase* pItem, bool& bNeedUpdateObject 
 		msg.lParam = (LPARAM)m_pFirstSelectedItem;
 		this->DoNotify(&msg);
 	}
-
-// 	if( false == bNeedUpdateObject )
-// 	{
-// 		if( pOldSelectoinItem != m_pFirstSelectedItem )
-// 		{
-// 			this->ReDrawItem(pOldSelectoinItem);
-// 			this->ReDrawItem(m_pFirstSelectedItem);
-// 		}
-// 	}
 }
 
 void ListCtrlBase::SetScrollY( int nY, bool& bNeedUpdateObject  )
@@ -620,35 +611,46 @@ ListItemBase* ListCtrlBase::Index2Item(int nIndex)
 	return p;
 }
 
-void ListCtrlBase::ReDrawItem( ListItemBase* pItem )
+// 使用两个参数，这样能够在只刷一次背景的情况下，重绘多个item
+void ListCtrlBase::ReDrawItem(ListItemBase* pItem1, ListItemBase* pItem2)
 {
-	if( false == IsItemVisible(pItem) )
+	if (NULL == pItem1 && NULL == pItem2)
 		return;
 
-	//if( this->IsTransparent() )
+	if (pItem1 == pItem2) // 避免绘制两次重复的
+		pItem2 = NULL;
+
+	bool bVisible1 = IsItemVisible(pItem1);
+	bool bVisible2 = IsItemVisible(pItem2);
+	if (!bVisible1 && !bVisible2)
+		return;
+
+	WindowBase* pWindow = this->GetWindowObject();
+	if (NULL == pWindow)
 	{
 		this->UpdateObject();
+		return;
 	}
-// 	else
-// 	{
-// 		WindowBase* pWindow = this->GetWindowObject();
-// 
-// 		HRGN hClipRgn = NULL;
-// 		HRDC hRDC = pWindow->BeginDrawObject(this, hClipRgn);
-// 
-// 		HRGN hClipClient = NULL;
-// 
-// 		int nxOffset=0, nyOffset=0;
-// 		this->m_MgrScrollbar.GetScrollPos(&nxOffset, &nyOffset);
-// 
-// 		OffsetViewportOrgEx(hRDC, -nxOffset, -nyOffset, NULL);
-// 		this->OnDrawItem(hRDC, pItem);
-// 		OffsetViewportOrgEx(hRDC, nxOffset, nyOffset, NULL);
-// 
-// 		CRect rcWindow;
-// 		this->ItemRect2WindowRect(&(pItem->GetParentRect()), &rcWindow);
-// 		pWindow->EndDrawObject( &rcWindow, hClipRgn );
-// 	}
+
+	HRGN hClipRgn = NULL;
+	HRDC hRDC = pWindow->BeginDrawObject(this);
+
+	if (NULL != pItem1)
+		this->OnDrawItem(hRDC, pItem1);	
+	if (NULL != pItem2)
+		this->OnDrawItem(hRDC, pItem2);	
+
+	CRect rcWindow;
+	if (NULL != pItem1)
+	{
+		this->ItemRect2WindowRect(&(pItem1->GetParentRect()), &rcWindow);
+		pWindow->EndDrawObject(&rcWindow, pItem2==NULL?true:false);
+	}
+	if (NULL != pItem2)
+	{
+		this->ItemRect2WindowRect(&(pItem2->GetParentRect()), &rcWindow);
+		pWindow->EndDrawObject(&rcWindow, true);
+	}
 }
 
 
@@ -752,18 +754,11 @@ void ListCtrlBase::ItemRect2WindowRect( CRect* prc, CRect* prcRet )
 	this->m_MgrScrollbar.GetScrollPos(&xOffset, &yOffset);
 	rcItem.OffsetRect(-xOffset, -yOffset);
 
-	CRect rcClient;
-	this->GetClientRect(&rcClient);
+	CRect rcWindow;
+	this->GetClientRectInWindow(&rcWindow);
+	rcItem.OffsetRect(rcWindow.left, rcWindow.top);
 
-	IntersectRect(prcRet, &rcItem, &rcClient);
-// 	if( prcRet->left < rcClient.left )
-// 		prcRet->left = rcClient.left;
-// 	if( prcRet->right > rcClient.right )
-// 		prcRet->right = rcClient.right;
-// 	if( prcRet->top < rcClient.top )
-// 		prcRet->top = rcClient.top;
-// 	if( prcRet->bottom > rcClient.bottom )
-// 		prcRet->bottom = rcClient.bottom;
+	IntersectRect(prcRet, &rcItem, &rcWindow);
 }
 
 void ListCtrlBase::OnMouseMove(UINT nFlags, POINT point)
@@ -773,9 +768,7 @@ void ListCtrlBase::OnMouseMove(UINT nFlags, POINT point)
 	{
 		ListItemBase* pSave = m_pHoverItem;
 		SetHoverItem(pNewHover);
-
-		this->ReDrawItem(pSave);
-		this->ReDrawItem(m_pHoverItem);
+		this->ReDrawItem(pSave, m_pHoverItem);
 	}
 	if (NULL != m_pHoverItem)
 	{
@@ -812,11 +805,12 @@ void ListCtrlBase::OnLButtonDown(UINT nFlags, POINT point)
 		if( this->HitTest(point) == m_pPressItem )
 		{
 			bool bNeedUpdateObject = false;
+			ListItemBase* pOldSelItem = m_pFirstSelectedItem;
 			SetSelectedItem(m_pPressItem, bNeedUpdateObject);
 
 			if( bNeedUpdateObject )
 			{
-				this->UpdateObject();
+				this->ReDrawItem(pOldSelItem, m_pPressItem);
 			}
 		}
 	}
@@ -827,8 +821,7 @@ void ListCtrlBase::OnLButtonUp(UINT nFlags, POINT point)
 	{
 		ListItemBase* pSave = m_pPressItem;
 		this->SetPressItem(NULL, point, nFlags);
-		this->ReDrawItem(pSave);
-		this->ReDrawItem(m_pHoverItem);
+		this->ReDrawItem(pSave, m_pHoverItem);
 		
 		UIMSG  msg;
 		msg.message = UI_WM_NOTIFY;
@@ -858,6 +851,8 @@ void ListCtrlBase::OnDBClick(UINT nFlags, POINT point)
 void ListCtrlBase::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
 {
    	bool bNeedUpdateObject = false;
+	ListItemBase* pOldSelItem = m_pFirstSelectedItem;
+
 	if( VK_DOWN == nChar )
 	{
 		if (m_nStyle & LISTCTRLBASE_SEL_HOVER_MODE)  // 菜单或者弹出式列表框
@@ -932,7 +927,7 @@ void ListCtrlBase::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
 
 	if( bNeedUpdateObject )
 	{
-		this->UpdateObject();
+		this->ReDrawItem(pOldSelItem, m_pFirstSelectedItem);
 	}
 }
 
@@ -1103,6 +1098,25 @@ void ListBox::ResetAttribute()
 }
 bool ListBox::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 {
+	if (0 == mapAttrib.count( XML_TEXTRENDER_TYPE))
+	{
+		if (NULL == m_pTextRender)
+		{
+			HRFONT hRFont = this->GetFont();
+			m_pTextRender = TextRenderFactory::GetTextRender(TEXTRENDER_TYPE_COLORLIST, this);
+			if (NULL != m_pTextRender)
+			{
+				ColorListTextRender* p = (ColorListTextRender*)m_pTextRender;
+				p->SetCount(2);
+				p->SetColor(0, RGB(0,0,0));
+				p->SetColor(1, RGB(255,255,255));
+				p->SetHRFont(hRFont);
+
+				m_pTextRender->SetAttribute(_T(""), mapAttrib);
+			}
+		}
+	}
+
 	bool bRet = __super::SetAttribute(mapAttrib, bReload);
 	if (false == bRet)
 		return false;
@@ -1117,7 +1131,7 @@ bool ListBox::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 		{
 			m_pForegndRender = RenderFactory::GetRender(RENDER_TYPE_COLORLIST, this);
 			ColorListRender* p = dynamic_cast<ColorListRender*>(m_pForegndRender);
-			p->SetStateColor(LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED, RGB(51,153,255),true, 0,false);
+			p->SetStateColor(LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_NORMAL, RGB(51,153,255),true, 0,false);
 		}
 	}
 
@@ -1133,39 +1147,52 @@ void ListBox::OnDrawItem(HRDC hRDC, ListItemBase* p)
 	CRect rcItem;
 	p->GetParentRect(&rcItem);
 
+	UINT nRenderState = 0;
 	if (NULL != m_pForegndRender)
 	{
 		if (LISTBOX_STYLE_COMBOBOX == GetListBoxStyle())
 		{
 			if (m_pHoverItem == p)
 			{
-				m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_HOVER);
+				nRenderState = LISTCTRLITEM_FOREGND_RENDER_STATE_HOVER;
+				m_pForegndRender->DrawState(hRDC, &rcItem, nRenderState);
 			}
 			else if(NULL == m_pHoverItem &&
 				(m_pFirstSelectedItem == p || p->GetPrevSelection() != NULL || p->GetNextSelection() != NULL) )
 			{
-				m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED);
+				nRenderState = LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_HOVER;
+				m_pForegndRender->DrawState(hRDC, &rcItem, nRenderState);
 			}
 		}
 		else
 		{
-// 			if (p->IsDisable())
-// 			{
-// 				m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_DISABLE);
-// 			}
-// 			else 
-			if( m_pFirstSelectedItem == p || p->GetPrevSelection() != NULL || p->GetNextSelection() != NULL )
+			bool bSelected = (m_pFirstSelectedItem == p || p->GetPrevSelection() != NULL || p->GetNextSelection() != NULL);
+			if (p->IsDisable())
 			{
-				m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED);
+				nRenderState =  bSelected ?
+					LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE :
+					LISTCTRLITEM_FOREGND_RENDER_STATE_DISABLE ;
 			}
-			else if( m_pPressItem == p )
+			else if (m_pPressItem == p)
 			{
-				m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_PRESS);
+				nRenderState = bSelected ? 
+					LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_PRESS :
+					LISTCTRLITEM_FOREGND_RENDER_STATE_PRESS ;
 			}
 			else if( NULL == m_pPressItem && m_pHoverItem == p )
 			{
-				m_pForegndRender->DrawState(hRDC, &rcItem, LISTCTRLITEM_FOREGND_RENDER_STATE_HOVER);
+				nRenderState = bSelected ?
+					LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_HOVER :
+					LISTCTRLITEM_FOREGND_RENDER_STATE_HOVER ;
 			}
+			else
+			{
+				nRenderState =  bSelected ?
+					LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_NORMAL :
+					LISTCTRLITEM_FOREGND_RENDER_STATE_NORMAL ;
+			}
+
+			m_pForegndRender->DrawState(hRDC, &rcItem, nRenderState);
 		}
 		// 正常状态不绘制
 	}
@@ -1173,8 +1200,7 @@ void ListBox::OnDrawItem(HRDC hRDC, ListItemBase* p)
 	if (NULL != pData && NULL != m_pTextRender)
 	{
 		rcItem.DeflateRect(2,0,2,0);
-		m_pTextRender->DrawState(hRDC, &rcItem, 0, pData->m_strText);
-	//	DrawString( hRDC, pData->m_strText.c_str(), &rcItem, DT_SINGLELINE|DT_END_ELLIPSIS|DT_CENTER|DT_VCENTER, this->GetFont() );
+		m_pTextRender->DrawState(hRDC, &rcItem, nRenderState, pData->m_strText);
 	}
 }
 

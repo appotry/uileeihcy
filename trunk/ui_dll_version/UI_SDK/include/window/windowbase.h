@@ -41,8 +41,8 @@ public:
 	virtual           void InvalidateObject( Object* pObj, RECT* prc, bool bUpdateNow );
 	virtual           void InvalidateObjectBkgnd( Object* pObj, RECT* prc, bool bUpdateNow );
 	
-	virtual           HRDC BeginDrawObject( Object* pInvalidateObj, HRGN& hClipRgn);
-	virtual           void EndDrawObject( CRect* prcWindow, HRGN& hClipRgn );
+	virtual           HRDC BeginDrawObject( Object* pInvalidateObj);
+	virtual           void EndDrawObject( CRect* prcWindow, bool bFinish);
 protected:
 	void              _InvalidateObject(Object* pInvalidateObj, HDC hDestDC);
 	void              _InvalidateObjectBkgnd(Object* pInvalidateObj, HDC hDestDC);
