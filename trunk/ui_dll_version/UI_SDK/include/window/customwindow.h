@@ -69,8 +69,8 @@ protected:
 	virtual   BOOL PreCreateWindow( CREATESTRUCT& cs );
 	virtual   void OnInitWindow( );
 	virtual   void InvalidateObject( Object* pInvalidateObj, RECT* prc, bool bUpdateNow );
-	virtual   HRDC BeginDrawObject( Object* pInvalidateObj, HRGN& hClipRgn );
-	virtual   void EndDrawObject( CRect* prcWindow, HRGN& hClipRgn );
+	virtual   HRDC BeginDrawObject( Object* pInvalidateObj );
+	virtual   void EndDrawObject( CRect* prcWindow, bool bFinish );
 
 public:
 	// object Ðéº¯Êý
@@ -156,8 +156,8 @@ public:
 	void      OnSize( UINT nType, int cx, int cy );
 	void      OnShowWindow();
 	void      InvalidateObject( Object* pInvalidateObj, bool bUpdateNow );
-	HRDC      BeginDrawObject( Object* pInvalidateObj, HRGN& hClipRgn);
-	void      EndDrawObject( CRect* prcWindow, HRGN& hClipRgn );
+	HRDC      BeginDrawObject( Object* pInvalidateObj);
+	void      EndDrawObject( CRect* prcWindow, bool bFinish );
 protected:
 	void      Commit2LayeredWindow();
 

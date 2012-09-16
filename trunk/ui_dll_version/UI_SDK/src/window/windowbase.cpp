@@ -252,7 +252,7 @@ void WindowBase::_InvalidateObject(Object* pInvalidateObj, HDC hDestDC)
 	int nY = roc.m_rcClip.top  + roc.m_ptOffset.y;
 	int nW = roc.m_rcClip.Width();
 	int nH = roc.m_rcClip.Height();
-	EndDraw(m_hRenderTarget, nX, nY, nW, nH, nX, nY);
+	EndDraw(m_hRenderTarget, nX, nY, nW, nH, nX, nY, true);
 }
 
 void WindowBase::_InvalidateObjectBkgnd(Object* pInvalidateObj, HDC hDestDC)
@@ -272,13 +272,13 @@ void WindowBase::_InvalidateObjectBkgnd(Object* pInvalidateObj, HDC hDestDC)
 	int nY = roc.m_rcClip.top  + roc.m_ptOffset.y;
 	int nW = roc.m_rcClip.Width();
 	int nH = roc.m_rcClip.Height();
-	EndDraw(m_hRenderTarget, nX, nY, nW, nH, nX, nY);
+	EndDraw(m_hRenderTarget, nX, nY, nW, nH, nX, nY, true);
 }
 
 //
 //	用于如LISTBOX ReDrawItem，只刷新一部分，而不是整个object
 //
-HRDC WindowBase::BeginDrawObject( Object* pInvalidateObj, HRGN& hClipRgn)
+HRDC WindowBase::BeginDrawObject( Object* pInvalidateObj )
 {
 	if( NULL == pInvalidateObj )
 		return NULL;
@@ -286,39 +286,30 @@ HRDC WindowBase::BeginDrawObject( Object* pInvalidateObj, HRGN& hClipRgn)
 	if (false ==BeginDraw(m_hRenderTarget, NULL))
 		return NULL;
 
-	if( this->m_hRgn != NULL )
-	{
-		hClipRgn = m_hRgn;
-	}
-	else
-	{
-		hClipRgn = ::CreateRectRgn( pInvalidateObj->GetParentRectL(), pInvalidateObj->GetParentRectT(), 
-			pInvalidateObj->GetParentRectR(), pInvalidateObj->GetParentRectB() );
-	}
-	SelectClipRgn( m_hRenderTarget, hClipRgn );
-	SetViewportOrgEx(m_hRenderTarget, pInvalidateObj->GetParentRectL(), pInvalidateObj->GetParentRectT(), NULL );
+	RenderOffsetClipHelper roc(this);
+	pInvalidateObj->DrawObjectTransparentBkgnd(m_hRenderTarget, roc, true);
 
 	::UISendMessage(pInvalidateObj, WM_ERASEBKGND, (WPARAM)m_hRenderTarget, (LPARAM)1 );
+
+	roc.DrawClient(m_hRenderTarget, pInvalidateObj, false);
+	roc.Scroll(m_hRenderTarget, pInvalidateObj, false);
+	roc.Update(m_hRenderTarget);
 
 	return m_hRenderTarget;
 }
 //
 //	要提交到窗口上的区域，配合BeginDrawObject使用
+//  当需要提交多个Rect时，先将bFinish设置为false，最后一次设置为true释放资源
 //
-void WindowBase::EndDrawObject( CRect* prcWindow, HRGN& hClipRgn )
+void WindowBase::EndDrawObject(CRect* prcWindow, bool bFinish)
 {
-	SetViewportOrgEx(m_hRenderTarget, 0,0 , NULL );
-
-	if( m_hRgn != hClipRgn )
-	{
-		::DeleteObject(hClipRgn);
-	}
-	SelectClipRgn( m_hRenderTarget, NULL );
+	SelectClipRgn(m_hRenderTarget, NULL);
+	SetViewportOrgEx(m_hRenderTarget,0,0,NULL);
 
 	EndDraw(m_hRenderTarget, 
 		prcWindow->left, prcWindow->top,
 		prcWindow->Width(), prcWindow->Height(),
-		prcWindow->left, prcWindow->top);
+		prcWindow->left, prcWindow->top, bFinish);
 }
 
 bool WindowBase::Create( const String& ID, HWND hWndParent )

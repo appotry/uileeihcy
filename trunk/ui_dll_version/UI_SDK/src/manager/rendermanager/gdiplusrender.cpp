@@ -1170,12 +1170,14 @@ void GdiplusMemRenderDC::EndDraw( )
 	m_pWndGraphics = NULL;
 }
 
-void GdiplusMemRenderDC::EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc )
+void GdiplusMemRenderDC::EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish )
 {
 	if( NULL == m_pMemBitmap )
 		return;
 
 	m_pWndGraphics->DrawImage(m_pMemBitmap->GetBitmap(),xDest,yDest,xSrc,ySrc,wDest,hDest,Gdiplus::UnitPixel );
+	if (!bFinish)
+		return;
 
 	delete m_pWndGraphics;
 	delete m_pGraphics;

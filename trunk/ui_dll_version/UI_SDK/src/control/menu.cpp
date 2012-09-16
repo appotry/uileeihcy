@@ -83,7 +83,11 @@ void MenuBase::DestroyPopupWindow()
 	{
 		TimerHelper::GetInstance()->KillTimer(m_nTimerIDShowPopupSubMenu);
 	}
-	m_pPrevMenu = NULL;
+	if (NULL != m_pPrevMenu)
+	{
+		m_pPrevMenu->m_pNextMenu = NULL;
+		m_pPrevMenu = NULL;
+	}
 }
 
 
@@ -99,9 +103,9 @@ void MenuBase::OnTimer(UINT_PTR nIDEvent, LPARAM lParam)
 		{
 			m_pNextMenu->DestroyPopupWindow();
 			m_pNextMenu = NULL;
-
-//			this->ReDrawItem(m_pNextMenu->get)
-			this->UpdateObject(); // TODO: 更新当前弹出项即可
+		
+			MenuItem* pMenuItem = GetMenuItemBySubMenu(m_pNextMenu);
+			this->ReDrawItem(pMenuItem);
 		}
 		m_nTimerIDHidePopupSubMenu = 0;
 	}
@@ -166,46 +170,144 @@ LRESULT MenuBase::OnGetRenderType()
 	return GRAPHICS_RENDER_TYPE_GDI;
 }
 
+//
+//	被GetNextSelectableItem内部调用
+//  当一次没有找到时，会被再调用一次重头找起
+//
+MenuItem* MenuBase::_GetNextSelectableItem(MenuItem* pItem)
+{
+	if (NULL == pItem)
+	{
+		pItem = (MenuItem*)m_pFirstItem;
+		if (NULL == pItem)
+			return NULL;
+	}
+	else
+	{
+		pItem = (MenuItem*)pItem->GetNextItem();
+		if (NULL == pItem)
+			return NULL;
+	}
+
+	while (NULL != pItem)	
+	{
+		if(pItem->IsSeparator() || pItem->IsDisable())
+		{
+			pItem = (MenuItem*)pItem->GetNextItem();
+			continue;
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	return pItem;
+}
+MenuItem* MenuBase::GetNextSelectableItem(MenuItem* pItem)
+{
+	MenuItem* pItemRet = _GetNextSelectableItem(pItem);
+	if (NULL == pItemRet)
+	{
+		if (NULL == pItem)  // 已经是从头开始查找的，但还是返回NULL
+			return NULL;
+		else                // 再重头找一次
+			pItemRet = _GetNextSelectableItem(NULL);
+	}
+
+	return pItemRet;
+}
+
+MenuItem* MenuBase::_GetPrevSelectableItem(MenuItem* pItem)
+{
+	if (NULL == pItem)
+	{
+		pItem = (MenuItem*)m_pLastItem;
+		if (NULL == pItem)
+			return NULL;
+	}
+	else
+	{
+		pItem = (MenuItem*)pItem->GetPrevItem();
+		if (NULL == pItem)
+			return NULL;
+	}
+
+	while (NULL != pItem)	
+	{
+		if(pItem->IsSeparator() || pItem->IsDisable())
+		{
+			pItem = (MenuItem*)pItem->GetPrevItem();
+			continue;
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	return pItem;
+}
+MenuItem* MenuBase::GetPrevSelectableItem(MenuItem* pItem)
+{
+	MenuItem* pItemRet = _GetPrevSelectableItem(pItem);
+	if (NULL == pItemRet)
+	{
+		if (NULL == pItem)  // 已经是从头开始查找的，但还是返回NULL
+			return NULL;
+		else                // 再重头找一次
+			pItemRet = _GetPrevSelectableItem(NULL);
+	}
+
+	return pItemRet;
+}
+
+// TODO: VK_LEFT VK_RIGHT键
 void MenuBase::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
-	bool bNeedUpdateObject = false;
-	if( VK_DOWN == nChar )
+	if (VK_DOWN == nChar)
 	{
-		if (NULL == m_pHoverItem)
-		{
-			SetHoverItem(m_pFirstItem);
-		}
-		else   // 在存在HOVER对象的情况下面，选择HOVER的下一个对象
-		{
-			if (NULL != m_pHoverItem->GetNextItem())
-				SetHoverItem(m_pHoverItem->GetNextItem());
-			else
-				SetHoverItem(m_pFirstItem);
-		}
-
-		bNeedUpdateObject = true;
+		ListItemBase* pOldHoverItem = m_pHoverItem;
+		SetHoverItem(GetNextSelectableItem((MenuItem*)m_pHoverItem));
+		
+		if (m_pHoverItem != pOldHoverItem)
+			this->ReDrawItem(m_pHoverItem, pOldHoverItem);
 	}
-	else if( VK_UP == nChar )
+	else if (VK_UP == nChar)
 	{
-		if (NULL == m_pHoverItem)
-		{
-			SetHoverItem(m_pLastItem);
-		}
-		else   // 在存在HOVER对象的情况下面，选择HOVER的下一个对象
-		{
-			if (NULL != m_pHoverItem->GetPrevItem())
-				SetHoverItem(m_pHoverItem->GetPrevItem());
-			else
-				SetHoverItem(m_pLastItem);
-		}
-
-		bNeedUpdateObject = true;
+		ListItemBase* pOldHoverItem = m_pHoverItem;
+		SetHoverItem(GetPrevSelectableItem((MenuItem*)m_pHoverItem));
+		
+		if (m_pHoverItem != pOldHoverItem)
+			this->ReDrawItem(m_pHoverItem, pOldHoverItem);
 	}
-
-	if( bNeedUpdateObject )
+	else if (VK_RIGHT == nChar)
 	{
-		this->UpdateObject();
+		if (NULL != m_pHoverItem && ((MenuItem*)m_pHoverItem)->IsPopup())
+		{
+			if (0 != m_nTimerIDHidePopupSubMenu)
+			{
+				TimerHelper::GetInstance()->KillTimer(m_nTimerIDHidePopupSubMenu);
+			}
+			if (0 != m_nTimerIDShowPopupSubMenu)
+			{
+				TimerHelper::GetInstance()->KillTimer(m_nTimerIDShowPopupSubMenu);
+			}
+			MenuBase* pSubMenu = ((MenuItem*)m_pHoverItem)->GetSubMenu();
+			if (NULL != pSubMenu)
+			{
+				this->PopupSubMenu(((MenuItem*)m_pHoverItem));
+			}
+		}
 	}
+	else if (VK_LEFT == nChar)
+	{
+		if (NULL != m_pPrevMenu)
+		{
+			this->DestroyPopupWindow();
+		}
+	}
+
 }
 
 //
@@ -463,7 +565,7 @@ int  MenuBase::PopupAsSubMenu(UINT nFlags, MenuBase* pParentMenu, MenuItem* pIte
 		y = rcWorkArea.top;
 	if (y + rcWindow.Height() > rcWorkArea.bottom)
 		y = rcWorkArea.bottom - rcWindow.Height();
-	//
+	
 	m_pPopupWrapWnd = new PopupMenuWindow(this);
 	m_pPopupWrapWnd->Create(_T(""), hParentWnd);
 
@@ -500,6 +602,20 @@ MenuItem* MenuBase::GetMenuItemByID(int nID)
 	}
 	return NULL;
 }
+MenuItem* MenuBase::GetMenuItemBySubMenu(MenuBase* pSubMenu)
+{
+	MenuItem* pItem = (MenuItem*)m_pFirstItem;
+
+	while(pItem != NULL)
+	{
+		if(pItem->IsPopup() && pItem->GetSubMenu() == pSubMenu)
+			return pItem;
+
+		pItem = (MenuItem*)pItem->GetNextItem();
+	}
+	return NULL;
+}
+
 MenuBase* MenuBase::GetSubMenuByPos(int nPos)
 {
 	MenuItem* pItem = this->GetMenuItemByPos(nPos);
@@ -507,6 +623,7 @@ MenuBase* MenuBase::GetSubMenuByPos(int nPos)
 		return NULL;
 	return pItem->GetSubMenu();
 }
+
 MenuBase* MenuBase::GetSubMenuByID(int nID)
 {
 	MenuItem* pItem = this->GetMenuItemByID(nID);
@@ -687,35 +804,35 @@ bool Menu::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 		return false;
 
 	ATTRMAP::iterator iter = mapAttrib.find(XML_MENU_ICONGUTTERWIDTH);
-	if (m_mapAttribute.end() != iter)
+	if (mapAttrib.end() != iter)
 	{
 		m_nIconGutterWidth = _ttoi(iter->second.c_str());
 		m_mapAttribute.erase(XML_MENU_ICONGUTTERWIDTH);
 	}
 
 	iter = mapAttrib.find(XML_MENU_TEXTMARGINLEFT);
-	if (m_mapAttribute.end() != iter)
+	if (mapAttrib.end() != iter)
 	{
 		m_nTextMarginLeft = _ttoi(iter->second.c_str());
 		m_mapAttribute.erase(XML_MENU_TEXTMARGINLEFT);
 	}
 
 	iter = mapAttrib.find(XML_MENU_TEXTMARGINRIGHT);
-	if (m_mapAttribute.end() != iter)
+	if (mapAttrib.end() != iter)
 	{
 		m_nTextMarginRight = _ttoi(iter->second.c_str());
 		m_mapAttribute.erase(XML_MENU_TEXTMARGINRIGHT);
 	}
 
 	iter = mapAttrib.find(XML_MENU_POPUPTRIANGLEWIDTH);
-	if (m_mapAttribute.end() != iter)
+	if (mapAttrib.end() != iter)
 	{
 		m_nPopupTriangleWidth = _ttoi(iter->second.c_str());
 		m_mapAttribute.erase(XML_MENU_POPUPTRIANGLEWIDTH);
 	}
 
 	iter = mapAttrib.find(XML_MENU_SEPARATORHEIGHT);
-	if (m_mapAttribute.end() != iter)
+	if (mapAttrib.end() != iter)
 	{
 		m_nSeperatorHeight = _ttoi(iter->second.c_str());
 		m_mapAttribute.erase(XML_MENU_SEPARATORHEIGHT);

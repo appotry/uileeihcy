@@ -4,8 +4,6 @@
 namespace UI
 {
  
-typedef map<String,String>  ATTRMAP;
-
 #define UI_DECLARE_OBJECT( className, type )             \
 	static  TCHAR* XmlName()                             \
 	/*warning:该函数不支持多态，仅用于CLASS::XXX来调用*/ \
@@ -151,7 +149,7 @@ protected:
 	CRegion4 m_rcPadding;
 	CRegion4 m_rcBorder;       
 
-	HRGN     m_hRgn;           // 如果该对象是一个不规则区域，必须设置该值，该值对window类型对象无效. rgn是相对于窗口左上角的。
+	HRGN     m_hRgn;           // （未使用）如果该对象是一个不规则区域，必须设置该值，该值对window类型对象无效. rgn是相对于窗口左上角的。
 
 	int      m_nConfigWidth;   // 对象的宽度，可取值： 数值 | "auto" . （对于window对象，width 是指client区域的大小，不是整个窗口的大小；width包括padding，但不包括margin）
 	int      m_nConfigHeight;  // 对象的高度，可取值： 数值 | "auto" . （对于window对象，height是指client区域的大小，不是整个窗口的大小；height包括padding，但不包括margin）

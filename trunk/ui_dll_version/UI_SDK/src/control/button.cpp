@@ -715,43 +715,36 @@ HyperLink::HyperLink()
 }
 bool HyperLink::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 {
-	bool bHaveDefineTextRender = false;
-	if( mapAttrib.count( XML_TEXTRENDER_TYPE) )
-		bHaveDefineTextRender = true;
-
-	bool bRet = ButtonBase::SetAttribute(mapAttrib, bReload);
-	if( false == bRet )
-		return false;
-
-	if( !bHaveDefineTextRender )
+	if (0 == mapAttrib.count( XML_TEXTRENDER_TYPE))
 	{
-		SAFE_DELETE(m_pTextRender);
-	}
-	if( NULL == m_pTextRender )
-	{
-		HRFONT hRFont = this->GetFont();
-		m_pTextRender = TextRenderFactory::GetTextRender(TEXTRENDER_TYPE_FONTCOLORLIST, this);
-		if( NULL != m_pTextRender )
+		if (NULL == m_pTextRender)
 		{
-			FontColorListTextRender* p = (FontColorListTextRender*)m_pTextRender;
-			p->SetCount(4);
-			p->SetColor(0, RGB(0,0,255));
-			p->SetColor(1, RGB(255,0,0));
-			p->SetColor(2, RGB(255,0,0));
-			p->SetColor(3, RGB(192,192,192));
+			HRFONT hRFont = this->GetFont();
+			m_pTextRender = TextRenderFactory::GetTextRender(TEXTRENDER_TYPE_FONTCOLORLIST, this);
+			if (NULL != m_pTextRender)
+			{
+				FontColorListTextRender* p = (FontColorListTextRender*)m_pTextRender;
+				p->SetCount(4);
+				p->SetColor(0, RGB(0,0,255));
+				p->SetColor(1, RGB(255,0,0));
+				p->SetColor(2, RGB(255,0,0));
+				p->SetColor(3, RGB(192,192,192));
 
-			HRFONT hUnderLineFont = UI_GetFontEx(hRFont, FONTITEM_FLAG_UNDERLINE, 0, GetGraphicsRenderType(GetHWND()) );
-			p->SetFont(0, hRFont);
-			p->SetFont(1, hUnderLineFont);
-			p->SetFont(2, hUnderLineFont);
-			p->SetFont(3, hRFont);
-			UI_ReleaseFont(hUnderLineFont);
+				HRFONT hUnderLineFont = UI_GetFontEx(hRFont, FONTITEM_FLAG_UNDERLINE, 0, GetGraphicsRenderType(GetHWND()) );
+				p->SetFont(0, hRFont);
+				p->SetFont(1, hUnderLineFont);
+				p->SetFont(2, hUnderLineFont);
+				p->SetFont(3, hRFont);
+				UI_ReleaseFont(hUnderLineFont);
+			}
 		}
 	}
 
+	bool bRet = ButtonBase::SetAttribute(mapAttrib, bReload);
+	if (false == bRet)
+		return false;
 
 	this->ModifyStyle(OBJECT_STYLE_TRANSPARENT);   // Hyperlink默认是透明的
-
 	return true;
 }
 

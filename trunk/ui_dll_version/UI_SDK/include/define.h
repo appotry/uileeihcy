@@ -11,7 +11,10 @@
 typedef RECT  REGION4;
 typedef CRect CRegion4;
 
+typedef map<String,String>  ATTRMAP;
+
 #define FUNC_NAME  _T(__FUNCTION__)
+
 
 // 句柄定义
 typedef void *HSKIN;
@@ -178,36 +181,37 @@ UI_RESOURCE_TYPE;
 
 // EraseBkgnd
 
-#define XML_BACKGND_IS_TRANSPARENT       _T("istransparent")          // 是否需要进行透明处理（刷上父对象的背景）0/1
+#define XML_BACKGND_IS_TRANSPARENT       _T("istransparent")            // 是否需要进行透明处理（刷上父对象的背景）0/1
 
-#define XML_RENDER_TYPE                   _T("render.type")           // 设置渲染类型
-#define XML_RENDER_TYPE_COLOR             _T("color")                 // 纯色填充 Color
-#define XML_RENDER_TYPE_GRADIENT_H        _T("gradienth")             // 横向渐变 Color + Color
-#define XML_RENDER_TYPE_GRADIENT_V        _T("gradientv")             // 纵向渐变 Color + Color
-#define XML_RENDER_TYPE_IMAGE_SIMPLE      _T("imagesimple")           // (0,0)位置开始贴图Image + Color
-#define XML_RENDER_TYPE_IMAGE_TILE        _T("imagetile")             // (0,0)位置开始平铺Image
-#define XML_RENDER_TYPE_IMAGE_STRETCH     _T("imagestretch")          // 拉伸模式Image + Image9Region*
-#define XML_RENDER_TYPE_COLORLIST         _T("colorlist")             // office 2003工具栏式按钮
-#define XML_RENDER_TYPE_IMAGELIST         _T("imagelist")             // 图片列表
-#define XML_RENDER_TYPE_IMAGELISTSTRETCH  _T("imageliststretch")      // 图片列表拉伸绘制
-#define XML_RENDER_TYPE_THEME             _T("theme")                 // 系统主题按钮
+#define XML_RENDER_TYPE                   _T("render.type")             // 设置渲染类型
+#define XML_RENDER_TYPE_COLOR             _T("color")                   // 纯色填充 Color
+#define XML_RENDER_TYPE_GRADIENT_H        _T("gradienth")               // 横向渐变 Color + Color
+#define XML_RENDER_TYPE_GRADIENT_V        _T("gradientv")               // 纵向渐变 Color + Color
+#define XML_RENDER_TYPE_IMAGE_SIMPLE      _T("imagesimple")             // (0,0)位置开始贴图Image + Color
+#define XML_RENDER_TYPE_IMAGE_TILE        _T("imagetile")               // (0,0)位置开始平铺Image
+#define XML_RENDER_TYPE_IMAGE_STRETCH     _T("imagestretch")            // 拉伸模式Image + Image9Region*
+#define XML_RENDER_TYPE_COLORLIST         _T("colorlist")               // office 2003工具栏式按钮
+#define XML_RENDER_TYPE_IMAGELIST         _T("imagelist")               // 图片列表
+#define XML_RENDER_TYPE_IMAGELISTSTRETCH  _T("imageliststretch")        // 图片列表拉伸绘制
+#define XML_RENDER_TYPE_THEME             _T("theme")                   // 系统主题按钮
 
-#define XML_RENDER_COLOR                  _T("render.color")          // 填充颜色
-#define XML_RENDER_BORDERCOLOR            _T("render.bordercolor")    // 边框颜色
-#define XML_RENDER_COLORFROM              _T("render.colorfrom")      // 渐变起始色
-#define XML_RENDER_COLORTO                _T("render.colorto")        // 渐变终点色
-#define XML_RENDER_IMAGE                  _T("render.image")          // 背景图片
-#define XML_RENDER_IMAGE9REGION           _T("render.9region")        // 背景伸缩方式
+#define XML_RENDER_COLOR                  _T("render.color")            // 填充颜色
+#define XML_RENDER_BORDERCOLOR            _T("render.bordercolor")      // 边框颜色
+#define XML_RENDER_COLORFROM              _T("render.colorfrom")        // 渐变起始色
+#define XML_RENDER_COLORTO                _T("render.colorto")          // 渐变终点色
+#define XML_RENDER_IMAGE                  _T("render.image")            // 背景图片
+#define XML_RENDER_IMAGE9REGION           _T("render.9region")          // 背景伸缩方式
+#define XML_RENDER_LIST_STATEMAPINDEX     _T("render.list.statemap")    // 设置控件绘制状态对应的图片项，例如0:0,1:0,2:0,3:0,4:1 表示有两个图片项，但selection用第二张图片，其它用第一张图片
 #define XML_RENDER_COLORLIST_COUNT        _T("render.colorlist.count")  // 颜色列表的数量
 #define XML_RENDER_IMAGELIST_COUNT        _T("render.imagelist.count")  // 图片列表中的图片数量
 #define XML_RENDER_IMAGELIST_LAYOUT       _T("render.imagelist.layout") // 图片排列方向(默认为横向)
-#define XML_RENDER_IMAGELIST_LAYOUT_H     _T("h")                     // 图片横向排列
-#define XML_RENDER_IMAGELIST_LAYOUT_V     _T("v")                     // 图片纵向排列
+#define XML_RENDER_IMAGELIST_LAYOUT_H     _T("h")                       // 图片横向排列
+#define XML_RENDER_IMAGELIST_LAYOUT_V     _T("v")                       // 图片纵向排列
 
 
-#define XML_BACKGND_RENDER_PREFIX         _T("bkgnd.")                // 背景渲染属性前缀，如bkgnd.render.type="" bkgnd.render.image=""
-#define XML_FOREGND_RENDER_PREFIX         _T("foregnd.")              // 前景
-#define XML_ICON_RENDER_PREFIX            _T("icon.")                 // 图标属性渲染前缀
+#define XML_BACKGND_RENDER_PREFIX         _T("bkgnd.")                  // 背景渲染属性前缀，如bkgnd.render.type="" bkgnd.render.image=""
+#define XML_FOREGND_RENDER_PREFIX         _T("foregnd.")                // 前景
+#define XML_ICON_RENDER_PREFIX            _T("icon.")                   // 图标属性渲染前缀
 
 enum RENDER_TYPE
 {

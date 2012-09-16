@@ -308,6 +308,7 @@ void PopupMenuWindow::OnInitWindow()
 
 void PopupMenuWindow::OnFinalMessage()
 {
+	UI_LOG_DEBUG(_T("%s"),FUNC_NAME);
 	__super::OnFinalMessage();
 }
 

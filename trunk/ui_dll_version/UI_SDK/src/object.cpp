@@ -492,12 +492,14 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 		const String& strTextRenderType = iter->second;
 		m_pTextRender = TextRenderFactory::GetTextRender(strTextRenderType, this);
 		this->m_mapAttribute.erase(XML_TEXTRENDER_TYPE);
+		m_pTextRender->SetAttribute(_T(""),mapAttrib);
 	}
-	if( NULL == m_pTextRender )
+	else if( NULL == m_pTextRender )
 	{
 		m_pTextRender = TextRenderFactory::GetTextRender(TEXTRENDER_TYPE_NORMAL, this);
+		m_pTextRender->SetAttribute(_T(""),mapAttrib);
 	}
-	m_pTextRender->SetAttribute(_T(""),mapAttrib);
+	
 
 	// Ë¢ÐÂÊôÐÔ
 	iter = mapAttrib.find(XML_BACKGND_IS_TRANSPARENT);

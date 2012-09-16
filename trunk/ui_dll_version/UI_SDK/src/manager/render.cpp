@@ -762,7 +762,37 @@ void ColorListRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 	}
 }
 
+//////////////////////////////////////////////////////////////////////////
 
+bool ListRenderBase::SetAttribute(const String& strPrefix, ATTRMAP& mapAttrib)
+{
+	String strAttrib = strPrefix + XML_RENDER_LIST_STATEMAPINDEX;
+	ATTRMAP::iterator iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
+	{
+		m_mapState2Index.clear();
+		String& strMap = iter->second;
+
+		vector<String>  vecSplit;
+		UI_Split(strMap, XML_SEPERATOR, vecSplit);
+		int nCount = vecSplit.size();
+		for (int i = 0; i < nCount; i++)
+		{
+			String& strStateIndex = vecSplit[i];
+			vector<String>  vecStateIndex;
+			UI_Split(strStateIndex, _T(':'), vecStateIndex);
+			if (2 != vecStateIndex.size())
+			{
+				UI_LOG_WARN(_T("%s invalid state index: %s"), FUNC_NAME, strStateIndex.c_str());
+				continue;
+			}
+			int nState = _ttoi(vecStateIndex[0].c_str());
+			int nIndex = _ttoi(vecStateIndex[1].c_str());
+			m_mapState2Index[nState] = nIndex;
+		}
+	}
+	return true;
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                      //
@@ -788,6 +818,10 @@ ImageListRender::~ImageListRender( )
 
 bool ImageListRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
 {
+	bool bRet = __super::SetAttribute(strPrefix, mapAttrib);
+	if (false == bRet)
+		return false;
+
 	String strAttrib = strPrefix + XML_RENDER_IMAGELIST_COUNT;
 	ATTRMAP::iterator iter = mapAttrib.find(strAttrib);
 	if (mapAttrib.end() != iter)
@@ -880,12 +914,34 @@ SIZE ImageListRender::GetDesiredSize()
 	return s;
 }
 
+//
+//	获取指定状态对应的图片项
+//
 int ImageListRender::GetStateIndex(int nState)
 {
+	if (m_nCount <= 0)
+		return -1;
+
 	map<int, int>::iterator iter = m_mapState2Index.find(nState);
 	if (m_mapState2Index.end() == iter)
 	{
+		// 没有配置该状态或者没有配置
+		if (nState < m_nCount)  // 如果图片数量大于当前状态，直接取当前状态值对应的图片
+		{
+			return nState;
+		}
+		else                    // 状态值大于图片数量，取默认值0
+		{
+			return 0;
+		}
+	}
+	else
+	{
+		int& nRet = iter->second;
+		if (nRet < 0 || nRet >= m_nCount)
+			return -1;
 
+		return nRet;
 	}
 	return -1;
 }
@@ -2797,15 +2853,15 @@ void TextRender::DrawState(HRDC hRDC, const CRect* prc, int nState, const String
 ColorListTextRender::ColorListTextRender()
 {
 	m_nCount = 0;
-	m_hTextFont = NULL;
+	m_hFont = NULL;
 }
 ColorListTextRender::~ColorListTextRender()
 {
 	this->Clear();
-	if (NULL != m_hTextFont)
+	if (NULL != m_hFont)
 	{
-		::UI_ReleaseFont(m_hTextFont);
-		m_hTextFont = NULL;
+		::UI_ReleaseFont(m_hFont);
+		m_hFont = NULL;
 	}
 }
 void ColorListTextRender::Clear()
@@ -2856,8 +2912,22 @@ bool ColorListTextRender::SetAttribute( const String& strPrefix, map<String,Stri
 	{
 		String strFont = iter->second;
 
-		m_hTextFont = UI_GetFont(strFont, ::GetGraphicsRenderType(m_pObject->GetHWND()) );
+		m_hFont = UI_GetFont(strFont, ::GetGraphicsRenderType(m_pObject->GetHWND()) );
 		m_pObject->EraseAttribute(strAttrib);
+	}
+
+	if( NULL == m_hFont )
+	{
+		HRFONT hRFont = m_pObject->GetFont();
+		if (NULL != hRFont)
+		{
+			m_hFont = UI_CopyFont(m_pObject->GetFont());
+		}
+		else
+		{
+			// 可能是没有窗口对象，比如是一个 popup listbox或者menu，窗口还没有创建。获取默认字体
+			m_hFont = UI_GetDefaultFont((GRAPHICS_RENDER_TYPE)UISendMessage(m_pObject, UI_WM_GETRENDERTYPE));
+		}
 	}
 
 	return true;
@@ -2878,22 +2948,22 @@ void ColorListTextRender::DrawState(HRDC hRDC, const CRect* prc, int nState, con
 		col = m_vTextColor[nRealState]->GetColor();
 
 	int nFlag = nDrawTextFlag==-1 ? m_nDrawTextFlag:nDrawTextFlag;
-	DrawString(hRDC, strText.c_str(), prc, nFlag, m_hTextFont, col );
+	DrawString(hRDC, strText.c_str(), prc, nFlag, m_hFont, col );
 }
 HRFONT ColorListTextRender::GetHRFONT()
 {
-	return m_hTextFont;
+	return m_hFont;
 }
 void ColorListTextRender::SetHRFont(HRFONT hRFont)
 {
-	if( NULL != m_hTextFont )
+	if( NULL != m_hFont )
 	{
-		UI_ReleaseFont(m_hTextFont);
-		m_hTextFont = NULL;
+		UI_ReleaseFont(m_hFont);
+		m_hFont = NULL;
 	}
 	if (NULL != hRFont)
 	{
-		m_hTextFont = UI_CopyFont(hRFont);
+		m_hFont = UI_CopyFont(hRFont);
 	}
 }
 

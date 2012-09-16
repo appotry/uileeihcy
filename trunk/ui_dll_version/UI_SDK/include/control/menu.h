@@ -84,6 +84,11 @@ namespace UI
 		MenuBase* GetMenuByHWND(HWND hWnd);
 		MenuBase* GetMenuByPos(POINT ptScreen);
 		HWND      GetPopupWindowHandle();
+		MenuItem* GetNextSelectableItem(MenuItem* pItem);
+		MenuItem* GetPrevSelectableItem(MenuItem* pItem);
+	private:
+		MenuItem* _GetNextSelectableItem(MenuItem* pItem);
+		MenuItem* _GetPrevSelectableItem(MenuItem* pItem);
 
 	public:
 		int       GetMenuItemCount();
@@ -93,6 +98,7 @@ namespace UI
 		MenuBase* GetSubMenuByID(int nID);
 		MenuItem* GetMenuItemByPos(int nPos);
 		MenuItem* GetMenuItemByID(int nID);
+		MenuItem* GetMenuItemBySubMenu(MenuBase* pSubMenu);
 
 		virtual  void OnDrawItem( HRDC hRDC, ListItemBase* p ) ;
 		virtual  SIZE OnMeasureItem( ListItemBase* p);
