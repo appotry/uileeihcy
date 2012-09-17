@@ -54,13 +54,14 @@ void CustomWindow::OnInitWindow( )
 	}
 }
 
-void CustomWindow::OnNcDestroy()
+LRESULT CustomWindow::_OnNcDestroy( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
 {
-	SetMsgHandled(FALSE);
+	bHandled = FALSE;
 	if( NULL != m_pLayeredWindowWrap )
 	{
 		m_pLayeredWindowWrap->ReleaseLayeredWindow();
 	}
+	return 0;
 }
 
 
@@ -73,9 +74,9 @@ void CustomWindow::OnNcDestroy()
 //
 //	这里不能返回0，否则会导致其它窗口出现很多问题
 //	
-BOOL CustomWindow::OnNcActivate( BOOL bActive )
+LRESULT CustomWindow::_OnNcActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	this->SetActive(bActive?true:false);
+	this->SetActive(wParam?true:false);
 	this->UpdateObject();
 	return 1;
 }
@@ -87,13 +88,26 @@ BOOL CustomWindow::OnNcActivate( BOOL bActive )
 // 注：在这里没有使用响应WM_SHOWWINDOW来通过分层窗口刷新，因为在响应WM_SHOWWINDOW的时候，IsWindowVisible还是FALSE
 //     因此改用OnWindowPosChanged来得到窗口显示的时机，通过分层窗口刷新
 //   
-void CustomWindow::OnWindowPosChanged(LPWINDOWPOS lpWndPos)
+LRESULT CustomWindow::_OnWindowPosChanged( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
 {
-	SetMsgHandled(FALSE);
-	if (lpWndPos->flags & SWP_SHOWWINDOW && NULL != m_pLayeredWindowWrap)
+	bHandled = FALSE;
+	LPWINDOWPOS lpWndPos = (LPWINDOWPOS)lParam;
+
+	if (NULL != m_pLayeredWindowWrap)
 	{
-		m_pLayeredWindowWrap->OnShowWindow();
+		m_pLayeredWindowWrap->OnWindowPosChanged(lpWndPos);
 	}
+	return 0;
+}
+LRESULT CustomWindow::_OnCancelMode( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
+{
+	bHandled = FALSE;
+
+	if (NULL != m_pLayeredWindowWrap)
+	{
+		m_pLayeredWindowWrap->OnCancelMode();
+	}
+	return 0;
 }
 
 
@@ -217,9 +231,10 @@ bool CustomWindow::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 //////////////////////////////////////////////////////////////////////////
 
 // 屏蔽WM_PAINT消息，不需要绘制Nc (否则在拉伸CustomExWindow的时候会出现thickframe )
-void   CustomWindow::OnNcPaint(HRGN hRgn)
+LRESULT CustomWindow::_OnNcPaint( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
 {
-	__super::SetMsgHandled(TRUE);
+	bHandled = TRUE;
+	return 0;
 }
 
 void CustomWindow::OnEraseBkgnd(HRDC hRDC)
@@ -675,7 +690,7 @@ UINT CustomWindow::OnHitTest( POINT* pt )
 }
 
 //
-//	注：这个消息其它已被转义过了，不是原始的那个WM_SETCURSOR消息。而是在MOUSEMOVE之后手动POST出来的一个消息
+//	注：这个消息其它有可能是在MOUSEMOVE之后手动POST出来的一个消息
 //
 BOOL CustomWindow::OnSetCursor( HWND hWnd, UINT nHitTest, UINT message )
 {
@@ -722,43 +737,70 @@ BOOL CustomWindow::OnSetCursor( HWND hWnd, UINT nHitTest, UINT message )
 //
 //	使用WS_THICKFRAME也可以直接实现边框拖拽效果，但还需要去响应NCCACLSIZE和添加一个属性，可能会导致窗口在WIN7下面显示透明边框
 //	
+//  另外UpdateLayeredWindow支持更平滑的窗口拉伸效果，因此对于分层窗口的拉伸是另外一套逻辑实现的
+//
 void CustomWindow::OnLButtonDown(UINT nFlags, POINT pt)
 {
 	SetMsgHandled(FALSE);
 
 	UINT nHitTest = this->OnHitTest(&pt);
+
 	switch(nHitTest)
 	{
 	case HTTOPLEFT:
-		::PostMessage( m_hWnd, WM_SYSCOMMAND, SC_SIZE|WMSZ_TOPLEFT, MAKELPARAM(pt.x,pt.y) );
+		if (NULL != m_pLayeredWindowWrap)
+			m_pLayeredWindowWrap->OnLButtonDown(nHitTest);
+		else
+			::PostMessage( m_hWnd, WM_SYSCOMMAND, SC_SIZE|WMSZ_TOPLEFT, MAKELPARAM(pt.x,pt.y) );
 		break;
 
 	case HTTOP:
-		::PostMessage( m_hWnd, WM_SYSCOMMAND, SC_SIZE|WMSZ_TOP, MAKELPARAM(pt.x,pt.y) );
+		if (NULL != m_pLayeredWindowWrap)
+			m_pLayeredWindowWrap->OnLButtonDown(nHitTest);
+		else
+			::PostMessage( m_hWnd, WM_SYSCOMMAND, SC_SIZE|WMSZ_TOP, MAKELPARAM(pt.x,pt.y) );
 		break;
 
 	case HTTOPRIGHT:
-		::PostMessage( m_hWnd, WM_SYSCOMMAND, SC_SIZE|WMSZ_TOPRIGHT, MAKELPARAM(pt.x,pt.y) );
+		if (NULL != m_pLayeredWindowWrap)
+			m_pLayeredWindowWrap->OnLButtonDown(nHitTest);
+		else
+			::PostMessage( m_hWnd, WM_SYSCOMMAND, SC_SIZE|WMSZ_TOPRIGHT, MAKELPARAM(pt.x,pt.y) );
 		break;
 
 	case HTLEFT:
-		::PostMessage( m_hWnd, WM_SYSCOMMAND, SC_SIZE|WMSZ_LEFT, MAKELPARAM(pt.x,pt.y) );
+		if (NULL != m_pLayeredWindowWrap)
+			m_pLayeredWindowWrap->OnLButtonDown(nHitTest);
+		else
+			::PostMessage( m_hWnd, WM_SYSCOMMAND, SC_SIZE|WMSZ_LEFT, MAKELPARAM(pt.x,pt.y) );
 		break;
 
 	case HTRIGHT:
-		::PostMessage( m_hWnd, WM_SYSCOMMAND, SC_SIZE|WMSZ_RIGHT, MAKELPARAM(pt.x,pt.y) );
+		if (NULL != m_pLayeredWindowWrap)
+			m_pLayeredWindowWrap->OnLButtonDown(nHitTest);
+		else
+			::PostMessage( m_hWnd, WM_SYSCOMMAND, SC_SIZE|WMSZ_RIGHT, MAKELPARAM(pt.x,pt.y) );
 		break;
 
 	case HTBOTTOMLEFT:
-		::PostMessage( m_hWnd, WM_SYSCOMMAND, SC_SIZE|WMSZ_BOTTOMLEFT, MAKELPARAM(pt.x,pt.y) );
+		if (NULL != m_pLayeredWindowWrap)
+			m_pLayeredWindowWrap->OnLButtonDown(nHitTest);
+		else
+			::PostMessage( m_hWnd, WM_SYSCOMMAND, SC_SIZE|WMSZ_BOTTOMLEFT, MAKELPARAM(pt.x,pt.y) );
 		break;
 
 	case HTBOTTOM:
-		::PostMessage( m_hWnd, WM_SYSCOMMAND, SC_SIZE|WMSZ_BOTTOM, MAKELPARAM(pt.x,pt.y) );
+		if (NULL != m_pLayeredWindowWrap)
+			m_pLayeredWindowWrap->OnLButtonDown(nHitTest);
+		else
+			::PostMessage( m_hWnd, WM_SYSCOMMAND, SC_SIZE|WMSZ_BOTTOM, MAKELPARAM(pt.x,pt.y) );
 		break;
 
 	case HTBOTTOMRIGHT:
-		::PostMessage( m_hWnd, WM_SYSCOMMAND, SC_SIZE|WMSZ_BOTTOMRIGHT, MAKELPARAM(pt.x,pt.y) );
+		if (NULL != m_pLayeredWindowWrap)
+			m_pLayeredWindowWrap->OnLButtonDown(nHitTest);
+		else
+			::PostMessage( m_hWnd, WM_SYSCOMMAND, SC_SIZE|WMSZ_BOTTOMRIGHT, MAKELPARAM(pt.x,pt.y) );
 		break;
 
 	case HTCAPTION:
@@ -767,19 +809,38 @@ void CustomWindow::OnLButtonDown(UINT nFlags, POINT pt)
 	}
 }
 
+void CustomWindow::OnLButtonUp(UINT nFlags, POINT point)
+{
+	SetMsgHandled(FALSE);
+	if (NULL != m_pLayeredWindowWrap)
+	{
+		m_pLayeredWindowWrap->OnLButtonUp();
+	}
+}
+
+void CustomWindow::OnMouseMove(UINT nFlags, POINT point)
+{
+	SetMsgHandled(FALSE);
+	if (NULL != m_pLayeredWindowWrap)
+	{
+		m_pLayeredWindowWrap->OnMouseMove();
+	}
+}
 void CustomWindow::OnSize( UINT nType, int cx, int cy )
 {
 	SetMsgHandled(FALSE);
 
 	// 最小化和从最小化还原时，不需要重新计算窗口的形状
-	if ( SIZE_MINIMIZED == nType || (SIZE_RESTORED==nType && ::IsIconic(m_hWnd)) )
+	if (SIZE_MINIMIZED == nType || (SIZE_RESTORED==nType && ::IsIconic(m_hWnd)))
 		return;
 
-	this->m_bNeedToSetWindowRgn = true;
-
-	if( NULL != m_pLayeredWindowWrap )
+	if (NULL != m_pLayeredWindowWrap)
 	{
 		m_pLayeredWindowWrap->OnSize(nType, cx, cy);
+	}
+	else
+	{
+		this->m_bNeedToSetWindowRgn = true;
 	}
 }
 
@@ -796,7 +857,7 @@ void CustomWindow::SetWindowResizeType( UINT nType )
 //
 bool CustomWindow::TestResizeBit( int nBit )
 {
-	if( m_nResizeBit & nBit )
+	if (m_nResizeBit & nBit)
 		return true;
 	else 
 		return false;
@@ -992,6 +1053,18 @@ LayeredWindowWrap::LayeredWindowWrap(CustomWindow* pWindow)
 
 	m_hLayeredMemDC = NULL;
 	m_hLayeredBitmap = NULL;
+
+	m_nHitTestFlag = 0;
+	m_ptStartSizeMove.x = 0;
+	m_ptStartSizeMove.y = 0;
+	m_ptWindowOld.x = 0;
+	m_ptWindowOld.y = 0;
+	m_sizeWindowOld.cx = 0;
+	m_sizeWindowOld.cy = 0;
+	m_ptWindow.x = 0;
+	m_ptWindow.y = 0;
+	m_sizeWindow.cx = 0;
+	m_sizeWindow.cy = 0;
 }
 LayeredWindowWrap::~LayeredWindowWrap()
 {
@@ -1005,7 +1078,7 @@ BOOL LayeredWindowWrap::PreCreateWindow( CREATESTRUCT& cs )
 }
 
 
-void  LayeredWindowWrap::InitLayeredWindow()
+void LayeredWindowWrap::InitLayeredWindow()
 {
 	RECT rc;
 	::GetWindowRect( m_pWindow->m_hWnd, &rc );
@@ -1019,7 +1092,7 @@ void  LayeredWindowWrap::InitLayeredWindow()
 
 	this->InvalidateObject(m_pWindow,TRUE);
 }
-void  LayeredWindowWrap::ReleaseLayeredWindow()
+void LayeredWindowWrap::ReleaseLayeredWindow()
 {
 	if( NULL != m_hLayeredMemDC )
 	{
@@ -1037,24 +1110,30 @@ void LayeredWindowWrap::OnSize( UINT nType, int cx, int cy )
 	SAFE_DELETE_GDIOBJECT(m_hLayeredBitmap);
 
 	Image image;
-	image.Create(cx, -cy, 32, Image::createAlphaChannel );
+	image.Create(cx, -cy, 32, Image::createAlphaChannel);
 	m_hLayeredBitmap = image.Detach();
 	::SelectObject(m_hLayeredMemDC, m_hLayeredBitmap);
 
 	this->InvalidateObject(m_pWindow, TRUE);
 }
 
-void LayeredWindowWrap::OnShowWindow()
+void LayeredWindowWrap::OnWindowPosChanged(LPWINDOWPOS lpWndPos)
 {
-	this->InvalidateObject(m_pWindow, TRUE);
+	m_ptWindow.x = lpWndPos->x;
+	m_ptWindow.y = lpWndPos->y;
+	m_sizeWindow.cx = lpWndPos->cx;
+	m_sizeWindow.cy = lpWndPos->cy;
+
+	if (lpWndPos->flags & SWP_SHOWWINDOW)  // 窗口显示（窗口隐藏时，DrawObject会失败）
+		this->InvalidateObject(m_pWindow, TRUE);
 }
 
 void LayeredWindowWrap::InvalidateObject( Object* pInvalidateObj, bool bUpdateNow )
 {
-	if( NULL == pInvalidateObj )
+	if (NULL == pInvalidateObj)
 		return;
 
-	if( OBJ_WINDOW == pInvalidateObj->GetObjectType() )
+	if (OBJ_WINDOW == pInvalidateObj->GetObjectType())
 	{
 		// 		HRDC hRDC = GetHRDC(m_hMemDC,m_hWnd);
 		// 		this->OnDraw( hRDC );
@@ -1097,15 +1176,148 @@ void LayeredWindowWrap::EndDrawObject(CRect* prcWindow, bool bFinish)
 	if (bFinish)
 		this->Commit2LayeredWindow();
 }
+
+// 模拟拖拽窗口拉伸过程
+void LayeredWindowWrap::OnLButtonDown(UINT nHitTest)
+{
+	OnEnterSizeMove(nHitTest);
+}
+void LayeredWindowWrap::OnLButtonUp()
+{
+	OnExitSizeMove();
+}
+void LayeredWindowWrap::OnCancelMode()
+{
+	OnExitSizeMove();
+}
+void LayeredWindowWrap::OnMouseMove()
+{
+	if (0 == m_nHitTestFlag)
+		return;
+
+	POINT ptCursor;
+	GetCursorPos(&ptCursor);
+
+	int nxMoveDiff = 0;
+	int nyMoveDiff = 0;
+
+	int oldCX = m_sizeWindow.cx;
+	int oldCY = m_sizeWindow.cy;
+
+	// 计算窗口的新坐标
+	switch(m_nHitTestFlag)
+	{
+	case HTLEFT:
+		nxMoveDiff = m_ptStartSizeMove.x - ptCursor.x;
+		m_ptWindow.x = m_ptWindowOld.x - nxMoveDiff;
+		m_sizeWindow.cx = m_sizeWindowOld.cx + nxMoveDiff;
+		break;
+
+	case HTRIGHT:
+		nxMoveDiff = ptCursor.x - m_ptStartSizeMove.x;
+		m_sizeWindow.cx = m_sizeWindowOld.cx + nxMoveDiff;
+		break;
+
+	case HTTOP:
+		nyMoveDiff = m_ptStartSizeMove.y - ptCursor.y;
+		m_ptWindow.y = m_ptWindowOld.y - nyMoveDiff;
+		m_sizeWindow.cy = m_sizeWindowOld.cy + nyMoveDiff;
+		break;
+
+	case HTBOTTOM:
+		nyMoveDiff = ptCursor.y - m_ptStartSizeMove.y;
+		m_sizeWindow.cy = m_sizeWindowOld.cy + nyMoveDiff;
+		break;
+
+	case HTTOPLEFT:
+		nxMoveDiff = m_ptStartSizeMove.x - ptCursor.x;
+		m_ptWindow.x = m_ptWindowOld.x - nxMoveDiff;
+		m_sizeWindow.cx = m_sizeWindowOld.cx + nxMoveDiff;
+
+		nyMoveDiff = m_ptStartSizeMove.y - ptCursor.y;
+		m_ptWindow.y = m_ptWindowOld.y - nyMoveDiff;
+		m_sizeWindow.cy = m_sizeWindowOld.cy + nyMoveDiff;
+		break;
+
+	case HTTOPRIGHT:
+		nxMoveDiff = ptCursor.x - m_ptStartSizeMove.x;
+		m_sizeWindow.cx = m_sizeWindowOld.cx + nxMoveDiff;
+
+		nyMoveDiff = m_ptStartSizeMove.y - ptCursor.y;
+		m_ptWindow.y = m_ptWindowOld.y - nyMoveDiff;
+		m_sizeWindow.cy = m_sizeWindowOld.cy + nyMoveDiff;
+		break;
+
+	case HTBOTTOMLEFT:
+		nxMoveDiff = m_ptStartSizeMove.x - ptCursor.x;
+		m_ptWindow.x = m_ptWindowOld.x - nxMoveDiff;
+		m_sizeWindow.cx = m_sizeWindowOld.cx + nxMoveDiff;
+
+		nyMoveDiff = ptCursor.y - m_ptStartSizeMove.y;
+		m_sizeWindow.cy = m_sizeWindowOld.cy + nyMoveDiff;
+		break;
+
+	case HTBOTTOMRIGHT:
+		nxMoveDiff = ptCursor.x - m_ptStartSizeMove.x;
+		m_sizeWindow.cx = m_sizeWindowOld.cx + nxMoveDiff;
+
+		nyMoveDiff = ptCursor.y - m_ptStartSizeMove.y;
+		m_sizeWindow.cy = m_sizeWindowOld.cy + nyMoveDiff;
+		break;
+	}
+
+	if (oldCX == m_sizeWindow.cx && oldCY == m_sizeWindow.cy)
+	{
+		return;
+	}
+
+	ResizeRenderTarget(m_pWindow->m_hRenderTarget, m_sizeWindow.cx,m_sizeWindow.cy);
+
+	// 注意：m_rcParent的更新千万不能使用GetWindowRect。因为窗口的大小现在就没有变
+	//       所以这里也就没有采用SendMessage(WM_SIZE)的方法
+	SetRect(&m_pWindow->m_rcParent, 0,0, m_sizeWindow.cx, m_sizeWindow.cy);
+	::UI_UpdateLayout(m_pWindow, FALSE);
+
+	this->OnSize(0, m_sizeWindow.cx, m_sizeWindow.cy);
+}
+void LayeredWindowWrap::OnEnterSizeMove(UINT nHitTest)
+{
+	SetCapture(m_pWindow->m_hWnd);
+	m_nHitTestFlag = nHitTest;
+
+	POINT ptWindow;
+	GetCursorPos(&ptWindow);
+
+	m_ptStartSizeMove.x = ptWindow.x;
+	m_ptStartSizeMove.y = ptWindow.y;
+
+	m_ptWindowOld.x = m_ptWindow.x;
+	m_ptWindowOld.y = m_ptWindow.y;
+	m_sizeWindowOld.cx = m_sizeWindow.cx;
+	m_sizeWindowOld.cy = m_sizeWindow.cy;
+}
+
+void LayeredWindowWrap::OnExitSizeMove()
+{
+	if (0 == m_nHitTestFlag)
+		return;
+
+	if (m_pWindow->m_hWnd == GetCapture())
+		ReleaseCapture();
+
+	m_nHitTestFlag = 0;
+	m_ptStartSizeMove.x = 0;
+	m_ptStartSizeMove.y = 0;
+
+	m_ptWindowOld.x = 0;
+	m_ptWindowOld.y = 0;
+	m_sizeWindowOld.cx = 0;
+	m_sizeWindowOld.cy = 0;
+}
+
 void LayeredWindowWrap::Commit2LayeredWindow()
 {
-	RECT rc;
-	::GetWindowRect( m_pWindow->m_hWnd, &rc );
-
-	POINT leftTop  = {rc.left, rc.top};     // 设置分层窗口坐标，可为NULL
 	POINT ptMemDC  = {0,0};
-	SIZE  size     = {rc.right-rc.left, rc.bottom-rc.top}; // 设置分层窗口的大小，可为NULL
-
 	int   nFlag = ULW_OPAQUE;
 	DWORD dwColorMask = 0;
 
@@ -1131,21 +1343,8 @@ void LayeredWindowWrap::Commit2LayeredWindow()
 		}
 	}
 
-// 	{
-// 		Image image;
-// 		image.Attach(m_hLayeredBitmap);
-// 		static int a = 0;
-// 		a++;
-// 		TCHAR szTitle[256] ;
-// 		_stprintf(szTitle, _T("C:\\aaa%d.png"), a);
-// 		image.Save(szTitle, Gdiplus::ImageFormatPNG);
-// 		image.Detach();
-// 		::SelectObject(m_hLayeredMemDC, m_hLayeredBitmap);
-// 	}
-
-	BOOL bRet = ::UpdateLayeredWindow( m_pWindow->m_hWnd, NULL, &leftTop, &size, m_hLayeredMemDC, &ptMemDC, dwColorMask, &bf, nFlag ); 
-	if( FALSE == bRet )
-	{
-		UI_LOG_ERROR(_T("LayeredWindow::InvalidateObject UpdateLayeredWindow Failed."));
-	}
+	BOOL bRet = ::UpdateLayeredWindow( m_pWindow->m_hWnd, NULL, &m_ptWindow, &m_sizeWindow/*&leftTop, &size*/, m_hLayeredMemDC, &ptMemDC, dwColorMask, &bf, nFlag ); 
+	if (FALSE == bRet)
+		UI_LOG_ERROR(_T("%s UpdateLayeredWindow Failed."), FUNC_NAME);
+	
 }

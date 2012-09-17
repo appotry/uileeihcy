@@ -81,7 +81,7 @@ protected:
 
 public:
 	// WndProc的原始消息处理
-	BEGIN_MSG_MAP(WindowBase)
+	BEGIN_MSG_MAP(WindowBase)  // 经过virtual扩展了
 		MESSAGE_HANDLER( WM_SETCURSOR,     _OnSetCursor )
 		MESSAGE_HANDLER( WM_MOUSEMOVE,     _OnHandleMouseMessage )
 		MESSAGE_HANDLER( WM_ERASEBKGND,    _OnEraseBkgnd )
