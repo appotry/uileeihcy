@@ -18,6 +18,13 @@ void CEqualizerDlg::OnInitWindow( )
 	{
 		m_pH->SetRange(-120,120);
 		m_pH->SetPos(0);
+// 		srand( (unsigned)time( NULL ) );
+// 		int n = rand()%240-120;
+// 		m_pH->SetPos(n);
+// 		if (0 != n)
+// 		{
+// 			UI_ChangeSkinHLS(n, 0,0, CHANGE_SKIN_HLS_FLAG_H);
+// 		}
 	}
 	m_pL = (SliderCtrl*)this->FindChildObject( _T("progress_hls_l"));
 	if( NULL != m_pL )

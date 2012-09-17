@@ -21,8 +21,6 @@ public:
 
 	// 内部方法
 protected:
-	bool              testStateBit( WORD wBit );
-
 	// 模拟系统标题栏按钮
 	void              OnSysClose();
 	void              OnSysMinimize();

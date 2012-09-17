@@ -34,8 +34,10 @@
 #define  __ATLRES_H__
 extern HINSTANCE g_hInstance;
 
+
 // C 运行时头文件
 #include <stdlib.h>
+#include <time.h>
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>

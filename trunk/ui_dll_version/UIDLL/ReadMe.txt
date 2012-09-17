@@ -147,13 +147,11 @@
 47. 修改了GetHDC的字体选择，会对theme绘制造成什么影响？
 51. FONTCOLORLISTTEXTRENDER <-- xml属性测试
 52. 需要增加一下变量，保存当前皮肤的hue值，后面加载的图片都要进行转换 （同时将active skin功能也做一下）
-55. render增加一个接口，判断DrawState，这个状态是否支持
 56. LOG 支持__FUNCTION__ 参数！
 57. 考虑支持缩放效果
 58. icon在系统16位色下面显示全白
 59. 去掉ResetAttribute方法
 60. 将BkRender, ForeRender移到IObjectRender当中，子类controlRender可继承
-61. LISTBOX的局部刷新
 64. 关于DrawThemexxx的Gdiplus，可以考虑先画在一个HDC的BITMAP上面，然后转成Gdiplus::Bitmap
 65. TextRender可以考虑增加一个文字阴影效果，仿XP STYLE
 66. Edit中，字体改变后/换肤后，m_nCaretHeight没有更新，将导致绘制位置出错
@@ -168,7 +166,6 @@
 72. 如何实现菜单的换扶（不是所有的菜单都配置在XML中的，那么没有配置在XML中的对象是否就没法实现换肤？）
 73. 点击打开一个系统COMBOOX的下拉列表，然后将鼠标放在一个UI控件上面，点击一下，下拉列表消失，再继续点击UI控件，无反应。
     因为没有人去触发一个WM_MOUSEMOVE来set hover对象
-74. ListCtrlBase::ReDrawItem目前没用
 75. 分层菜单设置
 76. 菜单提示条问题
 78. 将layout.xml增加一个<#include>标签，允许将一些资源抽取出来 
@@ -176,10 +173,11 @@
 82. 音乐插件的功能，目前不支持WMA的文件
 83. 音乐频谱功能 
 84. 实现新的一类换肤功能：背景主题图片	
-87. 使用CaretWindow时，如果移动窗口，光标不会跟随
 88. 分层窗口优化！拖动窗口时，有明显的晃动
 89. 普通窗口拉伸优化！不平滑
-90. map调用方法优化： map.count + map[] 效率低于 map.find	
+91. 当使用方向 → 时，弹出的子菜单又会向当前窗口发送一个WM_MOUSEMOVE消息，就可能导致当前父菜单另一个ITEM得到HOVER，使得子菜单被关闭
+92. playlistdlg resize的时候， listctrl 变化不正常，会变黑
+93. WINDOW 的两个消息链有点混乱，能不能想办法都合入到processwindowmessage中，ui_begin_msg_map只由外部去处理
 	
 ==================================疑问==================================
 1. Message类是否需要一个 m_pCurMsg成员变量？
@@ -234,6 +232,12 @@
 85. 分层窗口为什么没有参与亮度的改变 : 错把gdiplus bitmap中的亮度改变的代码删除了
 86. 分层窗口下面，对EDIT进行双击取词，发现选中部分会被第二次截断。就是因为caretwindow在mouse up之前又发送了一次mouse move的消息，
     导致的选区被修改...怎么办？  -- 在dbclick中将m_bDrag = false;
+61. LISTBOX的局部刷新
+90. map调用方法优化： map.count + map[] 效率低于 map.find	
+87. 使用CaretWindow时，如果移动窗口，光标不会跟随
+74. ListCtrlBase::ReDrawItem目前没用
+55. render增加一个接口，判断DrawState，这个状态是否支持
+    -- 修改为增加了一个 map映射字段，可以用于配置哪个状态对应哪个图片项
          
 /====================双屏坐标处理代码=================================================	 
 	CMFCPopupMenu::RecalcLayout, afxmenupopup.cpp L630

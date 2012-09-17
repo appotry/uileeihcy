@@ -1216,10 +1216,12 @@ protected:
 	}
 #endif
 
-#ifndef BEGIN_MESSAGE_MAP
+#ifdef BEGIN_MSG_MAP
+#	undef BEGIN_MSG_MAP  // 比原始的BEGIN_MSG_MAP增加一个virtual标识，用于子类扩展而不用去从CMessageMap派生
+#endif
 #define BEGIN_MSG_MAP(theClass) \
 public: \
-	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID = 0) \
+	virtual BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID = 0) \
 	{ \
 		BOOL bHandled = TRUE; \
 		(hWnd); \
@@ -1231,7 +1233,6 @@ public: \
 		switch(dwMsgMapID) \
 			{ \
 		case 0:
-#endif
 
 #ifndef ALT_MSG_MAP
 #define ALT_MSG_MAP(msgMapID) \

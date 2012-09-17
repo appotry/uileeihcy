@@ -101,6 +101,9 @@ bool UI_ChangeSkin( int nIndex )
 	return g_pUIApplication->m_ProjectMgr.ChangeSkin( nIndex );
 }
 
+// h: -120 ~ 120
+// l: -100 ~ 100
+// s: -100 ~ 100
 bool UI_ChangeSkinHLS( short h, short l, short s, int nFlag )
 {
 	if( NULL == g_pUIApplication )

@@ -26,16 +26,24 @@ public:
 
 	UI_DECLARE_OBJECT( CustomWindow, OBJ_WINDOW )
 
+	BEGIN_MSG_MAP(CustomWindow)
+		MESSAGE_HANDLER(WM_NCPAINT, _OnNcPaint)
+		MESSAGE_HANDLER(WM_NCACTIVATE, _OnNcActivate)
+		MESSAGE_HANDLER(WM_NCDESTROY,  _OnNcDestroy)
+		MESSAGE_HANDLER(WM_WINDOWPOSCHANGED, _OnWindowPosChanged)
+		MESSAGE_HANDLER(WM_CANCELMODE, _OnCancelMode)
+		CHAIN_MSG_MAP(Window)
+	END_MSG_MAP()
+
 	UI_BEGIN_MSG_MAP
-		UIMSG_WM_NCPAINT( OnNcPaint )
+		UIMSG_WM_SETCURSOR( OnSetCursor )
 		UIMSG_WM_ERASEBKGND( OnEraseBkgnd )
 		UIMSG_WM_LBUTTONDOWN( OnLButtonDown )
-		UIMSG_WM_SETCURSOR( OnSetCursor )
+		UIMSG_WM_LBUTTONUP( OnLButtonUp )
+		UIMSG_WM_MOUSEMOVE( OnMouseMove )
 		UIMSG_WM_SIZE( OnSize )
 		UIMSG_WM_HITTEST( OnHitTest )
-		UIMSG_WM_NCDESTROY(OnNcDestroy)
-		UIMSG_WM_NCACTIVATE( OnNcActivate )
-		UIMSG_WM_WINDOWPOSCHANGED(OnWindowPosChanged)
+		
 
 //		UIMSG_WM_NCHITTEST( OnNcHitTest )
 // 		UIMSG_WM_NCMOUSEMOVE    ( OnNcMouseMove )
@@ -81,15 +89,19 @@ public:
 	// 消息响应
 protected:
 
-	void     OnNcPaint(HRGN hRgn) ;
+	LRESULT  _OnNcPaint( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+	LRESULT  _OnNcActivate( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+	LRESULT  _OnNcDestroy( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+	LRESULT  _OnWindowPosChanged( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+	LRESULT  _OnCancelMode( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+	
 	void     OnEraseBkgnd(HRDC hDC);
-	void     OnSize( UINT nType, int cx, int cy );
-	BOOL     OnSetCursor( HWND hWnd, UINT nHitTest, UINT message );
+	void     OnSize(UINT nType, int cx, int cy);
+	BOOL     OnSetCursor(HWND hWnd, UINT nHitTest, UINT message);
 	void     OnLButtonDown(UINT nFlags, POINT point);
-	UINT     OnHitTest( POINT* p );
-	void     OnNcDestroy();
-	BOOL     OnNcActivate( BOOL bActive );
-	void     OnWindowPosChanged(LPWINDOWPOS lpWndPos);
+	void     OnLButtonUp(UINT nFlags, POINT point);
+	void     OnMouseMove(UINT nFlags, POINT point);
+	UINT     OnHitTest(POINT* p);
 
 //	int  OnCreate(LPCREATESTRUCT lpCreateStruct);
 //	LRESULT  OnNcHitTest( POINT pt );
@@ -143,7 +155,9 @@ protected:
 	friend class LayeredWindowWrap;
 };
 
-
+//
+//	分层窗口实现代码
+//
 class LayeredWindowWrap
 {
 public:
@@ -154,20 +168,39 @@ public:
 	void      InitLayeredWindow();
 	void      ReleaseLayeredWindow();
 	void      OnSize( UINT nType, int cx, int cy );
-	void      OnShowWindow();
+	void      OnWindowPosChanged(LPWINDOWPOS lpWndPos);
 	void      InvalidateObject( Object* pInvalidateObj, bool bUpdateNow );
 	HRDC      BeginDrawObject( Object* pInvalidateObj);
 	void      EndDrawObject( CRect* prcWindow, bool bFinish );
+
+	void      OnLButtonDown(UINT nHitTest);
+	void      OnLButtonUp();
+	void      OnMouseMove();
+	void      OnEnterSizeMove(UINT nHitTest);
+	void      OnExitSizeMove();
+	void      OnCancelMode();
+
 protected:
 	void      Commit2LayeredWindow();
 
 protected:
-	CustomWindow*   m_pWindow;
+	friend    class CustomWindow;
+	CustomWindow*   m_pWindow;     // 对应的窗口指针
 
 	HDC       m_hLayeredMemDC;     // 分层窗口需要自己维护一份图片,UpdateLayeredWindow的第二个HDC
 	HBITMAP   m_hLayeredBitmap;    // 分层窗口需要自己维护一份图片
 
-	friend    class CustomWindow;
+	POINT     m_ptWindow;          // 分层窗口的坐标
+	SIZE      m_sizeWindow;        // 分层窗口的大小
+
+	// 分层窗口拉伸时使用的中间参数
+	UINT      m_nHitTestFlag;      // 拉伸标识
+	POINT     m_ptStartSizeMove;   // 开始拉伸时，鼠标的位置，用于计算鼠标偏移
+	POINT     m_ptWindowOld;       // 开始拉伸时的窗口坐标，用于和偏移一起计算新位置
+	SIZE      m_sizeWindowOld;     // 开始拉伸时的窗口大小，用于和偏移一起计算新大小
+
+	
+	
 };
 
 }

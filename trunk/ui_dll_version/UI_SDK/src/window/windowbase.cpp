@@ -720,20 +720,20 @@ LRESULT WindowBase::_OnSetCursor( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 {
 	bHandled = TRUE;
 
-	if( 0 == HIWORD(lParam) )  // is menu popup
-	{
+	if (0 == HIWORD(lParam))  // is menu popup
+	{ 
 		::SetCursor( ::LoadCursor(NULL, IDC_ARROW) );
 		return TRUE;
 	}
 
 	HWND hWnd = (HWND)wParam;
-	if( 0 != wParam && hWnd !=  m_hWnd )
+	if (0 != wParam && hWnd != m_hWnd)
 	{
 		return DefWindowProc(uMsg,wParam,lParam);  // 鼠标位于窗口上的其它windows控件上面，不处理
 	}  
-	else if( hWnd == m_hWnd )  
+	else if (hWnd == m_hWnd)  
 	{
-		if( LOWORD(lParam) != HTCLIENT )    // 用于鼠标位于system window的边缘时，应该调用默认的处理过程。包括当自己弹出一个模态框，返回HTERROR时
+		if (LOWORD(lParam) != HTCLIENT)    // 用于鼠标位于system window的边缘时，应该调用默认的处理过程。包括当自己弹出一个模态框，返回HTERROR时
 		{
 			return DefWindowProc(uMsg,wParam,lParam);
 		}
@@ -746,7 +746,7 @@ LRESULT WindowBase::_OnSetCursor( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 		// 因此在MOUSEMOVE之前的SETCURSOR消息需要被忽略，只处理在MOUSEMOVE后POST出来的        -- x 废弃
 		// SETCURSOR消息，该消息wParam为0                                                     -- x 废弃
 	}
-	if( TRUE == this->m_MgrMouse.HandleMessage( uMsg, wParam, lParam ) ) // 仅发给当前hover object
+	if (TRUE == this->m_MgrMouse.HandleMessage(uMsg, wParam, lParam)) // 仅发给当前hover object
 	{
 		return TRUE;
 	}

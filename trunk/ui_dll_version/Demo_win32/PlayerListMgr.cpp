@@ -1,8 +1,6 @@
 #include "StdAfx.h"
 #include "PlayerListMgr.h"
 #include "MainMgr.h"
-#include <stdlib.h>
-#include <time.h>
 
 void PlayerListItemInfo::SetFilePath(const String& str) 
 { 
