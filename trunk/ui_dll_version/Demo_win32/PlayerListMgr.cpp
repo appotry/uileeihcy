@@ -113,8 +113,14 @@ bool CPlayerListMgr::RemoveAllFile()
 			SAFE_DELETE(pInfo);
 		}
 		m_vecPlayerList.clear();
+		return true;
 	}
-	return true;
+	else
+	{
+		UIASSERT(0);
+		return false;
+	}
+	return false;
 }
 
 //
