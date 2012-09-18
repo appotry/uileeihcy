@@ -141,7 +141,9 @@ bool CALLBACK MyEnumFileInDirProc(const TCHAR* szDir, const TCHAR* szFileName, W
 
 	String str = szDir;
 	str += szFileName;
-	if( str.substr(str.length()-4,4) == _T(".mp3") )
+
+	String strExt = str.substr(str.length()-4,4);
+	if (strExt == _T(".mp3") || strExt == _T(".wma"))
 	{
 		pThis->AddFile(str);
 	}

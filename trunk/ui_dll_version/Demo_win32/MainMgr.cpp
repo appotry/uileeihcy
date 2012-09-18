@@ -114,10 +114,16 @@ void CMainMgr::Play(PlayerListItemInfo* pItem)
 		Stop();
 	}
 	if (false == ::mp3_set_file(pItem->GetFilePath()))
+	{
+		UIASSERT(0);
 		return;
+	}
 
 	if (false == ::mp3_play())
+	{
+		UIASSERT(0);
 		return;
+	}
 
 	m_pCurPlayingItem = pItem;
 	FireEvent(EVENT_TYPE_PLAY, PLAY_EVENT_ID_ON_START, (WPARAM)m_pCurPlayingItem);

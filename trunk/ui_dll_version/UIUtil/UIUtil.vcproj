@@ -251,6 +251,7 @@
 			OutputDirectory="..\UI_SDK\bin\"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
+			UseOfMFC="0"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -275,7 +276,7 @@
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\UI_SDK\include\3rd\wtl80\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;UIUTIL_EXPORTS"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"

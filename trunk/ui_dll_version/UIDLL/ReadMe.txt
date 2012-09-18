@@ -93,7 +93,11 @@
 9. Q: 如果更好的做控件换肤？
    A: 将与换肤无关的数据保存在控件类中，与换肤相当的数据放在IObjectView派生类中。
       每次换肤时，只需要去delete/new IObjectView，而控件类不用修改。同样这样也能更好的去进行扩展
-	  
+	 
+10.Q: 为什么我有一个窗口拉伸时效率特别的低？
+   A: 可能是因为这个窗口采用的graphics_render是gdiplus，导致效率低下。
+      测试得出，绘制同样的一张PNG 100次，gdiplus需要800ms，而gdi的alphablend只需要15ms
+      将窗口的graphics render type换成gdi后，效率明显变快。但同时却失去了成为分层窗口的机会
   
  未实现：
  1. Min max width/height 限制
