@@ -90,7 +90,11 @@ bool CPlayerListData::RemoveAll()
 		if (false == xml.IntoElem())    break;
 
 		if (false == xml.FindElem(_T("playlist")))   break;
-		if (false == xml.RemoveChildElem())          break;
+		
+		if (false == xml.RemoveElem())  break;
+		xml.AddElem(_T("playlist"));
+
+		if (false == xml.Save(strConfigXmlPath))     break;
 
 		bRet = true;
 

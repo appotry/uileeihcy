@@ -95,9 +95,6 @@ bool CMP3::Release()
 
 bool CMP3::RenderFile( const String& strFile )
 {
-	if( NULL == m_pGraphBuilder )
-		return false;
-
 	IEnumFilters* pEnum = NULL;
 	IBaseFilter*  pFilter = NULL;
 
@@ -105,7 +102,13 @@ bool CMP3::RenderFile( const String& strFile )
 	while( S_OK == pEnum->Next(1,&pFilter,NULL) )
 	{
 		m_pGraphBuilder->RemoveFilter(pFilter);
+		pFilter->Release();
+		pFilter = NULL;
+
+		//Update the enumerator by calling the IEnumFilters::Reset method. You can then call the Next method safely.
+		pEnum->Reset();    // 注意：如果不reset，会导致播放完wma后，再播放mp3会失败。因为没有删除干净
 	}
+	pEnum->Release();
 
 	HRESULT hr = m_pGraphBuilder->RenderFile( strFile.c_str(), NULL );   // render file不会删除以前的filter
 	if( FAILED(hr) )
@@ -138,7 +141,7 @@ bool CMP3::Play()
 	HRESULT hr = this->m_pMediaControl->GetState(0, &lState);
 	if( State_Stopped == lState )
 	{
-		m_pMediaPosition->put_CurrentPosition(0);
+		hr = m_pMediaPosition->put_CurrentPosition(0);
 	}
 
 	hr = m_pMediaControl->Run();
