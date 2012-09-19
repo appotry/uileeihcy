@@ -155,6 +155,7 @@ namespace UI
 		ListItemBase* GetItemBase(int i);
 		ListItemBase* GetFirstItem() { return m_pFirstItem; }
 		ListItemBase* GetLastItem() { return m_pLastItem; }
+		ListItemBase* GetSelectionItem() { return m_pFirstSelectedItem; }
 		void    SetItemHeight(int nHeight, bool bUpdate=true);
 
 		ListItemBase* HitTest(POINT ptWindow);

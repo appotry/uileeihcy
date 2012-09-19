@@ -46,6 +46,7 @@ public:
 
 public:
 	void     AddFileItem(PlayerListItemInfo* pItemInfo, bool bUpdate=true);
+	void     RemoveFileItem(PlayerListItemInfo* pItemInfo, bool bUpdate=true);
 
 	virtual  void OnDrawItem(HRDC hRDC, ListItemBase* p);
 	virtual  SIZE OnMeasureItem( ListItemBase* p);
@@ -111,7 +112,7 @@ public:
 
 public:
 	void    OnAddItem(PlayerListItemInfo* pItemInfo);
-
+	void    OnRemoveItem(PlayerListItemInfo* pInfo);
 	void    OnMp3Start(PlayerListItemInfo* pItemInfo);
 
 protected:

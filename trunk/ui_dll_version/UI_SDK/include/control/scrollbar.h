@@ -82,6 +82,7 @@ namespace UI
 
 		HScrollBar*    GetHScrollBar() { return m_pHScrollBar; }
 		VScrollBar*    GetVScrollBar() { return m_pVScrollBar; }
+		void     OnScrollBarRelease(ScrollBarBase* p);
 
 	protected:
 		Object*        m_pBindObject;

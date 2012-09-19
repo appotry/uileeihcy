@@ -144,6 +144,7 @@ void ListCtrlBase::RemoveItem(ListItemBase* pItem, bool bUpdate)
 	}
 
 	this->UpdateItemRect(pItem->GetNextItem());
+
 	
 	this->OnDeleteItem(pItem);
 	SAFE_DELETE(pItem);
@@ -164,6 +165,7 @@ void ListCtrlBase::RemoveAllItem()
 		delete  p;
 		p = pNext;
 	}
+
 	m_pFirstItem = NULL;
 	m_pLastItem = NULL;
 	m_pFirstVisibleItem = NULL;
@@ -172,6 +174,8 @@ void ListCtrlBase::RemoveAllItem()
 	m_pHoverItem = NULL;
 	m_pPressItem = NULL;
 	m_nItemCount = 0;
+
+	GetScrollBarMgr()->SetScrollRange(0,0);
 }
 void ListCtrlBase::SetSortCompareProc( ListItemCompareProc p )
 {

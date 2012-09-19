@@ -210,6 +210,19 @@ void TTPlayerPlaylistCtrl::AddFileItem(PlayerListItemInfo* pItemInfo, bool bUpda
 	pItem->m_pItemInfo = pItemInfo;
 	__super::AddItem( pItem, bUpdate );
 }
+void TTPlayerPlaylistCtrl::RemoveFileItem(PlayerListItemInfo* pItemInfo, bool bUpdate)
+{
+	ListItemBase* pItem = m_pFirstItem;
+	while (NULL != pItem)
+	{
+		if (((TTPlayerPlaylistItem*)pItem)->m_pItemInfo == pItemInfo)
+		{
+			this->RemoveItem(pItem, bUpdate);
+			break;
+		}
+		pItem = pItem->GetNextItem();
+	}
+}
 
 SIZE TTPlayerPlaylistCtrl::OnMeasureItem( ListItemBase* p)
 {
@@ -321,9 +334,19 @@ void CPlayListDlg::OnBtnClickDel(Object* pBtnObj, POINT* pt)
 
 	switch(nRet)
 	{
+	case 1201:
+		{
+			TTPlayerPlaylistItem* pSelItem = (TTPlayerPlaylistItem*)m_plistctrl->GetSelectionItem();
+			if (NULL != pSelItem)
+			{
+				GetPlayerListMgr()->RemovePlayListItem(pSelItem->m_pItemInfo);  // 通过 OnRemoveItem 回调
+			}
+		}
+		break;
+
 	case 1204:
 		{
-			if(GetPlayerListMgr()->RemoveAllFile())
+			if (GetPlayerListMgr()->RemoveAllItem())
 			{
 				m_plistctrl->RemoveAllItem();
 				m_plistctrl->UpdateObject();
@@ -409,6 +432,13 @@ void CPlayListDlg::OnAddItem(PlayerListItemInfo* pItemInfo)
 	m_plistctrl->AddFileItem(pItemInfo);
 }
 
+void CPlayListDlg::OnRemoveItem(PlayerListItemInfo* pInfo)
+{
+	if (NULL == m_plistctrl)
+		return;
+
+	m_plistctrl->RemoveFileItem(pInfo);
+}
 TTPlayerPlaylistItem* CPlayListDlg::GetCtrlItemByPlayItem(PlayerListItemInfo* p)
 {
 	if (NULL == p || NULL == m_plistctrl)

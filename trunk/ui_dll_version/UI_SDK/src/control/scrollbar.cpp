@@ -36,6 +36,17 @@ ScrollBarMgr::~ScrollBarMgr()
 	m_pBindObject = NULL;
 }
 
+void ScrollBarMgr::OnScrollBarRelease(ScrollBarBase* p)
+{
+	if (p == m_pHScrollBar)
+	{
+		m_pHScrollBar = NULL;
+	}
+	else if (p == m_pVScrollBar)
+	{
+		m_pVScrollBar = NULL;
+	}
+}
 
 void ScrollBarMgr::ResetAttribute()
 {
@@ -613,6 +624,10 @@ ScrollBarBase::ScrollBarBase()
 }
 ScrollBarBase::~ScrollBarBase()
 {
+	if (NULL != m_pScrollBarMgr)
+	{
+		m_pScrollBarMgr->OnScrollBarRelease(this);
+	}
 	SAFE_DELETE(m_pScrollBarRender);
 }
 bool ScrollBarBase::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
