@@ -96,6 +96,17 @@ void CMainMgr::HandleEvent(IMgr* pSource, int nEventType, int nEventId, WPARAM w
 			{
 				m_pMainWindow->OnMp3Continue();
 			}
+			else if (PLAY_EVENT_ID_REMOVEALL == nEventId)
+			{
+				m_pCurPlayingItem = NULL;
+			}
+			else if (PLAY_EVENT_ID_REMOVEITEM == nEventId)
+			{
+				if (m_pCurPlayingItem == (PlayerListItemInfo*)wParam)
+				{
+					m_pCurPlayingItem = NULL;
+				}
+			}
 		}
 		break;
 	}

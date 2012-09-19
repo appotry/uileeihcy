@@ -72,7 +72,40 @@ bool  CPlayerListData::Add(const String& strPath)
 
 bool CPlayerListData::Remove(const String& strPath)
 {
-	return false;
+	String  strConfigXmlPath;
+	this->GetConfigXmlPath(strConfigXmlPath);
+
+	CMarkup xml;
+	if (false == xml.Load(strConfigXmlPath))
+		return false;
+
+	bool bRet = false;
+	do
+	{
+		if (false == xml.FindElem())    break;
+		if (false == xml.IntoElem())    break;
+
+		if (false == xml.FindElem(_T("playlist")))   break;
+		if (false == xml.IntoElem())    break;
+
+		bool bLoopRet = false;
+		while (xml.FindElem())
+		{
+			if (xml.GetData() == strPath)
+			{
+				xml.RemoveElem();
+				bLoopRet = true;
+				break;
+			}
+		}
+		if (false == bLoopRet)          break;
+		if (false == xml.Save(strConfigXmlPath))     break;
+
+		bRet = true;
+
+	}while(0);
+
+	return bRet;
 }
 bool CPlayerListData::RemoveAll()
 {

@@ -170,7 +170,7 @@
   </Menu>
 
   <Menu id="menu_playlist_delete">
-    <String id="1201" text="选中的文件" disable="1" />
+    <String id="1201" text="选中的文件"/>
     <String id="1202" text="重复的文件" disable="1" />
     <String id="1203" text="错误的文件" disable="1" />
     <Separator/>

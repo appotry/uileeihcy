@@ -39,10 +39,12 @@ public:
 
 	void   AddFile(const String& strFile);
 	bool   AddDirectory(const String& strDir);
-	bool   RemoveAllFile();
+	bool   RemoveAllItem();
+	bool   RemovePlayListItem(PlayerListItemInfo* pInfo);
 
 	HWND   ToggleShowPlayerListDlg(HWND hParent);
 	void   OnPlayListDlgHide();
+
 	void   SetPlayMode(PLAY_MODE e) { m_ePlayMode = e; }
 	PLAY_MODE GetPlayMode() { return m_ePlayMode; }
 

@@ -90,6 +90,7 @@ void CPlayerListMgr::OnPlayListDlgHide()
 	this->FireEvent(EVENT_TYPE_UI, UI_EVENT_ID_ON_PLAYERLISTDLG_VISIBLE_CHANGED, (WPARAM)m_pPlaylistDlg->m_hWnd, (LPARAM)FALSE);
 }
 
+
 //
 // 通过OnAddItem回调通知窗口结果
 //
@@ -101,7 +102,7 @@ void CPlayerListMgr::AddFile(const String& strFile)
 	}
 }
 
-bool CPlayerListMgr::RemoveAllFile()
+bool CPlayerListMgr::RemoveAllItem()
 {
 	GetMainMgr()->Stop();
 	if (m_data.RemoveAll())
@@ -119,6 +120,37 @@ bool CPlayerListMgr::RemoveAllFile()
 	{
 		UIASSERT(0);
 		return false;
+	}
+	return false;
+}
+
+bool CPlayerListMgr::RemovePlayListItem(PlayerListItemInfo* pInfo)
+{
+	if (m_pCurPlayingItem == pInfo)
+	{
+		GetMainMgr()->Stop();
+		m_pCurPlayingItem = NULL;
+	}
+
+	this->FireEvent(EVENT_TYPE_PLAY, PLAY_EVENT_ID_REMOVEITEM, (WPARAM)pInfo);
+
+	if (m_data.Remove(pInfo->GetFilePath()) && NULL != m_pPlaylistDlg)
+	{
+		m_pPlaylistDlg->OnRemoveItem(pInfo);
+
+		vector<PlayerListItemInfo*>::iterator iter = m_vecPlayerList.begin();
+		vector<PlayerListItemInfo*>::iterator iterEnd = m_vecPlayerList.end();
+		for ( ;iter!=iterEnd; iter++)
+		{
+			PlayerListItemInfo* p = *iter;;
+			if (p == pInfo)
+			{
+				SAFE_DELETE(p);
+				m_vecPlayerList.erase(iter);
+				break;
+			}
+		}
+		return true;
 	}
 	return false;
 }
