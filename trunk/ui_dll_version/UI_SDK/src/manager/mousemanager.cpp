@@ -1,6 +1,7 @@
 #include "stdafx.h"
-#define TOOL_TIMER_ID   ((UINT_PTR)this)
-#define TOOL_TIMER_TIME 800
+#define TOOL_TIMER_ID      ((UINT_PTR)this)
+#define TOOL_TIMER_TIME    800
+#define TOOLTIP_MAX_WIDTH  256
 
 MouseManager::MouseManager()
 {
@@ -29,8 +30,6 @@ MouseManager::~MouseManager(void)
 void MouseManager::SetWindow( WindowBase* pWnd )
 {
 	this->m_pWindow = pWnd;
-	
-	this->CreateToolTip();
 }
 void MouseManager::SetKeyboardManager( KeyboardManager* pKeyboardManager )
 {
@@ -66,20 +65,86 @@ VOID CALLBACK TooltipTimerProc( HWND hwnd,
 	if( NULL == pObj )
 		return;
 
-	if( 0 == UISendMessage( pObj, UI_WM_SHOW_TOOLTIP, 0,0, 0, pMgr->GetWindowObject() ) )
+	if (0 == UISendMessage(pObj, UI_WM_SHOW_TOOLTIP, 0,0, 0, pMgr->GetWindowObject()))
 	{
 		String strAttrib;
 		if( pObj->GetAttribute( XML_TOOLTIP, strAttrib ) )
 		{
-			pMgr->m_toolinfo.lpszText = (TCHAR*)strAttrib.c_str();
-			::SendMessage(pMgr->m_hToolTip, TTM_UPDATETIPTEXTW, 0, (LPARAM)&(pMgr->m_toolinfo) );
+			String strTooltipText;
+			pMgr->FixStringWordBreakUnderXP(strAttrib, strTooltipText);
+
+			HWND hToolTip = pMgr->GetTooltipHWND();
+			TOOLINFO* pToolInfo = pMgr->GetToolInfoPtr();
+
+			pMgr->GetToolInfoPtr()->lpszText = (TCHAR*)strTooltipText.c_str();
+			::SendMessage(hToolTip, TTM_UPDATETIPTEXTW, 0, (LPARAM)pToolInfo );
 
 			POINT pt;
 			::GetCursorPos(&pt);
-			::SendMessage(pMgr->m_hToolTip, TTM_TRACKPOSITION, 0, MAKELPARAM(pt.x, pt.y+22));
-			::SendMessage(pMgr->m_hToolTip, TTM_TRACKACTIVATE, (WPARAM)TRUE, (LPARAM)&pMgr->m_toolinfo );
+			::SendMessage(hToolTip, TTM_TRACKPOSITION, 0, MAKELPARAM(pt.x, pt.y+22));
+			::SendMessage(hToolTip, TTM_TRACKACTIVATE, (WPARAM)TRUE, (LPARAM)pToolInfo );
 		}
 	}
+}
+
+//
+// 解决 tooltip一个长单词在xp下面不会按照max width自动分行的bug
+//
+void MouseManager::FixStringWordBreakUnderXP(const String& src, String& strOut)
+{
+	// 只在XP下处理该字符串
+	OSVERSIONINFOEX osvi;
+	ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
+	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+	GetVersionEx((OSVERSIONINFO*) &osvi);
+
+	if (VER_PLATFORM_WIN32_NT == osvi.dwPlatformId)
+	{
+		if (osvi.dwMajorVersion >= 6)
+		{
+			strOut = src;
+			return ;
+		}
+	}
+	else
+	{
+		strOut = src;
+		return ;
+	}
+
+	HFONT hFont = (HFONT)SendMessage(m_hToolTip, WM_GETFONT, 0,0);
+	HDC   hDC   = UI_GetCacheDC();
+	HFONT hOldFont = (HFONT)SelectObject(hDC, hFont);
+	const TCHAR* szText = src.c_str();
+
+	int   nStart  = 0;
+	int   nLength = src.length(); 
+	RECT  rcLimit = {0,0, TOOLTIP_MAX_WIDTH, 1};  // 将高度设置为1，保证DrawTextEx只计算第一行文本的字符数
+	UINT  nDrawTextFlag = DT_EDITCONTROL|DT_WORDBREAK/*|DT_NOFULLWIDTHCHARBREAK*/;
+
+	DRAWTEXTPARAMS  param;
+	ZeroMemory(&param, sizeof(DRAWTEXTPARAMS));
+	param.cbSize = sizeof(DRAWTEXTPARAMS);
+
+	while(nStart < nLength)
+	{
+		// 计算一行文本中的字符数
+		param.uiLengthDrawn = 0;
+		DrawTextEx(hDC, (TCHAR*)(szText+nStart), nLength-nStart, &rcLimit, nDrawTextFlag, &param);
+
+		strOut.append(szText+nStart, param.uiLengthDrawn);
+		nStart += param.uiLengthDrawn;
+
+		// 手动添加换行符
+		TCHAR cLast = szText[nStart-1];
+		if (cLast != _T('\r') && cLast != _T('\n') && nStart < nLength)
+		{
+			strOut.append(_T("\n"));
+		}
+	}
+
+	SelectObject(hDC, hOldFont);
+	UI_ReleaseCacheDC(hDC);
 }
 
 void MouseManager::CreateToolTip()
@@ -121,7 +186,7 @@ void MouseManager::CreateToolTip()
 		指定#define _WIN32_WINNT 0x0501将导致程序只能运行在xp及以上系统。
 	*/
 	m_toolinfo.cbSize = /*sizeof(TOOLINFO)*/ TTTOOLINFOA_V2_SIZE;
-	m_toolinfo.uFlags = TTF_IDISHWND /*| TTF_TRACK | TTF_ABSOLUTE*/; // 注：加上TTF_TRACK|TTF_ABSOLUTE之后将导致提示条失去显示在屏幕范围之内的功能
+	m_toolinfo.uFlags = TTF_IDISHWND/* | TTF_TRACK | TTF_ABSOLUTE*/; // 注：加上TTF_TRACK|TTF_ABSOLUTE之后将导致提示条失去显示在屏幕范围之内的功能
 	m_toolinfo.hwnd   = m_pWindow->m_hWnd;
 	m_toolinfo.uId    = (UINT)m_pWindow->m_hWnd;
 	m_toolinfo.hinst  = g_pUIApplication->GetModuleInstance();
@@ -129,7 +194,7 @@ void MouseManager::CreateToolTip()
 	m_toolinfo.rect.left = m_toolinfo.rect.top = m_toolinfo.rect.bottom = m_toolinfo.rect.right = 0; 
 
 	::SendMessage(m_hToolTip, TTM_ADDTOOL, 0, (LPARAM)&m_toolinfo);
-	::SendMessage(m_hToolTip, TTM_SETMAXTIPWIDTH, 0, (LPARAM)256);   // 备注：该属性如果不和6.0控件一起使用的话，在碰到一个很长的单词时，将无视max width，仅显示一行。
+	::SendMessage(m_hToolTip, TTM_SETMAXTIPWIDTH, 0, TOOLTIP_MAX_WIDTH);   // 备注：该属性如果不和6.0控件一起使用的话，在碰到一个很长的单词时，将无视max width，仅显示一行(仅win7下有效)。
 }
 
 void MouseManager::HideToolTip()
@@ -149,7 +214,15 @@ void MouseManager::DestroyToolTip()
 void MouseManager::SetHoverObject( Object* pNewHoverObj )
 {
 	// 提示条相关逻辑
-	HideToolTip();
+	if (NULL == m_hToolTip)
+	{
+		this->CreateToolTip();
+	}
+	else
+	{
+		HideToolTip();
+	}
+
 	if( pNewHoverObj != m_pObjHover && NULL != pNewHoverObj )
 	{
 		::SetTimer(m_pWindow->m_hWnd, TOOL_TIMER_ID, TOOL_TIMER_TIME, TooltipTimerProc );

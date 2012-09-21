@@ -375,7 +375,7 @@ protected:
 		UINT   uMsg   = pMsg->message;                \
 		UINT   code   = pMsg->code;                   \
 		Message* pObjMsgFrom = pMsg->pObjMsgFrom;     \
-		long&  lResult = pMsg->lRet; /* ºÊ»›wtl */    \
+		LRESULT& lResult = pMsg->lRet; /* ºÊ»›wtl */    \
 		                                              \
 		m_pCurMsg = pMsg;                             \
 		                                              \
