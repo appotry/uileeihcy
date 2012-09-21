@@ -88,7 +88,7 @@ public:
 
 	CREATE_WND_DATA  m_create_wnd_data;    // 配合UI_AddCreateWndData、UI_ExtractCreateWndData使用
 	CDCCache         m_dcCache;            // 配合UI_GetCacheDC、UI_ReleaseCacheDC使用
-	CForwardPostMessageWindow   m_WndForwardPostMsg;
+	CForwardPostMessageWindow   m_WndForwardPostMsg;  // 配合UI_GetForwardPostMessageWnd使用
 	
 private:
 	static HINSTANCE m_hInstance;          // 当前DLL句柄，用于扩展路径

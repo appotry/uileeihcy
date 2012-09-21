@@ -66,7 +66,7 @@ void*  CREATE_WND_DATA::ExtractCreateWndData()
 
 BOOL CForwardPostMessageWindow::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID)
 {
-	if(uMsg==UI_WM_POSTMESSAGE)
+	if (UI_WM_POSTMESSAGE==uMsg)
 	{
 		UIMSG* pMsg = (UIMSG*)wParam;
 		UISendMessage(pMsg, lParam);

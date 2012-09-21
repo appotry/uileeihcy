@@ -1135,11 +1135,12 @@ void LayeredWindowWrap::InvalidateObject( Object* pInvalidateObj, bool bUpdateNo
 
 	if (OBJ_WINDOW == pInvalidateObj->GetObjectType())
 	{
-		// 		HRDC hRDC = GetHRDC(m_hMemDC,m_hWnd);
-		// 		this->OnDraw( hRDC );
-		// 		ReleaseHRDC(hRDC);
-
 		::SendMessage(m_pWindow->m_hWnd, WM_PAINT, (WPARAM)m_hLayeredMemDC, 0);  // 通过发送原始WM_PAINT消息，使分层窗口也能和普通窗口一样响应WM_PAINT
+
+		// 备注：测试证明，通过RedrawWindow也能够使得分层窗口收到WM_PAINT消息，太神奇了，但BeginPaint得到的HDC
+		//       在分层窗口上面也没法用吧。另外发现第一次调用的时候收不到该消息，难道是因为窗口还没有显示？
+// 		BOOL bRet = ::RedrawWindow(m_pWindow->m_hWnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE);
+// 		UIASSERT(bRet)
 	}
 	else
 	{

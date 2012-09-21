@@ -330,7 +330,7 @@ public:
 
 	void   HideAllAnchorItem()
 	{
-		int nSize = m_vecAnchorItems.size()+1;
+		int nSize = (int)m_vecAnchorItems.size()+1;
 		HDWP hdwp = ::BeginDeferWindowPos(nSize);
 
 		T* pThis = static_cast<T*>(this);
