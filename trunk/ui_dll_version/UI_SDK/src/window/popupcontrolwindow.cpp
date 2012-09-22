@@ -280,6 +280,7 @@ void PopupListBoxWindow::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
 PopupMenuWindow::PopupMenuWindow(MenuBase* pMenu) : PopupControlWindow(pMenu)
 {
 	m_pMenu = pMenu;
+	m_ptLastMousePos.x = m_ptLastMousePos.y = 0;
 }
 BOOL PopupMenuWindow::PreCreateWindow( CREATESTRUCT& cs )
 {
@@ -302,7 +303,6 @@ void PopupMenuWindow::OnInitWindow()
 
 	CRect rc;
 	this->m_pMenu->GetWindowRect(&rc);
-
 	this->SetObjectPos(0, 0, rc.Width(), rc.Height(), SWP_NOMOVE);
 }
 
@@ -333,6 +333,15 @@ BOOL PopupMenuWindow::PreTranslatePopupMessage(MSG* pMsg)
 		}
 		else
 		{
+			POINT ptNow = {LOWORD(pMsg->lParam), HIWORD(pMsg->lParam)};
+			if (ptNow.x == m_ptLastMousePos.x && ptNow.y == m_ptLastMousePos.y)  // 可能是由于子菜单的显示发出来的MOUSEMOVE，忽略
+			{
+				UI_LOG_DEBUG(_T("%s point repeat"),FUNC_NAME);
+				return TRUE;
+			}
+
+			m_ptLastMousePos = ptNow;
+			
 			return FALSE;
 		}
 	}

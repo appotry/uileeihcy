@@ -331,8 +331,9 @@ void MenuBase::OnSubMenuMouseMove(MenuBase* pSubMenu)
 	{
 		if (pItem->GetSubMenu() == pSubMenu)
 		{
+			ListItemBase* pOldHover = m_pHoverItem;
 			SetHoverItem(pItem);
-			this->ReDrawItem(pItem);
+			this->ReDrawItem(pItem, pOldHover);
 			
 			if (NULL != m_pPrevMenu)
 			{

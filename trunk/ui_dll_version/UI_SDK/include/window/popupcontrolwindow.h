@@ -22,13 +22,10 @@ namespace UI
 		virtual BOOL PreCreateWindow( CREATESTRUCT& cs );
 
 		virtual BOOL PreTranslatePopupMessage(MSG* pMsg);
-
 		BOOL      OnEraseBkgnd(HRDC hRDC);
 		void      OnDestroy();
-		
 		LRESULT   OnEnterPopupLoop(UINT uMsg, WPARAM wParam, LPARAM lParam);
 		LRESULT   OnExitPopupLoop(UINT uMsg, WPARAM wParam, LPARAM lParam);
-
 		int       OnMouseActivate(HWND wndTopLevel, UINT nHitTest, UINT message);
 		void      OnActivateApp(BOOL bActive, DWORD dwThreadID);
 
@@ -36,7 +33,7 @@ namespace UI
 		void      PopupLoop();
 
 	public:
-		void      DestroyPopupWindow();
+		void   DestroyPopupWindow();
 
 	protected:
 		Object*   m_pObject;   // 弹出窗口中装载的对象指针，如ListBox* Menu*
@@ -76,9 +73,6 @@ namespace UI
 		PopupMenuWindow(MenuBase* pMenu);
 
 		UI_BEGIN_MSG_MAP
-			UIMSG_WM_PAINT(OnPaint)
-		UIALT_MSG_MAP(1)
-
 		UI_END_MSG_MAP_CHAIN_PARENT(PopupControlWindow)
 
 	protected:
@@ -88,14 +82,9 @@ namespace UI
 		virtual void OnInitWindow();
 		virtual void OnFinalMessage();
 
-		void    OnPaint(HRDC hRDC)
-		{
-			SetMsgHandled(FALSE);
-			int a = 0;
-			return;
-		}
 	protected:
 		MenuBase*   m_pMenu;
+		POINT       m_ptLastMousePos;   // 用于区分是子菜单创建、移动、隐藏导致系统发出来的WM_MOUSEMOVE消息。
 	};
 
 }

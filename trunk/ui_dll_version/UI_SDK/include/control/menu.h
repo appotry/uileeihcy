@@ -99,6 +99,7 @@ namespace UI
 		MenuItem* GetMenuItemByPos(int nPos);
 		MenuItem* GetMenuItemByID(int nID);
 		MenuItem* GetMenuItemBySubMenu(MenuBase* pSubMenu);
+		PopupMenuWindow* GetPopupLoopMenuWindow() { return GetRootMenu()->m_pPopupWrapWnd; }
 
 		virtual  void OnDrawItem( HRDC hRDC, ListItemBase* p ) ;
 		virtual  SIZE OnMeasureItem( ListItemBase* p);
