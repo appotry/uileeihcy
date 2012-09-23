@@ -148,8 +148,22 @@ UI_RESOURCE_TYPE;
 #define XML_FONT_UNDERLINE   _T("underline")
 #define XML_FONT_STRIKEOUT   _T("strikeout")  
 
-#define XML_IMAGE_USESKINHUE _T("useskinhue")    // 改变皮肤色调时，该图片是否参与 0/1
+#define XML_IMAGE_USESKINHUE          _T("useskinhue")    // 改变皮肤色调时，该图片是否参与 0/1
+#define XML_IMAGE_ICON_WIDTH          _T("width")         // 要加载的图标宽度
+#define XML_IMAGE_ICON_HEIGHT         _T("height")        // 要加载的图标高度
+#define XML_IMAGE_IMAGELIST_COUNT     _T("count")         // 图片列表项的数目 
+#define XML_IMAGE_IMAGELIST_LAYOUT    _T("layout")        // 图片列表项的排布方式
+#define XML_IMAGE_IMAGELIST_LAYOUT_H  _T("h")  
+#define XML_IMAGE_IMAGELIST_LAYOUT_V  _T("v")
 
+enum IMAGE_ITEM_TYPE
+{
+	IMAGE_ITEM_TYPE_IMAGE,
+	IMAGE_ITEM_TYPE_ICON,
+	IMAGE_ITEM_TYPE_IMAGE_LIST,
+	IMAGE_ITEM_TYPE_GIF,
+	IMAGE_ITEM_TYPE_IMAGE_LIST_GIF
+};
 
 // 工程配置
 #define XML_PROJECT_NAME       _T("projectname")     // 工程名称
