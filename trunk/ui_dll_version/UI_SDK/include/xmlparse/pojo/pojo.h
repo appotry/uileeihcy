@@ -172,22 +172,15 @@ namespace UI
 		String    m_strID;      // image id
 		String    m_strPath;    // image path
 
-		union
-		{
-			struct  
-			{
-				int m_nWidth;
-				int m_nHeight;
-			} icon;
-
-			struct 
-			{
-				int  m_nItemCount;
-				IMAGELIST_LAYOUT_TYPE  m_eLayout;
-			} imagelist;
-		} u;
 
 		bool                  m_bUseSkinHue;         // 该图片是否参与皮肤色调改变 
+		IMAGE_ITEM_TYPE       m_eImageItemType;
+		int   m_nIconWidth;
+		int   m_nIconHeight;
+		int   m_nImageListCount;
+		IMAGELIST_LAYOUT_TYPE m_eImageListLayoutType;
+
+
 		ImageData*            m_pOriginImageData;    // 该图片的原始数据（改变图片色调时使用）
 
 		GDIRenderBitmap*      m_pGdiBitmap;          // 外部引用

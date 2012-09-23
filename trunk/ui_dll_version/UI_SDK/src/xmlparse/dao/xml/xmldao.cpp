@@ -1033,10 +1033,9 @@ bool  CXmlImageParse::load_from_file( CMarkup* pXml, const String& strDataSource
 			String strPath = pXml->GetData();
 			String strUseSkinHue = pXml->GetAttrib(XML_IMAGE_USESKINHUE);
 			bool   bUseSkinHue = 1;
-			if( !strUseSkinHue.empty() )
-			{
-				bUseSkinHue = _ttoi(strUseSkinHue.c_str())?true:false;;
-			}
+			if (strUseSkinHue ==_T("0") || strUseSkinHue == _T("false"))
+				bUseSkinHue = false;
+			
 
 			String strFullPath;
 			if( Util::IsFullPath(strPath.c_str()) )
