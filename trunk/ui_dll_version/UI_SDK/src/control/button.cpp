@@ -29,7 +29,7 @@ void ButtonBase::ResetAttribute()
 	m_nIconTextFlag   = BUTTON_ICONTEXT_RENDER_FLAG_ICON_POS_LEFT;
 	m_nDrawFocusType  = BUTTON_RENDER_DRAW_FOCUS_TYPE_DOT;
 
-	::SetRect( &m_rcPadding, 1,1,1,1 );
+//	::SetRect( &m_rcPadding, 1,1,1,1 );
 }
 bool ButtonBase::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 {

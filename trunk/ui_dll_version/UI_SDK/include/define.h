@@ -187,13 +187,11 @@ UI_RESOURCE_TYPE;
 #define XML_RENDER_TYPE_COLOR             _T("color")                   // 纯色填充 Color
 #define XML_RENDER_TYPE_GRADIENT_H        _T("gradienth")               // 横向渐变 Color + Color
 #define XML_RENDER_TYPE_GRADIENT_V        _T("gradientv")               // 纵向渐变 Color + Color
-#define XML_RENDER_TYPE_IMAGE_SIMPLE      _T("imagesimple")             // (0,0)位置开始贴图Image + Color
-#define XML_RENDER_TYPE_IMAGE_TILE        _T("imagetile")               // (0,0)位置开始平铺Image
-#define XML_RENDER_TYPE_IMAGE_STRETCH     _T("imagestretch")            // 拉伸模式Image + Image9Region*
+#define XML_RENDER_TYPE_IMAGE             _T("image")                   // 贴图Image + Color
 #define XML_RENDER_TYPE_COLORLIST         _T("colorlist")               // office 2003工具栏式按钮
 #define XML_RENDER_TYPE_IMAGELIST         _T("imagelist")               // 图片列表
-#define XML_RENDER_TYPE_IMAGELISTSTRETCH  _T("imageliststretch")        // 图片列表拉伸绘制
 #define XML_RENDER_TYPE_THEME             _T("theme")                   // 系统主题按钮
+
 
 #define XML_RENDER_COLOR                  _T("render.color")            // 填充颜色
 #define XML_RENDER_BORDERCOLOR            _T("render.bordercolor")      // 边框颜色
@@ -208,6 +206,12 @@ UI_RESOURCE_TYPE;
 #define XML_RENDER_IMAGELIST_LAYOUT_H     _T("h")                       // 图片横向排列
 #define XML_RENDER_IMAGELIST_LAYOUT_V     _T("v")                       // 图片纵向排列
 
+#define XML_RENDER_IMAGE_DRAWTYPE         _T("render.image.drawtype")   // 图片绘制方式
+#define XML_RENDER_IMAGE_DRAWTYPE_SIMPLE  _T("simple")                  // (0,0)位置开始贴图Image + Color
+#define XML_RENDER_IMAGE_DRAWTYPE_TILE    _T("tile")                    // (0,0)位置开始平铺Image
+#define XML_RENDER_IMAGE_DRAWTYPE_STRETCH _T("stretch")                 // 拉伸模式Image + Image9Region*
+#define XML_RENDER_IMAGE_DRAWTYPE_ADAPT   _T("adapt")                   // 自适应居中，不会超出绘制范围
+#define XML_RENDER_IMAGE_DRAWTYPE_CENTER  _T("center")                  // 居中，可能超出绘制范围
 
 #define XML_BACKGND_RENDER_PREFIX         _T("bkgnd.")                  // 背景渲染属性前缀，如bkgnd.render.type="" bkgnd.render.image=""
 #define XML_FOREGND_RENDER_PREFIX         _T("foregnd.")                // 前景
@@ -219,12 +223,9 @@ enum RENDER_TYPE
 	RENDER_TYPE_COLOR,        
 	RENDER_TYPE_GRADIENTH,    
 	RENDER_TYPE_GRADIENTV,    
-	RENDER_TYPE_IMAGESIMPLE,  
-	RENDER_TYPE_IMAGETILE,    
-	RENDER_TYPE_IMAGESTRETCH,
+	RENDER_TYPE_IMAGE,  
 	RENDER_TYPE_COLORLIST,
 	RENDER_TYPE_IMAGELIST,
-	RENDER_TYPE_IMAGELISTSTRETCH,
 	
 	RENDER_TYPE_THEME_FIRST,
 	RENDER_TYPE_THEME,
@@ -233,6 +234,7 @@ enum RENDER_TYPE
 	RENDER_TYPE_THEME_MENUPOPUPTRIANGLE,
 	RENDER_TYPE_THEME_MENUCHECKICON,
 	RENDER_TYPE_THEME_MENURADIOICON,
+	RENDER_TYPE_THEME_MENURADIOCHECKICONBK,
 	RENDER_TYPE_THEME_LAST,
 };
 
@@ -240,6 +242,15 @@ enum IMAGELIST_LAYOUT_TYPE
 {
 	IMAGELIST_LAYOUT_TYPE_H,
 	IMAGELIST_LAYOUT_TYPE_V
+};
+
+enum IMAGE_DRAW_TYPE
+{
+	IMAGE_DRAW_TYPE_SIMPLE,
+	IMAGE_DRAW_TYPE_TILE,
+	IMAGE_DRAW_TYPE_STRETCH,
+	IMAGE_DRAW_TYPE_ADAPT,
+	IMAGE_DRAW_TYPE_CENTER
 };
 
 #define XML_TEXTRENDER_TYPE                 _T("textrender.type")       // 设置文字渲染类型
@@ -594,6 +605,10 @@ enum SCROLLBAR_TYPE
 #define  XML_MENU_TEXTMARGINRIGHT     _T("textmarginright")  // 文字距离弹出箭头的距离
 #define  XML_MENU_POPUPTRIANGLEWIDTH  _T("trianglewidth")    // 右侧三角形的占用宽度
 #define  XML_MENU_SEPARATORHEIGHT     _T("separatorheight")  // 分隔条的高度
+#define  XML_MENU_RADIO_ICON_RENDER_PREFIX   _T("radioicon.")   // 选中图标绘制render前缀
+#define  XML_MENU_CHECK_ICON_RENDER_PREFIX   _T("checkicon.")   // 选中图标绘制render前缀
+#define  XML_MENU_RADIOCHECK_ICONBK_RENDER_PREFIX   _T("radiocheckiconbk.") // 选中图标背景绘制render前缀
+
 
 #define  XML_MENU_SEPARATOR_ID    -1
 #define  XML_MENU_POPUP_ID        0

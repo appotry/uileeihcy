@@ -11,6 +11,8 @@
     <item id="time_color">114,152,217</item>
     <item id="border_color">137,140,149</item>
     <item id="playlistbk_color2">32,32,32</item>
+    <item id="menu_item_hover">193,210,238</item>
+    <item id="menu_item_hover_border">49,106,197</item>
   </color>
 </ui>
 

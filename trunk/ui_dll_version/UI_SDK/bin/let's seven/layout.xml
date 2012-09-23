@@ -2,7 +2,7 @@
 <ui>
   <layout>
     <CustomWindow id="mainwindow" layout.left="300" layout.top="200"  width="322" height="165" 
-                   bkgnd.render.type="imagesimple" bkgnd.render.image="player_skin.png" 
+                   bkgnd.render.type="image" bkgnd.render.image="player_skin.png" 
                    transparent.type="maskalpha">
       <PictureCtrl id="icon" foregnd.render.image="ttplayer.ico" layout.left="10" layout.top="6"/>
       <Panel layout="stack" layout.right="5" layout.top="0" layout.direction="righttoleft">
@@ -23,7 +23,7 @@
       <Button      id="btn_equalizer" styleclass="imagebtn"  tooltip="均衡器"   bkgnd.render.image="equalizer.png" bkgnd.render.imagelist.count="8" layout.top="64"  layout.right="47"/>
       <CheckButton id="btn_lyric"     styleclass="imagecheckbutton"  tooltip="歌词"     foregnd.render.image="lyric.png"     layout.top="64"  layout.right="18"/>
       <Button id="btn_browser" styleclass="imagebtn"  bkgnd.render.image="browser.bmp"  layout.top="108" layout.right="24"/>
-      <Panel  layout="stack"   layout.left="20" layout.bottom="8" layout.direction="lefttoright">
+      <Panel  layout="stack"   layout.left="20" layout.bottom="10" layout.direction="lefttoright">
         <Button id="btn_play"  styleclass="imagebtn" tooltip="开始"     bkgnd.render.image="play.bmp"  margin="0,0,2,0"/>
         <Button id="btn_pause" styleclass="imagebtn" tooltip="暂停"     bkgnd.render.image="pause.bmp" margin="0,0,2,0"/>
         <Button id="btn_stop"  styleclass="imagebtn" tooltip="停止"     bkgnd.render.image="stop.bmp"  margin="2,0,2,0"/>
@@ -36,7 +36,8 @@
                          trackbtn.bkgnd.render.image="progress_thumb.bmp" />
     </CustomWindow>
     <CustomWindow id="playlistdlg"  bktype="frame" width="322" height="165"
-             bkgnd.render.type="imagestretch" bkgnd.render.image="playlist_skin.png" bkgnd.render.9region="100,60,50,15,15,15,20,15"
+             bkgnd.render.type="image" bkgnd.render.image="playlist_skin.png" bkgnd.render.9region="100,60,50,15,15,15,20,15"
+             bkgnd.render.image.drawtype="stretch"
              transparent.type="maskalpha" transparent.part.type="4corner" transparent.part.9region="14,14,14,14,14,14,14,14"
              layout.left="300" layout.top="365" >
       <Button id="sys_close" styleclass="imagebtn" bkgnd.render.image="close.bmp" layout.right="5" layout.top="0"/>
@@ -59,7 +60,7 @@
                             />
     </CustomWindow>
     <CustomWindow id="equalizerdlg" layout.left="622" layout.top="365" width="322" height="165" 
-                  bkgnd.render.type="imagesimple" bkgnd.render.image="lyric_bk.png"
+                  bkgnd.render.type="image" bkgnd.render.image="lyric_bk.png"
                   transparent.type="maskalpha" transparent.maskalpha="1">
       <Button id="sys_close" styleclass="imagebtn" bkgnd.render.image="close.bmp" layout.right="5" layout.top="0"/>
       <Label id="label_hls_h" text="H:" layout.left="17" layout.top="51" textrender.color="default"/>
@@ -75,19 +76,21 @@
       </Panel-->
     </CustomWindow>
     <CustomWindow id="lyricdlg" layout.left="622" layout.top="200" width="322" height="165"
-                  bkgnd.render.type="imagestretch" bkgnd.render.image="lyric_bk.png" bkgnd.render.9region="100,60,50,15,15,15,20,15"
+                  bkgnd.render.type="image" bkgnd.render.image="lyric_bk.png" bkgnd.render.9region="100,60,50,15,15,15,20,15"
+                  bkgnd.render.image.drawtype="stretch"
                   transparent.type="layered" transparent.maskalpha="230" >
       <Button      id="sys_close"      layout.right="5"  layout.top="0" styleclass="imagebtn" bkgnd.render.image="close.bmp" />
       <CheckButton id="switch_layered" layout.right="50" layout.top="5" text="切换透明窗口" tooltip="切换透明窗口" />
       <Edit id="edit_test" width="200" height="30" layout.right="50" layout.top="50"/>
       <RichEdit id="richedit_test" border="1" layout.right="50" layout.top="90" width="200" height="50"
-                   bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/>
+                   bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="control_border_color"/>
     </CustomWindow> 
     <Window id="OptionWindow" font="normal" width="556" height="440">
       <ListBox id="optionlist" border="1" layout.left="10" layout.top="10" width="100" height="370" padding="4"
-        foregnd.render.type="imageliststretch" foregnd.render.9region="20,1,1,1" foregnd.render.image="listbox.png"
+        foregnd.render.type="imagelist" foregnd.render.9region="20,1,1,1" foregnd.render.image="listbox.png"
+        foregnd.render.image.drawtype="stretch"
         foregnd.render.imagelist.count="8"  foregnd.render.imagelist.layout="v"
-        bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"
+        bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="control_border_color"
         />
      
       <Button id="btn_save_all"  text="全部保存" layout.right="169" layout.bottom="6" width="75" height="21" />
@@ -123,9 +126,9 @@
         </Panel>
         <Panel id="richedit_demo_panel">
           <RichEdit id="richedit_test" border="1" layout.left="10" layout.top="10" width="200" height="200"
-                   bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/>
+                   bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="control_border_color"/>
           <RichEdit id="richedit_test2" layout.left="220" layout.top="10" width="200" height="200"
-                   bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/>
+                   bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="control_border_color"/>
         </Panel>
       </Panel>
     </Window>
@@ -190,21 +193,6 @@
     <String id="1707" text="自动切换列表(A)" disable="1" />
   </Menu>
   </layout>
-  <!--style>
-    <CustomWindow font="normal" transparent.part="4corner" transparent.part.9region="5"/>
-    
-    <class id="imagebtn" cursor="idc_hand" istransparent="1" drawfocus="0" autosize="bkimage"
-           bkgnd.render.type="imagelist" bkgnd.render.imagelist.count="4" />
-    
-    <class id="imagecheckbutton" cursor="idc_hand" autosize="content" drawfocus="0" 
-           foregnd.render.type="imagelist" foregnd.render.imagelist.count="8"/>
-
-    <SliderCtrl istransparent="1" foregnd.render.type="imagesimple"
-                trackbtn.bkgnd.render.type="imagelist" trackbtn.bkgnd.render.imagelist.count="4" trackbtn.styleclass="imagebtn"/>
-    
-    <PictureCtrl foregnd.render.type="imagesimple"/>
-
-  </style-->
   <style>
     <CustomWindow font="normal" transparentrgn.type="4corner" transparentrgn.9region="5"/>
     
@@ -214,13 +202,13 @@
     <class id="imagecheckbutton"  cursor="idc_hand" autosize="content" foregnd.render.type="imagelist" 
            drawfocus="0" foregnd.render.imagelist.count="8"/>
     
-    <SliderCtrl istransparent="1" foregnd.render.type="imagestretch" cursor="idc_hand"
+    <SliderCtrl istransparent="1" foregnd.render.type="image" cursor="idc_hand" foregnd.render.image.drawtype="stretch"
            trackbtn.bkgnd.render.type="imagelist" trackbtn.bkgnd.render.imagelist.count="4" trackbtn.styleclass="imagebtn"/>
     
-    <PictureCtrl foregnd.render.type="imagesimple"/>
+    <PictureCtrl foregnd.render.type="image"/>
 
     <HScrollBar
-               bkgnd.render.type="imagestretch" bkgnd.render.image="hscrollbar_bar.bmp" bkgnd.render.9region="1"
+               bkgnd.render.type="image" bkgnd.render.image="hscrollbar_bar.bmp" bkgnd.render.9region="1" bkgnd.render.image.drawtype="stretch"
                linebtn1.bkgnd.render.type="imagelist"     linebtn1.bkgnd.render.image="hscrollbar_button_lineleft.bmp"
                linebtn1.bkgnd.render.imagelist.count="3"  linebtn1.styleclass="imagebtn"
                linebtn1.cursor="idc_arrow"
@@ -231,11 +219,13 @@
                thubmbtn.styleclass="imagebtn"      
                thubmbtn.bkgnd.render.image="hscrollbar_thumb.bmp"
                thubmbtn.cursor="idc_arrow"        
-               thubmbtn.bkgnd.render.type="imageliststretch"
+               thubmbtn.bkgnd.render.type="imagelist"
+               thubmbtn.bkgnd.render.image.drawtype="stretch"
                thubmbtn.bkgnd.render.9region="5"
                   />
     <VScrollBar  
-             bkgnd.render.type="imagestretch" bkgnd.render.image="scrollbar_bar.bmp" bkgnd.render.9region="1"
+             bkgnd.render.type="image" bkgnd.render.image="scrollbar_bar.bmp" bkgnd.render.9region="1"
+             bkgnd.render.image.drawtype="stretch"
              linebtn1.bkgnd.render.type="imagelist"     linebtn1.bkgnd.render.image="scrollbar_button_lineup.bmp"
              linebtn1.bkgnd.render.imagelist.count="3"  linebtn1.styleclass="imagebtn"
              linebtn1.cursor="idc_arrow"
@@ -243,15 +233,33 @@
              linebtn2.bkgnd.render.imagelist.count="3"  linebtn2.styleclass="imagebtn"
              linebtn2.cursor="idc_arrow"
              thubmbtn.bkgnd.render.imagelist.count="3"
-             thubmbtn.bkgnd.render.type="imageliststretch"
+             thubmbtn.bkgnd.render.type="imagelist"
+             thubmbtn.bkgnd.render.image.drawtype="stretch"
              thubmbtn.bkgnd.render.9region="2,5,2,5"
              thubmbtn.styleclass="imagebtn"      
              thubmbtn.bkgnd.render.image="scrollbar_thumb.bmp"
              thubmbtn.cursor="idc_arrow"
                   />
 
-    <Menu    border="2,2,2,2" bkgnd.render.type="imagestretch" bkgnd.render.image="menu_bk.png" bkgnd.render.9region="24,2,2,2"
-             icongutterwidth="22" textmarginleft="3" textmarginright="10" separatorheight="8"
+    <Menu    border="2,2,2,2" 
+             bkgnd.render.type="image" 
+             bkgnd.render.image="menu_bk.png" 
+             bkgnd.render.9region="24,2,2,2"
+             bkgnd.render.image.drawtype="stretch"
+             foregnd.render.type="colorlist" 
+             foregnd.render.color=";menu_item_hover"
+             foregnd.render.bordercolor=";menu_item_hover_border"  
+             foregnd.render.colorlist.count="2"
+             icongutterwidth="20" 
+             textmarginleft="5" 
+             textmarginright="10" 
+             separatorheight="8"
+             radioicon.render.type="image"
+             radioicon.render.image="menu_check_icon.png"
+             radioicon.render.image.drawtype="center"
+             radiocheckiconbk.render.type="image"
+             radiocheckiconbk.render.image="menu_check_bk.png"
+             radiocheckiconbk.render.image.drawtype="center"
              ></Menu>
 
     <class   id="mainmenu"   border="24,2,2,2" bkgnd.render.image="main_menu_bk.png" bkgnd.render.9region="50,5,5,135"/>
@@ -274,7 +282,6 @@
     <item id="equalizer.png">equalizer.png</item>
     <item id="playlist.png">playlist.png</item>
     <item id="eq_skin.png">eq_skin.png</item>
-    <item id="ttplayer.ico" useskinhue="0">ttplayer.ico</item>
     <item id="browser.bmp">browser.bmp</item>
     <item id="stop.bmp">stop.bmp</item>
     <item id="playlist_add.png">playlist_add.png</item>
@@ -301,20 +308,24 @@
     <item id="number.png">number.bmp</item>
     <item id="menu_bk.png">menu_bk.png</item>
     <item id="main_menu_bk.png">main_menu_bk.png</item>
-  </img>
+    <item id="menu_check_bk.png">menu_check_bk.png</item>
+    <item id="menu_check_icon.png">menu_check_icon.png</item>
+    <imagelist id="menuicon_imagelist.png"  imagecount="">menuicon_imagelist.png</imagelist>
+    <imagelist id="playmode_imagelist.png"  imagecount="">playmode_imagelist.png</imagelist>
+    <imagelist id="some_imagelist.png"      imagecount="">some_imagelist.png</imagelist>
+    <imagelist id="lyricedit_imagelist.png" imagecount="">lyricedit_imagelist.png</imagelist>
+    <icon id="ttplayer.ico"       useskinhue="0" iconwidth="16" iconheight="16">ttplayer.ico</icon>
+    <icon id="ttplayer.ico_32_32" useskinhue="0" iconwidth="32" iconheight="32">ttplayer.ico</icon>
+</img>
   <font>
     <item id="normal" facename="宋体" size="9" />
   </font>
   <color>
-    <item id="maskcolor">255,0,255</item>
-    <item id="black">0,0,0</item>
     <item id="voice_channel">87,139,164</item>
     <item id="play_statue">87,139,164</item>
     <item id="default">255,255,255</item>
-    <item id="default2">128,255,255</item>
-    <item id="status_bk_color">0,0,0</item>
     <item id="time_color">255,255,255</item>
-    <item id="border_color">137,140,149</item>
+    <item id="control_border_color">137,140,149</item>
     <item id="playlistbk_color">29,56,64</item>
     <item id="playlistbk_color2">24,51,60</item>
     <item id="playlist_textcolor_normal">84,142,165</item>
@@ -322,6 +333,8 @@
     <item id="playlist_textcolor_playing">212,245,255</item>
     <item id="playlist_select_color1">127,198,240</item>
     <item id="playlist_select_color2">38,70,81</item>
+    <item id="menu_item_hover">193,210,238</item>
+    <item id="menu_item_hover_border">49,106,197</item>
   </color>
 </ui>
 
