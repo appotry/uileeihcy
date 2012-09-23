@@ -48,5 +48,7 @@
     <item id="number.png">number.png</item>
     <item id="menu_bk.png">menu_bk.png</item>
     <item id="main_menu_bk.png">main_menu_bk.png</item>
+    <item id="menu_check_bk.png">menu_check_bk.png</item>
+    <item id="menu_check_icon.png">menu_check_icon.png</item>
   </img>
 </ui>

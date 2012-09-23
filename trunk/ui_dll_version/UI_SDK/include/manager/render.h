@@ -161,48 +161,24 @@ namespace UI
 		UIColor*     m_pBorderColor;
 	};
 
-	class SimpleImageRender : public RenderBase
+	class ImageRender : public RenderBase
 	{
 	public:
-		SimpleImageRender();
-		~SimpleImageRender();
-
-		virtual bool SetAttribute( const String& strPrefix, map<String,String>& mapAttrib );
-		virtual void DrawState(HRDC hRDC, const CRect* prc, int nState);
-		virtual SIZE GetDesiredSize() ;
-	public:
-		HRBITMAP     m_hBitmap;
-		UIColor*     m_pColorBk;
-	};
-
-	class StretchImageRender : public RenderBase
-	{
-	public:
-		StretchImageRender();
-		~StretchImageRender();
+		ImageRender();
+		~ImageRender();
 
 		virtual bool SetAttribute( const String& strPrefix, map<String,String>& mapAttrib );
 		virtual void DrawState(HRDC hRDC, const CRect* prc, int nState);
 		virtual SIZE GetDesiredSize() ;
 
-	public:
-		HRBITMAP      m_hBitmap;
-		Image9Region  m_region;
-		UIColor*      m_pColorBk;
-	};
-
-	class TileImageRender : public RenderBase
-	{
-	public:
-		TileImageRender();
-		~TileImageRender();
-
-		virtual bool   SetAttribute( const String& strPrefix, map<String,String>& mapAttrib );
-		virtual void   DrawState(HRDC hRDC, const CRect* prc, int nState);
-		virtual SIZE   GetDesiredSize() ;
+		void    SetImageDrawType(IMAGE_DRAW_TYPE e) { m_eImageDrawType = e; }
+		IMAGE_DRAW_TYPE GetImageDrawType() { return m_eImageDrawType; }
 
 	public:
-		HRBITMAP   m_hBitmap;
+		HRBITMAP          m_hBitmap;
+		UIColor*          m_pColorBk;
+		Image9Region*     m_pRegion;   // 拉伸绘制时才用
+		IMAGE_DRAW_TYPE   m_eImageDrawType;
 	};
 
 	//
@@ -258,20 +234,17 @@ namespace UI
 	protected:
 		HRBITMAP   m_hBitmap;
 
-		IMAGELIST_LAYOUT_TYPE  m_eImageLayout;  // 图片中的图片项排列方式
+		
+		IMAGELIST_LAYOUT_TYPE  m_eImageLayout;  // 图片中的图片项排列方式		
+		IMAGE_DRAW_TYPE        m_eImageDrawType; 
 		int        m_nCount;              // 图片项数
 		int        m_nItemWidth;          // 图片项的宽度
 		int        m_nItemHeight;         // 图片项的高度
+
+		Image9Region*    m_p9Region;
+
 	};
 
-	class ImageListStretchRender : public ImageListRender
-	{
-	public:
-		virtual bool   SetAttribute( const String& strPrefix, map<String,String>& mapAttrib );
-		virtual void   DrawState(HRDC hRDC, const CRect* prc, int nState);
-	private:
-		Image9Region    m_9Region;
-	};
 
 //	class ImageListIndexRender : public 
 
@@ -481,6 +454,18 @@ namespace UI
 		void DrawHover( HRDC hRDC, const CRect* prc );
 		void DrawDisable( HRDC hRDC, const CRect* prc );
 	};
+
+	class MenuRadioCheckIconBkThemeRender : public ThemeRenderBase
+	{
+	public:
+		virtual const TCHAR* GetThemeName() { return _T("MENU"); }
+		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
+
+		void DrawNormal( HRDC hRDC, const CRect* prc );
+		void DrawHover( HRDC hRDC, const CRect* prc );
+		void DrawDisable( HRDC hRDC, const CRect* prc );
+	};
+
 
 	//////////////////////////////////////////////////////////////////////////
 

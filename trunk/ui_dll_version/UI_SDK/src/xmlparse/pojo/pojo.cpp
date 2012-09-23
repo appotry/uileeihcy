@@ -176,6 +176,7 @@ CPojo_ImageItem::CPojo_ImageItem()
 	m_pOriginImageData = NULL;
 
 	m_bUseSkinHue = true;
+	u.icon.m_nWidth = u.icon.m_nHeight = 0;
 
 }
 CPojo_ImageItem::~CPojo_ImageItem()

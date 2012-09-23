@@ -9,13 +9,14 @@
     <class id="imagecheckbutton"  cursor="idc_hand" autosize="content" foregnd.render.type="imagelist" 
            drawfocus="0" foregnd.render.imagelist.count="8"/>
     
-    <SliderCtrl istransparent="1" foregnd.render.type="imagesimple" cursor="idc_hand"
+    <SliderCtrl istransparent="1" foregnd.render.type="image" cursor="idc_hand"
            trackbtn.bkgnd.render.type="imagelist" trackbtn.bkgnd.render.imagelist.count="4" trackbtn.styleclass="imagebtn"/>
     
-    <PictureCtrl foregnd.render.type="imagesimple"/>
+    <PictureCtrl foregnd.render.type="image"/>
 
     <HScrollBar
-               bkgnd.render.type="imagestretch" bkgnd.render.image="hscrollbar_bar.bmp" bkgnd.render.9region="1"
+               bkgnd.render.type="image" bkgnd.render.image="hscrollbar_bar.bmp" bkgnd.render.9region="1"
+               bkgnd.render.image.drawtype="stretch"
                linebtn1.bkgnd.render.type="imagelist"     linebtn1.bkgnd.render.image="hscrollbar_button_lineleft.bmp"
                linebtn1.bkgnd.render.imagelist.count="3"  linebtn1.styleclass="imagebtn"
                linebtn1.cursor="idc_arrow"
@@ -26,11 +27,13 @@
                thubmbtn.styleclass="imagebtn"      
                thubmbtn.bkgnd.render.image="hscrollbar_thumb.bmp"
                thubmbtn.cursor="idc_arrow"        
-               thubmbtn.bkgnd.render.type="imageliststretch"
+               thubmbtn.bkgnd.render.type="imagelist"
+               thubmbtn.bkgnd.render.image.drawtype="stretch"
                thubmbtn.bkgnd.render.9region="5"
                   />
     <VScrollBar  
-             bkgnd.render.type="imagestretch" bkgnd.render.image="scrollbar_bar.bmp" bkgnd.render.9region="1"
+             bkgnd.render.type="image" bkgnd.render.image="scrollbar_bar.bmp" bkgnd.render.9region="1"
+             bkgnd.render.image.drawtype="stretch"
              linebtn1.bkgnd.render.type="imagelist"     linebtn1.bkgnd.render.image="scrollbar_button_lineup.bmp"
              linebtn1.bkgnd.render.imagelist.count="3"  linebtn1.styleclass="imagebtn"
              linebtn1.cursor="idc_arrow"
@@ -38,15 +41,33 @@
              linebtn2.bkgnd.render.imagelist.count="3"  linebtn2.styleclass="imagebtn"
              linebtn2.cursor="idc_arrow"
              thubmbtn.bkgnd.render.imagelist.count="3"
-             thubmbtn.bkgnd.render.type="imageliststretch"
+             thubmbtn.bkgnd.render.type="imagelist"
+             thubmbtn.bkgnd.render.image.drawtype="stretch"
              thubmbtn.bkgnd.render.9region="4"
              thubmbtn.styleclass="imagebtn"      
              thubmbtn.bkgnd.render.image="scrollbar_thumb.bmp"
              thubmbtn.cursor="idc_arrow"
                   />
 
-    <Menu    border="2,2,2,2" bkgnd.render.type="imagestretch" bkgnd.render.image="menu_bk.png" bkgnd.render.9region="24,2,2,2"
-             icongutterwidth="22" textmarginleft="3" textmarginright="10" separatorheight="8"
+    <Menu    border="2,2,2,2"
+             bkgnd.render.type="image"
+             bkgnd.render.image="menu_bk.png"
+             bkgnd.render.9region="24,2,2,2"
+             bkgnd.render.image.drawtype="stretch"
+             foregnd.render.type="colorlist"
+             foregnd.render.color=";menu_item_hover"
+             foregnd.render.bordercolor=";menu_item_hover_border"
+             foregnd.render.colorlist.count="2"
+             icongutterwidth="20"
+             textmarginleft="5"
+             textmarginright="10"
+             separatorheight="8"
+             radioicon.render.type="image"
+             radioicon.render.image="menu_check_icon.png"
+             radioicon.render.image.drawtype="center"
+             radiocheckiconbk.render.type="image"
+             radiocheckiconbk.render.image="menu_check_bk.png"
+             radiocheckiconbk.render.image.drawtype="center"
              ></Menu>
 
     <class   id="mainmenu"   border="24,2,2,2" bkgnd.render.image="main_menu_bk.png" bkgnd.render.9region="50,5,5,135"/>

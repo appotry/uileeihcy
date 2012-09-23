@@ -461,7 +461,7 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 		}
 		else
 		{
-			UI_LOG_WARN( _T("Object::SetAttribute, Invalid %s=\"%s\""), XML_BACKGND_RENDER_PREFIX XML_RENDER_TYPE, strBkgndRenderType.c_str() );
+			UI_LOG_WARN( _T("%s Invalid %s=\"%s\""), FUNC_NAME, XML_BACKGND_RENDER_PREFIX XML_RENDER_TYPE, strBkgndRenderType.c_str() );
 		}
 		this->m_mapAttribute.erase(XML_BACKGND_RENDER_PREFIX XML_RENDER_TYPE);
 	}

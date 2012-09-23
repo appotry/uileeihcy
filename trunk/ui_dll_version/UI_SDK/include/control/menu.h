@@ -128,6 +128,7 @@ namespace UI
 		RenderBase*  m_pPopupTriangleRender;
 		RenderBase*  m_pRadioIconRender;
 		RenderBase*  m_pCheckIconRender;
+		RenderBase*  m_pRadioCheckIconBkRender;
 
 		int        m_nIconGutterWidth;    // 菜单左侧图标列 的宽度
 		int        m_nTextMarginLeft;

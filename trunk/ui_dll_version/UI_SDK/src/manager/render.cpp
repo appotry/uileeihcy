@@ -35,23 +35,14 @@ RenderBase* RenderFactory::GetRender( const String& strType, Object* pObj )
 	else if( XML_RENDER_TYPE_GRADIENT_V == strType )
 		eType = RENDER_TYPE_GRADIENTV;
 
-	else if( XML_RENDER_TYPE_IMAGE_SIMPLE == strType )
-		eType = RENDER_TYPE_IMAGESIMPLE;
-
-	else if( XML_RENDER_TYPE_IMAGE_STRETCH == strType )
-		eType = RENDER_TYPE_IMAGESTRETCH;
-
-	else if( XML_RENDER_TYPE_IMAGE_TILE == strType )
-		eType = RENDER_TYPE_IMAGETILE;
+	else if( XML_RENDER_TYPE_IMAGE == strType )
+		eType = RENDER_TYPE_IMAGE;
 
 	else if( XML_RENDER_TYPE_COLORLIST == strType )
 		eType = RENDER_TYPE_COLORLIST;
 
 	else if( XML_RENDER_TYPE_IMAGELIST == strType )
 		eType = RENDER_TYPE_IMAGELIST;
-
-	else if( XML_RENDER_TYPE_IMAGELISTSTRETCH == strType )
-		eType = RENDER_TYPE_IMAGELISTSTRETCH;
 
 	else if( XML_RENDER_TYPE_THEME == strType )
 		eType = RENDER_TYPE_THEME;
@@ -81,17 +72,9 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 		pRender = new GradientRender();
 	}
 
-	else if( RENDER_TYPE_IMAGESIMPLE == eType )
+	else if( RENDER_TYPE_IMAGE == eType )
 	{
-		pRender = new SimpleImageRender();
-	}
-	else if( RENDER_TYPE_IMAGESTRETCH == eType )
-	{
-		pRender = new StretchImageRender();
-	}
-	else if( RENDER_TYPE_IMAGETILE == eType )
-	{
-		pRender = new TileImageRender();
+		pRender = new ImageRender();
 	}
 	else if( RENDER_TYPE_COLORLIST == eType )
 	{
@@ -100,10 +83,6 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 	else if( RENDER_TYPE_IMAGELIST == eType )
 	{
 		pRender = new ImageListRender();
-	}
-	else if( RENDER_TYPE_IMAGELISTSTRETCH == eType )
-	{
-		pRender = new ImageListStretchRender();
 	}
 	else if( RENDER_TYPE_THEME == eType )
 	{
@@ -224,6 +203,10 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 	else if (RENDER_TYPE_THEME_MENURADIOICON == eType)
 	{
 		pRender = new MenuRadioIconThemeRender();
+	}
+	else if (RENDER_TYPE_THEME_MENURADIOCHECKICONBK == eType)
+	{
+		pRender = new MenuRadioCheckIconBkThemeRender();
 	}
 	else
 	{
@@ -421,12 +404,14 @@ void GradientRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 //////////////////////////////////////////////////////////////////////////////////////////
 
 
-SimpleImageRender::SimpleImageRender()
+ImageRender::ImageRender()
 {
 	m_hBitmap = NULL;
 	m_pColorBk = NULL;
+	m_eImageDrawType = IMAGE_DRAW_TYPE_SIMPLE;
+	m_pRegion = NULL;
 }
-SimpleImageRender::~SimpleImageRender()
+ImageRender::~ImageRender()
 {
 	if( NULL != m_hBitmap )
 	{
@@ -438,9 +423,10 @@ SimpleImageRender::~SimpleImageRender()
 		m_pColorBk->Release();
 		m_pColorBk = NULL;
 	}
+	SAFE_DELETE(m_pRegion);
 }
 
-bool SimpleImageRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
+bool ImageRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
 {
 	String strAttrib = strPrefix + XML_RENDER_IMAGE;
 	ATTRMAP::iterator iter = mapAttrib.find(strAttrib);
@@ -457,64 +443,6 @@ bool SimpleImageRender::SetAttribute( const String& strPrefix, map<String,String
 	{
 		const String& strColID = iter->second;
 		::UI_GetColor( strColID, &m_pColorBk );
-		this->m_pObject->EraseAttribute(strAttrib);
-	}
-	return true;
-} 
-
-void SimpleImageRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
-{
-	if( NULL != m_pColorBk )
-	{
-		FillRect(hRDC, prc, m_pColorBk->GetColor() );
-	}
-	if( NULL != m_hBitmap )
-	{
-		DrawBitmap(hRDC,m_hBitmap,prc->left,prc->top);
-	}
-}
-SIZE SimpleImageRender::GetDesiredSize()
-{
-	SIZE s = {0,0};
-	if( NULL == m_hBitmap )
-		return s;
-
-	s.cx = UI_GetBitmapWidth(m_hBitmap);
-	s.cy = UI_GetBitmapHeight(m_hBitmap);
-	return s;
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                      //
-//                               StretchImageRender                            //
-//                                                                                      //
-//////////////////////////////////////////////////////////////////////////////////////////
-
-
-StretchImageRender::StretchImageRender()
-{
-	m_pColorBk = NULL;
-	m_hBitmap = NULL;
-	m_region.Set(0);
-}
-StretchImageRender::~StretchImageRender()
-{
-	if( NULL != m_hBitmap )
-	{
-		UI_ReleaseBitmap(m_hBitmap);
-		m_hBitmap = NULL;
-	}
-	SAFE_RELEASE(m_pColorBk);
-}
-
-bool StretchImageRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
-{
-	String strAttrib = strPrefix + XML_RENDER_IMAGE;
-	ATTRMAP::iterator iter = mapAttrib.find(strAttrib);
-	if (mapAttrib.end() != iter)
-	{
-		const String& strImageID = iter->second;
-		m_hBitmap = ::UI_GetBitmap( strImageID, ::GetGraphicsRenderType(m_pObject) );
 		this->m_pObject->EraseAttribute(strAttrib);
 	}
 
@@ -522,23 +450,34 @@ bool StretchImageRender::SetAttribute( const String& strPrefix, map<String,Strin
 	iter = mapAttrib.find(strAttrib);
 	if (mapAttrib.end() != iter)
 	{
+		SAFE_DELETE(m_pRegion);
+		m_pRegion = new Image9Region;
+
 		const String& str9Region = iter->second;
-		Util::TranslateImage9Region( str9Region, (void*)&m_region );
+		Util::TranslateImage9Region( str9Region, (void*)m_pRegion );
 		this->m_pObject->EraseAttribute(strAttrib);
 	}
 
-	strAttrib = strPrefix + XML_RENDER_COLOR;
+	strAttrib = strPrefix + XML_RENDER_IMAGE_DRAWTYPE;
 	iter = mapAttrib.find(strAttrib);
 	if (mapAttrib.end() != iter)
 	{
-		const String& strColID = iter->second;
-		::UI_GetColor( strColID, &m_pColorBk );
-		this->m_pObject->EraseAttribute(strAttrib);
+		const String& strType = iter->second;
+		if (XML_RENDER_IMAGE_DRAWTYPE_SIMPLE == strType)
+			this->SetImageDrawType(IMAGE_DRAW_TYPE_SIMPLE);
+		else if (XML_RENDER_IMAGE_DRAWTYPE_TILE == strType)
+			this->SetImageDrawType(IMAGE_DRAW_TYPE_TILE);
+		else if (XML_RENDER_IMAGE_DRAWTYPE_STRETCH == strType)
+			this->SetImageDrawType(IMAGE_DRAW_TYPE_STRETCH);
+		else if (XML_RENDER_IMAGE_DRAWTYPE_ADAPT == strType)
+			this->SetImageDrawType(IMAGE_DRAW_TYPE_ADAPT);
+		else if (XML_RENDER_IMAGE_DRAWTYPE_CENTER == strType)
+			this->SetImageDrawType(IMAGE_DRAW_TYPE_CENTER);
 	}
 	return true;
 } 
 
-void StretchImageRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void ImageRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 {
 	if( NULL != m_pColorBk )
 	{
@@ -546,66 +485,87 @@ void StretchImageRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 	}
 	if( NULL != m_hBitmap )
 	{
-		DrawBitmap(hRDC, m_hBitmap, prc->left,prc->top,prc->Width(), prc->Height(), 
-			0,0, UI_GetBitmapWidth(m_hBitmap), UI_GetBitmapHeight(m_hBitmap), &m_region );
+		switch (m_eImageDrawType)
+		{
+		case IMAGE_DRAW_TYPE_SIMPLE:
+			DrawBitmap(hRDC,m_hBitmap,prc->left,prc->top);
+			break;
+
+		case IMAGE_DRAW_TYPE_STRETCH:
+			DrawBitmap(hRDC, m_hBitmap, prc->left,prc->top,prc->Width(), prc->Height(), 
+						0,0, UI_GetBitmapWidth(m_hBitmap), UI_GetBitmapHeight(m_hBitmap), m_pRegion );
+			break;
+
+		case IMAGE_DRAW_TYPE_TILE:
+			TileRect(hRDC, prc, m_hBitmap);
+			break;
+
+		case IMAGE_DRAW_TYPE_CENTER:
+			{
+				int w = UI_GetBitmapWidth(m_hBitmap);
+				int h = UI_GetBitmapHeight(m_hBitmap);
+				int x = prc->left + (prc->Width() - w)/2;
+				int y = prc->top  + (prc->Height() - h)/2;
+
+				DrawBitmap(hRDC, m_hBitmap, x, y);
+			}
+			break;
+
+		case IMAGE_DRAW_TYPE_ADAPT:
+			{
+				double tan_x_y_image  = 0;
+				double tan_x_y_window = 0;
+
+				int w = UI_GetBitmapWidth(m_hBitmap);
+				int h = UI_GetBitmapHeight(m_hBitmap);
+
+				bool bNeedToStretch = false;
+				int  xImage = w;
+				int  yImage = h;
+
+				if (h == 0 || w == 0)
+					break;
+
+				if (prc->Width() == 0 || prc->Height() == 0)
+					break;
+
+				if (prc->Width() < w || prc->Height() < h)
+				{
+					bNeedToStretch = true;
+
+					tan_x_y_image = (double)w / (double)h;
+					tan_x_y_window = (double)prc->Width() / (double)prc->Height();
+
+					if( tan_x_y_image > tan_x_y_window ) // 横向占满
+					{
+						xImage = prc->Width();
+						yImage = (int)((double)xImage/tan_x_y_image);
+					}
+					else   // 纵向占满
+					{
+						yImage = prc->Height();
+						xImage = (int)(yImage*tan_x_y_image);
+					}
+				}
+
+				// 计算图片显示位置
+				int xDisplayPos = (prc->Width()-xImage)/2;
+				int yDisplayPos = (prc->Height()-yImage)/2;
+
+				if( bNeedToStretch )
+				{
+					DrawBitmap(hRDC, m_hBitmap, xDisplayPos, yDisplayPos, xImage, yImage, 0,0, w, h );
+				}
+				else
+				{
+					DrawBitmap(hRDC, m_hBitmap, xDisplayPos, yDisplayPos);
+				}
+			}
+			break;
+		}
 	}
 }
-
-SIZE StretchImageRender::GetDesiredSize()
-{
-	SIZE s = {0,0};
-	if( NULL == m_hBitmap )
-		return s;
-
-	s.cx = UI_GetBitmapWidth(m_hBitmap);
-	s.cy = UI_GetBitmapHeight(m_hBitmap);
-	return s;
-}
-
-
-//////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                      //
-//                               TileImageRender                                        //
-//                                                                                      //
-//////////////////////////////////////////////////////////////////////////////////////////
-
-
-TileImageRender::TileImageRender()
-{
-	m_hBitmap = NULL;
-}
-TileImageRender::~TileImageRender()
-{
-	if( NULL != m_hBitmap )
-	{
-		UI_ReleaseBitmap(m_hBitmap);
-		m_hBitmap = NULL;
-	}
-}
-
-bool TileImageRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
-{
-	String strAttrib = strPrefix + XML_RENDER_IMAGE;
-	ATTRMAP::iterator iter = mapAttrib.find(strAttrib);
-	if (mapAttrib.end() != iter)
-	{
-		const String& strImageID = iter->second;
-		m_hBitmap = ::UI_GetBitmap( strImageID, ::GetGraphicsRenderType(m_pObject) );
-		this->m_pObject->EraseAttribute(strAttrib);
-	}
-
-	return true;
-} 
-
-void TileImageRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
-{
-	if( NULL != m_hBitmap )
-	{
-		TileRect(hRDC, prc, m_hBitmap);
-	}
-}
-
-SIZE TileImageRender::GetDesiredSize()
+SIZE ImageRender::GetDesiredSize()
 {
 	SIZE s = {0,0};
 	if( NULL == m_hBitmap )
@@ -806,6 +766,8 @@ ImageListRender::ImageListRender( )
 	m_hBitmap = NULL;
 	m_nItemWidth = m_nItemHeight = 0;
 	m_nCount = 0;
+	m_p9Region = NULL;
+	m_eImageDrawType = IMAGE_DRAW_TYPE_SIMPLE;
 }
 ImageListRender::~ImageListRender( )
 {
@@ -814,6 +776,7 @@ ImageListRender::~ImageListRender( )
 		::UI_ReleaseBitmap(m_hBitmap);
 		m_hBitmap = NULL;
 	}
+	SAFE_DELETE(m_p9Region);
 }
 
 bool ImageListRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
@@ -883,6 +846,16 @@ bool ImageListRender::SetAttribute( const String& strPrefix, map<String,String>&
 			m_nItemHeight = UI_GetBitmapHeight(m_hBitmap)/m_nCount;
 		}
 	}
+
+	strAttrib = strPrefix + XML_RENDER_IMAGE9REGION;
+	iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
+	{
+		const String& str9Region = iter->second;
+		Util::TranslateImage9Region( str9Region, (void*)m_p9Region );
+		this->m_pObject->EraseAttribute(strAttrib);
+	}
+
 	return true;
 }
 void ImageListRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
@@ -898,14 +871,39 @@ void ImageListRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 
 	if( NULL != m_hBitmap )
 	{
-		if( m_eImageLayout == IMAGELIST_LAYOUT_TYPE_H )
+		switch (m_eImageDrawType)
 		{
-			DrawBitmap(hRDC, m_hBitmap, prc->left,prc->top,m_nItemWidth,m_nItemHeight, nRealState*m_nItemWidth,0,m_nItemWidth,m_nItemHeight );
+		case IMAGE_DRAW_TYPE_SIMPLE:
+			{
+				if( m_eImageLayout == IMAGELIST_LAYOUT_TYPE_H )
+				{
+					DrawBitmap(hRDC, m_hBitmap, prc->left,prc->top,m_nItemWidth,m_nItemHeight, nRealState*m_nItemWidth,0,m_nItemWidth,m_nItemHeight );
+				}
+				else
+				{
+					DrawBitmap(hRDC, m_hBitmap, prc->left,prc->top,m_nItemWidth,m_nItemHeight, 0, nRealState*m_nItemHeight,m_nItemWidth,m_nItemHeight );
+				}
+			}
+			break;
+
+		case IMAGE_DRAW_TYPE_STRETCH:
+			{
+				if( m_eImageLayout == IMAGELIST_LAYOUT_TYPE_H )
+				{
+					DrawBitmap(hRDC, m_hBitmap, prc->left,prc->top,prc->Width(),prc->Height(), 
+						nRealState*m_nItemWidth,0,m_nItemWidth,m_nItemHeight,
+						m_p9Region);
+				}
+				else
+				{
+					DrawBitmap(hRDC, m_hBitmap, prc->left,prc->top,prc->Width(),prc->Height(), 
+						0, nRealState*m_nItemHeight,m_nItemWidth,m_nItemHeight,
+						m_p9Region);
+				}
+			}
+			break;;
 		}
-		else
-		{
-			DrawBitmap(hRDC, m_hBitmap, prc->left,prc->top,m_nItemWidth,m_nItemHeight, 0, nRealState*m_nItemHeight,m_nItemWidth,m_nItemHeight );
-		}
+		
 	}
 }
 SIZE ImageListRender::GetDesiredSize()
@@ -946,52 +944,7 @@ int ImageListRender::GetStateIndex(int nState)
 	return -1;
 }
 
-//////////////////////////////////////////////////////////////////////////
 
-bool ImageListStretchRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
-{
-	bool  bRet = ImageListRender::SetAttribute(strPrefix, mapAttrib);
-	if( false == bRet )
-		return false;
-
-	String strAttrib = strPrefix + XML_RENDER_IMAGE9REGION;
-	ATTRMAP::iterator iter = mapAttrib.find(strAttrib);
-	if (mapAttrib.end() != iter)
-	{
-		const String& str9Region = iter->second;
-		Util::TranslateImage9Region( str9Region, (void*)&m_9Region );
-		this->m_pObject->EraseAttribute(strAttrib);
-	}
-	
-	return true;
-}
-void ImageListStretchRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
-{
-	int nRealState = nState;
-	if( nState >= m_nCount )
-	{
-		nRealState = 0;
-	}
-
-	if( nRealState >= m_nCount )
-		return;
-
-	if( NULL != m_hBitmap )
-	{
-		if( m_eImageLayout == IMAGELIST_LAYOUT_TYPE_H )
-		{
-			DrawBitmap(hRDC, m_hBitmap, prc->left,prc->top,prc->Width(),prc->Height(), 
-				nRealState*m_nItemWidth,0,m_nItemWidth,m_nItemHeight,
-				&m_9Region);
-		}
-		else
-		{
-			DrawBitmap(hRDC, m_hBitmap, prc->left,prc->top,prc->Width(),prc->Height(), 
-				0, nRealState*m_nItemHeight,m_nItemWidth,m_nItemHeight,
-				&m_9Region);
-		}
-	}
-}
 //////////////////////////////////////////////////////////////////////////
 
 ThemeRenderBase::ThemeRenderBase()
@@ -2352,12 +2305,7 @@ void MenuCheckedIconThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 	HDC hDC = GetHDC(hRDC);
 	if( m_hTheme )
 	{
-		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECKBACKGROUND, MCB_NORMAL, (RECT*)prc, 0);
-		if ( S_OK != hr )
-		{
-			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
-		}
-		hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECK, MC_CHECKMARKNORMAL, (RECT*)prc, 0);
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECK, MC_CHECKMARKNORMAL, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
 			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
@@ -2387,12 +2335,7 @@ void MenuCheckedIconThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
 	HDC hDC = GetHDC(hRDC);
 	if( m_hTheme )
 	{
-		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECKBACKGROUND, MCB_NORMAL, (RECT*)prc, 0);
-		if ( S_OK != hr )
-		{
-			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
-		}
-		hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECK, MC_CHECKMARKNORMAL, (RECT*)prc, 0);
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECK, MC_CHECKMARKNORMAL, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
 			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
@@ -2420,12 +2363,7 @@ void MenuCheckedIconThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
 	HDC hDC = GetHDC(hRDC);
 	if( m_hTheme )
 	{
-		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECKBACKGROUND, MCB_DISABLED, (RECT*)prc, 0);
-		if ( S_OK != hr )
-		{
-			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
-		}
-		hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECK, MC_CHECKMARKDISABLED, (RECT*)prc, 0);
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECK, MC_CHECKMARKDISABLED, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
 			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
@@ -2473,12 +2411,7 @@ void MenuRadioIconThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 	HDC hDC = GetHDC(hRDC);
 	if( m_hTheme )
 	{
-		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECKBACKGROUND, MCB_NORMAL, (RECT*)prc, 0);
-		if ( S_OK != hr )
-		{
-			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
-		}
-		hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECK, MC_BULLETNORMAL, (RECT*)prc, 0);
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECK, MC_BULLETNORMAL, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
 			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
@@ -2506,12 +2439,7 @@ void MenuRadioIconThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
 	HDC hDC = GetHDC(hRDC);
 	if( m_hTheme )
 	{
-		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECKBACKGROUND, MCB_NORMAL, (RECT*)prc, 0);
-		if ( S_OK != hr )
-		{
-			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
-		}
-		hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECK, MC_BULLETNORMAL, (RECT*)prc, 0);
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECK, MC_BULLETNORMAL, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
 			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
@@ -2543,12 +2471,7 @@ void MenuRadioIconThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
 		if ( S_OK != hr )
 		{
 			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
-		}
-		hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECKBACKGROUND, MCB_DISABLED, (RECT*)prc, 0);
-		if ( S_OK != hr )
-		{
-			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
-		}
+		}		
 	}
 	else
 	{
@@ -2563,6 +2486,77 @@ void MenuRadioIconThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
 		SelectObject(hMemDC, hOldBmp);
 		SAFE_DELETE_GDIOBJECT(hBitmap);
 		UI_ReleaseCacheDC(hMemDC);
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////
+
+void MenuRadioCheckIconBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+{
+	switch(nState)
+	{
+	case MENU_ITEM_RADIO_RENDER_STATE_DISABLE:
+		this->DrawDisable(hRDC, prc);
+		break;
+	case MENU_ITEM_RADIO_RENDER_STATE_HOVER:
+		this->DrawHover(hRDC, prc);
+		break;
+	default:
+		this->DrawNormal(hRDC, prc);
+		break;
+	}
+}
+
+void MenuRadioCheckIconBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECKBACKGROUND, MCB_NORMAL, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
+		}
+	}
+	else
+	{
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+
+void MenuRadioCheckIconBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECKBACKGROUND, MCB_NORMAL, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
+		}
+	}
+	else
+	{
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+
+void MenuRadioCheckIconBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECKBACKGROUND, MCB_DISABLED, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
+		}
+	}
+	else
+	{
 	}
 	ReleaseHDC(hRDC, hDC);
 }

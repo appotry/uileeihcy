@@ -41,6 +41,7 @@ MenuBase::MenuBase()
 	m_pPopupTriangleRender = NULL;
 	m_pCheckIconRender = NULL;
 	m_pRadioIconRender = NULL;
+	m_pRadioCheckIconBkRender = NULL;
 	m_nTrackPopupMenuFlag = 0;
 	m_nRetCmd = 0;
 	m_bLayered = false;
@@ -66,6 +67,7 @@ MenuBase::~MenuBase()
 	SAFE_DELETE(m_pPopupTriangleRender);
 	SAFE_DELETE(m_pCheckIconRender);
 	SAFE_DELETE(m_pRadioIconRender);
+	SAFE_DELETE(m_pRadioCheckIconBkRender);
 }
 void MenuBase::DestroyPopupWindow()
 {
@@ -685,12 +687,16 @@ void MenuBase::OnDrawItem( HRDC hRDC, ListItemBase* p )
 		pItem->GetParentRect(&rcItem);
 		rcItem.right = rcItem.left + m_nIconGutterWidth;
 
+		UINT nState = MENU_ITEM_CHECKED_RENDER_STATE_NORMAL;
 		if(pItem->IsDisable())
-			m_pCheckIconRender->DrawState(hRDC, &rcItem, MENU_ITEM_CHECKED_RENDER_STATE_DISABLE);
+			nState = MENU_ITEM_CHECKED_RENDER_STATE_DISABLE;
 		else if(this->IsItemHilight(pItem))
-			m_pCheckIconRender->DrawState(hRDC, &rcItem, MENU_ITEM_CHECKED_RENDER_STATE_HOVER);
-		else
-			m_pCheckIconRender->DrawState(hRDC, &rcItem, MENU_ITEM_CHECKED_RENDER_STATE_NORMAL);
+			nState = MENU_ITEM_CHECKED_RENDER_STATE_HOVER;
+
+		if (NULL != m_pRadioCheckIconBkRender)
+			m_pRadioCheckIconBkRender->DrawState(hRDC, &rcItem, nState);
+		m_pCheckIconRender->DrawState(hRDC, &rcItem, nState);
+
 	}
 	else if (pItem->IsRadioChecked() && NULL != m_pRadioIconRender)
 	{
@@ -698,12 +704,15 @@ void MenuBase::OnDrawItem( HRDC hRDC, ListItemBase* p )
 		pItem->GetParentRect(&rcItem);
 		rcItem.right = rcItem.left + m_nIconGutterWidth;
 
+		UINT nState = MENU_ITEM_RADIO_RENDER_STATE_NORMAL;
 		if(pItem->IsDisable())
-			m_pRadioIconRender->DrawState(hRDC, &rcItem, MENU_ITEM_RADIO_RENDER_STATE_DISABLE);
+			nState = MENU_ITEM_RADIO_RENDER_STATE_DISABLE;
 		else if (IsItemHilight(pItem))
-			m_pRadioIconRender->DrawState(hRDC, &rcItem, MENU_ITEM_RADIO_RENDER_STATE_HOVER);
-		else
-			m_pRadioIconRender->DrawState(hRDC, &rcItem, MENU_ITEM_RADIO_RENDER_STATE_NORMAL);
+			nState = MENU_ITEM_RADIO_RENDER_STATE_HOVER;
+
+		if (NULL != m_pRadioCheckIconBkRender)
+			m_pRadioCheckIconBkRender->DrawState(hRDC, &rcItem, nState);
+		m_pRadioIconRender->DrawState(hRDC, &rcItem, nState);
 	}
 }
 
@@ -790,6 +799,7 @@ void Menu::ResetAttribute()
 	SAFE_DELETE(m_pPopupTriangleRender);
 	SAFE_DELETE(m_pCheckIconRender);
 	SAFE_DELETE(m_pRadioIconRender);
+	SAFE_DELETE(m_pRadioCheckIconBkRender);
 
 	m_nIconGutterWidth = 28;
 	m_nSeperatorHeight = 3;
@@ -800,6 +810,25 @@ void Menu::ResetAttribute()
 
 bool Menu::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 {
+	// 默认字体设置
+	if (NULL == m_pTextRender)
+	{
+		m_pTextRender = TextRenderFactory::GetTextRender(TEXTRENDER_TYPE_COLORLIST, this);
+		if( NULL != m_pTextRender )
+		{
+			ColorListTextRender* p = dynamic_cast<ColorListTextRender*>(m_pTextRender);
+
+			HRFONT hRFont = this->GetFont();
+			p->SetHRFont(hRFont);  // hRFONT为空...
+			p->SetCount(4);
+			p->SetColor(0, RGB(0,0,0));
+			p->SetColor(1, RGB(0,0,0));
+			p->SetColor(2, RGB(0,0,0));
+			p->SetColor(3, RGB(192,192,192));
+			p->SetAttribute(_T(""),mapAttrib);  // 用于初始化字体
+		}
+	}
+
 	bool bRet = __super::SetAttribute(mapAttrib, bReload);
 	if (false == bRet)
 		return false;
@@ -839,6 +868,57 @@ bool Menu::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 		m_mapAttribute.erase(XML_MENU_SEPARATORHEIGHT);
 	}
 
+	iter = mapAttrib.find(XML_MENU_RADIO_ICON_RENDER_PREFIX XML_RENDER_TYPE);
+	if (mapAttrib.end() != iter)
+	{
+		SAFE_DELETE(m_pRadioIconRender);
+		const String& strRenderType = iter->second;
+		m_pRadioIconRender = RenderFactory::GetRender(strRenderType, this);
+		if (NULL != m_pRadioIconRender)
+		{
+			m_pRadioIconRender->SetAttribute(XML_MENU_RADIO_ICON_RENDER_PREFIX, mapAttrib);
+		}
+		else
+		{
+			UI_LOG_WARN( _T("%s Invalid %s=\"%s\""), FUNC_NAME, XML_MENU_RADIO_ICON_RENDER_PREFIX XML_RENDER_TYPE, strRenderType.c_str() );
+		}
+		this->m_mapAttribute.erase(XML_MENU_RADIO_ICON_RENDER_PREFIX XML_RENDER_TYPE);
+	}
+
+	iter = mapAttrib.find(XML_MENU_CHECK_ICON_RENDER_PREFIX XML_RENDER_TYPE);
+	if (mapAttrib.end() != iter)
+	{
+		SAFE_DELETE(m_pCheckIconRender);
+		const String& strRenderType = iter->second;
+		m_pCheckIconRender = RenderFactory::GetRender(strRenderType, this);
+		if (NULL != m_pCheckIconRender)
+		{
+			m_pCheckIconRender->SetAttribute(XML_MENU_CHECK_ICON_RENDER_PREFIX, mapAttrib);
+		}
+		else
+		{
+			UI_LOG_WARN( _T("%s Invalid %s=\"%s\""), FUNC_NAME, XML_MENU_CHECK_ICON_RENDER_PREFIX XML_RENDER_TYPE, strRenderType.c_str() );
+		}
+		this->m_mapAttribute.erase(XML_MENU_CHECK_ICON_RENDER_PREFIX XML_RENDER_TYPE);
+	}
+
+	iter = mapAttrib.find(XML_MENU_RADIOCHECK_ICONBK_RENDER_PREFIX XML_RENDER_TYPE);
+	if (mapAttrib.end() != iter)
+	{
+		SAFE_DELETE(m_pRadioCheckIconBkRender);
+		const String& strRenderType = iter->second;
+		m_pRadioCheckIconBkRender = RenderFactory::GetRender(strRenderType, this);
+		if (NULL != m_pRadioCheckIconBkRender)
+		{
+			m_pRadioCheckIconBkRender->SetAttribute(XML_MENU_RADIOCHECK_ICONBK_RENDER_PREFIX, mapAttrib);
+		}
+		else
+		{
+			UI_LOG_WARN( _T("%s Invalid %s=\"%s\""), FUNC_NAME, XML_MENU_RADIOCHECK_ICONBK_RENDER_PREFIX XML_RENDER_TYPE, strRenderType.c_str() );
+		}
+		this->m_mapAttribute.erase(XML_MENU_RADIOCHECK_ICONBK_RENDER_PREFIX XML_RENDER_TYPE);
+	}
+
 	if (NULL == m_pBkgndRender)
 	{
 		m_pBkgndRender = RenderFactory::GetRender(RENDER_TYPE_THEME, this);
@@ -867,6 +947,11 @@ bool Menu::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 	{
 		m_pRadioIconRender = RenderFactory::GetRender(RENDER_TYPE_THEME_MENURADIOICON, this);
 	}
+	if (NULL == m_pRadioCheckIconBkRender)
+	{
+		m_pRadioCheckIconBkRender = RenderFactory::GetRender(RENDER_TYPE_THEME_MENURADIOCHECKICONBK, this);
+	}
+
 
 	return true;
 }

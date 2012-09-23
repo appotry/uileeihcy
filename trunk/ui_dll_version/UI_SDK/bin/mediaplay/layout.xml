@@ -2,7 +2,7 @@
 <ui>
 <layout>
     <CustomWindow id="mainwindow" layout.left="300" layout.top="200" width="270" height="168"
-                  bkgnd.render.type="imagesimple" bkgnd.render.image="player_skin.png"
+                  bkgnd.render.type="image" bkgnd.render.image="player_skin.png"
                   transparent.type="maskalpha" transparent.maskalpha="1" >
       <PictureCtrl id="icon"  foregnd.render.image="ttplayer.ico" layout.left="5" layout.top="6"/>
       <!--Label id="label_time" text="00:00" layout.right="10" layout.top="60" textrender.color="time_color" width="70" halign="right" /-->
@@ -15,10 +15,10 @@
         <Button id="sys_close"     styleclass="imagebtn" tooltip="退出"     bkgnd.render.image="close.png" />
         <Button id="btn_minimode"  styleclass="imagebtn" tooltip="迷你模式" bkgnd.render.image="minimode.png" />
         <Button id="sys_minimize"  styleclass="imagebtn" tooltip="最小化"   bkgnd.render.image="minimize.png" />
-        <Button id="btn_playlist"  styleclass="imagebtn" tooltip="播放列表" bkgnd.render.image="playlist.png"  bkgnd.render.imagelist.count="8" margin="0,0,8,0" />
-        <CheckButton id="btn_equalizer" styleclass="imagecheckbutton" tooltip="均衡器"   foregnd.render.image="equalizer.png" />
-        <CheckButton id="btn_lyric"     styleclass="imagecheckbutton" tooltip="歌词"     foregnd.render.image="lyric.png"     />
-        <Button id="btn_browser"   styleclass="imagebtn" bkgnd.render.image="browser.png"/>
+        <Button id="btn_playlist"  styleclass="imagebtn" tooltip="播放列表" bkgnd.render.image="playlist.png"  bkgnd.render.imagelist.count="8" margin="1,0,8,0" />
+        <Button id="btn_equalizer" styleclass="imagebtn" tooltip="均衡器"   bkgnd.render.image="equalizer.png" bkgnd.render.imagelist.count="8" margin="1,0,1,0" />
+        <CheckButton id="btn_lyric" styleclass="imagecheckbutton" tooltip="歌词"     foregnd.render.image="lyric.png"  margin="1,0,1,0" />
+        <Button id="btn_browser"   styleclass="imagebtn" bkgnd.render.image="browser.png" margin="0,0,1,0"/>
       </Panel>
       <SliderCtrl id="progress_music" foregnd.render.image="progress_fill.png" trackbtn.bkgnd.render.image="progress_thumb.png" height="10" width="258" direction="x" layout.left="6" layout.top="112"/>
       <Button id="btn_play"  styleclass="imagebtn" tooltip="开始" bkgnd.render.image="play.png"  layout.bottom="8" layout.left="10"></Button>
@@ -31,7 +31,8 @@
       <Button id="btn_open" styleclass="imagebtn" tooltip="播放文件" bkgnd.render.image="open.png"  layout.bottom="13" layout.right="12"></Button>
     </CustomWindow>
     <CustomWindow id="playlistdlg"  width="270" height="165" layout.left="300" layout.top="368"
-                     bkgnd.render.type="imagestretch" bkgnd.render.image="playlist_skin.bmp" bkgnd.render.9region="100,60,50,15,15,15,20,15"
+                     bkgnd.render.type="image" bkgnd.render.image="playlist_skin.bmp" bkgnd.render.9region="100,60,50,15,15,15,20,15"
+                     bkgnd.render.image.drawtype="stretch"
                      transparent.type="maskcolor" transparent.maskcolor="maskcolor" transparent.part="customcorner" transparent.part.9region="14,14,14,14,0,0,0,0">
       <Button id="sys_close" styleclass="imagebtn"  bkgnd.render.image="close.png" layout.right="5" layout.top="4"/>
       <Panel layout="stack" layout.left="10" layout.top="31">
@@ -44,12 +45,14 @@
           <Button id="playlist_mode" styleclass="imagebtn" tooltip="模式" bkgnd.render.image="playlist_mode.png" bkgnd.render.imagelist.layout="v" margin="0,0,4,0"/>
       </Panel>
       <TTPlayerPlaylistCtrl id="playlistctrl" layout.left="6" layout.top="51"  layout.right="6"  layout.bottom="6"
-               foregnd.render.type="imageliststretch" foregnd.render.9region="1" foregnd.render.image="listbox.png"
+               foregnd.render.type="imagelist" foregnd.render.9region="1" foregnd.render.image="listbox.png"
+               foregnd.render.image.drawtype="stretch"
                foregnd.render.imagelist.count="5"  foregnd.render.imagelist.layout="v"
                bkgnd.render.type="color" bkgnd.render.color="black"/>
     </CustomWindow>
     <CustomWindow id="equalizerdlg"  width="270" height="165"  layout.left="570" layout.top="368"
-                  bkgnd.render.type="imagestretch" bkgnd.render.image="equalizer_skin.bmp" bkgnd.render.9region="100,60,50,15,15,15,20,15" 
+                  bkgnd.render.type="image" bkgnd.render.image="equalizer_skin.bmp" bkgnd.render.9region="100,60,50,15,15,15,20,15" 
+                  bkgnd.render.image.drawtype="stretch"
                   transparent.type="maskcolor" transparent.maskcolor="maskcolor" >
       <Button     id="sys_close" styleclass="imagebtn" bkgnd.render.image="close.png" layout.right="6" layout.top="4"/>
       <SliderCtrl id="progress_hue1" height="15" width="53" layout.left="112" layout.top="38" trackbtn.styleclass="imagebtn" btn.bkgnd.render.image="eq_balance.png" />
@@ -59,14 +62,16 @@
       <Button     id="btn_reset"    styleclass="imagebtn"  bkgnd.render.image="reset.png" margin="3,0,3,0" layout.top="36" layout.left="59"/>
     </CustomWindow>
     <CustomWindow id="lyricdlg"  width="270" height="168" layout.left="570" layout.top="200"
-                   bkgnd.render.type="imagestretch" bkgnd.render.image="lyric_skin.png" bkgnd.render.9region="100,60,50,15,15,15,20,15"
+                   bkgnd.render.type="image" bkgnd.render.image="lyric_skin.png" bkgnd.render.9region="100,60,50,15,15,15,20,15"
+                   bkgnd.render.image.drawtype="stretch"
                    transparent.type="layered" transparent.maskalpha="230" >
       <Button id="sys_close" styleclass="imagebtn" bkgnd.render.image="close.png" layout.right="6" layout.top="4"/>
       <CheckButton id="switch_layered" layout.right="50" layout.top="5" text="切换透明窗口" tooltip="切换透明窗口" />   
     </CustomWindow>
     <Window id="OptionWindow" font="normal" width="556" height="440">
       <ListBox id="optionlist" border="1" layout.left="10" layout.top="10" width="100" height="370" padding="4"
-        foregnd.render.type="imageliststretch" foregnd.render.9region="1" foregnd.render.image="listbox.png"
+        foregnd.render.type="imagelist" foregnd.render.9region="1" foregnd.render.image="listbox.png"
+        foregnd.render.image.drawtype="stretch"
         foregnd.render.imagelist.count="5"  foregnd.render.imagelist.layout="v"
         bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/>
      
