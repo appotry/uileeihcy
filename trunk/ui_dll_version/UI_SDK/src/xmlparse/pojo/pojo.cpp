@@ -176,7 +176,7 @@ CPojo_ImageItem::CPojo_ImageItem()
 	m_pOriginImageData = NULL;
 
 	m_bUseSkinHue = true;
-	u.icon.m_nWidth = u.icon.m_nHeight = 0;
+//	u.icon.m_nWidth = u.icon.m_nHeight = 0;
 
 }
 CPojo_ImageItem::~CPojo_ImageItem()
@@ -188,13 +188,15 @@ CPojo_ImageItem::~CPojo_ImageItem()
 
 HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType )
 {	
+
 	switch( eRenderType )
 	{
 	case GRAPHICS_RENDER_TYPE_GDI:
 		{
 			if ( NULL == m_pGdiBitmap )
 			{
-				GDIRenderBitmap::CreateInstance( (IRenderBitmap**)&m_pGdiBitmap );
+				//GDIRenderBitmap::CreateInstance( (IRenderBitmap**)&m_pGdiBitmap );
+				RenderBitmapFactory::CreateInstance((IRenderBitmap**)&m_pGdiBitmap, eRenderType, m_mapAttribute);
 				if( NULL != m_pGdiBitmap )
 				{
 					m_pGdiBitmap->LoadFromFile(m_strPath);
@@ -215,7 +217,8 @@ HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType )
 		{
 			if ( NULL == m_pGdiplusBitmap )
 			{
-				GdiplusRenderBitmap::CreateInstance( (IRenderBitmap**)&m_pGdiplusBitmap );
+				//GdiplusRenderBitmap::CreateInstance( (IRenderBitmap**)&m_pGdiplusBitmap );
+				RenderBitmapFactory::CreateInstance((IRenderBitmap**)&m_pGdiBitmap, eRenderType, m_mapAttribute);
 				if( NULL != m_pGdiplusBitmap )
 				{
 					m_pGdiplusBitmap->LoadFromFile(m_strPath);
@@ -235,7 +238,7 @@ HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType )
 	default:
 		return NULL;
 	}
-
+#endif
 	return NULL;
 }
 
@@ -285,6 +288,23 @@ bool CPojo_ImageItem::ModifyImage( const String& strPath )
 	return true;
 }
 
+void CPojo_ImageItem::SetMapAttrib(const ATTRMAP& mapAttr) 
+{ 
+	m_mapAttribute = mapAttr; 
+
+	bool   bUseSkinHLS = true;
+
+	ATTRMAP::const_iterator iter = mapAttr.find(XML_IMAGE_USESKINHLS);
+	if (mapAttr.end() != iter)
+	{
+		const String& strUseSkinHLS = iter->second;
+		if (strUseSkinHLS ==_T("0") || strUseSkinHLS == _T("false"))
+			bUseSkinHLS = false;
+	}
+
+	this->SetUseSkinHue(bUseSkinHLS);
+}
+
 //////////////////////////////////////////////////////////////////////////
 //
 //	CPojo_Image
@@ -300,6 +320,32 @@ CPojo_Image::~CPojo_Image()
 	this->Clear(); 
 }
 
+//
+// 从文件中加载一项(由CXmlImageParse::load_from_file中调用)
+//
+bool CPojo_Image::LoadItem(ATTRMAP& mapAttr, const String& strFullPath)
+{
+	String strID;
+
+	ATTRMAP::iterator iter;
+	iter = mapAttr.find(XML_ID);
+	if (mapAttr.end() != iter)
+	{
+		strID = iter->second;
+	}
+
+	CPojo_ImageItem* pItem = NULL;
+	if (this->InsertImage(strID, strFullPath, &pItem))
+	{
+		pItem->SetMapAttrib(mapAttr);
+		return true;
+	}
+	else
+	{
+		UI_LOG_WARN( _T("%s insert image m_strID=%s, path=%s failed."), strID.c_str(), strFullPath.c_str());
+		return false;
+	}
+}
 int CPojo_Image::GetImageCount() 
 {
 	return (int)m_vImages.size();

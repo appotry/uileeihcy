@@ -1027,17 +1027,22 @@ bool  CXmlImageParse::load_from_file( CMarkup* pXml, const String& strDataSource
 		bool bLoopRet = true;
 		for ( ;; )
 		{
-			if( false == pXml->FindElem( XML_ITEM ) )        { break; }
+			if (false == pXml->FindElem( XML_ITEM ))        { break; }
 
-			String strID   = pXml->GetAttrib(XML_ID);
-			String strPath = pXml->GetData();
-			String strUseSkinHue = pXml->GetAttrib(XML_IMAGE_USESKINHUE);
-			bool   bUseSkinHue = 1;
-			if (strUseSkinHue ==_T("0") || strUseSkinHue == _T("false"))
-				bUseSkinHue = false;
-			
+			//	加载所有属性
+			ATTRMAP  mapAttrib;
+			for( int j = 0; ; j++ )
+			{
+				String key = pXml->GetAttribName(j);
+				if( _T("") == key )
+					break;
 
-			String strFullPath;
+				String value = pXml->GetAttrib( key );
+				mapAttrib[key]= value;
+			}
+
+			String  strPath = pXml->GetData();
+			String  strFullPath;
 			if( Util::IsFullPath(strPath.c_str()) )
 			{
 				strFullPath = strPath;
@@ -1052,12 +1057,8 @@ bool  CXmlImageParse::load_from_file( CMarkup* pXml, const String& strDataSource
 				strFullPath = szFullPath;
 			}
 
-			CPojo_ImageItem* pItem = NULL;
-			if( false == pImageInfo->InsertImage( strID, strFullPath, &pItem) )
-			{
-				UI_LOG_WARN( _T("CXmlImageParse::load_from_file  insert image m_strID=%s, path=%s failed."), strID.c_str(), strFullPath.c_str() );
-			}
-			pItem->SetUseSkinHue(bUseSkinHue);
+			if (false == pImageInfo->LoadItem(mapAttrib, strFullPath))
+				UI_LOG_WARN(_T("%s insert image failed."), FUNC_NAME);
 		}
 		bRet = true;
 	} 

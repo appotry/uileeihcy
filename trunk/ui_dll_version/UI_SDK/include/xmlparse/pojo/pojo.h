@@ -106,45 +106,6 @@ namespace UI
 		DECLARE_STRING_SETGET( I18nXmlPath );
 	};
 
-#if 0  // UIImage过期了，使用HRBITMAP代替
-	//
-	// 封装一次Image*，用于Image的生命周期管理
-	// 当一张图片没有被使用时，不加载；当不使用时，释放其内存
-	//
-	//	使用 ::UI_GetImage 获取，使用Release释放
-	//
-	class UIAPI UIImage : public Image  
-	{
-	private:    // 只能通过Create来创建
-		UIImage(UIImage** pOutRef);
-	public:
-		~UIImage();
-
-	public:
-		static void  CreateInstance( const String& str, UIImage** pOutRef );
-		long AddRef();
-		long Release();
-
-		void Modify( const String& str );
-	private:
-		// 		String   m_strFilePath;
-		// 		struct
-		// 		{
-		// 			HINSTANCE hInst;
-		// 			UINT      nID;
-		// 			TCHAR     szResType[8];
-		// 		} m_sDllRes;
-		// 
-		// 		enum E_RESTYPE{ IMAGE_RES_TYPE_FILE, IMAGE_RES_TYPE_DLL };
-		// 		E_RESTYPE  m_nResType;
-		long       m_dwRef;
-
-		UIImage**  m_pOutRef;   // 外部引用，用于创建单例和release自动释放
-		// 为了解决需要在CPojo_ImageItem中保存一份UIImage*指针，要外部Get时赋值，但这个保存的UIImage*又不能给它计算引用。
-		// 当所有外部的UIImage* Release结束后，CPojo_ImageItem::UIImage*却无法置空，因此在这里添加一个m_pOutRef，指向这个
-		// UIImage*，在UIImage的析构函数中将中置空
-	};
-#endif
 
 	//
 	//	为了外部能够遍历image列表而提供给外部的接口
@@ -173,16 +134,16 @@ namespace UI
 		String    m_strPath;    // image path
 
 
-		bool                  m_bUseSkinHue;         // 该图片是否参与皮肤色调改变 
-		IMAGE_ITEM_TYPE       m_eImageItemType;
-		int   m_nIconWidth;
-		int   m_nIconHeight;
-		int   m_nImageListCount;
-		IMAGELIST_LAYOUT_TYPE m_eImageListLayoutType;
-
+		bool      m_bUseSkinHue;         // 该图片是否参与皮肤色调改变 
+		ATTRMAP   m_mapAttribute;        // 为该图片配置的属性
+// 		IMAGE_ITEM_TYPE  m_eImageItemType;
+// 		int       m_nIconWidth;
+// 		int       m_nIconHeight;
+// 		int       m_nImageListCount;
+// 		IMAGELIST_LAYOUT_TYPE m_eImageListLayoutType;
+// 		int       m_nImageListGifFrameDelay;  //.. 可能是一系列数组，需要定义每一帧的延时
 
 		ImageData*            m_pOriginImageData;    // 该图片的原始数据（改变图片色调时使用）
-
 		GDIRenderBitmap*      m_pGdiBitmap;          // 外部引用
 		GdiplusRenderBitmap*  m_pGdiplusBitmap;      // 外部引用
 
@@ -193,7 +154,8 @@ namespace UI
 
 		bool     ModifyImage( const String& strPath );
 		bool     ModifyHLS( short h, short l, short s, int nFlag );
-		HRBITMAP GetImage( GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI );
+		HRBITMAP GetImage(GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI);
+		void     SetMapAttrib(const ATTRMAP& mapAttr);
 	};
 
 	//
@@ -208,6 +170,8 @@ namespace UI
 		vector<CPojo_ImageItem*>   m_vImages;
 
 	public:
+		bool LoadItem(ATTRMAP& mapAttr, const String& strFullPath);
+
 		int  GetImageCount(); 
 		CPojo_ImageItem* GetImageItem( int nIndex );
 		CPojo_ImageItem* GetImageItem( const String& strID );
