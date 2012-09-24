@@ -1,46 +1,37 @@
 #include "stdafx.h"
 
-GDIRenderBitmap::GDIRenderBitmap(IRenderBitmap** ppOutRef) : IRenderBitmap((IRenderResource**)ppOutRef)
+GDIRenderBitmapImpl::GDIRenderBitmapImpl(IRenderBitmap** ppOutRef) : IRenderBitmap((IRenderResource**)ppOutRef)
 {
 
 }
-GDIRenderBitmap::~GDIRenderBitmap()
+GDIRenderBitmapImpl::~GDIRenderBitmapImpl()
 {
 	UI_LOG_DEBUG(_T("GDIRenderBitmap Delete. ptr=0x%08X"), this);
 }
-void GDIRenderBitmap::CreateInstance( IRenderBitmap** ppOutRef )
-{
-	UIASSERT(NULL != ppOutRef);
-	if( NULL == ppOutRef )
-		return;
 
-	GDIRenderBitmap* p = new GDIRenderBitmap(ppOutRef);
-	*ppOutRef = p;
-}
-
-int  GDIRenderBitmap::GetWidth()
+int  GDIRenderBitmapImpl::GetWidth()
 {
 	return m_image.GetWidth();
 }
-int  GDIRenderBitmap::GetHeight() 
+int  GDIRenderBitmapImpl::GetHeight() 
 {
 	return m_image.GetHeight();
 }
 
-BYTE* GDIRenderBitmap::LockBits()
+BYTE* GDIRenderBitmapImpl::LockBits()
 {
 	return (BYTE*)m_image.GetBits();
 }
-void  GDIRenderBitmap::UnlockBits()
+void  GDIRenderBitmapImpl::UnlockBits()
 {
 	// Nothing.
 }
 
-bool  GDIRenderBitmap::SaveBits( ImageData* pImageData )
+bool  GDIRenderBitmapImpl::SaveBits( ImageData* pImageData )
 {
 	return m_image.SaveBits(pImageData);
 }
-bool  GDIRenderBitmap::ChangeHLS( const ImageData* pOriginImageData, short h, short l , short s, int nFlag)
+bool  GDIRenderBitmapImpl::ChangeHLS( const ImageData* pOriginImageData, short h, short l , short s, int nFlag)
 {
 	return m_image.ChangeHLS(pOriginImageData, h, l, s, nFlag );
 }
@@ -49,7 +40,7 @@ bool  GDIRenderBitmap::ChangeHLS( const ImageData* pOriginImageData, short h, sh
 //  注：由于使用gdiplus直接加载icon文件会丢失alpha通道，因此在这里先使用GDI DrawIcon获取一次完整的数据
 //		TODO: 这里只默认支持16*16大小的，ico中其它大小的图标暂时没有增加接口分别加载
 //
-bool GDIRenderBitmap::LoadFromFile( const String& strPath )
+bool GDIRenderBitmapImpl::LoadFromFile( const String& strPath )
 {
 	if( ! m_image.IsNull() )
 	{
@@ -82,7 +73,7 @@ bool GDIRenderBitmap::LoadFromFile( const String& strPath )
 		return true;
 }
 
-bool GDIRenderBitmap::Create(int nWidth, int nHeight)
+bool GDIRenderBitmapImpl::Create(int nWidth, int nHeight)
 {
 	UIASSERT(nHeight < 0);   // 使用反向的
 	if( ! m_image.IsNull() )
@@ -97,7 +88,83 @@ bool GDIRenderBitmap::Create(int nWidth, int nHeight)
 		return true;
 }
 
+GDIRenderBitmap::GDIRenderBitmap(IRenderBitmap** ppOutRef) : GDIRenderBitmapImpl(ppOutRef)
+{
+}
 
+void GDIRenderBitmap::CreateInstance( IRenderBitmap** ppOutRef )
+{
+	UIASSERT(NULL != ppOutRef);
+	if( NULL == ppOutRef )
+		return;
+
+	GDIRenderBitmap* p = new GDIRenderBitmap(ppOutRef);
+	*ppOutRef = p;
+}
+
+GDIImageListRenderBitmap::GDIImageListRenderBitmap(IRenderBitmap** ppOutRef) : GDIRenderBitmap(ppOutRef)
+{
+	m_nCount = 0;
+	m_eLayout = IMAGELIST_LAYOUT_TYPE_H;
+}
+void GDIImageListRenderBitmap::CreateInstance( IRenderBitmap** ppOutRef )
+{
+	UIASSERT(NULL != ppOutRef);
+	if( NULL == ppOutRef )
+		return;
+
+	GDIImageListRenderBitmap* p = new GDIImageListRenderBitmap(ppOutRef);
+	*ppOutRef = p;
+}
+int GDIImageListRenderBitmap::GetItemWidth()
+{
+	if (0 == m_nCount)
+		return 0;
+
+	switch(m_eLayout)
+	{
+	case IMAGELIST_LAYOUT_TYPE_V:
+		return GetWidth();
+
+	case IMAGELIST_LAYOUT_TYPE_H:
+		return GetWidth()/m_nCount;
+	}
+
+	return 0;
+}
+int GDIImageListRenderBitmap::GetItemHeight()
+{
+	if (0 == m_nCount)
+		return 0;
+
+	switch(m_eLayout)
+	{
+	case IMAGELIST_LAYOUT_TYPE_H:
+		return GetHeight();
+
+	case IMAGELIST_LAYOUT_TYPE_V:
+		return GetHeight()/m_nCount;
+	}
+
+	return 0;
+}
+IMAGELIST_LAYOUT_TYPE GDIImageListRenderBitmap::GetLayoutType()
+{
+	return m_eLayout;
+}
+GDIIconRenderBitmap::GDIIconRenderBitmap(IRenderBitmap** ppOutRef) : GDIRenderBitmap(ppOutRef)
+{
+	m_nIconWidth = m_nIconHeight = 16;
+}
+void GDIIconRenderBitmap::CreateInstance( IRenderBitmap** ppOutRef )
+{
+	UIASSERT(NULL != ppOutRef);
+	if( NULL == ppOutRef )
+		return;
+
+	GDIIconRenderBitmap* p = new GDIIconRenderBitmap(ppOutRef);
+	*ppOutRef = p;
+}
 //////////////////////////////////////////////////////////////////////////
 
 GDIRenderFont::GDIRenderFont(IRenderFont** ppOutRef) : IRenderFont((IRenderResource**)ppOutRef)

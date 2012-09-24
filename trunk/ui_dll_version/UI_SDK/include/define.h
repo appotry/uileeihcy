@@ -204,12 +204,13 @@ enum IMAGE_ITEM_TYPE
 #define XML_BACKGND_IS_TRANSPARENT       _T("istransparent")            // 是否需要进行透明处理（刷上父对象的背景）0/1
 
 #define XML_RENDER_TYPE                   _T("render.type")             // 设置渲染类型
-#define XML_RENDER_TYPE_COLOR             _T("color")                   // 纯色填充 Color
 #define XML_RENDER_TYPE_GRADIENT_H        _T("gradienth")               // 横向渐变 Color + Color
 #define XML_RENDER_TYPE_GRADIENT_V        _T("gradientv")               // 纵向渐变 Color + Color
 #define XML_RENDER_TYPE_IMAGE             _T("image")                   // 贴图Image + Color
-#define XML_RENDER_TYPE_COLORLIST         _T("colorlist")               // office 2003工具栏式按钮
+#define XML_RENDER_TYPE_IMAGELISTITEM     _T("imagelistitem")           // 图片列表中的一项，需要指定其索引
 #define XML_RENDER_TYPE_IMAGELIST         _T("imagelist")               // 图片列表
+#define XML_RENDER_TYPE_COLOR             _T("color")                   // 纯色填充 Color
+#define XML_RENDER_TYPE_COLORLIST         _T("colorlist")               // office 2003工具栏式按钮
 #define XML_RENDER_TYPE_THEME             _T("theme")                   // 系统主题按钮
 
 

@@ -20,7 +20,7 @@
     <item id="equalizer.png">equalizer.png</item>
     <item id="playlist.png">playlist.png</item>
     <item id="volume_fill.png">volume_fill.png</item>
-    <item id="ttplayer.ico" useskinhue="0">ttplayer.ico</item>
+    <item id="ttplayer.ico" useskinhls="0">ttplayer.ico</item>
     <item id="stop.png">stop.png</item>
     <item id="browser.png">browser.png</item>
     <item id="playlist_add.png">playlist_add.png</item>

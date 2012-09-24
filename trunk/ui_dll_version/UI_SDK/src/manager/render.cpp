@@ -576,6 +576,37 @@ SIZE ImageRender::GetDesiredSize()
 	return s;
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+ImageListItemRender::ImageListItemRender()
+{
+	m_nImagelistIndex = 0;
+	m_hImageList = NULL;
+}
+ImageListItemRender::~ImageListItemRender()
+{
+	m_nImagelistIndex = 0;
+	m_hImageList = NULL;
+}
+
+bool ImageListItemRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
+{
+	bool bRet = __super::SetAttribute( strPrefix, mapAttrib );
+	if (false == bRet )
+		return false;
+
+	if (NULL != m_hBitmap)
+	{
+		m_hImageList = dynamic_cast<HRIMAGELISTBITMAP>(m_hBitmap);
+	}
+
+	return true;
+}
+
+SIZE ImageListItemRender::GetDesiredSize()
+{
+	
+}
 //////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                      //
 //                               ColorListRender                                        //

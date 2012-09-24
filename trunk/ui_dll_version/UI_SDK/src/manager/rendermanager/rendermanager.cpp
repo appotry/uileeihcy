@@ -136,19 +136,27 @@ void RenderBitmapFactory::CreateInstance(IRenderBitmap** ppOut, GRAPHICS_RENDER_
 	if (NULL == ppOut)
 		return;
 
-	ATTRMAP::const_iterator iter = mapAttrib.find(XML)
+	String strType;
+	ATTRMAP::const_iterator iter = mapAttrib.find(XML_IMAGE_ITEM_TYPE);
+	if (iter != mapAttrib.end())
+		strType = iter->second;
 
 	switch (eGraphicsRenderType)
 	{	
 	case GRAPHICS_RENDER_TYPE_GDI:
 		{
-			GDIRenderBitmap::CreateInstance( ppOut );
+			if (strType == XML_IMAGE_ITEM_TYPE_ICON)
+				GDIIconRenderBitmap::CreateInstance(ppOut);
+			else if (strType == XML_IMAGE_ITEM_TYPE_IMAGELIST)
+				GDIImageListRenderBitmap::CreateInstance(ppOut);
+			else
+				GDIRenderBitmap::CreateInstance(ppOut);
 		}
 		break;
 
 	case GRAPHICS_RENDER_TYPE_GDIPLUS:
 		{
-			GdiplusRenderBitmap::CreateInstance( ppOut );
+			GdiplusRenderBitmap::CreateInstance(ppOut);
 		}
 		break;
 
