@@ -130,6 +130,37 @@ IRenderBitmap::IRenderBitmap(IRenderResource** ppOutRef) : IRenderResource(ppOut
 IRenderFont::IRenderFont(IRenderResource** ppOutRef) : IRenderResource(ppOutRef)
 {
 }
+
+void RenderBitmapFactory::CreateInstance(IRenderBitmap** ppOut, GRAPHICS_RENDER_TYPE eGraphicsRenderType, const ATTRMAP& mapAttrib)
+{
+	if (NULL == ppOut)
+		return;
+
+	ATTRMAP::const_iterator iter = mapAttrib.find(XML)
+
+	switch (eGraphicsRenderType)
+	{	
+	case GRAPHICS_RENDER_TYPE_GDI:
+		{
+			GDIRenderBitmap::CreateInstance( ppOut );
+		}
+		break;
+
+	case GRAPHICS_RENDER_TYPE_GDIPLUS:
+		{
+			GdiplusRenderBitmap::CreateInstance( ppOut );
+		}
+		break;
+
+	case GRAPHICS_RENDER_TYPE_DIRECT2D:
+		break;
+	}
+
+	if (NULL != *ppOut)
+	{
+		(*ppOut)->SetAttribute(mapAttrib);
+	}
+}
  
 
 //////////////////////////////////////////////////////////////////////////

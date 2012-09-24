@@ -58,8 +58,15 @@ public:
 
 	virtual bool  SaveBits( ImageData* pImageData ) = 0;
 	virtual bool  ChangeHLS( const ImageData* pOriginImageData, short h, short l, short s, int nFlag ) = 0;
+	
+	virtual void  SetAttribute( const ATTRMAP& mapAttrib ) = 0;
 };
 
+class RenderBitmapFactory
+{
+public:
+	static void CreateInstance(IRenderBitmap** ppOut, GRAPHICS_RENDER_TYPE eGraphicsRenderType, const ATTRMAP& mapAttrib);
+};
 class  IRenderFont : public IRenderResource
 {
 protected:

@@ -46,7 +46,7 @@ bool ImageManager::Create( const String& strXmlPath )
 	}
 
 	m_pImageParse = IParseClassFactory::CreateImageParseInstance( strXmlPath );
-	if( false == m_pImageParse->Create() )
+	if (false == m_pImageParse->Create())
 	{
 		UI_LOG_ERROR(_T("ImageManager::Create create image parse failed. path=%s"), strXmlPath.c_str());
 		return false;

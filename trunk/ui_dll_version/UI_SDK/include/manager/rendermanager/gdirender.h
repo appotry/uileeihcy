@@ -9,6 +9,7 @@ private:
 public:
 	~GDIRenderBitmap();
 	static  void CreateInstance( IRenderBitmap** pOutRef );
+	virtual void SetAttribute( const ATTRMAP& mapAttrib );
 	virtual GRAPHICS_RENDER_TYPE GetRenderType() { return GRAPHICS_RENDER_TYPE_GDI; }
 
 	Image*  GetBitmap() { return &m_image; }
