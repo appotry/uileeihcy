@@ -174,18 +174,30 @@ namespace UI
 		void    SetImageDrawType(IMAGE_DRAW_TYPE e) { m_eImageDrawType = e; }
 		IMAGE_DRAW_TYPE GetImageDrawType() { return m_eImageDrawType; }
 
-	public:
+	protected:
 		HRBITMAP          m_hBitmap;
 		UIColor*          m_pColorBk;
 		Image9Region*     m_pRegion;   // 拉伸绘制时才用
 		IMAGE_DRAW_TYPE   m_eImageDrawType;
 	};
 
+	class ImageListItemRender : public ImageRender 
+	{
+	public:
+		ImageListItemRender();
+		~ImageListItemRender();
+
+		virtual bool SetAttribute( const String& strPrefix, map<String,String>& mapAttrib );
+		virtual void DrawState(HRDC hRDC, const CRect* prc, int nState);
+		virtual SIZE GetDesiredSize() ;
+
+	protected:
+		HRIMAGELISTBITMAP  m_hImageList;
+		int    m_nImagelistIndex;
+	};
+
 	//
 	//	直接使用颜色值作为背景
-	//
-	//	Q: 如何实现不需要背景的状态，例如工具栏按钮的正常状态，是没有背景的?
-	//	A: 用状态位来实现，设置了某个状态的颜色值，就表示该状态需要绘制背景，否则就不绘制
 	//
 	class ColorListRender : public RenderBase
 	{

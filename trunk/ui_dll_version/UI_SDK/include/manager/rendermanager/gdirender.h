@@ -2,14 +2,15 @@
 
 namespace UI
 {
-class GDIRenderBitmap : public IRenderBitmap
+
+template<class T>
+class GDIRenderBitmapImpl : public T
 {
-private:
-	GDIRenderBitmap(IRenderBitmap** ppOutRef);
+protected:
+	GDIRenderBitmapImpl(IRenderBitmap** ppOutRef);
 public:
-	~GDIRenderBitmap();
-	static  void CreateInstance( IRenderBitmap** pOutRef );
-	virtual void SetAttribute( const ATTRMAP& mapAttrib );
+	~GDIRenderBitmapImpl();
+	virtual void SetAttribute( const ATTRMAP& mapAttrib ){};
 	virtual GRAPHICS_RENDER_TYPE GetRenderType() { return GRAPHICS_RENDER_TYPE_GDI; }
 
 	Image*  GetBitmap() { return &m_image; }
@@ -31,6 +32,43 @@ private:
 	Image   m_image;
 };
 
+class GDIRenderBitmap : public IRenderBitmap, public GDIRenderBitmapImpl
+{
+protected:
+	GDIRenderBitmap(IRenderBitmap** ppOutRef);
+public:
+	static  void CreateInstance( IRenderBitmap** pOutRef );
+
+};
+class GDIIconRenderBitmap : public GDIRenderBitmap
+{
+protected:
+	GDIIconRenderBitmap(IRenderBitmap** ppOutRef);	
+public:
+	static  void CreateInstance( IRenderBitmap** pOutRef );
+
+private:
+	int    m_nIconWidth;
+	int    m_nIconHeight;
+};
+
+class GDIImageListRenderBitmap : public IImageListRenderBitmap, public GDIRenderBitmapImpl
+{
+protected:
+	GDIImageListRenderBitmap(IRenderBitmap** ppOutRef);
+public:
+	static  void CreateInstance(IRenderBitmap** pOutRef );
+
+	virtual int  GetItemWidth();
+	virtual int  GetItemHeight();
+	virtual IMAGELIST_LAYOUT_TYPE GetLayoutType();
+
+private:
+	IMAGELIST_LAYOUT_TYPE   m_eLayout;
+	int     m_nCount;
+};
+
+//////////////////////////////////////////////////////////////////////////
 
 class  GDIRenderFont : public IRenderFont
 {

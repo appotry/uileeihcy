@@ -8,6 +8,7 @@ namespace UI
 #define HRDC     IRenderDC*  
 #define HRBITMAP IRenderBitmap*
 #define HRFONT   IRenderFont*
+#define HRIMAGELISTBITMAP  IImageListRenderBitmap*
 
 typedef enum 
 {
@@ -37,6 +38,7 @@ protected:
 									 // 当所有外部的UIImage* Release结束后，CPojo_ImageItem::UIImage*却无法置空，因此在这里添加一个m_pOutRef，指向这个
 									 // UIImage*，在UIImage的析构函数中将中置空
 };
+
 class IRenderBitmap : public IRenderResource
 {
 protected:
@@ -60,6 +62,14 @@ public:
 	virtual bool  ChangeHLS( const ImageData* pOriginImageData, short h, short l, short s, int nFlag ) = 0;
 	
 	virtual void  SetAttribute( const ATTRMAP& mapAttrib ) = 0;
+};
+
+class IImageListRenderBitmap : public IRenderBitmap
+{
+public:
+	virtual int  GetItemWidth() = 0;
+	virtual int  GetItemHeight() = 0;
+	virtual IMAGELIST_LAYOUT_TYPE GetLayoutType() = 0;
 };
 
 class RenderBitmapFactory

@@ -13,14 +13,13 @@
       <SliderCtrl id="progress_music" foregnd.render.image="progress_fill.bmp" height="12" width="192"
                   direction="x" layout.left="20" layout.top="68" btn.id="progress_btn"
                   trackbtn.bkgnd.render.image="progress_thumb.bmp"/>
-      <!--Label id="label_time"         text="00:00"     layout.right="40"  layout.top="87"  textrender.color="time_color" width="70" halign="right" /-->
       <LEDCtrl id="led_time" text=" 00:00" layout.right="23" layout.top="83" indexmap="0123456789:-"
-             foregnd.render.type="imagelist"  foregnd.render.image="number.png" foregnd.render.imagelist.count="12"
-             foregnd.render.imagelist.layout="h"/>
-      <Label id="label_voice_status" text="立体声"    layout.right="112" layout.top="91"  textrender.color="voice_channel"/>
-      <Label id="label_playstatus"   text="状态:停止" layout.right="112" layout.top="111" textrender.color="play_statue"/>
-      <Button      id="btn_playlist"  styleclass="imagebtn"  tooltip="播放列表" bkgnd.render.image="playlist.png"  bkgnd.render.imagelist.count="8" layout.top="64"  layout.right="72"/>
-      <Button      id="btn_equalizer" styleclass="imagebtn"  tooltip="均衡器"   bkgnd.render.image="equalizer.png" bkgnd.render.imagelist.count="8" layout.top="64"  layout.right="47"/>
+               foregnd.render.type="imagelist"  foregnd.render.image="number.png" foregnd.render.imagelist.count="12"
+               foregnd.render.imagelist.layout="h"/>
+      <Label   id="label_voice_status" text="立体声"    layout.right="112" layout.top="91"  textrender.color="voice_channel"/>
+      <Label   id="label_playstatus"   text="状态:停止" layout.right="112" layout.top="111" textrender.color="play_statue"/>
+      <Button  id="btn_playlist"  styleclass="imagebtn"  tooltip="播放列表" bkgnd.render.image="playlist.png"  bkgnd.render.imagelist.count="8" layout.top="64"  layout.right="72"/>
+      <Button  id="btn_equalizer" styleclass="imagebtn"  tooltip="均衡器"   bkgnd.render.image="equalizer.png" bkgnd.render.imagelist.count="8" layout.top="64"  layout.right="47"/>
       <CheckButton id="btn_lyric"     styleclass="imagecheckbutton"  tooltip="歌词"     foregnd.render.image="lyric.png"     layout.top="64"  layout.right="18"/>
       <Button id="btn_browser" styleclass="imagebtn"  bkgnd.render.image="browser.bmp"  layout.top="108" layout.right="24"/>
       <Panel  layout="stack"   layout.left="20" layout.bottom="10" layout.direction="lefttoright">
@@ -310,12 +309,12 @@
     <item id="main_menu_bk.png">main_menu_bk.png</item>
     <item id="menu_check_bk.png">menu_check_bk.png</item>
     <item id="menu_check_icon.png">menu_check_icon.png</item>
-    <imagelist id="menuicon_imagelist.png"  imagecount="">menuicon_imagelist.png</imagelist>
-    <imagelist id="playmode_imagelist.png"  imagecount="">playmode_imagelist.png</imagelist>
-    <imagelist id="some_imagelist.png"      imagecount="">some_imagelist.png</imagelist>
-    <imagelist id="lyricedit_imagelist.png" imagecount="">lyricedit_imagelist.png</imagelist>
-    <icon id="ttplayer.ico"       useskinhue="0" iconwidth="16" iconheight="16">ttplayer.ico</icon>
-    <icon id="ttplayer.ico_32_32" useskinhue="0" iconwidth="32" iconheight="32">ttplayer.ico</icon>
+    <item type="imagelist" id="menuicon_imagelist.png"  imagecount="">menuicon_imagelist.png</item>
+    <item type="imagelist" id="playmode_imagelist.png"  imagecount="">playmode_imagelist.png</item>
+    <item type="imagelist" id="some_imagelist.png"      imagecount="">some_imagelist.png</item>
+    <item type="imagelist" id="lyricedit_imagelist.png" imagecount="">lyricedit_imagelist.png</item>
+    <item type="icon" id="ttplayer.ico"       useskinhls="0" iconwidth="16" iconheight="16">ttplayer.ico</item>
+    <item type="icon" id="ttplayer.ico_32_32" useskinhls="0" iconwidth="32" iconheight="32">ttplayer.ico</item>
 </img>
   <font>
     <item id="normal" facename="宋体" size="9" />

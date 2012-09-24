@@ -238,7 +238,6 @@ HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType )
 	default:
 		return NULL;
 	}
-#endif
 	return NULL;
 }
 
