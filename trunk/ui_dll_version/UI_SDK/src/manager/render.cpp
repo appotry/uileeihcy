@@ -26,25 +26,28 @@ RenderBase* RenderFactory::GetRender( const String& strType, Object* pObj )
 {
 	RENDER_TYPE eType = RENDER_TYPE_THEME;
 
-	if( XML_RENDER_TYPE_COLOR == strType )
+	if (XML_RENDER_TYPE_COLOR == strType)
 		eType = RENDER_TYPE_COLOR;
 
-	else if( XML_RENDER_TYPE_GRADIENT_H == strType )
+	else if (XML_RENDER_TYPE_GRADIENT_H == strType)
 		eType = RENDER_TYPE_GRADIENTH;
 
-	else if( XML_RENDER_TYPE_GRADIENT_V == strType )
+	else if (XML_RENDER_TYPE_GRADIENT_V == strType)
 		eType = RENDER_TYPE_GRADIENTV;
 
-	else if( XML_RENDER_TYPE_IMAGE == strType )
+	else if (XML_RENDER_TYPE_IMAGE == strType)
 		eType = RENDER_TYPE_IMAGE;
 
-	else if( XML_RENDER_TYPE_COLORLIST == strType )
+	else if (XML_RENDER_TYPE_IMAGELISTITEM == strType)
+		eType = RENDER_TYPE_IMAGELISTITEM;
+
+	else if (XML_RENDER_TYPE_COLORLIST == strType)
 		eType = RENDER_TYPE_COLORLIST;
 
-	else if( XML_RENDER_TYPE_IMAGELIST == strType )
+	else if (XML_RENDER_TYPE_IMAGELIST == strType)
 		eType = RENDER_TYPE_IMAGELIST;
 
-	else if( XML_RENDER_TYPE_THEME == strType )
+	else if (XML_RENDER_TYPE_THEME == strType)
 		eType = RENDER_TYPE_THEME;
 
 	else
@@ -83,6 +86,10 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 	else if( RENDER_TYPE_IMAGELIST == eType )
 	{
 		pRender = new ImageListRender();
+	}
+	else if (RENDER_TYPE_IMAGELISTITEM == eType)
+	{
+		pRender = new ImageListItemRender();
 	}
 	else if( RENDER_TYPE_THEME == eType )
 	{
@@ -406,23 +413,15 @@ void GradientRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 
 ImageRender::ImageRender()
 {
-	m_hBitmap = NULL;
+	m_pBitmap = NULL;
 	m_pColorBk = NULL;
 	m_eImageDrawType = IMAGE_DRAW_TYPE_SIMPLE;
 	m_pRegion = NULL;
 }
 ImageRender::~ImageRender()
 {
-	if( NULL != m_hBitmap )
-	{
-		UI_ReleaseBitmap(m_hBitmap);
-		m_hBitmap = NULL;
-	}
-	if( NULL != m_pColorBk )
-	{
-		m_pColorBk->Release();
-		m_pColorBk = NULL;
-	}
+	SAFE_RELEASE(m_pBitmap);
+	SAFE_RELEASE(m_pColorBk);
 	SAFE_DELETE(m_pRegion);
 }
 
@@ -433,7 +432,7 @@ bool ImageRender::SetAttribute( const String& strPrefix, map<String,String>& map
 	if (mapAttrib.end() != iter)
 	{
 		const String& strImageID = iter->second;
-		m_hBitmap = ::UI_GetBitmap( strImageID, ::GetGraphicsRenderType(m_pObject) );
+		m_pBitmap = ::UI_GetBitmap( strImageID, ::GetGraphicsRenderType(m_pObject) );
 		this->m_pObject->EraseAttribute(strAttrib);
 	}
 
@@ -477,88 +476,87 @@ bool ImageRender::SetAttribute( const String& strPrefix, map<String,String>& map
 	return true;
 } 
 
-void ImageRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void ImageRender::DrawState(IRenderDC* pRDC, const CRect* prc, int nState)
 {
-	if( NULL != m_pColorBk )
+	if (NULL != m_pColorBk)
 	{
-		FillRect(hRDC, prc, m_pColorBk->GetColor() );
+		pRDC->FillRect(prc, m_pColorBk->GetColor() );
 	}
-	if( NULL != m_hBitmap )
+
+	POINT ptSrc = this->GetBitmapSrcDrawPos();
+	SIZE  sizeSrc =  this->GetDesiredSize();
+
+	if (NULL != m_pBitmap)
 	{
 		switch (m_eImageDrawType)
 		{
 		case IMAGE_DRAW_TYPE_SIMPLE:
-			DrawBitmap(hRDC,m_hBitmap,prc->left,prc->top);
+			pRDC->DrawBitmap(m_pBitmap,prc->left,prc->top, sizeSrc.cx,sizeSrc.cy, ptSrc.x, ptSrc.y);
 			break;
 
 		case IMAGE_DRAW_TYPE_STRETCH:
-			DrawBitmap(hRDC, m_hBitmap, prc->left,prc->top,prc->Width(), prc->Height(), 
-						0,0, UI_GetBitmapWidth(m_hBitmap), UI_GetBitmapHeight(m_hBitmap), m_pRegion );
+			pRDC->DrawBitmap(m_pBitmap, prc->left,prc->top,prc->Width(), prc->Height(), 
+						ptSrc.x, ptSrc.y, sizeSrc.cx,sizeSrc.cy, m_pRegion);
 			break;
 
 		case IMAGE_DRAW_TYPE_TILE:
-			TileRect(hRDC, prc, m_hBitmap);
+			pRDC->TileRect(prc, m_pBitmap);
 			break;
 
 		case IMAGE_DRAW_TYPE_CENTER:
 			{
-				int w = UI_GetBitmapWidth(m_hBitmap);
-				int h = UI_GetBitmapHeight(m_hBitmap);
-				int x = prc->left + (prc->Width() - w)/2;
-				int y = prc->top  + (prc->Height() - h)/2;
+				int x = prc->left + (prc->Width() - sizeSrc.cx)/2;
+				int y = prc->top  + (prc->Height() - sizeSrc.cy)/2;
 
-				DrawBitmap(hRDC, m_hBitmap, x, y);
+				pRDC->DrawBitmap(m_pBitmap, x, y, sizeSrc.cx,sizeSrc.cy, ptSrc.x, ptSrc.y);
 			}
 			break;
 
 		case IMAGE_DRAW_TYPE_ADAPT:
 			{
-				double tan_x_y_image  = 0;
-				double tan_x_y_window = 0;
-
-				int w = UI_GetBitmapWidth(m_hBitmap);
-				int h = UI_GetBitmapHeight(m_hBitmap);
-
-				bool bNeedToStretch = false;
-				int  xImage = w;
-				int  yImage = h;
-
-				if (h == 0 || w == 0)
+				if (sizeSrc.cy == 0 || sizeSrc.cy == 0)
 					break;
 
 				if (prc->Width() == 0 || prc->Height() == 0)
 					break;
 
-				if (prc->Width() < w || prc->Height() < h)
+				double tan_x_y_image  = 0;
+				double tan_x_y_window = 0;
+
+				bool bNeedToStretch = false;
+				int  wImage = sizeSrc.cx;
+				int  hImage = sizeSrc.cy;
+
+				if (prc->Width() < sizeSrc.cx || prc->Height() < sizeSrc.cy)
 				{
 					bNeedToStretch = true;
 
-					tan_x_y_image = (double)w / (double)h;
+					tan_x_y_image = (double)sizeSrc.cx / (double)sizeSrc.cy;
 					tan_x_y_window = (double)prc->Width() / (double)prc->Height();
 
 					if( tan_x_y_image > tan_x_y_window ) // 横向占满
 					{
-						xImage = prc->Width();
-						yImage = (int)((double)xImage/tan_x_y_image);
+						wImage = prc->Width();
+						hImage = (int)((double)wImage/tan_x_y_image);
 					}
 					else   // 纵向占满
 					{
-						yImage = prc->Height();
-						xImage = (int)(yImage*tan_x_y_image);
+						hImage = prc->Height();
+						wImage = (int)(hImage*tan_x_y_image);
 					}
 				}
 
 				// 计算图片显示位置
-				int xDisplayPos = (prc->Width()-xImage)/2;
-				int yDisplayPos = (prc->Height()-yImage)/2;
+				int xDisplayPos = (prc->Width()-wImage)/2;
+				int yDisplayPos = (prc->Height()-hImage)/2;
 
 				if( bNeedToStretch )
 				{
-					DrawBitmap(hRDC, m_hBitmap, xDisplayPos, yDisplayPos, xImage, yImage, 0,0, w, h );
+					pRDC->DrawBitmap(m_pBitmap, xDisplayPos, yDisplayPos, wImage, hImage, ptSrc.x, ptSrc.y, sizeSrc.cx,sizeSrc.cy );
 				}
 				else
 				{
-					DrawBitmap(hRDC, m_hBitmap, xDisplayPos, yDisplayPos);
+					pRDC->DrawBitmap(m_pBitmap, xDisplayPos, yDisplayPos, sizeSrc.cx,sizeSrc.cy, ptSrc.x, ptSrc.y);
 				}
 			}
 			break;
@@ -568,11 +566,11 @@ void ImageRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 SIZE ImageRender::GetDesiredSize()
 {
 	SIZE s = {0,0};
-	if( NULL == m_hBitmap )
+	if( NULL == m_pBitmap )
 		return s;
 
-	s.cx = UI_GetBitmapWidth(m_hBitmap);
-	s.cy = UI_GetBitmapHeight(m_hBitmap);
+	s.cx = m_pBitmap->GetWidth();
+	s.cy = m_pBitmap->GetHeight();
 	return s;
 }
 
@@ -581,23 +579,30 @@ SIZE ImageRender::GetDesiredSize()
 ImageListItemRender::ImageListItemRender()
 {
 	m_nImagelistIndex = 0;
-	m_hImageList = NULL;
+	m_pImageList = NULL;
 }
 ImageListItemRender::~ImageListItemRender()
 {
 	m_nImagelistIndex = 0;
-	m_hImageList = NULL;
+	m_pImageList = NULL;
 }
 
-bool ImageListItemRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
+bool ImageListItemRender::SetAttribute( const String& strPrefix, ATTRMAP& mapAttrib ) 
 {
 	bool bRet = __super::SetAttribute( strPrefix, mapAttrib );
 	if (false == bRet )
 		return false;
 
-	if (NULL != m_hBitmap)
+	if (NULL != m_pBitmap)
 	{
-		m_hImageList = dynamic_cast<HRIMAGELISTBITMAP>(m_hBitmap);
+		m_pImageList = dynamic_cast<IImageListRenderBitmap*>(m_pBitmap);
+	}
+
+	String str = strPrefix + XML_RENDER_IMAGELISTITEM_INDEX;
+	ATTRMAP::iterator iter = mapAttrib.find(str);
+	if (mapAttrib.end() != iter)
+	{
+		m_nImagelistIndex = _ttoi(iter->second.c_str());
 	}
 
 	return true;
@@ -605,7 +610,35 @@ bool ImageListItemRender::SetAttribute( const String& strPrefix, map<String,Stri
 
 SIZE ImageListItemRender::GetDesiredSize()
 {
-	
+	SIZE s = {0,0};
+	if( NULL == m_pImageList )
+		return s;
+
+	s.cx = m_pImageList->GetItemWidth();
+	s.cy = m_pImageList->GetItemHeight();
+	return s;
+}
+
+void ImageListItemRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+{
+	if (IMAGE_DRAW_TYPE_TILE == m_eImageDrawType)
+	{
+		UI_LOG_WARN(_T("%s image list item donot support tile draw"),FUNC_NAME);
+		return;
+	}
+
+	__super::DrawState(hRDC, prc, nState);
+}
+
+POINT ImageListItemRender::GetBitmapSrcDrawPos()
+{
+	POINT pt = {0,0};
+	if (NULL != m_pImageList)
+	{
+		m_pImageList->GetIndexPos(m_nImagelistIndex, &pt);
+	}
+
+	return pt;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                      //

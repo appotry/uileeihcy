@@ -6,6 +6,7 @@ MenuItem::MenuItem(ListCtrlBase* pCtrl) : ListItemBase(pCtrl)
 	m_nFlag = MF_STRING;
 	m_nID = 0;
 	m_pSubMenu = NULL;
+	m_pIconRender = NULL;
 }
 MenuItem::~MenuItem()
 {
@@ -13,6 +14,7 @@ MenuItem::~MenuItem()
 	{
 		SAFE_DELETE(m_pSubMenu);
 	}
+	SAFE_DELETE(m_pIconRender);
 }
 
 bool MenuItem::OnMouseEnter()

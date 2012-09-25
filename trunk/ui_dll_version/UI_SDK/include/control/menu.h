@@ -28,9 +28,10 @@ namespace UI
 		virtual  bool    OnMouseLeave();
 
 	protected:
-		MenuBase*   m_pMenu;      // item 所属菜单
-		String      m_strText;
-		MenuBase*   m_pSubMenu;   // 如果是一个popup菜单，该成员表示其子菜单
+		MenuBase*    m_pMenu;      // item 所属菜单
+		String       m_strText;
+		MenuBase*    m_pSubMenu;   // 如果是一个popup菜单，该成员表示其子菜单
+		RenderBase*  m_pIconRender;
 
 		UINT        m_nFlag;
 		int         m_nID;

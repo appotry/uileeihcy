@@ -127,6 +127,10 @@ long IRenderResource::Release()
 IRenderBitmap::IRenderBitmap(IRenderResource** ppOutRef) : IRenderResource(ppOutRef)
 {
 }
+IImageListRenderBitmap::IImageListRenderBitmap(IRenderResource**  ppOutRef) : IRenderBitmap(ppOutRef)
+{
+
+}
 IRenderFont::IRenderFont(IRenderResource** ppOutRef) : IRenderResource(ppOutRef)
 {
 }

@@ -67,9 +67,12 @@ public:
 class IImageListRenderBitmap : public IRenderBitmap
 {
 public:
+	IImageListRenderBitmap(IRenderResource**  ppOutRef);
+
 	virtual int  GetItemWidth() = 0;
 	virtual int  GetItemHeight() = 0;
 	virtual IMAGELIST_LAYOUT_TYPE GetLayoutType() = 0;
+	virtual bool GetIndexPos(int nIndex, POINT* pPoint) = 0;
 };
 
 class RenderBitmapFactory
@@ -137,6 +140,7 @@ public:
 	virtual void     GradientFillV( const CRect* lprc, COLORREF colFrom, COLORREF colTo ) = 0;
 	virtual void     BitBlt( int xDest, int yDest, int wDest, int hDest, IRenderDC* pSrcHDC, int xSrc, int ySrc, DWORD dwRop ) = 0;
 	virtual void     DrawBitmap( HRBITMAP hBitmap, int x, int y) = 0;
+	virtual void     DrawBitmap( IRenderBitmap* pBitmap, int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc)=0;
 	virtual void     DrawBitmap( HRBITMAP hBitmap, int xDest, int yDest, int nDestWidth, 
 		                        int nDestHeight, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight ) = 0;
 	virtual void     DrawBitmap( HRBITMAP hBitmap, int xDest, int yDest, int nDestWidth, 
