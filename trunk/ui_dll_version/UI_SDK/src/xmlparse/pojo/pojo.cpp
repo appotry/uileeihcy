@@ -218,7 +218,7 @@ HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType )
 			if ( NULL == m_pGdiplusBitmap )
 			{
 				//GdiplusRenderBitmap::CreateInstance( (IRenderBitmap**)&m_pGdiplusBitmap );
-				RenderBitmapFactory::CreateInstance((IRenderBitmap**)&m_pGdiBitmap, eRenderType, m_mapAttribute);
+				RenderBitmapFactory::CreateInstance((IRenderBitmap**)&m_pGdiplusBitmap, eRenderType, m_mapAttribute);
 				if( NULL != m_pGdiplusBitmap )
 				{
 					m_pGdiplusBitmap->LoadFromFile(m_strPath);
