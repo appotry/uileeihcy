@@ -200,7 +200,7 @@ namespace UI
 		bool       loadAttributeForCurrentObjectInXml( Object* pObj, bool bReload=false );
 		bool       loadObjects( Object* pObjParent );
 		bool       reloadObjects(Object* pObjParent, list<Object*>& listAllChild);
-		bool       loadMenuItems(Menu* pParentMenu);
+		bool       loadMenuItems(MenuBase* pParentMenu);
 
 	private:
 		CMarkup  m_xml;

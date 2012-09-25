@@ -23,6 +23,9 @@ namespace UI
 		UINT  GetID() { return m_nID; }
 		void  SetSubMenu(MenuBase* p) { m_pSubMenu = p; }
 		MenuBase* GetSubMenu() { return m_pSubMenu; }
+		RenderBase* GetIconRender() { return m_pIconRender; }
+
+		void  SetAttribute(ATTRMAP& mapAttrib);
 
 		virtual  bool    OnMouseEnter();
 		virtual  bool    OnMouseLeave();
@@ -60,6 +63,10 @@ namespace UI
 		friend   class   MenuItem;
 		friend   class   PopupMenuWindow;
 
+	public:
+		virtual  bool SetAttribute(ATTRMAP& mapAttrib, bool bReload);
+		virtual  void ResetAttribute();
+
 	protected:
 		void     OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags );
 		void     OnLButtonDown(UINT nFlags, POINT point);
@@ -92,15 +99,16 @@ namespace UI
 		MenuItem* _GetPrevSelectableItem(MenuItem* pItem);
 
 	public:
-		int       GetMenuItemCount();
-		int       TrackPopupMenu(UINT nFlag, int x, int y, Message* pNotifyObj);
-		MenuItem* AppendMenu(UINT uFlags, UINT_PTR uIDNewItem, LPCTSTR lpNewItem);
-		MenuBase* GetSubMenuByPos(int nPos);
-		MenuBase* GetSubMenuByID(int nID);
-		MenuItem* GetMenuItemByPos(int nPos);
-		MenuItem* GetMenuItemByID(int nID);
-		MenuItem* GetMenuItemBySubMenu(MenuBase* pSubMenu);
+		int        GetMenuItemCount();
+		int        TrackPopupMenu(UINT nFlag, int x, int y, Message* pNotifyObj);
+		MenuItem*  AppendMenu(UINT uFlags, UINT_PTR uIDNewItem, LPCTSTR lpNewItem);
+		MenuBase*  GetSubMenuByPos(int nPos);
+		MenuBase*  GetSubMenuByID(int nID);
+		MenuItem*  GetMenuItemByPos(int nPos);
+		MenuItem*  GetMenuItemByID(int nID);
+		MenuItem*  GetMenuItemBySubMenu(MenuBase* pSubMenu);
 		PopupMenuWindow* GetPopupLoopMenuWindow() { return GetRootMenu()->m_pPopupWrapWnd; }
+		MenuItem*  LoadMenuItem(const String tagName, ATTRMAP& mapAttrib);
 
 		virtual  void OnDrawItem( HRDC hRDC, ListItemBase* p ) ;
 		virtual  SIZE OnMeasureItem( ListItemBase* p);
@@ -144,7 +152,6 @@ namespace UI
 		UI_DECLARE_OBJECT( Menu, OBJ_CONTROL )
 
 	public:
-		virtual  bool SetAttribute(ATTRMAP& mapAttrib, bool bReload);
-		virtual  void ResetAttribute();
+		
 	};
 }

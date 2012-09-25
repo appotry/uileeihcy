@@ -157,8 +157,7 @@ bool SliderCtrlBase::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 	if(  m_pButton == NULL )
 		return true;
 
-
-	this->SetChildObjectAttribute( m_pButton, XML_SLIDERCTRL_BUTTON_ATTR_PRIFIX, mapAttrib, bReload );
+	this->SetChildObjectAttribute( m_pButton, XML_SLIDERCTRL_BUTTON_ATTR_PRIFIX, m_mapAttribute, bReload );
 
 	// 对按钮的消息进行拦截，统一在父类中处理 
 	m_pButton->AddHook( this, 0, 1 );
