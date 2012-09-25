@@ -227,6 +227,8 @@ enum IMAGE_ITEM_TYPE
 #define XML_RENDER_IMAGELIST_LAYOUT_H     _T("h")                       // 图片横向排列
 #define XML_RENDER_IMAGELIST_LAYOUT_V     _T("v")                       // 图片纵向排列
 
+#define XML_RENDER_IMAGELISTITEM_INDEX    _T("render.imagelistitem.index")  // 图片列表项的索引值
+
 #define XML_RENDER_IMAGE_DRAWTYPE         _T("render.image.drawtype")   // 图片绘制方式
 #define XML_RENDER_IMAGE_DRAWTYPE_SIMPLE  _T("simple")                  // (0,0)位置开始贴图Image + Color
 #define XML_RENDER_IMAGE_DRAWTYPE_TILE    _T("tile")                    // (0,0)位置开始平铺Image
@@ -245,6 +247,7 @@ enum RENDER_TYPE
 	RENDER_TYPE_GRADIENTH,    
 	RENDER_TYPE_GRADIENTV,    
 	RENDER_TYPE_IMAGE,  
+	RENDER_TYPE_IMAGELISTITEM,
 	RENDER_TYPE_COLORLIST,
 	RENDER_TYPE_IMAGELIST,
 	

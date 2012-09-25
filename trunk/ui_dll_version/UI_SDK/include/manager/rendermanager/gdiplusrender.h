@@ -106,6 +106,7 @@ public:
 	virtual void     GradientFillV( const CRect* lprc, COLORREF colFrom, COLORREF colTo );
 	virtual void     BitBlt( int xDest, int yDest, int wDest, int hDest, IRenderDC* pSrcHDC, int xSrc, int ySrc, DWORD dwRop );
 	virtual void     DrawBitmap( HRBITMAP hBitmap, int x, int y );
+	virtual void     DrawBitmap( IRenderBitmap* pBitmap, int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc);
 	virtual void     DrawBitmap( HRBITMAP hBitmap, int xDest, int yDest, int nDestWidth, 
 		                         int nDestHeight, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight );
 	virtual void     DrawBitmap( HRBITMAP hBitmap, int xDest, int yDest, int nDestWidth, 

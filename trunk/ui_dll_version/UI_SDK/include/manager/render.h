@@ -167,32 +167,35 @@ namespace UI
 		ImageRender();
 		~ImageRender();
 
-		virtual bool SetAttribute( const String& strPrefix, map<String,String>& mapAttrib );
-		virtual void DrawState(HRDC hRDC, const CRect* prc, int nState);
-		virtual SIZE GetDesiredSize() ;
+		virtual bool  SetAttribute( const String& strPrefix, map<String,String>& mapAttrib );
+		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
+		virtual SIZE  GetDesiredSize();
+		virtual POINT GetBitmapSrcDrawPos() { POINT pt = {0,0}; return pt; }  // 给子类提供一个设置自己在图片中的位置的虚方法(如image list item)
 
 		void    SetImageDrawType(IMAGE_DRAW_TYPE e) { m_eImageDrawType = e; }
 		IMAGE_DRAW_TYPE GetImageDrawType() { return m_eImageDrawType; }
 
 	protected:
-		HRBITMAP          m_hBitmap;
+		IRenderBitmap*    m_pBitmap;
 		UIColor*          m_pColorBk;
 		Image9Region*     m_pRegion;   // 拉伸绘制时才用
 		IMAGE_DRAW_TYPE   m_eImageDrawType;
 	};
 
+	// 绘制图片列表中指定索引的一项
 	class ImageListItemRender : public ImageRender 
 	{
 	public:
 		ImageListItemRender();
 		~ImageListItemRender();
 
-		virtual bool SetAttribute( const String& strPrefix, map<String,String>& mapAttrib );
-		virtual void DrawState(HRDC hRDC, const CRect* prc, int nState);
-		virtual SIZE GetDesiredSize() ;
+		virtual bool  SetAttribute( const String& strPrefix, map<String,String>& mapAttrib );
+		virtual SIZE  GetDesiredSize() ;
+		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
+		virtual POINT GetBitmapSrcDrawPos() ;
 
 	protected:
-		HRIMAGELISTBITMAP  m_hImageList;
+		IImageListRenderBitmap*  m_pImageList;
 		int    m_nImagelistIndex;
 	};
 

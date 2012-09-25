@@ -887,6 +887,23 @@ void GdiplusRenderDC::DrawBitmap( HRBITMAP hBitmap, int x, int y)
 	m_pGraphics->DrawImage( pBitmap,x, y, pBitmap->GetWidth(), pBitmap->GetHeight() );
 }
 
+void GdiplusRenderDC::DrawBitmap(IRenderBitmap* pBitmap, int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc)
+{
+	if( NULL == pBitmap )
+		return;
+
+	if( pBitmap->GetRenderType() != GRAPHICS_RENDER_TYPE_GDIPLUS )
+		return;
+
+	GdiplusRenderBitmap* pRenderBitmap = static_cast<GdiplusRenderBitmap*>(pBitmap);
+	
+	Gdiplus::Bitmap* p = pRenderBitmap->GetBitmap();
+	if( NULL == p )
+		return;
+
+	m_pGraphics->DrawImage( p, xDest, yDest, xSrc, ySrc, pBitmap->GetWidth(), pBitmap->GetHeight(), Gdiplus::UnitPixel );
+}
+
 void GdiplusRenderDC::DrawBitmap( HRBITMAP hBitmap, int xDest, int yDest, int nDestWidth, 
 								int nDestHeight, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight )
 {

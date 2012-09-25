@@ -7,32 +7,101 @@ template<class T>
 class GDIRenderBitmapImpl : public T
 {
 protected:
-	GDIRenderBitmapImpl(IRenderBitmap** ppOutRef);
+	GDIRenderBitmapImpl(IRenderBitmap** ppOutRef): T((IRenderResource**)ppOutRef)
+	{
+
+	}
 public:
-	~GDIRenderBitmapImpl();
+	virtual ~GDIRenderBitmapImpl()
+	{
+		UI_LOG_DEBUG(_T("GDIRenderBitmap Delete. ptr=0x%08X"), this);
+	}
+
 	virtual void SetAttribute( const ATTRMAP& mapAttrib ){};
 	virtual GRAPHICS_RENDER_TYPE GetRenderType() { return GRAPHICS_RENDER_TYPE_GDI; }
 
 	Image*  GetBitmap() { return &m_image; }
 
 public:
-	virtual bool  LoadFromFile( const String& strPath );
-	virtual bool  Create(int nWidth, int nHeight);
+	virtual bool  LoadFromFile( const String& strPath )
+	{
+		if( ! m_image.IsNull() )
+		{
+			m_image.Destroy();
+		}
 
-	virtual int   GetWidth();
-	virtual int   GetHeight();
+		String strExt = strPath.substr(strPath.length()-4, 4);
+		if( 0 == _tcsicmp(strExt.c_str(), _T(".ico")) )
+		{
+			const int ICON_SIZE = 16;
+			HICON hIcon = (HICON)::LoadImage ( NULL, strPath.c_str(), IMAGE_ICON,ICON_SIZE,ICON_SIZE, LR_LOADFROMFILE );
+			HDC hMemDC = UI_GetCacheDC();
 
-	virtual BYTE* LockBits();
-	virtual void  UnlockBits();
+			m_image.Create( ICON_SIZE, ICON_SIZE, 32, Image::createAlphaChannel );
+			HBITMAP hOldBmp = (HBITMAP)::SelectObject( hMemDC, (HBITMAP)m_image );
 
-	virtual bool  SaveBits( ImageData* pImageData );
-	virtual bool  ChangeHLS( const ImageData* pOriginImageData, short h, short l , short s, int nFlag );
+			::DrawIconEx( hMemDC, 0,0, hIcon, ICON_SIZE, ICON_SIZE, 0, NULL, DI_NORMAL );
+			::SelectObject(hMemDC, hOldBmp);
+			::UI_ReleaseCacheDC(hMemDC);
+			::DestroyIcon(hIcon);
+		}
+		else
+		{
+			m_image.Load( strPath.c_str() );
+		}
+
+		if( m_image.IsNull() )
+			return false;
+		else
+			return true;
+	}
+	virtual bool  Create(int nWidth, int nHeight)
+	{
+		UIASSERT(nHeight < 0);   // 使用反向的
+		if( ! m_image.IsNull() )
+		{
+			m_image.Destroy();
+		}
+		m_image.Create(nWidth, nHeight, 32, Image::createAlphaChannel );
+
+		if( m_image.IsNull() )
+			return false;
+		else
+			return true;
+	}
+
+	virtual int   GetWidth()
+	{
+		return m_image.GetWidth();
+	}
+	virtual int   GetHeight()
+	{
+		return m_image.GetHeight();
+	}
+
+	virtual BYTE* LockBits()
+	{
+		return (BYTE*)m_image.GetBits();
+	}
+	virtual void  UnlockBits()
+	{
+		// Nothing.
+	}
+
+	virtual bool  SaveBits( ImageData* pImageData )
+	{
+		return m_image.SaveBits(pImageData);
+	}
+	virtual bool  ChangeHLS( const ImageData* pOriginImageData, short h, short l , short s, int nFlag )
+	{
+		return m_image.ChangeHLS(pOriginImageData, h, l, s, nFlag );
+	}
 
 private:
 	Image   m_image;
 };
 
-class GDIRenderBitmap : public IRenderBitmap, public GDIRenderBitmapImpl
+class GDIRenderBitmap : public GDIRenderBitmapImpl<IRenderBitmap>
 {
 protected:
 	GDIRenderBitmap(IRenderBitmap** ppOutRef);
@@ -46,22 +115,25 @@ protected:
 	GDIIconRenderBitmap(IRenderBitmap** ppOutRef);	
 public:
 	static  void CreateInstance( IRenderBitmap** pOutRef );
+	virtual void SetAttribute( const ATTRMAP& mapAttrib );
 
 private:
 	int    m_nIconWidth;
 	int    m_nIconHeight;
 };
 
-class GDIImageListRenderBitmap : public IImageListRenderBitmap, public GDIRenderBitmapImpl
+class GDIImageListRenderBitmap : public GDIRenderBitmapImpl<IImageListRenderBitmap>
 {
 protected:
 	GDIImageListRenderBitmap(IRenderBitmap** ppOutRef);
 public:
 	static  void CreateInstance(IRenderBitmap** pOutRef );
+	virtual void SetAttribute( const ATTRMAP& mapAttrib );
 
 	virtual int  GetItemWidth();
 	virtual int  GetItemHeight();
 	virtual IMAGELIST_LAYOUT_TYPE GetLayoutType();
+	virtual bool GetIndexPos(int nIndex, POINT* pPoint);
 
 private:
 	IMAGELIST_LAYOUT_TYPE   m_eLayout;
@@ -142,6 +214,7 @@ public:
 	virtual void     GradientFillV( const CRect* lprc, COLORREF colFrom, COLORREF colTo );
 	virtual void     BitBlt( int xDest, int yDest, int wDest, int hDest, IRenderDC* pSrcHDC, int xSrc, int ySrc, DWORD dwRop );
 	virtual void     DrawBitmap( HRBITMAP hBitmap, int x, int y);
+	virtual void     DrawBitmap( IRenderBitmap* pBitmap, int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc);
 	virtual void     DrawBitmap( HRBITMAP hBitmap, int xDest, int yDest, int nDestWidth, 
 		                         int nDestHeight, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight );
 	virtual void     DrawBitmap( HRBITMAP hBitmap, int xDest, int yDest, int nDestWidth, 

@@ -1,94 +1,7 @@
 #include "stdafx.h"
 
-GDIRenderBitmapImpl::GDIRenderBitmapImpl(IRenderBitmap** ppOutRef) : IRenderBitmap((IRenderResource**)ppOutRef)
-{
 
-}
-GDIRenderBitmapImpl::~GDIRenderBitmapImpl()
-{
-	UI_LOG_DEBUG(_T("GDIRenderBitmap Delete. ptr=0x%08X"), this);
-}
-
-int  GDIRenderBitmapImpl::GetWidth()
-{
-	return m_image.GetWidth();
-}
-int  GDIRenderBitmapImpl::GetHeight() 
-{
-	return m_image.GetHeight();
-}
-
-BYTE* GDIRenderBitmapImpl::LockBits()
-{
-	return (BYTE*)m_image.GetBits();
-}
-void  GDIRenderBitmapImpl::UnlockBits()
-{
-	// Nothing.
-}
-
-bool  GDIRenderBitmapImpl::SaveBits( ImageData* pImageData )
-{
-	return m_image.SaveBits(pImageData);
-}
-bool  GDIRenderBitmapImpl::ChangeHLS( const ImageData* pOriginImageData, short h, short l , short s, int nFlag)
-{
-	return m_image.ChangeHLS(pOriginImageData, h, l, s, nFlag );
-}
-
-//
-//  注：由于使用gdiplus直接加载icon文件会丢失alpha通道，因此在这里先使用GDI DrawIcon获取一次完整的数据
-//		TODO: 这里只默认支持16*16大小的，ico中其它大小的图标暂时没有增加接口分别加载
-//
-bool GDIRenderBitmapImpl::LoadFromFile( const String& strPath )
-{
-	if( ! m_image.IsNull() )
-	{
-		m_image.Destroy();
-	}
-
-	String strExt = strPath.substr(strPath.length()-4, 4);
-	if( 0 == _tcsicmp(strExt.c_str(), _T(".ico")) )
-	{
-		const int ICON_SIZE = 16;
-		HICON hIcon = (HICON)::LoadImage ( NULL, strPath.c_str(), IMAGE_ICON,ICON_SIZE,ICON_SIZE, LR_LOADFROMFILE );
-		HDC hMemDC = UI_GetCacheDC();
-
-		m_image.Create( ICON_SIZE, ICON_SIZE, 32, Image::createAlphaChannel );
-		HBITMAP hOldBmp = (HBITMAP)::SelectObject( hMemDC, (HBITMAP)m_image );
-
-		::DrawIconEx( hMemDC, 0,0, hIcon, ICON_SIZE, ICON_SIZE, 0, NULL, DI_NORMAL );
-		::SelectObject(hMemDC, hOldBmp);
-		::UI_ReleaseCacheDC(hMemDC);
-		::DestroyIcon(hIcon);
-	}
-	else
-	{
-		m_image.Load( strPath.c_str() );
-	}
-
-	if( m_image.IsNull() )
-		return false;
-	else
-		return true;
-}
-
-bool GDIRenderBitmapImpl::Create(int nWidth, int nHeight)
-{
-	UIASSERT(nHeight < 0);   // 使用反向的
-	if( ! m_image.IsNull() )
-	{
-		m_image.Destroy();
-	}
-	m_image.Create(nWidth, nHeight, 32, Image::createAlphaChannel );
-
-	if( m_image.IsNull() )
-		return false;
-	else
-		return true;
-}
-
-GDIRenderBitmap::GDIRenderBitmap(IRenderBitmap** ppOutRef) : GDIRenderBitmapImpl(ppOutRef)
+GDIRenderBitmap::GDIRenderBitmap(IRenderBitmap** ppOutRef) : GDIRenderBitmapImpl<IRenderBitmap>(ppOutRef)
 {
 }
 
@@ -102,7 +15,7 @@ void GDIRenderBitmap::CreateInstance( IRenderBitmap** ppOutRef )
 	*ppOutRef = p;
 }
 
-GDIImageListRenderBitmap::GDIImageListRenderBitmap(IRenderBitmap** ppOutRef) : GDIRenderBitmap(ppOutRef)
+GDIImageListRenderBitmap::GDIImageListRenderBitmap(IRenderBitmap** ppOutRef) : GDIRenderBitmapImpl<IImageListRenderBitmap>(ppOutRef)
 {
 	m_nCount = 0;
 	m_eLayout = IMAGELIST_LAYOUT_TYPE_H;
@@ -115,6 +28,30 @@ void GDIImageListRenderBitmap::CreateInstance( IRenderBitmap** ppOutRef )
 
 	GDIImageListRenderBitmap* p = new GDIImageListRenderBitmap(ppOutRef);
 	*ppOutRef = p;
+}
+void GDIImageListRenderBitmap::SetAttribute( const ATTRMAP& mapAttrib )
+{
+	__super::SetAttribute(mapAttrib);
+
+	ATTRMAP::const_iterator iter = mapAttrib.find(XML_IMAGE_IMAGELIST_COUNT);
+	if (mapAttrib.end() != iter)
+	{
+		m_nCount = _ttoi(iter->second.c_str());
+	}
+
+	iter = mapAttrib.find(XML_IMAGE_IMAGELIST_LAYOUT);
+	if (mapAttrib.end() != iter)
+	{
+		const String& str = iter->second;
+		if (XML_IMAGE_IMAGELIST_LAYOUT_H == str)
+		{
+			m_eLayout = IMAGELIST_LAYOUT_TYPE_H;
+		}
+		else if (XML_IMAGE_IMAGELIST_LAYOUT_V == str)
+		{
+			m_eLayout = IMAGELIST_LAYOUT_TYPE_V;
+		}
+	}
 }
 int GDIImageListRenderBitmap::GetItemWidth()
 {
@@ -152,6 +89,30 @@ IMAGELIST_LAYOUT_TYPE GDIImageListRenderBitmap::GetLayoutType()
 {
 	return m_eLayout;
 }
+bool GDIImageListRenderBitmap::GetIndexPos(int nIndex, POINT* pPoint)
+{
+	if (NULL == pPoint)
+		return false;
+	
+	pPoint->x = pPoint->y = 0;
+	if (nIndex > m_nCount)
+		return false;
+
+	if (IMAGELIST_LAYOUT_TYPE_H == m_eLayout)
+	{
+		pPoint->x = nIndex*GetItemWidth();
+		pPoint->y = 0;
+	}
+	else if (IMAGELIST_LAYOUT_TYPE_V == m_eLayout)
+	{
+		pPoint->x = 0;
+		pPoint->y = nIndex*GetItemHeight();
+	}
+	else 
+		return false;
+
+	return true;
+}
 GDIIconRenderBitmap::GDIIconRenderBitmap(IRenderBitmap** ppOutRef) : GDIRenderBitmap(ppOutRef)
 {
 	m_nIconWidth = m_nIconHeight = 16;
@@ -164,6 +125,22 @@ void GDIIconRenderBitmap::CreateInstance( IRenderBitmap** ppOutRef )
 
 	GDIIconRenderBitmap* p = new GDIIconRenderBitmap(ppOutRef);
 	*ppOutRef = p;
+}
+
+void GDIIconRenderBitmap::SetAttribute( const ATTRMAP& mapAttrib )
+{
+	__super::SetAttribute(mapAttrib);
+
+	ATTRMAP::const_iterator iter = mapAttrib.find(XML_IMAGE_ICON_WIDTH);
+	if (mapAttrib.end() != iter)
+	{
+		m_nIconWidth = _ttoi(iter->second.c_str());
+	}
+	iter = mapAttrib.find(XML_IMAGE_ICON_HEIGHT);
+	if (mapAttrib.end() != iter)
+	{
+		m_nIconHeight = _ttoi(iter->second.c_str());
+	}
 }
 //////////////////////////////////////////////////////////////////////////
 
@@ -514,7 +491,17 @@ void GDIRenderDC::DrawBitmap( HRBITMAP hBitmap, int x, int y)
 	GDIRenderBitmap* pBitmap = (GDIRenderBitmap*)p;
 	pBitmap->GetBitmap()->Draw(m_hDC,x,y);
 }
+void GDIRenderDC::DrawBitmap(IRenderBitmap* pBitmap, int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc)
+{
+	if( NULL == pBitmap )
+		return;
 
+	if( pBitmap->GetRenderType() != GRAPHICS_RENDER_TYPE_GDI )
+		return;
+
+	GDIRenderBitmap* pRenderBitmap = static_cast<GDIRenderBitmap*>(pBitmap);
+	pRenderBitmap->GetBitmap()->Draw(m_hDC, xDest,yDest, wDest,hDest, xSrc, ySrc, wDest, hDest);
+}
 void GDIRenderDC::DrawBitmap( HRBITMAP hBitmap, int xDest, int yDest, int nDestWidth, 
 							int nDestHeight, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight )
 {
