@@ -55,6 +55,7 @@ class Panel;
 class Control;
 class WindowBase;
 class Window;
+class MenuBase;
 class Menu;
 
 class UIApplication;

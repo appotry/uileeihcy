@@ -457,7 +457,7 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 		this->m_pBkgndRender = RenderFactory::GetRender( strBkgndRenderType, this );
 		if( NULL != this->m_pBkgndRender )
 		{
-			this->m_pBkgndRender->SetAttribute( XML_BACKGND_RENDER_PREFIX, mapAttrib );
+			this->m_pBkgndRender->SetAttribute( XML_BACKGND_RENDER_PREFIX, m_mapAttribute );
 		}
 		else
 		{
@@ -475,7 +475,7 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 		this->m_pForegndRender = RenderFactory::GetRender( strForegndRenderType, this );
 		if( NULL != this->m_pForegndRender )
 		{
-			this->m_pForegndRender->SetAttribute( XML_FOREGND_RENDER_PREFIX, mapAttrib );
+			this->m_pForegndRender->SetAttribute( XML_FOREGND_RENDER_PREFIX, m_mapAttribute );
 		}
 		else
 		{
@@ -492,12 +492,12 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 		const String& strTextRenderType = iter->second;
 		m_pTextRender = TextRenderFactory::GetTextRender(strTextRenderType, this);
 		this->m_mapAttribute.erase(XML_TEXTRENDER_TYPE);
-		m_pTextRender->SetAttribute(_T(""),mapAttrib);
+		m_pTextRender->SetAttribute(_T(""),m_mapAttribute);
 	}
 	else if( NULL == m_pTextRender )
 	{
 		m_pTextRender = TextRenderFactory::GetTextRender(TEXTRENDER_TYPE_NORMAL, this);
-		m_pTextRender->SetAttribute(_T(""),mapAttrib);
+		m_pTextRender->SetAttribute(_T(""),m_mapAttribute);
 	}
 	
 
@@ -568,13 +568,17 @@ bool Object::SetChildObjectAttribute( Object* pChildObj, const String& strPrifix
 	map<String,String>::iterator  iterEnd = mapAttrib.end();
 
 	map<String,String>  mapChildObjAttrib;
-	for (; iter != iterEnd; iter++ )
+	for (; iter != iterEnd; )
 	{
 		TCHAR*  szKey = (TCHAR*)iter->first.c_str();
 		if( _tcsstr( szKey, strPrifix.c_str() ) == szKey )
 		{
 			mapChildObjAttrib[ szKey + strPrifix.length() ] = iter->second;
-			this->m_mapAttribute.erase(iter->first);
+			mapAttrib.erase(iter++);
+		}
+		else
+		{
+			iter ++;
 		}
 	}
 	String strStyleClass;

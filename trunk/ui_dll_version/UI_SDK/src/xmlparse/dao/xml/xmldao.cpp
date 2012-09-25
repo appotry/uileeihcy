@@ -2493,7 +2493,7 @@ Menu* CXmlLayoutParse::LoadMenu( const String& strMenuId )
 
 	return pMenu;
 }
-bool CXmlLayoutParse::loadMenuItems(Menu* pParentMenu)
+bool CXmlLayoutParse::loadMenuItems(MenuBase* pParentMenu)
 {
 	bool bRet = false;
 
@@ -2514,52 +2514,24 @@ bool CXmlLayoutParse::loadMenuItems(Menu* pParentMenu)
 			return false;
 		}
 
-		if (tagName == XML_MENU_STRINGITEM)
+		//	加载所有属性
+		ATTRMAP  mapAttrib;
+		for( int j = 0; ; j++ )
 		{
-			String strText = m_xml.GetAttrib(XML_TEXT);
-			String strID = m_xml.GetAttrib(XML_ID);
-			String strDisable = m_xml.GetAttrib(XML_MENU_DISABLE);
-			bool bDisable = strDisable==_T("1") || strDisable== _T("true");
+			String key = m_xml.GetAttribName(j);
+			if( _T("") == key )
+				break;
 
-			UINT nFlag = MF_STRING;
-			if (bDisable)
-				nFlag |= MF_DISABLED;
-			pParentMenu->AppendMenu(nFlag, _ttoi(strID.c_str()), strText.c_str());
+			String value = m_xml.GetAttrib( key );
+			mapAttrib[key]= value;
 		}
-		else if (tagName == XML_MENU_SEPARATORITEM)
+
+		MenuItem* pItem = pParentMenu->LoadMenuItem(tagName, mapAttrib);
+		if (NULL != pItem && pItem->IsPopup())
 		{
-			pParentMenu->AppendMenu(MF_SEPARATOR, XML_MENU_SEPARATOR_ID, NULL);
-		}
-		else if (tagName == XML_MENU_POPUPITEM)
-		{
-			String strText = m_xml.GetAttrib(XML_TEXT);
-			String strDisable = m_xml.GetAttrib(XML_MENU_DISABLE);
-			bool bDisable = strDisable==_T("1") || strDisable== _T("true");
-
-			UINT nFlag = MF_POPUP;
-			if (bDisable)
-				nFlag |= MF_DISABLED;
-
-			Menu* pSubMenu = NULL;
-			UICreateInstance(&pSubMenu);
-			pSubMenu->ModifyStyle(MENU_STYLE_AUTO_DELETE_SUBMENU);
-
+			MenuBase* pSubMenu = pItem->GetSubMenu();
 			this->loadAttributeForCurrentObjectInXml( pSubMenu );
-
-			MenuItem* pItem = pParentMenu->AppendMenu(nFlag, (UINT_PTR)pSubMenu, strText.c_str());
-			if (NULL == pItem)
-			{
-				UI_LOG_WARN(_T("%s AppendMenu failed."), FUNC_NAME);
-				SAFE_DELETE(pSubMenu);
-			}
-			else
-			{
-				this->loadMenuItems(pSubMenu);
-			}
-		}
-		else
-		{
-			UI_LOG_WARN(_T("%s unknown tagname:%s"), FUNC_NAME, tagName.c_str());
+			this->loadMenuItems(pSubMenu);
 		}
 	}
 

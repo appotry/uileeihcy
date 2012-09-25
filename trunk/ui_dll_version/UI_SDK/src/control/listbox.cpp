@@ -991,7 +991,7 @@ bool ListCtrlBase::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 	if (false == bRet)
 		return false;
 
-	m_MgrScrollbar.SetAttribute(mapAttrib, bReload);
+	m_MgrScrollbar.SetAttribute(m_mapAttribute, bReload);
 	return true;
 }
 
@@ -1116,7 +1116,7 @@ bool ListBox::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 				p->SetColor(1, RGB(255,255,255));
 				p->SetHRFont(hRFont);
 
-				m_pTextRender->SetAttribute(_T(""), mapAttrib);
+				m_pTextRender->SetAttribute(_T(""), m_mapAttribute);
 			}
 		}
 	}

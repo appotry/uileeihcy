@@ -633,6 +633,7 @@ enum SCROLLBAR_TYPE
 #define  XML_MENU_CHECK_ICON_RENDER_PREFIX   _T("checkicon.")   // 选中图标绘制render前缀
 #define  XML_MENU_RADIOCHECK_ICONBK_RENDER_PREFIX   _T("radiocheckiconbk.") // 选中图标背景绘制render前缀
 
+#define  XML_MENU_ITEM_ICON_RENDER_PREFIX    _T("icon.")     // 菜单项的图标
 
 #define  XML_MENU_SEPARATOR_ID    -1
 #define  XML_MENU_POPUP_ID        0

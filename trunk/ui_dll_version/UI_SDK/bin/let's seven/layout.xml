@@ -131,9 +131,9 @@
         </Panel>
       </Panel>
     </Window>
-    <Menu id="main_menu" styleclass="mainmenu" transparent.typex="layered" transparent.maskalphax="200">
+  <Menu id="main_menu" styleclass="mainmenu" transparent.typex="layered" transparent.maskalphax="200">
     <String id="1001" text="千千选项"/>
-    <Popup  text="相关链接">
+    <Popup  text="相关链接" icon.render.type="imagelistitem" icon.render.image="menuicon_imagelist.png" icon.render.image.drawtype="adapt" icon.render.imagelistitem.index="28">
       <String text="千千主页"/>
       <String text="千千音乐在线"/>
       <String text="论坛"/>

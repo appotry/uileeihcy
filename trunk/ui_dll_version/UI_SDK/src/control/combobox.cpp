@@ -42,9 +42,9 @@ bool ComboboxBase::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 	if (false == bRet)
 		return false;
 
-	this->SetChildObjectAttribute(m_edit,    XML_COMBOBOX_EDIT_PRIFIX,    mapAttrib, bReload);
-	this->SetChildObjectAttribute(m_button,  XML_COMBOBOX_BUTTON_PRIFIX,  mapAttrib, bReload);
-	this->SetChildObjectAttribute(m_listbox, XML_COMBOBOX_LISTBOX_PRIFIX, mapAttrib, bReload);
+	this->SetChildObjectAttribute(m_edit,    XML_COMBOBOX_EDIT_PRIFIX,    m_mapAttribute, bReload);
+	this->SetChildObjectAttribute(m_button,  XML_COMBOBOX_BUTTON_PRIFIX,  m_mapAttribute, bReload);
+	this->SetChildObjectAttribute(m_listbox, XML_COMBOBOX_LISTBOX_PRIFIX, m_mapAttribute, bReload);
 
 	// ±≥æ∞ªÊ÷∆ 
 	if (NULL == m_pBkgndRender)

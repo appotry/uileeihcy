@@ -34,6 +34,22 @@ bool MenuItem::OnMouseLeave()
 	return true;
 }
 
+void MenuItem::SetAttribute(ATTRMAP& mapAttrib)
+{
+	ATTRMAP::const_iterator iter = mapAttrib.find(XML_MENU_ITEM_ICON_RENDER_PREFIX XML_RENDER_TYPE);
+	if (mapAttrib.end() != iter)
+	{
+		SAFE_DELETE(m_pIconRender);
+		const String& strType = iter->second;
+		m_pIconRender = RenderFactory::GetRender(strType, m_pMenu);
+		mapAttrib.erase(iter);
+	}
+	if (NULL != m_pIconRender)
+	{
+		m_pIconRender->SetAttribute(XML_MENU_ITEM_ICON_RENDER_PREFIX, mapAttrib);
+	}
+}
+
 MenuBase::MenuBase()
 {
 	m_pPopupWrapWnd = NULL;
@@ -682,40 +698,36 @@ void MenuBase::OnDrawItem( HRDC hRDC, ListItemBase* p )
 		this->OnDrawStringItem(hRDC, pItem);
 	}
 
-	// TODO: 将背景和 check,radio 分开绘制，这样当已经有图标的时候，只需要把背景绘制上就行了
-	if (pItem->IsChecked() && NULL != m_pCheckIconRender)
+	// 绘制图标
+	CRect rcIcon;
+	pItem->GetParentRect(&rcIcon);
+	rcIcon.right = rcIcon.left + m_nIconGutterWidth;
+
+	UINT nState = MENU_ITEM_RADIOCHECKED_RENDER_STATE_NORMAL;
+	if(pItem->IsDisable())
+		nState = MENU_ITEM_RADIOCHECKED_RENDER_STATE_DISABLE;
+	else if (IsItemHilight(pItem))
+		nState = MENU_ITEM_RADIOCHECKED_RENDER_STATE_HOVER;
+
+	RenderBase* pIconRender = pItem->GetIconRender();
+	if (pItem->IsChecked())
 	{
-		CRect rcItem;
-		pItem->GetParentRect(&rcItem);
-		rcItem.right = rcItem.left + m_nIconGutterWidth;
-
-		UINT nState = MENU_ITEM_CHECKED_RENDER_STATE_NORMAL;
-		if(pItem->IsDisable())
-			nState = MENU_ITEM_CHECKED_RENDER_STATE_DISABLE;
-		else if(this->IsItemHilight(pItem))
-			nState = MENU_ITEM_CHECKED_RENDER_STATE_HOVER;
-
 		if (NULL != m_pRadioCheckIconBkRender)
-			m_pRadioCheckIconBkRender->DrawState(hRDC, &rcItem, nState);
-		m_pCheckIconRender->DrawState(hRDC, &rcItem, nState);
+			m_pRadioCheckIconBkRender->DrawState(hRDC, &rcIcon, nState);
 
+		if (NULL != m_pCheckIconRender && NULL == pIconRender)
+			m_pCheckIconRender->DrawState(hRDC, &rcIcon, nState);
 	}
-	else if (pItem->IsRadioChecked() && NULL != m_pRadioIconRender)
+	else if (pItem->IsRadioChecked())
 	{
-		CRect rcItem;
-		pItem->GetParentRect(&rcItem);
-		rcItem.right = rcItem.left + m_nIconGutterWidth;
-
-		UINT nState = MENU_ITEM_RADIO_RENDER_STATE_NORMAL;
-		if(pItem->IsDisable())
-			nState = MENU_ITEM_RADIO_RENDER_STATE_DISABLE;
-		else if (IsItemHilight(pItem))
-			nState = MENU_ITEM_RADIO_RENDER_STATE_HOVER;
-
 		if (NULL != m_pRadioCheckIconBkRender)
-			m_pRadioCheckIconBkRender->DrawState(hRDC, &rcItem, nState);
-		m_pRadioIconRender->DrawState(hRDC, &rcItem, nState);
+			m_pRadioCheckIconBkRender->DrawState(hRDC, &rcIcon, nState);
+
+		if (NULL != m_pRadioIconRender && NULL != pIconRender)
+			m_pRadioIconRender->DrawState(hRDC, &rcIcon, nState);
 	}
+	if (NULL != pIconRender)
+		pIconRender->DrawState(hRDC, &rcIcon, 0);
 }
 
 bool MenuBase::IsItemHilight(MenuItem* p)
@@ -793,7 +805,7 @@ void MenuBase::OnUnInitPopupControlWindow(Object* pObjMsgFrom)
 	this->SetHoverItem(NULL);
 }
 
-void Menu::ResetAttribute()
+void MenuBase::ResetAttribute()
 {
 	CRegion4 rc(1,1,1,1);
 	this->SetPaddingRegion(&rc);
@@ -810,7 +822,7 @@ void Menu::ResetAttribute()
 	m_nTextMarginRight = 0;
 }
 
-bool Menu::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
+bool MenuBase::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 {
 	// 默认字体设置
 	if (NULL == m_pTextRender)
@@ -878,7 +890,7 @@ bool Menu::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 		m_pRadioIconRender = RenderFactory::GetRender(strRenderType, this);
 		if (NULL != m_pRadioIconRender)
 		{
-			m_pRadioIconRender->SetAttribute(XML_MENU_RADIO_ICON_RENDER_PREFIX, mapAttrib);
+			m_pRadioIconRender->SetAttribute(XML_MENU_RADIO_ICON_RENDER_PREFIX, m_mapAttribute);
 		}
 		else
 		{
@@ -895,7 +907,7 @@ bool Menu::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 		m_pCheckIconRender = RenderFactory::GetRender(strRenderType, this);
 		if (NULL != m_pCheckIconRender)
 		{
-			m_pCheckIconRender->SetAttribute(XML_MENU_CHECK_ICON_RENDER_PREFIX, mapAttrib);
+			m_pCheckIconRender->SetAttribute(XML_MENU_CHECK_ICON_RENDER_PREFIX, m_mapAttribute);
 		}
 		else
 		{
@@ -912,7 +924,7 @@ bool Menu::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 		m_pRadioCheckIconBkRender = RenderFactory::GetRender(strRenderType, this);
 		if (NULL != m_pRadioCheckIconBkRender)
 		{
-			m_pRadioCheckIconBkRender->SetAttribute(XML_MENU_RADIOCHECK_ICONBK_RENDER_PREFIX, mapAttrib);
+			m_pRadioCheckIconBkRender->SetAttribute(XML_MENU_RADIOCHECK_ICONBK_RENDER_PREFIX, m_mapAttribute);
 		}
 		else
 		{
@@ -956,6 +968,101 @@ bool Menu::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 
 
 	return true;
+}
+
+// 
+//	通过xml属性加载菜单项
+//
+MenuItem* MenuBase::LoadMenuItem(const String tagName, ATTRMAP& mapAttrib)
+{
+	ATTRMAP::const_iterator iter = mapAttrib.end();
+
+	if (tagName == XML_MENU_STRINGITEM)
+	{
+		String strText;
+		String strID;
+		bool bDisable = false;
+
+		iter = mapAttrib.find(XML_TEXT);
+		if (iter != mapAttrib.end())
+		{
+			strText = iter->second;
+		}
+		iter = mapAttrib.find(XML_ID);
+		if (iter != mapAttrib.end())
+		{
+			strID = iter->second;
+		}
+		iter = mapAttrib.find(XML_MENU_DISABLE);
+		if (iter != mapAttrib.end())
+		{
+			String strDisable = iter->second;
+			bDisable = strDisable==_T("1") || strDisable== _T("true");
+		}
+
+		UINT nFlag = MF_STRING;
+		if (bDisable)
+			nFlag |= MF_DISABLED;
+
+		MenuItem* pItem = this->AppendMenu(nFlag, _ttoi(strID.c_str()), strText.c_str());
+		if (NULL != pItem)
+		{
+			pItem->SetAttribute(mapAttrib);
+		}
+		return pItem;
+	}
+	else if (tagName == XML_MENU_SEPARATORITEM)
+	{
+		MenuItem* pItem = this->AppendMenu(MF_SEPARATOR, XML_MENU_SEPARATOR_ID, NULL);
+		if (NULL != pItem)
+		{
+			pItem->SetAttribute(mapAttrib);
+		}
+		return pItem;
+	}
+	else if (tagName == XML_MENU_POPUPITEM)
+	{
+		String strText;
+		String strID;
+		bool bDisable = false;
+
+		iter = mapAttrib.find(XML_TEXT);
+		if (iter != mapAttrib.end())
+		{
+			strText = iter->second;
+		}
+		iter = mapAttrib.find(XML_MENU_DISABLE);
+		if (iter != mapAttrib.end())
+		{
+			String strDisable = iter->second;
+			bDisable = strDisable==_T("1") || strDisable== _T("true");
+		}
+
+		UINT nFlag = MF_POPUP;
+		if (bDisable)
+			nFlag |= MF_DISABLED;
+
+		Menu* pSubMenu = NULL;
+		UICreateInstance(&pSubMenu);
+		pSubMenu->ModifyStyle(MENU_STYLE_AUTO_DELETE_SUBMENU);
+
+		MenuItem* pItem = this->AppendMenu(nFlag, (UINT_PTR)pSubMenu, strText.c_str());
+		if (NULL == pItem)
+		{
+			UI_LOG_WARN(_T("%s AppendMenu failed."), FUNC_NAME);
+			SAFE_DELETE(pSubMenu);
+		}
+		else
+		{
+			pItem->SetAttribute(mapAttrib);
+		}
+		return pItem;
+	}
+	else
+	{
+		UI_LOG_WARN(_T("%s unknown tagname:%s"), FUNC_NAME, tagName.c_str());
+	}
+	return NULL;
 }
 
 HWND MenuBase::GetPopupWindowHandle()
