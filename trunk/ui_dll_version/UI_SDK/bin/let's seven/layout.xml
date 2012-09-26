@@ -133,7 +133,7 @@
     </Window>
   <Menu id="main_menu" styleclass="mainmenu" transparent.typex="layered" transparent.maskalphax="200">
     <String id="1001" text="千千选项"/>
-    <Popup  text="相关链接" icon.render.type="imagelistitem" icon.render.image="menuicon_imagelist.png" icon.render.image.drawtype="adapt" icon.render.imagelistitem.index="28">
+    <Popup  text="相关链接" styleclass="menuitem_imagelistitemicon" icon.render.imagelistitem.index="28">
       <String text="千千主页"/>
       <String text="千千音乐在线"/>
       <String text="论坛"/>
@@ -261,7 +261,8 @@
              radiocheckiconbk.render.image.drawtype="center"
              ></Menu>
 
-    <class   id="mainmenu"   border="24,2,2,2" bkgnd.render.image="main_menu_bk.png" bkgnd.render.9region="50,5,5,135"/>
+    <class   id="mainmenu"  border="24,2,2,2" bkgnd.render.image="main_menu_bk.png" bkgnd.render.9region="50,5,5,135"/>
+    <class   id="menuitem_imagelistitemicon"  icon.render.type="imagelistitem" icon.render.image="menuicon_imagelist.png" icon.render.image.drawtype="adapt"/>
   </style>
   <img>
     <item id="minimize.bmp">minimize.bmp</item>
@@ -309,10 +310,10 @@
     <item id="main_menu_bk.png">main_menu_bk.png</item>
     <item id="menu_check_bk.png">menu_check_bk.png</item>
     <item id="menu_check_icon.png">menu_check_icon.png</item>
-    <item type="imagelist" id="menuicon_imagelist.png"  count="31">menuicon_imagelist.png</item>
-    <item type="imagelist" id="playmode_imagelist.png"  count="">playmode_imagelist.png</item>
-    <item type="imagelist" id="some_imagelist.png"      count="">some_imagelist.png</item>
-    <item type="imagelist" id="lyricedit_imagelist.png" count="">lyricedit_imagelist.png</item>
+    <item type="imagelist" id="menuicon_imagelist.png"  count="50">menuicon_imagelist.png</item>
+    <item type="imagelist" id="playmode_imagelist.png"  count="7">playmode_imagelist.png</item>
+    <item type="imagelist" id="some_imagelist.png"      count="9">some_imagelist.png</item>
+    <item type="imagelist" id="lyricedit_imagelist.png" count="17">lyricedit_imagelist.png</item>
     <item type="icon" id="ttplayer.ico"       useskinhls="0" iconwidth="16" iconheight="16">ttplayer.ico</item>
     <item type="icon" id="ttplayer.ico_32_32" useskinhls="0" iconwidth="32" iconheight="32">ttplayer.ico</item>
 </img>

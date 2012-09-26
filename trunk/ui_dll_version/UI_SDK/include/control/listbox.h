@@ -202,8 +202,8 @@ namespace UI
 		ListItemBase*  m_pFirstItem;
 		ListItemBase*  m_pLastItem;
 		
-		ListItemBase*  m_pFirstVisibleItem;
-		ListItemBase*  m_pLastVisibleItem;
+		ListItemBase*  m_pFirstVisibleItem;   // TODO: 未实现
+		ListItemBase*  m_pLastVisibleItem;    // TODO: 未实现
 
 		ListItemBase*  m_pFirstSelectedItem;
 

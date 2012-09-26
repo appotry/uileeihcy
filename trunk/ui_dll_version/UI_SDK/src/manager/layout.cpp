@@ -563,7 +563,7 @@ bool  GridLayout::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 	}
 
 	vector<String>  strVec;
-	UI_Split( strWidth, XML_SEPERATOR, strVec );
+	UI_Split( strWidth, XML_SEPARATOR, strVec );
 	int nCount = (int)strVec.size();
 	for( int i = 0; i < nCount; i++ )
 	{
@@ -619,7 +619,7 @@ bool  GridLayout::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 		strHeight = XML_ASTERISK;
 	}
 	strVec.clear();
-	UI_Split( strHeight, XML_SEPERATOR, strVec );
+	UI_Split( strHeight, XML_SEPARATOR, strVec );
 	nCount = (int)strVec.size();
 	for( int i = 0; i < nCount; i++ )
 	{
