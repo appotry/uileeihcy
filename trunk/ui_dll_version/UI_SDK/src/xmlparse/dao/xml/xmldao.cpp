@@ -2508,9 +2508,9 @@ bool CXmlLayoutParse::loadMenuItems(MenuBase* pParentMenu)
 
 		Object*  pObj = NULL;
 		String   tagName = this->m_xml.GetTagName();
-		if( _T("") == tagName )
+		if (_T("") == tagName)
 		{
-			UI_LOG_WARN( _T("%s, xml invalid tag name."), _T(__FUNCTION__) );
+			UI_LOG_WARN( _T("%s, xml invalid tag name."), FUNC_NAME );
 			return false;
 		}
 
@@ -2522,10 +2522,31 @@ bool CXmlLayoutParse::loadMenuItems(MenuBase* pParentMenu)
 			if( _T("") == key )
 				break;
 
-			String value = m_xml.GetAttrib( key );
-			mapAttrib[key]= value;
+			mapAttrib[key]= m_xml.GetAttrib( key );
 		}
 
+		// 特殊处理：扩展style
+		String strTagName, strStyleClass, strID;
+
+		ATTRMAP::iterator iter = mapAttrib.find(XML_ID); // id = Menu.id，因为这里的id都是整数值
+		if (mapAttrib.end() != iter)
+		{
+			strID = pParentMenu->GetObjectName();
+			strID.push_back(XML_CHILD_SEPARATOR);
+			strID.append(iter->second);
+		}
+		iter = mapAttrib.find(XML_STYLECLASS);
+		if (mapAttrib.end() != iter)
+		{
+			strStyleClass = iter->second;
+		}
+		strTagName = pParentMenu->GetObjectName();   // tagName = Menu.String / Menu.Popup / Menu.Separator
+		strTagName.push_back(XML_CHILD_SEPARATOR);
+		strTagName.append(tagName);
+
+		::UI_LoadStyle( strTagName, strStyleClass, strID, mapAttrib );
+
+		// 加载菜单子项
 		MenuItem* pItem = pParentMenu->LoadMenuItem(tagName, mapAttrib);
 		if (NULL != pItem && pItem->IsPopup())
 		{

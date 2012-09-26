@@ -23,6 +23,8 @@ TTPlayerPlaylistCtrl::TTPlayerPlaylistCtrl()
 	m_pSelectColor1 = NULL;
 	m_pSelectColor2 = NULL;
 
+	this->ModifyStyle(0, LISTCTRLBASE_SIZE_2_CONTENT|LISTCTRLBASE_CONTENT_2_SIZE);
+
 }
 
 TTPlayerPlaylistCtrl::~TTPlayerPlaylistCtrl()
@@ -63,7 +65,7 @@ void TTPlayerPlaylistCtrl::ResetAttribute()
 	SAFE_RELEASE(m_pSelectColor1);
 	SAFE_RELEASE(m_pSelectColor2);
 
-	m_MgrScrollbar.SetScrollBarVisibleType(HSCROLLBAR, SCROLLBAR_VISIBLE_NONE);
+	m_MgrScrollbar.SetScrollBarVisibleType(HSCROLLBAR, SCROLLBAR_VISIBLE_AUTO/*SCROLLBAR_VISIBLE_NONE*/);
 	m_MgrScrollbar.SetScrollBarVisibleType(VSCROLLBAR, SCROLLBAR_VISIBLE_AUTO);
 }
 
@@ -226,7 +228,7 @@ void TTPlayerPlaylistCtrl::RemoveFileItem(PlayerListItemInfo* pItemInfo, bool bU
 
 SIZE TTPlayerPlaylistCtrl::OnMeasureItem( ListItemBase* p)
 {
-	SIZE s = {0,20};
+	SIZE s = {200,20};
 	return s;
 }
 void TTPlayerPlaylistCtrl::OnDeleteItem( ListItemBase* p )

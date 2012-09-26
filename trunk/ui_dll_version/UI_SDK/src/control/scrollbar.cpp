@@ -426,10 +426,10 @@ void ScrollBarMgr::SetScrollRange(int nX, int nY)
 			bNeedUpdateNonClientRect = true;
 		}
 	}
-	if (NULL != m_pHScrollBar)
+	if (false == bNeedUpdateNonClientRect && NULL != m_pHScrollBar)
 	{
 		bool bOldVisible = m_pHScrollBar->IsMySelfVisible();
-		m_pHScrollBar->SetScrollRange(nX);
+		m_pHScrollBar->SetScrollRange(nX);  // TODO--: 如果V的visible变化了，那么H的page就会发生变化，因此这里的设置就会不准确
 		bool bNowVisible = m_pHScrollBar->IsMySelfVisible();
 
 		if (bOldVisible != bNowVisible)
@@ -437,6 +437,9 @@ void ScrollBarMgr::SetScrollRange(int nX, int nY)
 			bNeedUpdateNonClientRect = true;
 		}
 	}
+
+	//  TODO--: 还有可能H的隐藏才导致V也隐藏，因此可能还需要再计算一次VScrollBar
+
 	if (bNeedUpdateNonClientRect)
 	{
 		this->UpdateBindObjectNonClientRect();
@@ -445,6 +448,8 @@ void ScrollBarMgr::SetScrollRange(int nX, int nY)
 			this->GetBindObject()->GetWidth(), 
 			this->GetBindObject()->GetHeight())
 			);
+
+		return ;
 	}
 
 	if (NULL != m_pHScrollBar)
@@ -719,14 +724,55 @@ bool ScrollBarBase::SetScrollInfo(LPUISCROLLINFO lpsi, bool bUpdate)
 	if (NULL == lpsi || 0 == lpsi->nMask)
 		return false;
 
+	bool bNeedUpdateScrollBarVisible = false;
 	if (lpsi->nMask & UISIF_RANGE)
-		m_nRange = lpsi->nRange;
+	{
+		int nRange = lpsi->nRange;
+		if (nRange < 0)
+			nRange = 0;
 
-	if (lpsi->nMask & UISIF_POS)
-		m_nPos = lpsi->nPos;
+		if (m_nRange != nRange)
+		{
+			m_nRange = nRange;
+			bNeedUpdateScrollBarVisible = true;
+		}
+	}
 
 	if (lpsi->nMask & UISIF_PAGE)
-		m_nPage = lpsi->nPage;
+	{
+		int nPage = lpsi->nPage;
+		if (nPage < 0)
+			nPage = 0;
+
+		// 	if (nPage > m_nRange)  // page就是有可能超出range大小
+		// 	{
+		// 		nPage = m_nRange;
+		// 	}
+
+		if (nPage != m_nPage)
+		{
+			m_nPage = nPage;
+			bNeedUpdateScrollBarVisible = true;
+		}
+	}
+
+	if (lpsi->nMask & UISIF_POS)
+	{
+		int nPos = lpsi->nPos;
+		if (nPos > m_nRange-m_nPage)
+		{
+			nPos = m_nRange-m_nPage;
+		}
+		if (nPos < 0)
+		{
+			nPos = 0;
+		}
+
+		if (m_nPos != nPos)
+		{
+			m_nPos = nPos;
+		}
+	}
 
 	if (lpsi->nMask & UISIF_BUTTONLINE)
 		m_nButtonLine = lpsi->nButtonLine;
@@ -734,65 +780,46 @@ bool ScrollBarBase::SetScrollInfo(LPUISCROLLINFO lpsi, bool bUpdate)
 	if (lpsi->nMask & UISIF_WHEELLINE)
 		m_nWheelLine = lpsi->nWheelLine;
 
+	if (bNeedUpdateScrollBarVisible && NULL != m_pScrollBarRender)
+	{
+		m_pScrollBarRender->UpdateScrollBarVisible();
+	}
+
 	if (bUpdate)
+	{
 		this->UpdateObject();
+	}
 
 	return true;
 }
 
-bool ScrollBarBase::SetScrollPos(int nPos/*, bool bUpdate*/)
+bool ScrollBarBase::SetScrollPos(int nPos)
 {
-	if (nPos > m_nRange-m_nPage)
-	{
-		nPos = m_nRange-m_nPage;
-	}
-	if (nPos < 0)
-	{
-		nPos = 0;
-	}
+	UISCROLLINFO si;
+	si.nPos = nPos;
+	si.nMask = UISIF_POS;
 
-	if (m_nPos != nPos)
-	{
-		m_nPos = nPos;
-
-// 		if (bUpdate)
-// 			this->UpdateObject();
-	}
+	this->SetScrollInfo(&si, false);
 	return true;
 }
 
 
 void ScrollBarBase::SetScrollRange(int nRange)
 {
-	if (nRange < 0)
-	{
-		nRange = 0;
-	}
-	
-	if (m_nRange != nRange)
-	{
-		m_nRange = nRange;
-		if (NULL != m_pScrollBarRender)
-			m_pScrollBarRender->UpdateScrollBarVisible();
-	}
+	UISCROLLINFO si;
+	si.nRange = nRange;
+	si.nMask = UISIF_RANGE;
+
+	this->SetScrollInfo(&si, false);
 }
 
 void ScrollBarBase::SetScrollPage(int nPage)
 {
- 	if (nPage < 0)
- 	{
- 		nPage = 0;
- 	}
-// 	if (nPage > m_nRange)  // page就是有可能超出range大小
-// 	{
-// 		nPage = m_nRange;
-// 	}
- 	if (nPage != m_nPage)
- 	{
- 		m_nPage = nPage;
- 		if (NULL != m_pScrollBarRender)
- 			m_pScrollBarRender->UpdateScrollBarVisible();
- 	}
+	UISCROLLINFO si;
+	si.nPage = nPage;
+	si.nMask = UISIF_PAGE;
+
+	this->SetScrollInfo(&si, false);
 }
 
 int ScrollBarBase::GetScrollRange()
@@ -1293,6 +1320,9 @@ protected:
 		CRect rcChannel;
 		this->CalcChannelRect(&rcChannel);
 		if (rcChannel.IsRectEmpty())
+			return false;
+
+		if (nRange == nPage)
 			return false;
 
 		int nThumbBtnPos = (int)(nPos / (nRange-nPage) * (float)(rcChannel.Width() - nNewSize)) + rcChannel.left;

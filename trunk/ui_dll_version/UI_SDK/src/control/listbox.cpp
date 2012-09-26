@@ -278,13 +278,20 @@ void ListCtrlBase::RemoveItem(int nIndex, bool bUpdate)
 //
 //	更新从pStart开始后面的每一个item的 m_rcParent，比如新插入一个pItem
 //
+//	Return
+//		true:表示设置成功。false:表示滚动条中的显示/隐藏属性发生改变，内部将重新计算，外部不要再继续处理
+//      e.g. OnSize函数
+//
 void ListCtrlBase::UpdateItemRect( ListItemBase* pStart )
 {
 	if( NULL == pStart )
 		pStart = m_pFirstItem;
 		
 	if (NULL == pStart)
-		return;
+	{
+		UI_LOG_ERROR(_T("%s NULL == pStart"), FUNC_NAME);
+		return ;
+	}
 
 	CRect rcClient;
 	this->GetClientRect(&rcClient);
@@ -967,9 +974,15 @@ void ListCtrlBase::OnPaint(HRDC hRDC)
 	}
 }
 
-void ListCtrlBase::OnSize( UINT nType, int cx, int cy )
+//
+//	??针对一行允许放置多个item的控件，在OnSize时，range大小是会发生变化的。
+//   这些情况能统一处理吗？
+//
+void ListCtrlBase::OnSize(UINT nType, int cx, int cy)
 {
-	this->m_MgrScrollbar.ProcessMessage(m_pCurMsg, 0);  // 先设置page大小，再做其它处理，否则容易造成死循环
+	// 更新滚动条的page属性
+	this->m_MgrScrollbar.ProcessMessage(m_pCurMsg, 0);
+
 	this->UpdateItemRect(m_pFirstItem);
 }
 

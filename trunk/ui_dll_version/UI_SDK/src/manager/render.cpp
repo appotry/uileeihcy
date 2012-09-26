@@ -723,7 +723,7 @@ bool ColorListRender::SetAttribute( const String& strPrefix, map<String,String>&
 		String& strColors = iter->second;
 
 		vector<String> vColors;
-		UI_Split(strColors, XML_MULTI_SEPERATOR, vColors);
+		UI_Split(strColors, XML_MULTI_SEPARATOR, vColors);
 		int nCount = (int)vColors.size();
 
 		for(int i = 0; i < m_nCount && i < nCount; i++ )
@@ -744,7 +744,7 @@ bool ColorListRender::SetAttribute( const String& strPrefix, map<String,String>&
 		String& strColors = iter->second;
 
 		vector<String> vColors;
-		UI_Split(strColors, XML_MULTI_SEPERATOR, vColors);
+		UI_Split(strColors, XML_MULTI_SEPARATOR, vColors);
 		int nCount = (int)vColors.size();
 
 		for(int i = 0; i < m_nCount && i < nCount; i++ )
@@ -799,7 +799,7 @@ bool ListRenderBase::SetAttribute(const String& strPrefix, ATTRMAP& mapAttrib)
 		String& strMap = iter->second;
 
 		vector<String>  vecSplit;
-		UI_Split(strMap, XML_SEPERATOR, vecSplit);
+		UI_Split(strMap, XML_SEPARATOR, vecSplit);
 		int nCount = vecSplit.size();
 		for (int i = 0; i < nCount; i++)
 		{
@@ -2952,7 +2952,7 @@ bool ColorListTextRender::SetAttribute( const String& strPrefix, map<String,Stri
 		String& strColors = iter->second;
 
 		vector<String> vColors;
-		UI_Split(strColors, XML_MULTI_SEPERATOR, vColors);
+		UI_Split(strColors, XML_MULTI_SEPARATOR, vColors);
 		int nCount = (int)vColors.size();
 
 		for(int i = 0; i < m_nCount && i < nCount; i++ )
@@ -3093,7 +3093,7 @@ bool FontColorListTextRender::SetAttribute( const String& strPrefix, map<String,
 		String& strColors = iter->second;
 
 		vector<String> vColors;
-		UI_Split(strColors, XML_MULTI_SEPERATOR, vColors);
+		UI_Split(strColors, XML_MULTI_SEPARATOR, vColors);
 		int nCount = (int)vColors.size();
 
 		for(int i = 0; i < m_nCount && i < nCount; i++ )
@@ -3113,7 +3113,7 @@ bool FontColorListTextRender::SetAttribute( const String& strPrefix, map<String,
 		String& strFonts = iter->second;
 
 		vector<String> vFont;
-		UI_Split(strFonts, XML_MULTI_SEPERATOR, vFont);
+		UI_Split(strFonts, XML_MULTI_SEPARATOR, vFont);
 		int nCount = (int)vFont.size();
 
 		for(int i = 0; i < m_nCount && i < nCount; i++ )

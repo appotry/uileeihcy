@@ -118,9 +118,10 @@ UI_RESOURCE_TYPE;
 //                                                                             //
 /////////////////////////////////////////////////////////////////////////////////
 
-#define XML_SEPERATOR             _T(',')            // xml中的分隔符，如表示颜色、区域
-#define XML_PATH_SEPERATOR        _T('/')            // xml中的路径分隔符（如样式路径，子对象路径）
-#define XML_MULTI_SEPERATOR       _T(';')            // xml中的分隔符,如分隔一个控件的多个style.
+#define XML_SEPARATOR             _T(',')            // xml中的分隔符，如表示颜色、区域
+#define XML_PATH_SEPARATOR        _T('/')            // xml中的路径分隔符（如样式路径，子对象路径）
+#define XML_MULTI_SEPARATOR       _T(';')            // xml中的分隔符,如分隔一个控件的多个style.
+#define XML_CHILD_SEPARATOR       _T('.')            // xml中父子之间的分隔符，如Menu.String
 #define XML_HEADER                _T("<?xml version=\"1.0\" encoding=\"utf-8\" ?>")
 #define XML_PROJECT_XMLFILE_EXT   _T(".uiproj")       // 工程描述文件的后缀名
 

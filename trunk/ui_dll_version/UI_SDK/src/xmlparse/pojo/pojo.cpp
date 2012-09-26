@@ -188,7 +188,6 @@ CPojo_ImageItem::~CPojo_ImageItem()
 
 HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType )
 {	
-
 	switch( eRenderType )
 	{
 	case GRAPHICS_RENDER_TYPE_GDI:
@@ -218,7 +217,7 @@ HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType )
 			if ( NULL == m_pGdiplusBitmap )
 			{
 				//GdiplusRenderBitmap::CreateInstance( (IRenderBitmap**)&m_pGdiplusBitmap );
-				RenderBitmapFactory::CreateInstance((IRenderBitmap**)&m_pGdiplusBitmap, eRenderType, m_mapAttribute);
+				RenderBitmapFactory::CreateInstance((IRenderBitmap**)&m_pGdiBitmap, eRenderType, m_mapAttribute);
 				if( NULL != m_pGdiplusBitmap )
 				{
 					m_pGdiplusBitmap->LoadFromFile(m_strPath);
@@ -777,7 +776,7 @@ UIColor::~UIColor()
 void  UIColor::CreateInstance( const String& strColor, UIColor** ppOutRef )
 {
 	UIColor* p = new UIColor(ppOutRef);
-	p->SetColor(Util::TranslateRGB( strColor, XML_SEPERATOR ));
+	p->SetColor(Util::TranslateRGB( strColor, XML_SEPARATOR ));
 }
 void  UIColor::CreateInstance( const COLORREF& color, UIColor** ppOutRef )
 {
@@ -843,7 +842,7 @@ void CPojo_ColorItem::SetColor( const String& strColor )
 
 	if( NULL != m_pColor )
 	{
-		m_pColor->SetColor(Util::TranslateRGB( m_strColor, XML_SEPERATOR ));
+		m_pColor->SetColor(Util::TranslateRGB( m_strColor, XML_SEPARATOR ));
 	}
 }
 
@@ -1503,7 +1502,7 @@ void CPojo_StyleItem::SetInherits( const String& str )
 	m_vInheritList.clear();
 
 	vector<String>  vStrArray;
-	UI_Split(str, XML_SEPERATOR, vStrArray);
+	UI_Split(str, XML_SEPARATOR, vStrArray);
 	int nSize = (int)vStrArray.size();
 	if( 0 != nSize )
 	{
@@ -1858,7 +1857,7 @@ bool CPojo_Style::LoadStyle( const String& strTagName, const String& strStyleCla
 	if( !strStyleClass.empty() )
 	{
 		vector<String>  vStrArray;
-		UI_Split( strStyleClass, XML_SEPERATOR, vStrArray );
+		UI_Split( strStyleClass, XML_SEPARATOR, vStrArray );
 		int nCount = (int)vStrArray.size();
 		if( 0 != nCount )
 		{
