@@ -62,7 +62,7 @@ namespace UI
 		void     SetHScrollPos(int nX);
 		void     SetVScrollPos(int nY);
 		
-		void     SetScrollRange(int nX, int nY);
+		bool     SetScrollRange(int nX, int nY);
 		void     SetHScrollRange(int nX);
 		void     SetVScrollRange(int nY);
 		int      GetHScrollRange();

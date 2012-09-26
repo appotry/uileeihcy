@@ -916,9 +916,29 @@ bool ImageListRender::SetAttribute( const String& strPrefix, map<String,String>&
 	iter = mapAttrib.find(strAttrib);
 	if (mapAttrib.end() != iter)
 	{
+		SAFE_DELETE(m_p9Region);
+		m_p9Region = new Image9Region;
+
 		const String& str9Region = iter->second;
 		Util::TranslateImage9Region( str9Region, (void*)m_p9Region );
 		mapAttrib.erase(strAttrib);
+	}
+
+	strAttrib = strPrefix + XML_RENDER_IMAGE_DRAWTYPE;
+	iter = mapAttrib.find(strAttrib);
+	if (mapAttrib.end() != iter)
+	{
+		const String& strType = iter->second;
+		if (XML_RENDER_IMAGE_DRAWTYPE_SIMPLE == strType)
+			this->SetImageDrawType(IMAGE_DRAW_TYPE_SIMPLE);
+		else if (XML_RENDER_IMAGE_DRAWTYPE_TILE == strType)
+			this->SetImageDrawType(IMAGE_DRAW_TYPE_TILE);
+		else if (XML_RENDER_IMAGE_DRAWTYPE_STRETCH == strType)
+			this->SetImageDrawType(IMAGE_DRAW_TYPE_STRETCH);
+		else if (XML_RENDER_IMAGE_DRAWTYPE_ADAPT == strType)
+			this->SetImageDrawType(IMAGE_DRAW_TYPE_ADAPT);
+		else if (XML_RENDER_IMAGE_DRAWTYPE_CENTER == strType)
+			this->SetImageDrawType(IMAGE_DRAW_TYPE_CENTER);
 	}
 
 	return true;

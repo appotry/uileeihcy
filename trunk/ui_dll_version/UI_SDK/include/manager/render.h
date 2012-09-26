@@ -241,6 +241,7 @@ namespace UI
 		int     GetItemHeight() { return m_nItemHeight;}
 
 		int     GetStateIndex(int nState);
+		void    SetImageDrawType(IMAGE_DRAW_TYPE e) { m_eImageDrawType = e; }
 	protected:
 		HRBITMAP   m_hBitmap;
 

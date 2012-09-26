@@ -142,6 +142,30 @@ void GDIIconRenderBitmap::SetAttribute( const ATTRMAP& mapAttrib )
 		m_nIconHeight = _ttoi(iter->second.c_str());
 	}
 }
+
+bool GDIIconRenderBitmap::LoadFromFile( const String& strPath )
+{
+	if( ! m_image.IsNull() )
+	{
+		m_image.Destroy();
+	}
+
+	HICON hIcon = (HICON)::LoadImage ( NULL, strPath.c_str(), IMAGE_ICON, m_nIconWidth, m_nIconHeight, LR_LOADFROMFILE );
+	HDC hMemDC = UI_GetCacheDC();
+
+	m_image.Create( m_nIconHeight, m_nIconHeight, 32, Image::createAlphaChannel );
+	HBITMAP hOldBmp = (HBITMAP)::SelectObject( hMemDC, (HBITMAP)m_image );
+
+	::DrawIconEx( hMemDC, 0,0, hIcon, m_nIconWidth, m_nIconHeight, 0, NULL, DI_NORMAL );
+	::SelectObject(hMemDC, hOldBmp);
+	::UI_ReleaseCacheDC(hMemDC);
+	::DestroyIcon(hIcon);
+
+	if( m_image.IsNull() )
+		return false;
+	else
+		return true;
+}
 //////////////////////////////////////////////////////////////////////////
 
 GDIRenderFont::GDIRenderFont(IRenderFont** ppOutRef) : IRenderFont((IRenderResource**)ppOutRef)

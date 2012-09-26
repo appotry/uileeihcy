@@ -228,7 +228,7 @@ void TTPlayerPlaylistCtrl::RemoveFileItem(PlayerListItemInfo* pItemInfo, bool bU
 
 SIZE TTPlayerPlaylistCtrl::OnMeasureItem( ListItemBase* p)
 {
-	SIZE s = {200,20};
+	SIZE s = {0,20};
 	return s;
 }
 void TTPlayerPlaylistCtrl::OnDeleteItem( ListItemBase* p )
