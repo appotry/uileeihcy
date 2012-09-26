@@ -97,7 +97,7 @@ public:
 		return m_image.ChangeHLS(pOriginImageData, h, l, s, nFlag );
 	}
 
-private:
+protected:
 	Image   m_image;
 };
 
@@ -116,7 +116,7 @@ protected:
 public:
 	static  void CreateInstance( IRenderBitmap** pOutRef );
 	virtual void SetAttribute( const ATTRMAP& mapAttrib );
-
+	virtual bool  LoadFromFile( const String& strPath );
 private:
 	int    m_nIconWidth;
 	int    m_nIconHeight;

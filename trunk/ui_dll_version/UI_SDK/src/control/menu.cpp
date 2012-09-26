@@ -723,7 +723,7 @@ void MenuBase::OnDrawItem( HRDC hRDC, ListItemBase* p )
 		if (NULL != m_pRadioCheckIconBkRender)
 			m_pRadioCheckIconBkRender->DrawState(hRDC, &rcIcon, nState);
 
-		if (NULL != m_pRadioIconRender && NULL != pIconRender)
+		if (NULL != m_pRadioIconRender && NULL == pIconRender)
 			m_pRadioIconRender->DrawState(hRDC, &rcIcon, nState);
 	}
 	if (NULL != pIconRender)

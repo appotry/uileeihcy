@@ -412,7 +412,7 @@ int ScrollBarMgr::GetVScrollPos()
 
 	return 0;
 }
-void ScrollBarMgr::SetScrollRange(int nX, int nY)
+bool ScrollBarMgr::SetScrollRange(int nX, int nY)
 {
 	bool bNeedUpdateNonClientRect = false;
 	if (NULL != m_pVScrollBar)
@@ -429,7 +429,7 @@ void ScrollBarMgr::SetScrollRange(int nX, int nY)
 	if (false == bNeedUpdateNonClientRect && NULL != m_pHScrollBar)
 	{
 		bool bOldVisible = m_pHScrollBar->IsMySelfVisible();
-		m_pHScrollBar->SetScrollRange(nX);  // TODO--: 如果V的visible变化了，那么H的page就会发生变化，因此这里的设置就会不准确
+		m_pHScrollBar->SetScrollRange(nX); 
 		bool bNowVisible = m_pHScrollBar->IsMySelfVisible();
 
 		if (bOldVisible != bNowVisible)
@@ -437,8 +437,6 @@ void ScrollBarMgr::SetScrollRange(int nX, int nY)
 			bNeedUpdateNonClientRect = true;
 		}
 	}
-
-	//  TODO--: 还有可能H的隐藏才导致V也隐藏，因此可能还需要再计算一次VScrollBar
 
 	if (bNeedUpdateNonClientRect)
 	{
@@ -449,7 +447,7 @@ void ScrollBarMgr::SetScrollRange(int nX, int nY)
 			this->GetBindObject()->GetHeight())
 			);
 
-		return ;
+		return false;
 	}
 
 	if (NULL != m_pHScrollBar)
@@ -460,7 +458,7 @@ void ScrollBarMgr::SetScrollRange(int nX, int nY)
 	{
 		m_pVScrollBar->UpdateObject();
 	}
-	return;
+	return true;
 }
 void ScrollBarMgr::SetHScrollRange(int nX)
 {
@@ -499,6 +497,7 @@ void ScrollBarMgr::SetVScrollPage(int nPage)
 }
 bool ScrollBarMgr::SetScrollPage(int nxPage, int nyPage)
 {
+	bool bNeedUpdateNonClientRect = false;
 	if (NULL != m_pVScrollBar)
 	{
 		bool bOldVisible = m_pVScrollBar->IsMySelfVisible();
@@ -507,31 +506,30 @@ bool ScrollBarMgr::SetScrollPage(int nxPage, int nyPage)
 
 		if (bOldVisible != bNowVisible)
 		{
-			this->UpdateBindObjectNonClientRect();
-			UISendMessage(this->GetBindObject(), WM_SIZE, 0,
-				MAKELPARAM(
-				this->GetBindObject()->GetWidth(), 
-				this->GetBindObject()->GetHeight())
-				);
-			return false;
+			bNeedUpdateNonClientRect = true;
 		}
 	}
-	if (NULL != m_pHScrollBar)
+	if (false == bNeedUpdateNonClientRect && NULL != m_pHScrollBar)
 	{
 		bool bOldVisible = m_pHScrollBar->IsMySelfVisible();
  		this->m_pHScrollBar->SetScrollPage(nxPage);
 		bool bNowVisible = m_pHScrollBar->IsMySelfVisible();
-		
+
 		if (bOldVisible != bNowVisible)
 		{
-			this->UpdateBindObjectNonClientRect();
-			UISendMessage(this->GetBindObject(), WM_SIZE, 0,
+			bNeedUpdateNonClientRect = true;
+		}
+	}
+
+	if (bNeedUpdateNonClientRect)
+	{
+		this->UpdateBindObjectNonClientRect();
+		UISendMessage(this->GetBindObject(), WM_SIZE, 0,
 				MAKELPARAM(
 				this->GetBindObject()->GetWidth(), 
 				this->GetBindObject()->GetHeight())
 				);
-			return false;
-		}
+		return false;
 	}
 
 	if (NULL != m_pHScrollBar)
@@ -1279,11 +1277,11 @@ protected:
 			{
 			case SCROLLBAR_VISIBLE_AUTO:
 				if (this->m_pScrollBar->IsMySelfVisible())
-					this->m_pScrollBar->SetVisible(false, true);
+					this->m_pScrollBar->SetVisible(false, false/*true*/);
 				break;
 
 			case SCROLLBAR_VISIBLE_SHOW_ALWAYS:
-				this->m_pBtnThumb->SetVisible(false, true);
+				this->m_pBtnThumb->SetVisible(false, false/*true*/);
 				break;
 			}
 		}
@@ -1293,11 +1291,11 @@ protected:
 			{
 			case SCROLLBAR_VISIBLE_AUTO:
 				if (false == this->m_pScrollBar->IsMySelfVisible())
-					this->m_pScrollBar->SetVisible(true, true);
+					this->m_pScrollBar->SetVisible(true, false/*true*/);
 				break;
 
 			case SCROLLBAR_VISIBLE_SHOW_ALWAYS:
-				this->m_pBtnThumb->SetVisible(true, true);
+				this->m_pBtnThumb->SetVisible(true, false/*true*/);
 				break;
 			}
 		}

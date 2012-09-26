@@ -50,8 +50,7 @@
         <Button id="playlist_mode" styleclass="imagebtn" tooltip="模式" bkgnd.render.image="playlist_mode.bmp" bkgnd.render.imagelist.layout="v"/>
       </Panel>
       <TTPlayerPlaylistCtrl id="playlistctrl" layout.left="16" layout.top="51"  layout.right="16"  layout.bottom="10"
-               bkgnd.render.type="color" bkgnd.render.color="playlistbk_color"
-               bkcolor2="playlistbk_color2" 
+               bkgnd.render.type="color" bkgnd.render.color="playlistbk_color"  bkcolor2="playlistbk_color2" 
                indextextcolor="playlist_textcolor_normal" textcolor="playlist_textcolor_normal" timetextcolor="playlist_textcolor_normal" 
                indextextcolor.select="playlist_textcolor_select" textcolor.select="playlist_textcolor_select" timetextcolor.select="playlist_textcolor_select" 
                indextextcolor.playing="playlist_textcolor_playing" textcolor.playing="playlist_textcolor_playing" timetextcolor.playing="playlist_textcolor_playing" 
@@ -132,11 +131,11 @@
       </Panel>
     </Window>
   <Menu id="main_menu" styleclass="mainmenu" transparent.typex="layered" transparent.maskalphax="200">
-    <String id="1001" text="千千选项"/>
-    <Popup  text="相关链接" styleclass="menuitem_imagelistitemicon" icon.render.imagelistitem.index="28">
-      <String text="千千主页"/>
-      <String text="千千音乐在线"/>
-      <String text="论坛"/>
+    <String id="1001" text="千千选项"  icon.render.type="image" icon.render.image="ttplayer.ico" icon.render.image.drawtype="adapt"/>
+    <Popup  text="相关链接"            styleclass="mainmenuitem" icon.render.imagelistitem.index="28">
+      <String text="千千主页"     styleclass="mainmenuitem" icon.render.imagelistitem.index="34"/>
+      <String text="千千音乐在线" styleclass="mainmenuitem" icon.render.imagelistitem.index="34"/>
+      <String text="论坛"         styleclass="mainmenuitem" icon.render.imagelistitem.index="31"/>
       <Popup  text="论坛">
         <String text="testtesttesttest"/>
         <Separator></Separator>
@@ -146,22 +145,24 @@
       </Popup>
     </Popup>
     <Separator/>
-    <String id="1002" text="播放控制"/>
-    <String id="1003" text="音量控制"/>
-    <String id="1004" text="播放模式"/>
-    <String id="1005" text="播放曲目"/>
+    <String id="1002" text="播放控制" styleclass="mainmenuitem" icon.render.imagelistitem.index="24"/>
+    <String id="1003" text="音量控制" styleclass="mainmenuitem" icon.render.imagelistitem.index="25"/>
+    <String id="1004" text="播放模式" styleclass="mainmenuitem" icon.render.imagelistitem.index="5"/>
+    <String id="1005" text="播放曲目" styleclass="mainmenuitem" icon.render.imagelistitem.index="4"/>
     <Separator/>
-    <String id="1006" text="视觉外观"/>
-    <String id="1007" text="歌词秀"/>
-    <String id="1008" text="均衡器"/>
+    <String id="1006" text="视觉外观" styleclass="mainmenuitem" icon.render.imagelistitem.index="8"/>
+    <String id="1007" text="歌词秀"   styleclass="mainmenuitem" icon.render.imagelistitem.index="9"/>
+    <String id="1008" text="均衡器"   styleclass="mainmenuitem" icon.render.imagelistitem.index="7"/>
     <Separator/>
-    <Popup id="1009" text="皮肤"/>
-    <String id="1010" text="透明"/>
-    <String id="1011" text="查看"/>
+    <Popup id="1009" text="皮肤"      styleclass="mainmenuitem" icon.render.imagelistitem.index="10"/>
+    <String id="1010" text="透明"     styleclass="mainmenuitem" icon.render.imagelistitem.index="11"/>
+    <String id="1011" text="查看"     styleclass="mainmenuitem" icon.render.imagelistitem.index="6"/>
     <Separator/>
-    <String id="1012" text="最小化"/>
-    <String id="1013" text="全屏显示"/>
-    <String id="1014" text="退出"/>
+    <String id="1015" text="显示桌面歌词"  styleclass="mainmenuitem" icon.render.imagelistitem.index="32"/>
+    <Separator/>
+    <String id="1012" text="最小化"   styleclass="mainmenuitem" icon.render.imagelistitem.index="2"/>
+    <String id="1013" text="全屏显示" styleclass="mainmenuitem" icon.render.imagelistitem.index="29"/>
+    <String id="1014" text="退出"     styleclass="mainmenuitem" icon.render.imagelistitem.index="3"/>
   </Menu>
 
   <Menu id="menu_playlist_add">
@@ -182,14 +183,14 @@
   </Menu>
 
   <Menu id="menu_playlist_mode">
-    <String id="1701" text="单曲播放(S)"/>
-    <String id="1702" text="单曲循环(I)"/>
-    <String id="1703" text="顺序播放(N)"/>
-    <String id="1704" text="循环播放(C)"/>
-    <String id="1705" text="随机播放(R)"/>
+    <String id="1701" text="单曲播放(S)" styleclass="playmodemenuitem" icon.render.imagelistitem.index="0"/>
+    <String id="1702" text="单曲循环(I)" styleclass="playmodemenuitem" icon.render.imagelistitem.index="1"/>
+    <String id="1703" text="顺序播放(N)" styleclass="playmodemenuitem" icon.render.imagelistitem.index="2"/>
+    <String id="1704" text="循环播放(C)" styleclass="playmodemenuitem" icon.render.imagelistitem.index="3"/>
+    <String id="1705" text="随机播放(R)" styleclass="playmodemenuitem" icon.render.imagelistitem.index="4"/>
     <Separator/>
-    <String id="1706" text="播放跟随光标(F)" disable="1" />
-    <String id="1707" text="自动切换列表(A)" disable="1" />
+    <String id="1706" text="播放跟随光标(F)" disable="1" styleclass="playmodemenuitem" icon.render.imagelistitem.index="5"/>
+    <String id="1707" text="自动切换列表(A)" disable="1" styleclass="playmodemenuitem" icon.render.imagelistitem.index="6"/>
   </Menu>
   </layout>
   <style>
@@ -233,10 +234,10 @@
              linebtn2.cursor="idc_arrow"
              thubmbtn.bkgnd.render.imagelist.count="3"
              thubmbtn.bkgnd.render.type="imagelist"
+             thubmbtn.bkgnd.render.image="scrollbar_thumb.bmp"
              thubmbtn.bkgnd.render.image.drawtype="stretch"
              thubmbtn.bkgnd.render.9region="2,5,2,5"
              thubmbtn.styleclass="imagebtn"      
-             thubmbtn.bkgnd.render.image="scrollbar_thumb.bmp"
              thubmbtn.cursor="idc_arrow"
                   />
 
@@ -256,13 +257,26 @@
              radioicon.render.type="image"
              radioicon.render.image="menu_check_icon.png"
              radioicon.render.image.drawtype="center"
+             checkicon.render.type="image"
+             checkicon.render.image="menu_check_icon.png"
+             checkicon.render.image.drawtype="center"
              radiocheckiconbk.render.type="image"
              radiocheckiconbk.render.image="menu_check_bk.png"
              radiocheckiconbk.render.image.drawtype="center"
              ></Menu>
 
-    <class   id="mainmenu"  border="24,2,2,2" bkgnd.render.image="main_menu_bk.png" bkgnd.render.9region="50,5,5,135"/>
-    <class   id="menuitem_imagelistitemicon"  icon.render.type="imagelistitem" icon.render.image="menuicon_imagelist.png" icon.render.image.drawtype="adapt"/>
+    <class   id="mainmenu"  
+             border="24,2,2,2" 
+             bkgnd.render.image="main_menu_bk.png" 
+             bkgnd.render.9region="50,5,5,135"/>
+    <class   id="mainmenuitem"  
+             icon.render.type="imagelistitem" 
+             icon.render.image="menuicon_imagelist.png" 
+             icon.render.image.drawtype="adapt"/>
+    <class   id="playmodemenuitem"  
+             icon.render.type="imagelistitem" 
+             icon.render.image="playmode_imagelist.png" 
+             icon.render.image.drawtype="adapt"/>
   </style>
   <img>
     <item id="minimize.bmp">minimize.bmp</item>
@@ -314,8 +328,8 @@
     <item type="imagelist" id="playmode_imagelist.png"  count="7">playmode_imagelist.png</item>
     <item type="imagelist" id="some_imagelist.png"      count="9">some_imagelist.png</item>
     <item type="imagelist" id="lyricedit_imagelist.png" count="17">lyricedit_imagelist.png</item>
-    <item type="icon" id="ttplayer.ico"       useskinhls="0" iconwidth="16" iconheight="16">ttplayer.ico</item>
-    <item type="icon" id="ttplayer.ico_32_32" useskinhls="0" iconwidth="32" iconheight="32">ttplayer.ico</item>
+    <item type="icon" id="ttplayer.ico"       useskinhls="0" width="16" height="16">ttplayer.ico</item>
+    <item type="icon" id="ttplayer.ico_32_32" useskinhls="0" width="32" height="32">ttplayer.ico</item>
 </img>
   <font>
     <item id="normal" facename="宋体" size="9" />
