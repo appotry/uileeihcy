@@ -130,7 +130,7 @@
         </Panel>
       </Panel>
     </Window>
-  <Menu id="main_menu" styleclass="mainmenu" transparent.typex="layered" transparent.maskalphax="200">
+  <Menu id="main_menu" styleclass="mainmenu" transparent.type="layered" transparent.maskalpha="200">
     <String id="1001" text="千千选项"  icon.render.type="image" icon.render.image="ttplayer.ico" icon.render.image.drawtype="adapt"/>
     <Popup  text="相关链接"            styleclass="mainmenuitem" icon.render.imagelistitem.index="28">
       <String text="千千主页"     styleclass="mainmenuitem" icon.render.imagelistitem.index="34"/>

@@ -14,20 +14,10 @@ int GetEncoderClsid(const WCHAR* format, CLSID* pClsid);
 //		A: (从网上抄的，不一定正确)  alpha值会由于RED值的进位导致255变成0
 //
 
-GdiplusRenderBitmap::GdiplusRenderBitmap(IRenderBitmap** ppOutRef) : IRenderBitmap((IRenderResource**)ppOutRef)
+GdiplusRenderBitmap::GdiplusRenderBitmap(IRenderBitmap** ppOutRef) : GdiplusRenderBitmapImpl<IRenderBitmap>(ppOutRef)
 {
-	m_pBitmap = NULL;
-	m_pBitmapData = NULL;
-	m_hBitmapToFixIcon = NULL;
 }
-GdiplusRenderBitmap::~GdiplusRenderBitmap()
-{
-	SAFE_DELETE(m_pBitmapData);
-	SAFE_DELETE(m_pBitmap);
-	SAFE_DELETE_GDIOBJECT(m_hBitmapToFixIcon);
 
-	UI_LOG_DEBUG(_T("GdiplusRenderBitmap Delete. ptr=0x%08X"), this);
-}
 void GdiplusRenderBitmap::CreateInstance( IRenderBitmap** ppOutRef )
 {
 	UIASSERT(NULL != ppOutRef);
@@ -38,257 +28,167 @@ void GdiplusRenderBitmap::CreateInstance( IRenderBitmap** ppOutRef )
 	*ppOutRef = p;
 }
 
-int  GdiplusRenderBitmap::GetWidth()
-{
-	if( NULL == m_pBitmap )
-		return 0;
 
-	return m_pBitmap->GetWidth();
+GdiplusImageListRenderBitmap::GdiplusImageListRenderBitmap(IRenderBitmap** ppOutRef) : GdiplusRenderBitmapImpl<IImageListRenderBitmap>(ppOutRef)
+{
+	m_nCount = 0;
+	m_eLayout = IMAGELIST_LAYOUT_TYPE_H;
 }
-int  GdiplusRenderBitmap::GetHeight() 
+void GdiplusImageListRenderBitmap::CreateInstance( IRenderBitmap** ppOutRef )
 {
-	if( NULL == m_pBitmap )
-		return 0;
+	UIASSERT(NULL != ppOutRef);
+	if( NULL == ppOutRef )
+		return;
 
-	return m_pBitmap->GetHeight();
+	GdiplusImageListRenderBitmap* p = new GdiplusImageListRenderBitmap(ppOutRef);
+	*ppOutRef = p;
 }
-
-
-//
-// WARNING: 不支持多线程使用,不支持嵌套使用
-//
-BYTE* GdiplusRenderBitmap::LockBits()
+void GdiplusImageListRenderBitmap::SetAttribute( const ATTRMAP& mapAttrib )
 {
-	if( NULL == m_pBitmap )
+	__super::SetAttribute(mapAttrib);
+
+	ATTRMAP::const_iterator iter = mapAttrib.find(XML_IMAGE_IMAGELIST_COUNT);
+	if (mapAttrib.end() != iter)
 	{
-		return NULL;
+		m_nCount = _ttoi(iter->second.c_str());
 	}
 
-	if( NULL != m_pBitmapData )
+	iter = mapAttrib.find(XML_IMAGE_IMAGELIST_LAYOUT);
+	if (mapAttrib.end() != iter)
 	{
-		return NULL;
-	}
-
-	m_pBitmapData = new Gdiplus::BitmapData;
-	Gdiplus::Rect rect(0,0, m_pBitmap->GetWidth(), m_pBitmap->GetHeight());
-
-	m_pBitmap->LockBits(
-		&rect,
-		Gdiplus::ImageLockModeWrite|Gdiplus::ImageLockModeRead,
-		PixelFormat32bppARGB,
-		m_pBitmapData);
-
-	return (BYTE*)m_pBitmapData->Scan0;
-}
-void  GdiplusRenderBitmap::UnlockBits()
-{
-	if( NULL != m_pBitmapData )
-	{
-		m_pBitmap->UnlockBits(m_pBitmapData);
-		delete m_pBitmapData;
-		m_pBitmapData = NULL;
-	}
-}
-
-bool  GdiplusRenderBitmap::SaveBits( ImageData* pImageData )
-{
-	if( NULL == pImageData || NULL == m_pBitmap )
-		return false;
-
-	Gdiplus::BitmapData* pBitmapData = new Gdiplus::BitmapData;
-	Gdiplus::Rect rect(0,0, m_pBitmap->GetWidth(), m_pBitmap->GetHeight());
-
-	m_pBitmap->LockBits(
-		&rect,
-		Gdiplus::ImageLockModeWrite|Gdiplus::ImageLockModeRead,
-		PixelFormat32bppARGB,
-		pBitmapData);
-
-	//////////////////////////////////////////////////////////////////////////
-
-	BYTE* pThisBits = (BYTE*)pBitmapData->Scan0;
-	int   bytesperline = abs(pBitmapData->Stride);
-
-	pImageData->m_nWidth = pBitmapData->Width;
-	pImageData->m_nHeight = pBitmapData->Height;
-	pImageData->m_nStride = pBitmapData->Stride;
-	pImageData->m_nbpp = 32;
-
-	// 创建内存
-	int nSize = bytesperline*pBitmapData->Height;
-	pImageData->m_ptr = new BYTE[nSize];
-	pImageData->m_pScan0 = pImageData->m_ptr;
-
-	if( pBitmapData->Stride < 0 )
-		pImageData->m_pScan0 += ((pBitmapData->Height-1)*bytesperline);
-
-	// 内存拷贝
-	BYTE* pTemp = pImageData->m_pScan0;
-	for (int row = 0; row < (int)pBitmapData->Height; row ++ )
-	{
-		memcpy(pTemp, pThisBits, bytesperline);
-		pThisBits += pBitmapData->Stride;
-		pTemp += pBitmapData->Stride;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-
-	m_pBitmap->UnlockBits(pBitmapData);
-	SAFE_DELETE(pBitmapData);
-
-	return true;
-}
-bool  GdiplusRenderBitmap::ChangeHLS( const ImageData* pOriginImageData, short h, short l , short s, int nFlag )
-{
-	if( NULL == pOriginImageData || NULL == m_pBitmap )
-		return false;
-
-	Gdiplus::BitmapData* pBitmapData = new Gdiplus::BitmapData;
-	Gdiplus::Rect rect(0,0, m_pBitmap->GetWidth(), m_pBitmap->GetHeight());
-
-	int nPixelFormat = PixelFormat32bppARGB;
-	if( 24 == pOriginImageData->m_nbpp )
-	{
-		nPixelFormat = PixelFormat24bppRGB;
-	}
-	else if( 32 == pOriginImageData->m_nbpp )
-	{
-		nPixelFormat = PixelFormat32bppARGB;
-	}
-	else
-	{
-		UI_LOG_WARN( _T("%s image pixel format not support :%d"), _T(__FUNCTION__), pOriginImageData->m_nbpp );
-		return false;
-	}
-	m_pBitmap->LockBits(
-		&rect,
-		Gdiplus::ImageLockModeWrite|Gdiplus::ImageLockModeRead,
-		nPixelFormat,
-		pBitmapData);
-
-	//////////////////////////////////////////////////////////////////////////
-
-	BYTE* pTemp = pOriginImageData->m_pScan0;
-	if( NULL == pTemp )
-		return false;
-
-	bool bChangeH = nFlag & CHANGE_SKIN_HLS_FLAG_H ? true:false;
-	bool bChangeL = nFlag & CHANGE_SKIN_HLS_FLAG_L ? true:false;
-	bool bChangeS = nFlag & CHANGE_SKIN_HLS_FLAG_S ? true:false;
-	bool bSetHueMode = nFlag & CHANGE_SKIN_HLS_FALG_REPLACE_MODE ? false:true;
-
-	if(false == bChangeH && false == bChangeL && false == bChangeS)
-		return false;
-
-	BYTE* pNewImageBits = (BYTE*)pBitmapData->Scan0;
-	int   bytesperline  = abs(pBitmapData->Stride);
-	int   bytesperpx    = pOriginImageData->m_nbpp/8;
-
-	float dL = 0, ds = 0;
-	if (bChangeL)
-		dL = (float)(l/100.0);   // 避免在循环中重复计算该值
-	if (bChangeS)
-		ds = (float)(s/100.0);
-
-	for (int row = 0; row < (int)pBitmapData->Height; row ++ )
-	{
-		for( int i = 0; i < bytesperline; i += bytesperpx )
+		const String& str = iter->second;
+		if (XML_IMAGE_IMAGELIST_LAYOUT_H == str)
 		{
-			BYTE R = pTemp[i];
-			BYTE G = pTemp[i+1];
-			BYTE B = pTemp[i+2];
-
-			if (nPixelFormat == PixelFormat32bppARGB)
-				pNewImageBits[i+3] = pTemp[i+3];
-
-			if (bChangeL)
-				ChangeColorLuminance(R,G,B,l,dL);
-
-			if (bChangeH && bChangeS)
-			{
-				ChangeColorHueAndSaturation(R,G,B,h,bSetHueMode,s,ds);
-			}
-			else
-			{
-				if (bChangeH)
-					ChangeColorHue(R,G,B,h,bSetHueMode);
-				if (bChangeS)
-					ChangeColorSaturation(R,G,B,s,ds);
-			}
-
-			pNewImageBits[i]   = R;
-			pNewImageBits[i+1] = G;
-			pNewImageBits[i+2] = B;
+			m_eLayout = IMAGELIST_LAYOUT_TYPE_H;
 		}
+		else if (XML_IMAGE_IMAGELIST_LAYOUT_V == str)
+		{
+			m_eLayout = IMAGELIST_LAYOUT_TYPE_V;
+		}
+	}
+}
+int GdiplusImageListRenderBitmap::GetItemWidth()
+{
+	if (0 == m_nCount)
+		return 0;
 
-		pNewImageBits += pBitmapData->Stride;
-		pTemp += pOriginImageData->m_nStride;
+	switch(m_eLayout)
+	{
+	case IMAGELIST_LAYOUT_TYPE_V:
+		return GetWidth();
+
+	case IMAGELIST_LAYOUT_TYPE_H:
+		return GetWidth()/m_nCount;
 	}
 
-	//////////////////////////////////////////////////////////////////////////
+	return 0;
+}
+int GdiplusImageListRenderBitmap::GetItemHeight()
+{
+	if (0 == m_nCount)
+		return 0;
 
-	m_pBitmap->UnlockBits(pBitmapData);
-	SAFE_DELETE(pBitmapData);
+	switch(m_eLayout)
+	{
+	case IMAGELIST_LAYOUT_TYPE_H:
+		return GetHeight();
+
+	case IMAGELIST_LAYOUT_TYPE_V:
+		return GetHeight()/m_nCount;
+	}
+
+	return 0;
+}
+IMAGELIST_LAYOUT_TYPE GdiplusImageListRenderBitmap::GetLayoutType()
+{
+	return m_eLayout;
+}
+bool GdiplusImageListRenderBitmap::GetIndexPos(int nIndex, POINT* pPoint)
+{
+	if (NULL == pPoint)
+		return false;
+
+	pPoint->x = pPoint->y = 0;
+	if (nIndex > m_nCount)
+		return false;
+
+	if (IMAGELIST_LAYOUT_TYPE_H == m_eLayout)
+	{
+		pPoint->x = nIndex*GetItemWidth();
+		pPoint->y = 0;
+	}
+	else if (IMAGELIST_LAYOUT_TYPE_V == m_eLayout)
+	{
+		pPoint->x = 0;
+		pPoint->y = nIndex*GetItemHeight();
+	}
+	else 
+		return false;
 
 	return true;
 }
-//
-//	Remark:
-//		使用Gdiplus加载出来的ICON会丢失透明阴影，在这里对ICON进行了特殊处理
-//		因此在这里先使用GDI DrawIcon获取一次完整的数据
-//		TODO: 这里只默认支持16*16大小的，ico中其它大小的图标暂时没有增加接口分别加载
-//
-bool GdiplusRenderBitmap::LoadFromFile( const String& strPath )
+GdiplusIconRenderBitmap::GdiplusIconRenderBitmap(IRenderBitmap** ppOutRef) : GdiplusRenderBitmap(ppOutRef)
 {
-	SAFE_DELETE(m_pBitmap);
+	m_nIconWidth = m_nIconHeight = 16;
+	m_hBitmapToFixIcon = NULL;
+}
+GdiplusIconRenderBitmap::~GdiplusIconRenderBitmap()
+{
+	SAFE_DELETE_GDIOBJECT(m_hBitmapToFixIcon);
+}
+void GdiplusIconRenderBitmap::CreateInstance( IRenderBitmap** ppOutRef )
+{
+	UIASSERT(NULL != ppOutRef);
+	if( NULL == ppOutRef )
+		return;
+
+	GdiplusIconRenderBitmap* p = new GdiplusIconRenderBitmap(ppOutRef);
+	*ppOutRef = p;
+}
+
+void GdiplusIconRenderBitmap::SetAttribute( const ATTRMAP& mapAttrib )
+{
+	__super::SetAttribute(mapAttrib);
+
+	ATTRMAP::const_iterator iter = mapAttrib.find(XML_IMAGE_ICON_WIDTH);
+	if (mapAttrib.end() != iter)
+	{
+		m_nIconWidth = _ttoi(iter->second.c_str());
+	}
+	iter = mapAttrib.find(XML_IMAGE_ICON_HEIGHT);
+	if (mapAttrib.end() != iter)
+	{
+		m_nIconHeight = _ttoi(iter->second.c_str());
+	}
+}
+
+bool GdiplusIconRenderBitmap::LoadFromFile( const String& strPath )
+{
 	SAFE_DELETE_GDIOBJECT(m_hBitmapToFixIcon);
 
-	String strExt = strPath.substr(strPath.length()-4, 4);
-	if( 0 == _tcsicmp(strExt.c_str(), _T(".ico")) )
-	{
-		const int ICON_SIZE = 16;
-		HICON hIcon = (HICON)::LoadImage ( NULL, strPath.c_str(), IMAGE_ICON,ICON_SIZE,ICON_SIZE, LR_LOADFROMFILE );
-		HDC hMemDC = UI_GetCacheDC();
-		
-		Image image;
-		image.Create( ICON_SIZE, ICON_SIZE, 32, Image::createAlphaChannel );
-		HBITMAP hOldBmp = (HBITMAP)::SelectObject( hMemDC, (HBITMAP)image );
-
-		::DrawIconEx( hMemDC, 0,0, hIcon, ICON_SIZE, ICON_SIZE, 0, NULL, DI_NORMAL );
-		::SelectObject(hMemDC, hOldBmp);
-		::UI_ReleaseCacheDC(hMemDC);
-		::DestroyIcon(hIcon);
-
-		m_pBitmap = new Gdiplus::Bitmap(
-						ICON_SIZE,
-						ICON_SIZE,
-						image.GetPitch(),
-						PixelFormat32bppARGB,
-						(BYTE*)image.GetBits() );
-		m_hBitmapToFixIcon = image.Detach();    // Bitmap不负责保存bits数据，因此image.m_hBitmap不能提前释放，需要增加一个成员变量保存该句柄
-	}
-	else
-	{
-		m_pBitmap = Gdiplus::Bitmap::FromFile(strPath.c_str());
-	}
-
-	if( NULL == m_pBitmap )
+	HICON hIcon = (HICON)::LoadImage ( NULL, strPath.c_str(), IMAGE_ICON,m_nIconWidth,m_nIconHeight, LR_LOADFROMFILE );
+	if (NULL == hIcon)
 		return false;
-	else
-		return true;
-}
 
-bool GdiplusRenderBitmap::Create( int nWidth, int nHeight )
-{
-	SAFE_DELETE(m_pBitmap);
+	HDC hMemDC = UI_GetCacheDC();
 
-	m_pBitmap = new Gdiplus::Bitmap(nWidth, nHeight);
+	Image image;
+	image.Create( m_nIconWidth,m_nIconHeight, 32, Image::createAlphaChannel );
+	HBITMAP hOldBmp = (HBITMAP)::SelectObject( hMemDC, (HBITMAP)image );
 
-	if( NULL == m_pBitmap )
-		return false;
-	else
-		return true;
+	::DrawIconEx( hMemDC, 0,0, hIcon, m_nIconWidth,m_nIconHeight, 0, NULL, DI_NORMAL );
+	::SelectObject(hMemDC, hOldBmp);
+	::UI_ReleaseCacheDC(hMemDC);
+	::DestroyIcon(hIcon);
+
+	m_pBitmap = new Gdiplus::Bitmap(
+		m_nIconWidth,
+		m_nIconHeight,
+		image.GetPitch(),
+		PixelFormat32bppARGB,
+		(BYTE*)image.GetBits() );
+	m_hBitmapToFixIcon = image.Detach();    // Bitmap不负责保存bits数据，因此image.m_hBitmap不能提前释放，需要增加一个成员变量保存该句柄
+	return true;
 }
 //////////////////////////////////////////////////////////////////////////
 
@@ -1099,10 +999,114 @@ void GdiplusRenderDC::ImageList_Draw( HRBITMAP hBitmap, int x, int y, int col, i
 
 }
 
+/*
+//  彩色图像灰度化
+procedure GrayImage(Image: TGpImage);
+const
+ColorMatrix: TColorMatrix =
+((0.3, 0.3, 0.3, 0.0, 0.0),       // Red
+(0.59, 0.59, 0.59, 0.0, 0.0),  // Green
+(0.11, 0.11, 0.11, 0.0, 0.0),  // Blue
+(0.0, 0.0, 0.0, 1.0, 0.0),       // Alpha
+(0.0, 0.0, 0.0, 0.0, 1.0));      
+var
+Tmp: TGpImage;
+attr: TGpImageAttributes;
+g: TGpGraphics;
+begin
+Tmp := Image.Clone;
+g := TGpGraphics.Create(Image);
+attr := TGpImageAttributes.Create;
+try
+attr.SetColorMatrix(ColorMatrix);
+g.DrawImage(Tmp, GpRect(0, 0, Image.Width, Image.Height),
+0, 0, Tmp.Width, Tmp.Height, utPixel, attr);
+
+*/
 void GdiplusRenderDC::DrawBitmap( HRBITMAP hBitmap, DRAWBITMAPPARAM* pParam )
 {
-	UIASSERT(0 && _T("TODO: 未实现"));
-	return;
+	if (NULL == hBitmap || NULL == pParam)
+		return;
+
+	IRenderBitmap* p = (IRenderBitmap*)hBitmap;
+	if (p->GetRenderType() != GRAPHICS_RENDER_TYPE_GDIPLUS)
+		return;
+
+	Gdiplus::Bitmap* pBitmap = ((GdiplusRenderBitmap*)p)->GetBitmap();
+	if( NULL == pBitmap )
+		return;
+
+	bool bDisable = pParam->nFlag & DRAW_BITMAP_DISABLE;
+
+	if (pParam->nFlag & DRAW_BITMAP_BITBLT)
+	{
+		Gdiplus::RectF destRect((Gdiplus::REAL)pParam->xDest, (Gdiplus::REAL)pParam->yDest, (Gdiplus::REAL)pParam->wSrc, (Gdiplus::REAL)pParam->hSrc);
+		m_pGraphics->DrawImage(pBitmap, destRect, (Gdiplus::REAL)pParam->xSrc, (Gdiplus::REAL)pParam->ySrc, (Gdiplus::REAL)pParam->wSrc, (Gdiplus::REAL)pParam->hSrc, Gdiplus::UnitPixel, NULL, NULL, NULL);
+	}
+	else if (pParam->nFlag & DRAW_BITMAP_STRETCH)
+	{
+		this->DrawBitmap(hBitmap, pParam->xDest, pParam->yDest, pParam->wDest, pParam->hDest,
+			pParam->xSrc, pParam->ySrc, pParam->wSrc, pParam->hSrc, pParam->pRegion);
+	}
+	else if (pParam->nFlag & DRAW_BITMAP_TILE)
+	{
+		Gdiplus::TextureBrush brush(pBitmap);
+		m_pGraphics->FillRectangle(&brush, pParam->xDest, pParam->yDest, pParam->wDest, pParam->hDest);
+	}
+	else if (pParam->nFlag & DRAW_BITMAP_CENTER)
+	{
+		int x = pParam->xDest + (pParam->wDest - pParam->wSrc)/2;
+		int y = pParam->yDest + (pParam->hDest - pParam->hSrc)/2;
+
+		Gdiplus::RectF destRect((Gdiplus::REAL)x, (Gdiplus::REAL)y, (Gdiplus::REAL)pParam->wSrc, (Gdiplus::REAL)pParam->hSrc);
+		m_pGraphics->DrawImage(pBitmap, destRect, (Gdiplus::REAL)pParam->xSrc, (Gdiplus::REAL)pParam->ySrc, (Gdiplus::REAL)pParam->wSrc, (Gdiplus::REAL)pParam->hSrc, Gdiplus::UnitPixel, NULL, NULL, NULL);
+	}
+	else if (pParam->nFlag & DRAW_BITMAP_ADAPT)
+	{
+		if (pParam->wSrc == 0 || pParam->hSrc == 0)
+			return;
+
+		if (pParam->wDest == 0 || pParam->hDest == 0)
+			return;
+
+
+		bool bNeedToStretch = false;
+		int  wImage = pParam->wSrc;
+		int  hImage = pParam->hSrc;
+
+		if (pParam->wDest < pParam->wSrc || pParam->hDest < pParam->hSrc)
+		{
+			bNeedToStretch = true;
+
+			double tan_x_y_image = (double)pParam->wSrc / (double)pParam->hSrc;
+			double tan_x_y_dest = (double)pParam->wDest / (double)pParam->hDest;
+
+			if( tan_x_y_image > tan_x_y_dest ) // 横向占满
+			{
+				wImage = pParam->wDest;
+				hImage = (int)((double)wImage/tan_x_y_image);
+			}
+			else   // 纵向占满
+			{
+				hImage = pParam->hDest;
+				wImage = (int)(hImage*tan_x_y_image);
+			}
+		}
+
+		// 计算图片显示位置
+		int xDisplayPos = pParam->xDest + (pParam->wDest-wImage)/2;
+		int yDisplayPos = pParam->yDest + (pParam->hDest-hImage)/2;
+
+		if( bNeedToStretch )
+		{
+			this->DrawBitmap(hBitmap, xDisplayPos, yDisplayPos, wImage, hImage, pParam->xSrc, pParam->ySrc, pParam->wSrc, pParam->hSrc, pParam->pRegion);
+		}
+		else
+		{
+			Gdiplus::RectF destRect((Gdiplus::REAL)xDisplayPos, (Gdiplus::REAL)yDisplayPos, (Gdiplus::REAL)pParam->wSrc, (Gdiplus::REAL)pParam->hSrc);
+			m_pGraphics->DrawImage(pBitmap, destRect, (Gdiplus::REAL)pParam->xSrc, (Gdiplus::REAL)pParam->ySrc, (Gdiplus::REAL)pParam->wSrc, (Gdiplus::REAL)pParam->hSrc, Gdiplus::UnitPixel, NULL, NULL, NULL);
+		}
+	}
 }
 //////////////////////////////////////////////////////////////////////////
 //

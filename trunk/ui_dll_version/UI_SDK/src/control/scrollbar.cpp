@@ -176,6 +176,18 @@ void ScrollBarMgr::UpdateBindObjectNonClientRect()
 	rcNonClient.right  = abs(rcNonClient.right);
 	rcNonClient.bottom = abs(rcNonClient.bottom);
 	this->m_pBindObject->SetNonClientRegion( &rcNonClient );
+
+	// 直接修改滚动条的page值
+	CRect rcClient;
+	this->m_pBindObject->GetClientRect(&rcClient);
+	if (NULL != m_pHScrollBar)
+	{
+		m_pHScrollBar->SetScrollPageDirect(rcClient.Width());
+	}
+	if (NULL != m_pVScrollBar)
+	{
+		m_pVScrollBar->SetScrollPageDirect(rcClient.Height());
+	}
 }
 
 BOOL ScrollBarMgr::ProcessMessage(UIMSG* pMsg, int nMsgMapID)
@@ -307,38 +319,6 @@ BOOL ScrollBarMgr::ProcessMessage(UIMSG* pMsg, int nMsgMapID)
 			UISendMessage(GetBindObject(), WM_MOUSEMOVE, 0, MAKELPARAM(ptCursor.x,ptCursor.y));
 		}
 	}
-	else if (WM_SIZE == pMsg->message)
-	{
-		// 修改page大小
-		CRect rcClient;
-		m_pBindObject->GetClientRect(&rcClient);
-		if (true == SetScrollPage(rcClient.Width(), rcClient.Height()))
-		{
-            // 处理：保证最后一行总是在末尾，而不会出现在控件中央
-			int xOffset = 0, yOffset = 0;
-			this->GetScrollPos(&xOffset, &yOffset);
-			if (yOffset + GetVScrollPage() > GetVScrollRange())
-				ScrollToBottom();
-			if (xOffset + GetHScrollPage() > GetHScrollRange())
-				ScrollToRightMost();
-
-			// 设置滚动条的位置
-		 	if (NULL != m_pVScrollBar)
-		 	{
-		 		UIMSG msg = *pMsg;
-		 		msg.pObjMsgTo = m_pVScrollBar;
-		 		UISendMessage(&msg, ALT_MSG_ID_BINDOBJ);
-		 	}
-		 
-		 	if (NULL != m_pHScrollBar)
-		 	{
-		 		UIMSG msg = *pMsg;
-		 		msg.pObjMsgTo = m_pHScrollBar;
-		 
-		 		UISendMessage(&msg, ALT_MSG_ID_BINDOBJ);
-		 	}
-		}
-	}
 	else if (pMsg->message == UI_WM_GETSCROLLOFFSET)
 	{
 		this->GetScrollPos((int*)pMsg->wParam, (int*)pMsg->lParam);
@@ -367,6 +347,38 @@ BOOL ScrollBarMgr::ProcessMessage(UIMSG* pMsg, int nMsgMapID)
 	return FALSE;
 }
 
+void ScrollBarMgr::OnBindObjectSize(const SIZE* pContentSize, const CRect* pClientRect, const UIMSG* pMsg)
+{
+	if (NULL == pClientRect || NULL == pContentSize)
+		return;
+
+	if (true == SetScrollPageAndRange(pClientRect->Width(), pClientRect->Height(), pContentSize->cx, pContentSize->cy))
+	{
+		// 处理：保证最后一行总是在末尾，而不会出现在控件中央
+		int xOffset = 0, yOffset = 0;
+		this->GetScrollPos(&xOffset, &yOffset);
+		if (yOffset + GetVScrollPage() > GetVScrollRange())
+			ScrollToBottom();
+		if (xOffset + GetHScrollPage() > GetHScrollRange())
+			ScrollToRightMost();
+
+		// 设置滚动条的位置
+		if (NULL != m_pVScrollBar)
+		{
+			UIMSG msg = *pMsg;
+			msg.pObjMsgTo = m_pVScrollBar;
+			UISendMessage(&msg, ALT_MSG_ID_BINDOBJ);
+		}
+
+		if (NULL != m_pHScrollBar)
+		{
+			UIMSG msg = *pMsg;
+			msg.pObjMsgTo = m_pHScrollBar;
+
+			UISendMessage(&msg, ALT_MSG_ID_BINDOBJ);
+		}
+	}
+}
 // UINT ScrollBarMgr::OnHitTest(POINT* pt)
 // {
 // 	if (NULL != m_pVScrollBar)
@@ -491,17 +503,25 @@ void ScrollBarMgr::SetVScrollLine(int nLine)
 }
 void ScrollBarMgr::SetHScrollLine(int nLine)
 {
+	UIASSERT(0);
 }
 void ScrollBarMgr::SetVScrollPage(int nPage)
 {
+	UIASSERT(0);
 }
-bool ScrollBarMgr::SetScrollPage(int nxPage, int nyPage)
+bool ScrollBarMgr::SetScrollPageAndRange(int nxPage, int nyPage, int nxRange, int nyRange)
 {
 	bool bNeedUpdateNonClientRect = false;
 	if (NULL != m_pVScrollBar)
 	{
 		bool bOldVisible = m_pVScrollBar->IsMySelfVisible();
- 		this->m_pVScrollBar->SetScrollPage(nyPage);
+
+		UISCROLLINFO si;
+		si.nMask = UISIF_PAGE|UISIF_RANGE;
+		si.nRange = nyRange;
+		si.nPage = nyPage;
+ 		this->m_pVScrollBar->SetScrollInfo(&si, false);
+
 		bool bNowVisible = m_pVScrollBar->IsMySelfVisible();
 
 		if (bOldVisible != bNowVisible)
@@ -512,7 +532,13 @@ bool ScrollBarMgr::SetScrollPage(int nxPage, int nyPage)
 	if (false == bNeedUpdateNonClientRect && NULL != m_pHScrollBar)
 	{
 		bool bOldVisible = m_pHScrollBar->IsMySelfVisible();
- 		this->m_pHScrollBar->SetScrollPage(nxPage);
+ 		
+		UISCROLLINFO si;
+		si.nMask = UISIF_PAGE|UISIF_RANGE;
+		si.nRange = nxRange;
+		si.nPage = nxPage;
+		this->m_pHScrollBar->SetScrollInfo(&si, false);
+
 		bool bNowVisible = m_pHScrollBar->IsMySelfVisible();
 
 		if (bOldVisible != bNowVisible)
@@ -532,14 +558,14 @@ bool ScrollBarMgr::SetScrollPage(int nxPage, int nyPage)
 		return false;
 	}
 
-	if (NULL != m_pHScrollBar)
-	{
-		m_pHScrollBar->UpdateObject();
-	}
-	if (NULL != m_pVScrollBar)
-	{
-		m_pVScrollBar->UpdateObject();
-	}
+// 	if (NULL != m_pHScrollBar)
+// 	{
+// 		m_pHScrollBar->UpdateObject();
+// 	}
+// 	if (NULL != m_pVScrollBar)
+// 	{
+// 		m_pVScrollBar->UpdateObject();
+// 	}
 	return true;
 }
 void ScrollBarMgr::SetHScrollPage(int nPage)
@@ -732,8 +758,8 @@ bool ScrollBarBase::SetScrollInfo(LPUISCROLLINFO lpsi, bool bUpdate)
 		if (m_nRange != nRange)
 		{
 			m_nRange = nRange;
-			bNeedUpdateScrollBarVisible = true;
 		}
+		bNeedUpdateScrollBarVisible = true;
 	}
 
 	if (lpsi->nMask & UISIF_PAGE)
@@ -750,8 +776,8 @@ bool ScrollBarBase::SetScrollInfo(LPUISCROLLINFO lpsi, bool bUpdate)
 		if (nPage != m_nPage)
 		{
 			m_nPage = nPage;
-			bNeedUpdateScrollBarVisible = true;
 		}
+		bNeedUpdateScrollBarVisible = true;
 	}
 
 	if (lpsi->nMask & UISIF_POS)
@@ -1045,9 +1071,6 @@ class SystemVScrollBarRender : public SystemScrollBarRender
 public:
 	SystemVScrollBarRender(ScrollBarBase* p):SystemScrollBarRender(p)
 	{
-//		m_eScrollDirection = VSCROLLBAR;
-//		if( NULL != m_pSliderCtrl )
-//			m_pSliderCtrl->SetDirectionType(/*SCROLL_BOTTOM_2_TOP*/PROGRESS_SCROLL_TOP_2_BOTTOM);
 		m_nClickDiff = 0;
 		m_bTracking = false;
 	}
@@ -1248,12 +1271,19 @@ class SystemHScrollBarRender : public SystemScrollBarRender
 public:
 	SystemHScrollBarRender(ScrollBarBase* p):SystemScrollBarRender(p)
 	{
-//		m_eScrollDirection = HSCROLLBAR;
-//		if( NULL != m_pSliderCtrl )
-//			m_pSliderCtrl->SetDirectionType(PROGRESS_SCROLL_LEFT_2_RIGHT);
+		m_nClickDiff = 0;
+		m_bTracking = false;
 	}
 	UI_BEGIN_MSG_MAP
 		UIMSG_WM_SIZE(OnSize)
+		UIMSG_WM_LBUTTONDOWN(OnLButtonDown)
+		UIMSG_WM_LBUTTONUP(OnLButtonUp)
+
+	UIALT_MSG_MAP(ALT_MSG_ID_THUMB_BTN)
+		UIMSG_WM_LBUTTONDOWN(OnThumbBtnLButtonDown)	
+		UIMSG_WM_LBUTTONUP(OnThumbBtnLButtonUp)	
+		UIMSG_WM_MOUSEMOVE(OnThumbBtnMousemove)
+
 	UIALT_MSG_MAP(ALT_MSG_ID_BINDOBJ)
 		UIMSG_WM_SIZE(OnBindObjSize)
 		UIMSG_WM_NCCALCSIZE(OnNcCalcSize)
@@ -1264,6 +1294,82 @@ protected:
 	void    OnSize(UINT nType, int cx, int cy);
 	LRESULT OnNcCalcSize(BOOL bCalcValidRects, LPARAM lprc);
 	void    OnBindObjSize(UINT nType, int cx, int cy);
+
+	void OnLButtonDown(UINT nFlags, POINT point)
+	{
+		if (NULL == m_pBtnThumb)
+			return;
+
+		POINT ptObj;
+		m_pBtnThumb->WindowPoint2ObjectPoint(&point, &ptObj);
+		if (ptObj.x < 0)
+			this->m_pScrollBar->FireScrollMessage(SB_PAGELEFT);
+		else
+			this->m_pScrollBar->FireScrollMessage(SB_PAGERIGHT);
+	}
+	void OnLButtonUp(UINT nFlags, POINT point)
+	{
+		if (NULL == m_pBtnThumb)
+			return;
+
+		this->m_pScrollBar->FireScrollMessage(SB_ENDSCROLL);
+	}
+
+	// 将thumb button的最前面的位置转换为当前位置
+	// pt相对于scrollbar
+	int     WindowPoint2TrackPos(int nUIPos)
+	{
+		float nRange = (float)m_pScrollBar->GetScrollRange();
+		float nPage = (float)m_pScrollBar->GetScrollPage();
+
+		CRect rcChannel;
+		this->CalcChannelRect(&rcChannel);
+		int nUIRange = rcChannel.Width();
+		if (NULL != m_pBtnThumb)
+			nUIRange -= m_pBtnThumb->GetWidth();
+		if (0 == nUIRange)
+			return 0;
+
+		float nPos =  ((float)(nUIPos - rcChannel.left))/((float)nUIRange)*(nRange-nPage);
+		return (int)nPos;
+	}
+	int m_nClickDiff;
+	bool m_bTracking;
+
+	void    OnThumbBtnLButtonDown(UINT nFlags, POINT point)
+	{
+		SetMsgHandled(FALSE);
+
+		// 将窗口坐标转换为相对于控件的坐标
+		POINT  ptObj;
+		m_pBtnThumb->WindowPoint2ObjectPoint(&point, &ptObj);
+		m_nClickDiff = ptObj.x;
+	}
+	void    OnThumbBtnLButtonUp(UINT nFlags, POINT point)
+	{
+		SetMsgHandled(FALSE);
+
+		if (m_bTracking)
+		{
+			m_pScrollBar->FireScrollMessage(SB_ENDSCROLL);
+		}
+		m_bTracking = false;
+		m_nClickDiff = 0;
+	}
+	void    OnThumbBtnMousemove(UINT nFlags, POINT point)
+	{
+		SetMsgHandled(FALSE);
+
+		if(! (nFlags & MK_LBUTTON) )
+			return;
+
+		POINT ptObj;
+		m_pScrollBar->WindowPoint2ObjectPoint(&point, &ptObj);
+		int nNewPos = this->WindowPoint2TrackPos(ptObj.x - m_nClickDiff);
+
+		m_pScrollBar->FireScrollMessage(SB_THUMBTRACK, nNewPos);
+		m_bTracking = true;
+	}
 
 	virtual void UpdateScrollBarVisible()
 	{

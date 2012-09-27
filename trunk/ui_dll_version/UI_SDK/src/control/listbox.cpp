@@ -143,7 +143,7 @@ void ListCtrlBase::RemoveItem(ListItemBase* pItem, bool bUpdate)
 			m_pFirstVisibleItem = pItem->GetNextItem();
 	}
 
-	this->UpdateItemRect(pItem->GetNextItem());
+	this->UpdateItemRectAndScroll(pItem->GetNextItem());
 
 	
 	this->OnDeleteItem(pItem);
@@ -193,7 +193,7 @@ void ListCtrlBase::SetItemHeight(int nHeight, bool bUpdate)
 //	if (0 == (m_nStyle&LISTCTRLBASE_ITEM_VARIABLE_HEIGHT))
 	{
 		this->MeasureAllItem();
-		this->UpdateItemRect(m_pFirstItem);
+		this->UpdateItemRectAndScroll(m_pFirstItem);
 	}
 	if (bUpdate)
 	{
@@ -282,16 +282,16 @@ void ListCtrlBase::RemoveItem(int nIndex, bool bUpdate)
 //		true:表示设置成功。false:表示滚动条中的显示/隐藏属性发生改变，内部将重新计算，外部不要再继续处理
 //      e.g. OnSize函数
 //
-void ListCtrlBase::UpdateItemRect( ListItemBase* pStart )
+void ListCtrlBase::UpdateItemRect( ListItemBase* pStart, SIZE* pContentSize )
 {
+	if (NULL != pContentSize)
+		pContentSize->cx = pContentSize->cy = 0;
+
 	if( NULL == pStart )
 		pStart = m_pFirstItem;
 		
 	if (NULL == pStart)
-	{
-		UI_LOG_ERROR(_T("%s NULL == pStart"), FUNC_NAME);
 		return ;
-	}
 
 	CRect rcClient;
 	this->GetClientRect(&rcClient);
@@ -342,8 +342,19 @@ void ListCtrlBase::UpdateItemRect( ListItemBase* pStart )
 		p = p->GetNextItem();
 	}
 
-	this->m_MgrScrollbar.SetScrollRange(nMaxDesiredWidth, 
-		  NULL == m_pLastItem ? 0:m_pLastItem->GetParentRect().bottom);
+	if (NULL != pContentSize)
+	{
+		pContentSize->cx = nMaxDesiredWidth;
+		pContentSize->cy = NULL == m_pLastItem ? 0:m_pLastItem->GetParentRect().bottom;
+	}
+}
+
+void ListCtrlBase::UpdateItemRectAndScroll( ListItemBase* pStart )
+{
+	SIZE sizeContent;
+	this->UpdateItemRect(pStart, &sizeContent);
+
+	this->m_MgrScrollbar.SetScrollRange(sizeContent.cx, sizeContent.cy);
 }
 
 void ListCtrlBase::SetSelectedItem(ListItemBase* pItem, bool& bNeedUpdateObject )
@@ -501,7 +512,7 @@ void ListCtrlBase::InsertItem( ListItemBase*  pItem, ListItemBase* pInsertAfter 
 
 	if (m_nStyle&LISTCTRLBASE_SIZE_2_CONTENT)
 	{
-		this->UpdateItemRect(pItem);
+		this->UpdateItemRectAndScroll(pItem);
 	}
 	else if (m_nStyle & LISTCTRLBASE_CONTENT_2_SIZE)
 	{
@@ -520,9 +531,9 @@ void ListCtrlBase::InsertItem( ListItemBase*  pItem, ListItemBase* pInsertAfter 
 	else
 	{
 		if (pItem->GetDesiredSize().cx > nMaxDesiredWidth)  // 改项为最宽项，导致所有子项需要重新更新自己的区域
-			this->UpdateItemRect(m_pFirstItem);
+			this->UpdateItemRectAndScroll(m_pFirstItem);
 		else
-			this->UpdateItemRect(pItem);
+			this->UpdateItemRectAndScroll(pItem);
 	}
 }
 
@@ -980,10 +991,13 @@ void ListCtrlBase::OnPaint(HRDC hRDC)
 //
 void ListCtrlBase::OnSize(UINT nType, int cx, int cy)
 {
-	// 更新滚动条的page属性
-	this->m_MgrScrollbar.ProcessMessage(m_pCurMsg, 0);
+	SIZE sizeContent;
+	this->UpdateItemRect(m_pFirstItem, &sizeContent);
 
-	this->UpdateItemRect(m_pFirstItem);
+	// 更新滚动条的属性
+	CRect rcClient;
+	this->GetClientRect(&rcClient);
+	this->m_MgrScrollbar.OnBindObjectSize(&sizeContent, &rcClient, m_pCurMsg);
 }
 
 

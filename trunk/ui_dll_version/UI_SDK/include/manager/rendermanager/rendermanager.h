@@ -105,7 +105,7 @@ public:
 class RenderBitmapFactory
 {
 public:
-	static void CreateInstance(IRenderBitmap** ppOut, GRAPHICS_RENDER_TYPE eGraphicsRenderType, const ATTRMAP& mapAttrib);
+	static void CreateInstance(IRenderBitmap** ppOut, GRAPHICS_RENDER_TYPE eGraphicsRenderType, const ATTRMAP& mapAttrib, const String& strPath);
 };
 class  IRenderFont : public IRenderResource
 {

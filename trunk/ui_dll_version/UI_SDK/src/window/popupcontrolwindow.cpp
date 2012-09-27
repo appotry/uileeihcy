@@ -247,7 +247,7 @@ void PopupListBoxWindow::OnInitWindow()
 	{
 		rc.right = rc.left + m_pBindObj->GetWidth();
 		m_pListBox->SetObjectPos(0,0,rc.Width(), rc.Height(),SWP_NOMOVE|SWP_NOREDRAW);
-		m_pListBox->UpdateItemRect(NULL);
+		m_pListBox->UpdateItemRectAndScroll(NULL);
 	}
 	this->SetObjectPos(rcWindow.left, rcWindow.bottom, rc.Width(), rc.Height(), 0);
 }
