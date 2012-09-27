@@ -54,6 +54,7 @@ namespace UI
 
 //		UINT     OnHitTest( POINT* pt );
 		void     UpdateBindObjectNonClientRect();
+		void     OnBindObjectSize(const SIZE* pContentSize, const CRect* pClientRect, const UIMSG* pMsg);
 
 		void     GetScrollPos(int* pnxOffset, int* pnyOffset);
 		int      GetHScrollPos();
@@ -71,7 +72,7 @@ namespace UI
 		void     SetVScrollLine(int nLine);
 		void     SetHScrollLine(int nLine);
 
-		bool     SetScrollPage(int nxPage, int nyPage);
+		bool     SetScrollPageAndRange(int nxPage, int nyPage, int nxRange, int nyRange);
 		void     SetVScrollPage(int nPage);
 		void     SetHScrollPage(int nPage);
 		int      GetVScrollPage();
@@ -133,6 +134,11 @@ namespace UI
 		int     GetScrollPos();
 		void    SetScrollPage(int nPage);
 		void    SetScrollRange(int nRange);
+
+	protected:
+		friend  class  ScrollBarMgr;
+		void    SetScrollPageDirect(int nPage) { m_nPage = nPage; }
+		void    SetScrollRangeDirect(int nRange) { m_nRange = nRange; }
 
 	public:
 		int     GetScrollRange();

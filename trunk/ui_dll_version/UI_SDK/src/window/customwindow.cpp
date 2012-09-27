@@ -616,13 +616,11 @@ HRDC CustomWindow::BeginDrawObject( Object* pInvalidateObj )
 }
 void CustomWindow::EndDrawObject( CRect* prcWindow, bool bFinish)
 {
-	if( NULL == m_pLayeredWindowWrap )
+	__super::EndDrawObject(prcWindow, bFinish);
+
+	if (bFinish && NULL != m_pLayeredWindowWrap)
 	{
-		return __super::EndDrawObject(prcWindow, bFinish);
-	}
-	else
-	{
-		return m_pLayeredWindowWrap->EndDrawObject(prcWindow,bFinish);
+		m_pLayeredWindowWrap->Commit2LayeredWindow();
 	}
 }
 
@@ -1169,13 +1167,6 @@ HRDC LayeredWindowWrap::BeginDrawObject( Object* pInvalidateObj)
 	roc.Update(m_pWindow->m_hRenderTarget);
 
 	return m_pWindow->m_hRenderTarget;
-}
-void LayeredWindowWrap::EndDrawObject(CRect* prcWindow, bool bFinish)
-{
-	m_pWindow->EndDrawObject(prcWindow, bFinish);
-	
-	if (bFinish)
-		this->Commit2LayeredWindow();
 }
 
 // 模拟拖拽窗口拉伸过程

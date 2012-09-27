@@ -161,7 +161,8 @@ namespace UI
 		ListItemBase* HitTest(POINT ptWindow);
 		ListItemBase* Index2Item(int nIndex);
 
-		void    UpdateItemRect( ListItemBase* pStart );
+		void    UpdateItemRectAndScroll( ListItemBase* pStart );
+		void    UpdateItemRect( ListItemBase* pStart, SIZE* pContentSize );
 
 		ScrollBarMgr* GetScrollBarMgr() { return &m_MgrScrollbar; }
 

@@ -643,7 +643,7 @@ void ImageListItemRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 	if (DRAW_BITMAP_TILE == m_nImageDrawType)
 	{
 		UI_LOG_WARN(_T("%s image list item donot support tile draw"),FUNC_NAME);
-		UIASSERT(0 && _T("TODO:"))
+		UIASSERT(0 && _T("TODO:"));
 		return;
 	}
 
@@ -2926,7 +2926,7 @@ bool TextRender::SetAttribute( const String& strPrefix, map<String,String>& mapA
 	iter = mapAttrib.find(strAttrib);
 	if (mapAttrib.end() != iter)
 	{
-		m_hFont = UI_GetFont(iter->second, ::GetGraphicsRenderType(m_pObject->GetHWND()) );
+		m_hFont = UI_GetFont(iter->second, ::GetGraphicsRenderType(m_pObject) );
 		mapAttrib.erase(strAttrib);
 	}
 	if( NULL == m_hFont )

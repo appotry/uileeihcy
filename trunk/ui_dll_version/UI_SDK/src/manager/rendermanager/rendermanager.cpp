@@ -135,7 +135,7 @@ IRenderFont::IRenderFont(IRenderResource** ppOutRef) : IRenderResource(ppOutRef)
 {
 }
 
-void RenderBitmapFactory::CreateInstance(IRenderBitmap** ppOut, GRAPHICS_RENDER_TYPE eGraphicsRenderType, const ATTRMAP& mapAttrib)
+void RenderBitmapFactory::CreateInstance(IRenderBitmap** ppOut, GRAPHICS_RENDER_TYPE eGraphicsRenderType, const ATTRMAP& mapAttrib, const String& strPath)
 {
 	if (NULL == ppOut)
 		return;
@@ -153,14 +153,31 @@ void RenderBitmapFactory::CreateInstance(IRenderBitmap** ppOut, GRAPHICS_RENDER_
 				GDIIconRenderBitmap::CreateInstance(ppOut);
 			else if (strType == XML_IMAGE_ITEM_TYPE_IMAGELIST)
 				GDIImageListRenderBitmap::CreateInstance(ppOut);
-			else
-				GDIRenderBitmap::CreateInstance(ppOut);
+			else 
+			{
+				String strExt = strPath.substr(strPath.length()-4, 4);
+				if (0 == _tcsicmp(strExt.c_str(), _T(".ico")))
+					GDIIconRenderBitmap::CreateInstance(ppOut);
+				else
+					GDIRenderBitmap::CreateInstance(ppOut);
+			}
 		}
 		break;
 
 	case GRAPHICS_RENDER_TYPE_GDIPLUS:
 		{
-			GdiplusRenderBitmap::CreateInstance(ppOut);
+			if (strType == XML_IMAGE_ITEM_TYPE_ICON)
+				GdiplusIconRenderBitmap::CreateInstance(ppOut);
+			else if (strType == XML_IMAGE_ITEM_TYPE_IMAGELIST)
+				GdiplusImageListRenderBitmap::CreateInstance(ppOut);
+			else 
+			{
+				String strExt = strPath.substr(strPath.length()-4, 4);
+				if (0 == _tcsicmp(strExt.c_str(), _T(".ico")))
+					GdiplusIconRenderBitmap::CreateInstance(ppOut);
+				else
+					GdiplusRenderBitmap::CreateInstance(ppOut);
+			}
 		}
 		break;
 
@@ -232,7 +249,15 @@ GRAPHICS_RENDER_TYPE GetGraphicsRenderType(Object* pObj)
 
 	WindowBase* pWindow = pObj->GetWindowObject();
 	if( NULL == pWindow )
-		return GRAPHICS_RENDER_TYPE_GDI;
+	{
+		// 针对menu,listbox popup类型一开始没有窗口的控件，向控件本身发消息进行获取
+		GRAPHICS_RENDER_TYPE e = (GRAPHICS_RENDER_TYPE)UISendMessage( pObj, UI_WM_GETRENDERTYPE );
+		if (GRAPHICS_RENDER_TYPE_AUTO == e)
+		{
+			e = GRAPHICS_RENDER_TYPE_GDI;
+		}
+		return e;
+	}
 	
 	GRAPHICS_RENDER_TYPE e = (GRAPHICS_RENDER_TYPE)UISendMessage( pWindow, UI_WM_GETRENDERTYPE );
 	if( GRAPHICS_RENDER_TYPE_AUTO == e )

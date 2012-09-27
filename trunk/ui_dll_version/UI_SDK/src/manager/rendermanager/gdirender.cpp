@@ -145,12 +145,13 @@ void GDIIconRenderBitmap::SetAttribute( const ATTRMAP& mapAttrib )
 
 bool GDIIconRenderBitmap::LoadFromFile( const String& strPath )
 {
-	if( ! m_image.IsNull() )
-	{
+	if (! m_image.IsNull())
 		m_image.Destroy();
-	}
 
 	HICON hIcon = (HICON)::LoadImage ( NULL, strPath.c_str(), IMAGE_ICON, m_nIconWidth, m_nIconHeight, LR_LOADFROMFILE );
+	if (NULL == hIcon)
+		return false;
+
 	HDC hMemDC = UI_GetCacheDC();
 
 	m_image.Create( m_nIconHeight, m_nIconHeight, 32, Image::createAlphaChannel );

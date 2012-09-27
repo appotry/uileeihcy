@@ -181,9 +181,7 @@ void MenuBase::HidePopupSubMenu()
 // 因此给Menu发一个GetRenderType来获取
 LRESULT MenuBase::OnGetRenderType()
 {
-	ATTRMAP::iterator iter = m_mapAttribute.find(XML_WINDOW_TRANSPARENT_TYPE);
-	if (m_mapAttribute.end() != iter &&
-		iter->second == XML_WINDOW_TRANSPARENT_TYPE_LAYERED )
+	if (m_bLayered)
 	{
 		return GRAPHICS_RENDER_TYPE_GDIPLUS;
 	}
@@ -824,10 +822,17 @@ void MenuBase::ResetAttribute()
 	m_nPopupTriangleWidth = 20;
 	m_nTextMarginLeft = 0;
 	m_nTextMarginRight = 0;
+	m_bLayered = false;
 }
 
 bool MenuBase::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 {
+	ATTRMAP::iterator iter = mapAttrib.find(XML_WINDOW_TRANSPARENT_TYPE);
+	if (mapAttrib.end() != iter && iter->second == XML_WINDOW_TRANSPARENT_TYPE_LAYERED)
+	{
+		m_bLayered = true;
+	}
+
 	// 默认字体设置
 	if (NULL == m_pTextRender)
 	{
@@ -851,7 +856,7 @@ bool MenuBase::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 	if (false == bRet)
 		return false;
 
-	ATTRMAP::iterator iter = mapAttrib.find(XML_MENU_ICONGUTTERWIDTH);
+	iter = mapAttrib.find(XML_MENU_ICONGUTTERWIDTH);
 	if (mapAttrib.end() != iter)
 	{
 		m_nIconGutterWidth = _ttoi(iter->second.c_str());
