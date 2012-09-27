@@ -1099,6 +1099,11 @@ void GdiplusRenderDC::ImageList_Draw( HRBITMAP hBitmap, int x, int y, int col, i
 
 }
 
+void GdiplusRenderDC::DrawBitmap( HRBITMAP hBitmap, DRAWBITMAPPARAM* pParam )
+{
+	UIASSERT(0 && _T("TODO: Œ¥ µœ÷"));
+	return;
+}
 //////////////////////////////////////////////////////////////////////////
 //
 

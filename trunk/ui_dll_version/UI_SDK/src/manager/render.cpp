@@ -415,7 +415,7 @@ ImageRender::ImageRender()
 {
 	m_pBitmap = NULL;
 	m_pColorBk = NULL;
-	m_eImageDrawType = IMAGE_DRAW_TYPE_SIMPLE;
+	m_nImageDrawType = DRAW_BITMAP_BITBLT;
 	m_pRegion = NULL;
 }
 ImageRender::~ImageRender()
@@ -463,15 +463,15 @@ bool ImageRender::SetAttribute( const String& strPrefix, map<String,String>& map
 	{
 		const String& strType = iter->second;
 		if (XML_RENDER_IMAGE_DRAWTYPE_SIMPLE == strType)
-			this->SetImageDrawType(IMAGE_DRAW_TYPE_SIMPLE);
+			this->SetImageDrawType(DRAW_BITMAP_BITBLT);
 		else if (XML_RENDER_IMAGE_DRAWTYPE_TILE == strType)
-			this->SetImageDrawType(IMAGE_DRAW_TYPE_TILE);
+			this->SetImageDrawType(DRAW_BITMAP_TILE);
 		else if (XML_RENDER_IMAGE_DRAWTYPE_STRETCH == strType)
-			this->SetImageDrawType(IMAGE_DRAW_TYPE_STRETCH);
+			this->SetImageDrawType(DRAW_BITMAP_STRETCH);
 		else if (XML_RENDER_IMAGE_DRAWTYPE_ADAPT == strType)
-			this->SetImageDrawType(IMAGE_DRAW_TYPE_ADAPT);
+			this->SetImageDrawType(DRAW_BITMAP_ADAPT);
 		else if (XML_RENDER_IMAGE_DRAWTYPE_CENTER == strType)
-			this->SetImageDrawType(IMAGE_DRAW_TYPE_CENTER);
+			this->SetImageDrawType(DRAW_BITMAP_CENTER);
 	}
 	return true;
 } 
@@ -484,83 +484,101 @@ void ImageRender::DrawState(IRenderDC* pRDC, const CRect* prc, int nState)
 	}
 
 	POINT ptSrc = this->GetBitmapSrcDrawPos();
-	SIZE  sizeSrc =  this->GetDesiredSize();
+	SIZE  sizeSrc = this->GetDesiredSize();
 
 	if (NULL != m_pBitmap)
 	{
-		switch (m_eImageDrawType)
+		DRAWBITMAPPARAM param;
+		param.nFlag = m_nImageDrawType;
+		param.xDest = prc->left;
+		param.yDest = prc->top;
+		param.wDest = prc->Width();
+		param.hDest = prc->Height();
+		param.xSrc = ptSrc.x;
+		param.ySrc = ptSrc.y;
+		param.wSrc = sizeSrc.cx;
+		param.hSrc = sizeSrc.cy;
+		param.pRegion = m_pRegion;
+
+		if (nState & RENDER_STATE_DISABLE)
 		{
-		case IMAGE_DRAW_TYPE_SIMPLE:
-			pRDC->DrawBitmap(m_pBitmap,prc->left,prc->top, sizeSrc.cx,sizeSrc.cy, ptSrc.x, ptSrc.y);
-			break;
-
-		case IMAGE_DRAW_TYPE_STRETCH:
-			pRDC->DrawBitmap(m_pBitmap, prc->left,prc->top,prc->Width(), prc->Height(), 
-						ptSrc.x, ptSrc.y, sizeSrc.cx,sizeSrc.cy, m_pRegion);
-			break;
-
-		case IMAGE_DRAW_TYPE_TILE:
-			pRDC->TileRect(prc, m_pBitmap);
-			break;
-
-		case IMAGE_DRAW_TYPE_CENTER:
-			{
-				int x = prc->left + (prc->Width() - sizeSrc.cx)/2;
-				int y = prc->top  + (prc->Height() - sizeSrc.cy)/2;
-
-				pRDC->DrawBitmap(m_pBitmap, x, y, sizeSrc.cx,sizeSrc.cy, ptSrc.x, ptSrc.y);
-			}
-			break;
-
-		case IMAGE_DRAW_TYPE_ADAPT:
-			{
-				if (sizeSrc.cy == 0 || sizeSrc.cy == 0)
-					break;
-
-				if (prc->Width() == 0 || prc->Height() == 0)
-					break;
-
-				double tan_x_y_image  = 0;
-				double tan_x_y_window = 0;
-
-				bool bNeedToStretch = false;
-				int  wImage = sizeSrc.cx;
-				int  hImage = sizeSrc.cy;
-
-				if (prc->Width() < sizeSrc.cx || prc->Height() < sizeSrc.cy)
-				{
-					bNeedToStretch = true;
-
-					tan_x_y_image = (double)sizeSrc.cx / (double)sizeSrc.cy;
-					tan_x_y_window = (double)prc->Width() / (double)prc->Height();
-
-					if( tan_x_y_image > tan_x_y_window ) // 横向占满
-					{
-						wImage = prc->Width();
-						hImage = (int)((double)wImage/tan_x_y_image);
-					}
-					else   // 纵向占满
-					{
-						hImage = prc->Height();
-						wImage = (int)(hImage*tan_x_y_image);
-					}
-				}
-
-				// 计算图片显示位置
-				int xDisplayPos = prc->left + (prc->Width()-wImage)/2;
-				int yDisplayPos = prc->top + (prc->Height()-hImage)/2;
-
-				if( bNeedToStretch )
-				{
-					pRDC->DrawBitmap(m_pBitmap, xDisplayPos, yDisplayPos, wImage, hImage, ptSrc.x, ptSrc.y, sizeSrc.cx,sizeSrc.cy );
-				}
-				else
-				{
-					pRDC->DrawBitmap(m_pBitmap, xDisplayPos, yDisplayPos, sizeSrc.cx,sizeSrc.cy, ptSrc.x, ptSrc.y);
-				}
-			}
-			break;
+			param.nFlag |= DRAW_BITMAP_DISABLE;
 		}
+		pRDC->DrawBitmap(m_pBitmap, &param);
+
+// 		switch (m_eImageDrawType)
+// 		{
+// 		case IMAGE_DRAW_TYPE_SIMPLE:
+// 			pRDC->DrawBitmap(m_pBitmap,prc->left,prc->top, sizeSrc.cx,sizeSrc.cy, ptSrc.x, ptSrc.y);
+// 			break;
+// 
+// 		case IMAGE_DRAW_TYPE_STRETCH:
+// 			pRDC->DrawBitmap(m_pBitmap, prc->left,prc->top,prc->Width(), prc->Height(), 
+// 						ptSrc.x, ptSrc.y, sizeSrc.cx,sizeSrc.cy, m_pRegion);
+// 			break;
+// 
+// 		case IMAGE_DRAW_TYPE_TILE:
+// 			pRDC->TileRect(prc, m_pBitmap);
+// 			break;
+// 
+// 		case IMAGE_DRAW_TYPE_CENTER:
+// 			{
+// 				int x = prc->left + (prc->Width() - sizeSrc.cx)/2;
+// 				int y = prc->top  + (prc->Height() - sizeSrc.cy)/2;
+// 
+// 				pRDC->DrawBitmap(m_pBitmap, x, y, sizeSrc.cx,sizeSrc.cy, ptSrc.x, ptSrc.y);
+// 			}
+// 			break;
+// 
+// 		case IMAGE_DRAW_TYPE_ADAPT:
+// 			{
+// 				if (sizeSrc.cy == 0 || sizeSrc.cy == 0)
+// 					break;
+// 
+// 				if (prc->Width() == 0 || prc->Height() == 0)
+// 					break;
+// 
+// 				double tan_x_y_image  = 0;
+// 				double tan_x_y_window = 0;
+// 
+// 				bool bNeedToStretch = false;
+// 				int  wImage = sizeSrc.cx;
+// 				int  hImage = sizeSrc.cy;
+// 
+// 				if (prc->Width() < sizeSrc.cx || prc->Height() < sizeSrc.cy)
+// 				{
+// 					bNeedToStretch = true;
+// 
+// 					tan_x_y_image = (double)sizeSrc.cx / (double)sizeSrc.cy;
+// 					tan_x_y_window = (double)prc->Width() / (double)prc->Height();
+// 
+// 					if( tan_x_y_image > tan_x_y_window ) // 横向占满
+// 					{
+// 						wImage = prc->Width();
+// 						hImage = (int)((double)wImage/tan_x_y_image);
+// 					}
+// 					else   // 纵向占满
+// 					{
+// 						hImage = prc->Height();
+// 						wImage = (int)(hImage*tan_x_y_image);
+// 					}
+// 				}
+// 
+// 				// 计算图片显示位置
+// 				int xDisplayPos = prc->left + (prc->Width()-wImage)/2;
+// 				int yDisplayPos = prc->top + (prc->Height()-hImage)/2;
+// 
+// 				if( bNeedToStretch )
+// 				{
+// 					pRDC->DrawBitmap(m_pBitmap, xDisplayPos, yDisplayPos, wImage, hImage, ptSrc.x, ptSrc.y, sizeSrc.cx,sizeSrc.cy );
+// 				}
+// 				else
+// 				{
+// 					pRDC->DrawBitmap(m_pBitmap, xDisplayPos, yDisplayPos, sizeSrc.cx,sizeSrc.cy, ptSrc.x, ptSrc.y);
+// 				}
+// 			}
+// 			break;
+// 		}
 	}
 }
 SIZE ImageRender::GetDesiredSize()
@@ -622,9 +640,10 @@ SIZE ImageListItemRender::GetDesiredSize()
 
 void ImageListItemRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 {
-	if (IMAGE_DRAW_TYPE_TILE == m_eImageDrawType)
+	if (DRAW_BITMAP_TILE == m_nImageDrawType)
 	{
 		UI_LOG_WARN(_T("%s image list item donot support tile draw"),FUNC_NAME);
+		UIASSERT(0 && _T("TODO:"))
 		return;
 	}
 
@@ -669,6 +688,7 @@ void  ColorListRender::Clear()
 
 void ColorListRender::SetStateColor(int nState, COLORREF colorBk, bool bSetBk, COLORREF colBorder, bool bSetBorder)
 {
+	nState = LOWORD(nState);
 	if(m_nCount > nState)
 	{}
 	else
@@ -762,6 +782,7 @@ bool ColorListRender::SetAttribute( const String& strPrefix, map<String,String>&
 }
 void ColorListRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 {
+	nState = LOWORD(nState);
 	int nRealState = nState;
 	if( nState >= m_nCount )
 	{
@@ -832,7 +853,7 @@ ImageListRender::ImageListRender( )
 	m_nItemWidth = m_nItemHeight = 0;
 	m_nCount = 0;
 	m_p9Region = NULL;
-	m_eImageDrawType = IMAGE_DRAW_TYPE_SIMPLE;
+	m_nImageDrawType = DRAW_BITMAP_BITBLT;
 }
 ImageListRender::~ImageListRender( )
 {
@@ -930,21 +951,22 @@ bool ImageListRender::SetAttribute( const String& strPrefix, map<String,String>&
 	{
 		const String& strType = iter->second;
 		if (XML_RENDER_IMAGE_DRAWTYPE_SIMPLE == strType)
-			this->SetImageDrawType(IMAGE_DRAW_TYPE_SIMPLE);
+			this->SetImageDrawType(DRAW_BITMAP_BITBLT);
 		else if (XML_RENDER_IMAGE_DRAWTYPE_TILE == strType)
-			this->SetImageDrawType(IMAGE_DRAW_TYPE_TILE);
+			this->SetImageDrawType(DRAW_BITMAP_TILE);
 		else if (XML_RENDER_IMAGE_DRAWTYPE_STRETCH == strType)
-			this->SetImageDrawType(IMAGE_DRAW_TYPE_STRETCH);
+			this->SetImageDrawType(DRAW_BITMAP_STRETCH);
 		else if (XML_RENDER_IMAGE_DRAWTYPE_ADAPT == strType)
-			this->SetImageDrawType(IMAGE_DRAW_TYPE_ADAPT);
+			this->SetImageDrawType(DRAW_BITMAP_ADAPT);
 		else if (XML_RENDER_IMAGE_DRAWTYPE_CENTER == strType)
-			this->SetImageDrawType(IMAGE_DRAW_TYPE_CENTER);
+			this->SetImageDrawType(DRAW_BITMAP_CENTER);
 	}
 
 	return true;
 }
 void ImageListRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 {
+	nState = LOWORD(nState);
 	int nRealState = nState;
 	if( nState >= m_nCount )
 	{
@@ -956,39 +978,61 @@ void ImageListRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 
 	if( NULL != m_hBitmap )
 	{
-		switch (m_eImageDrawType)
-		{
-		case IMAGE_DRAW_TYPE_SIMPLE:
-			{
-				if( m_eImageLayout == IMAGELIST_LAYOUT_TYPE_H )
-				{
-					DrawBitmap(hRDC, m_hBitmap, prc->left,prc->top,m_nItemWidth,m_nItemHeight, nRealState*m_nItemWidth,0,m_nItemWidth,m_nItemHeight );
-				}
-				else
-				{
-					DrawBitmap(hRDC, m_hBitmap, prc->left,prc->top,m_nItemWidth,m_nItemHeight, 0, nRealState*m_nItemHeight,m_nItemWidth,m_nItemHeight );
-				}
-			}
-			break;
+		DRAWBITMAPPARAM param;
+		param.nFlag = m_nImageDrawType;
+		param.xDest = prc->left;
+		param.yDest = prc->top;
+		param.wDest = prc->Width();
+		param.hDest = prc->Height();
+		param.wSrc = m_nItemWidth;
+		param.hSrc = m_nItemHeight;
+		param.pRegion = m_p9Region;
 
-		case IMAGE_DRAW_TYPE_STRETCH:
-			{
-				if( m_eImageLayout == IMAGELIST_LAYOUT_TYPE_H )
-				{
-					DrawBitmap(hRDC, m_hBitmap, prc->left,prc->top,prc->Width(),prc->Height(), 
-						nRealState*m_nItemWidth,0,m_nItemWidth,m_nItemHeight,
-						m_p9Region);
-				}
-				else
-				{
-					DrawBitmap(hRDC, m_hBitmap, prc->left,prc->top,prc->Width(),prc->Height(), 
-						0, nRealState*m_nItemHeight,m_nItemWidth,m_nItemHeight,
-						m_p9Region);
-				}
-			}
-			break;;
+		if( m_eImageLayout == IMAGELIST_LAYOUT_TYPE_H )
+		{
+			param.xSrc = nRealState*m_nItemWidth;
+			param.ySrc = 0;
 		}
-		
+		else
+		{
+			param.xSrc = 0;
+			param.ySrc = nRealState*m_nItemHeight;
+		}
+		hRDC->DrawBitmap(m_hBitmap, &param);
+
+// 		switch (m_eImageDrawType)
+// 		{
+// 		case IMAGE_DRAW_TYPE_SIMPLE:
+// 			{
+// 				if( m_eImageLayout == IMAGELIST_LAYOUT_TYPE_H )
+// 				{
+// 					DrawBitmap(hRDC, m_hBitmap, prc->left,prc->top,m_nItemWidth,m_nItemHeight, nRealState*m_nItemWidth,0,m_nItemWidth,m_nItemHeight );
+// 				}
+// 				else
+// 				{
+// 					DrawBitmap(hRDC, m_hBitmap, prc->left,prc->top,m_nItemWidth,m_nItemHeight, 0, nRealState*m_nItemHeight,m_nItemWidth,m_nItemHeight );
+// 				}
+// 			}
+// 			break;
+// 
+// 		case IMAGE_DRAW_TYPE_STRETCH:
+// 			{
+// 				if( m_eImageLayout == IMAGELIST_LAYOUT_TYPE_H )
+// 				{
+// 					DrawBitmap(hRDC, m_hBitmap, prc->left,prc->top,prc->Width(),prc->Height(), 
+// 						nRealState*m_nItemWidth,0,m_nItemWidth,m_nItemHeight,
+// 						m_p9Region);
+// 				}
+// 				else
+// 				{
+// 					DrawBitmap(hRDC, m_hBitmap, prc->left,prc->top,prc->Width(),prc->Height(), 
+// 						0, nRealState*m_nItemHeight,m_nItemWidth,m_nItemHeight,
+// 						m_p9Region);
+// 				}
+// 			}
+// 			break;;
+// 		}
+// 		
 	}
 }
 SIZE ImageListRender::GetDesiredSize()
@@ -2373,10 +2417,10 @@ void MenuCheckedIconThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nSta
 {
 	switch(nState)
 	{
-	case MENU_ITEM_RADIOCHECKED_RENDER_STATE_DISABLE:
+	case MENU_ITEM_ICON_RENDER_STATE_DISABLE:
 		this->DrawDisable(hRDC, prc);
 		break;
-	case MENU_ITEM_RADIOCHECKED_RENDER_STATE_HOVER:
+	case MENU_ITEM_ICON_RENDER_STATE_HOVER:
 		this->DrawHover(hRDC, prc);
 		break;
 	default:
@@ -2479,10 +2523,10 @@ void MenuRadioIconThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState
 {
 	switch(nState)
 	{
-	case MENU_ITEM_RADIOCHECKED_RENDER_STATE_DISABLE:
+	case MENU_ITEM_ICON_RENDER_STATE_DISABLE:
 		this->DrawDisable(hRDC, prc);
 		break;
-	case MENU_ITEM_RADIOCHECKED_RENDER_STATE_HOVER:
+	case MENU_ITEM_ICON_RENDER_STATE_HOVER:
 		this->DrawHover(hRDC, prc);
 		break;
 	default:
@@ -2583,10 +2627,10 @@ void MenuRadioCheckIconBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int
 {
 	switch(nState)
 	{
-	case MENU_ITEM_RADIOCHECKED_RENDER_STATE_DISABLE:
+	case MENU_ITEM_ICON_RENDER_STATE_DISABLE:
 		this->DrawDisable(hRDC, prc);
 		break;
-	case MENU_ITEM_RADIOCHECKED_RENDER_STATE_HOVER:
+	case MENU_ITEM_ICON_RENDER_STATE_HOVER:
 		this->DrawHover(hRDC, prc);
 		break;
 	default:
@@ -3013,6 +3057,7 @@ bool ColorListTextRender::SetAttribute( const String& strPrefix, map<String,Stri
 }
 void ColorListTextRender::DrawState(HRDC hRDC, const CRect* prc, int nState, const String& strText, int nDrawTextFlag)
 {
+	nState = LOWORD(nState);
 	int nRealState = nState;
 	if( nState >= m_nCount )
 	{
@@ -3158,6 +3203,7 @@ bool FontColorListTextRender::SetAttribute( const String& strPrefix, map<String,
 }
 void FontColorListTextRender::DrawState(HRDC hRDC, const CRect* prc, int nState, const String& strText, int nDrawTextFlag)
 {
+	nState = LOWORD(nState);
 	int nRealState = nState;
 	if( nState >= m_nCount )
 	{

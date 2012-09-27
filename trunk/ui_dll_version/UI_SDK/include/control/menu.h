@@ -113,9 +113,10 @@ namespace UI
 		virtual  void OnDrawItem( HRDC hRDC, ListItemBase* p ) ;
 		virtual  SIZE OnMeasureItem( ListItemBase* p);
 
-		void     OnDrawSeperatorItem(HRDC hRDC, MenuItem* pMenu);
-		void     OnDrawPopupItem(HRDC hRDC,  MenuItem* pMenu);
-		void     OnDrawStringItem(HRDC hRDC, MenuItem* pMenu);
+		void     OnDrawItemIcon(HRDC hRDC, MenuItem* pMenuItem);
+		void     OnDrawSeperatorItem(HRDC hRDC, MenuItem* pMenuItem);
+		void     OnDrawPopupItem(HRDC hRDC,  MenuItem* pMenuItem);
+		void     OnDrawStringItem(HRDC hRDC, MenuItem* pMenuItem);
 
 		void     OnInitPopupControlWindow(Object* pObjMsgFrom);
 		void     OnUnInitPopupControlWindow(Object* pObjMsgFrom);
