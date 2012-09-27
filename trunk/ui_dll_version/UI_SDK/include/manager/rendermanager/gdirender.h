@@ -221,6 +221,7 @@ public:
 								int nDestHeight, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight,
 								Image9Region* p9Region );
 	virtual void     ImageList_Draw( HRBITMAP hBitmap, int x, int y, int col, int row, int cx, int cy );
+	virtual void     DrawBitmap( HRBITMAP hBitmap, DRAWBITMAPPARAM* pParam );
 
 protected:
 	HDC       m_hDC;

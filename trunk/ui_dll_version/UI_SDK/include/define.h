@@ -269,15 +269,6 @@ enum IMAGELIST_LAYOUT_TYPE
 	IMAGELIST_LAYOUT_TYPE_V
 };
 
-enum IMAGE_DRAW_TYPE
-{
-	IMAGE_DRAW_TYPE_SIMPLE,
-	IMAGE_DRAW_TYPE_TILE,
-	IMAGE_DRAW_TYPE_STRETCH,
-	IMAGE_DRAW_TYPE_ADAPT,
-	IMAGE_DRAW_TYPE_CENTER
-};
-
 #define XML_TEXTRENDER_TYPE                 _T("textrender.type")       // 设置文字渲染类型
 #define XML_TEXTRENDER_TYPE_NORMAL          _T("normal")                // color + font
 #define XML_TEXTRENDER_TYPE_COLORLIST       _T("colorlist")             // color list + font

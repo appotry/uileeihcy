@@ -570,7 +570,91 @@ void GDIRenderDC::ImageList_Draw( HRBITMAP hBitmap, int x, int y, int col, int r
 	GDIRenderBitmap* pBitmap = (GDIRenderBitmap*)p;
 	pBitmap->GetBitmap()->ImageList_Draw(m_hDC, x,y,col,row,cx,cy);
 }
+void GDIRenderDC::DrawBitmap( HRBITMAP hBitmap, DRAWBITMAPPARAM* pParam )
+{
+	if (NULL == hBitmap || NULL == pParam)
+		return;
 
+	IRenderBitmap* p = (IRenderBitmap*)hBitmap;
+	if (p->GetRenderType() != GRAPHICS_RENDER_TYPE_GDI)
+		return;
+
+	Image* pImage =  ((GDIRenderBitmap*)p)->GetBitmap();
+	Image  imageDisable;
+	if (pParam->nFlag & DRAW_BITMAP_DISABLE)
+	{
+		imageDisable.CloneGrayImage(pImage);
+		pImage = &imageDisable;
+	}
+
+	if (pParam->nFlag & DRAW_BITMAP_BITBLT)
+	{
+		pImage->Draw(m_hDC, pParam->xDest, pParam->yDest, pParam->wSrc, pParam->hSrc, pParam->xSrc, pParam->ySrc, pParam->wSrc, pParam->hSrc);
+	}
+	else if (pParam->nFlag & DRAW_BITMAP_STRETCH)
+	{
+		pImage->Draw(m_hDC, pParam->xDest, pParam->yDest, pParam->wDest, pParam->hDest, pParam->xSrc, pParam->ySrc, pParam->wSrc, pParam->hSrc, pParam->pRegion);
+	}
+	else if (pParam->nFlag & DRAW_BITMAP_TILE)
+	{
+		RECT rc = {pParam->xDest, pParam->yDest, pParam->xDest+pParam->wDest, pParam->yDest+pParam->hDest};
+		HBRUSH hBrush = ::CreatePatternBrush(pImage->operator HBITMAP());
+		::FillRect(m_hDC, &rc, hBrush);
+		::DeleteObject(hBrush);
+	}
+	else if (pParam->nFlag & DRAW_BITMAP_CENTER)
+	{
+		int x = pParam->xDest + (pParam->wDest - pParam->wSrc)/2;
+		int y = pParam->yDest + (pParam->hDest - pParam->hSrc)/2;
+
+		pImage->Draw(m_hDC, x,y, pParam->wSrc, pParam->hSrc, pParam->xSrc, pParam->ySrc, pParam->wSrc, pParam->hSrc);
+	}
+	else if (pParam->nFlag & DRAW_BITMAP_ADAPT)
+	{
+		if (pParam->wSrc == 0 || pParam->hSrc == 0)
+			return;
+
+		if (pParam->wDest == 0 || pParam->hDest == 0)
+			return;
+
+
+		bool bNeedToStretch = false;
+		int  wImage = pParam->wSrc;
+		int  hImage = pParam->hSrc;
+
+		if (pParam->wDest < pParam->wSrc || pParam->hDest < pParam->hSrc)
+		{
+			bNeedToStretch = true;
+
+			double tan_x_y_image = (double)pParam->wSrc / (double)pParam->hSrc;
+			double tan_x_y_dest = (double)pParam->wDest / (double)pParam->hDest;
+
+			if( tan_x_y_image > tan_x_y_dest ) // 横向占满
+			{
+				wImage = pParam->wDest;
+				hImage = (int)((double)wImage/tan_x_y_image);
+			}
+			else   // 纵向占满
+			{
+				hImage = pParam->hDest;
+				wImage = (int)(hImage*tan_x_y_image);
+			}
+		}
+
+		// 计算图片显示位置
+		int xDisplayPos = pParam->xDest + (pParam->wDest-wImage)/2;
+		int yDisplayPos = pParam->yDest + (pParam->hDest-hImage)/2;
+
+		if( bNeedToStretch )
+		{
+			pImage->Draw(m_hDC, xDisplayPos, yDisplayPos, wImage, hImage, pParam->xSrc, pParam->ySrc, pParam->wSrc, pParam->hSrc, pParam->pRegion);
+		}
+		else
+		{
+			pImage->Draw(m_hDC, xDisplayPos, yDisplayPos, wImage, hImage, pParam->xSrc, pParam->ySrc, wImage, hImage);
+		}
+	}
+}
 
 GDIMemRenderDC::GDIMemRenderDC(HDC hDC, int nWidth, int nHeight )
 {

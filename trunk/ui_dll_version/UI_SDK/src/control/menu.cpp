@@ -698,16 +698,20 @@ void MenuBase::OnDrawItem( HRDC hRDC, ListItemBase* p )
 		this->OnDrawStringItem(hRDC, pItem);
 	}
 
+	this->OnDrawItemIcon(hRDC, pItem);
+}
+void MenuBase::OnDrawItemIcon(HRDC hRDC, MenuItem* pItem)
+{
 	// »æÖÆÍ¼±ê
 	CRect rcIcon;
 	pItem->GetParentRect(&rcIcon);
 	rcIcon.right = rcIcon.left + m_nIconGutterWidth;
 
-	UINT nState = MENU_ITEM_RADIOCHECKED_RENDER_STATE_NORMAL;
+	UINT nState = MENU_ITEM_ICON_RENDER_STATE_NORMAL;
 	if(pItem->IsDisable())
-		nState = MENU_ITEM_RADIOCHECKED_RENDER_STATE_DISABLE;
+		nState = MENU_ITEM_ICON_RENDER_STATE_DISABLE;
 	else if (IsItemHilight(pItem))
-		nState = MENU_ITEM_RADIOCHECKED_RENDER_STATE_HOVER;
+		nState = MENU_ITEM_ICON_RENDER_STATE_HOVER;
 
 	RenderBase* pIconRender = pItem->GetIconRender();
 	if (pItem->IsChecked())
@@ -727,7 +731,9 @@ void MenuBase::OnDrawItem( HRDC hRDC, ListItemBase* p )
 			m_pRadioIconRender->DrawState(hRDC, &rcIcon, nState);
 	}
 	if (NULL != pIconRender)
-		pIconRender->DrawState(hRDC, &rcIcon, 0);
+	{
+		pIconRender->DrawState(hRDC, &rcIcon, nState);
+	}
 }
 
 bool MenuBase::IsItemHilight(MenuItem* p)
@@ -807,8 +813,6 @@ void MenuBase::OnUnInitPopupControlWindow(Object* pObjMsgFrom)
 
 void MenuBase::ResetAttribute()
 {
-	CRegion4 rc(1,1,1,1);
-	this->SetPaddingRegion(&rc);
 	SAFE_DELETE(m_pSeperatorRender);
 	SAFE_DELETE(m_pPopupTriangleRender);
 	SAFE_DELETE(m_pCheckIconRender);

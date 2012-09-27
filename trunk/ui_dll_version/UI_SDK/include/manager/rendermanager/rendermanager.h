@@ -19,6 +19,33 @@ typedef enum
 }
 GRAPHICS_RENDER_TYPE;
 
+// 绘制图片的统一参数，避免需要重写多个DrawBitmap函数
+enum DRAW_BITMAP_FLAG{
+	DRAW_BITMAP_DISABLE = 0x0001,
+
+	DRAW_BITMAP_BITBLT  = 0x00010000,
+	DRAW_BITMAP_STRETCH = 0x00020000,
+	DRAW_BITMAP_TILE    = 0x00040000,
+	DRAW_BITMAP_CENTER  = 0x00080000,
+	DRAW_BITMAP_ADAPT   = 0x00100000,
+};
+typedef struct tagDRAWBITMAPPARAM
+{
+	tagDRAWBITMAPPARAM() { memset(this, 0, sizeof(tagDRAWBITMAPPARAM));}
+
+	int    nFlag;
+
+	int    xDest;
+	int    yDest;
+	int    wDest;  // 目标绘制的范围，当不需要拉伸时，不使用
+	int    hDest;  // 目标绘制的范围，当不需要拉伸时，不使用
+	int    xSrc;
+	int    ySrc;
+	int    wSrc;
+	int    hSrc;
+	Image9Region* pRegion;   // 不需要拉伸时，不使用
+
+}DRAWBITMAPPARAM, *LPDRAWBITMAPPARAM;
 
 class IRenderResource
 {
@@ -147,6 +174,7 @@ public:
 								int nDestHeight, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight,
 								Image9Region* p9Region ) = 0;
 	virtual void     ImageList_Draw( HRBITMAP hBitmap, int x, int y, int col, int row, int cx, int cy ) = 0;
+	virtual void     DrawBitmap( HRBITMAP hBitmap, DRAWBITMAPPARAM* pParam ) = 0;
 
 	//////////////////////////////////////////////////////////////////////////
 	//  bitmap

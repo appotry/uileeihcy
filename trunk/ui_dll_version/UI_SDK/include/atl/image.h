@@ -346,6 +346,7 @@ namespace UI
 		bool   HasAlphaChannel() const { return m_bHasAlphaChannel; }
 		bool   ChangeDIB2DDB(HDC hMemDC);                     // libo add 20120318 TransparentBlt只能适应于DDB，因此提供一个接口将DIB转换成DDB
 		bool   CloneGrayImage( const Image* pImage );         // libo add 20120321 去色
+		bool   DrawGray(HDC hDC, int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc);  // libo add 20120927
 		bool   ChangeHLS( const ImageData* pOriginImageData, short h, short l , short s, int nFlag );
 		bool   SaveBits( ImageData* pImageData );
 		void   RestoreBits( ImageData* pImageData );
@@ -555,6 +556,7 @@ namespace UI
 		m_nPitch( 0 ),
 		m_nBPP( 0 ),
 		m_iTransparentColor( -1 ),
+		m_colorTransparent(RGB(255,0,255)),
 		m_bHasAlphaChannel( false ),
 		m_bIsDIBSection( false )
 	{
@@ -2062,17 +2064,32 @@ namespace UI
 	}
 
 	// libo 20120321 add
-	// 创建pImage的一张去色图片
+	//	创建pImage的一张去色图片
 	//
+	// modify 20120927 将浮点运算修改为整数运算 
+	//	参考:http://blog.csdn.net/housisong/article/details/3884368 图形图像处理－之－彩色转化到灰度的速度优化. 
+	//	HouSisong@GMail.com  2009.02.08
+	// 
 	inline bool Image::CloneGrayImage( const Image* pImage )
 	{
 		if( NULL == pImage || (pImage->GetBPP()!= 32 && pImage->GetBPP()!= 24))  // 暂时不支持其它格式的图片，不了解其格式
 			return false;
 	
 		this->Destroy();
-		this->Create(pImage->GetWidth(), pImage->GetWidth(), pImage->GetBPP(), (pImage->HasAlphaChannel()==true)?createAlphaChannel:0 );
+		this->Create(pImage->GetWidth(), pImage->GetHeight(), pImage->GetBPP(), (pImage->HasAlphaChannel()==true)?createAlphaChannel:0 );
 		if( this->IsNull() )
 			return false;
+
+		// Gray = R*0.299 + G*0.587  + B*0.114;
+		//灰度转换系数   
+		const double gray_r_coeff = 0.299;  
+		const double gray_g_coeff = 0.587;  
+		const double gray_b_coeff = 0.114;
+
+		const long bit=16;  
+		const int gray_r_coeff_int = (int)( gray_r_coeff*(1<<bit)+0.4999999 );  
+		const int gray_g_coeff_int = (int)( gray_g_coeff*(1<<bit)+0.4999999 );  
+		const int gray_b_coeff_int = (1<<bit)-gray_r_coeff_int-gray_g_coeff_int; 
 
 		const BYTE* pImageBits = (const BYTE*)pImage->GetBits();
 		BYTE* pNewImageBits = (BYTE*)m_pBits;
@@ -2083,8 +2100,11 @@ namespace UI
 		{
 			for( int i = 0; i < bytesperrow; i += bytesperpx )
 			{
-				// TODO: 修改浮点运算为整数运算
-				int rgb = (int)(pImageBits[i]*0.11 + pImageBits[i+1]*0.59 + pImageBits[i+2]*0.3);  // 去色算法，可优化为 8 64 32 / 100 ??
+				//int rgb = (int)(pImageBits[i]*0.11 + pImageBits[i+1]*0.59 + pImageBits[i+2]*0.3);  // 去色算法，可优化非浮点运算
+				int rgb = (pImageBits[i]*gray_r_coeff_int   + 
+					       pImageBits[i+1]*gray_g_coeff_int + 
+						   pImageBits[i+2]*gray_b_coeff_int) >> bit;  
+				
 				pNewImageBits[i] = pNewImageBits[i+1] = pNewImageBits[i+2] = rgb;
 
 				if( m_bHasAlphaChannel )
@@ -2096,6 +2116,16 @@ namespace UI
 		}
 
 		return true;
+	}
+	inline bool Image::DrawGray(HDC hDC, int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc)
+	{
+		Image  grayImage;
+		if (false == this->CloneGrayImage(&grayImage))
+			return false;
+
+		BOOL bRet = grayImage.Draw(hDC, xDest, yDest, wDest, hDest, xSrc, ySrc, wDest, hDest);
+		grayImage.Destroy();
+		return bRet?true:false;
 	}
 
 	inline bool Image::SaveBits( ImageData* pImageData )
