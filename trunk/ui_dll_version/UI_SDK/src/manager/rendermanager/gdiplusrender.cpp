@@ -999,30 +999,7 @@ void GdiplusRenderDC::ImageList_Draw( HRBITMAP hBitmap, int x, int y, int col, i
 
 }
 
-/*
-//  彩色图像灰度化
-procedure GrayImage(Image: TGpImage);
-const
-ColorMatrix: TColorMatrix =
-((0.3, 0.3, 0.3, 0.0, 0.0),       // Red
-(0.59, 0.59, 0.59, 0.0, 0.0),  // Green
-(0.11, 0.11, 0.11, 0.0, 0.0),  // Blue
-(0.0, 0.0, 0.0, 1.0, 0.0),       // Alpha
-(0.0, 0.0, 0.0, 0.0, 1.0));      
-var
-Tmp: TGpImage;
-attr: TGpImageAttributes;
-g: TGpGraphics;
-begin
-Tmp := Image.Clone;
-g := TGpGraphics.Create(Image);
-attr := TGpImageAttributes.Create;
-try
-attr.SetColorMatrix(ColorMatrix);
-g.DrawImage(Tmp, GpRect(0, 0, Image.Width, Image.Height),
-0, 0, Tmp.Width, Tmp.Height, utPixel, attr);
 
-*/
 void GdiplusRenderDC::DrawBitmap( HRBITMAP hBitmap, DRAWBITMAPPARAM* pParam )
 {
 	if (NULL == hBitmap || NULL == pParam)
@@ -1036,12 +1013,28 @@ void GdiplusRenderDC::DrawBitmap( HRBITMAP hBitmap, DRAWBITMAPPARAM* pParam )
 	if( NULL == pBitmap )
 		return;
 
-	bool bDisable = pParam->nFlag & DRAW_BITMAP_DISABLE;
+	// 利用颜色矩阵来直接绘制灰度图
+	Gdiplus::ImageAttributes* pImageAttribute = NULL;
+	Gdiplus::ImageAttributes  imageAttribute;
+	if (pParam->nFlag & DRAW_BITMAP_DISABLE)
+	{
+		const Gdiplus::REAL r = (Gdiplus::REAL)0.3;
+		const Gdiplus::REAL g = (Gdiplus::REAL)0.59;
+		const Gdiplus::REAL b = (Gdiplus::REAL)0.11;
+		const Gdiplus::ColorMatrix matrix =
+				{r,    r,   r,     0.0f,  0.0f,      // Red
+				 g,    g,    g,    0.0f,  0.0f,      // Green
+				 b,    b,    b,    0.0f,  0.0f,      // Blue
+				 0.0f, 0.0f, 0.0f, 1.0f,  0.0f,      // Alpha
+				 0.0f, 0.0f, 0.0f, 0.0f,  1.0f};     
+		imageAttribute.SetColorMatrix(&matrix);
+		pImageAttribute = &imageAttribute;
+	}
 
 	if (pParam->nFlag & DRAW_BITMAP_BITBLT)
 	{
 		Gdiplus::RectF destRect((Gdiplus::REAL)pParam->xDest, (Gdiplus::REAL)pParam->yDest, (Gdiplus::REAL)pParam->wSrc, (Gdiplus::REAL)pParam->hSrc);
-		m_pGraphics->DrawImage(pBitmap, destRect, (Gdiplus::REAL)pParam->xSrc, (Gdiplus::REAL)pParam->ySrc, (Gdiplus::REAL)pParam->wSrc, (Gdiplus::REAL)pParam->hSrc, Gdiplus::UnitPixel, NULL, NULL, NULL);
+		m_pGraphics->DrawImage(pBitmap, destRect, (Gdiplus::REAL)pParam->xSrc, (Gdiplus::REAL)pParam->ySrc, (Gdiplus::REAL)pParam->wSrc, (Gdiplus::REAL)pParam->hSrc, Gdiplus::UnitPixel, pImageAttribute, NULL, NULL);
 	}
 	else if (pParam->nFlag & DRAW_BITMAP_STRETCH)
 	{
@@ -1059,7 +1052,7 @@ void GdiplusRenderDC::DrawBitmap( HRBITMAP hBitmap, DRAWBITMAPPARAM* pParam )
 		int y = pParam->yDest + (pParam->hDest - pParam->hSrc)/2;
 
 		Gdiplus::RectF destRect((Gdiplus::REAL)x, (Gdiplus::REAL)y, (Gdiplus::REAL)pParam->wSrc, (Gdiplus::REAL)pParam->hSrc);
-		m_pGraphics->DrawImage(pBitmap, destRect, (Gdiplus::REAL)pParam->xSrc, (Gdiplus::REAL)pParam->ySrc, (Gdiplus::REAL)pParam->wSrc, (Gdiplus::REAL)pParam->hSrc, Gdiplus::UnitPixel, NULL, NULL, NULL);
+		m_pGraphics->DrawImage(pBitmap, destRect, (Gdiplus::REAL)pParam->xSrc, (Gdiplus::REAL)pParam->ySrc, (Gdiplus::REAL)pParam->wSrc, (Gdiplus::REAL)pParam->hSrc, Gdiplus::UnitPixel, pImageAttribute, NULL, NULL);
 	}
 	else if (pParam->nFlag & DRAW_BITMAP_ADAPT)
 	{
@@ -1104,7 +1097,7 @@ void GdiplusRenderDC::DrawBitmap( HRBITMAP hBitmap, DRAWBITMAPPARAM* pParam )
 		else
 		{
 			Gdiplus::RectF destRect((Gdiplus::REAL)xDisplayPos, (Gdiplus::REAL)yDisplayPos, (Gdiplus::REAL)pParam->wSrc, (Gdiplus::REAL)pParam->hSrc);
-			m_pGraphics->DrawImage(pBitmap, destRect, (Gdiplus::REAL)pParam->xSrc, (Gdiplus::REAL)pParam->ySrc, (Gdiplus::REAL)pParam->wSrc, (Gdiplus::REAL)pParam->hSrc, Gdiplus::UnitPixel, NULL, NULL, NULL);
+			m_pGraphics->DrawImage(pBitmap, destRect, (Gdiplus::REAL)pParam->xSrc, (Gdiplus::REAL)pParam->ySrc, (Gdiplus::REAL)pParam->wSrc, (Gdiplus::REAL)pParam->hSrc, Gdiplus::UnitPixel, pImageAttribute, NULL, NULL);
 		}
 	}
 }

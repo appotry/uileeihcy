@@ -445,11 +445,13 @@ void MainWindow::OnContextMenu( HWND wnd, POINT point )
 
 #else  // 从配置文件中加载
 
+	POINT pt;
+	GetCursorPos(&pt);
+
+	int nTick1 = GetTickCount();
 	Menu*  pMenu = UI_LoadMenu(_T("main_menu"));
 	if (NULL == pMenu)
 		return;
-
-
 
 	MenuBase* pSkinMenuItem = pMenu->GetSubMenuByPos(12);
 	if (NULL != pSkinMenuItem)
@@ -474,9 +476,8 @@ void MainWindow::OnContextMenu( HWND wnd, POINT point )
 			pSkinMenuItem->AppendMenu(nFlag, i+MENU_ID_SKIN_BASE, strSkinName.c_str() );
 		}
 	}
-
-	POINT pt;
-	GetCursorPos(&pt);
+	
+	UI_LOG_DEBUG(_T("%s load menu time: %d"), FUNC_NAME, GetTickCount()-nTick1);
 	pMenu->TrackPopupMenu(0,pt.x,pt.y, static_cast<Message*>(this));
 
 	SAFE_DELETE(pMenu);
