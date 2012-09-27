@@ -2,6 +2,157 @@
 	1. 快捷键的映射，是否需要再添加一个xml文件
 	2. DoModal的退出还没有做好
 	
+ 未实现：
+ 1. Min max width/height 限制
+ 4. 由uibuilder启动时，ui的日志没有输出到 console 中
+ 5. 在拖动窗口大小的时候，EDIT位置变化时，CARAT没有随者变化
+ 7. 测试font的效果，是否可以改变
+ 10.可否考虑将ID类型都映射为一个整数，而不是用字符串去匹配？
+ 11.xml文件可否考虑分开，而不是全放在一个文件中？
+ 12.把所有的xmldao都用find_elem_in_xml/find_elem_under_style来实现
+ 13.load xml时，没有都转换成小写的
+ 17.CMainFrame::OnMenuSave只实现了保存所有的文件，没有实现保存当前文件
+ 18.使用快捷键资源来实现快捷键 ctrl+s save 
+ 19.style 编辑器不应该可以编辑继续得到的属性，也无法保存继续得到的属性问题
+ 21.PrepareDC的 oldFont 之类的东西如何恢复？
+ 25.优化SetWindowRgn缩放功能
+ 27.Gdi+下面的MeasureString偏大的原因，以及DrawString放不下的原因
+ 28.换肤时，崩溃。先打开三个窗口，再关闭第二个窗口，换肤，崩溃。
+ 30.提供一个方法：DoVerb( "action", xxx ); "press" "click" "unpress" "hover" "unhover"
+ 31.考虑将WndProc做成virtual
+ 32.Direct3D + GDI 
+    1). 在Render当中的 EndScene前添加：
+		IDirect3DSurface9*  pSurface = NULL;
+		g_pD3DDevice->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&pSurface);
+		
+		HDC hDC = NULL;
+		pSurface->GetDC(&hDC);
+		....
+		UpdateLayeredWindow(,NULL,,.... hDC,... );
+		pSurface->ReleaseDC(hDC);
+		
+	2). d3dpp.Flags = D3DPRESENTFALG_LOCKABLE_BACKBUFFER;
+
+34. 从无主题切换到其他主题的时候，界面显示异常
+ 
+39. 考虑所有的virtual函数，能不需要的全都不做成virtual函数！
+	为什么不能用虚函数来实现消息映射？ -- 深入解析MFC	
+	虽然这一方法符合C++和OOP风格，但它仍存在问题。请记住，虚函数是用类的虚函数表(virtual fuction table)
+	实现的，而每个派生类都会带一个虚函数表的拷贝。虚函数表中的每个入口都是一个4字节的指针。数一下虚函数
+	要处理的消息个数，将这个数目乘4，这样每个类就会在虚函数表中带来大量的额外字节。
+	
+	但析构函数要是虚函数，这样就可以通过多态机制调用析构函数。换句话说，MFC打算自己创建和删除很多从CObject
+	派生的类。
+
+40. Windows 快捷键大全
+	http://msdn.microsoft.com/en-us/library/ms971323.aspx
+41. 当窗口失活时，不显示FOCUS
+42. 按钮的空格键
+43. Win7 Style Builder <-- win7按钮素材
+45. 考虑将按钮的多态背景做成可复用的。例如EDIT的多态背景。
+46. 考虑当对象隐藏时，模拟一个 MSG_WM_SHOWWINDOW的消息
+47. 修改了GetHDC的字体选择，会对theme绘制造成什么影响？
+51. FONTCOLORLISTTEXTRENDER <-- xml属性测试
+52. 需要增加一下变量，保存当前皮肤的hue值，后面加载的图片都要进行转换 （同时将active skin功能也做一下）
+56. LOG 支持__FUNCTION__ 参数！
+57. 考虑支持缩放效果
+58. icon在系统16位色下面显示全白
+59. 去掉ResetAttribute方法
+60. 将BkRender, ForeRender移到IObjectRender当中，子类controlRender可继承
+64. 关于DrawThemexxx的Gdiplus，可以考虑先画在一个HDC的BITMAP上面，然后转成Gdiplus::Bitmap
+65. TextRender可以考虑增加一个文字阴影效果，仿XP STYLE
+66. Edit中，字体改变后/换肤后，m_nCaretHeight没有更新，将导致绘制位置出错
+67. WPF中的元素Visibility可视性有三种值,之前我也没有仔细看过,一般就都用Hidden了(Flash的习惯),但事实上呢,Collapsed也有非常大的用处,hidden仅仅将元素设为不可视,但是元素在画面上依然将占有空间,而Collapsed的话,在不可视的基础上,还能将元素在画面上的占位符清除,元素彻底不影响画面.所以,某些时候可能用Collapsed更为合理.在做一个StackPanel的时候最明显,三个对象在StackPanel中的时候,中间的对象如果Hidden,还将占有Stack中的位置,而Collapsed的话,下面的对象就会挤上了(有点像DIV了..)  
+	VISIBILITY_HIDDEN,     // 不可见，占用布局
+	VISIBILITY_Visible     // 可见，  占用布局
+	VISIBILITY_COLLAPSED,  // 不可见，不占用布局
+68. 考虑下m_pLayout是否可以不作为一个成员变量出现，而是作为一个helper类出现？
+69. 为什么在customwindow上面点击一下，还会产生一个WM_MOUSEMOVE的消息？
+70. RICHEDIT在光标出现的时候，隐藏RICHEDIT，结果窗口上会遗留一个光标的图形不刷新。	
+71. Windowless richedit：字体定义，滚动条显示，拖拽文字，只读模式，插入图片，GIF
+72. 如何实现菜单的换扶（不是所有的菜单都配置在XML中的，那么没有配置在XML中的对象是否就没法实现换肤？）
+73. 点击打开一个系统COMBOOX的下拉列表，然后将鼠标放在一个UI控件上面，点击一下，下拉列表消失，再继续点击UI控件，无反应。
+    因为没有人去触发一个WM_MOUSEMOVE来set hover对象
+76. 菜单提示条问题
+78. 将layout.xml增加一个<#include>标签，允许将一些资源抽取出来 
+83. 音乐频谱功能 
+84. 实现新的一类换肤功能：背景主题图片	
+89. 普通窗口拉伸优化！不平滑
+92. playlistdlg resize的时候， listctrl 变化不正常，会变黑
+93. WINDOW 的两个消息链有点混乱，能不能想办法都合入到processwindowmessage中，ui_begin_msg_map只由外部去处理
+95. 逐步将句柄调用方式修改为接口调用方法
+96. 点击任务栏上面的按钮不能最小化窗口
+101. 将鼠标从hover item慢慢移动到submenu item时，会先收到submenumousemove，然后收到mouseleave，导致hover item闪烁
+	
+==================================疑问==================================
+1. Message类是否需要一个 m_pCurMsg成员变量？
+ 
+==================================当前正在进行的任务==================================
+95. 逐步将句柄调用方式修改为接口调用方法
+    UI_GetBitmap... ，将返回值修改为 out 参数
+ 
+==================================Finish=============================
+ 
+8. 子控件可以超出parent的区域进行绘制，但不会刷新，例如sliderctrl的滑动按钮
+ 
+9. 为每一个控件提供一个能直接刷新界面的方法，而不用去调用UpdateObject而触发所有的控件更新
+ 
+38. <紧急>，将对象的创建放在 WM_CREATE/WM_INITDIALOG中，将对象的释放放在 WM_NCDESTROY中    
+ 
+37. 将WTL的StartDialogProc模式搬进WindowBase::Create中，这样就能拦截所有的消息了。
+    至于this指针的传递，可以考虑map<HTREAD,pThis>的方式，+ 线程同步
+    --> 使用ATL提供的方式，在创建窗口之前使用UI_AddCreateWndData/UI_ExtractCreateWndData
+    
+6. ToolTip 插件
+	--> 未使用插件的方式，而是在MouseManager当中使用SetTimer来实现
+    
+ WM_IME_STARTCOMPOSITION,WM_IME_COMPOSITION,WM_IME_ENDCOMPOSITION
+ 
+49. 取消ImageSliderCtrl ->  backrender!
+50. GDIPLUS pojo_imageitem changeskinH
+
+63. 修改optiondlg中焦点切换不刷新的问题 --> Groupbox没有设置为透明导致
+
+*69. 现在重置属性，需要的构造函数中和resetattrib函数中都写一份代码，很容易导致不匹配，急需修改	
+*70. 如何在析构列表控件的时候，还能调用虚函数OnDeleteItem??,同时解决DestroyUI的虚函数继承问题
+     增加一人UIObjCreator InitialConstruct FinalConstruct FinalRelease
+62. 需要一套更灵活的classname <-> xmlname 的注册映射关系
+36. 考虑下，取消PrePareDC，每个对象都有一个FONT*属性，每次创建一个对象，，都会发送一个WM_SETFONT的消息
+ 3. PrepareDC( hDC ); 对应的SaveDC RestoreDC是否正确使用
+29. CustomWindow收编LayeredWindow	
+33. visible enable  的继承关系 
+35. 去除一个窗口的透明属性
+79. 换肤后，点击滚动条的line down，崩溃	             
+    换肤前line down button 为 focus对象保存在keyboard mgr中，换肤过程中该对象被销毁，导致后面在切换焦点时
+    继续引用原指针而崩溃
+80. 需要解决鼠标同时在两个popup menuitem上移动时，需要将上一个popup menu隐藏
+77. 菜单项radio check功能	
+54. theme change消息的响应
+53. 恢复skinh
+48. 直接UpdateObject刷新子对象时，会刷新在父对象的外面。例如将progress高度调小，上面的
+    按钮就会刷新到外面。将panel大小调小，上面的按钮会刷新到外面
+44. 当父窗口的字体改变后，如何同步给人它的子对象？怎么区分子对象是有字体的？
+14. 将pojp.h -> pojo.cpp
+15. 优化mapXml2Class
+85. 分层窗口为什么没有参与亮度的改变 : 错把gdiplus bitmap中的亮度改变的代码删除了
+86. 分层窗口下面，对EDIT进行双击取词，发现选中部分会被第二次截断。就是因为caretwindow在mouse up之前又发送了一次mouse move的消息，
+    导致的选区被修改...怎么办？  -- 在dbclick中将m_bDrag = false;
+61. LISTBOX的局部刷新
+90. map调用方法优化： map.count + map[] 效率低于 map.find	
+87. 使用CaretWindow时，如果移动窗口，光标不会跟随
+74. ListCtrlBase::ReDrawItem目前没用
+55. render增加一个接口，判断DrawState，这个状态是否支持
+    -- 修改为增加了一个 map映射字段，可以用于配置哪个状态对应哪个图片项
+94. 删除播放列表所有项时，滚动条没有刷新          
+88. 分层窗口优化！拖动窗口时，有明显的晃动
+91. 当使用方向 → 时，弹出的子菜单又会向当前窗口发送一个WM_MOUSEMOVE消息，就可能导致当前父菜单另一个ITEM得到HOVER，使得子菜单被关闭
+97. Menu Item为什么和xml中有1px padding差别 --- 默认设置了1px padding
+75. 分层菜单设置
+98. 透明菜单的实现，现在会崩溃
+100. 普通image绘制icon时，转换成icon类型
+99. gdiplus需要同步增加： DrawGray, Icon, imagelist Bitmap 类型
+81. 图标列表的功能、icon大小读取的功能	
+82. 音乐插件的功能，目前不支持WMA的文件  -- DirectShow已支持WMA
 	
 备注：
 1. Q: 怎么解决用VS2008编译生成的程序对vc运行库的依赖？
@@ -99,157 +250,7 @@
       测试得出，绘制同样的一张PNG 100次，gdiplus需要800ms，而gdi的alphablend只需要15ms
       将窗口的graphics render type换成gdi后，效率明显变快。但同时却失去了成为分层窗口的机会
   
- 未实现：
- 1. Min max width/height 限制
- 4. 由uibuilder启动时，ui的日志没有输出到 console 中
- 5. 在拖动窗口大小的时候，EDIT位置变化时，CARAT没有随者变化
- 7. 测试font的效果，是否可以改变
- 10.可否考虑将ID类型都映射为一个整数，而不是用字符串去匹配？
- 11.xml文件可否考虑分开，而不是全放在一个文件中？
- 12.把所有的xmldao都用find_elem_in_xml/find_elem_under_style来实现
- 13.load xml时，没有都转换成小写的
- 17.CMainFrame::OnMenuSave只实现了保存所有的文件，没有实现保存当前文件
- 18.使用快捷键资源来实现快捷键 ctrl+s save 
- 19.style 编辑器不应该可以编辑继续得到的属性，也无法保存继续得到的属性问题
- 21.PrepareDC的 oldFont 之类的东西如何恢复？
- 25.优化SetWindowRgn缩放功能
- 27.Gdi+下面的MeasureString偏大的原因，以及DrawString放不下的原因
- 28.换肤时，崩溃。先打开三个窗口，再关闭第二个窗口，换肤，崩溃。
- 30.提供一个方法：DoVerb( "action", xxx ); "press" "click" "unpress" "hover" "unhover"
- 31.考虑将WndProc做成virtual
- 32.Direct3D + GDI 
-    1). 在Render当中的 EndScene前添加：
-		IDirect3DSurface9*  pSurface = NULL;
-		g_pD3DDevice->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&pSurface);
-		
-		HDC hDC = NULL;
-		pSurface->GetDC(&hDC);
-		....
-		UpdateLayeredWindow(,NULL,,.... hDC,... );
-		pSurface->ReleaseDC(hDC);
-		
-	2). d3dpp.Flags = D3DPRESENTFALG_LOCKABLE_BACKBUFFER;
-
-34. 从无主题切换到其他主题的时候，界面显示异常
- 
-39. 考虑所有的virtual函数，能不需要的全都不做成virtual函数！
-	为什么不能用虚函数来实现消息映射？ -- 深入解析MFC	
-	虽然这一方法符合C++和OOP风格，但它仍存在问题。请记住，虚函数是用类的虚函数表(virtual fuction table)
-	实现的，而每个派生类都会带一个虚函数表的拷贝。虚函数表中的每个入口都是一个4字节的指针。数一下虚函数
-	要处理的消息个数，将这个数目乘4，这样每个类就会在虚函数表中带来大量的额外字节。
-	
-	但析构函数要是虚函数，这样就可以通过多态机制调用析构函数。换句话说，MFC打算自己创建和删除很多从CObject
-	派生的类。
-
-40. Windows 快捷键大全
-	http://msdn.microsoft.com/en-us/library/ms971323.aspx
-41. 当窗口失活时，不显示FOCUS
-42. 按钮的空格键
-43. Win7 Style Builder <-- win7按钮素材
-45. 考虑将按钮的多态背景做成可复用的。例如EDIT的多态背景。
-46. 考虑当对象隐藏时，模拟一个 MSG_WM_SHOWWINDOW的消息
-47. 修改了GetHDC的字体选择，会对theme绘制造成什么影响？
-51. FONTCOLORLISTTEXTRENDER <-- xml属性测试
-52. 需要增加一下变量，保存当前皮肤的hue值，后面加载的图片都要进行转换 （同时将active skin功能也做一下）
-56. LOG 支持__FUNCTION__ 参数！
-57. 考虑支持缩放效果
-58. icon在系统16位色下面显示全白
-59. 去掉ResetAttribute方法
-60. 将BkRender, ForeRender移到IObjectRender当中，子类controlRender可继承
-64. 关于DrawThemexxx的Gdiplus，可以考虑先画在一个HDC的BITMAP上面，然后转成Gdiplus::Bitmap
-65. TextRender可以考虑增加一个文字阴影效果，仿XP STYLE
-66. Edit中，字体改变后/换肤后，m_nCaretHeight没有更新，将导致绘制位置出错
-67. WPF中的元素Visibility可视性有三种值,之前我也没有仔细看过,一般就都用Hidden了(Flash的习惯),但事实上呢,Collapsed也有非常大的用处,hidden仅仅将元素设为不可视,但是元素在画面上依然将占有空间,而Collapsed的话,在不可视的基础上,还能将元素在画面上的占位符清除,元素彻底不影响画面.所以,某些时候可能用Collapsed更为合理.在做一个StackPanel的时候最明显,三个对象在StackPanel中的时候,中间的对象如果Hidden,还将占有Stack中的位置,而Collapsed的话,下面的对象就会挤上了(有点像DIV了..)  
-	VISIBILITY_HIDDEN,     // 不可见，占用布局
-	VISIBILITY_Visible     // 可见，  占用布局
-	VISIBILITY_COLLAPSED,  // 不可见，不占用布局
-68. 考虑下m_pLayout是否可以不作为一个成员变量出现，而是作为一个helper类出现？
-69. 为什么在customwindow上面点击一下，还会产生一个WM_MOUSEMOVE的消息？
-70. RICHEDIT在光标出现的时候，隐藏RICHEDIT，结果窗口上会遗留一个光标的图形不刷新。	
-71. Windowless richedit：字体定义，滚动条显示，拖拽文字，只读模式，插入图片，GIF
-72. 如何实现菜单的换扶（不是所有的菜单都配置在XML中的，那么没有配置在XML中的对象是否就没法实现换肤？）
-73. 点击打开一个系统COMBOOX的下拉列表，然后将鼠标放在一个UI控件上面，点击一下，下拉列表消失，再继续点击UI控件，无反应。
-    因为没有人去触发一个WM_MOUSEMOVE来set hover对象
-75. 分层菜单设置
-98. 透明菜单的实现，现在会崩溃
-76. 菜单提示条问题
-78. 将layout.xml增加一个<#include>标签，允许将一些资源抽取出来 
-81. 图标列表的功能、icon大小读取的功能	
-82. 音乐插件的功能，目前不支持WMA的文件
-83. 音乐频谱功能 
-84. 实现新的一类换肤功能：背景主题图片	
-89. 普通窗口拉伸优化！不平滑
-92. playlistdlg resize的时候， listctrl 变化不正常，会变黑
-93. WINDOW 的两个消息链有点混乱，能不能想办法都合入到processwindowmessage中，ui_begin_msg_map只由外部去处理
-95. 逐步将句柄调用方式修改为接口调用方法
-96. 点击任务栏上面的按钮不能最小化窗口
-99. gdiplus需要同步增加： DrawGray, Icon, imagelist Bitmap 类型
-100. 普通image绘制icon时，转换成icon类型
-	
-==================================疑问==================================
-1. Message类是否需要一个 m_pCurMsg成员变量？
- 
-==================================当前正在进行的任务==================================
-95. 逐步将句柄调用方式修改为接口调用方法
-    UI_GetBitmap... ，将返回值修改为 out 参数
- 
-==================================Finish=============================
- 
-8. 子控件可以超出parent的区域进行绘制，但不会刷新，例如sliderctrl的滑动按钮
- 
-9. 为每一个控件提供一个能直接刷新界面的方法，而不用去调用UpdateObject而触发所有的控件更新
- 
-38. <紧急>，将对象的创建放在 WM_CREATE/WM_INITDIALOG中，将对象的释放放在 WM_NCDESTROY中    
- 
-37. 将WTL的StartDialogProc模式搬进WindowBase::Create中，这样就能拦截所有的消息了。
-    至于this指针的传递，可以考虑map<HTREAD,pThis>的方式，+ 线程同步
-    --> 使用ATL提供的方式，在创建窗口之前使用UI_AddCreateWndData/UI_ExtractCreateWndData
-    
-6. ToolTip 插件
-	--> 未使用插件的方式，而是在MouseManager当中使用SetTimer来实现
-    
- WM_IME_STARTCOMPOSITION,WM_IME_COMPOSITION,WM_IME_ENDCOMPOSITION
- 
-49. 取消ImageSliderCtrl ->  backrender!
-50. GDIPLUS pojo_imageitem changeskinH
-
-63. 修改optiondlg中焦点切换不刷新的问题 --> Groupbox没有设置为透明导致
-
-*69. 现在重置属性，需要的构造函数中和resetattrib函数中都写一份代码，很容易导致不匹配，急需修改	
-*70. 如何在析构列表控件的时候，还能调用虚函数OnDeleteItem??,同时解决DestroyUI的虚函数继承问题
-     增加一人UIObjCreator InitialConstruct FinalConstruct FinalRelease
-62. 需要一套更灵活的classname <-> xmlname 的注册映射关系
-36. 考虑下，取消PrePareDC，每个对象都有一个FONT*属性，每次创建一个对象，，都会发送一个WM_SETFONT的消息
- 3. PrepareDC( hDC ); 对应的SaveDC RestoreDC是否正确使用
-29. CustomWindow收编LayeredWindow	
-33. visible enable  的继承关系 
-35. 去除一个窗口的透明属性
-79. 换肤后，点击滚动条的line down，崩溃	             
-    换肤前line down button 为 focus对象保存在keyboard mgr中，换肤过程中该对象被销毁，导致后面在切换焦点时
-    继续引用原指针而崩溃
-80. 需要解决鼠标同时在两个popup menuitem上移动时，需要将上一个popup menu隐藏
-77. 菜单项radio check功能	
-54. theme change消息的响应
-53. 恢复skinh
-48. 直接UpdateObject刷新子对象时，会刷新在父对象的外面。例如将progress高度调小，上面的
-    按钮就会刷新到外面。将panel大小调小，上面的按钮会刷新到外面
-44. 当父窗口的字体改变后，如何同步给人它的子对象？怎么区分子对象是有字体的？
-14. 将pojp.h -> pojo.cpp
-15. 优化mapXml2Class
-85. 分层窗口为什么没有参与亮度的改变 : 错把gdiplus bitmap中的亮度改变的代码删除了
-86. 分层窗口下面，对EDIT进行双击取词，发现选中部分会被第二次截断。就是因为caretwindow在mouse up之前又发送了一次mouse move的消息，
-    导致的选区被修改...怎么办？  -- 在dbclick中将m_bDrag = false;
-61. LISTBOX的局部刷新
-90. map调用方法优化： map.count + map[] 效率低于 map.find	
-87. 使用CaretWindow时，如果移动窗口，光标不会跟随
-74. ListCtrlBase::ReDrawItem目前没用
-55. render增加一个接口，判断DrawState，这个状态是否支持
-    -- 修改为增加了一个 map映射字段，可以用于配置哪个状态对应哪个图片项
-94. 删除播放列表所有项时，滚动条没有刷新          
-88. 分层窗口优化！拖动窗口时，有明显的晃动
-91. 当使用方向 → 时，弹出的子菜单又会向当前窗口发送一个WM_MOUSEMOVE消息，就可能导致当前父菜单另一个ITEM得到HOVER，使得子菜单被关闭
-97. Menu Item为什么和xml中有1px padding差别 --- 默认设置了1px padding
-
+  
 /====================双屏坐标处理代码=================================================	 
 	CMFCPopupMenu::RecalcLayout, afxmenupopup.cpp L630
 	CRect rectScreen;

@@ -4,6 +4,7 @@ PopupControlWindow::PopupControlWindow(Object* pObj)
 {
 	m_pObject = pObj;
 	m_bExitLoop = false;
+	this->SetWindowResizeType(WRSB_NONE);
 }
 
 

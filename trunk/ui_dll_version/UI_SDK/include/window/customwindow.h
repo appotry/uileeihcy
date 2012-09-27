@@ -9,7 +9,8 @@ namespace UI
 #define WRSB_TOPRIGHT         0x0400     // ¨J
 #define WRSB_BOTTOMLEFT       0x0200     // ¨L
 #define WRSB_BOTTOMRIGHT      0x0100     // ¨K
-#define WRSB_ALL              WRSB_TOP | WRSB_LEFT | WRSB_BOTTOM | WRSB_RIGHT | WRSB_TOPLEFT | WRSB_TOPRIGHT | WRSB_BOTTOMLEFT | WRSB_BOTTOMRIGHT
+#define WRSB_CAPTION          0x0080     // 
+#define WRSB_ALL              WRSB_CAPTION | WRSB_TOP | WRSB_LEFT | WRSB_BOTTOM | WRSB_RIGHT | WRSB_TOPLEFT | WRSB_TOPRIGHT | WRSB_BOTTOMLEFT | WRSB_BOTTOMRIGHT
 #define WRSB_NONE             0x0
 
 class LayeredWindowWrap;

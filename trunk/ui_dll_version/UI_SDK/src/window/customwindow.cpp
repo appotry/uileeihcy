@@ -14,7 +14,7 @@ CustomWindow::CustomWindow(void)
 	m_hRgn_bottomleft = NULL;
 	m_hRgn_bottomright = NULL;
 
-	this->m_nResizeBit = WRSB_NONE;
+	this->m_nResizeBit = WRSB_CAPTION;
 	this->m_pLayeredWindowWrap = NULL;		
 }
 CustomWindow::~CustomWindow( )
@@ -629,13 +629,14 @@ void CustomWindow::EndDrawObject( CRect* prcWindow, bool bFinish)
 //
 UINT CustomWindow::OnHitTest( POINT* pt )
 {
-	if( m_nResizeBit == WRSB_NONE )
+	if (m_nResizeBit == WRSB_NONE)
 	{
-		if( NULL == GetHoverObject() && NULL == GetPressObject() )
-		{
-			return HTCAPTION;
-		}
 		return HTCLIENT;
+	}
+	else if (m_nResizeBit == WRSB_CAPTION)
+	{
+		if( NULL == GetHoverObject() && NULL == GetPressObject())
+			return HTCAPTION;
 	}
 
 	if( NULL == pt )
@@ -677,7 +678,7 @@ UINT CustomWindow::OnHitTest( POINT* pt )
 	}
 	else
 	{
-		if( NULL == GetHoverObject() && NULL == GetPressObject()  )
+		if (m_nResizeBit & WRSB_CAPTION && NULL == GetHoverObject() && NULL == GetPressObject())
 		{
 			nHitTest = HTCAPTION;
 		}
@@ -1133,6 +1134,9 @@ void LayeredWindowWrap::InvalidateObject( Object* pInvalidateObj, bool bUpdateNo
 
 	if (OBJ_WINDOW == pInvalidateObj->GetObjectType())
 	{
+		if (!IsWindowVisible(m_pWindow->m_hWnd))  // 避免第一次绘制时窗口不可见时，仍然Commit2LayeredWindow，导致窗口全黑
+			return;
+
 		::SendMessage(m_pWindow->m_hWnd, WM_PAINT, (WPARAM)m_hLayeredMemDC, 0);  // 通过发送原始WM_PAINT消息，使分层窗口也能和普通窗口一样响应WM_PAINT
 
 		// 备注：测试证明，通过RedrawWindow也能够使得分层窗口收到WM_PAINT消息，太神奇了，但BeginPaint得到的HDC
