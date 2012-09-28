@@ -666,11 +666,13 @@ void MouseManager::OnObjectDeleteInd(Object* pObj)
 		return;
 	if (m_pObjHover == pObj)
 	{
-		m_pObjHover = NULL;
+//		m_pObjHover = NULL;  // 注：如果直接赋空，会导致该对象的状态未更新(hover/press state)
+		SetHoverObject(NULL);
 	}
 	if (m_pObjPress == pObj)
 	{
-		m_pObjPress = NULL;
+//		m_pObjPress = NULL;  // 注：如果直接赋空，会导致该对象的状态未更新(hover/press state)
+		SetPressObject(NULL);
 	}
 }
 

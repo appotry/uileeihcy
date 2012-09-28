@@ -75,6 +75,7 @@ public:
 		{
 			Create();
 		}
+
 		String strTooltipText;
 		FixStringWordBreakUnderXP(strText, strTooltipText);
 
