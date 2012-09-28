@@ -190,26 +190,6 @@ protected:
 
 //////////////////////////////////////////////////////////////////////////
 
-// enum RENDER_MGR_POLICY
-// {
-// 	RENDER_MGR_POLICY_AUTO,            // 正常下使用GDI，在分层窗口下面使用GDIPLUS
-// 	RENDER_MGR_POLICY_GDI,             // 强制全部使用GDI
-// 	RENDER_MGR_POLICY_GDIPLUS          // 强制全部使用GDIPLUS
-// };
-class RenderManager
-{
-public:
-	RenderManager();
-	~RenderManager();
-
-	HRDC GetHRDC( HWND hWnd );
-	HRDC GetHRDC( HDC hDC, HWND hWnd );
-	void ReleaseHRDC( HRDC hRDC );
-	HRDC CreateRenderTarget( HWND hWnd, int nWidth, int nHeight );
-
-private:
-};
-
 class RenderOffsetClipHelper
 {
 public:
@@ -234,7 +214,6 @@ UIAPI GRAPHICS_RENDER_TYPE GetGraphicsRenderType(HWND hWnd);
 UIAPI HRDC     GetHRDC(HDC hDC, HWND hWnd);
 UIAPI HRDC     GetHRDC(HWND hWnd);
 UIAPI void     ReleaseHRDC(HRDC hRDC);
-UIAPI HRDC     CreateCompatibleHRDC( HRDC hRDC, int nWidth, int nHeight );
 UIAPI HRDC     CreateRenderTarget( HWND hWnd, int nWidth, int nHeight );
 UIAPI bool     BeginDraw(HRDC hRDC, HDC hDC);
 UIAPI void     EndDraw( HRDC hRDC );

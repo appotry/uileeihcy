@@ -362,10 +362,10 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 		this->m_mapAttribute.erase( XML_ID );
 	}
 	
-	if (m_strID.empty())
-	{
-		UI_LOG_WARN( _T("Object::SetAttrib, not find name=%s attribute: \"%s\""), this->GetObjectName(), XML_ID ) ;
-	}
+// 	if (m_strID.empty())
+// 	{
+// 		UI_LOG_WARN( _T("Object::SetAttrib, not find name=%s attribute: \"%s\""), this->GetObjectName(), XML_ID ) ;
+// 	}
 
 	//  3. 设置布局相关值
 	iter = mapAttrib.find(XML_WIDTH);

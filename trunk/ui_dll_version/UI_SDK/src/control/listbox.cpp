@@ -105,7 +105,10 @@ void ListCtrlBase::RemoveItem(ListItemBase* pItem, bool bUpdate)
 	bool bNeedUpdateObject = true;   // TODO: 该逻辑没有处理！
 	if( m_pFirstSelectedItem == pItem )
 	{
-		SetSelectedItem(pItem->GetNextSelection(), bNeedUpdateObject);
+		int nUpdateFlag = LISTCTRLBASE_NEED_UPDATE_FLAG_NONE;
+		SetSelectedItem(pItem->GetNextSelection(), nUpdateFlag);
+		if (nUpdateFlag != LISTCTRLBASE_NEED_UPDATE_FLAG_NONE)
+			bNeedUpdateObject = true;
 	}
 	if( NULL != pItem->GetPrevSelection() )
 	{
@@ -357,16 +360,20 @@ void ListCtrlBase::UpdateItemRectAndScroll( ListItemBase* pStart )
 	this->m_MgrScrollbar.SetScrollRange(sizeContent.cx, sizeContent.cy);
 }
 
-void ListCtrlBase::SetSelectedItem(ListItemBase* pItem, bool& bNeedUpdateObject )
+void ListCtrlBase::SetSelectedItem(ListItemBase* pItem, int& nNeedUpdateFlag )
 {
 	ListItemBase* pOldSelectoinItem = m_pFirstSelectedItem;
 	m_pFirstSelectedItem = pItem;
 
+	bool bNeedUpdateObject = false;
 	this->MakeItemVisible(m_pFirstSelectedItem, bNeedUpdateObject);
+	if (bNeedUpdateObject)
+		nNeedUpdateFlag |= LISTCTRLBASE_NEED_UPDATE_FLAG_ALL;
+	
 
 	if (m_pFirstSelectedItem != pOldSelectoinItem)
 	{
-		bNeedUpdateObject = true;
+		nNeedUpdateFlag |= LISTCTRLBASE_NEED_UPDATE_FLAG_ITEM;
 
 		UIMSG  msg;
 		msg.message = UI_WM_NOTIFY;
@@ -826,11 +833,15 @@ void ListCtrlBase::OnLButtonDown(UINT nFlags, POINT point)
 
 		if( this->HitTest(point) == m_pPressItem )
 		{
-			bool bNeedUpdateObject = false;
+			int nNeedUpdateObjectFlag = LISTCTRLBASE_NEED_UPDATE_FLAG_NONE;
 			ListItemBase* pOldSelItem = m_pFirstSelectedItem;
-			SetSelectedItem(m_pPressItem, bNeedUpdateObject);
+			SetSelectedItem(m_pPressItem, nNeedUpdateObjectFlag);
 
-			if( bNeedUpdateObject )
+			if (nNeedUpdateObjectFlag & LISTCTRLBASE_NEED_UPDATE_FLAG_ALL) // 产生了滚动，刷新整个列表
+			{
+				this->UpdateObject();
+			}
+			else if (nNeedUpdateObjectFlag & LISTCTRLBASE_NEED_UPDATE_FLAG_ITEM)
 			{
 				this->ReDrawItem(pOldSelItem, m_pPressItem);
 			}
@@ -872,7 +883,8 @@ void ListCtrlBase::OnDBClick(UINT nFlags, POINT point)
 
 void ListCtrlBase::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
 {
-   	bool bNeedUpdateObject = false;
+// 	bool bNeedUpdateObject = false;
+	int  nNeedUpdateFlag = LISTCTRLBASE_NEED_UPDATE_FLAG_NONE;
 	ListItemBase* pOldSelItem = m_pFirstSelectedItem;
 
 	if( VK_DOWN == nChar )
@@ -882,22 +894,22 @@ void ListCtrlBase::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
 			if (NULL == m_pHoverItem)
 			{
 				if( NULL == m_pFirstSelectedItem )
-					SetSelectedItem(m_pFirstItem, bNeedUpdateObject);
+					SetSelectedItem(m_pFirstItem, nNeedUpdateFlag);
 				else if( NULL != m_pFirstSelectedItem->GetNextItem() )
-					SetSelectedItem(m_pFirstSelectedItem->GetNextItem(), bNeedUpdateObject);
+					SetSelectedItem(m_pFirstSelectedItem->GetNextItem(), nNeedUpdateFlag);
 			}
 			else   // 在存在HOVER对象的情况下面，选择HOVER的下一个对象
 			{
 				if (NULL != m_pHoverItem->GetNextItem())
-					SetSelectedItem(m_pHoverItem->GetNextItem(), bNeedUpdateObject);
+					SetSelectedItem(m_pHoverItem->GetNextItem(), nNeedUpdateFlag);
 				else
-					SetSelectedItem(m_pHoverItem, bNeedUpdateObject);
+					SetSelectedItem(m_pHoverItem, nNeedUpdateFlag);
 			}
 
 			if(NULL != m_pFirstSelectedItem)  // 清除hover对象，显示selection对象
 			{
 				if (m_pHoverItem != NULL)
-					bNeedUpdateObject = true;
+					nNeedUpdateFlag |= LISTCTRLBASE_NEED_UPDATE_FLAG_ITEM ;
 
 				SetHoverItem(NULL);
 			}
@@ -905,9 +917,9 @@ void ListCtrlBase::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
 		else  // 正常列表框
 		{
 			if( NULL == m_pFirstSelectedItem )
-				SetSelectedItem(m_pFirstItem, bNeedUpdateObject);
+				SetSelectedItem(m_pFirstItem, nNeedUpdateFlag);
 			else if( NULL != m_pFirstSelectedItem->GetNextItem() )
-				SetSelectedItem(m_pFirstSelectedItem->GetNextItem(), bNeedUpdateObject);
+				SetSelectedItem(m_pFirstSelectedItem->GetNextItem(), nNeedUpdateFlag);
 		}
 	}
 	else if( VK_UP == nChar )
@@ -918,22 +930,22 @@ void ListCtrlBase::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
 			if (NULL == m_pHoverItem)
 			{
 				if( NULL == m_pFirstSelectedItem )
-					SetSelectedItem(m_pFirstItem, bNeedUpdateObject);
+					SetSelectedItem(m_pFirstItem, nNeedUpdateFlag);
 				else if( NULL != m_pFirstSelectedItem->GetPrevItem() )
-					SetSelectedItem(m_pFirstSelectedItem->GetPrevItem(), bNeedUpdateObject);
+					SetSelectedItem(m_pFirstSelectedItem->GetPrevItem(), nNeedUpdateFlag);
 			}
 			else   // 在存在HOVER对象的情况下面，选择HOVER的下一个对象
 			{
 				if (NULL != m_pHoverItem->GetPrevItem())
-					SetSelectedItem(m_pHoverItem->GetPrevItem(), bNeedUpdateObject);
+					SetSelectedItem(m_pHoverItem->GetPrevItem(), nNeedUpdateFlag);
 				else
-					SetSelectedItem(m_pHoverItem, bNeedUpdateObject);
+					SetSelectedItem(m_pHoverItem, nNeedUpdateFlag);
 			}
 
 			if(NULL != m_pFirstSelectedItem)  // 清除hover对象，显示selection对象
 			{
 				if (m_pHoverItem != NULL)
-					bNeedUpdateObject = true;
+					nNeedUpdateFlag |= LISTCTRLBASE_NEED_UPDATE_FLAG_ITEM;
 
 				SetHoverItem(NULL);
 			}
@@ -941,13 +953,17 @@ void ListCtrlBase::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
 		else  // 正常列表框
 		{
 			if( NULL == m_pFirstSelectedItem )
-				SetSelectedItem(m_pFirstItem, bNeedUpdateObject);
+				SetSelectedItem(m_pFirstItem, nNeedUpdateFlag);
 			else if( NULL != m_pFirstSelectedItem->GetPrevItem() )
-				SetSelectedItem(m_pFirstSelectedItem->GetPrevItem(), bNeedUpdateObject);
+				SetSelectedItem(m_pFirstSelectedItem->GetPrevItem(), nNeedUpdateFlag);
 		}
 	}
 
-	if( bNeedUpdateObject )
+	if (nNeedUpdateFlag & LISTCTRLBASE_NEED_UPDATE_FLAG_ALL)
+	{
+		this->UpdateObject();
+	}
+	else if (nNeedUpdateFlag & LISTCTRLBASE_NEED_UPDATE_FLAG_ITEM)
 	{
 		this->ReDrawItem(pOldSelItem, m_pFirstSelectedItem);
 	}
@@ -1024,6 +1040,16 @@ bool ListCtrlBase::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 
 void ListCtrlBase::SetHoverItem(ListItemBase* pItem)
 {
+	// 提示条逻辑 
+	UI_HideToolTip();
+	if (NULL != pItem && m_pHoverItem != pItem)
+	{
+		TOOLTIPITEM  item;
+		item.pNotifyObj = this;
+		item.pItemData = (void*)pItem;
+		UI_ShowToolTip(&item);
+	}
+
 	if (m_pHoverItem == pItem)
 		return;
 
@@ -1053,6 +1079,20 @@ void ListCtrlBase::SetPressItem(ListItemBase* pItem, const POINT& pt, UINT nFlag
 	}
 
 	m_pPressItem = pItem;
+}
+
+LRESULT ListCtrlBase::OnGetToolTipInfo(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	TOOLTIPITEM* pToolTipItem = (TOOLTIPITEM*)wParam;
+	IToolTipUI*  pToolTip = (IToolTipUI*)lParam;
+	if (NULL == pToolTipItem || NULL == pToolTip)
+		return 0;
+
+	ListItemBase* pItem = (ListItemBase*)pToolTipItem->pItemData;
+	if (NULL == pItem)
+		return 0;
+
+	return pItem->GetToolTipInfo(pToolTip);
 }
 //////////////////////////////////////////////////////////////////////////
 

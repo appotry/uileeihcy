@@ -1,7 +1,5 @@
 #include "stdafx.h"
-#define TOOL_TIMER_ID      ((UINT_PTR)this)
-#define TOOL_TIMER_TIME    800
-#define TOOLTIP_MAX_WIDTH  256
+
 
 MouseManager::MouseManager()
 {
@@ -11,7 +9,9 @@ MouseManager::MouseManager()
 	m_pKeyboardManager = NULL;
 	m_pObjPress        = NULL;
 	m_pObjHover        = NULL;
+#if 0
 	m_hToolTip         = NULL;
+#endif
 }
 
 MouseManager::~MouseManager(void)
@@ -23,7 +23,9 @@ MouseManager::~MouseManager(void)
 	m_pObjPress        = NULL;
 	m_pObjHover        = NULL;
 
+#if 0
 	this->DestroyToolTip();
+#endif
 }
 
 
@@ -46,8 +48,7 @@ Object*  MouseManager::GetPressObject()
 	return m_pObjPress;
 }
 
-
-
+#if 0
 //////////////////////////////////////////////////////////////////////////
 //
 //	提示条相关
@@ -210,9 +211,10 @@ void MouseManager::DestroyToolTip()
 		m_hToolTip = NULL;
 	}
 }
-
+#endif
 void MouseManager::SetHoverObject( Object* pNewHoverObj )
 {
+#if 0
 	// 提示条相关逻辑
 	if (NULL == m_hToolTip)
 	{
@@ -227,7 +229,15 @@ void MouseManager::SetHoverObject( Object* pNewHoverObj )
 	{
 		::SetTimer(m_pWindow->m_hWnd, TOOL_TIMER_ID, TOOL_TIMER_TIME, TooltipTimerProc );
 	}
-
+#else
+	UI_HideToolTip();
+	if( pNewHoverObj != m_pObjHover && NULL != pNewHoverObj )
+	{
+		TOOLTIPITEM  item;
+		item.pNotifyObj = pNewHoverObj;
+		UI_ShowToolTip(&item);
+	}
+#endif
 	// 状态变化逻辑
 	if( NULL != m_pObjHover && m_pObjHover != pNewHoverObj )
 	{
@@ -261,7 +271,11 @@ void MouseManager::SetPressObject( Object* pNewPressObj )
 	}
 
 	// 提示条相关逻辑
+#if 0
 	HideToolTip();
+#else
+	UI_HideToolTip();
+#endif
 }
 
 
@@ -468,7 +482,11 @@ LRESULT MouseManager::MouseLeave( int vkFlag, int xPos, int yPos )
 
 	this->m_bMouseTrack = TRUE;// 继续开启TRACKMOUSEEVENT
 
+#if 0
 	HideToolTip();
+#else
+	UI_HideToolTip();
+#endif
 
 	this->SetHoverObject(NULL);
 	this->SetPressObject(NULL);
@@ -737,3 +755,4 @@ Object* MouseManager::GetObjectByPos(Object* pObjParent, POINT* pt)
 	else
 		return pRetObj;
 }
+

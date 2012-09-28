@@ -64,6 +64,9 @@ class IImageItemInfo;
 class IFontItemInfo;
 class IColorItemInfo;
 class IStyleItemInfo;
+
+struct  TOOLTIPITEM;
+class   ToolTipManager;
 }
 
 
@@ -221,6 +224,9 @@ namespace UI
 	void     UI_AddCreateWndData(_AtlCreateWndData* pData, void* pThis);
 	void*    UI_ExtractCreateWndData();
 	HWND     UI_GetForwardPostMessageWnd();
+	bool     UI_ShowToolTip(TOOLTIPITEM* pItem);
+	bool     UI_HideToolTip(); 
+	ToolTipManager* UI_GetToolTipMgr();
 
 	BOOL     UI_IsDialogMessage(MSG* pMsg);
 }
@@ -228,6 +234,7 @@ namespace UI
 #include "message.h"
 #include "manager\keyboardmanager.h"
 #include "manager\mousemanager.h"
+#include "manager\tooltipmanager.h"
 #include "manager\rendermanager\gdirender.h"
 #include "manager\rendermanager\gdiplusrender.h"
 #include "manager\rendermanager\direct2drender.h"

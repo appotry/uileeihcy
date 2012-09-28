@@ -8,11 +8,17 @@ namespace UI
 		MenuItem(ListCtrlBase* pCtrl);
 		~MenuItem();
 
+	public:
+		virtual  bool  GetToolTipInfo(IToolTipUI* pToolTip);
+		virtual  bool  IsDisable() { return m_nFlag&MF_DISABLED    ? true:false; }
+
+	public:	
 		const String& GetText() { return m_strText; }
+		const String& GetPrompt() { return m_strToolTip; }
+		void  SetPrompt(const String& str){ m_strToolTip = str; }
 
 		bool  IsSeparator()    { return m_nFlag&MF_SEPARATOR   ? true:false; }
 		bool  IsPopup()        { return m_nFlag&MF_POPUP       ? true:false; }
-		bool  IsDisable()      { return m_nFlag&MF_DISABLED    ? true:false; }
 		bool  IsChecked()      { return m_nFlag&MF_CHECKED     ? true:false; }
 		bool  IsRadioChecked() { return m_nFlag&MFT_RADIOCHECK ? true:false; }
 		
@@ -25,7 +31,7 @@ namespace UI
 		MenuBase* GetSubMenu() { return m_pSubMenu; }
 		RenderBase* GetIconRender() { return m_pIconRender; }
 
-		void  SetAttribute(ATTRMAP& mapAttrib);
+		void     SetAttribute(ATTRMAP& mapAttrib);
 
 		virtual  bool    OnMouseEnter();
 		virtual  bool    OnMouseLeave();
@@ -33,11 +39,12 @@ namespace UI
 	protected:
 		MenuBase*    m_pMenu;      // item 所属菜单
 		String       m_strText;
+		String       m_strToolTip; // 菜单项提示条
 		MenuBase*    m_pSubMenu;   // 如果是一个popup菜单，该成员表示其子菜单
 		RenderBase*  m_pIconRender;
 
-		UINT        m_nFlag;
-		int         m_nID;
+		UINT      m_nFlag;
+		int       m_nID;
 	};
 
 
@@ -50,6 +57,7 @@ namespace UI
 
 		UI_BEGIN_MSG_MAP
 			UIMSG_WM_MOUSEMOVE(OnMouseMove)
+			UIMSG_WM_MOUSELEAVE(OnMouseLeave)
 			UIMSG_WM_LBUTTONDOWN(OnLButtonDown)
 			UIMSG_WM_LBUTTONUP(OnLButtonUp)
 			UIMSG_WM_KEYDOWN(OnKeyDown)
@@ -74,6 +82,7 @@ namespace UI
 		void     OnTimer(UINT_PTR nIDEvent, LPARAM lParam);
 		LRESULT  OnGetRenderType();
 		void     OnMouseMove(UINT nFlags, CPoint point);
+	    void     OnMouseLeave();
 		void     OnSubMenuMouseMove(MenuBase* pSubMenu);
 		void     SetReturnCmd(UINT n) { m_nRetCmd = n; }
 		void     OnThemeChanged();
@@ -94,6 +103,8 @@ namespace UI
 		HWND      GetPopupWindowHandle();
 		MenuItem* GetNextSelectableItem(MenuItem* pItem);
 		MenuItem* GetPrevSelectableItem(MenuItem* pItem);
+		bool      IsMyChildMenu(MenuBase* pMenu);
+
 	private:
 		MenuItem* _GetNextSelectableItem(MenuItem* pItem);
 		MenuItem* _GetPrevSelectableItem(MenuItem* pItem);

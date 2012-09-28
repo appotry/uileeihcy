@@ -90,7 +90,7 @@
         foregnd.render.imagelist.count="8"  foregnd.render.imagelist.layout="v"
         bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="control_border_color"
         />
-     
+      <Label id="title_bk" />
       <Button id="btn_save_all"  text="全部保存" layout.right="169" layout.bottom="6" width="75" height="21" />
       <Button id="btn_reset_all" text="全部重置" layout.right="88"  layout.bottom="6" width="75" height="21" />
       <Button id="btn_cancel"    text="关闭"     layout.right="8"   layout.bottom="6" width="75" height="21" />
@@ -131,7 +131,7 @@
       </Panel>
     </Window>
   <Menu id="main_menu" styleclass="mainmenu">
-    <String id="1001" text="千千选项"  icon.render.type="image" icon.render.image="ttplayer.ico" icon.render.image.drawtype="adapt"/>
+    <String id="1001" text="千千选项" tooltip="“千千静听”的参数选项\n千千选项" icon.render.type="image" icon.render.image="ttplayer.ico" icon.render.image.drawtype="adapt"/>
     <Popup  text="相关链接"            styleclass="mainmenuitem" icon.render.imagelistitem.index="28">
       <String text="千千主页"     styleclass="mainmenuitem" icon.render.imagelistitem.index="34"/>
       <String text="千千音乐在线" styleclass="mainmenuitem" icon.render.imagelistitem.index="34"/>
@@ -158,39 +158,39 @@
     <String id="1010" text="透明"     styleclass="mainmenuitem" icon.render.imagelistitem.index="11"/>
     <String id="1011" text="查看"     styleclass="mainmenuitem" icon.render.imagelistitem.index="6"/>
     <Separator/>
-    <String id="1015" text="显示桌面歌词"  styleclass="mainmenuitem" icon.render.imagelistitem.index="32"/>
+    <String id="1015" text="显示桌面歌词" tooltip="显示桌面歌词" styleclass="mainmenuitem" icon.render.imagelistitem.index="32"/>
     <Separator/>
-    <String id="1012" text="最小化"   styleclass="mainmenuitem" icon.render.imagelistitem.index="2"/>
+    <String id="1012" text="最小化"  tooltip="最小化/还原"  styleclass="mainmenuitem" icon.render.imagelistitem.index="2"/>
     <String id="1013" text="全屏显示" styleclass="mainmenuitem" icon.render.imagelistitem.index="29"/>
-    <String id="1014" text="退出"     styleclass="mainmenuitem" icon.render.imagelistitem.index="3"/>
+    <String id="1014" text="退出"    tooltip="退出“千千静听”\n退出" styleclass="mainmenuitem" icon.render.imagelistitem.index="3"/>
   </Menu>
 
   <Menu id="menu_playlist_add">
-    <String id="1101" text="文件"/>
-    <String id="1102" text="文件夹"/>
-    <String id="1103" text="本地搜索" disable="1" />
-    <String id="1104" text="网络搜索" disable="1"/>
+    <String id="1101" text="文件" tooltip="选择并添加音频文件\n添加文件"/>
+    <String id="1102" text="文件夹" tooltip="选择并添加文件夹中的音频文件\n添加文件夹"/>
+    <String id="1103" text="本地搜索" disable="1" tooltip="搜索并添加电脑中的音频文件" />
+    <String id="1104" text="网络搜索" disable="1" tooltip="添加网络URL"/>
   </Menu>
 
   <Menu id="menu_playlist_delete">
-    <String id="1201" text="选中的文件"/>
-    <String id="1202" text="重复的文件" disable="1" />
-    <String id="1203" text="错误的文件" disable="1" />
+    <String id="1201" text="选中的文件" tooltip="删除选中的文件"/>
+    <String id="1202" text="重复的文件" disable="1" tooltip="删除重复的文件" />
+    <String id="1203" text="错误的文件" disable="1" tooltip="删除不支持或者不存在的文件"/>
     <Separator/>
-    <String id="1204" text="全部删除"/>
+    <String id="1204" text="全部删除"  tooltip="删除当前列表的所有文件"/>
     <Separator/>
-    <String id="1204" text="物理删除"   disable="1"/>
+    <String id="1204" text="物理删除"   disable="1" tooltip="从硬盘上删除选中的文件"/>
   </Menu>
 
   <Menu id="menu_playlist_mode">
-    <String id="1701" text="单曲播放(S)" styleclass="playmodemenuitem" icon.render.imagelistitem.index="0"/>
-    <String id="1702" text="单曲循环(I)" styleclass="playmodemenuitem" icon.render.imagelistitem.index="1"/>
-    <String id="1703" text="顺序播放(N)" styleclass="playmodemenuitem" icon.render.imagelistitem.index="2"/>
-    <String id="1704" text="循环播放(C)" styleclass="playmodemenuitem" icon.render.imagelistitem.index="3"/>
-    <String id="1705" text="随机播放(R)" styleclass="playmodemenuitem" icon.render.imagelistitem.index="4"/>
+    <String id="1701" text="单曲播放(S)" styleclass="playmodemenuitem" icon.render.imagelistitem.index="0" tooltip="单遍播放当前文件"/>
+    <String id="1702" text="单曲循环(I)" styleclass="playmodemenuitem" icon.render.imagelistitem.index="1" tooltip="循环播放当前文件"/>
+    <String id="1703" text="顺序播放(N)" styleclass="playmodemenuitem" icon.render.imagelistitem.index="2" tooltip="按顺序播放当前列表"/>
+    <String id="1704" text="循环播放(C)" styleclass="playmodemenuitem" icon.render.imagelistitem.index="3" tooltip="循环播放当前列表"/>
+    <String id="1705" text="随机播放(R)" styleclass="playmodemenuitem" icon.render.imagelistitem.index="4" tooltip="随机播放当前列表"/>
     <Separator/>
-    <String id="1706" text="播放跟随光标(F)" disable="1" styleclass="playmodemenuitem" icon.render.imagelistitem.index="5"/>
-    <String id="1707" text="自动切换列表(A)" disable="1" styleclass="playmodemenuitem" icon.render.imagelistitem.index="6"/>
+    <String id="1706" text="播放跟随光标(F)" disable="1" styleclass="playmodemenuitem" icon.render.imagelistitem.index="5" tooltip="将选中歌曲作为下一个播放对象"/>
+    <String id="1707" text="自动切换列表(A)" disable="1" styleclass="playmodemenuitem" icon.render.imagelistitem.index="6" tooltip="连续播放时当播放完当前列表后自动切换到下一个列表"/>
   </Menu>
   </layout>
   <style>
