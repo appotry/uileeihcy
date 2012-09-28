@@ -45,11 +45,31 @@ SIZE Panel::GetDesiredSize( HRDC hRDC )
 {
 	UIASSERT( this->m_pLayout != NULL );
 
-	SIZE s = {0,0};
-	if( this->m_pLayout != NULL )
-		s = this->m_pLayout->Measure( hRDC );
+	SIZE size = {0,0};
+	// 已指定了大小的窗体
+	if( this->m_nConfigWidth != AUTO && this->m_nConfigHeight != AUTO )
+	{
+		size.cx = this->m_nConfigWidth;
+		size.cy = this->m_nConfigHeight;
+	}
+	else
+	{
+		// 获取子对象所需要的空间
+	 	if( this->m_pLayout != NULL )
+	 		size = this->m_pLayout->Measure( hRDC );
 
-	return s;
+		// 如果有指定width、height的其中一个，那么忽略在上一步中得到的值
+		if( this->m_nConfigWidth != AUTO )
+			size.cx = this->m_nConfigWidth;
+		if( this->m_nConfigHeight!= AUTO )
+			size.cy = this->m_nConfigHeight;
+	}
+
+	// 计算 margin 的大小
+	size.cx += this->m_rcMargin.left + this->m_rcMargin.right;
+	size.cy += this->m_rcMargin.top  + this->m_rcMargin.bottom; 
+
+	return size;
 }
 
 void Panel::ResetAttribute()

@@ -123,6 +123,8 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 		else if( _T("GroupBox") == pObj->GetObjectName() )
 		{
 			pRender = new GroupBoxBkThemeRender();
+			CRegion4 r(2,2,2,2);
+			pObj->SetBorderRegion(&r);
 		}
 		else if (_T("Combobox") == pObj->GetObjectName() )
 		{
