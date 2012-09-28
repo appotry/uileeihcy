@@ -177,8 +177,10 @@ SIZE  StackLayout::MeasureChildObject( HRDC hRDC )
 void  StackLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bReDraw )
 {
 	// 调用该函数时，自己的大小已经被求出来了
-	int  nWidth  = m_pPanel->GetWidth();
-	int  nHeight = m_pPanel->GetHeight();
+	CRect rcClient;
+	m_pPanel->GetClientRect(&rcClient);
+	int  nWidth  = rcClient.Width();  //m_pPanel->GetWidth();
+	int  nHeight = rcClient.Height(); //m_pPanel->GetHeight();
 
 	int  nConsume1 = 0; // 当前已消耗的高度或宽度（从left/top开始计数）
 	int  nConsume2 = 0; // 当前已消耗的高度或宽度（从right/bottom开始计数）
@@ -423,8 +425,10 @@ SIZE  CanvasLayout::MeasureChildObject( HRDC hRDC )
 void  CanvasLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bReDraw )
 {
 	// 调用该函数时，自己的大小已经被求出来了
-	int  nWidth  = m_pPanel->GetWidth();
-	int  nHeight = m_pPanel->GetHeight();
+	CRect rcClient;
+	m_pPanel->GetClientRect(&rcClient);
+	int  nWidth  = rcClient.Width();  //m_pPanel->GetWidth();
+	int  nHeight = rcClient.Height(); //m_pPanel->GetHeight();
 
 	Object* pChild = NULL;
 	while( pChild = m_pPanel->EnumChildObject(pChild) )
@@ -463,17 +467,21 @@ void  CanvasLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bR
 			bottom = _ttoi( strAttribute.c_str() );
 		}
 
+		//////////////////////////////////////////////////////////////////////////
 		// 计算出 pChild 的 rectP的宽和高
+
 		SIZE s = {0,0};
-		if( left != NDEF || right != NDEF || top != NDEF || bottom != NDEF )
+		if( left == NDEF || right == NDEF || top == NDEF || bottom == NDEF )
 		{
 			s = pChild->GetDesiredSize( hRDC );
 		}
 
+		// 如果同时指定了left/right,则忽略width属性
 		if (left != NDEF && right != NDEF)
 		{
 			s.cx = nWidth - left - right;
 		}
+		// 如果同时指定了top/bottom，则忽略height属性
 		if (top != NDEF && bottom != NDEF)
 		{
 			s.cy = nHeight - top - bottom;
@@ -830,8 +838,10 @@ void  GridLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bReD
 	// 调用该函数时，自己的大小已经被求出来了
 
 	// 先求出GRID的宽度和高度，后面对各个子对象的布局都是先基于GRID的
-	int  nWidth  = m_pPanel->GetWidth() - this->m_pPanel->GetPaddingW();
-	int  nHeight = m_pPanel->GetHeight() - this->m_pPanel->GetPaddingH();
+	CRect rcClient;
+	m_pPanel->GetClientRect(&rcClient);
+	int  nWidth  = rcClient.Width();  //m_pPanel->GetWidth();
+	int  nHeight = rcClient.Height(); //m_pPanel->GetHeight();
 
 	int nGridRows = (int)this->heights.size();  // Grid的行数
 	int nGridCols = (int)this->widths.size();   // Grid的列数
@@ -1215,8 +1225,10 @@ SIZE  CardLayout::MeasureChildObject( HRDC hRDC )
 void  CardLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bReDraw )
 {
 	// 调用该函数时，自己的大小已经被求出来了
-	int  nWidth  = m_pPanel->GetWidth();
-	int  nHeight = m_pPanel->GetHeight();
+	CRect rcClient;
+	m_pPanel->GetClientRect(&rcClient);
+	int  nWidth  = rcClient.Width();  //m_pPanel->GetWidth();
+	int  nHeight = rcClient.Height(); //m_pPanel->GetHeight();
 
 	Object* pChild = NULL;
 	while( pChild = m_pPanel->EnumChildObject(pChild) )

@@ -99,8 +99,8 @@
       <HyperLink id="link_homepage" text="千千音乐在线" tooltip="千千静听在线网站"   href="http://ttplayer.qianqian.com/index.html" layout.left="122" layout.bottom="8" />
       <HyperLink id="link_homepage" text="论坛"         tooltip="千千静听的官方论坛" href="http://bbs.qianqian.com/"                layout.left="202" layout.bottom="8" />
       <HyperLink id="link_homepage" text="帮助"         tooltip="千千静听的帮助页面" href="http://ttplayer.qianqian.com/help.php"   layout.left="234" layout.bottom="8" />
-      <GroupBox id="" layout.left="118" layout.right="8" layout.top="10" layout.height="10">
-        <Label id="title_bk" layout.left="120" layout.right="10" layout.top="12" height="30" bkgnd.render.type="gradienth" bkgnd.render.colorfrom="option_gradient_from" bkgnd.render.colorto="option_gradient_to"/>
+      <GroupBox id="" layout.left="115" layout.right="8" layout.top="10" height="370">
+        <Label id="title_bk" text="“千千静听”的简名介绍" layout.left="2" layout.right="2" layout.top="2" height="30" bkgnd.render.type="gradienth" bkgnd.render.colorfrom="option_gradient_from" bkgnd.render.colorto="option_gradient_to"/>        
         <!--Panel id="option_list_panel_container" layout="card" layout.left="120" layout.top="10" width="426" height="368">
           <Panel id="about_panel">
           </Panel>
