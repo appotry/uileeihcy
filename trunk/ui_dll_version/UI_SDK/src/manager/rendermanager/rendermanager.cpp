@@ -212,15 +212,6 @@ IRenderDC::IRenderDC(HWND hWnd)
 
 //////////////////////////////////////////////////////////////////////////
 
-RenderManager::RenderManager()
-{
-}
-
-RenderManager::~RenderManager()
-{
-
-}
-
 GRAPHICS_RENDER_TYPE GetGraphicsRenderType(HWND hWnd)
 {
 	if( NULL == hWnd )
@@ -274,11 +265,17 @@ GRAPHICS_RENDER_TYPE GetGraphicsRenderType(Object* pObj)
 
 	return e;
 }
+
+//////////////////////////////////////////////////////////////////////////
+//
+//		Render DC Api
+ 
+
 //
 //	因为需要根据窗口的类型来获取相应的DC，因此这里
 //	也将HWND作为参数传递进来了。
 //
-HRDC RenderManager::GetHRDC( HDC hDC, HWND hWnd )
+HRDC GetHRDC(HDC hDC, HWND hWnd)
 {
 	UIASSERT(NULL!=hWnd);
 	switch(GetGraphicsRenderType(hWnd))
@@ -291,21 +288,20 @@ HRDC RenderManager::GetHRDC( HDC hDC, HWND hWnd )
 	}
 	return NULL;
 }
-HRDC RenderManager::GetHRDC( HWND hWnd )
+HRDC GetHRDC(HWND hWnd)
 {
 	switch(GetGraphicsRenderType(hWnd))
 	{
 	case GRAPHICS_RENDER_TYPE_GDI:
 		return (HRDC)new GDIRenderDC(hWnd);
-		
+
 	case GRAPHICS_RENDER_TYPE_GDIPLUS:
 		return (HRDC)new GdiplusRenderDC(hWnd);
 
 	}
 	return NULL;
 }
-
-void RenderManager::ReleaseHRDC( HRDC hRDC )
+void ReleaseHRDC(HRDC hRDC)
 {
 	if( NULL != hRDC )
 	{
@@ -313,7 +309,14 @@ void RenderManager::ReleaseHRDC( HRDC hRDC )
 	}
 }
 
-HRDC RenderManager::CreateRenderTarget( HWND hWnd, int nWidth, int nHeight )
+
+//
+//	创建一个双缓冲DC
+//
+//	对于GDI/GDIPLUS，仅先创建BITMAP，在BeginDrag的时候再创建DC/Graphics
+//	对于Direct2d，创建RenderTarget
+//
+HRDC CreateRenderTarget( HWND hWnd, int nWidth, int nHeight )
 {
 	switch(GetGraphicsRenderType(hWnd))
 	{
@@ -332,45 +335,6 @@ HRDC RenderManager::CreateRenderTarget( HWND hWnd, int nWidth, int nHeight )
 		break;
 	}
 	return NULL;
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-//
-//		Render DC Api
-
-HRDC GetHRDC(HDC hDC, HWND hWnd)
-{
-	return g_pUIApplication->m_RenderMgr.GetHRDC(hDC,hWnd);
-}
-HRDC GetHRDC(HWND hWnd)
-{
-	return g_pUIApplication->m_RenderMgr.GetHRDC(hWnd);
-}
-void ReleaseHRDC(HRDC hRDC)
-{
-	g_pUIApplication->m_RenderMgr.ReleaseHRDC(hRDC);
-}
-HRDC CreateCompatibleHRDC( HRDC hRDC, int nWidth, int nHeight )
-{
-	::OutputDebugString( _T("TODO: CreateCompatibleHRDC 删除该函数，不要再调用了。改用CreateRenderTarget\r\n"));
-	if( NULL == hRDC )
-	{
-		return NULL;
-	}
-	return ((IRenderDC*)hRDC)->CreateCompatibleHRDC( nWidth, nHeight );
-}
-
-
-//
-//	创建一个双缓冲DC
-//
-//	对于GDI/GDIPLUS，仅先创建BITMAP，在BeginDrag的时候再创建DC/Graphics
-//	对于Direct2d，创建RenderTarget
-//
-HRDC CreateRenderTarget( HWND hWnd, int nWidth, int nHeight )
-{
-	return g_pUIApplication->m_RenderMgr.CreateRenderTarget( hWnd, nWidth, nHeight );
 }
 
 //

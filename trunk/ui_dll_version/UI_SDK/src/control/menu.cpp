@@ -34,6 +34,17 @@ bool MenuItem::OnMouseLeave()
 	return true;
 }
 
+bool MenuItem::GetToolTipInfo(IToolTipUI* pToolTip)
+{
+	if (NULL == pToolTip)
+		return false;
+
+	if (0 == m_strToolTip.length())
+		return false;
+
+	return pToolTip->SetText(m_strToolTip);
+}
+
 void MenuItem::SetAttribute(ATTRMAP& mapAttrib)
 {
 	ATTRMAP::const_iterator iter = mapAttrib.find(XML_MENU_ITEM_ICON_RENDER_PREFIX XML_RENDER_TYPE);
@@ -47,6 +58,12 @@ void MenuItem::SetAttribute(ATTRMAP& mapAttrib)
 	if (NULL != m_pIconRender)
 	{
 		m_pIconRender->SetAttribute(XML_MENU_ITEM_ICON_RENDER_PREFIX, mapAttrib);
+	}
+
+	iter = mapAttrib.find(XML_TOOLTIP);
+	if (mapAttrib.end() != iter)
+	{
+		m_strToolTip = iter->second;
 	}
 }
 
@@ -337,6 +354,21 @@ void MenuBase::OnMouseMove(UINT nFlags, CPoint point)
 	if (NULL != m_pPrevMenu)
 	{
 		m_pPrevMenu->OnSubMenuMouseMove(this);
+	}
+}
+void MenuBase::OnMouseLeave()
+{
+	SetMsgHandled(FALSE);
+
+	// 为了解决从父菜单的popup menu item直接移动到子菜单上面时,
+	// 会收到一个MOUSELEAVE消息，导致hover item闪烁一下的问题。
+	// 当发现鼠标是移到了子菜单上面时，不去清空当前的hover item
+	POINT  pt;
+	GetCursorPos(&pt);
+	MenuBase* pMenu = this->GetMenuByPos(pt);
+	if (IsMyChildMenu(pMenu))
+	{
+		SetMsgHandled(TRUE);
 	}
 }
 void MenuBase::OnSubMenuMouseMove(MenuBase* pSubMenu)
@@ -1125,4 +1157,20 @@ MenuBase* MenuBase::GetMenuByPos(POINT ptScreen)
 {
 	HWND hWnd = WindowFromPoint(ptScreen);
 	return GetMenuByHWND(hWnd);
+}
+// 检测pMenu是否是我的子孙菜单
+bool MenuBase::IsMyChildMenu(MenuBase* pMenu)
+{
+	if (NULL == pMenu)
+		return false;
+
+	MenuBase* pChildMenu = m_pNextMenu;
+	while (NULL != pChildMenu)
+	{
+		if (pChildMenu == pMenu)
+			return true;
+
+		pChildMenu = pChildMenu->m_pNextMenu;
+	}
+	return false;
 }

@@ -872,6 +872,28 @@ HWND UI_GetForwardPostMessageWnd()
 	return g_pUIApplication->m_WndForwardPostMsg.m_hWnd;
 }
 
+bool UI_ShowToolTip(TOOLTIPITEM* pItem)
+{
+	if (NULL == g_pUIApplication)
+		return false;
+
+	return g_pUIApplication->m_ToolTipMgr.Show(pItem);
+}
+bool UI_HideToolTip()
+{
+	if (NULL == g_pUIApplication)
+		return false;
+
+	return g_pUIApplication->m_ToolTipMgr.Hide();
+}
+ToolTipManager* UI_GetToolTipMgr()
+{
+	if (NULL == g_pUIApplication)
+		return NULL;
+
+	return &(g_pUIApplication->m_ToolTipMgr);
+}
+
 BOOL  UI_IsDialogMessage( MSG* pMsg )
 {
 	if( NULL == pMsg )
@@ -909,7 +931,7 @@ BOOL  UI_IsDialogMessage( MSG* pMsg )
 			return FALSE;
 
 		// µ¼º½
-		if( Util::IsKeyDown(VK_SHIFT) )
+		if (Util::IsKeyDown(VK_SHIFT))
 		{
 			pWindow->GetKeyboardMgr().Tab_2_PrevControl();
 		}

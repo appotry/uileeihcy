@@ -84,7 +84,7 @@ public:
 	CComPtr<ILog>    m_pLog;
 	TopWindowManager m_TopWindowMgr; 
 	ProjectManager   m_ProjectMgr;
-	RenderManager    m_RenderMgr;
+	ToolTipManager   m_ToolTipMgr;
 
 	CREATE_WND_DATA  m_create_wnd_data;    // 配合UI_AddCreateWndData、UI_ExtractCreateWndData使用
 	CDCCache         m_dcCache;            // 配合UI_GetCacheDC、UI_ReleaseCacheDC使用

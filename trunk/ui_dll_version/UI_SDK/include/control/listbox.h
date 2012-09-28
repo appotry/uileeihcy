@@ -54,6 +54,7 @@ namespace UI
 
 		virtual  void    OnDrawItem(HRDC hRDC) {}
 		virtual  bool    IsDisable() { return false; }  // 由子类去负责具体的实现(例如菜单是用MF_DISABLE，其它的可能是m_bDisable)
+		virtual  bool    GetToolTipInfo(IToolTipUI* pToolTip){ return false; }
 
 	protected:
 		int            m_nLineIndex;      // 记录该项位于第几行
@@ -102,6 +103,13 @@ namespace UI
 		LISTITEM_UNVISIBLE_BOTTOM,
 	};
 
+	enum LISTCTRLBASE_NEED_UPDATE_FLAG
+	{
+		LISTCTRLBASE_NEED_UPDATE_FLAG_NONE = 0,  // 不需要刷新
+		LISTCTRLBASE_NEED_UPDATE_FLAG_ITEM = 1,  // 仅需要刷新item项
+		LISTCTRLBASE_NEED_UPDATE_FLAG_ALL = 2    // 需要刷新整个控件（例如滚动了）
+	};
+
 	class UIAPI ListCtrlBase : public Control//, public IScrollObject
 	{
 	public:
@@ -114,6 +122,7 @@ namespace UI
 		UI_BEGIN_MSG_MAP
 			UIMSG_WM_MOUSEMOVE(OnMouseMove)
 			UIMSG_WM_PAINT(OnPaint)
+			UIMESSAGE_HANDLER_EX(UI_WM_GET_TOOLTIPINFO, OnGetToolTipInfo)
 			UIMSG_WM_MOUSELEAVE(OnMouseLeave)
 			UIMSG_WM_LBUTTONDOWN(OnLButtonDown)
 			UIMSG_WM_LBUTTONUP(OnLButtonUp)
@@ -135,6 +144,7 @@ namespace UI
 		void     OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags );
 		void     OnSize( UINT nType, int cx, int cy );
 		LRESULT  OnGetRenderType(){return GRAPHICS_RENDER_TYPE_GDI;}  // 用于popup listbox获取字体
+		LRESULT  OnGetToolTipInfo(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	public:
 		// 虚函数
 		virtual  SIZE GetAutoSize( HRDC hRDC );
@@ -171,7 +181,7 @@ namespace UI
 		void    AddItem(ListItemBase*  pItem, bool bUpdate=true);
 		void    InsertItem(ListItemBase*  pItem, ListItemBase* pInsertAfter);
 		void    RemoveItem(ListItemBase* pItem, bool bUpdate=true);
-		void    SetSelectedItem(ListItemBase* pItem, bool& bNeedUpdateObject );
+		void    SetSelectedItem(ListItemBase* pItem, int& nNeedUpdateFlag );
 
 		void    SetScrollY( int nY, bool& bNeedUpdateObject );
 		void    SetScrollX( int nX, bool& bNeedUpdateObject );
@@ -211,7 +221,9 @@ namespace UI
 		ListItemBase*  m_pHoverItem;
 		ListItemBase*  m_pPressItem;
 
+		// 滚动条
 		ScrollBarMgr   m_MgrScrollbar;  
+
 	};
 
 

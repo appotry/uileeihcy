@@ -29,6 +29,19 @@ enum
 	UI_WM_SHOW_TOOLTIP,
 
 	//
+	//	当itemdata不为空时，向控件获取item的提示信息
+	//		message:UI_WM_GET_TOOLTIPINFO
+	//		code:   
+	//		wparam:  TOOLTIPITEM*
+	//		lParam:  IToolTipUI*
+	//		pObjMsgFrom: 
+	//
+	//	返回0表示失败，不显示提示条。返回1将立即显示提示条
+	//
+	UI_WM_GET_TOOLTIPINFO,
+
+
+	//
 	//	滚动条位置改变通知
 	//
 	//		message:UI_WM_HSCROLL/UI_WM_VSCROLL
@@ -299,7 +312,7 @@ protected:
 	list< MsgHook* >     m_lHookMsgMap;  // 例如ComboBox要hook Combobox中的下拉按钮的事件
 	list< MsgNotify* >   m_lNotifyMsgMap;// 例如按钮的点击事件需要通知窗口  
 
-	UIMSG                *m_pCurMsg;     // 记录当前正在处理的消息 TODO：是否需要一个m_pCurMsg
+	UIMSG                *m_pCurMsg;     // 记录当前正在处理的消息 
 
 public:
 	Message();

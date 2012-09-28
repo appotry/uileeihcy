@@ -14,12 +14,10 @@
  17.CMainFrame::OnMenuSave只实现了保存所有的文件，没有实现保存当前文件
  18.使用快捷键资源来实现快捷键 ctrl+s save 
  19.style 编辑器不应该可以编辑继续得到的属性，也无法保存继续得到的属性问题
- 21.PrepareDC的 oldFont 之类的东西如何恢复？
  25.优化SetWindowRgn缩放功能
  27.Gdi+下面的MeasureString偏大的原因，以及DrawString放不下的原因
  28.换肤时，崩溃。先打开三个窗口，再关闭第二个窗口，换肤，崩溃。
  30.提供一个方法：DoVerb( "action", xxx ); "press" "click" "unpress" "hover" "unhover"
- 31.考虑将WndProc做成virtual
  32.Direct3D + GDI 
     1). 在Render当中的 EndScene前添加：
 		IDirect3DSurface9*  pSurface = NULL;
@@ -73,7 +71,6 @@
 72. 如何实现菜单的换扶（不是所有的菜单都配置在XML中的，那么没有配置在XML中的对象是否就没法实现换肤？）
 73. 点击打开一个系统COMBOOX的下拉列表，然后将鼠标放在一个UI控件上面，点击一下，下拉列表消失，再继续点击UI控件，无反应。
     因为没有人去触发一个WM_MOUSEMOVE来set hover对象
-76. 菜单提示条问题
 78. 将layout.xml增加一个<#include>标签，允许将一些资源抽取出来 
 83. 音乐频谱功能 
 84. 实现新的一类换肤功能：背景主题图片	
@@ -82,7 +79,10 @@
 93. WINDOW 的两个消息链有点混乱，能不能想办法都合入到processwindowmessage中，ui_begin_msg_map只由外部去处理
 95. 逐步将句柄调用方式修改为接口调用方法
 96. 点击任务栏上面的按钮不能最小化窗口
-101. 将鼠标从hover item慢慢移动到submenu item时，会先收到submenumousemove，然后收到mouseleave，导致hover item闪烁
+102.tooltip高级控件
+103.option中的listbox的图片需要增加一个分隔线
+104.开始、暂停按钮的正常状态图片怎么成高亮图片了？
+105.
 	
 ==================================疑问==================================
 1. Message类是否需要一个 m_pCurMsg成员变量？
@@ -153,6 +153,10 @@
 99. gdiplus需要同步增加： DrawGray, Icon, imagelist Bitmap 类型
 81. 图标列表的功能、icon大小读取的功能	
 82. 音乐插件的功能，目前不支持WMA的文件  -- DirectShow已支持WMA
+101. 将鼠标从hover item慢慢移动到submenu item时，会先收到submenumousemove，然后收到mouseleave，导致hover item闪烁 -- 重载onmouseleave函数，增加一个条件判断
+21. PrepareDC的 oldFont 之类的东西如何恢复？ -- 该函数已被取消很多年了
+31. 考虑将WndProc做成virtual -- 已经将processwindowmessage做成virtual了
+76. 菜单提示条问题 -- 2012-09-28 将tooltip抽出来一个mgr，并实现了item提示
 	
 备注：
 1. Q: 怎么解决用VS2008编译生成的程序对vc运行库的依赖？
@@ -250,6 +254,12 @@
       测试得出，绘制同样的一张PNG 100次，gdiplus需要800ms，而gdi的alphablend只需要15ms
       将窗口的graphics render type换成gdi后，效率明显变快。但同时却失去了成为分层窗口的机会
   
+11.Q: 如何实现高级列表功能？
+   A: 2012.9.28
+      目前先保持listitembase的功能，即传统的列表项，里面保存数据，由listctrl负责排版
+      后期需要再增加object类型的listitem功能。但如果列表项很多的话，如果增强遍历效率？
+      另外传统的listitembase如何实现tooltip的功能？
+      另外菜单项中的某一项是否可以为object类型，其它为传统类型？
   
 /====================双屏坐标处理代码=================================================	 
 	CMFCPopupMenu::RecalcLayout, afxmenupopup.cpp L630

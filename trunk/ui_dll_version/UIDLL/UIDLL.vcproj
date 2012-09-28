@@ -329,6 +329,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\UI_SDK\include\manager\tooltipmanager.h"
+						>
+					</File>
+					<File
 						RelativePath="..\UI_SDK\include\manager\topwindowmanager.h"
 						>
 					</File>
@@ -574,6 +578,10 @@
 					</File>
 					<File
 						RelativePath="..\UI_SDK\src\manager\stylemanager.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\UI_SDK\src\manager\tooltipmanager.cpp"
 						>
 					</File>
 					<File
