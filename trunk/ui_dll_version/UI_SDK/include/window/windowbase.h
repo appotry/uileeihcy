@@ -60,7 +60,7 @@ public:
 	KeyboardManager&  GetKeyboardMgr();
 	Object*           GetHoverObject();
 	Object*           GetPressObject();
-	HRFONT            GetHRFONT();
+	HRFONT            GetHRFONT();    // 获取字体流程：先获取自己的m_pTextRender，如果没有则调用自己的m_pWindow的GetHRFONT
 
 	void              Control_NotifyMe( const String&  idPath, int nNotifyMapID );
 	void              Control_NotifyMe( Object*  pObj, int nNotifyMapID );
@@ -138,7 +138,7 @@ protected:
 public:
 	HWND              m_hWnd;                // 窗口句柄
 	HRDC              m_hRenderTarget;       // 双缓冲DC
-	HRFONT            m_hFont;            
+	HRFONT            m_hFont;               // 当xml中配置了字体时，m_hFont为xml中的字体。当没有字体时，使用窗口字体。窗口字体也没时，则使用default font.
 
 protected:
 	CWndProcThunk     m_thunk;               // ATL中的THUNK，用于将一个窗口过程作成自己的成员函数

@@ -23,9 +23,18 @@ void RichEditBase::ResetAttribute()
 {
 	__super::ResetAttribute();
 }
-
 void RichEditBase::OnObjectLoaded()
 {
+	// 初始化字体(注：如果先创建textservice,再直接设置字体，
+	// 调用OnTxPropertyBitsChange会崩溃
+	IRenderFont* pFont = this->GetFont();
+	if (NULL != pFont)
+	{
+		LOGFONT lf;
+		pFont->GetLogFont(&lf);
+		m_wrapRichEidt.SetFont(&lf);
+	}
+
 	m_wrapRichEidt.Create(GetHWND());
 }
 void RichEditBase::OnEraseBkgnd( HRDC hRDC )

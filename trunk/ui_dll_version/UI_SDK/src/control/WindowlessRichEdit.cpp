@@ -46,6 +46,9 @@ WindowlessRichEdit::~WindowlessRichEdit(void)
 
 bool WindowlessRichEdit::Create(HWND hWndParent)
 {
+	if (NULL == m_pRichEditBase)
+		return false;
+
 	//////////////////////////////////////////////////////////////////////////
 	// 创建Text Service
 
@@ -62,14 +65,12 @@ bool WindowlessRichEdit::Create(HWND hWndParent)
 	if (FAILED(hr) || NULL == m_spTextServices)
 		return false;
 
-
 	m_hParentWnd = hWndParent;
 	if (GetWindowLong(m_hParentWnd, GWL_EXSTYLE) & WS_EX_LAYERED)
 	{
 		m_caret.SetLayered(true);
 		m_caret.SetTextHost(this);
 	}
-
 
 	RECT  rcClient;
 	this->TxGetClientRect(&rcClient);
@@ -286,17 +287,6 @@ ULONG STDMETHODCALLTYPE WindowlessRichEdit::Release(void)
 //
 //////////////////////////////////////////////////////////////////////////
 
-ITextHostImpl::ITextHostImpl()
-{
-	m_nxPerInch = m_nyPerInch = 0;
-	m_hParentWnd = NULL;
-	m_dwStyle = ES_MULTILINE|ES_NOHIDESEL;
-	
-	m_chPasswordChar = L'*';
-	m_laccelpos = -1;
-}
-
-
 //@cmember Get the DC for the host
 HDC ITextHostImpl::TxGetDC() 
 {
@@ -475,14 +465,14 @@ HRESULT ITextHostImpl::TxGetViewInset(LPRECT prc)
 //@cmember Get the default character format for the text
 HRESULT ITextHostImpl::TxGetCharFormat(const CHARFORMATW **ppCF )
 {
-	// TODO:
+	*ppCF = &m_cf;
 	return S_OK;
 }
 
 //@cmember Get the default paragraph format for the text
 HRESULT ITextHostImpl::TxGetParaFormat(const PARAFORMAT **ppPF)
 {
-	// TODO:
+	*ppPF = &m_pf;
 	return S_OK;
 }
 
@@ -668,73 +658,76 @@ HRESULT ITextHostImpl::TxGetSelectionBarWidth (LONG *lSelBarWidth)
 //
 //////////////////////////////////////////////////////////////////////////
 
-bool ITextHostImpl::Initialize(IRenderFont* pDefaultFont)
+ITextHostImpl::ITextHostImpl()
 {
-	return true;
+	m_nxPerInch = m_nyPerInch = 0;
+	m_hParentWnd = NULL;
+	m_dwStyle = ES_MULTILINE|ES_NOHIDESEL;
+
+	m_chPasswordChar = L'*';
+	m_laccelpos = -1;
+
+	memset(&m_cf, 0, sizeof(CHARFORMAT2W));
+	InitDefaultParaFormat();
 }
 
-bool ITextHostImpl::SetFont(IRenderFont* pFont)
+bool ITextHostImpl::SetFont(LOGFONT* plf)
 {
-	if (NULL == pFont)
+	if (NULL == plf)
 		return false;
 
-
-	HWND     hwnd;
-	LOGFONT  lf;
-	HDC      hdc;
-	LONG     yPixPerInch;
-
-	// Get LOGFONT for default font
-	if (!hfont)
-		hfont = (HFONT)GetStockObject(SYSTEM_FONT);
-
-	// Get LOGFONT for passed hfont
-	if (!GetObject(hfont, sizeof(LOGFONT), &lf))
-		return E_FAIL;
-
 	// Set CHARFORMAT structure
-	pcf->cbSize = sizeof(CHARFORMAT2);
+	m_cf.cbSize = sizeof(CHARFORMAT2W);
 
-	hwnd = GetDesktopWindow();
-	hdc = GetDC(hwnd);
-	yPixPerInch = GetDeviceCaps(hdc, LOGPIXELSY);
-	pcf->yHeight = lf.lfHeight * LY_PER_INCH / yPixPerInch;
-	ReleaseDC(hwnd, hdc);
+	HWND hWnd = GetDesktopWindow();
+	HDC  hDC = GetDC(hWnd);
+	LONG yPixPerInch = GetDeviceCaps(hDC, LOGPIXELSY);
+	m_cf.yHeight = abs(plf->lfHeight * 1440 / yPixPerInch);
+	ReleaseDC(hWnd, hDC);
 
-	pcf->yOffset = 0;
-	pcf->crTextColor = crAuto;
+	m_cf.yOffset = 0;
+//	m_cf.crTextColor = RGB(0,0,0);  // 不涉及颜色的修改
 
-	pcf->dwEffects = CFM_EFFECTS | CFE_AUTOBACKCOLOR;
-	pcf->dwEffects &= ~(CFE_PROTECTED | CFE_LINK);
+	m_cf.dwEffects = CFM_EFFECTS | CFE_AUTOBACKCOLOR;
+	m_cf.dwEffects &= ~(CFE_PROTECTED | CFE_LINK);
 
-	if(lf.lfWeight < FW_BOLD)
-		pcf->dwEffects &= ~CFE_BOLD;
-	if(!lf.lfItalic)
-		pcf->dwEffects &= ~CFE_ITALIC;
-	if(!lf.lfUnderline)
-		pcf->dwEffects &= ~CFE_UNDERLINE;
-	if(!lf.lfStrikeOut)
-		pcf->dwEffects &= ~CFE_STRIKEOUT;
+	if(plf->lfWeight < FW_BOLD)
+		m_cf.dwEffects &= ~CFE_BOLD;
+	if(!plf->lfItalic)
+		m_cf.dwEffects &= ~CFE_ITALIC;
+	if(!plf->lfUnderline)
+		m_cf.dwEffects &= ~CFE_UNDERLINE;
+	if(!plf->lfStrikeOut)
+		m_cf.dwEffects &= ~CFE_STRIKEOUT;
 
-	pcf->dwMask = CFM_ALL | CFM_BACKCOLOR;
-	pcf->bCharSet = lf.lfCharSet;
-	pcf->bPitchAndFamily = lf.lfPitchAndFamily;
+	m_cf.dwMask = CFM_ALL | CFM_BACKCOLOR;
+	m_cf.bCharSet = plf->lfCharSet;
+	m_cf.bPitchAndFamily = plf->lfPitchAndFamily;
 #ifdef UNICODE
-	_tcscpy(pcf->szFaceName, lf.lfFaceName);
+	_tcscpy(m_cf.szFaceName, plf->lfFaceName);
 #else
 	//need to thunk pcf->szFaceName to a standard char string.in this case it's easy because our thunk is also our copy
-	MultiByteToWideChar(CP_ACP, 0, lf.lfFaceName, LF_FACESIZE, pcf->szFaceName, LF_FACESIZE) ;
+	MultiByteToWideChar(CP_ACP, 0, plf->lfFaceName, LF_FACESIZE, m_cf.szFaceName, LF_FACESIZE) ;
 #endif
 
-
-
-	//
 	if (NULL != m_spTextServices)
 	{
 		m_spTextServices->OnTxPropertyBitsChange(TXTBIT_CHARFORMATCHANGE, 
 					TXTBIT_CHARFORMATCHANGE);
 	}
-	return true;;
+
+	return true;
+}
+
+void ITextHostImpl::InitDefaultParaFormat() 
+{	
+	memset(&m_pf, 0, sizeof(PARAFORMAT));
+
+	m_pf.cbSize = sizeof(PARAFORMAT);
+	m_pf.dwMask = PFM_ALL;
+	m_pf.wAlignment = PFA_LEFT;
+	m_pf.cTabCount = 1;
+	m_pf.rgxTabs[0] = lDefaultTab;
 }
 
 WCHAR ITextHostImpl::SetPasswordChar(WCHAR ch_PasswordChar)

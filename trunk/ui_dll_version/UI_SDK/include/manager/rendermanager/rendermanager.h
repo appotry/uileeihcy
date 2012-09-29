@@ -123,6 +123,7 @@ public:
 	virtual SIZE  MeasureString( const TCHAR* szText, int nLimitWidth = -1 ) = 0;
 
 	virtual HFONT GetHFONT() = 0;
+	virtual bool  GetLogFont(LOGFONT* plf) = 0;
 };
 
 

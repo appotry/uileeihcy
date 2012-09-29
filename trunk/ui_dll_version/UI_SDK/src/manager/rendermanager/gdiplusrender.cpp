@@ -318,26 +318,36 @@ UINT GdiplusRenderFont::GetTextMetricsHeight( )
 
 HFONT GdiplusRenderFont::GetHFONT()
 {
-	HDC hCacheDC = ::UI_GetCacheDC();
-	Gdiplus::Graphics g(hCacheDC);
-
 	HFONT hFont = m_hFontAttach;
 	if( NULL == hFont )  
 	{
 		if( NULL == m_hFontForGDI )  // TODO: 如果m_pFont属性改变，那m_hFontForGDI也会一起改变吗？是否是每次获取前都将m_hFontForGDI干掉？
 		{
 			LOGFONT lf;
-	#ifdef _UNICODE
-			m_pFont->GetLogFontW(&g,&lf);	
-	#else
-			m_pFont->GetLogFontA(&g,&lf);
-	#endif
+			this->GetLogFont(&lf);
 			m_hFontForGDI = ::CreateFontIndirect(&lf);  // 析构时，释放
 		}
 		hFont = m_hFontForGDI;
 	}
-	::UI_ReleaseCacheDC(hCacheDC);
 	return hFont;
+}
+
+bool GdiplusRenderFont::GetLogFont(LOGFONT* plf)
+{
+	if (NULL == plf || NULL == m_pFont)
+		return false;
+
+	HDC hCacheDC = ::UI_GetCacheDC();
+	Gdiplus::Graphics g(hCacheDC);
+
+#ifdef _UNICODE
+	m_pFont->GetLogFontW(&g, plf);	
+#else
+	m_pFont->GetLogFontA(&g, plf);
+#endif
+
+	::UI_ReleaseCacheDC(hCacheDC);
+	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////

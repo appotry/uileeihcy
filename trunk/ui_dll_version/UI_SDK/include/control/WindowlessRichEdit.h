@@ -97,10 +97,9 @@ public:
 	// 外部设置方法 （部分参考microsoft windowlessRE工程）
 	WCHAR   SetPasswordChar(WCHAR chPasswordChar);
 	LONG    SetAccelPos(LONG l_accelpos);
-
-	bool    Initialize(IRenderFont* pDefaultFont);
-	bool    SetFont(IRenderFont* pFont);
-
+	bool    SetFont(LOGFONT* plf);
+	void    InitDefaultParaFormat();
+	
 protected:
 
 	// unknown attribute

@@ -287,6 +287,15 @@ HFONT GDIRenderFont::GetHFONT()
 {
 	return m_hFont;
 }
+
+bool GDIRenderFont::GetLogFont(LOGFONT* plf)
+{
+	if (NULL == plf || NULL == m_hFont)
+		return false;
+
+	GetObject(m_hFont, sizeof(LOGFONT), plf);
+	return true;
+}
 //////////////////////////////////////////////////////////////////////////
 //
 //
