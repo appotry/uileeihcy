@@ -40,20 +40,19 @@ public:
 protected:
 	String      m_strText;
 //	UIColor*    m_pColor;
-	int         m_eTextAlign;   /*LABEL_ALIGN*/
 };
 
 
 //
 //	¾²Ì¬Í¼Æ¬¿Ø¼þ(Ö§³Öico¡¢... )
 //
-class UIAPI PictureCtrl : public Control
+class UIAPI Picture : public Control
 {
 public:
-	PictureCtrl();
-	~PictureCtrl();
+	Picture();
+	~Picture();
 
-	UI_DECLARE_OBJECT( PictureCtrl, OBJ_CONTROL )
+	UI_DECLARE_OBJECT( Picture, OBJ_CONTROL )
 
 	UI_BEGIN_MSG_MAP
 		UIMSG_WM_PAINT(OnPaint)

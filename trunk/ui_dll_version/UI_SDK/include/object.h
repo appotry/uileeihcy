@@ -29,6 +29,8 @@ namespace UI
 	virtual      TCHAR*      GetObjectName() = 0;        \
 	virtual      OBJ_TYPE    GetObjectType() = 0;
 
+
+// 当控件中有一个renderbase变量时，就应响应onthemechanged消息，然后调用该宏
 #define ON_RENDER_THEME_CHANGED(pRender)  \
 	if (NULL != pRender && pRender->IsThemeRender())  \
 	{ \

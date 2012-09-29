@@ -362,7 +362,7 @@ void UIApplication::RegisterDefaultUIObject()
 	REGISTER_UI_OBJECT( RadioButton );
 	REGISTER_UI_OBJECT( HyperLink );
 	REGISTER_UI_OBJECT( Label );
-	REGISTER_UI_OBJECT( PictureCtrl );
+	REGISTER_UI_OBJECT( Picture );
 	REGISTER_UI_OBJECT( Edit );
 	REGISTER_UI_OBJECT( SliderCtrl );
 	REGISTER_UI_OBJECT( ListBox );

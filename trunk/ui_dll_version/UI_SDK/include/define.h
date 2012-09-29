@@ -121,6 +121,7 @@ UI_RESOURCE_TYPE;
 #define XML_SEPARATOR             _T(',')            // xml中的分隔符，如表示颜色、区域
 #define XML_PATH_SEPARATOR        _T('/')            // xml中的路径分隔符（如样式路径，子对象路径）
 #define XML_MULTI_SEPARATOR       _T(';')            // xml中的分隔符,如分隔一个控件的多个style.
+#define XML_FLAG_SEPARATOR        _T('|')            // xml中的分隔符，如文本对齐方式: left|top|vcenter
 #define XML_CHILD_SEPARATOR       _T('.')            // xml中父子之间的分隔符，如Menu.String
 #define XML_HEADER                _T("<?xml version=\"1.0\" encoding=\"utf-8\" ?>")
 #define XML_PROJECT_XMLFILE_EXT   _T(".uiproj")       // 工程描述文件的后缀名
@@ -211,8 +212,9 @@ enum IMAGE_ITEM_TYPE
 #define XML_RENDER_TYPE_IMAGELISTITEM     _T("imagelistitem")           // 图片列表中的一项，需要指定其索引
 #define XML_RENDER_TYPE_IMAGELIST         _T("imagelist")               // 图片列表
 #define XML_RENDER_TYPE_COLOR             _T("color")                   // 纯色填充 Color
-#define XML_RENDER_TYPE_COLORLIST         _T("colorlist")               // office 2003工具栏式按钮
-#define XML_RENDER_TYPE_THEME             _T("theme")                   // 系统主题按钮
+#define XML_RENDER_TYPE_COLORLIST         _T("colorlist")               // 类似office 2003工具栏式按钮
+#define XML_RENDER_TYPE_NOTHEME           _T("notheme")                 // win2000主题控件
+#define XML_RENDER_TYPE_THEME             _T("theme")                   // 系统主题控件
 
 
 #define XML_RENDER_COLOR                  _T("render.color")            // 填充颜色
@@ -252,6 +254,7 @@ enum RENDER_TYPE
 	RENDER_TYPE_COLORLIST,
 	RENDER_TYPE_IMAGELIST,
 	
+	RENDER_TYPE_NOTHEME,    // 使用系统无主题样式的样式（win2000样式）
 	RENDER_TYPE_THEME_FIRST,
 	RENDER_TYPE_THEME,
 	RENDER_TYPE_THEME_MENUSTRINGITEM,
@@ -279,6 +282,14 @@ enum IMAGELIST_LAYOUT_TYPE
 #define XML_TEXTRENDER_FONT                 _T("textrender.font")       // 字体
 #define XML_TEXTRENDER_COLORLIST_COUNT      _T("textrender.colorlist.count")
 #define XML_TEXTRENDER_FONTCOLORLIST_COUNT  _T("textrender.fontcolorlist.count")  // 字体、颜色数量
+#define XML_TEXTRENDER_ALIGN               _T("textrender.align")
+
+#define XML_TEXTRENDER_ALIGN_TOP            _T("top")
+#define XML_TEXTRENDER_ALIGN_BOTTOM         _T("bottom")
+#define XML_TEXTRENDER_ALIGN_LEFT           _T("left")
+#define XML_TEXTRENDER_ALIGN_RIGHT          _T("right")
+#define XML_TEXTRENDER_ALIGN_CENTER         _T("center")
+#define XML_TEXTRENDER_ALIGN_VCENTER        _T("vcenter")
 
 enum TEXTRENDER_TYPE
 {
@@ -438,24 +449,24 @@ enum STYLE_SELECTOR_TYPE{
 
 // Label
 #define  XML_LABEL_COLOR                       _T("color")
-#define  XML_LABEL_ALIGN_H                     _T("halign")
-#define  XML_LABEL_ALIGN_V                     _T("valign")
+// #define  XML_LABEL_ALIGN                       _T("align")
+// 
+// #define XML_LABEL_ALIGN_TOP                    _T("top")
+// #define XML_LABEL_ALIGN_BOTTOM                 _T("bottom")
+// #define XML_LABEL_ALIGN_LEFT                   _T("left")
+// #define XML_LABEL_ALIGN_RIGHT                  _T("right")
+// #define XML_LABEL_ALIGN_CENTER                 _T("center")
+// #define XML_LABEL_ALIGN_VCENTER                _T("vcenter")
 
-#define XML_LABEL_ALIGN_TOP                    _T("top")
-#define XML_LABEL_ALIGN_BOTTOM                 _T("bottom")
-#define XML_LABEL_ALIGN_LEFT                   _T("left")
-#define XML_LABEL_ALIGN_RIGHT                  _T("right")
-#define XML_LABEL_ALIGN_CENTER                 _T("center")
-
-typedef enum 
-{
-	LABEL_ALIGN_TOP = 0,
-	LABEL_ALIGN_LEFT = 0,
-	LABEL_ALIGN_RIGHT = 0x2,
-	LABEL_ALIGN_BOTTOM = 0x4,
-	LABEL_ALIGN_CENTER = 0x8,
-	LABEL_ALIGN_VCENTER = 0x10,
-}LABEL_ALIGN;
+// typedef enum  // 废弃，直接使用DT_LEFT等系统字段
+// {
+// 	LABEL_ALIGN_TOP = 0,
+// 	LABEL_ALIGN_LEFT = 0,
+// 	LABEL_ALIGN_RIGHT = 0x2,
+// 	LABEL_ALIGN_BOTTOM = 0x4,
+// 	LABEL_ALIGN_CENTER = 0x8,
+// 	LABEL_ALIGN_VCENTER = 0x10,
+// }LABEL_ALIGN;
 
 // Picture
 // #define  XML_PICTURE_IMAGE                     _T("image")

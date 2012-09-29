@@ -205,6 +205,51 @@ bool WindowlessRichEdit::HitTest(POINT pt)
 	return false;
 }
 
+
+LRESULT WindowlessRichEdit::OnChar(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	LRESULT lr = 0;
+	HRESULT hr = m_spTextServices->TxSendMessage(uMsg, wParam, lParam, &lr);
+
+	// 	if (hr == S_FALSE)
+	// 	{
+	// 		lr = ::DefWindowProc(hWnd, Msg, wParam, lParam);
+	// 	}
+	return lr;
+}
+
+// @cmember Retrieves the coordinates of a window's client area
+HRESULT WindowlessRichEdit::TxGetClientRect(LPRECT prc)
+{
+	m_pRichEditBase->GetClientRectInWindow((CRect*)prc);
+	return S_OK;
+}
+
+//@cmember InvalidateRect
+void /*ITextHostImpl*/WindowlessRichEdit::TxInvalidateRect(LPCRECT prc, BOOL fMode)
+{
+	if (NULL != m_pRichEditBase)
+	{
+		m_pRichEditBase->UpdateObject();
+	}
+
+	//	::InvalidateRect(m_hParentWnd, prc, fMode);
+	//	::PostMessage(m_hParentWnd, 1111,0,0);
+}
+
+//@cmember Get the background (either opaque or transparent)
+// 注：设置TXTBACK_TRANSPARENT后，richedit将变成背景透明
+//     不设置或设置其它值后，将会有白色背景
+HRESULT /*ITextHostImpl*/WindowlessRichEdit::TxGetBackStyle(TXTBACKSTYLE *pstyle)
+{
+	if (m_pRichEditBase->IsTransparent())
+		*pstyle = TXTBACK_TRANSPARENT;
+	else
+		*pstyle = TXTBACK_OPAQUE;
+
+	return S_OK;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 HRESULT STDMETHODCALLTYPE WindowlessRichEdit::QueryInterface(REFIID riid,void **ppvObject)
@@ -236,12 +281,19 @@ ULONG STDMETHODCALLTYPE WindowlessRichEdit::Release(void)
 }
 
 //////////////////////////////////////////////////////////////////////////
+//
+//               ITempHostImpl 
+//
+//////////////////////////////////////////////////////////////////////////
 
 ITextHostImpl::ITextHostImpl()
 {
 	m_nxPerInch = m_nyPerInch = 0;
 	m_hParentWnd = NULL;
 	m_dwStyle = ES_MULTILINE|ES_NOHIDESEL;
+	
+	m_chPasswordChar = L'*';
+	m_laccelpos = -1;
 }
 
 
@@ -440,15 +492,6 @@ COLORREF ITextHostImpl::TxGetSysColor(int nIndex)
 	return ::GetSysColor(nIndex);
 }
 
-//@cmember Get the background (either opaque or transparent)
-// 注：设置TXTBACK_TRANSPARENT后，richedit将变成背景透明
-//     不设置或设置其它值后，将会有白色背景
-HRESULT ITextHostImpl::TxGetBackStyle(TXTBACKSTYLE *pstyle)
-{
-	*pstyle = /*TXTBACK_OPAQUE*/TXTBACK_TRANSPARENT;
-	return S_OK;
-}
-
 //@cmember Get the maximum length for the text
 HRESULT ITextHostImpl::TxGetMaxLength(DWORD *plength)
 {
@@ -466,13 +509,18 @@ HRESULT ITextHostImpl::TxGetScrollBars(DWORD *pdwScrollBar)
 //@cmember Get the character to display for password input
 HRESULT ITextHostImpl::TxGetPasswordChar(TCHAR *pch)
 {
-	return S_OK;
+#ifdef UNICODE
+	*pch = m_chPasswordChar;
+#else
+	WideCharToMultiByte(CP_ACP, 0, &m_chPasswordChar, 1, pch, 1, NULL, NULL) ;
+#endif
+	return NOERROR;
 }
 
 //@cmember Get the accelerator character
 HRESULT ITextHostImpl::TxGetAcceleratorPos(LONG *pcp) 
 {
-	// TODO:
+	*pcp = m_laccelpos;
 	return S_OK;
 }
 
@@ -614,33 +662,108 @@ HRESULT ITextHostImpl::TxGetSelectionBarWidth (LONG *lSelBarWidth)
 	return S_OK;
 }
 
-LRESULT WindowlessRichEdit::OnChar(UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	LRESULT lr = 0;
-	HRESULT hr = m_spTextServices->TxSendMessage(uMsg, wParam, lParam, &lr);
+//////////////////////////////////////////////////////////////////////////
+//
+//               ITempHostImpl 其它设置方法
+//
+//////////////////////////////////////////////////////////////////////////
 
-// 	if (hr == S_FALSE)
-// 	{
-// 		lr = ::DefWindowProc(hWnd, Msg, wParam, lParam);
-// 	}
-	return lr;
+bool ITextHostImpl::Initialize(IRenderFont* pDefaultFont)
+{
+	return true;
 }
 
-// @cmember Retrieves the coordinates of a window's client area
-HRESULT WindowlessRichEdit::TxGetClientRect(LPRECT prc)
+bool ITextHostImpl::SetFont(IRenderFont* pFont)
 {
-	m_pRichEditBase->GetClientRectInWindow((CRect*)prc);
-	return S_OK;
+	if (NULL == pFont)
+		return false;
+
+
+	HWND     hwnd;
+	LOGFONT  lf;
+	HDC      hdc;
+	LONG     yPixPerInch;
+
+	// Get LOGFONT for default font
+	if (!hfont)
+		hfont = (HFONT)GetStockObject(SYSTEM_FONT);
+
+	// Get LOGFONT for passed hfont
+	if (!GetObject(hfont, sizeof(LOGFONT), &lf))
+		return E_FAIL;
+
+	// Set CHARFORMAT structure
+	pcf->cbSize = sizeof(CHARFORMAT2);
+
+	hwnd = GetDesktopWindow();
+	hdc = GetDC(hwnd);
+	yPixPerInch = GetDeviceCaps(hdc, LOGPIXELSY);
+	pcf->yHeight = lf.lfHeight * LY_PER_INCH / yPixPerInch;
+	ReleaseDC(hwnd, hdc);
+
+	pcf->yOffset = 0;
+	pcf->crTextColor = crAuto;
+
+	pcf->dwEffects = CFM_EFFECTS | CFE_AUTOBACKCOLOR;
+	pcf->dwEffects &= ~(CFE_PROTECTED | CFE_LINK);
+
+	if(lf.lfWeight < FW_BOLD)
+		pcf->dwEffects &= ~CFE_BOLD;
+	if(!lf.lfItalic)
+		pcf->dwEffects &= ~CFE_ITALIC;
+	if(!lf.lfUnderline)
+		pcf->dwEffects &= ~CFE_UNDERLINE;
+	if(!lf.lfStrikeOut)
+		pcf->dwEffects &= ~CFE_STRIKEOUT;
+
+	pcf->dwMask = CFM_ALL | CFM_BACKCOLOR;
+	pcf->bCharSet = lf.lfCharSet;
+	pcf->bPitchAndFamily = lf.lfPitchAndFamily;
+#ifdef UNICODE
+	_tcscpy(pcf->szFaceName, lf.lfFaceName);
+#else
+	//need to thunk pcf->szFaceName to a standard char string.in this case it's easy because our thunk is also our copy
+	MultiByteToWideChar(CP_ACP, 0, lf.lfFaceName, LF_FACESIZE, pcf->szFaceName, LF_FACESIZE) ;
+#endif
+
+
+
+	//
+	if (NULL != m_spTextServices)
+	{
+		m_spTextServices->OnTxPropertyBitsChange(TXTBIT_CHARFORMATCHANGE, 
+					TXTBIT_CHARFORMATCHANGE);
+	}
+	return true;;
 }
 
-//@cmember InvalidateRect
-void /*ITextHostImpl*/WindowlessRichEdit::TxInvalidateRect(LPCRECT prc, BOOL fMode)
+WCHAR ITextHostImpl::SetPasswordChar(WCHAR ch_PasswordChar)
 {
- 	if (NULL != m_pRichEditBase)
- 	{
-		m_pRichEditBase->UpdateObject();
- 	}
+	WCHAR chOldPasswordChar = m_chPasswordChar;
 
-	//	::InvalidateRect(m_hParentWnd, prc, fMode);
-	//	::PostMessage(m_hParentWnd, 1111,0,0);
+	m_chPasswordChar = ch_PasswordChar;
+
+	// notify text services of property change
+	if (NULL != m_spTextServices)
+	{
+		m_spTextServices->OnTxPropertyBitsChange(TXTBIT_USEPASSWORD, 
+			(m_chPasswordChar != 0) ? TXTBIT_USEPASSWORD : 0);
+	}
+
+	return chOldPasswordChar;
+}
+
+LONG ITextHostImpl::SetAccelPos(LONG l_accelpos)
+{
+	LONG laccelposOld = l_accelpos;
+
+	m_laccelpos = l_accelpos;
+
+	// notify text services of property change
+	if (NULL != m_spTextServices)
+	{
+		m_spTextServices->OnTxPropertyBitsChange(TXTBIT_SHOWACCELERATOR, 0);
+	}
+
+	return laccelposOld;
 }

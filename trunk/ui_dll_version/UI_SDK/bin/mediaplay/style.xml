@@ -12,7 +12,7 @@
     <SliderCtrl istransparent="1" foregnd.render.type="image" cursor="idc_hand"
            trackbtn.bkgnd.render.type="imagelist" trackbtn.bkgnd.render.imagelist.count="4" trackbtn.styleclass="imagebtn"/>
     
-    <PictureCtrl foregnd.render.type="image"/>
+    <Picture foregnd.render.type="image"/>
 
     <HScrollBar
                bkgnd.render.type="image" bkgnd.render.image="hscrollbar_bar.bmp" bkgnd.render.9region="1"

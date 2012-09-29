@@ -324,7 +324,7 @@ HFONT GdiplusRenderFont::GetHFONT()
 	HFONT hFont = m_hFontAttach;
 	if( NULL == hFont )  
 	{
-		if( NULL == m_hFontForGDI )
+		if( NULL == m_hFontForGDI )  // TODO: 如果m_pFont属性改变，那m_hFontForGDI也会一起改变吗？是否是每次获取前都将m_hFontForGDI干掉？
 		{
 			LOGFONT lf;
 	#ifdef _UNICODE

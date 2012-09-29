@@ -372,6 +372,12 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 // 		void DrawPress( HRDC hRDC, CRect* prc );	
 	};
 
+	class GroupBoxBkNoThemeRender : public RenderBase
+	{
+	public:
+		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
+	};
+
 	class ComboboxButtonBkThemeRender : public ThemeRenderBase
 	{
 	public:
@@ -498,7 +504,7 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 		virtual ~TextRenderBase(){};
 
 	public:
-		virtual bool     SetAttribute( const String& strPrefix, map<String,String>& mapAttrib ){ return true; };
+		virtual bool     SetAttribute( const String& strPrefix, ATTRMAP& mapAttrib );
 		virtual void     DrawState(HRDC hRDC, const CRect* prc, int nState, const String& strText, int nDrawTextFlag=-1) {};
 		virtual HRFONT   GetHRFONT() = 0;
 		virtual void     SetHRFont(HRFONT hRFont) = 0;
@@ -510,6 +516,7 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 		TEXTRENDER_TYPE  GetTextRenderType() { return m_nTextRenderType; }
 
 		SIZE             GetDesiredSize(const String& strText, int nLimitWidth=-1);
+		int              GetDrawTextFlag() { return m_nDrawTextFlag; }
 
 	protected:
 		Object*          m_pObject;          // 绑定的对象，要绘制谁的文字

@@ -4,7 +4,7 @@
     <CustomWindow id="mainwindow" layout.left="300" layout.top="200"  width="322" height="165" 
                    bkgnd.render.type="image" bkgnd.render.image="player_skin.png" 
                    transparent.type="maskalpha">
-      <PictureCtrl id="icon" foregnd.render.image="ttplayer.ico" layout.left="10" layout.top="6"/>
+      <Picture id="icon" foregnd.render.image="ttplayer.ico" layout.left="10" layout.top="6"/>
       <Panel layout="stack" layout.right="5" layout.top="0" layout.direction="righttoleft">
         <Button id="sys_close"    styleclass="imagebtn" tooltip="退出"     bkgnd.render.image="close.bmp" />
         <Button id="btn_minimode" styleclass="imagebtn" tooltip="迷你模式"  bkgnd.render.image="minimode.bmp" />
@@ -99,8 +99,26 @@
       <HyperLink id="link_homepage" text="千千音乐在线" tooltip="千千静听在线网站"   href="http://ttplayer.qianqian.com/index.html" layout.left="122" layout.bottom="8" />
       <HyperLink id="link_homepage" text="论坛"         tooltip="千千静听的官方论坛" href="http://bbs.qianqian.com/"                layout.left="202" layout.bottom="8" />
       <HyperLink id="link_homepage" text="帮助"         tooltip="千千静听的帮助页面" href="http://ttplayer.qianqian.com/help.php"   layout.left="234" layout.bottom="8" />
-      <GroupBox id="" layout.left="115" layout.right="8" layout.top="10" height="370">
-        <Label id="title_bk" text="“千千静听”的简名介绍" layout.left="2" layout.right="2" layout.top="2" height="30" bkgnd.render.type="gradienth" bkgnd.render.colorfrom="option_gradient_from" bkgnd.render.colorto="option_gradient_to"/>        
+      <GroupBox  bkgnd.render.type="notheme" layout.left="115" layout.right="8" layout.top="10" height="370">
+        <Picture id="title_bk" layout.left="2" layout.right="2" layout.top="2" height="30" foregnd.render.type="gradienth" foregnd.render.colorfrom="option_gradient_from" foregnd.render.colorto="option_gradient_to"/>
+        <GroupBox id="" bkgnd.render.type="notheme" layout.left="2" layout.right="2" layout.top="35" height="2"/>
+        
+        <Label text="“千千静听”的简明介绍" textrender.align="left|vcenter" textrender.color="option_title_text_color_shadow" textrender.font="option_title" layout.left="6" layout.top="3" height="30" layout.right="2"/>
+        <Label text="“千千静听”的简明介绍" textrender.align="left|vcenter" textrender.color="option_title_text_color" textrender.font="option_title" layout.left="5" layout.top="2" height="30" layout.right="2"/>
+
+        <Picture foregnd.render.image="ttplayer.ico_48_48" layout.left="15" layout.top="50"/>
+
+        <Label text="千千静听" textrender.color="option_introduce_ttplayer_text3" textrender.font="option_introduce_ttplayer_text" layout.left="76" layout.top="53" />
+        <Label text="千千静听" textrender.color="option_introduce_ttplayer_text2" textrender.font="option_introduce_ttplayer_text" layout.left="74" layout.top="51" />
+        <Label text="千千静听" textrender.color="option_introduce_ttplayer_text1" textrender.font="option_introduce_ttplayer_text" layout.left="75" layout.top="52" />
+        <Label text="作者:"  layout.left="80" layout.top="85"/>
+        <HyperLink text="nanling" href="ttp@qianqian.com" tooltip="ttp@qianqian.com"  layout.left="115" layout.top="85"/>
+        <Label text="版权所有: 2003-2012"  layout.left="220" layout.top="85"/>
+        <Label text="版本: 5.9.4(Unicode)"  layout.left="80" layout.top="105"/>
+        <Label text="完成日期: 2012-8-2" layout.left="220" layout.top="105"/>
+        <GroupBox text="简介" layout.left="10" layout.top="120" layout.right="10" layout.bottom="10">
+          <RichEdit layout.left="0" layout.right="0" layout.top="0" layout.bottom="0"/>
+        </GroupBox>
         <!--Panel id="option_list_panel_container" layout="card" layout.left="120" layout.top="10" width="426" height="368">
           <Panel id="about_panel">
           </Panel>
@@ -134,7 +152,8 @@
       </GroupBox>
     </Window>
   <Menu id="main_menu" styleclass="mainmenu">
-    <String id="1001" text="千千选项" tooltip="“千千静听”的参数选项\n千千选项" icon.render.type="image" icon.render.image="ttplayer.ico" icon.render.image.drawtype="adapt"/>
+    <!--注：xml中的回车换行必须用 &#xD; 或 &#xA; 而不是用\r\n-->
+    <String id="1001" text="千千选项" tooltip="“千千静听”的参数选项&#xD;千千选项" icon.render.type="image" icon.render.image="ttplayer.ico" icon.render.image.drawtype="adapt"/>
     <Popup  text="相关链接"       styleclass="mainmenuitem" icon.render.imagelistitem.index="28">
       <String text="千千主页"     styleclass="mainmenuitem" icon.render.imagelistitem.index="34"/>
       <String text="千千音乐在线" styleclass="mainmenuitem" icon.render.imagelistitem.index="34"/>
@@ -207,8 +226,8 @@
     
     <SliderCtrl istransparent="1" foregnd.render.type="image" cursor="idc_hand" foregnd.render.image.drawtype="stretch"
            trackbtn.bkgnd.render.type="imagelist" trackbtn.bkgnd.render.imagelist.count="4" trackbtn.styleclass="imagebtn"/>
-    
-    <PictureCtrl foregnd.render.type="image"/>
+
+    <Picture foregnd.render.type="image"/>
 
     <HScrollBar
                bkgnd.render.type="image" bkgnd.render.image="hscrollbar_bar.bmp" bkgnd.render.9region="1" bkgnd.render.image.drawtype="stretch"
@@ -335,9 +354,12 @@
     <item type="imagelist" id="lyricedit_imagelist.png" count="17">lyricedit_imagelist.png</item>
     <item type="icon" id="ttplayer.ico"       useskinhls="0" width="16" height="16">ttplayer.ico</item>
     <item type="icon" id="ttplayer.ico_32_32" useskinhls="0" width="32" height="32">ttplayer.ico</item>
+    <item type="icon" id="ttplayer.ico_48_48" useskinhls="0" width="48" height="48">ttplayer.ico</item>
 </img>
   <font>
     <item id="normal" facename="宋体" size="9" />
+    <item id="option_title" facename="宋体" size="11"/>
+    <item id="option_introduce_ttplayer_text" facename="宋体" size="20" bold="1"/>
   </font>
   <color>
     <item id="voice_channel">87,139,164</item>
@@ -356,6 +378,11 @@
     <item id="menu_item_hover_border">49,106,197</item>
     <item id="option_gradient_from">48,106,198</item>
     <item id="option_gradient_to">255,255,255</item>
+    <item id="option_title_text_color">255,255,255</item>
+    <item id="option_title_text_color_shadow">32,32,32</item>
+    <item id="option_introduce_ttplayer_text1">255,155,0</item>
+    <item id="option_introduce_ttplayer_text2">255,255,255</item>
+    <item id="option_introduce_ttplayer_text3">32,32,32</item>
   </color>
 </ui>
 
