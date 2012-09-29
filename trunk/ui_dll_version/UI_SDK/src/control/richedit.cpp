@@ -5,15 +5,6 @@ RichEditBase::RichEditBase():m_wrapRichEidt(this)
 
 }
 
-// HRESULT RichEditBase::InitialConstruct()
-// {
-// 	HRESULT hr = __super::InitialConstruct();
-// 	if (FAILED(hr))
-// 		return hr;
-// 
-// 	return S_OK;
-// }
-
 SIZE RichEditBase::GetAutoSize( HRDC hRDC )
 { 
 	SIZE  s = {0,0}; 

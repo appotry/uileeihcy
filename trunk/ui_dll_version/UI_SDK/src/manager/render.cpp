@@ -26,17 +26,17 @@ RenderBase* RenderFactory::GetRender( const String& strType, Object* pObj )
 {
 	RENDER_TYPE eType = RENDER_TYPE_THEME;
 
-	if (XML_RENDER_TYPE_COLOR == strType)
-		eType = RENDER_TYPE_COLOR;
-
-	else if (XML_RENDER_TYPE_GRADIENT_H == strType)
-		eType = RENDER_TYPE_GRADIENTH;
-
-	else if (XML_RENDER_TYPE_GRADIENT_V == strType)
-		eType = RENDER_TYPE_GRADIENTV;
+	if (XML_RENDER_TYPE_THEME == strType)
+		eType = RENDER_TYPE_THEME;
 
 	else if (XML_RENDER_TYPE_IMAGE == strType)
 		eType = RENDER_TYPE_IMAGE;
+
+	else if (XML_RENDER_TYPE_IMAGELIST == strType)
+		eType = RENDER_TYPE_IMAGELIST;
+
+	else if (XML_RENDER_TYPE_COLOR == strType)
+		eType = RENDER_TYPE_COLOR;
 
 	else if (XML_RENDER_TYPE_IMAGELISTITEM == strType)
 		eType = RENDER_TYPE_IMAGELISTITEM;
@@ -44,11 +44,14 @@ RenderBase* RenderFactory::GetRender( const String& strType, Object* pObj )
 	else if (XML_RENDER_TYPE_COLORLIST == strType)
 		eType = RENDER_TYPE_COLORLIST;
 
-	else if (XML_RENDER_TYPE_IMAGELIST == strType)
-		eType = RENDER_TYPE_IMAGELIST;
+	else if (XML_RENDER_TYPE_GRADIENT_H == strType)
+		eType = RENDER_TYPE_GRADIENTH;
 
-	else if (XML_RENDER_TYPE_THEME == strType)
-		eType = RENDER_TYPE_THEME;
+	else if (XML_RENDER_TYPE_GRADIENT_V == strType)
+		eType = RENDER_TYPE_GRADIENTV;
+
+	else if (XML_RENDER_TYPE_NOTHEME == strType)
+		eType = RENDER_TYPE_NOTHEME;
 
 	else
 		return NULL;
@@ -60,38 +63,7 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 {
 	RenderBase*  pRender = NULL;
 
-	if( RENDER_TYPE_COLOR == eType )
-	{
-		pRender = new ColorRender();
-	}
-
-	else if( RENDER_TYPE_GRADIENTH == eType )
-	{
-		pRender = new GradientRender();
-	}
-
-	else if( RENDER_TYPE_GRADIENTV == eType )
-	{
-		pRender = new GradientRender();
-	}
-
-	else if( RENDER_TYPE_IMAGE == eType )
-	{
-		pRender = new ImageRender();
-	}
-	else if( RENDER_TYPE_COLORLIST == eType )
-	{
-		pRender = new ColorListRender();
-	}
-	else if( RENDER_TYPE_IMAGELIST == eType )
-	{
-		pRender = new ImageListRender();
-	}
-	else if (RENDER_TYPE_IMAGELISTITEM == eType)
-	{
-		pRender = new ImageListItemRender();
-	}
-	else if( RENDER_TYPE_THEME == eType )
+	if (RENDER_TYPE_THEME == eType)
 	{
 		if( _T("Button") == pObj->GetObjectName() )
 		{
@@ -123,8 +95,6 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 		else if( _T("GroupBox") == pObj->GetObjectName() )
 		{
 			pRender = new GroupBoxBkThemeRender();
-			CRegion4 r(2,2,2,2);
-			pObj->SetBorderRegion(&r);
 		}
 		else if (_T("Combobox") == pObj->GetObjectName() )
 		{
@@ -158,6 +128,43 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 			CRegion4 r(2,2,2,2);
 			pObj->SetBorderRegion(&r);
 		}
+	}
+	else if( RENDER_TYPE_IMAGE == eType )
+	{
+		pRender = new ImageRender();
+	}
+	else if( RENDER_TYPE_COLORLIST == eType )
+	{
+		pRender = new ColorListRender();
+	}
+	else if( RENDER_TYPE_IMAGELIST == eType )
+	{
+		pRender = new ImageListRender();
+	}
+	else if (RENDER_TYPE_IMAGELISTITEM == eType)
+	{
+		pRender = new ImageListItemRender();
+	}
+	else if (RENDER_TYPE_NOTHEME == eType)
+	{
+		if( _T("GroupBox") == pObj->GetObjectName() )
+		{
+			pRender = new GroupBoxBkNoThemeRender();
+		}
+	}
+	else if( RENDER_TYPE_COLOR == eType )
+	{
+		pRender = new ColorRender();
+	}
+
+	else if( RENDER_TYPE_GRADIENTH == eType )
+	{
+		pRender = new GradientRender();
+	}
+
+	else if( RENDER_TYPE_GRADIENTV == eType )
+	{
+		pRender = new GradientRender();
 	}
 	else if(RENDER_TYPE_THEME_MENUSTRINGITEM == eType)
 	{
@@ -1802,7 +1809,10 @@ void GroupBoxBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
 	}
 	else
 	{
-		DrawEdge(hDC, &rc, EDGE_ETCHED, BF_RECT);
+		if (prc->Height()<=2)
+			DrawEdge(hDC, &rc, EDGE_ETCHED, BF_TOP);   // 分隔线类型
+		else
+			DrawEdge(hDC, &rc, EDGE_ETCHED, BF_RECT);
 	}
 	ReleaseHDC(hRDC, hDC);
 }
@@ -1822,17 +1832,28 @@ void GroupBoxBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 	}
 	else
 	{
-		DrawEdge(hDC, &rc, EDGE_ETCHED, BF_RECT);
+		if (prc->Height()<=2)
+			DrawEdge(hDC, &rc, EDGE_ETCHED, BF_TOP);   // 分隔线类型
+		else
+			DrawEdge(hDC, &rc, EDGE_ETCHED, BF_RECT);
 	}
 	ReleaseHDC(hRDC, hDC);
 }
 
-// void GroupBoxBkThemeRender::DrawHover( HRDC hRDC, RECT* prc )
-// {
-// }
-// void GroupBoxBkThemeRender::DrawPress( HRDC hRDC, RECT* prc )
-// {
-// }
+
+void GroupBoxBkNoThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+{
+	RECT rc;
+	((GroupBox*)m_pObject)->GetBorderRect(&rc);
+
+	HDC hDC = GetHDC(hRDC);
+	if (prc->Height()<=2)
+		DrawEdge(hDC, &rc, EDGE_ETCHED, BF_TOP);   // 分隔线类型
+	else
+		DrawEdge(hDC, &rc, EDGE_ETCHED, BF_RECT);
+	ReleaseHDC(hRDC, hDC);
+}
+
 
 SIZE ComboboxButtonBkThemeRender::GetDesiredSize()
 {
@@ -2829,6 +2850,57 @@ void TextRenderBase::SetTextAlignment(int nDrawFlag)
 	m_nDrawTextFlag = nDrawFlag;
 }
 
+bool TextRenderBase::SetAttribute( const String& strPrefix, ATTRMAP& mapAttrib )
+{
+	String strAttr = strPrefix + XML_TEXTRENDER_ALIGN;
+	ATTRMAP::iterator iter = mapAttrib.find(strAttr);
+	if (mapAttrib.end() != iter)
+	{
+		String& str = iter->second;
+		vector<String> vecAlign;
+		UI_Split(str, XML_FLAG_SEPARATOR, vecAlign);
+
+		m_nDrawTextFlag = 0;
+
+		int nSize = (int)vecAlign.size();
+		for (int i = 0; i < nSize; i++)
+		{
+			const String& strType = vecAlign[i];
+
+			if (strType == XML_TEXTRENDER_ALIGN_LEFT)
+			{
+				m_nDrawTextFlag |= DT_LEFT;
+			}
+			else if( strType == XML_TEXTRENDER_ALIGN_RIGHT )
+			{
+				m_nDrawTextFlag |= DT_RIGHT;
+			}
+			else if( strType == XML_TEXTRENDER_ALIGN_CENTER )
+			{
+				m_nDrawTextFlag |= DT_CENTER;
+			}
+			else if( strType == XML_TEXTRENDER_ALIGN_TOP )
+			{
+				m_nDrawTextFlag |= DT_TOP;
+			}
+			else if( strType == XML_TEXTRENDER_ALIGN_BOTTOM )
+			{
+				m_nDrawTextFlag |= DT_BOTTOM;
+			}
+			else if( strType == XML_TEXTRENDER_ALIGN_VCENTER )
+			{
+				m_nDrawTextFlag |= DT_VCENTER|DT_SINGLELINE;
+			}
+			else 
+			{
+				UI_LOG_WARN(_T("%s unknow align type:%s"), FUNC_NAME, strType.c_str());
+			}
+		}
+		
+		mapAttrib.erase(strAttr);
+	}
+	return true;
+}
 SIZE TextRenderBase::GetDesiredSize(const String& strText, int nLimitWidth)
 {
 	SIZE s = {0,0};
@@ -2913,8 +2985,11 @@ TextRender::~TextRender()
 	}
 }
 
-bool TextRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
+bool TextRender::SetAttribute( const String& strPrefix, ATTRMAP& mapAttrib )
 {
+	if (false == __super::SetAttribute(strPrefix, mapAttrib))
+		return false;
+
 	// 颜色
 	String strAttrib = strPrefix + XML_TEXTRENDER_COLOR;
 	ATTRMAP::iterator iter = mapAttrib.find(strAttrib);

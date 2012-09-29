@@ -1,6 +1,15 @@
 #pragma once
 #include "WindowlessRichEdit.h"
 
+//
+//	RichEdit编辑框控件
+//
+//  该类仅用于包装WindowlessRichEdit，为WindowlessRichEdit提供一个容器和消息转发器
+//  为WindowlessRichEdit提供坐标范围、外部消息等。
+//  RichEdit对应的方法和接口全部由WindowlessRichEdit实现，外部进行操作时，可直接获
+//  取WindowlessRichEdit的指针进行调用。
+//
+
 class RichEditBase : public Control
 {
 public:
@@ -23,11 +32,11 @@ public:
 	UI_END_MSG_MAP_CHAIN_PARENT(Control)
 
 public:
-//	virtual  HRESULT InitialConstruct();
-
 	virtual  SIZE   GetAutoSize( HRDC hRDC );
 	virtual  bool   SetAttribute(ATTRMAP& mapAttrib, bool bReload);
 	virtual  void   ResetAttribute();
+
+	WindowlessRichEdit*  GetRichEdit() { return &m_wrapRichEidt; }
 
 protected:
 	void     OnObjectLoaded();

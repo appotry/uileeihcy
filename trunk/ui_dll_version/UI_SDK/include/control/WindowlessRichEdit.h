@@ -77,7 +77,7 @@ public:
 	virtual HRESULT 	TxGetCharFormat(const CHARFORMATW **ppCF );
 	virtual HRESULT		TxGetParaFormat(const PARAFORMAT **ppPF);
 	virtual COLORREF	TxGetSysColor(int nIndex);
-	virtual HRESULT		TxGetBackStyle(TXTBACKSTYLE *pstyle);
+//	virtual HRESULT		TxGetBackStyle(TXTBACKSTYLE *pstyle);
 	virtual HRESULT		TxGetMaxLength(DWORD *plength);
 	virtual HRESULT		TxGetScrollBars(DWORD *pdwScrollBar);
 	virtual HRESULT		TxGetPasswordChar(TCHAR *pch);
@@ -94,14 +94,32 @@ public:
 	//#endif
 	virtual HRESULT		TxGetSelectionBarWidth (LONG *lSelBarWidth);
 
+	// 外部设置方法 （部分参考microsoft windowlessRE工程）
+	WCHAR   SetPasswordChar(WCHAR chPasswordChar);
+	LONG    SetAccelPos(LONG l_accelpos);
+
+	bool    Initialize(IRenderFont* pDefaultFont);
+	bool    SetFont(IRenderFont* pFont);
+
 protected:
-	SIZE    m_sizeExtent;   // text service 用来实现缩放的参数。Each HIMETRIC unit corresponds to 0.01 millimeter.
+
+	// unknown attribute
+	SIZE    m_sizeExtent;        // text service 用来实现缩放的参数。Each HIMETRIC unit corresponds to 0.01 millimeter.
 	int     m_nxPerInch;
 	int     m_nyPerInch;    
-	DWORD   m_dwStyle;      // 编辑框样式
+	LONG	m_laccelpos;         // Accelerator position
 
-	HWND    m_hParentWnd;
-	CCaret  m_caret;
+	// 已知属性
+	DWORD   m_dwStyle;           // 编辑框样式
+	WCHAR	m_chPasswordChar;    // Password character, TODO: 该接口未测试过
+
+	CHARFORMAT2W  m_cf;          // Default character format
+	PARAFORMAT    m_pf;          // Default paragraph format
+
+	//  其它资源、数据
+	CComPtr<ITextServices>  m_spTextServices;
+	HWND    m_hParentWnd;           // 所在的窗口句柄
+	CCaret  m_caret;                // 光标（集成了系统光标和分层窗口模拟光标两套）
 };
 
 interface ITextEditControl
@@ -173,10 +191,11 @@ public:
 	virtual ULONG   STDMETHODCALLTYPE Release(void);
 
 	// ITextHost Interface
+	// 需要根据控件属性进行定制的接口放在这里实现，其它接口接口放在ITextHostImpl中实现
 	virtual HRESULT TxGetClientRect(LPRECT prc);
 	virtual void    TxInvalidateRect(LPCRECT prc, BOOL fMode);
+	virtual HRESULT TxGetBackStyle(TXTBACKSTYLE *pstyle);
 
 protected:
-	CComPtr<ITextServices>  m_spTextServices;
-	RichEditBase*           m_pRichEditBase;
+	RichEditBase*   m_pRichEditBase;
 };
