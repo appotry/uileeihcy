@@ -877,7 +877,7 @@ BOOL Object::OnSetCursor( HWND hWnd, UINT nHitTest, UINT message )
 //
 HRFONT Object::GetFont()
 {
-	if( NULL == m_pTextRender || NULL == m_pTextRender->GetHRFONT() )
+	if (NULL == m_pTextRender || NULL == m_pTextRender->GetHRFONT())
 	{
 		WindowBase* pWindow = GetWindowObject();
 		if (NULL != pWindow)

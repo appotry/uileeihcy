@@ -322,6 +322,7 @@ public:
 
 	virtual HFONT   GetHFONT();
 	Gdiplus::Font*  GetFont() { return m_pFont; }
+	virtual bool    GetLogFont(LOGFONT* plf);
 
 private:
 	Gdiplus::Font*  m_pFont;

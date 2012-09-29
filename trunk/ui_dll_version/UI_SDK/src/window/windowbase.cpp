@@ -631,7 +631,13 @@ LRESULT WindowBase::DefWindowProc( UINT uMsg, WPARAM wParam, LPARAM lParam )
 	{
 		return ::CallWindowProc( m_oldWndProc, m_hWnd, uMsg, wParam, lParam );
 	}
-
+	else
+	{
+		if (WM_INPUTLANGCHANGEREQUEST == uMsg) // ???? 什么原因 在对话框中，如果没有一个EDIT，切换输入法没有反应
+		{                                      // 是因为没有将这个消息传递给DefWindowProc
+			return ::DefWindowProc(m_hWnd, uMsg, wParam, lParam);
+		}
+	}
 	return 0;
 }
 
@@ -642,6 +648,10 @@ LRESULT WindowBase::DefWindowProc( UINT uMsg, WPARAM wParam, LPARAM lParam )
 //
 LRESULT	WindowBase::WndProc( UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
+	if (WM_INPUTLANGCHANGEREQUEST  == uMsg)
+	{
+		int a = 0;
+	}
 	LRESULT lRes;
 	UIMSG*  pOldMsg = m_pCurMsg;
 	BOOL bRet = this->ProcessWindowMessage( m_hWnd, uMsg, wParam, lParam, lRes, 0 );  // 调用BEGIN_MSG_MAP消息映射列表

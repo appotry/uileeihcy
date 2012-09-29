@@ -163,7 +163,7 @@ public:
 	virtual UINT  GetTextMetricsHeight( );
 
 	virtual HFONT GetHFONT();
-
+	virtual bool  GetLogFont(LOGFONT* plf);
 protected:
 	void    DestroyFont();
 

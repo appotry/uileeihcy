@@ -39,7 +39,7 @@ int FontHeight2Size(int nHeight)
 {
 	int nSize = 0;
 	HDC hDC = ::GetDC(NULL);
-	nSize = -MulDiv( nHeight, 72, GetDeviceCaps(hDC, LOGPIXELSY) );
+	nSize = -MulDiv( nHeight, 72, GetDeviceCaps(hDC, LOGPIXELSY) );  // 96
 	::ReleaseDC(NULL,hDC);
 	return nSize;
 }
