@@ -42,12 +42,32 @@ WindowlessRichEdit::WindowlessRichEdit(RichEditBase* pRichEditBase)
 WindowlessRichEdit::~WindowlessRichEdit(void)
 {
 	m_pRichEditBase = NULL;
+
+	// Revoke our drop target
+	RevokeDragDrop();
+
+	if (NULL != m_spTextServices)
+	{
+		m_spTextServices->OnTxInPlaceDeactivate();
+		m_spTextServices.Release();
+		m_spTextServices = NULL;
+	}
 }
 
 bool WindowlessRichEdit::Create(HWND hWndParent)
 {
 	if (NULL == m_pRichEditBase)
 		return false;
+
+	HDC hdc = GetDC(hWndParent);
+	m_nxPerInch = GetDeviceCaps(hdc, LOGPIXELSX); 
+	m_nyPerInch = GetDeviceCaps(hdc, LOGPIXELSY); 
+	ReleaseDC(hWndParent, hdc);
+
+	if (!(m_dwStyle & (ES_AUTOHSCROLL | WS_HSCROLL)))
+	{
+		m_fWordWrap = true;  // 注：初始化m_fWordWrap不能放在CreateTextService后面，否则没作用
+	}
 
 	//////////////////////////////////////////////////////////////////////////
 	// 创建Text Service
@@ -75,15 +95,25 @@ bool WindowlessRichEdit::Create(HWND hWndParent)
 	RECT  rcClient;
 	this->TxGetClientRect(&rcClient);
 	hr = m_spTextServices->OnTxInPlaceActivate(&rcClient);
-	assert(SUCCEEDED(hr));
+	UIASSERT(SUCCEEDED(hr));
 // 	hr = m_spTextServices->TxSendMessage(WM_SETFOCUS, 0, 0, 0);
 // 	assert(SUCCEEDED(hr));
 
-	//////////////////////////////////////////////////////////////////////////
-	// 参数初始化
+	// 避免英文字体与中文字体不统一的问题
+	if (NULL != m_spTextServices)
+	{
+		LRESULT lr = 0;
+		m_spTextServices->TxSendMessage(EM_SETLANGOPTIONS, IMF_DUALFONT, 0, &lr);
+	}
+
+	if (!(m_dwStyle & ES_READONLY))
+	{
+		// This isn't a read only window so we need a drop target.
+		RegisterDragDrop();
+	}
+
 	
-
-
+	
 	return true;
 }
 
@@ -190,7 +220,6 @@ void WindowlessRichEdit::OnWindowPosChanged(LPWINDOWPOS)
 		// UIDLL.dll!WindowlessRichEdit::Draw(HDC__ * hDC=0xd90112c6)  行103 + 0x42 字节	C++
 		// UIDLL.dll!RichEditBase::OnPaint(UI::IRenderDC * hRDC=0x01f98bd0)  行48	C++
 	}
-	
 }
 
 bool WindowlessRichEdit::HitTest(POINT pt)
@@ -219,10 +248,45 @@ LRESULT WindowlessRichEdit::OnChar(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return lr;
 }
 
+//@cmember Get the view rectangle relative to the inset
+// 其实就是文字与边框的padding
+// 由于UI控件的padding属性是绘制
+HRESULT WindowlessRichEdit::TxGetViewInset(LPRECT prc)
+{
+	SetRectEmpty(prc);
+
+#if 0 // TODO: delete this
+	CRegion4 rPadding;
+	m_pRichEditBase->GetPaddingRegion(&rPadding);
+ 	::CopyRect(prc, &rPadding);
+
+	// Convert the inset to himetric that must be returned to ITextServices
+
+	prc->left = DXtoHimetricX(prc->left, m_nxPerInch);
+	prc->top  = DYtoHimetricY(prc->top, m_nyPerInch);
+	prc->right  = DXtoHimetricX(prc->right, m_nxPerInch);
+	prc->bottom = DYtoHimetricY(prc->bottom, m_nyPerInch);
+#endif
+
+	return S_OK;
+}
+
+
 // @cmember Retrieves the coordinates of a window's client area
 HRESULT WindowlessRichEdit::TxGetClientRect(LPRECT prc)
 {
 	m_pRichEditBase->GetClientRectInWindow((CRect*)prc);
+	
+#if 0 // TODO: delete 
+	// 减去padding的大小，因为padding的已经在richedit中作为inset view rect来实现
+	CRegion4 rPadding;
+	m_pRichEditBase->GetPaddingRegion(&rPadding);
+	prc->left -= rPadding.left;
+	prc->top  -= rPadding.top;
+	prc->right  += rPadding.right;
+	prc->bottom += rPadding.bottom;
+#endif
+
 	return S_OK;
 }
 
@@ -234,8 +298,7 @@ void /*ITextHostImpl*/WindowlessRichEdit::TxInvalidateRect(LPCRECT prc, BOOL fMo
 		m_pRichEditBase->UpdateObject();
 	}
 
-	//	::InvalidateRect(m_hParentWnd, prc, fMode);
-	//	::PostMessage(m_hParentWnd, 1111,0,0);
+//	::InvalidateRect(m_hParentWnd, prc, fMode);
 }
 
 //@cmember Get the background (either opaque or transparent)
@@ -243,13 +306,68 @@ void /*ITextHostImpl*/WindowlessRichEdit::TxInvalidateRect(LPCRECT prc, BOOL fMo
 //     不设置或设置其它值后，将会有白色背景
 HRESULT /*ITextHostImpl*/WindowlessRichEdit::TxGetBackStyle(TXTBACKSTYLE *pstyle)
 {
-	if (m_pRichEditBase->IsTransparent())
-		*pstyle = TXTBACK_TRANSPARENT;
-	else
-		*pstyle = TXTBACK_OPAQUE;
+	// 默认使用RichEdit backrender的背景，便于统一扩展
+// 	if (m_pRichEditBase->IsTransparent())
+ 		*pstyle = TXTBACK_TRANSPARENT;
+// 	else
+// 		*pstyle = TXTBACK_OPAQUE;
 
 	return S_OK;
 }
+
+
+
+//@cmember Show the scroll bar
+BOOL WindowlessRichEdit::TxShowScrollBar(INT fnBar, BOOL fShow) 
+{
+	UI_LOG_DEBUG(FUNC_NAME);
+	return FALSE;
+}
+
+//@cmember Enable the scroll bar
+BOOL WindowlessRichEdit::TxEnableScrollBar (INT fuSBFlags, INT fuArrowflags)
+{
+	UI_LOG_DEBUG(FUNC_NAME);
+	return FALSE;
+}
+
+//@cmember Set the scroll range
+BOOL WindowlessRichEdit::TxSetScrollRange(
+									 INT fnBar,
+									 LONG nMinPos,
+									 INT nMaxPos, 
+									 BOOL fRedraw)  // -- fRedraw：由RichEditBase::OnScroll来负责刷新，因为RichEditBase::OnScroll中还有一些处理要做
+{
+//	UI_LOG_DEBUG(_T("%s nMinPos=%d, nMaxPos=%d, fRedraw=%d"), FUNC_NAME, nMinPos, nMaxPos, fRedraw);
+
+	if (SB_HORZ == fnBar)
+	{
+		m_pRichEditBase->GetScrollMgr().GetHScrollBar()->SetScrollRange(nMaxPos - nMinPos);
+	}
+	else if (SB_VERT == fnBar)
+	{
+		m_pRichEditBase->GetScrollMgr().SetVScrollRange(nMaxPos - nMinPos);
+	}
+
+
+	return TRUE;
+}
+
+//@cmember Set the scroll position
+BOOL WindowlessRichEdit::TxSetScrollPos (INT fnBar, INT nPos, BOOL fRedraw)    // -- fRedraw：由RichEditBase::OnScroll来负责刷新，因为RichEditBase::OnScroll中还有一些处理要做
+{
+//	UI_LOG_DEBUG(_T("%s, nPos=%d, fRedraw=%d"), FUNC_NAME, nPos, fRedraw);
+	if (SB_HORZ == fnBar)
+	{
+		m_pRichEditBase->GetScrollMgr().GetHScrollBar()->SetScrollPos(nPos);
+	}
+	else if (SB_VERT == fnBar)
+	{
+		m_pRichEditBase->GetScrollMgr().GetVScrollBar()->SetScrollPos(nPos);
+	}
+	return TRUE;
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -298,35 +416,6 @@ INT ITextHostImpl::	TxReleaseDC(HDC hdc)
 {
 	return ::ReleaseDC (m_hParentWnd, hdc);
 }
-
-//@cmember Show the scroll bar
-BOOL ITextHostImpl::TxShowScrollBar(INT fnBar, BOOL fShow) 
-{
-	return FALSE;
-}
-
-//@cmember Enable the scroll bar
-BOOL ITextHostImpl::TxEnableScrollBar (INT fuSBFlags, INT fuArrowflags)
-{
-	return FALSE;
-}
-
-//@cmember Set the scroll range
-BOOL ITextHostImpl::TxSetScrollRange(
-				 INT fnBar,
-				 LONG nMinPos,
-				 INT nMaxPos,
-				 BOOL fRedraw)
-{
-	return FALSE;
-}
-
-//@cmember Set the scroll position
-BOOL ITextHostImpl::TxSetScrollPos (INT fnBar, INT nPos, BOOL fRedraw) 
-{
-	return FALSE;
-}
-
 
 //@cmember Send a WM_PAINT to the window
 void ITextHostImpl::TxViewChange(BOOL fUpdate)
@@ -411,16 +500,15 @@ void ITextHostImpl::TxSetFocus()
 }
 
 //@cmember Establish a new cursor shape
+// 该接口并不仅仅设置text的ibean光标，还包括sel bar的指针
+// If the fText parameter is TRUE, the text services object 
+// is trying to set the text cursor (the cursor appears as 
+// an I-beam when it is over text that is not selected). In 
+// this case, the host can set it to whatever the control 
+// MousePointer property is. 
 void ITextHostImpl::TxSetCursor(HCURSOR hcur, BOOL fText)
 {
-	if (fText)
-	{
-		::SetCursor(hcur);
-	}
-	else
-	{
-		::SetCursor(::LoadCursor(NULL, IDC_ARROW));
-	}
+	::SetCursor(hcur);
 }
 
 //@cmember Converts screen coordinates of a specified point to the client coordinates
@@ -455,13 +543,6 @@ HRESULT ITextHostImpl::TxDeactivate( LONG lNewState )
 // 	return S_OK;
 // }
 
-//@cmember Get the view rectangle relative to the inset
-HRESULT ITextHostImpl::TxGetViewInset(LPRECT prc)
-{
-	SetRectEmpty(prc);
-	return S_OK;
-}
-
 //@cmember Get the default character format for the text
 HRESULT ITextHostImpl::TxGetCharFormat(const CHARFORMATW **ppCF )
 {
@@ -485,14 +566,16 @@ COLORREF ITextHostImpl::TxGetSysColor(int nIndex)
 //@cmember Get the maximum length for the text
 HRESULT ITextHostImpl::TxGetMaxLength(DWORD *plength)
 {
-	// TODO:
+	*plength = m_dwMaxLength;
 	return S_OK;
 }
 
 //@cmember Get the bits representing requested scroll bars for the window
 HRESULT ITextHostImpl::TxGetScrollBars(DWORD *pdwScrollBar)
 {
-	// TODO:
+	*pdwScrollBar =  m_dwStyle & (WS_VSCROLL | WS_HSCROLL
+		 | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_DISABLENOSCROLL);
+
 	return S_OK;
 }
 
@@ -517,20 +600,19 @@ HRESULT ITextHostImpl::TxGetAcceleratorPos(LONG *pcp)
 //@cmember Get the native size
 HRESULT ITextHostImpl::TxGetExtent(LPSIZEL lpExtent)
 {
-	CRect  rcClient;
-	this->TxGetClientRect(&rcClient);
+// 	CRect  rcClient;
+// 	this->TxGetClientRect(&rcClient);
+// 
+// 	HDC hDC = GetDC(m_hParentWnd);
+// 	int xPerInch = GetDeviceCaps(hDC, LOGPIXELSX); 
+// 	int yPerInch = GetDeviceCaps(hDC, LOGPIXELSY); 
+// 	::ReleaseDC(m_hParentWnd, hDC);
+// 
+// 	// The extent matches the full client rectangle in HIMETRIC
+// 	lpExtent->cx = DXtoHimetricX(rcClient.Width(), xPerInch);
+// 	lpExtent->cy = DYtoHimetricY(rcClient.Height(), yPerInch);
 
-	HDC hDC = GetDC(m_hParentWnd);
-	int xPerInch = GetDeviceCaps(hDC, LOGPIXELSX); 
-	int yPerInch =	GetDeviceCaps(hDC, LOGPIXELSY); 
-	::ReleaseDC(m_hParentWnd, hDC);
-
-	// The extent matches the full client rectangle in HIMETRIC
-	lpExtent->cx = DXtoHimetricX(rcClient.Width(), xPerInch);
-	lpExtent->cy = DYtoHimetricY(rcClient.Height(), yPerInch);
-
-	// TODO:
-	return S_OK;
+	return E_NOTIMPL;
 }
 
 //@cmember Notify host that default character format has changed
@@ -552,10 +634,10 @@ HRESULT ITextHostImpl::TxGetPropertyBits(DWORD dwMask, DWORD *pdwBits)
 {
 	DWORD dwProperties = 0;
 
-// 	if (fRich)
-// 	{
-// 		dwProperties = TXTBIT_RICHTEXT;
-// 	}
+	if (m_fRich)
+	{
+		dwProperties = TXTBIT_RICHTEXT;
+	}
 
 	if (m_dwStyle & ES_MULTILINE)
 	{
@@ -566,7 +648,6 @@ HRESULT ITextHostImpl::TxGetPropertyBits(DWORD dwMask, DWORD *pdwBits)
 	{
 		dwProperties |= TXTBIT_READONLY;
 	}
-
 
 	if (m_dwStyle & ES_PASSWORD)
 	{
@@ -587,12 +668,12 @@ HRESULT ITextHostImpl::TxGetPropertyBits(DWORD dwMask, DWORD *pdwBits)
 // 	{
 // 		dwProperties |= TXTBIT_VERTICAL;
 // 	}
-// 
-// 	if (fWordWrap)
-// 	{
-// 		dwProperties |= TXTBIT_WORDWRAP;
-// 	}
-// 
+ 
+	if (m_fWordWrap)
+	{
+		dwProperties |= TXTBIT_WORDWRAP;
+	}
+ 
 // 	if (fAllowBeep)
 // 	{
 // 		dwProperties |= TXTBIT_ALLOWBEEP;
@@ -605,7 +686,6 @@ HRESULT ITextHostImpl::TxGetPropertyBits(DWORD dwMask, DWORD *pdwBits)
 
 	*pdwBits = dwProperties & dwMask; 
 	return NOERROR;
-	return S_OK;
 }
 
 //@cmember Notify host of events
@@ -648,7 +728,7 @@ void ITextHostImpl::TxImmReleaseContext( HIMC himc )
 
 HRESULT ITextHostImpl::TxGetSelectionBarWidth (LONG *lSelBarWidth)
 {
-	*lSelBarWidth = 0;
+	*lSelBarWidth = m_lSelBarWidth;
 	return S_OK;
 }
 
@@ -660,15 +740,29 @@ HRESULT ITextHostImpl::TxGetSelectionBarWidth (LONG *lSelBarWidth)
 
 ITextHostImpl::ITextHostImpl()
 {
-	m_nxPerInch = m_nyPerInch = 0;
+	m_nxPerInch = m_nyPerInch = 96;
 	m_hParentWnd = NULL;
-	m_dwStyle = ES_MULTILINE|ES_NOHIDESEL;
+	m_dwStyle = ES_MULTILINE|ES_NOHIDESEL|WS_VSCROLL /*| WS_HSCROLL*/ | ES_AUTOVSCROLL /*| ES_AUTOHSCROLL | ES_DISABLENOSCROLL*/;
+	m_dwMaxLength = INFINITE;
+	m_lSelBarWidth = 0;
 
 	m_chPasswordChar = L'*';
 	m_laccelpos = -1;
+	m_fWordWrap = false;
+	m_fRich = false;
+	m_fRegisteredForDrop = false;
+	m_fPassword = false;
 
 	memset(&m_cf, 0, sizeof(CHARFORMAT2W));
 	InitDefaultParaFormat();
+
+	if(!(m_dwStyle & ES_LEFT))
+	{
+		if(m_dwStyle & ES_CENTER)
+			m_pf.wAlignment = PFA_CENTER;
+		else if(m_dwStyle & ES_RIGHT)
+			m_pf.wAlignment = PFA_RIGHT;
+	}
 }
 
 bool ITextHostImpl::SetFont(LOGFONT* plf)
@@ -760,3 +854,169 @@ LONG ITextHostImpl::SetAccelPos(LONG l_accelpos)
 
 	return laccelposOld;
 }
+
+void ITextHostImpl::SetWordWrap(bool fWordWrap)
+{
+	m_fWordWrap = fWordWrap;
+	if (NULL != m_spTextServices)
+	{
+		m_spTextServices->OnTxPropertyBitsChange(TXTBIT_WORDWRAP, fWordWrap ? TXTBIT_WORDWRAP : 0);
+	}
+}
+
+
+void ITextHostImpl::SetReadOnly(bool fReadOnly)
+{
+	DWORD dwUpdatedBits = 0;
+
+	if (fReadOnly)
+	{
+		m_dwStyle |= ES_READONLY;
+
+		// Turn off Drag Drop 
+		RevokeDragDrop();
+		dwUpdatedBits |= TXTBIT_READONLY;
+	}
+	else
+	{
+		m_dwStyle &= ~ES_READONLY;
+
+		// Turn drag drop back on
+		RegisterDragDrop();	
+	}
+
+	// Notify control of property change
+	if (NULL != m_spTextServices)
+	{
+		m_spTextServices->OnTxPropertyBitsChange(TXTBIT_READONLY, dwUpdatedBits);
+	}
+}
+
+void ITextHostImpl::SetMaxLegnth(DWORD dw)
+{
+	m_dwMaxLength = dw;
+	
+	if (NULL != m_spTextServices)
+	{
+		m_spTextServices->OnTxPropertyBitsChange(TXTBIT_MAXLENGTHCHANGE, 
+			TXTBIT_MAXLENGTHCHANGE);
+	}
+}
+
+LONG ITextHostImpl::GetSelBarWidth()
+{
+	return HimetricXtoDX(m_lSelBarWidth, m_nxPerInch);
+}
+
+LONG ITextHostImpl::SetSelBarWidth(LONG l_SelBarWidth)
+{
+	LONG lOldSelBarWidth = m_lSelBarWidth;
+
+	m_lSelBarWidth = DXtoHimetricX(l_SelBarWidth, m_nxPerInch);
+
+	if (m_lSelBarWidth)
+	{
+		m_dwStyle |= ES_SELECTIONBAR;
+	}
+	else
+	{
+		m_dwStyle &= (~ES_SELECTIONBAR);
+	}
+
+	if (NULL != m_spTextServices)
+	{
+		m_spTextServices->OnTxPropertyBitsChange(TXTBIT_SELBARCHANGE, TXTBIT_SELBARCHANGE);
+	}
+	return lOldSelBarWidth;
+} 
+
+void ITextHostImpl::SetRichTextFlag(bool b)
+{
+	m_fRich = b;
+
+	if (NULL != m_spTextServices)
+	{
+		m_spTextServices->OnTxPropertyBitsChange(TXTBIT_RICHTEXT, 
+			b ? TXTBIT_RICHTEXT : 0);
+	}
+}
+
+
+void ITextHostImpl::RevokeDragDrop(void)
+{
+	if (m_fRegisteredForDrop)
+	{
+		::RevokeDragDrop(m_hParentWnd);
+		m_fRegisteredForDrop = FALSE;
+	}
+}
+
+//
+// 备注：
+// Applications that use the following functionality must call OleInitialize 
+// before calling any other function in the COM library: 
+//		Clipboard
+//		Drag and drop
+//		Object linking and embedding (OLE)
+//		In-place activation
+// 用oleInitialize初始化COM库，而不是使用CoInitialize
+//
+void ITextHostImpl::RegisterDragDrop(void)
+{
+	IDropTarget *pdt = NULL;
+
+	if(!m_fRegisteredForDrop && m_spTextServices->TxGetDropTarget(&pdt) == NOERROR)
+	{
+		HRESULT hr = ::RegisterDragDrop(m_hParentWnd, pdt);
+
+		if(hr == NOERROR)
+		{	
+			m_fRegisteredForDrop = true;
+		}
+		else
+		{
+			UIASSERT(0);
+		}
+
+		pdt->Release();
+	}
+}
+
+void ITextHostImpl::SetPasswordMode(bool b)
+{
+	m_fPassword = b;
+
+	if (NULL != m_spTextServices)
+	{
+		m_spTextServices->OnTxPropertyBitsChange(TXTBIT_USEPASSWORD, 
+			b? TXTBIT_USEPASSWORD:0);
+	}
+}
+
+bool ITextHostImpl::SetText(const TCHAR* szText)
+{
+	if (NULL == m_spTextServices)
+		return false;
+
+	// For RichEdit 1.0, the max text length would be reset by a settext so 
+	// we follow pattern here as well.
+
+	LRESULT lr = 0;
+	HRESULT hr = m_spTextServices->TxSendMessage(WM_SETTEXT, 0, (LPARAM)szText, &lr);
+
+	if (SUCCEEDED(hr))
+	{
+		// Update succeeded.
+		DWORD cNewText = _tcslen(szText);
+
+		// If the new text is greater than the max set the max to the new
+		// text length.
+		if (cNewText > m_dwMaxLength)
+		{
+			m_dwMaxLength = cNewText;                
+		}
+		return true;
+	}
+	return false; 
+}
+

@@ -82,7 +82,9 @@ BOOL CForwardPostMessageWindow::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARA
 HINSTANCE UIApplication::m_hInstance = NULL;
 UIApplication::UIApplication(void)
 {
-	::CoInitialize(0);
+//	::CoInitialize(0);
+	OleInitialize(0);  // 需要注册richedit的drag drop，因此用ole初始化
+
 	m_pLog = NULL;
 	m_bDesignMode = false;
 
@@ -119,7 +121,8 @@ UIApplication::~UIApplication(void)
 	{
 		m_WndForwardPostMsg.DestroyWindow();
 	}
-	::CoUninitialize(); // do not call CoInitialize, CoInitializeEx, or CoUninitialize from the DllMain function. 
+//	::CoUninitialize(); // do not call CoInitialize, CoInitializeEx, or CoUninitialize from the DllMain function. 
+	OleUninitialize();
 }
 
 

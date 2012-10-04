@@ -1001,10 +1001,6 @@ void ListCtrlBase::OnPaint(HRDC hRDC)
 	}
 }
 
-//
-//	??针对一行允许放置多个item的控件，在OnSize时，range大小是会发生变化的。
-//   这些情况能统一处理吗？
-//
 void ListCtrlBase::OnSize(UINT nType, int cx, int cy)
 {
 	SIZE sizeContent;

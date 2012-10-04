@@ -65,6 +65,8 @@ bool GroupBox::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 		m_pBkgndRender = RenderFactory::GetRender( RENDER_TYPE_THEME, this);
 	}
 
+	this->CalcBorderRect();
+
 	return bRet;
 }
 

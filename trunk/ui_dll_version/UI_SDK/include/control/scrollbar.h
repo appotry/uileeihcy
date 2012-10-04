@@ -65,7 +65,8 @@ namespace UI
 		
 		bool     SetScrollRange(int nX, int nY);
 		void     SetHScrollRange(int nX);
-		void     SetVScrollRange(int nY);
+		bool     SetVScrollRange(int nY);
+		void     GetScrollRange(int *pnxRange, int* pnyRange);
 		int      GetHScrollRange();
 		int      GetVScrollRange();
 		
@@ -134,6 +135,10 @@ namespace UI
 		int     GetScrollPos();
 		void    SetScrollPage(int nPage);
 		void    SetScrollRange(int nRange);
+		int     GetScrollButtonLine() { return m_nButtonLine; }
+		int     GetScrollWheelLine() { return m_nWheelLine; }
+		int     GetScrollRange();
+		int     GetScrollPage();
 
 	protected:
 		friend  class  ScrollBarMgr;
@@ -141,17 +146,15 @@ namespace UI
 		void    SetScrollRangeDirect(int nRange) { m_nRange = nRange; }
 
 	public:
-		int     GetScrollRange();
-		int     GetScrollPage();
 
-		void    ScrollLineDownRight();
-		void    ScrollLineUpLeft();
-		void    ScrollWheelLineUp();
-		void    ScrollWheelLineDown();
-		void    ScrollPageDownRight();
-		void    ScrollPageUpLeft();
-		void    ScrollToEnd();
-		void    ScrollToBegin();
+// 		void    ScrollLineDownRight();
+// 		void    ScrollLineUpLeft();
+// 		void    ScrollWheelLineUp();
+// 		void    ScrollWheelLineDown();
+// 		void    ScrollPageDownRight();
+// 		void    ScrollPageUpLeft();
+// 		void    ScrollToEnd();
+// 		void    ScrollToBegin();
 
 		bool    SetScrollInfo(LPUISCROLLINFO lpsi, bool bUpdate=true);
 		bool    SetScrollPos(int nPos/*, bool bUpdate=true*/);

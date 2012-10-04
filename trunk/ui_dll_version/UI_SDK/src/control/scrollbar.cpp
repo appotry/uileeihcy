@@ -198,26 +198,30 @@ BOOL ScrollBarMgr::ProcessMessage(UIMSG* pMsg, int nMsgMapID)
 		if (m_pVScrollBar != pMsg->pObjMsgFrom)
 			return FALSE;
 
-		int nSBCode = pMsg->wParam;
-		int nTrackPos = pMsg->lParam;
+		int nSBCode = LOWORD(pMsg->wParam);
+		int nTrackPos = HIWORD(pMsg->wParam);
 
 		int nOldPos = GetVScrollPos();
 		switch (nSBCode)
 		{
 		case SB_LINEUP:
-			this->m_pVScrollBar->ScrollLineUpLeft();
+			//this->m_pVScrollBar->ScrollLineUpLeft();
+			this->m_pVScrollBar->SetScrollPos(m_pVScrollBar->GetScrollPos()-m_pVScrollBar->GetScrollButtonLine());
 			break;
 
 		case SB_LINEDOWN:
-			this->m_pVScrollBar->ScrollLineDownRight();
+			//this->m_pVScrollBar->ScrollLineDownRight();
+			this->m_pVScrollBar->SetScrollPos(m_pVScrollBar->GetScrollPos()+m_pVScrollBar->GetScrollButtonLine());
 			break;
 
 		case SB_PAGEUP:
-			this->m_pVScrollBar->ScrollPageUpLeft();
+			//this->m_pVScrollBar->ScrollPageUpLeft();
+			this->m_pVScrollBar->SetScrollPos(m_pVScrollBar->GetScrollPos()-m_pVScrollBar->GetScrollPage());
 			break;
 
 		case SB_PAGEDOWN:
-			this->m_pVScrollBar->ScrollPageDownRight();
+			//this->m_pVScrollBar->ScrollPageDownRight();
+			this->m_pVScrollBar->SetScrollPos(m_pVScrollBar->GetScrollPos()+m_pVScrollBar->GetScrollPage());
 			break;
 
 		case SB_THUMBTRACK:    // Drag scroll box to specified position. The current position is provided in nPos.
@@ -236,26 +240,30 @@ BOOL ScrollBarMgr::ProcessMessage(UIMSG* pMsg, int nMsgMapID)
 		if (m_pHScrollBar != pMsg->pObjMsgFrom)
 			return FALSE;
 
-		int nSBCode = pMsg->wParam;
-		int nTrackPos = pMsg->lParam;
+		int nSBCode = LOWORD(pMsg->wParam);
+		int nTrackPos = HIWORD(pMsg->wParam);
 
 		int nOldPos = GetHScrollPos();
 		switch (nSBCode)
 		{
 		case SB_LINEUP:
-			this->m_pHScrollBar->ScrollLineUpLeft();
+			//this->m_pHScrollBar->ScrollLineUpLeft();
+			this->m_pHScrollBar->SetScrollPos(m_pHScrollBar->GetScrollPos()-m_pHScrollBar->GetScrollButtonLine());
 			break;
 
 		case SB_LINEDOWN:
-			this->m_pHScrollBar->ScrollLineDownRight();
+			//this->m_pHScrollBar->ScrollLineDownRight();
+			this->m_pHScrollBar->SetScrollPos(m_pHScrollBar->GetScrollPos()+m_pHScrollBar->GetScrollButtonLine());
 			break;
 
 		case SB_PAGEUP:
-			this->m_pHScrollBar->ScrollPageUpLeft();
+			//this->m_pHScrollBar->ScrollPageUpLeft();
+			this->m_pHScrollBar->SetScrollPos(m_pHScrollBar->GetScrollPos()-m_pHScrollBar->GetScrollPage());
 			break;
 
 		case SB_PAGEDOWN:
-			this->m_pHScrollBar->ScrollPageDownRight();
+			//this->m_pHScrollBar->ScrollPageDownRight();
+			this->m_pHScrollBar->SetScrollPos(m_pHScrollBar->GetScrollPos()+m_pHScrollBar->GetScrollPage());
 			break;
 
 		case SB_THUMBTRACK:    // Drag scroll box to specified position. The current position is provided in nPos.
@@ -280,9 +288,17 @@ BOOL ScrollBarMgr::ProcessMessage(UIMSG* pMsg, int nMsgMapID)
 			int   nOldPos = GetVScrollPos();
 
 			if (nDelta < 0)
-				m_pVScrollBar->ScrollWheelLineDown();
+			{
+			//	m_pVScrollBar->ScrollWheelLineDown();
+			//	this->m_pVScrollBar->SetScrollPos(m_pVScrollBar->GetScrollPos()+m_pVScrollBar->GetScrollWheelLine());
+				this->m_pVScrollBar->FireScrollMessage(SB_THUMBPOSITION, m_pVScrollBar->GetScrollPos()+m_pVScrollBar->GetScrollWheelLine());
+			}
 			else
-				m_pVScrollBar->ScrollWheelLineUp();
+			{
+			//	m_pVScrollBar->ScrollWheelLineUp();
+			//	this->m_pVScrollBar->SetScrollPos(m_pVScrollBar->GetScrollPos()-m_pVScrollBar->GetScrollWheelLine());
+				this->m_pVScrollBar->FireScrollMessage(SB_THUMBPOSITION, m_pVScrollBar->GetScrollPos()-m_pVScrollBar->GetScrollWheelLine());
+			}
 
 			if (nOldPos != GetVScrollPos())
 			{
@@ -299,9 +315,15 @@ BOOL ScrollBarMgr::ProcessMessage(UIMSG* pMsg, int nMsgMapID)
 			int nOldPos = GetHScrollPos();
 
 			if (nDelta < 0)
-				m_pHScrollBar->ScrollWheelLineDown();
+			{
+			//	m_pHScrollBar->ScrollWheelLineDown();
+				this->m_pHScrollBar->SetScrollPos(m_pHScrollBar->GetScrollPos()+m_pHScrollBar->GetScrollWheelLine());
+			}
 			else
-				m_pHScrollBar->ScrollWheelLineUp();
+			{
+			//	m_pHScrollBar->ScrollWheelLineUp();
+				this->m_pHScrollBar->SetScrollPos(m_pHScrollBar->GetScrollPos()-m_pHScrollBar->GetScrollWheelLine());
+			}
 
 			if (nOldPos != GetHScrollPos())
 			{
@@ -410,6 +432,7 @@ void ScrollBarMgr::GetScrollPos(int* pnxOffset, int* pnyOffset)
 	*pnyOffset = GetVScrollPos();
 	*pnxOffset = GetHScrollPos();
 }
+
 int ScrollBarMgr::GetHScrollPos()
 {
 	if (NULL != m_pHScrollBar)
@@ -472,11 +495,65 @@ bool ScrollBarMgr::SetScrollRange(int nX, int nY)
 	}
 	return true;
 }
+
+void ScrollBarMgr::GetScrollRange(int *pnxRange, int* pnyRange)
+{
+	if (NULL == pnyRange || NULL == pnyRange)
+		return;
+
+	*pnxRange = this->GetHScrollRange();
+	*pnyRange = this->GetVScrollRange();
+}
 void ScrollBarMgr::SetHScrollRange(int nX)
 {
 }
-void ScrollBarMgr::SetVScrollRange(int nY)
+bool ScrollBarMgr::SetVScrollRange(int nY)
 {
+	bool bNeedUpdateNonClientRect = false;
+	if (NULL != m_pVScrollBar)
+	{
+		bool bOldVisible = m_pVScrollBar->IsMySelfVisible();
+		this->m_pVScrollBar->SetScrollRange(nY);
+		bool bNowVisible = m_pVScrollBar->IsMySelfVisible();
+
+		if (bOldVisible != bNowVisible)
+		{
+			bNeedUpdateNonClientRect = true;
+		}
+	}
+	if (false == bNeedUpdateNonClientRect && NULL != m_pHScrollBar)
+	{
+		bool bOldVisible = m_pHScrollBar->IsMySelfVisible();
+		m_pHScrollBar->SetScrollRange(m_pHScrollBar->GetScrollRange()); 
+		bool bNowVisible = m_pHScrollBar->IsMySelfVisible();
+
+		if (bOldVisible != bNowVisible)
+		{
+			bNeedUpdateNonClientRect = true;
+		}
+	}
+
+	if (bNeedUpdateNonClientRect)
+	{
+		this->UpdateBindObjectNonClientRect();
+		UISendMessage(this->GetBindObject(), WM_SIZE, 0,
+			MAKELPARAM(
+			this->GetBindObject()->GetWidth(), 
+			this->GetBindObject()->GetHeight())
+			);
+
+		return false;
+	}
+
+	if (NULL != m_pHScrollBar)
+	{
+		m_pHScrollBar->UpdateObject();
+	}
+	if (NULL != m_pVScrollBar)
+	{
+		m_pVScrollBar->UpdateObject();
+	}
+	return true;
 }
 int ScrollBarMgr::GetHScrollRange()
 {
@@ -626,14 +703,16 @@ void ScrollBarMgr::ScrollToBottom()
 {
 	if (NULL != m_pVScrollBar)
 	{
-		m_pVScrollBar->ScrollToEnd();
+		//m_pVScrollBar->ScrollToEnd();
+		m_pVScrollBar->SetScrollPos(m_pVScrollBar->GetScrollRange()-m_pVScrollBar->GetScrollPage());
 	}
 }
 void ScrollBarMgr::ScrollToRightMost()
 {
 	if (NULL != m_pHScrollBar)
 	{
-		m_pHScrollBar->ScrollToEnd();
+		//m_pHScrollBar->ScrollToEnd();
+		m_pHScrollBar->SetScrollPos(m_pHScrollBar->GetScrollRange()-m_pHScrollBar->GetScrollPage());
 	}
 }
 
@@ -854,17 +933,22 @@ int ScrollBarBase::GetScrollPage()
 {
 	return m_nPage;
 }
+
+#if 0
 void ScrollBarBase::ScrollLineUpLeft()
 {
 	this->SetScrollPos(m_nPos-m_nButtonLine);
+//	this->m_pScrollBar->FireScrollMessage(SB_LINEUP);
 }
 void ScrollBarBase::ScrollLineDownRight()
 {
 	this->SetScrollPos(m_nPos+m_nButtonLine);
+//	this->m_pScrollBar->FireScrollMessage(SB_LINEDOWN);
 }
 void ScrollBarBase::ScrollWheelLineUp()
 {
 	this->SetScrollPos(m_nPos-m_nWheelLine);
+//	this->m_pScrollBar->FireScrollMessage(SB_LINEUP);
 }
 void ScrollBarBase::ScrollWheelLineDown()
 {
@@ -874,10 +958,12 @@ void ScrollBarBase::ScrollWheelLineDown()
 void ScrollBarBase::ScrollPageDownRight()
 {
 	this->SetScrollPos(m_nPos+m_nPage);
+//	this->m_pScrollBar->FireScrollMessage(SB_PAGEDOWN);
 }
 void ScrollBarBase::ScrollPageUpLeft()
 {
 	this->SetScrollPos(m_nPos-m_nPage);
+//	this->m_pScrollBar->FireScrollMessage(SB_PAGEUP);
 }
 
 void ScrollBarBase::ScrollToEnd()
@@ -888,6 +974,7 @@ void ScrollBarBase::ScrollToBegin()
 {
 	this->SetScrollPos(0);
 }
+#endif
 
 HScrollBar::HScrollBar()
 {
@@ -1209,6 +1296,7 @@ protected:
 			}
 		}
 	}
+#define MIN_TRACK_BTN_SIZE 20
 	bool  UpdateThumbButtonPos(bool bNeedUpdateThumbButtonSize)
 	{
 		float nPos = (float)m_pScrollBar->GetScrollPos();
@@ -1221,8 +1309,8 @@ protected:
 		else
 			nNewSize = this->m_pBtnThumb->GetHeight();
 
-		if (nNewSize < 10)
-			nNewSize = 10;
+		if (nNewSize < MIN_TRACK_BTN_SIZE)
+			nNewSize = MIN_TRACK_BTN_SIZE;
 
 		CRect rcChannel;
 		this->CalcChannelRect(&rcChannel);
@@ -1418,8 +1506,8 @@ protected:
 		else
 			nNewSize = this->m_pBtnThumb->GetWidth();
 
-		if (nNewSize < 10)
-			nNewSize = 10;
+		if (nNewSize < MIN_TRACK_BTN_SIZE)
+			nNewSize = MIN_TRACK_BTN_SIZE;
 
 		CRect rcChannel;
 		this->CalcChannelRect(&rcChannel);
@@ -1486,7 +1574,8 @@ void SystemScrollBarRender::OnTimer(UINT_PTR idEvent, LPARAM lParam)
 			if(HTNOWHERE != UISendMessage(m_pBtnLineUpLeft, UI_WM_HITTEST, ptObj.x, ptObj.y))
 			{
 				int nOldPos = m_pScrollBar->GetScrollPos();
-				this->m_pScrollBar->ScrollLineUpLeft();
+				//this->m_pScrollBar->ScrollLineUpLeft();
+				this->m_pScrollBar->FireScrollMessage(SB_LINEUP);
 				if (nOldPos != m_pScrollBar->GetScrollPos())
 				{
 					this->GetBindObject()->UpdateObject();
@@ -1506,7 +1595,8 @@ void SystemScrollBarRender::OnTimer(UINT_PTR idEvent, LPARAM lParam)
 			if(HTNOWHERE != UISendMessage(m_pBtnLineDownRight, UI_WM_HITTEST, ptObj.x, ptObj.y))
 			{
 				int nOldPos = m_pScrollBar->GetScrollPos();
-				this->m_pScrollBar->ScrollLineDownRight();
+				//this->m_pScrollBar->ScrollLineDownRight();
+				this->m_pScrollBar->FireScrollMessage(SB_LINEDOWN);
 				if (nOldPos != m_pScrollBar->GetScrollPos())
 				{
 					this->GetBindObject()->UpdateObject();
@@ -1612,13 +1702,22 @@ void SystemScrollBarRender::OnBtn2KillFocus(Object* pNewFocusObj)
 	}
 }
 
-void ScrollBarBase::FireScrollMessage(int nSBCode, int nThackPos)
+// Note that the WM_HSCROLL message carries only 16 bits of scroll box position data. 
+// Thus, applications that rely solely on WM_HSCROLL (and WM_VSCROLL) for scroll position 
+// data have a practical maximum position value of 65,535. 
+void ScrollBarBase::FireScrollMessage(int nSBCode, int nTrackPos)
 {
+	// 转化为16位的无符号数值，用于WM_SCRLL的hiword
+	if (nTrackPos < 0)
+		nTrackPos = 0;
+	else if (nTrackPos > 65535)
+		nTrackPos = 65535;
+
 	UIMSG msg;
 	msg.message = m_eScrollDirection==HSCROLLBAR? WM_HSCROLL:WM_VSCROLL;
 	msg.code = 0;
-	msg.wParam = nSBCode;
-	msg.lParam = nThackPos;
+	msg.wParam = MAKEWPARAM(nSBCode,nTrackPos);
+	msg.lParam = 0;
 	msg.pObjMsgFrom = this;
 	msg.pObjMsgTo = this->GetBindObject();
 	DoNotify(&msg);

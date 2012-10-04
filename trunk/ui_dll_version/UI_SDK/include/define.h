@@ -449,6 +449,8 @@ enum STYLE_SELECTOR_TYPE{
 
 // Label
 #define  XML_LABEL_COLOR                       _T("color")
+
+// TODO: delete below
 // #define  XML_LABEL_ALIGN                       _T("align")
 // 
 // #define XML_LABEL_ALIGN_TOP                    _T("top")
@@ -468,6 +470,7 @@ enum STYLE_SELECTOR_TYPE{
 // 	LABEL_ALIGN_VCENTER = 0x10,
 // }LABEL_ALIGN;
 
+// TODO: delete below
 // Picture
 // #define  XML_PICTURE_IMAGE                     _T("image")
 
