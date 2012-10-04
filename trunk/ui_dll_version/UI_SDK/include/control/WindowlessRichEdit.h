@@ -44,19 +44,26 @@ class   RichEditBase;
 //	Q11.在控件位置改变后，怎么去同步光标的位置？
 //      a. 向txt service发送一个通知：m_spTextServices->OnTxPropertyBitsChange(TXTBIT_CLIENTRECTCHANGE, TRUE);
 //
+//  Q12.为什么拖拽时，刷新会出现异常？先添加后删除，但是分开刷新的
 //
-class ITextHostImpl : public ITextHost
+//  Q13.如何显示滚动条？
+//      在TxGetScrollBars中，返回你的m_dwStyle样式。因此需要在m_dwStyle中指定
+//      WM_HSCROLL,WM_VSCROLL...
+//
+//
+class UIAPI ITextHostImpl : public ITextHost
 {
 public:
 	ITextHostImpl();
+	~ITextHostImpl(){};
 
 	// ITextHost Interface
 	virtual HDC 		TxGetDC();
 	virtual INT			TxReleaseDC(HDC hdc);
-	virtual BOOL 		TxShowScrollBar(INT fnBar, BOOL fShow);
-	virtual BOOL 		TxEnableScrollBar (INT fuSBFlags, INT fuArrowflags);
-	virtual BOOL 		TxSetScrollRange(INT fnBar,LONG nMinPos,INT nMaxPos,BOOL fRedraw);
-	virtual BOOL 		TxSetScrollPos (INT fnBar, INT nPos, BOOL fRedraw);
+// 	virtual BOOL 		TxShowScrollBar(INT fnBar, BOOL fShow);
+// 	virtual BOOL 		TxEnableScrollBar (INT fuSBFlags, INT fuArrowflags);
+// 	virtual BOOL 		TxSetScrollRange(INT fnBar,LONG nMinPos,INT nMaxPos,BOOL fRedraw);
+// 	virtual BOOL 		TxSetScrollPos (INT fnBar, INT nPos, BOOL fRedraw);
 //	virtual void		TxInvalidateRect(LPCRECT prc, BOOL fMode);
 	virtual void 		TxViewChange(BOOL fUpdate);
 	virtual BOOL		TxCreateCaret(HBITMAP hbmp, INT xWidth, INT yHeight);
@@ -73,7 +80,7 @@ public:
 	virtual HRESULT		TxActivate( LONG * plOldState );
 	virtual HRESULT		TxDeactivate( LONG lNewState );
 //	virtual HRESULT		TxGetClientRect(LPRECT prc);
-	virtual HRESULT		TxGetViewInset(LPRECT prc);
+//	virtual HRESULT		TxGetViewInset(LPRECT prc);
 	virtual HRESULT 	TxGetCharFormat(const CHARFORMATW **ppCF );
 	virtual HRESULT		TxGetParaFormat(const PARAFORMAT **ppPF);
 	virtual COLORREF	TxGetSysColor(int nIndex);
@@ -95,15 +102,30 @@ public:
 	virtual HRESULT		TxGetSelectionBarWidth (LONG *lSelBarWidth);
 
 	// 外部设置方法 （部分参考microsoft windowlessRE工程）
+	bool    IsPasswordMode() { return m_fPassword; }
+	void    SetPasswordMode(bool b);
 	WCHAR   SetPasswordChar(WCHAR chPasswordChar);
 	LONG    SetAccelPos(LONG l_accelpos);
 	bool    SetFont(LOGFONT* plf);
 	void    InitDefaultParaFormat();
+	bool    IsWordWrap() { return m_fWordWrap; }
+	void    SetWordWrap(bool fWordWrap);
+	bool    IsReadOnly() { return (m_dwStyle & ES_READONLY) != 0; }
+	void    SetReadOnly(bool fReadOnly);
+	DWORD   GetMaxLength() { return m_dwMaxLength; }
+	void    SetMaxLegnth(DWORD dw);
+	LONG    GetSelBarWidth();
+	LONG    SetSelBarWidth(LONG l_SelBarWidth);
+	bool    GetRichTextFlag() { return m_fRich; }
+	void    SetRichTextFlag(bool b);
+	void    RevokeDragDrop(void);
+	void    RegisterDragDrop(void);
+	bool    SetText(const TCHAR* szText);
 	
 protected:
 
 	// unknown attribute
-	SIZE    m_sizeExtent;        // text service 用来实现缩放的参数。Each HIMETRIC unit corresponds to 0.01 millimeter.
+// 	SIZE    m_sizeExtent;        // text service 用来实现缩放的参数。Each HIMETRIC unit corresponds to 0.01 millimeter.
 	int     m_nxPerInch;
 	int     m_nyPerInch;    
 	LONG	m_laccelpos;         // Accelerator position
@@ -111,14 +133,21 @@ protected:
 	// 已知属性
 	DWORD   m_dwStyle;           // 编辑框样式
 	WCHAR	m_chPasswordChar;    // Password character, TODO: 该接口未测试过
+	DWORD   m_dwMaxLength;       // 最大输入内容长度
+	LONG    m_lSelBarWidth;      // 类似于VS的左侧（显示行数字），专门用于点击选中一行的东东
+	
+	unsigned	  m_fWordWrap:1; // Whether control should word wrap
+	unsigned	  m_fRich:1;     // Whether control is rich text
+	unsigned	  m_fRegisteredForDrop:1; // whether host has registered for drop
+	unsigned      m_fPassword:1; // 
 
 	CHARFORMAT2W  m_cf;          // Default character format
 	PARAFORMAT    m_pf;          // Default paragraph format
 
 	//  其它资源、数据
 	CComPtr<ITextServices>  m_spTextServices;
-	HWND    m_hParentWnd;           // 所在的窗口句柄
-	CCaret  m_caret;                // 光标（集成了系统光标和分层窗口模拟光标两套）
+	HWND          m_hParentWnd; // 所在的窗口句柄
+	CCaret        m_caret;      // 光标（集成了系统光标和分层窗口模拟光标两套）
 };
 
 interface ITextEditControl
@@ -144,7 +173,7 @@ interface ITextEditControl
 			return TRUE; \
 	}
 
-class WindowlessRichEdit :	public ITextHostImpl, public ITextEditControl
+class UIAPI WindowlessRichEdit : public ITextHostImpl, public ITextEditControl
 {
 public:
 	WindowlessRichEdit(RichEditBase*);
@@ -160,11 +189,12 @@ public:
 		MSG_WM_KILLFOCUS(OnKillFocus)
 		MSG_WM_WINDOWPOSCHANGED(OnWindowPosChanged)
 
-		// 必须要处理的其它消息
-		MESSAGE_HANDLER_EX(WM_KEYDOWN, OnDefaultHandle)
-		MESSAGE_HANDLER_EX(WM_CHAR, OnChar)
+		MESSAGE_HANDLER_EX(WM_KEYDOWN,  OnDefaultHandle)
+		MESSAGE_HANDLER_EX(WM_CHAR,     OnChar)
 		MESSAGE_RANGE_HANDLER_EX(WM_MOUSEFIRST,WM_MOUSELAST, OnDefaultHandle)
 		MESSAGE_HANDLER_EX(WM_SETFOCUS, OnDefaultHandle)
+		MESSAGE_HANDLER_EX(WM_VSCROLL,  OnDefaultHandle)
+		MESSAGE_HANDLER_EX(WM_HSCROLL,  OnDefaultHandle)
 //		POST_HANDLE_MSG()		
 	END_MSG_MAP()
 
@@ -191,9 +221,14 @@ public:
 
 	// ITextHost Interface
 	// 需要根据控件属性进行定制的接口放在这里实现，其它接口接口放在ITextHostImpl中实现
+	virtual BOOL    TxShowScrollBar(INT fnBar, BOOL fShow);
+	virtual BOOL    TxEnableScrollBar (INT fuSBFlags, INT fuArrowflags);
+	virtual BOOL    TxSetScrollRange(INT fnBar,LONG nMinPos,INT nMaxPos,BOOL fRedraw);
+	virtual BOOL 	TxSetScrollPos (INT fnBar, INT nPos, BOOL fRedraw);
 	virtual HRESULT TxGetClientRect(LPRECT prc);
 	virtual void    TxInvalidateRect(LPCRECT prc, BOOL fMode);
 	virtual HRESULT TxGetBackStyle(TXTBACKSTYLE *pstyle);
+	virtual HRESULT	TxGetViewInset(LPRECT prc);
 
 protected:
 	RichEditBase*   m_pRichEditBase;

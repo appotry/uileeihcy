@@ -117,7 +117,7 @@
         <Label text="版本: 5.9.4(Unicode)"  layout.left="80" layout.top="105"/>
         <Label text="完成日期: 2012-8-2" layout.left="220" layout.top="105"/>
         <GroupBox text="简介" layout.left="10" layout.top="120" layout.right="10" layout.bottom="10">
-          <RichEdit layout.left="0" layout.right="0" layout.top="0" layout.bottom="0"/>
+          <RichEdit id="option_introduce_text" istransparent="0" layout.left="5" layout.right="5" layout.top="5" layout.bottom="5"/>
         </GroupBox>
         <!--Panel id="option_list_panel_container" layout="card" layout.left="120" layout.top="10" width="426" height="368">
           <Panel id="about_panel">

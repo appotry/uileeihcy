@@ -83,16 +83,10 @@ SIZE Label::GetAutoSize( HRDC hRDC )
 
 Picture::Picture()
 {
-//	this->m_hBitmap = NULL;
+	this->SetTabstop( false );   // Picture 不能有焦点
 }
 Picture::~Picture()
 {
-// 	if( NULL != m_hBitmap )
-// 	{
-// 		::UI_ReleaseBitmap(m_hBitmap);
-// 		m_hBitmap = NULL;
-// 	}
-//	SAFE_DELETE(m_pRender);
 }
 
 SIZE Picture::GetAutoSize( HRDC hDC )
@@ -121,36 +115,6 @@ bool Picture::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 {
 	if( false == Control::SetAttribute(mapAttrib,bReload) )
 		return false;
-
-// 	if( 0 != mapAttrib.count(XML_PICTURE_IMAGE) )
-// 	{
-// 		m_hBitmap = ::UI_GetBitmap( mapAttrib[XML_PICTURE_IMAGE], GetRenderType(GetHWND()) );
-// 		this->m_mapAttribute.erase(XML_PICTURE_IMAGE);
-// 	}
-// 
-// 	if( NULL == m_hBitmap )
-// 	{
-// 		UI_LOG_WARN(_T("Picture::SetAttribute getimage failed."));
-// 		return false;
-// 	}
-
-// 	if( this->m_mapAttribute.count( XML_RENDER_TYPE ) )
-// 	{
-// 		SAFE_DELETE(m_pBkgndRender);
-// 
-// 		const String& strRenderType = mapAttrib[XML_RENDER_TYPE];
-// 		this->m_pRender = RenderFactory::GetRender( strRenderType, this );
-// 		if( NULL != this->m_pRender )
-// 		{
-// 			this->m_pRender->SetAttribute( _T(""), mapAttrib,bReload );
-// 		}
-// 		this->m_mapAttribute.erase(XML_RENDER_TYPE);
-// 	}
-// 	if( NULL == m_pRender )
-// 	{
-// 		UI_LOG_WARN( _T("%s, Set Render Attribute faild"), _T(__FUNCTION__));
-// 	}
-
 
 	return true;
 }

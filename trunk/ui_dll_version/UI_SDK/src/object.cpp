@@ -644,13 +644,10 @@ POINT Object::GetRealPosInWindow()
 
 		if (!pObjChild->IsNcObject())
 		{
-			int xScroll = 0, yScroll = 0;
-			
-			CRect rcNonClientRegion;
-			pObjParent->GetNonClientRegion(&rcNonClientRegion);
-			xOffset += rcNonClientRegion.left;
-			yOffset += rcNonClientRegion.top;
+			xOffset += pObjParent->m_rcNonClient.left;
+			yOffset += pObjParent->m_rcNonClient.top;
 
+			int xScroll = 0, yScroll = 0;
 			if (pObjParent->GetScrollOffset(&xScroll, &yScroll))
 			{
 				xOffset -= xScroll;
@@ -1324,9 +1321,9 @@ void Object::GetClientRectInWindow( CRect* prc )
 void Object::SetNonClientRegion( CRegion4* prc )
 {
 	m_rcNonClient.SetRect(
-		prc->left + m_rcPadding.left + m_rcBorder.left,
-		prc->top + m_rcPadding.top + m_rcBorder.top,
-		prc->right + m_rcPadding.right + m_rcBorder.right,
+		prc->left   + m_rcPadding.left   + m_rcBorder.left,
+		prc->top    + m_rcPadding.top    + m_rcBorder.top,
+		prc->right  + m_rcPadding.right  + m_rcBorder.right,
 		prc->bottom + m_rcPadding.bottom + m_rcBorder.bottom);
 }
 void Object::GetParentRect( CRect* prc )

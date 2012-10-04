@@ -65,6 +65,5 @@ public:
 	void   OnPaint( HRDC hRDC );
 
 private:
-//	HRBITMAP   m_hBitmap;
 };
 }

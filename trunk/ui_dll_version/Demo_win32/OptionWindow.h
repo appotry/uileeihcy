@@ -40,4 +40,7 @@ private:
 	Panel*     m_pPanelAbout;
 	Panel*     m_pPanelCtrlDemo;
 	Panel*     m_pPanelRichEditDemo;
+
+	// 
+	RichEdit*  m_pIntroduceRichEdit;
 };

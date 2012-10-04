@@ -238,7 +238,7 @@ void CCaret::CreateCaret(HWND hWndParent, HBITMAP hbmp, int nWidth, int nHeight)
 {
 	m_hWnd = hWndParent;
 
-#ifdef _DEBUG
+#ifdef _DEBUG_x
 	SetLayered(true);
 #else
 	if(GetWindowLong(m_hWnd, GWL_EXSTYLE) & WS_EX_LAYERED)

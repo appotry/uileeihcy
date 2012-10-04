@@ -11,6 +11,7 @@ COptionWindow::COptionWindow()
 	m_pPanelAbout = NULL;
 	m_pPanelCtrlDemo = NULL;
 	m_pPanelRichEditDemo = NULL;
+	m_pIntroduceRichEdit = NULL;
 }
 
 
@@ -19,6 +20,7 @@ BOOL COptionWindow::OnInitDialog( HWND, LPARAM )
 	m_pPanelAbout = (Panel*)this->FindChildObject(_T("about_panel"));
 	m_pPanelRichEditDemo = (Panel*)this->FindChildObject(_T("richedit_demo_panel"));
 	m_pPanelCtrlDemo = (Panel*)this->FindChildObject(_T("control_demo_panel"));
+	m_pIntroduceRichEdit = (RichEdit*)this->FindChildObject(_T("option_introduce_text"));
 
 	if (NULL != m_pPanelCtrlDemo)
 		m_pPanelCtrlDemo->SetVisible(false, false);
@@ -26,6 +28,32 @@ BOOL COptionWindow::OnInitDialog( HWND, LPARAM )
 		m_pPanelRichEditDemo->SetVisible(false, false);
 	if (NULL != m_pPanelAbout)
 		m_pPanelAbout->SetVisible(false,false);
+
+	if (NULL != m_pIntroduceRichEdit)
+	{
+//		m_pIntroduceRichEdit->GetRichEdit().SetReadOnly(true);
+		m_pIntroduceRichEdit->GetRichEdit().SetSelBarWidth(10);
+		m_pIntroduceRichEdit->GetRichEdit().SetRichTextFlag(true);
+
+		const String strText = 
+L"    一个集播放、音效、转换、歌词等多种功能于一身的专业音频播放软件。\r\n\
+\r\n\
+    拥有自主研发的全新音频引擎，支持DirectSound、内核音频流(Kernel Streaming)和ASIO音频流输出、AddIn插件扩展技术，具有资源占用低、运行效率高、扩展能力强等优点。\r\n\
+\r\n\
+    支持MP3/mp3PRO、AAC/AAC+、M4A/MP4、WMA、APE、MPC、OGG、WAVE、CD、FLAC、RM、TTA、AIFF、AU等音频格式以及多种MOD和MIDI音乐，支持CUE音轨索引文件，支持所有格式到WAVE、MP3、APE、WMA等格式的转换，通过基于COM接口的AddIn插件可以支持更多格式的播放和转换。\r\n\
+\r\n\
+    支持采样频率转换(SSRC)和多种比特输出方式，支持回放增益，支持10波段均衡器、多级杜比环绕、淡入淡出音效，兼容并可同时激活多个Winamp2的音效插件。\r\n\
+\r\n\
+  支持ID3v1/v2、WMA、RM、APE和Vorbis标签，支持批量修改标签和以标签重命名文件。\r\n\
+\r\n\
+    支持同步歌词滚动显示和拖动定位播放，并且支持在线歌词搜索和歌词编辑功能。\r\n\
+\r\n\
+    支持多播放列表和音频文件搜索，支持多种视觉效果，采用XML格式的ZIP压缩的皮肤，同时具有磁性窗口、半透明/淡入淡出窗口、窗口阴影、任务栏图标、自定义快捷键、信息滚动、菜单功能提示等功能。\r\n\
+\r\n\
+    真正免费且无需注册，也不存在任何功能或时间限制。";
+
+		m_pIntroduceRichEdit->GetRichEdit().SetText(strText.c_str());
+	}
 	
 // 	if (NULL != m_pPanelRichEditDemo)
 // 	{

@@ -10,7 +10,7 @@
 //  取WindowlessRichEdit的指针进行调用。
 //
 
-class RichEditBase : public Control
+class UIAPI RichEditBase : public Control
 {
 public:
 	RichEditBase();
@@ -26,7 +26,18 @@ public:
 		UIMESSAGE_HANDLER_EX(WM_WINDOWPOSCHANGED, OnForwardMessage)
 		UIMSG_WM_SETFOCUS(OnSetFocus)
 		UIMSG_WM_KILLFOCUS(OnKillFocus)
-		UIMESSAGE_RANGE_HANDLER_EX(WM_MOUSEFIRST,WM_MOUSELAST, OnMouseRangeMsg)
+		UIMSG_WM_SIZE(OnSize) 
+
+		// 在Scrollmgr处理之前先拦截UI_WM_GETSCROLLOFFSET
+		// 因为richedit内部有自己的偏移信息，而不能使用UI控件的
+		// 偏移信息，否则就会导致光标，内容显示错误。
+
+		UIMESSAGE_HANDLER_EX(WM_VSCROLL, OnScroll)
+		UIMESSAGE_HANDLER_EX(WM_HSCROLL, OnScroll)
+		UIMESSAGE_HANDLER_EX(UI_WM_GETSCROLLOFFSET,OnGetScrollOffset)
+
+		UICHAIN_MSG_MAP_MEMBER(m_MgrScrollbar) 
+		UIMESSAGE_RANGE_HANDLER_EX(WM_MOUSEFIRST,WM_MOUSELAST, OnForwardMessage)
 
 		UIMSG_WM_OBJECTLOADED(OnObjectLoaded)
 	UI_END_MSG_MAP_CHAIN_PARENT(Control)
@@ -36,7 +47,8 @@ public:
 	virtual  bool   SetAttribute(ATTRMAP& mapAttrib, bool bReload);
 	virtual  void   ResetAttribute();
 
-	WindowlessRichEdit*  GetRichEdit() { return &m_wrapRichEidt; }
+	WindowlessRichEdit& GetRichEdit() { return m_wrapRichEidt; }
+	ScrollBarMgr&   GetScrollMgr() { return m_MgrScrollbar; }
 
 protected:
 	void     OnObjectLoaded();
@@ -44,16 +56,25 @@ protected:
 	void     OnPaint( HRDC hRDC );
 
 	LRESULT  OnForwardMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+	LRESULT  OnGetScrollOffset(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	LRESULT  OnScroll(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	
 	void     OnSetFocus( Object* pOldFocusObj );
 	void     OnKillFocus( Object* pNewFocusObj );
-	LRESULT  OnMouseRangeMsg(UINT uMsg, WPARAM wParam, LPARAM lParam);
+//	LRESULT  OnMouseRangeMsg(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	void     OnSize( UINT nType, int cx, int cy );
 
 protected:
 	WindowlessRichEdit   m_wrapRichEidt;
+	ScrollBarMgr  m_MgrScrollbar;
+
+// 	friend class ITextHostImpl;
+// 	friend class WindowlessRichEdit;
 };
 
 
-class RichEdit : public RichEditBase
+class UIAPI RichEdit : public RichEditBase
 {
 public:
 	UI_DECLARE_OBJECT(RichEdit,OBJ_CONTROL);
