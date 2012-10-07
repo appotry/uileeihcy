@@ -263,6 +263,7 @@ enum RENDER_TYPE
 	RENDER_TYPE_THEME_MENUCHECKICON,
 	RENDER_TYPE_THEME_MENURADIOICON,
 	RENDER_TYPE_THEME_MENURADIOCHECKICONBK,
+	RENDER_TYPE_THEME_VSCROLLBARBACKGND,
 	RENDER_TYPE_THEME_LAST,
 };
 
@@ -282,7 +283,8 @@ enum IMAGELIST_LAYOUT_TYPE
 #define XML_TEXTRENDER_FONT                 _T("textrender.font")       // 字体
 #define XML_TEXTRENDER_COLORLIST_COUNT      _T("textrender.colorlist.count")
 #define XML_TEXTRENDER_FONTCOLORLIST_COUNT  _T("textrender.fontcolorlist.count")  // 字体、颜色数量
-#define XML_TEXTRENDER_ALIGN               _T("textrender.align")
+#define XML_TEXTRENDER_ALIGN                _T("textrender.align")
+#define XML_TEXTRENDER_PADDING              _T("textrender.padding")
 
 #define XML_TEXTRENDER_ALIGN_TOP            _T("top")
 #define XML_TEXTRENDER_ALIGN_BOTTOM         _T("bottom")
@@ -568,7 +570,7 @@ typedef enum
 //#define  XML_EDIT_MAX_INT
 
 // Scroll Bar
-//#define  XML_SCROLLBAR_HIDE_LINEBTN               _T("hidelinebtn") // 是否显示滚动按钮 0:1
+#define  XML_SCROLLBAR_NO_LINEBTN                 _T("nolinebtn")   // 是否显示lineup/linedown/lineleft/lineright按钮 0/1
 #define  XML_SCROLLBAR_LINE_BUTTON1_ATTR_PRIFIX   _T("linebtn1.")   // 滚动条按钮1的属性前缀
 #define  XML_SCROLLBAR_LINE_BUTTON2_ATTR_PRIFIX   _T("linebtn2.")   // 滚动条按钮2的属性前缀
 #define  XML_SCROLLBAR_THUMB_BUTTON_ATTR_PRIFIX   _T("thubmbtn.")     // 滚动条拖动条属性前缀
@@ -631,8 +633,6 @@ enum SCROLLBAR_TYPE
 #define  XML_MENU_DISABLE         _T("disable")   // menu item是否可用，为1或者true表示被禁用
 
 #define  XML_MENU_ICONGUTTERWIDTH     _T("icongutterwidth")  // 菜单图标列的宽度
-#define  XML_MENU_TEXTMARGINLEFT      _T("textmarginleft")   // 文字距离图标的距离
-#define  XML_MENU_TEXTMARGINRIGHT     _T("textmarginright")  // 文字距离弹出箭头的距离
 #define  XML_MENU_POPUPTRIANGLEWIDTH  _T("trianglewidth")    // 右侧三角形的占用宽度
 #define  XML_MENU_SEPARATORHEIGHT     _T("separatorheight")  // 分隔条的高度
 #define  XML_MENU_RADIO_ICON_RENDER_PREFIX   _T("radioicon.")   // 选中图标绘制render前缀

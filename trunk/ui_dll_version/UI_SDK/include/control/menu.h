@@ -152,8 +152,6 @@ namespace UI
 		RenderBase*  m_pRadioCheckIconBkRender;
 
 		int        m_nIconGutterWidth;    // 菜单左侧图标列 的宽度
-		int        m_nTextMarginLeft;
-		int        m_nTextMarginRight;
 		int        m_nPopupTriangleWidth; // 菜单右侧弹出菜单类型的三角形
 		int        m_nSeperatorHeight;
 	};

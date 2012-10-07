@@ -239,6 +239,7 @@ bool WindowlessRichEdit::HitTest(POINT pt)
 LRESULT WindowlessRichEdit::OnChar(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	LRESULT lr = 0;
+
 	HRESULT hr = m_spTextServices->TxSendMessage(uMsg, wParam, lParam, &lr);
 
 	// 	if (hr == S_FALSE)
@@ -295,7 +296,9 @@ void /*ITextHostImpl*/WindowlessRichEdit::TxInvalidateRect(LPCRECT prc, BOOL fMo
 {
 	if (NULL != m_pRichEditBase)
 	{
+		m_caret.HideCaret();  // -- 为了解决在输入字符或者backspace删除字符时，上一个光标会残留在屏幕上的问题
 		m_pRichEditBase->UpdateObject();
+		m_caret.ShowCaret();
 	}
 
 //	::InvalidateRect(m_hParentWnd, prc, fMode);
@@ -320,7 +323,20 @@ HRESULT /*ITextHostImpl*/WindowlessRichEdit::TxGetBackStyle(TXTBACKSTYLE *pstyle
 //@cmember Show the scroll bar
 BOOL WindowlessRichEdit::TxShowScrollBar(INT fnBar, BOOL fShow) 
 {
-	UI_LOG_DEBUG(FUNC_NAME);
+	UI_LOG_DEBUG(_T("%s fnBar=%d, fShow=%d"),FUNC_NAME, fnBar, fShow);
+	if (FALSE == fShow)
+	{
+		switch (fnBar)
+		{
+		case SB_HORZ:
+			m_pRichEditBase->GetScrollMgr().GetHScrollBar()->SetScrollRange(0);
+			break;
+
+		case SB_VERT:
+			m_pRichEditBase->GetScrollMgr().GetVScrollBar()->SetScrollRange(0);
+			break;
+		}
+	}
 	return FALSE;
 }
 
@@ -412,7 +428,7 @@ HDC ITextHostImpl::TxGetDC()
 }
 
 //@cmember Release the DC gotten from the host
-INT ITextHostImpl::	TxReleaseDC(HDC hdc)
+INT ITextHostImpl::TxReleaseDC(HDC hdc)
 {
 	return ::ReleaseDC (m_hParentWnd, hdc);
 }
@@ -450,8 +466,6 @@ BOOL ITextHostImpl::TxShowCaret(BOOL fShow)
 //@cmember Set the caret position
 BOOL ITextHostImpl::TxSetCaretPos(INT x, INT y)
 {
-//	return ::SetCaretPos(x, y);
-
 	m_caret.SetCaretPos(x, y);
 
 	return TRUE;
@@ -742,7 +756,7 @@ ITextHostImpl::ITextHostImpl()
 {
 	m_nxPerInch = m_nyPerInch = 96;
 	m_hParentWnd = NULL;
-	m_dwStyle = ES_MULTILINE|ES_NOHIDESEL|WS_VSCROLL /*| WS_HSCROLL*/ | ES_AUTOVSCROLL /*| ES_AUTOHSCROLL | ES_DISABLENOSCROLL*/;
+	m_dwStyle = ES_MULTILINE|ES_NOHIDESEL|WS_VSCROLL | /*WS_HSCROLL | */ES_AUTOVSCROLL /*| ES_AUTOHSCROLL | ES_DISABLENOSCROLL*/;
 	m_dwMaxLength = INFINITE;
 	m_lSelBarWidth = 0;
 

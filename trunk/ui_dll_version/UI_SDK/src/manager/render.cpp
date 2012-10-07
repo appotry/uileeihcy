@@ -71,9 +71,14 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 			if (NULL == pButton)
 				return NULL;
 
-			if (BUTTON_STYLE_COMBOBOX == pButton->GetButtonStyle())
+			int nButtonStyle = pButton->GetButtonStyle();
+			if (BUTTON_STYLE_COMBOBOX == nButtonStyle)
 			{
 				pRender = new ComboboxButtonBkThemeRender();
+			}
+			else if (BUTTON_STYLE_SCROLLLINEUP == nButtonStyle)
+			{
+				pRender = new ScrollLineUpButtonBkThemeRender();
 			}
 			else
 			{
@@ -224,9 +229,13 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 	{
 		pRender = new MenuRadioCheckIconBkThemeRender();
 	}
+	else if (RENDER_TYPE_THEME_VSCROLLBARBACKGND == eType)
+	{
+		pRender = new ScrollBarBkgndThemeRender();
+	}
 	else
 	{
-		UI_LOG_WARN(_T("%s invalid render type %d"), _T(__FUNCTION__),  eType );
+		UI_LOG_WARN(_T("%s invalid render type %d"), FUNC_NAME,  eType );
 	}
 
 	if( NULL != pRender )
@@ -2129,7 +2138,129 @@ void ComboboxBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc )
 	}
 	ReleaseHDC(hRDC, hDC);
 }
+//////////////////////////////////////////////////////////////////////////
 
+void ScrollLineUpButtonBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+{
+	switch(nState)
+	{
+	case BUTTON_BKGND_RENDER_STATE_DISABLE:
+		this->DrawDisable(hRDC, (CRect*)prc);
+		break;
+
+	case BUTTON_BKGND_RENDER_STATE_PRESS:
+		this->DrawPress(hRDC, (CRect*)prc);
+		break;
+
+	case BUTTON_BKGND_RENDER_STATE_HOVER:
+		this->DrawHover(hRDC, (CRect*)prc);
+		break;;
+
+	default:
+		this->DrawNormal(hRDC, (CRect*)prc);
+		break;
+	}
+}
+
+SIZE ScrollLineUpButtonBkThemeRender::GetDesiredSize() 
+{
+	SIZE s = {GetSystemMetrics(SM_CXVSCROLL),GetSystemMetrics(SM_CYVSCROLL)}; 
+	return s;
+}
+
+void ScrollLineUpButtonBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, SBP_ARROWBTN, ABS_UPDISABLED, prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
+		}
+	}
+	else
+	{
+		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_INACTIVE );
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+void ScrollLineUpButtonBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, SBP_ARROWBTN, ABS_UPNORMAL, prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
+		}
+	}
+	else
+	{
+		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_INACTIVE );
+	}
+	ReleaseHDC(hRDC, hDC);	
+}
+void ScrollLineUpButtonBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, SBP_ARROWBTN, ABS_UPHOT, prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
+		}
+	}
+	else
+	{
+		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_INACTIVE );
+	}
+	ReleaseHDC(hRDC, hDC);	
+}
+void ScrollLineUpButtonBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, SBP_ARROWBTN, ABS_UPPRESSED, prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
+		}
+	}
+	else
+	{
+		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_INACTIVE );
+	}
+	ReleaseHDC(hRDC, hDC);	
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void ScrollBarBkgndThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+{
+	HDC hDC = GetHDC(hRDC);		
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, SBP_LOWERTRACKVERT, SCRBS_NORMAL, prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
+		}
+	}
+	else
+	{
+		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_INACTIVE );
+	}
+	ReleaseHDC(hRDC, hDC);	
+}
+SIZE ScrollBarBkgndThemeRender::GetDesiredSize()
+{
+	SIZE s = {GetSystemMetrics(SM_CXVSCROLL),GetSystemMetrics(SM_CYVSCROLL)}; 
+	return s;
+}
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -2844,6 +2975,7 @@ TextRenderBase::TextRenderBase()
 	m_pObject = NULL;
 	m_nTextRenderType = TEXTRENDER_TYPE_NULL;
 	m_nDrawTextFlag = DT_SINGLELINE|DT_END_ELLIPSIS|DT_CENTER|DT_VCENTER;
+	::SetRectEmpty(&m_rPadding);
 }
 void TextRenderBase::SetTextAlignment(int nDrawFlag)
 {
@@ -2899,6 +3031,15 @@ bool TextRenderBase::SetAttribute( const String& strPrefix, ATTRMAP& mapAttrib )
 		
 		mapAttrib.erase(strAttr);
 	}
+
+	strAttr = strPrefix + XML_TEXTRENDER_PADDING;
+	iter = mapAttrib.find(strAttr);
+	if (mapAttrib.end() != iter)
+	{
+		const String& str = iter->second;
+		Util::TranslateRECT(str, &m_rPadding, XML_SEPARATOR);
+		mapAttrib.erase(iter);
+	}
 	return true;
 }
 SIZE TextRenderBase::GetDesiredSize(const String& strText, int nLimitWidth)
@@ -2909,6 +3050,9 @@ SIZE TextRenderBase::GetDesiredSize(const String& strText, int nLimitWidth)
 	{
 		s = ::MeasureString(hRFont,strText.c_str(),nLimitWidth );
 	}
+
+	s.cx += m_rPadding.left + m_rPadding.right;
+	s.cy += m_rPadding.bottom + m_rPadding.top;
 	return s;
 }
 
@@ -3045,8 +3189,11 @@ void TextRender::DrawState(HRDC hRDC, const CRect* prc, int nState, const String
 			col = m_pColorText->GetColor();
 		}
 
+		CRect rcText(prc);
+		rcText.DeflateRect(m_rPadding.left, m_rPadding.top, m_rPadding.right, m_rPadding.bottom);
+
 		int nFlag = nDrawTextFlag==-1 ? m_nDrawTextFlag:nDrawTextFlag;
-		DrawString( hRDC, strText.c_str(), prc, nFlag, m_hFont, col );
+		DrawString( hRDC, strText.c_str(), &rcText, nFlag, m_hFont, col );
 	}
 }
 
@@ -3075,6 +3222,10 @@ void ColorListTextRender::Clear()
 }
 bool ColorListTextRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
 {
+	bool bRet = __super::SetAttribute(strPrefix, mapAttrib);
+	if (false == bRet)
+		return false;
+
 	String strAttrib = strPrefix + XML_TEXTRENDER_COLORLIST_COUNT;
 	ATTRMAP::iterator iter = mapAttrib.find(strAttrib);
 	if (mapAttrib.end() != iter)
@@ -3148,8 +3299,10 @@ void ColorListTextRender::DrawState(HRDC hRDC, const CRect* prc, int nState, con
 	if( NULL != m_vTextColor[nRealState] )
 		col = m_vTextColor[nRealState]->GetColor();
 
+	CRect rcText(prc);
+	rcText.DeflateRect(m_rPadding.left, m_rPadding.top, m_rPadding.right, m_rPadding.bottom);
 	int nFlag = nDrawTextFlag==-1 ? m_nDrawTextFlag:nDrawTextFlag;
-	DrawString(hRDC, strText.c_str(), prc, nFlag, m_hFont, col );
+	DrawString(hRDC, strText.c_str(), &rcText, nFlag, m_hFont, col );
 }
 HRFONT ColorListTextRender::GetHRFONT()
 {
@@ -3217,6 +3370,10 @@ void FontColorListTextRender::Clear()
 
 bool FontColorListTextRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
 {
+	bool bRet = __super::SetAttribute(strPrefix, mapAttrib);
+	if (false == bRet)
+		return false;
+
 	String strAttrib = strPrefix + XML_TEXTRENDER_FONTCOLORLIST_COUNT;
 	ATTRMAP::iterator iter = mapAttrib.find(strAttrib);
 	if (mapAttrib.end() != iter)

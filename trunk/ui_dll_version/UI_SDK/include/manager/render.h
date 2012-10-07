@@ -311,7 +311,7 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 	class RadioButtonThemeRender : public ThemeRenderBase
 	{
 	public:
-		virtual const TCHAR* GetThemeName() { return _T("Button"); }
+		virtual const TCHAR* GetThemeName() { return VSCLASS_BUTTON; }
 		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
 		virtual SIZE  GetDesiredSize( );
 
@@ -330,7 +330,7 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 	class CheckButtonThemeRender : public ThemeRenderBase
 	{
 	public:
-		virtual const TCHAR* GetThemeName() { return _T("Button"); }
+		virtual const TCHAR* GetThemeName() { return VSCLASS_BUTTON; }
 		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
 		virtual SIZE  GetDesiredSize( );
 
@@ -351,7 +351,7 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 	class EditBkThemeRender : public ThemeRenderBase
 	{
 	public:
-		virtual const TCHAR* GetThemeName() { return _T("Edit"); }
+		virtual const TCHAR* GetThemeName() { return VSCLASS_EDIT; }
 		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
 
 		void DrawDisable( HRDC hRDC, const CRect* prc );
@@ -363,7 +363,7 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 	class GroupBoxBkThemeRender : public ThemeRenderBase
 	{
 	public:
-		virtual const TCHAR* GetThemeName() { return _T("Button"); }
+		virtual const TCHAR* GetThemeName() { return VSCLASS_BUTTON; }
 		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
 
 		void DrawDisable( HRDC hRDC, const CRect* prc );
@@ -381,9 +381,9 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 	class ComboboxButtonBkThemeRender : public ThemeRenderBase
 	{
 	public:
-		virtual const TCHAR* GetThemeName() { return _T("COMBOBOX"); }
+		virtual const TCHAR* GetThemeName() { return VSCLASS_COMBOBOX; }
 		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
-		virtual SIZE GetDesiredSize();
+		virtual SIZE  GetDesiredSize();
 
 		void DrawDisable( HRDC hRDC, const CRect* prc );
 		void DrawNormal( HRDC hRDC, const CRect* prc );
@@ -396,7 +396,7 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 	class ComboboxBkThemeRender : public ThemeRenderBase
 	{
 	public:
-		virtual const TCHAR* GetThemeName() { return _T("COMBOBOX"); }
+		virtual const TCHAR* GetThemeName() { return VSCLASS_COMBOBOX; }
 		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
 
 		void DrawDisable( HRDC hRDC, const CRect* prc );
@@ -408,7 +408,7 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 	class ListboxBkThemeRender : public ThemeRenderBase
 	{
 	public:
-		virtual const TCHAR* GetThemeName() { return _T("LISTBOX"); }
+		virtual const TCHAR* GetThemeName() { return VSCLASS_LISTBOX; }
 		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
 
 		void DrawDisable( HRDC hRDC, const CRect* prc );
@@ -420,7 +420,7 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 	class MenuBkThemeRender : public ThemeRenderBase
 	{
 	public:
-		virtual const TCHAR* GetThemeName() { return _T("MENU"); }
+		virtual const TCHAR* GetThemeName() { return VSCLASS_MENU; }
 		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
 
 		void DrawNormal( HRDC hRDC, const CRect* prc );
@@ -429,7 +429,7 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 	class MenuStringItemRender : public ThemeRenderBase
 	{
 	public:
-		virtual const TCHAR* GetThemeName() { return _T("MENU"); }
+		virtual const TCHAR* GetThemeName() { return VSCLASS_MENU; }
 		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
 
 		void DrawDisable( HRDC hRDC, const CRect* prc );
@@ -442,7 +442,7 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 	class MenuPopupTriangleRender : public ThemeRenderBase
 	{
 	public:
-		virtual const TCHAR* GetThemeName() { return _T("MENU"); }
+		virtual const TCHAR* GetThemeName() { return VSCLASS_MENU; }
 		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
 
 		void DrawNormal( HRDC hRDC, const CRect* prc );
@@ -454,7 +454,7 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 	class MenuSeperatorThemeRender : public ThemeRenderBase
 	{
 	public:
-		virtual const TCHAR* GetThemeName() { return _T("MENU"); }
+		virtual const TCHAR* GetThemeName() { return VSCLASS_MENU; }
 		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
 
 		void DrawNormal( HRDC hRDC, const CRect* prc );
@@ -463,7 +463,7 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 	class MenuCheckedIconThemeRender : public ThemeRenderBase
 	{
 	public:
-		virtual const TCHAR* GetThemeName() { return _T("MENU"); }
+		virtual const TCHAR* GetThemeName() { return VSCLASS_MENU; }
 		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
 
 		void DrawNormal( HRDC hRDC, const CRect* prc );
@@ -474,7 +474,7 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 	class MenuRadioIconThemeRender : public ThemeRenderBase
 	{
 	public:
-		virtual const TCHAR* GetThemeName() { return _T("MENU"); }
+		virtual const TCHAR* GetThemeName() { return VSCLASS_MENU; }
 		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
 
 		void DrawNormal( HRDC hRDC, const CRect* prc );
@@ -485,7 +485,7 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 	class MenuRadioCheckIconBkThemeRender : public ThemeRenderBase
 	{
 	public:
-		virtual const TCHAR* GetThemeName() { return _T("MENU"); }
+		virtual const TCHAR* GetThemeName() { return VSCLASS_MENU; }
 		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
 
 		void DrawNormal( HRDC hRDC, const CRect* prc );
@@ -493,6 +493,26 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 		void DrawDisable( HRDC hRDC, const CRect* prc );
 	};
 
+	class ScrollBarBkgndThemeRender : public ThemeRenderBase
+	{
+	public:
+		virtual const TCHAR* GetThemeName() { return VSCLASS_SCROLLBAR; }
+		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
+		virtual SIZE  GetDesiredSize();
+	};
+
+	class ScrollLineUpButtonBkThemeRender : public ThemeRenderBase
+	{
+	public:
+		virtual const TCHAR* GetThemeName() { return VSCLASS_SCROLLBAR; }
+		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
+		virtual SIZE  GetDesiredSize();
+
+		void  DrawDisable( HRDC hRDC, const CRect* prc );
+		void  DrawNormal( HRDC hRDC, const CRect* prc );
+		void  DrawHover( HRDC hRDC, const CRect* prc );
+		void  DrawPress( HRDC hRDC, const CRect* prc );	
+	};
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -514,14 +534,16 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 		void             SetObject( Object* pObject ) { this->m_pObject = pObject; }
 		void             SetTextRenderType( const TEXTRENDER_TYPE& nType ){ m_nTextRenderType = nType ; }
 		TEXTRENDER_TYPE  GetTextRenderType() { return m_nTextRenderType; }
-
 		SIZE             GetDesiredSize(const String& strText, int nLimitWidth=-1);
 		int              GetDrawTextFlag() { return m_nDrawTextFlag; }
+		void             GetTextPadding(CRegion4* pRegion4) { pRegion4->CopyRect(&m_rPadding); }
+		void             SetTextPaddingf(CRegion4* pRegion4){ m_rPadding.CopyRect(pRegion4); }
 
 	protected:
 		Object*          m_pObject;          // 绑定的对象，要绘制谁的文字
 		TEXTRENDER_TYPE  m_nTextRenderType;  // 自己的类型
-		int              m_nDrawTextFlag;
+		int              m_nDrawTextFlag;    // DrawText的flag标识
+		CRegion4         m_rPadding;         // 绘制文字的内间距
 	};
 
 	// 工厂类

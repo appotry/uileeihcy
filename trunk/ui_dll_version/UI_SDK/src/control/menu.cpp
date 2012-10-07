@@ -84,8 +84,6 @@ MenuBase::MenuBase()
 	m_nIconGutterWidth = 28;
 	m_nSeperatorHeight = 3;
 	m_nPopupTriangleWidth = 20;
-	m_nTextMarginLeft = 0;
-	m_nTextMarginRight = 0;
 
 	m_nTimerIDShowPopupSubMenu = 0;
 	m_nTimerIDHidePopupSubMenu = 0;
@@ -699,9 +697,14 @@ SIZE MenuBase::OnMeasureItem( ListItemBase* p)
 		}
 		else
 		{
-			HRFONT hRFont = this->GetFont();
-			int nTextWidth = ::MeasureString(hRFont, pItem->GetText().c_str() ).cx;
-			s.cx = nTextWidth + m_nIconGutterWidth + m_nTextMarginLeft + m_nTextMarginRight + m_nPopupTriangleWidth;
+// 			HRFONT hRFont = this->GetFont();
+// 			int nTextWidth = ::MeasureString(hRFont, pItem->GetText().c_str() ).cx;
+			int nTextWidth = 0;
+			if (NULL != m_pTextRender)
+			{
+				nTextWidth = m_pTextRender->GetDesiredSize(pItem->GetText()).cx;
+			}
+			s.cx = nTextWidth + m_nIconGutterWidth + m_nPopupTriangleWidth;
 			s.cy = m_nItemHeight;
 		}
 	}
@@ -781,7 +784,14 @@ void MenuBase::OnDrawSeperatorItem(HRDC hRDC, MenuItem* pMenuItem)
 	{
 		CRect rcItem;
 		pMenuItem->GetParentRect(&rcItem);
-		rcItem.left += m_nIconGutterWidth + m_nTextMarginLeft;
+		rcItem.left += m_nIconGutterWidth;
+
+		if (NULL != m_pTextRender)
+		{
+			CRegion4 r;
+			m_pTextRender->GetTextPadding(&r);
+			rcItem.left += r.left;
+		}
 
 		m_pSeperatorRender->DrawState(hRDC, &rcItem, 0);
 	}
@@ -821,7 +831,7 @@ void MenuBase::OnDrawStringItem(HRDC hRDC, MenuItem* pMenuItem)
 
 	if (NULL != pMenuItem && NULL != m_pTextRender)
 	{
-		rcItem.DeflateRect(m_nIconGutterWidth + m_nTextMarginLeft,0,m_nPopupTriangleWidth+m_nTextMarginRight,0);
+		rcItem.DeflateRect(m_nIconGutterWidth,0,m_nPopupTriangleWidth,0);
 		m_pTextRender->DrawState(hRDC, &rcItem, nTextState, pMenuItem->GetText());
 	}
 }
@@ -852,8 +862,6 @@ void MenuBase::ResetAttribute()
 	m_nIconGutterWidth = 28;
 	m_nSeperatorHeight = 3;
 	m_nPopupTriangleWidth = 20;
-	m_nTextMarginLeft = 0;
-	m_nTextMarginRight = 0;
 	m_bLayered = false;
 }
 
@@ -893,20 +901,6 @@ bool MenuBase::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 	{
 		m_nIconGutterWidth = _ttoi(iter->second.c_str());
 		m_mapAttribute.erase(XML_MENU_ICONGUTTERWIDTH);
-	}
-
-	iter = mapAttrib.find(XML_MENU_TEXTMARGINLEFT);
-	if (mapAttrib.end() != iter)
-	{
-		m_nTextMarginLeft = _ttoi(iter->second.c_str());
-		m_mapAttribute.erase(XML_MENU_TEXTMARGINLEFT);
-	}
-
-	iter = mapAttrib.find(XML_MENU_TEXTMARGINRIGHT);
-	if (mapAttrib.end() != iter)
-	{
-		m_nTextMarginRight = _ttoi(iter->second.c_str());
-		m_mapAttribute.erase(XML_MENU_TEXTMARGINRIGHT);
 	}
 
 	iter = mapAttrib.find(XML_MENU_POPUPTRIANGLEWIDTH);
