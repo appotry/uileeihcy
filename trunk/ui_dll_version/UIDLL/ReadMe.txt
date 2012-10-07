@@ -84,8 +84,8 @@
 107.ccaret的分层窗口光标在第一行/最后一行显示不下的时候，位置不正确
 108.drag drop移动richedit的文字，刷新不同步
 109.richedit的横向滚动条range、page与ui控件不同步
-110.scrollbar 的 grip 绘制，theme都有现成的API
-111.option window不是modal dialog，需要修改成modalless
+110.scrollbar 的 sizebox 绘制，theme都有现成的API，由哪一层来负责绘制？
+112
 	
 ==================================疑问==================================
 1. Message类是否需要一个 m_pCurMsg成员变量？
@@ -163,6 +163,7 @@
 104.开始、暂停按钮的正常状态图片怎么成高亮图片了？ -- 由于触发了ondeleteobject，里面直接将m_pHover=NULL，导致按钮状态没有被重置。应该调用SetHoverObject(NULL);
 103.option中的listbox的图片需要增加一个分隔线 -- 已修改图片
 105.在xml中配置的\n，读取后，并不是一个转义字符，而是两个字符了。怎么转义？  --  xml中的回车换行必须用 &#xD; 或 &#xA; 而不是用\r\n
+111.option window不是modal dialog，需要修改成modalless
 	
 备注：
 1. Q: 怎么解决用VS2008编译生成的程序对vc运行库的依赖？

@@ -663,6 +663,8 @@ void ListCtrlBase::ReDrawItem(ListItemBase* pItem1, ListItemBase* pItem2)
 
 	HRGN hClipRgn = NULL;
 	HRDC hRDC = pWindow->BeginDrawObject(this);
+	if (NULL == hRDC)
+		return;
 
 	if (NULL != pItem1)
 		this->OnDrawItem(hRDC, pItem1);	
@@ -1137,6 +1139,27 @@ ListBoxItem* ListBox::AddString(const String& strText, bool bUpdate)
 	this->AddItem(pItem, bUpdate);
 
 	return pItem;
+}
+bool ListBox::SetSel(int nIndex)
+{
+	ListBoxItem* pItem = (ListBoxItem*)this->GetItemBase(nIndex);
+	if (false == pItem)
+		return false;
+
+	int nNeedUpdateObjectFlag = 0;
+	ListItemBase* pOldSelItem = m_pFirstSelectedItem;
+	this->SetSelectedItem(pItem, nNeedUpdateObjectFlag);
+
+	if (nNeedUpdateObjectFlag & LISTCTRLBASE_NEED_UPDATE_FLAG_ALL) // 产生了滚动，刷新整个列表
+	{
+		this->UpdateObject();
+	}
+	else if (nNeedUpdateObjectFlag & LISTCTRLBASE_NEED_UPDATE_FLAG_ITEM)
+	{
+		this->ReDrawItem(pOldSelItem, m_pFirstSelectedItem);
+	}
+
+	return true;
 }
 
 int  ListBox::GetListBoxStyle()

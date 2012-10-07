@@ -11,6 +11,7 @@ MainWindow::MainWindow(void)
 	m_hWndPlayerList = NULL;
 	m_hWndEqualizer = NULL;
 	m_pLyricDlg = NULL;
+	m_pOptionWindow = NULL;
 
 	m_pbtnStart = NULL;
 	m_pbtnPause = NULL;
@@ -18,7 +19,6 @@ MainWindow::MainWindow(void)
 	m_pbtnOpen = NULL;
 	m_pbtnMute = NULL;
 	m_pLabelPlaystatus = NULL;
-	m_pLabelTime = NULL;
 	m_pLEDTime = NULL;
 	m_pProgress = NULL;
 	m_pVolume = NULL;
@@ -38,6 +38,11 @@ MainWindow::~MainWindow(void)
 		::DestroyWindow(m_pLyricDlg->m_hWnd);
 		delete m_pLyricDlg;
 		m_pLyricDlg = NULL;
+	}
+	if (NULL != m_pOptionWindow)
+	{
+		DestroyWindow(m_pOptionWindow->m_hWnd);
+		SAFE_DELETE(m_pOptionWindow);
 	}
 }
 
@@ -68,7 +73,6 @@ void MainWindow::OnInitWindow()
 	m_pLabelPlaystatus = (Label*)this->FindChildObject(_T("label_playstatus"));
 	m_pProgress        = (SliderCtrl*)this->FindChildObject(_T("progress_music"));
 	m_pVolume          = (SliderCtrl*)this->FindChildObject(_T("progress_voice"));
-	m_pLabelTime       = (Label*)this->FindChildObject(_T("label_time"));
 	m_pLEDTime         = (LEDCtrl*)this->FindChildObject(_T("led_time"));
 
 	if( NULL != m_pbtnStop )
@@ -175,10 +179,6 @@ void MainWindow::OnMp3Stop()
 	{
 		m_pLEDTime->SetText(_T(" 00:00"));
 	}
-	if (NULL != m_pLabelTime)
-	{
-		m_pLabelTime->SetText(_T(" 00:00"));
-	}
 }
 
 void MainWindow::OnBnClickMute()
@@ -203,17 +203,15 @@ void MainWindow::OnBnClickNext()
 
 void MainWindow::OnBnClickOpen()
 {
-	COptionWindow win;
-	win.DoModal(g_hInstance, COptionWindow::IDD, _T("OptionWindow"),m_hWnd);
-	return;
+// 	COptionWindow win;
+// 	win.DoModal(g_hInstance, COptionWindow::IDD, _T("OptionWindow"),m_hWnd);
+// 	return;
 
 	CFileDialog dlg(TRUE, _T("*.mp3"), 0,4|2, _T("*.mp3\0*.mp3\0\0"));
 	if(IDCANCEL == dlg.DoModal())
 		return;
 
-	OnBnClickStop();
-	::mp3_set_file(dlg.m_szFileName);
-	OnBnClickPlay();
+	GetMainMgr()->Play(GetPlayerListMgr()->AddFile(dlg.m_szFileName));
 }
 
 void MainWindow::OnBnClickPlaylist()
@@ -490,8 +488,13 @@ void MainWindow::OnMenuClick(UINT nMenuID)
 	{
 	case 1001:
 		{		
-			COptionWindow win;
-			win.DoModal(g_hInstance, COptionWindow::IDD, _T("OptionWindow"),m_hWnd);
+			if (NULL == m_pOptionWindow)
+			{
+				m_pOptionWindow = new COptionWindow();
+				m_pOptionWindow->DoModeless(g_hInstance, COptionWindow::IDD, _T("OptionWindow"),m_hWnd);
+			}
+			m_pOptionWindow->ShowWindow();
+//			win.DoModal(g_hInstance, COptionWindow::IDD, _T("OptionWindow"),m_hWnd);
 		}		
 		break;
 
@@ -566,10 +569,6 @@ void MainWindow::OnMp3ProgressInd(LONGLONG llCur, LONGLONG llDuration)
 	else
 	{
 		_stprintf(szTime, _T(" %02d:%02d"), m,s );
-	}
-	if (NULL != m_pLabelTime)
-	{
-		m_pLabelTime->SetText(szTime);
 	}
 	if (NULL != m_pLEDTime)
 	{

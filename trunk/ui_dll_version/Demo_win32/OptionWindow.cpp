@@ -89,6 +89,8 @@ L"    一个集播放、音效、转换、歌词等多种功能于一身的专业音频播放软件。\r\n\
 				}
 			}
 		}
+
+		m_pListOption->SetSel(0);
 	}
 
 	m_pComboBox = (Combobox*)this->FindChildObject(_T("test_combo1"));
@@ -108,7 +110,14 @@ L"    一个集播放、音效、转换、歌词等多种功能于一身的专业音频播放软件。\r\n\
 }
 void COptionWindow::OnClose()
 {
-	this->EndDialog(IDCANCEL);
+	if (m_bDoModal)
+	{
+		this->EndDialog(IDCANCEL);
+	}
+	else
+	{
+		this->HideWindow();
+	}
 }
 void COptionWindow::OnDestroy()
 {

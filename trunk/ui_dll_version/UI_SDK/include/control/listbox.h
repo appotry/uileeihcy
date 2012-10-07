@@ -274,6 +274,7 @@ namespace UI
 
 	public:
 		ListBoxItem*  AddString(const String& strText, bool bUpdate=true);
+		bool     SetSel(int nIndex);
 
 		int      GetListBoxStyle();
 		void     SetListBoxStyle(int n);
