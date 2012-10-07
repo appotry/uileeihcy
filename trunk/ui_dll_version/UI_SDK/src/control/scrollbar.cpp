@@ -747,6 +747,7 @@ bool ScrollBarBase::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 	if( false == bRet )
 		return false;
 
+	// 滚动条类别
 	SCROLLBAR_TYPE eType = SCROLLBAR_TYPE_SYSTEM;
 	ATTRMAP::iterator iter = mapAttrib.find(XML_HSCROLLBAR_PRIFIX XML_SCROLLBAR_TYPE);
 	if (mapAttrib.end() != iter)
@@ -771,6 +772,12 @@ bool ScrollBarBase::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 			return false;
 	}
 
+	// 默认背景(theme)
+	if (NULL == m_pBkgndRender)
+	{
+		m_pBkgndRender = RenderFactory::GetRender(RENDER_TYPE_THEME_VSCROLLBARBACKGND, this);
+	}
+
 	return true;
 }
 
@@ -784,13 +791,17 @@ void ScrollBarBase::ResetAttribute()
 
 SIZE ScrollBarBase::GetAutoSize(HRDC hRDC)
 {
-// 	if (NULL != m_pScrollBarRender)
-// 	{
-// 		return m_pScrollBarRender->GetAutoSize();
-// 	}
+	if (NULL != m_pBkgndRender)
+	{
+		SIZE s = m_pBkgndRender->GetDesiredSize();
+		return s;
+	}
+	if (NULL != m_pScrollBarRender)
+	{
+		return m_pScrollBarRender->GetAutoSize();
+	}
 
-	// TODO:
-	SIZE s = {12,12};
+	SIZE s = {GetSystemMetrics(SM_CXVSCROLL),GetSystemMetrics(SM_CYVSCROLL)}; 
 	return s;
 }
 void ScrollBarBase::Init(ScrollBarMgr* pMgr) 
@@ -1087,30 +1098,40 @@ public:
 	}
 	virtual  bool  SetAttribute(ATTRMAP& mapAttrib)
 	{
-// 		if( mapAttrib.count(XML_SCROLLBAR_HIDE_LINEBTN) )
-// 		{
-// 			SAFE_DELETE(m_pBtnLineUpLeft);
-// 			SAFE_DELETE(m_pBtnLineDownRight);
-// 		}
-// 		else
-//		{
-		if (NULL == m_pBtnLineUpLeft)
+		ATTRMAP::iterator iter = mapAttrib.find(XML_SCROLLBAR_NO_LINEBTN);
+		if( iter != mapAttrib.end() &&
+			(_T("1") == iter->second || _T("true")==iter->second) )  // 不显示行按钮，简洁
 		{
-			UICreateInstance(&m_pBtnLineUpLeft);
-			m_pBtnLineUpLeft->m_strID = _T("lineupleftbtn");
-			this->m_pScrollBar->AddChild(m_pBtnLineUpLeft);
-			m_pBtnLineUpLeft->AddHook(this,0,ALT_MSG_ID_BUTTON1);
-			m_pBtnLineUpLeft->SetTabstop(false);
+			SAFE_DELETE(m_pBtnLineUpLeft);
+			SAFE_DELETE(m_pBtnLineDownRight);
 		}
-		if (NULL == m_pBtnLineDownRight)
+		else
 		{
-			UICreateInstance(&m_pBtnLineDownRight);
-			m_pBtnLineDownRight->m_strID = _T("linedownrightbtn");
-			this->m_pScrollBar->AddChild(m_pBtnLineDownRight);
-			m_pBtnLineDownRight->AddHook(this,0,ALT_MSG_ID_BUTTON2);
-			m_pBtnLineDownRight->SetTabstop(false);
-		}
+			if (NULL == m_pBtnLineUpLeft)
+			{
+				UICreateInstance(&m_pBtnLineUpLeft);
+				m_pBtnLineUpLeft->m_strID = _T("lineupleftbtn");
+				this->m_pScrollBar->AddChild(m_pBtnLineUpLeft);
+				m_pBtnLineUpLeft->AddHook(this,0,ALT_MSG_ID_BUTTON1);
 
+				m_pBtnLineUpLeft->SetButtonStyle(BUTTON_STYLE_SCROLLLINEUP);  // 先取个默认值
+				m_pBtnLineUpLeft->SetDrawFocusType(BUTTON_RENDER_DRAW_FOCUS_TYPE_NONE);
+				m_pBtnLineUpLeft->SetAutoSizeType(BUTTON_RENDER_AUTOSIZE_TYPE_BKIMAGE);
+				m_pBtnLineUpLeft->SetTabstop(false);
+			}
+			if (NULL == m_pBtnLineDownRight)
+			{
+				UICreateInstance(&m_pBtnLineDownRight);
+				m_pBtnLineDownRight->m_strID = _T("linedownrightbtn");
+				this->m_pScrollBar->AddChild(m_pBtnLineDownRight);
+				m_pBtnLineDownRight->AddHook(this,0,ALT_MSG_ID_BUTTON2);
+
+				m_pBtnLineDownRight->SetButtonStyle(BUTTON_STYLE_SCROLLLINEDOWN);  // 先取个默认值
+				m_pBtnLineDownRight->SetDrawFocusType(BUTTON_RENDER_DRAW_FOCUS_TYPE_NONE);
+				m_pBtnLineDownRight->SetAutoSizeType(BUTTON_RENDER_AUTOSIZE_TYPE_BKIMAGE);
+				m_pBtnLineDownRight->SetTabstop(false);
+			}
+		}
 		this->m_pScrollBar->SetChildObjectAttribute( m_pBtnLineUpLeft,    XML_SCROLLBAR_LINE_BUTTON1_ATTR_PRIFIX, mapAttrib, false );
 		this->m_pScrollBar->SetChildObjectAttribute( m_pBtnLineDownRight, XML_SCROLLBAR_LINE_BUTTON2_ATTR_PRIFIX, mapAttrib, false );
 		this->m_pScrollBar->SetChildObjectAttribute( m_pBtnThumb,         XML_SCROLLBAR_THUMB_BUTTON_ATTR_PRIFIX, mapAttrib, false );
@@ -1119,8 +1140,7 @@ public:
 	}
 	virtual  SIZE  GetAutoSize()
 	{
-		// TODO:
-		SIZE s = {12,12};
+		SIZE s = m_pBtnThumb->GetDesiredSize(NULL);
 		return s;
 	}
 
@@ -1178,6 +1198,27 @@ public:
 
 	UI_END_MSG_MAP_CHAIN_PARENT(SystemScrollBarRender)
 
+public:
+	virtual  bool  SetAttribute(ATTRMAP& mapAttrib)
+	{
+		bool bRet = __super::SetAttribute(mapAttrib);
+		if (false == bRet)
+			return false;
+
+		if (NULL != m_pBtnLineUpLeft && NULL == m_pBtnLineUpLeft->GetBkRender())
+		{
+			m_pBtnLineUpLeft->SetButtonStyle(BUTTON_STYLE_SCROLLLINEUP);
+			RenderBase* pRender = RenderFactory::GetRender(RENDER_TYPE_THEME, m_pBtnLineUpLeft);
+			m_pBtnLineUpLeft->SetBkRender(pRender);
+		}
+		if (NULL != m_pBtnLineDownRight && NULL == m_pBtnLineDownRight->GetBkRender())
+		{
+			m_pBtnLineUpLeft->SetButtonStyle(BUTTON_STYLE_SCROLLLINEDOWN);
+			RenderBase* pRender = RenderFactory::GetRender(RENDER_TYPE_THEME, m_pBtnLineDownRight);
+			m_pBtnLineDownRight->SetBkRender(pRender);
+		}
+		return true;
+	}
 protected:
 	virtual SCROLLBAR_DIRECTION_TYPE GetScrollBarDirType() { return VSCROLLBAR; }
 	void    OnSize(UINT nType, int cx, int cy);

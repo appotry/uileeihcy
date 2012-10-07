@@ -1179,7 +1179,7 @@ bool ListBox::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 				p->SetColor(1, RGB(255,255,255));
 				p->SetHRFont(hRFont);
 
-				m_pTextRender->SetAttribute(_T(""), m_mapAttribute);
+				m_pTextRender->SetAttribute(_T(""), mapAttrib);
 			}
 		}
 	}

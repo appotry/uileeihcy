@@ -95,6 +95,10 @@ enum OBJ_TYPE
 #define BUTTON_STYLE_MENUBUTTON         0x0004    // 菜单按钮
 #define BUTTON_STYLE_SPLITMENUBUTTON    0x0005    // 按钮+菜单
 #define BUTTON_STYLE_COMBOBOX           0x0006    // 组合框中的按钮
+#define BUTTON_STYLE_SCROLLLINEUP       0x0007
+#define BUTTON_STYLE_SCROLLLINEDOWN     0x0008
+#define BUTTON_STYLE_SCROLLLINELEFT     0x0009
+#define BUTTON_STYLE_SCROLLLINERIGHT    0x000A
 
 // progress style
 #define PROGRESS_STYLE_MASK             0x000F    // 进度条类型使用的位

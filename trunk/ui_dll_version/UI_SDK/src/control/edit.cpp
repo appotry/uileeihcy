@@ -1168,7 +1168,7 @@ void EditBase::OnInputChar(UINT nChar)
 	if( bUpdate1 || bUpdate2 )
 	{
 	//	HideCaret(GetHWND());
-		m_caret.HideCaret();
+		m_caret.HideCaret();  // ?? 不加这个会导致输入时，光标变化位置后，原来那个位置还会遗留一个未刷新的光标
 		UpdateObject();
 	//	ShowCaret(GetHWND());
 		m_caret.ShowCaret();

@@ -113,6 +113,7 @@ void RichEditBase::OnSize(UINT nType, int cx, int cy)
 
 	SIZE sizeContent;
 
+//	rcClient.right = rcClient.left = 0;  // 解决richedit内部，横向滚动条允许滚动到range，而不是range-page的位置
 	this->m_MgrScrollbar.GetScrollRange((int*)&sizeContent.cx, (int*)&sizeContent.cy);
 	this->m_MgrScrollbar.OnBindObjectSize(&sizeContent, &rcClient, m_pCurMsg);
 }
@@ -122,7 +123,11 @@ void RichEditBase::OnSize(UINT nType, int cx, int cy)
 LRESULT  RichEditBase::OnScroll(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	int nSBCode = LOWORD(wParam);
-	int nOldPos = m_MgrScrollbar.GetVScrollPos();
+	int nOldPos = 0;
+	if (uMsg==WM_HSCROLL)
+		nOldPos = m_MgrScrollbar.GetHScrollPos();
+	else
+		nOldPos = m_MgrScrollbar.GetVScrollPos();
 
 	OnForwardMessage(uMsg, wParam, lParam);
 
@@ -135,10 +140,19 @@ LRESULT  RichEditBase::OnScroll(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 
 	// 刷新滚动条
-	int nPos = m_MgrScrollbar.GetVScrollPos();
+	int nPos = 0;
+	if (uMsg==WM_HSCROLL)
+		nPos = m_MgrScrollbar.GetHScrollPos();
+	else
+		nPos = m_MgrScrollbar.GetVScrollPos();
+
 	if (nPos != nOldPos)
 	{
-		m_MgrScrollbar.GetVScrollBar()->UpdateObject();
+		if (uMsg==WM_HSCROLL)
+			m_MgrScrollbar.GetHScrollBar()->UpdateObject();
+		else
+			m_MgrScrollbar.GetVScrollBar()->UpdateObject();
+
 	}
 
 	return 0;
