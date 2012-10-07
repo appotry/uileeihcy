@@ -80,6 +80,26 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 			{
 				pRender = new ScrollLineUpButtonBkThemeRender();
 			}
+			else if (BUTTON_STYLE_SCROLLLINEDOWN == nButtonStyle)
+			{
+				pRender = new ScrollLineDownButtonBkThemeRender();
+			}
+			else if (BUTTON_STYLE_SCROLLLINELEFT == nButtonStyle)
+			{
+				pRender = new ScrollLineLeftButtonBkThemeRender();
+			}
+			else if (BUTTON_STYLE_SCROLLLINERIGHT == nButtonStyle)
+			{
+				pRender = new ScrollLineRightButtonBkThemeRender();
+			}
+			else if (BUTTON_STYLE_VSCROLLTHUMB == nButtonStyle)
+			{
+				pRender = new VScrollThumbButtonThemeRender();
+			}
+			else if (BUTTON_STYLE_HSCROLLTHUMB == nButtonStyle)
+			{
+				pRender = new HScrollThumbButtonThemeRender();
+			}
 			else
 			{
 				pRender = new ButtonBkThemeRender();
@@ -231,7 +251,15 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 	}
 	else if (RENDER_TYPE_THEME_VSCROLLBARBACKGND == eType)
 	{
-		pRender = new ScrollBarBkgndThemeRender();
+		pRender = new VScrollBarBkgndThemeRender();
+	}
+	else if (RENDER_TYPE_THEME_HSCROLLBARBACKGND == eType)
+	{
+		pRender = new HScrollBarBkgndThemeRender();
+	}
+	else if (RENDER_TYPE_THEME_SCROLLBAR_SIZEBOX == eType)
+	{
+		pRender = new ScrollBarSizeBoxThemeRender();
 	}
 	else
 	{
@@ -1154,7 +1182,7 @@ void ButtonBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc  )
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, BP_PUSHBUTTON, PBS_DISABLED, prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("ButtonBkThemeRender::DrawNormal  DrawThemeBackground failed."));
+			UI_LOG_WARN(_T("%s  DrawThemeBackground failed."), FUNC_NAME);
 		}
 	}
 	else
@@ -1171,7 +1199,7 @@ void ButtonBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc  )
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, BP_PUSHBUTTON, ((ButtonBase*)m_pObject)->IsDefault()?PBS_DEFAULTED:PBS_NORMAL, prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("ButtonBkThemeRender::DrawNormal  DrawThemeBackground failed."));
+			UI_LOG_WARN(_T("%s  DrawThemeBackground failed."), FUNC_NAME);
 		}
 	}
 	else
@@ -1189,7 +1217,7 @@ void ButtonBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc  )
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, BP_PUSHBUTTON, PBS_HOT, prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("ButtonBkThemeRender::DrawNormal  DrawThemeBackground failed."));
+			UI_LOG_WARN(_T("%s  DrawThemeBackground failed."), FUNC_NAME);
 		}
 	}
 	else
@@ -1206,7 +1234,7 @@ void ButtonBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc  )
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, BP_PUSHBUTTON, PBS_PRESSED, prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("ButtonBkThemeRender::DrawNormal  DrawThemeBackground failed."));
+			UI_LOG_WARN(_T("%s  DrawThemeBackground failed."), FUNC_NAME);
 		}
 	}
 	else
@@ -1919,8 +1947,9 @@ void ComboboxButtonBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc  )
 	else
 	{
 		rc.DeflateRect(0,2,2,2);
-		DrawFrameControl(hDC, (RECT*)&rc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_INACTIVE );
-		DrawGlyph(hDC, &rc);
+		//DrawFrameControl(hDC, (RECT*)&rc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_INACTIVE );
+		//DrawGlyph(hDC, &rc);
+		::DrawFrameControl(hDC, (RECT*)&rc, DFC_SCROLL, DFCS_SCROLLCOMBOBOX|DFCS_INACTIVE);
 	}
 	ReleaseHDC(hRDC, hDC);
 }
@@ -1939,9 +1968,10 @@ void ComboboxButtonBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc  )
 	}
 	else
 	{
-		rc.DeflateRect(0,2,2,2);
-		DrawFrameControl(hDC, (RECT*)&rc, DFC_BUTTON, DFCS_BUTTONPUSH );
-		DrawGlyph(hDC, &rc);
+ 		rc.DeflateRect(0,2,2,2);
+// 		DrawFrameControl(hDC, (RECT*)&rc, DFC_BUTTON, DFCS_BUTTONPUSH );
+// 		DrawGlyph(hDC, &rc);
+		::DrawFrameControl(hDC, (RECT*)&rc, DFC_SCROLL, DFCS_SCROLLCOMBOBOX);
 	}
 	ReleaseHDC(hRDC, hDC);
 }
@@ -1963,8 +1993,9 @@ void ComboboxButtonBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc  )
 	else
 	{
 		rc.DeflateRect(0,2,2,2);
-		DrawFrameControl(hDC, (RECT*)&rc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_HOT );
-		DrawGlyph(hDC, &rc);
+		//DrawFrameControl(hDC, (RECT*)&rc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_HOT );
+		//DrawGlyph(hDC, &rc);
+		::DrawFrameControl(hDC, (RECT*)&rc, DFC_SCROLL, DFCS_SCROLLCOMBOBOX|DFCS_HOT);
 	}
 	ReleaseHDC(hRDC, hDC);
 }
@@ -1984,41 +2015,42 @@ void ComboboxButtonBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc  )
 	else
 	{
 		rc.DeflateRect(0,2,2,2);
-		DrawFrameControl(hDC, (RECT*)&rc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_PUSHED|DFCS_FLAT );
-		DrawGlyph(hDC, &rc, true);
+		//DrawFrameControl(hDC, (RECT*)&rc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_PUSHED|DFCS_FLAT );
+		//DrawGlyph(hDC, &rc, true);
+		::DrawFrameControl(hDC, (RECT*)&rc, DFC_SCROLL, DFCS_SCROLLCOMBOBOX|DFCS_PUSHED|DFCS_FLAT);
 	}
 	ReleaseHDC(hRDC, hDC);
 }
 
-// 绘制按钮上的箭头
-void ComboboxButtonBkThemeRender::DrawGlyph( HDC hDC, const CRect* prc, bool bPressDown )
-{
-	POINT pt[4] = 
-	{
-		{-3,-2}, {3,-2}, {0,1}, {-3,-2}
-	};
-
-	int x = 0; int y = 0;
-	x = (prc->left + prc->right)/2;
-	y = (prc->top + prc->bottom)/2;
-
-	for (int i = 0; i < 4; i++)
-	{
-		pt[i].x += x;
-		pt[i].y += y;
-
-		if(bPressDown)
-		{
-		//	pt[i].x += 1;
-			pt[i].y += 1;
-		}
-	}
-
-	HBRUSH hBlackBrush = (HBRUSH)GetStockObject(BLACK_BRUSH);
-	HBRUSH hOldBrush = (HBRUSH)::SelectObject(hDC, hBlackBrush);
-	::Polygon(hDC, pt, 4);
-	::SelectObject(hDC,hOldBrush);
-}
+// 绘制按钮上的箭头 -- 可直接使用DFC_SCROLL + DFCS_SCROLLCOMBOBOX实现COMBOBOX的按钮绘制
+// void ComboboxButtonBkThemeRender::DrawGlyph( HDC hDC, const CRect* prc, bool bPressDown )
+// {
+// 	POINT pt[4] = 
+// 	{
+// 		{-3,-2}, {3,-2}, {0,1}, {-3,-2}
+// 	};
+// 
+// 	int x = 0; int y = 0;
+// 	x = (prc->left + prc->right)/2;
+// 	y = (prc->top + prc->bottom)/2;
+// 
+// 	for (int i = 0; i < 4; i++)
+// 	{
+// 		pt[i].x += x;
+// 		pt[i].y += y;
+// 
+// 		if(bPressDown)
+// 		{
+// 		//	pt[i].x += 1;
+// 			pt[i].y += 1;
+// 		}
+// 	}
+// 
+// 	HBRUSH hBlackBrush = (HBRUSH)GetStockObject(BLACK_BRUSH);
+// 	HBRUSH hOldBrush = (HBRUSH)::SelectObject(hDC, hBlackBrush);
+// 	::Polygon(hDC, pt, 4);
+// 	::SelectObject(hDC,hOldBrush);
+// }
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -2138,9 +2170,10 @@ void ComboboxBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc )
 	}
 	ReleaseHDC(hRDC, hDC);
 }
+
 //////////////////////////////////////////////////////////////////////////
 
-void ScrollLineUpButtonBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void ScrollLineButtonBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 {
 	switch(nState)
 	{
@@ -2162,21 +2195,126 @@ void ScrollLineUpButtonBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int
 	}
 }
 
-SIZE ScrollLineUpButtonBkThemeRender::GetDesiredSize() 
+SIZE ScrollLineButtonBkThemeRender::GetDesiredSize() 
 {
 	SIZE s = {GetSystemMetrics(SM_CXVSCROLL),GetSystemMetrics(SM_CYVSCROLL)}; 
 	return s;
 }
 
-void ScrollLineUpButtonBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
+void ScrollLineButtonBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
 {
 	HDC hDC = GetHDC(hRDC);
 	if( m_hTheme )
 	{
-		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, SBP_ARROWBTN, ABS_UPDISABLED, prc, 0);
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, SBP_ARROWBTN, GetThemeStateDisable(), prc, 0);
 		if ( S_OK != hr )
 		{
 			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
+		}
+	}
+	else
+	{
+		DrawFrameControl(hDC, (RECT*)prc, DFC_SCROLL, GetNoThemeState()|DFCS_INACTIVE );
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+void ScrollLineButtonBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, SBP_ARROWBTN, GetThemeStateNormal(), prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
+		}
+	}
+	else
+	{
+		DrawFrameControl(hDC, (RECT*)prc, DFC_SCROLL, GetNoThemeState() );
+	}
+	ReleaseHDC(hRDC, hDC);	
+}
+void ScrollLineButtonBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, SBP_ARROWBTN, GetThemeStateHover(), prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
+		}
+	}
+	else
+	{
+		DrawFrameControl(hDC, (RECT*)prc, DFC_SCROLL, GetNoThemeState() );
+	}
+	ReleaseHDC(hRDC, hDC);	
+}
+void ScrollLineButtonBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, SBP_ARROWBTN, GetThemeStatePress(), prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
+		}
+	}
+	else
+	{
+		DrawFrameControl(hDC, (RECT*)prc, DFC_SCROLL, DFCS_FLAT|DFCS_PUSHED|GetNoThemeState() );
+	}
+	ReleaseHDC(hRDC, hDC);	
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+
+void ScrollThumbButtonThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+{
+	switch(nState)
+	{
+	case BUTTON_BKGND_RENDER_STATE_DISABLE:
+		this->DrawDisable(hRDC, (CRect*)prc);
+		break;
+
+	case BUTTON_BKGND_RENDER_STATE_PRESS:
+		this->DrawPress(hRDC, (CRect*)prc);
+		break;
+
+	case BUTTON_BKGND_RENDER_STATE_HOVER:
+		this->DrawHover(hRDC, (CRect*)prc);
+		break;;
+
+	default:
+		this->DrawNormal(hRDC, (CRect*)prc);
+		break;
+	}
+}
+
+SIZE ScrollThumbButtonThemeRender::GetDesiredSize() 
+{
+	SIZE s = {GetSystemMetrics(SM_CXVSCROLL),GetSystemMetrics(SM_CYVSCROLL)}; 
+	return s;
+}
+
+void ScrollThumbButtonThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, GetThumbBtmType(), SCRBS_DISABLED, prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s  DrawThemeBackground failed."), FUNC_NAME);
+		}
+		hr = DrawThemeBackground(m_hTheme, hDC, GetGripperType(), SCRBS_DISABLED, prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s  DrawThemeBackground failed."), FUNC_NAME);
 		}
 	}
 	else
@@ -2185,54 +2323,69 @@ void ScrollLineUpButtonBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
 	}
 	ReleaseHDC(hRDC, hDC);
 }
-void ScrollLineUpButtonBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
+void ScrollThumbButtonThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 {
 	HDC hDC = GetHDC(hRDC);
 	if( m_hTheme )
 	{
-		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, SBP_ARROWBTN, ABS_UPNORMAL, prc, 0);
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, GetThumbBtmType(), SCRBS_NORMAL, prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
+			UI_LOG_WARN(_T("%s  DrawThemeBackground failed."), FUNC_NAME);
+		}
+		hr = DrawThemeBackground(m_hTheme, hDC, GetGripperType(), SCRBS_NORMAL, prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s  DrawThemeBackground failed."), FUNC_NAME);
 		}
 	}
 	else
 	{
-		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_INACTIVE );
+		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, DFCS_BUTTONPUSH);
 	}
 	ReleaseHDC(hRDC, hDC);	
 }
-void ScrollLineUpButtonBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
+void ScrollThumbButtonThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
 {
 	HDC hDC = GetHDC(hRDC);
 	if( m_hTheme )
 	{
-		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, SBP_ARROWBTN, ABS_UPHOT, prc, 0);
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, GetThumbBtmType(), SCRBS_HOT, prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
+			UI_LOG_WARN(_T("%s  DrawThemeBackground failed."), FUNC_NAME);
+		}
+		hr = DrawThemeBackground(m_hTheme, hDC, GetGripperType(), SCRBS_HOT, prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s  DrawThemeBackground failed."), FUNC_NAME);
 		}
 	}
 	else
 	{
-		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_INACTIVE );
+		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_HOT );
 	}
 	ReleaseHDC(hRDC, hDC);	
 }
-void ScrollLineUpButtonBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc )
+void ScrollThumbButtonThemeRender::DrawPress( HRDC hRDC, const CRect* prc )
 {
 	HDC hDC = GetHDC(hRDC);
 	if( m_hTheme )
 	{
-		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, SBP_ARROWBTN, ABS_UPPRESSED, prc, 0);
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, GetThumbBtmType(), SCRBS_PRESSED, prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
+			UI_LOG_WARN(_T("%s  DrawThemeBackground failed."), FUNC_NAME);
+		}
+		hr = DrawThemeBackground(m_hTheme, hDC, GetGripperType(), SCRBS_PRESSED, prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s  DrawThemeBackground failed."), FUNC_NAME);
 		}
 	}
 	else
 	{
-		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_INACTIVE );
+		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, DFCS_BUTTONPUSH );
 	}
 	ReleaseHDC(hRDC, hDC);	
 }
@@ -2244,7 +2397,7 @@ void ScrollBarBkgndThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nStat
 	HDC hDC = GetHDC(hRDC);		
 	if( m_hTheme )
 	{
-		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, SBP_LOWERTRACKVERT, SCRBS_NORMAL, prc, 0);
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, GetThemeType(), SCRBS_NORMAL, prc, 0);
 		if ( S_OK != hr )
 		{
 			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
@@ -2252,7 +2405,28 @@ void ScrollBarBkgndThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nStat
 	}
 	else
 	{
-		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_INACTIVE );
+		// TODO: 真有没有直接绘制滚动条背景的API吗
+		HBRUSH hBkgndBrush = CreateSolidBrush(GetSysColor(COLOR_BTNFACE)); /*RGB(212,208,200)*/
+		::FillRect(hDC, prc, hBkgndBrush);
+		::DeleteObject(hBkgndBrush);
+
+		LOGBRUSH    LogBrush;
+		LogBrush.lbStyle = BS_SOLID;
+		LogBrush.lbColor = RGB(255, 255, 255);
+		HPEN hPen = ExtCreatePen(PS_GEOMETRIC | PS_DOT | PS_ENDCAP_FLAT, 1, &LogBrush, 0,0);  // 貌似用普通的createpen创建的width 1 不准确
+
+		HPEN hOldPen = (HPEN)::SelectObject(hDC, hPen);
+
+		for (int i=prc->top, j=0; i < prc->bottom; i++,j++)
+		{
+			int xFrom = j%2==0?prc->left:prc->left+1;
+			int xTo   = prc->right;
+
+			::MoveToEx(hDC, xFrom, i, NULL);
+			::LineTo  (hDC, xTo,   i);
+		}
+		SelectObject(hDC, hOldPen);
+		DeleteObject(hPen);
 	}
 	ReleaseHDC(hRDC, hDC);	
 }
@@ -2262,6 +2436,32 @@ SIZE ScrollBarBkgndThemeRender::GetDesiredSize()
 	return s;
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+SIZE ScrollBarSizeBoxThemeRender::GetDesiredSize()
+{
+	SIZE s = {GetSystemMetrics(SM_CXVSCROLL),GetSystemMetrics(SM_CYVSCROLL)}; 
+	return s;
+}
+
+void ScrollBarSizeBoxThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+{
+	HDC hDC = GetHDC(hRDC);		
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, SBP_SIZEBOX, SCRBS_NORMAL, prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
+		}
+	}
+	else
+	{
+		::DrawFrameControl(hDC, (RECT*)prc, DFC_SCROLL, DFCS_SCROLLSIZEGRIP);
+	}
+
+	ReleaseHDC(hRDC, hDC);	
+}
 //////////////////////////////////////////////////////////////////////////
 
 

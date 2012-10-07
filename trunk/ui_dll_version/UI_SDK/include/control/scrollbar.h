@@ -189,6 +189,7 @@ namespace UI
 		UI_DECLARE_OBJECT(HScrollBar, OBJ_CONTROL)
 
 		virtual void  ResetAttribute();
+		virtual bool  SetAttribute(ATTRMAP& mapAttrib, bool bReload );
 	};
 
 	class UIAPI VScrollBar : public ScrollBarBase
@@ -199,5 +200,6 @@ namespace UI
 		UI_DECLARE_OBJECT(VScrollBar, OBJ_CONTROL)
 
 		virtual void  ResetAttribute();
+		virtual bool  SetAttribute(ATTRMAP& mapAttrib, bool bReload );
 	};
 }

@@ -34,6 +34,7 @@ ScrollBarMgr::~ScrollBarMgr()
 	m_pHScrollBar = NULL;
 	m_pVScrollBar = NULL;
 	m_pBindObject = NULL;
+
 }
 
 void ScrollBarMgr::OnScrollBarRelease(ScrollBarBase* p)
@@ -61,6 +62,7 @@ void ScrollBarMgr::ResetAttribute()
 	{
 		m_pVScrollBar->ResetAttribute();
 	}
+
 }
 bool ScrollBarMgr::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 {
@@ -772,12 +774,6 @@ bool ScrollBarBase::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 			return false;
 	}
 
-	// 默认背景(theme)
-	if (NULL == m_pBkgndRender)
-	{
-		m_pBkgndRender = RenderFactory::GetRender(RENDER_TYPE_THEME_VSCROLLBARBACKGND, this);
-	}
-
 	return true;
 }
 
@@ -1017,6 +1013,35 @@ void VScrollBar::ResetAttribute()
 	m_eScrollDirection = VSCROLLBAR;
 }
 
+bool HScrollBar::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
+{
+	bool bRet = __super::SetAttribute(mapAttrib, bReload);
+	if (false == bRet)
+		return false;
+
+	// 默认背景(theme)
+	if (NULL == m_pBkgndRender)
+	{
+		m_pBkgndRender = RenderFactory::GetRender(RENDER_TYPE_THEME_HSCROLLBARBACKGND, this);
+	}
+
+	return true;
+}
+bool VScrollBar::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
+{
+	bool bRet = __super::SetAttribute(mapAttrib, bReload);
+	if (false == bRet)
+		return false;
+
+	// 默认背景(theme)
+	if (NULL == m_pBkgndRender)
+	{
+		m_pBkgndRender = RenderFactory::GetRender(RENDER_TYPE_THEME_VSCROLLBARBACKGND, this);
+	}
+
+	return true;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 
@@ -1033,6 +1058,11 @@ public:
 		m_pBtnThumb->m_strID = _T("thumbbtn");
 		this->m_pScrollBar->AddChild(m_pBtnThumb);
 		m_pBtnThumb->AddHook(this,0,ALT_MSG_ID_THUMB_BTN);
+
+		m_pBtnThumb->SetButtonStyle(BUTTON_STYLE_HSCROLLTHUMB);  // 先取个默认值
+		m_pBtnThumb->SetDrawFocusType(BUTTON_RENDER_DRAW_FOCUS_TYPE_NONE);
+		m_pBtnThumb->SetAutoSizeType(BUTTON_RENDER_AUTOSIZE_TYPE_BKIMAGE);
+		m_pBtnThumb->SetTabstop(false);
 
 		m_nOldPage = m_nOldRange = m_nOldPos = 0;
 	}
@@ -1136,6 +1166,12 @@ public:
 		this->m_pScrollBar->SetChildObjectAttribute( m_pBtnLineDownRight, XML_SCROLLBAR_LINE_BUTTON2_ATTR_PRIFIX, mapAttrib, false );
 		this->m_pScrollBar->SetChildObjectAttribute( m_pBtnThumb,         XML_SCROLLBAR_THUMB_BUTTON_ATTR_PRIFIX, mapAttrib, false );
 
+		if (NULL != m_pBtnThumb && NULL == m_pBtnThumb->GetBkRender())
+		{
+			RenderBase* pRender = RenderFactory::GetRender(RENDER_TYPE_THEME, m_pBtnThumb);
+			m_pBtnThumb->SetBkRender(pRender);
+		}
+
 		return true;
 	}
 	virtual  SIZE  GetAutoSize()
@@ -1178,6 +1214,7 @@ class SystemVScrollBarRender : public SystemScrollBarRender
 public:
 	SystemVScrollBarRender(ScrollBarBase* p):SystemScrollBarRender(p)
 	{
+		m_pBtnThumb->SetButtonStyle(BUTTON_STYLE_VSCROLLTHUMB);
 		m_nClickDiff = 0;
 		m_bTracking = false;
 	}
@@ -1213,7 +1250,7 @@ public:
 		}
 		if (NULL != m_pBtnLineDownRight && NULL == m_pBtnLineDownRight->GetBkRender())
 		{
-			m_pBtnLineUpLeft->SetButtonStyle(BUTTON_STYLE_SCROLLLINEDOWN);
+			m_pBtnLineDownRight->SetButtonStyle(BUTTON_STYLE_SCROLLLINEDOWN);
 			RenderBase* pRender = RenderFactory::GetRender(RENDER_TYPE_THEME, m_pBtnLineDownRight);
 			m_pBtnLineDownRight->SetBkRender(pRender);
 		}
@@ -1400,6 +1437,8 @@ class SystemHScrollBarRender : public SystemScrollBarRender
 public:
 	SystemHScrollBarRender(ScrollBarBase* p):SystemScrollBarRender(p)
 	{
+		m_pBtnThumb->SetButtonStyle(BUTTON_STYLE_HSCROLLTHUMB);
+
 		m_nClickDiff = 0;
 		m_bTracking = false;
 	}
@@ -1418,13 +1457,34 @@ public:
 		UIMSG_WM_NCCALCSIZE(OnNcCalcSize)
 	UI_END_MSG_MAP_CHAIN_PARENT(SystemScrollBarRender)
 
+public:
+	virtual bool  SetAttribute(ATTRMAP& mapAttrib)
+	{
+		bool bRet = __super::SetAttribute(mapAttrib);
+		if (false == bRet)
+			return false;
+
+		if (NULL != m_pBtnLineUpLeft && NULL == m_pBtnLineUpLeft->GetBkRender())
+		{
+			m_pBtnLineUpLeft->SetButtonStyle(BUTTON_STYLE_SCROLLLINELEFT);
+			RenderBase* pRender = RenderFactory::GetRender(RENDER_TYPE_THEME, m_pBtnLineUpLeft);
+			m_pBtnLineUpLeft->SetBkRender(pRender);
+		}
+		if (NULL != m_pBtnLineDownRight && NULL == m_pBtnLineDownRight->GetBkRender())
+		{
+			m_pBtnLineDownRight->SetButtonStyle(BUTTON_STYLE_SCROLLLINERIGHT);
+			RenderBase* pRender = RenderFactory::GetRender(RENDER_TYPE_THEME, m_pBtnLineDownRight);
+			m_pBtnLineDownRight->SetBkRender(pRender);
+		}
+		return true;
+	}
 protected:
 	virtual SCROLLBAR_DIRECTION_TYPE GetScrollBarDirType() { return HSCROLLBAR; }
 	void    OnSize(UINT nType, int cx, int cy);
 	LRESULT OnNcCalcSize(BOOL bCalcValidRects, LPARAM lprc);
 	void    OnBindObjSize(UINT nType, int cx, int cy);
 
-	void OnLButtonDown(UINT nFlags, POINT point)
+	void    OnLButtonDown(UINT nFlags, POINT point)
 	{
 		if (NULL == m_pBtnThumb)
 			return;
@@ -1436,7 +1496,7 @@ protected:
 		else
 			this->m_pScrollBar->FireScrollMessage(SB_PAGERIGHT);
 	}
-	void OnLButtonUp(UINT nFlags, POINT point)
+	void    OnLButtonUp(UINT nFlags, POINT point)
 	{
 		if (NULL == m_pBtnThumb)
 			return;
@@ -1535,7 +1595,7 @@ protected:
 			}
 		}
 	}
-	bool UpdateThumbButtonPos(bool bNeedUpdateThumbButtonSize)
+	bool    UpdateThumbButtonPos(bool bNeedUpdateThumbButtonSize)
 	{
 		float nPos = (float)m_pScrollBar->GetScrollPos();
 		float nRange = (float)m_pScrollBar->GetScrollRange();
@@ -1786,7 +1846,9 @@ void SystemHScrollBarRender::OnBindObjSize(UINT nType, int cx, int cy)
 	int nNonClientH = pBindObj->GetNonClientB() - pBindObj->GetPaddingB();
 
 	if (m_pScrollBar->IsVisible())
+	{
 		m_pScrollBar->SetObjectPos(0, cy-nNonClientH, cx - nNonClientV, nNonClientH);
+	}
 }
 
 void SystemHScrollBarRender::OnSize(UINT nType, int cx, int cy)
