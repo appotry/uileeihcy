@@ -390,7 +390,7 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 		void DrawHover( HRDC hRDC, const CRect* prc );
 		void DrawPress( HRDC hRDC, const CRect* prc );	
 
-		void DrawGlyph( HDC hDC, const CRect* prc, bool bPressDown=false);
+//		void DrawGlyph( HDC hDC, const CRect* prc, bool bPressDown=false);
 	};
 
 	class ComboboxBkThemeRender : public ThemeRenderBase
@@ -499,9 +499,21 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 		virtual const TCHAR* GetThemeName() { return VSCLASS_SCROLLBAR; }
 		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
 		virtual SIZE  GetDesiredSize();
+
+		virtual int   GetThemeType() { return SBP_LOWERTRACKVERT; }
 	};
 
-	class ScrollLineUpButtonBkThemeRender : public ThemeRenderBase
+	class HScrollBarBkgndThemeRender : public ScrollBarBkgndThemeRender
+	{
+		virtual int   GetThemeType() { return SBP_LOWERTRACKHORZ; }
+	};
+	class VScrollBarBkgndThemeRender : public ScrollBarBkgndThemeRender
+	{
+		virtual int   GetThemeType() { return SBP_LOWERTRACKVERT; }
+	};
+
+
+	class ScrollLineButtonBkThemeRender : public ThemeRenderBase
 	{
 	public:
 		virtual const TCHAR* GetThemeName() { return VSCLASS_SCROLLBAR; }
@@ -512,7 +524,81 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 		void  DrawNormal( HRDC hRDC, const CRect* prc );
 		void  DrawHover( HRDC hRDC, const CRect* prc );
 		void  DrawPress( HRDC hRDC, const CRect* prc );	
+
+		virtual int GetThemeStateDisable()   { return ABS_UPDISABLED; }
+		virtual int GetThemeStateNormal()    { return ABS_UPNORMAL; }
+		virtual int GetThemeStateHover()     { return ABS_UPHOT; }
+		virtual int GetThemeStatePress()     { return ABS_UPPRESSED; }
+		virtual int GetNoThemeState() { return DFCS_SCROLLUP; }
 	};
+
+	class ScrollLineUpButtonBkThemeRender : public ScrollLineButtonBkThemeRender
+	{
+		virtual int GetThemeStateDisable()   { return ABS_UPDISABLED; }
+		virtual int GetThemeStateNormal()    { return ABS_UPNORMAL; }
+		virtual int GetThemeStateHover()     { return ABS_UPHOT; }
+		virtual int GetThemeStatePress()     { return ABS_UPPRESSED; }
+		virtual int GetNoThemeState() { return DFCS_SCROLLUP; }
+	};
+	class ScrollLineDownButtonBkThemeRender : public ScrollLineButtonBkThemeRender
+	{
+		virtual int GetThemeStateDisable()   { return ABS_DOWNDISABLED; }
+		virtual int GetThemeStateNormal()    { return ABS_DOWNNORMAL; }
+		virtual int GetThemeStateHover()     { return ABS_DOWNHOT; }
+		virtual int GetThemeStatePress()     { return ABS_DOWNPRESSED; }
+		virtual int GetNoThemeState() { return DFCS_SCROLLDOWN; }
+	};
+	class ScrollLineLeftButtonBkThemeRender : public ScrollLineButtonBkThemeRender
+	{
+		virtual int GetThemeStateDisable()   { return ABS_LEFTDISABLED; }
+		virtual int GetThemeStateNormal()    { return ABS_LEFTNORMAL; }
+		virtual int GetThemeStateHover()     { return ABS_LEFTHOT; }
+		virtual int GetThemeStatePress()     { return ABS_LEFTPRESSED; }
+		virtual int GetNoThemeState() { return DFCS_SCROLLLEFT; }
+	};
+	class ScrollLineRightButtonBkThemeRender : public ScrollLineButtonBkThemeRender
+	{
+		virtual int GetThemeStateDisable()   { return ABS_RIGHTDISABLED; }
+		virtual int GetThemeStateNormal()    { return ABS_RIGHTNORMAL; }
+		virtual int GetThemeStateHover()     { return ABS_RIGHTHOT; }
+		virtual int GetThemeStatePress()     { return ABS_RIGHTPRESSED; }
+		virtual int GetNoThemeState() { return DFCS_SCROLLRIGHT; }
+	};
+
+	class ScrollThumbButtonThemeRender : public ThemeRenderBase
+	{
+	public:
+		virtual const TCHAR* GetThemeName() { return VSCLASS_SCROLLBAR; }
+		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
+		virtual SIZE  GetDesiredSize();
+
+		void  DrawDisable( HRDC hRDC, const CRect* prc );
+		void  DrawNormal( HRDC hRDC, const CRect* prc );
+		void  DrawHover( HRDC hRDC, const CRect* prc );
+		void  DrawPress( HRDC hRDC, const CRect* prc );
+ 
+		virtual int GetGripperType()  { return  SBP_GRIPPERVERT; }
+		virtual int GetThumbBtmType() { return  SBP_THUMBBTNVERT; }
+	};
+	class VScrollThumbButtonThemeRender : public ScrollThumbButtonThemeRender
+	{
+		virtual int GetGripperType()  { return  SBP_GRIPPERVERT; }
+		virtual int GetThumbBtmType() { return  SBP_THUMBBTNVERT; }
+	};
+	class HScrollThumbButtonThemeRender : public ScrollThumbButtonThemeRender
+	{
+		virtual int GetGripperType()  { return  SBP_GRIPPERHORZ; }
+		virtual int GetThumbBtmType() { return  SBP_THUMBBTNHORZ; }
+	};
+
+	class ScrollBarSizeBoxThemeRender : public ThemeRenderBase
+	{
+	public:
+		virtual const TCHAR* GetThemeName() { return VSCLASS_SCROLLBAR; }
+		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
+		virtual SIZE  GetDesiredSize();
+	};
+
 
 	//////////////////////////////////////////////////////////////////////////
 

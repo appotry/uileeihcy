@@ -84,7 +84,8 @@
 107.ccaret的分层窗口光标在第一行/最后一行显示不下的时候，位置不正确
 108.drag drop移动richedit的文字，刷新不同步
 109.richedit的横向滚动条range、page与ui控件不同步
-110.
+110.scrollbar 的 grip 绘制，theme都有现成的API
+111.option window不是modal dialog，需要修改成modalless
 	
 ==================================疑问==================================
 1. Message类是否需要一个 m_pCurMsg成员变量？
