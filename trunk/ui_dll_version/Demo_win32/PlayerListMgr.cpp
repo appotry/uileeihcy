@@ -94,12 +94,13 @@ void CPlayerListMgr::OnPlayListDlgHide()
 //
 // 通过OnAddItem回调通知窗口结果
 //
-void CPlayerListMgr::AddFile(const String& strFile)
+PlayerListItemInfo* CPlayerListMgr::AddFile(const String& strFile)
 {
 	if (m_data.Add(strFile) )
 	{
-		this->OnLoadItem(strFile);
+		return this->OnLoadItem(strFile);
 	}
+	return NULL;
 }
 
 bool CPlayerListMgr::RemoveAllItem()
@@ -158,7 +159,7 @@ bool CPlayerListMgr::RemovePlayListItem(PlayerListItemInfo* pInfo)
 //
 // 可能是添加文件时被调用，也可能是启动时读取配置文件调用
 //
-void CPlayerListMgr::OnLoadItem(const String& strFile)
+PlayerListItemInfo* CPlayerListMgr::OnLoadItem(const String& strFile)
 {
 
 	PlayerListItemInfo* pInfo = new PlayerListItemInfo;
@@ -169,6 +170,7 @@ void CPlayerListMgr::OnLoadItem(const String& strFile)
 	{
 		m_pPlaylistDlg->OnAddItem(pInfo);
 	}
+	return pInfo;
 }
 
 bool CALLBACK MyEnumFileInDirProc(const TCHAR* szDir, const TCHAR* szFileName, WPARAM wParam)

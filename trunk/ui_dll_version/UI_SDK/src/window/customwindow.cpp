@@ -891,9 +891,9 @@ void CustomWindow::SetWindowLayered(bool b)
 			GWL_EXSTYLE,
 			GetWindowLong(m_hWnd, GWL_EXSTYLE) | WS_EX_LAYERED);
 
-		SetWindowRgn(m_hWnd, NULL, FALSE);   // 取消窗口的异形，由分层窗口自己来处理
-
-		this->ReCreateRenderTarget();  //放在InitLayeredWindow的前面，避免在InitLayeredWindow->Invalidate->WM_PAINT中创建的RenderTarget又被销毁了
+		SetWindowRgn(m_hWnd, NULL, FALSE);   // 取消窗口的异形，由分层窗口自己来处理。分层窗口仅会收到一个WINDOWPOSCHANGED消息，但SWP_NOSIZE，因此还需要另外发送一个
+		                                     // 窗口大小的消息告诉分层窗口当前大小
+		this->ReCreateRenderTarget();        //放在InitLayeredWindow的前面，避免在InitLayeredWindow->Invalidate->WM_PAINT中创建的RenderTarget又被销毁了
 		m_pLayeredWindowWrap->InitLayeredWindow();
 	}
 	else
@@ -1079,16 +1079,23 @@ BOOL LayeredWindowWrap::PreCreateWindow( CREATESTRUCT& cs )
 
 void LayeredWindowWrap::InitLayeredWindow()
 {
-	RECT rc;
+	CRect rc;
 	::GetWindowRect( m_pWindow->m_hWnd, &rc );
 
 	m_hLayeredMemDC = ::CreateCompatibleDC(NULL/*m_hScreenDC*/);
 
 	Image image;
-	image.Create( rc.right-rc.left, -(rc.bottom-rc.top), 32, Image::createAlphaChannel );
+	image.Create( rc.Width(), -rc.Height(), 32, Image::createAlphaChannel );
 	m_hLayeredBitmap = image.Detach();
 	::SelectObject(m_hLayeredMemDC, m_hLayeredBitmap);
 
+	// 避免因为在SetLayerWindowd(true)之前错过了带在设置SIZE的WindowPosChanged消息，
+	// 在这里检测一次
+	if (0 == m_sizeWindow.cx && 0 == m_sizeWindow.cy)
+	{
+		m_sizeWindow.cx = rc.Width();
+		m_sizeWindow.cy = rc.Height();
+	}
 	this->InvalidateObject(m_pWindow,TRUE);
 }
 void LayeredWindowWrap::ReleaseLayeredWindow()
@@ -1118,10 +1125,16 @@ void LayeredWindowWrap::OnSize( UINT nType, int cx, int cy )
 
 void LayeredWindowWrap::OnWindowPosChanged(LPWINDOWPOS lpWndPos)
 {
-	m_ptWindow.x = lpWndPos->x;
-	m_ptWindow.y = lpWndPos->y;
-	m_sizeWindow.cx = lpWndPos->cx;
-	m_sizeWindow.cy = lpWndPos->cy;
+	if (!(lpWndPos->flags & SWP_NOMOVE))
+	{
+		m_ptWindow.x = lpWndPos->x;
+		m_ptWindow.y = lpWndPos->y;
+	}
+	if (!(lpWndPos->flags & SWP_NOSIZE))
+	{
+		m_sizeWindow.cx = lpWndPos->cx;
+		m_sizeWindow.cy = lpWndPos->cy;
+	}
 
 	if (lpWndPos->flags & SWP_SHOWWINDOW)  // 窗口显示（窗口隐藏时，DrawObject会失败）
 		this->InvalidateObject(m_pWindow, TRUE);

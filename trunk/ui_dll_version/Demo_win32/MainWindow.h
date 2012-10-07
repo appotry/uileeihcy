@@ -3,6 +3,7 @@
 #include "playlistdlg.h"
 #include "LyricDlg.h"
 #include "EqualizerDlg.h"
+class COptionWindow;
 
 class MainWindow : public UI::CustomWindow
 {
@@ -92,6 +93,7 @@ protected:
 	CLyricDlg*      m_pLyricDlg;
 //	CEqualizerDlg*  m_pEqualizerDlg;
 	HWND            m_hWndEqualizer;
+	COptionWindow*  m_pOptionWindow;
 
 // 	long            m_lSizeMove;    // 0 没开始，1鼠标左键已按下，2鼠标开始拖拽
 // 	POINT           m_ptCursorSizeMove;
@@ -106,7 +108,6 @@ protected:
 	CheckButton*    m_pBtnEqualizer;
 	CheckButton*    m_pbtnMute;
 	Label*          m_pLabelPlaystatus;
-	Label*          m_pLabelTime;
 	LEDCtrl*        m_pLEDTime;
 	SliderCtrl*     m_pProgress;
 	SliderCtrl*     m_pVolume;

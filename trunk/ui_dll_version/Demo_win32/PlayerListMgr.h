@@ -37,7 +37,7 @@ public:
 	bool   Initialize();
 	bool   Release();
 
-	void   AddFile(const String& strFile);
+	PlayerListItemInfo* AddFile(const String& strFile);
 	bool   AddDirectory(const String& strDir);
 	bool   RemoveAllItem();
 	bool   RemovePlayListItem(PlayerListItemInfo* pInfo);
@@ -48,7 +48,7 @@ public:
 	void   SetPlayMode(PLAY_MODE e) { m_ePlayMode = e; }
 	PLAY_MODE GetPlayMode() { return m_ePlayMode; }
 
-	void   OnLoadItem(const String& strFile);
+	PlayerListItemInfo*  OnLoadItem(const String& strFile);
 	
 	int   GetItemCount() { return (int)m_vecPlayerList.size(); }
 	PlayerListItemInfo*  GetItem(int i);
