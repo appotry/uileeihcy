@@ -1060,10 +1060,10 @@ LayeredWindowWrap::LayeredWindowWrap(CustomWindow* pWindow)
 	m_ptWindowOld.y = 0;
 	m_sizeWindowOld.cx = 0;
 	m_sizeWindowOld.cy = 0;
-	m_ptWindow.x = 0;
-	m_ptWindow.y = 0;
-	m_sizeWindow.cx = 0;
-	m_sizeWindow.cy = 0;
+	m_ptWindow.x = NDEF;
+	m_ptWindow.y = NDEF;
+	m_sizeWindow.cx = NDEF;
+	m_sizeWindow.cy = NDEF;
 }
 LayeredWindowWrap::~LayeredWindowWrap()
 {
@@ -1091,10 +1091,15 @@ void LayeredWindowWrap::InitLayeredWindow()
 
 	// 避免因为在SetLayerWindowd(true)之前错过了带在设置SIZE的WindowPosChanged消息，
 	// 在这里检测一次
-	if (0 == m_sizeWindow.cx && 0 == m_sizeWindow.cy)
+	if (NDEF == m_sizeWindow.cx && NDEF == m_sizeWindow.cy)
 	{
 		m_sizeWindow.cx = rc.Width();
 		m_sizeWindow.cy = rc.Height();
+	}
+	if (NDEF == m_ptWindow.x && NDEF == m_ptWindow.y)
+	{
+		m_ptWindow.x = rc.left;
+		m_ptWindow.y = rc.top;
 	}
 	this->InvalidateObject(m_pWindow,TRUE);
 }

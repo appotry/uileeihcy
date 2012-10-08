@@ -401,7 +401,7 @@ bool CPojo_Image::LoadItem(ATTRMAP& mapAttr, const String& strFullPath)
 	}
 	else
 	{
-		UI_LOG_WARN( _T("%s insert image m_strID=%s, path=%s failed."), strID.c_str(), strFullPath.c_str());
+		UI_LOG_WARN( _T("%s insert image m_strID=%s, path=%s failed."), FUNC_NAME, strID.c_str(), strFullPath.c_str());
 		return false;
 	}
 }

@@ -115,14 +115,20 @@ m_pReaderHeaderInfo ->GetAttributeByName(&wStream, g_wszWMDuration, &type, (BYTE
 
 
 http://tieba.baidu.com/p/1885477077
+http://tieba.baidu.com/p/1868393695
+http://tieba.baidu.com/p/1906977428?from=prin
 
 117.mp3 wma频谱分析 
-http://wenku.baidu.com/view/e6de3b2c453610661ed9f4fa.html
+
+DSound
+http://www.bairuitech.com/upimg/soft/documents/DirectSound_Develop_Manual.pdf
 
 Direct2D
 http://msdn.microsoft.com/zh-cn/library/dd756649(v=vs.85).aspx
 
- 
+Windows7 SDK/D2D 下载地址：
+http://www.microsoft.com/en-us/download/details.aspx?id=8442
+
 ==================================Finish=============================
  
 8. 子控件可以超出parent的区域进行绘制，但不会刷新，例如sliderctrl的滑动按钮
