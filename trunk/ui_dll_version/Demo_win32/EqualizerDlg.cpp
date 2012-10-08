@@ -17,7 +17,6 @@ void CEqualizerDlg::OnInitWindow( )
 	if( NULL != m_pH )
 	{
 		m_pH->SetRange(-120,120);
-		m_pH->SetPos(0);
 // 		srand( (unsigned)time( NULL ) );
 // 		int n = rand()%240-120;
 // 		m_pH->SetPos(n);
@@ -30,13 +29,20 @@ void CEqualizerDlg::OnInitWindow( )
 	if( NULL != m_pL )
 	{
 		m_pL->SetRange(-100,100);
-		m_pL->SetPos(0);
 	}
 	m_pS = (SliderCtrl*)this->FindChildObject( _T("progress_hls_s"));
 	if( NULL != m_pS )
 	{
 		m_pS->SetRange(-100,100);
-		m_pS->SetPos(0);
+	}
+
+	IProjectSkinItemInfo* pInfo = NULL;
+	UI_GetProjectSkinItemInfo(UI_GetSkinHandle(::UI_GetActiveSkinIndex()), &pInfo);
+	if (NULL != pInfo)
+	{
+		m_pH->SetPos(pInfo->GetSkinHlsInfo()->h,false);
+		m_pL->SetPos(pInfo->GetSkinHlsInfo()->l,false);
+		m_pS->SetPos(pInfo->GetSkinHlsInfo()->s,false);
 	}
 }
 void CEqualizerDlg::OnClose()

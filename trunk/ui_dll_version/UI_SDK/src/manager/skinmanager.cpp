@@ -526,8 +526,13 @@ bool SkinManager::GetStyleItemInfo( int nIndex, IStyleItemInfo** ppStyleItemInfo
 
 bool SkinManager::ChangeSkinHLS(short h, short l, short s, int nFlag)
 {
-	if( NULL == m_pImageMgr )
+	if (NULL == m_pImageMgr || NULL == m_pColorMgr)
 		return false;
 
-	return m_pImageMgr->ChangeSkinHLS(h,l,s,nFlag);
+	bool bRetImage = m_pImageMgr->ChangeSkinHLS(h,l,s,nFlag);
+	if (bRetImage)
+	{
+		return m_pColorMgr->ChangeSkinHLS(h,l,s,nFlag);
+	}
+	return false;
 }

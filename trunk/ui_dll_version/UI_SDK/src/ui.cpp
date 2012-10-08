@@ -536,6 +536,14 @@ bool  UI_GetProjectSkinItemInfo( int nIndex, IProjectSkinItemInfo** pSkinItem )
 	return g_pUIApplication->m_ProjectMgr.GetSkinItemInfo(nIndex, pSkinItem);
 }
 
+bool  UI_GetProjectSkinItemInfo( HSKIN pSkin, IProjectSkinItemInfo** ppSkinItem )
+{
+	if( NULL == g_pUIApplication )
+		return false;
+
+	return g_pUIApplication->m_ProjectMgr.GetSkinItemInfo(pSkin, ppSkinItem);
+}
+
 //	过期，使用UI_GetBitmap代替
 //
 // 获取图片资源,返回的UIImage必须使用UIImage::Release进行释放

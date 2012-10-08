@@ -9,9 +9,10 @@
 
 
 
-ColorManager::ColorManager(void)
+ColorManager::ColorManager(SkinManager* pSkinMgr): m_pojoColor(pSkinMgr)
 {
 	m_pColorParse = NULL;
+	m_pSkinMgr = pSkinMgr;
 }
 
 ColorManager::~ColorManager(void)
@@ -144,4 +145,9 @@ bool ColorManager::RemoveColorItem( const String& strID )
 	}
 
 	return m_pColorParse->RemoveColor( strID );
+}
+
+bool ColorManager::ChangeSkinHLS(short h, short l, short s, int nFlag)
+{
+	return m_pojoColor.ChangeSkinHLS(h,l,s,nFlag);
 }

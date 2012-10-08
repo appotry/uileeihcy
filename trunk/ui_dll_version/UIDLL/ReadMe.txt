@@ -85,7 +85,8 @@
 108.drag drop移动richedit的文字，刷新不同步
 109.richedit的横向滚动条range、page与ui控件不同步
 110.scrollbar 的 sizebox 绘制，theme都有现成的API，由哪一层来负责绘制？
-112
+112.回车换行时，richedit的滚动条没有正确更新
+118.
 	
 ==================================疑问==================================
 1. Message类是否需要一个 m_pCurMsg成员变量？
@@ -93,6 +94,27 @@
 ==================================当前正在进行的任务==================================
 95. 逐步将句柄调用方式修改为接口调用方法
     UI_GetBitmap... ，将返回值修改为 out 参数
+113.实现上下翻动效果（文字）
+114.实现gif背景（分层绘制）
+116.mp3 wma文件时长读取
+	下载   Windows   Media   Format   9.0   SDK   看看 
+	WMFSDK里有个接口   IWMHeaderInfo   可以做到调用这个函数GetAttributeByName 
+	The   GetAttributeByName   method   returns   a   descriptive   attribute   that   is   stored   in   the   header   section   of   the   Windows   Media   file. 
+	
+	创建元数据编辑器
+打开源文件
+通过查询获得头文件信息接口
+通过头接口获取指定属性:pHeaderInfo->GetAttributeByName
+
+GetAttributeByName:通过指定属性名字获取属性值 
+
+hr = WMCreateReader( NULL, 0, &m_pReader );
+hr = m_pReader->Open( pwszInputFile, this, NULL );
+hr = m_pReader->QueryInterface( IID_IWMHeaderInfo, (void **)&m_pReaderHeaderInfo )
+m_pReaderHeaderInfo ->GetAttributeByName(&wStream, g_wszWMDuration, &type, (BYTE*)&duration, &wBytes); 
+
+
+117.mp3 wma频谱分析 
  
 ==================================Finish=============================
  
@@ -164,6 +186,7 @@
 103.option中的listbox的图片需要增加一个分隔线 -- 已修改图片
 105.在xml中配置的\n，读取后，并不是一个转义字符，而是两个字符了。怎么转义？  --  xml中的回车换行必须用 &#xD; 或 &#xA; 而不是用\r\n
 111.option window不是modal dialog，需要修改成modalless
+115.color skin hls    
 	
 备注：
 1. Q: 怎么解决用VS2008编译生成的程序对vc运行库的依赖？
