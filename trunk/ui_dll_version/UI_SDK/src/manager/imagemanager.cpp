@@ -8,9 +8,10 @@
 //////////////////////////////////////////////////////////////////////////
 
 
-ImageManager::ImageManager(void)
+ImageManager::ImageManager(SkinManager* pSkinMgr) : m_pojoImage(pSkinMgr)
 {
 	m_pImageParse = NULL;
+	m_pSkinMgr = pSkinMgr;
 }
 
 ImageManager::~ImageManager(void)

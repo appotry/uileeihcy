@@ -44,6 +44,7 @@ namespace UI
 		bool             ReloadResource( HSKIN hSkin, UI_RESOURCE_TYPE eResType );
 
 		bool             Save( HSKIN hSkin, UI_RESOURCE_TYPE eResType );
+		bool             SaveProjectInfo();
 
 		HSKIN            AddSkinMgrItem( const String& strSkinName, const String& strSkinXmlFullPath );
 		bool             CreateSkinImageMgr( SkinManager* pSkinManager, const String&  strXmlPath );
@@ -73,6 +74,7 @@ namespace UI
 		bool             GetSkinName( HSKIN hSkin, String& str );
 		bool             GetSkinName( int i, String& str );
 		bool             GetSkinItemInfo( int nIndex, IProjectSkinItemInfo** pSkinItem );
+		bool             GetSkinItemInfo( HSKIN hSkin, IProjectSkinItemInfo** pSkinItem );
 		int              GetSkinImageCount( HSKIN );
 		bool             GetSkinImageItemInfo( HSKIN, int nIndex, IImageItemInfo** ppImageItemInfo );
 		int              GetSkinColorCount( HSKIN );
@@ -102,9 +104,11 @@ namespace UI
 	private:
 		int              _HSKIN_2_Index( HSKIN hSkin );
 		SkinManager*     _GetSkinManagerByHSKIN( HSKIN hSkin );
+
 	private:
 		// 数据持久层
 		IProjectParse*    m_pProjectParse;
+		bool              m_bDirty;
 
 		// 持久性属性对象
 		CPojo_Project     m_pojoProject;

@@ -5,6 +5,31 @@
 //	CPojo_Project
 //
 
+CPojo_ProjectSkinItem::CPojo_ProjectSkinItem()
+{
+	memset(&m_sHlsInfo, 0, sizeof(SKIN_HLS_INFO));
+}
+
+void CPojo_ProjectSkinItem::SetHLS(char h, char l, char s, int nFlag)
+{
+	if (nFlag & CHANGE_SKIN_HLS_FLAG_H)
+	{
+		m_sHlsInfo.h = h;
+	}
+
+	if (nFlag & CHANGE_SKIN_HLS_FLAG_L)
+	{
+		m_sHlsInfo.l = l;
+	}
+
+	if (nFlag & CHANGE_SKIN_HLS_FLAG_S)
+	{
+		m_sHlsInfo.s = s;
+	}
+
+	m_sHlsInfo.nFlag |= nFlag;
+}
+
 CPojo_Project::~CPojo_Project()
 {
 	vector<CPojo_ProjectSkinItem*>::iterator iter = m_vSkins.begin();
@@ -48,6 +73,15 @@ CPojo_ProjectSkinItem* CPojo_Project::GetSkinItem( const String& strSkinName )
 
 	return NULL;
 }
+
+CPojo_ProjectSkinItem* CPojo_Project::GetSkinItem( SkinManager* pSkinMgr )
+{
+	if (NULL == pSkinMgr)
+		return NULL;
+
+	return GetSkinItem(pSkinMgr->GetSkinName());
+}
+
 CPojo_ProjectSkinItem* CPojo_Project::GetActiveSkinItem( )
 {
 	return GetSkinItem(m_strActiveSkinName);
@@ -175,7 +209,7 @@ CPojo_ImageItem::CPojo_ImageItem()
 	m_pGdiplusBitmap = NULL;
 	m_pOriginImageData = NULL;
 
-	m_bUseSkinHue = true;
+	m_bUseSkinHLS = true;
 //	u.icon.m_nWidth = u.icon.m_nHeight = 0;
 
 }
@@ -186,7 +220,7 @@ CPojo_ImageItem::~CPojo_ImageItem()
 	SAFE_DELETE(m_pOriginImageData);
 }
 
-HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType )
+HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType, bool* pbFirstTimeCreate )
 {	
 	switch( eRenderType )
 	{
@@ -194,6 +228,9 @@ HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType )
 		{
 			if ( NULL == m_pGdiBitmap )
 			{
+				if (NULL != pbFirstTimeCreate)
+					*pbFirstTimeCreate = true;
+
 				//GDIRenderBitmap::CreateInstance( (IRenderBitmap**)&m_pGdiBitmap );
 				RenderBitmapFactory::CreateInstance((IRenderBitmap**)&m_pGdiBitmap, eRenderType, m_mapAttribute, m_strPath);
 				if( NULL != m_pGdiBitmap )
@@ -216,6 +253,9 @@ HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType )
 		{
 			if ( NULL == m_pGdiplusBitmap )
 			{
+				if (NULL != pbFirstTimeCreate)
+					*pbFirstTimeCreate = true;
+
 				//GdiplusRenderBitmap::CreateInstance( (IRenderBitmap**)&m_pGdiplusBitmap );
 				RenderBitmapFactory::CreateInstance((IRenderBitmap**)&m_pGdiplusBitmap, eRenderType, m_mapAttribute, m_strPath);
 				if( NULL != m_pGdiplusBitmap )
@@ -242,41 +282,64 @@ HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType )
 
 bool CPojo_ImageItem::ModifyHLS(short h, short l, short s, int nFlag)
 {
-	if( false == m_bUseSkinHue )
+	if (false == m_bUseSkinHLS)
 		return true;
 
-	if( NULL != m_pGdiBitmap )
+	ModifyHLS(m_pGdiBitmap, h,l,s,nFlag);
+	ModifyHLS(m_pGdiplusBitmap, h,l,s,nFlag);
+
+// 	if( NULL != m_pGdiBitmap )
+// 	{
+// 		if( NULL == m_pOriginImageData )
+// 		{
+// 			m_pOriginImageData = new ImageData;
+// 			if( false == m_pGdiBitmap->SaveBits(m_pOriginImageData) )
+// 			{
+// 				UI_LOG_WARN(_T("%s not support this image to change hue. id=%s"), _T(__FUNCTION__), m_strID.c_str() );
+// 				m_bUseSkinHLS = false;
+// 				SAFE_DELETE(m_pOriginImageData);
+// 				return false;
+// 			}
+// 		}
+// 		m_pGdiBitmap->ChangeHLS(m_pOriginImageData, h,l,s,nFlag);
+// 	}
+// 	if( NULL != m_pGdiplusBitmap )
+// 	{
+// 		if( NULL == m_pOriginImageData )
+// 		{
+// 			m_pOriginImageData = new ImageData;
+// 			if( false == m_pGdiplusBitmap->SaveBits(m_pOriginImageData) )
+// 			{
+// 				UI_LOG_WARN(_T("%s not support this image to change hue. id=%s"), _T(__FUNCTION__), m_strID.c_str() );
+// 				m_bUseSkinHLS = false;
+// 				SAFE_DELETE(m_pOriginImageData);
+// 			}
+// 		}
+// 		m_pGdiplusBitmap->ChangeHLS(m_pOriginImageData,  h,l,s,nFlag);
+// 	}
+	return true;
+}
+bool CPojo_ImageItem::ModifyHLS( IRenderBitmap* pBitmap, short h, short l, short s, int nFlag )
+{
+	if (false == m_bUseSkinHLS)
+		return true;
+
+	if( NULL != pBitmap)
 	{
 		if( NULL == m_pOriginImageData )
 		{
 			m_pOriginImageData = new ImageData;
-			if( false == m_pGdiBitmap->SaveBits(m_pOriginImageData) )
+			if( false == pBitmap->SaveBits(m_pOriginImageData) )
 			{
 				UI_LOG_WARN(_T("%s not support this image to change hue. id=%s"), _T(__FUNCTION__), m_strID.c_str() );
-				m_bUseSkinHue = false;
-				SAFE_DELETE(m_pOriginImageData);
-				return false;
-			}
-		}
-		m_pGdiBitmap->ChangeHLS(m_pOriginImageData, h,l,s,nFlag);
-	}
-	if( NULL != m_pGdiplusBitmap )
-	{
-		if( NULL == m_pOriginImageData )
-		{
-			m_pOriginImageData = new ImageData;
-			if( false == m_pGdiplusBitmap->SaveBits(m_pOriginImageData) )
-			{
-				UI_LOG_WARN(_T("%s not support this image to change hue. id=%s"), _T(__FUNCTION__), m_strID.c_str() );
-				m_bUseSkinHue = false;
+				m_bUseSkinHLS = false;
 				SAFE_DELETE(m_pOriginImageData);
 			}
 		}
-		m_pGdiplusBitmap->ChangeHLS(m_pOriginImageData,  h,l,s,nFlag);
+		pBitmap->ChangeHLS(m_pOriginImageData,  h,l,s,nFlag);
 	}
 	return true;
 }
-
 bool CPojo_ImageItem::ModifyImage( const String& strPath )
 {
 	m_strPath = strPath;
@@ -286,7 +349,7 @@ bool CPojo_ImageItem::ModifyImage( const String& strPath )
 	return true;
 }
 
-void CPojo_ImageItem::SetMapAttrib(const ATTRMAP& mapAttr) 
+void CPojo_ImageItem::SetAttribute(const ATTRMAP& mapAttr) 
 { 
 	m_mapAttribute = mapAttr; 
 
@@ -300,7 +363,7 @@ void CPojo_ImageItem::SetMapAttrib(const ATTRMAP& mapAttr)
 			bUseSkinHLS = false;
 	}
 
-	this->SetUseSkinHue(bUseSkinHLS);
+	this->SetUseSkinHLS(bUseSkinHLS);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -308,10 +371,8 @@ void CPojo_ImageItem::SetMapAttrib(const ATTRMAP& mapAttr)
 //	CPojo_Image
 //
 
-CPojo_Image::CPojo_Image()
-{
-
-}
+CPojo_Image::CPojo_Image(SkinManager*  pSkinMgr)
+{ m_pSkinMgr = pSkinMgr; }
 
 CPojo_Image::~CPojo_Image()
 {	
@@ -335,7 +396,7 @@ bool CPojo_Image::LoadItem(ATTRMAP& mapAttr, const String& strFullPath)
 	CPojo_ImageItem* pItem = NULL;
 	if (this->InsertImage(strID, strFullPath, &pItem))
 	{
-		pItem->SetMapAttrib(mapAttr);
+		pItem->SetAttribute(mapAttr);
 		return true;
 	}
 	else
@@ -468,11 +529,36 @@ bool CPojo_Image::ChangeSkinHLS(short h, short l, short s, int nFlag)
 HRBITMAP CPojo_Image::GetImage( const String& strID, GRAPHICS_RENDER_TYPE eRenderType )
 {
 	CPojo_ImageItem* pItem = this->GetImageItem(strID);
-	if( NULL != pItem )
-		return pItem->GetImage( eRenderType );
+	if( NULL == pItem )
+	{
+		UI_LOG_ERROR( _T("%s，GetImageItem：%s failed"), FUNC_NAME, strID.c_str() );
+		return NULL;
+	}
 
-	UI_LOG_ERROR( _T("CPojo_Image::GetImage失败，没有找到：%s"), strID.c_str() );
-	return NULL;
+	bool bFirstTimeCreate = false;
+	IRenderBitmap* pBitmap = pItem->GetImage( eRenderType, &bFirstTimeCreate );
+	if (NULL == pBitmap)
+	{
+		UI_LOG_ERROR( _T("%s，GetImage：%s failed"), FUNC_NAME, strID.c_str() );
+		return NULL;
+	}
+
+	if (bFirstTimeCreate)
+	{
+		// 检查当前皮肤的HLS
+		IProjectSkinItemInfo* pSkinItemInfo;
+		UI_GetProjectSkinItemInfo((HSKIN)m_pSkinMgr, &pSkinItemInfo);
+		if (NULL != pSkinItemInfo)
+		{
+			SKIN_HLS_INFO* pHLSInfo = pSkinItemInfo->GetSkinHlsInfo();
+			if ( 0 != pHLSInfo->h || 0 != pHLSInfo->l || 0 != pHLSInfo->s)
+			{
+				pItem->ModifyHLS(pBitmap, pHLSInfo->h, pHLSInfo->l, pHLSInfo->s, pHLSInfo->nFlag|CHANGE_SKIN_HLS_FLAG_HLS);
+			}
+		}
+	}
+	
+	return pBitmap;
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -811,18 +897,21 @@ long UIColor::Release()
 
 CPojo_ColorItem::CPojo_ColorItem()
 {
+	m_bUseSkinHLS = true;
+	m_pOriginColorValue = NULL;
 	m_pColor = NULL;
 }
 CPojo_ColorItem::~CPojo_ColorItem()
 {
 	SAFE_DELETE(m_pColor);
+	SAFE_DELETE(m_pOriginColorValue);
 }
 const String& CPojo_ColorItem::GetColorStringRef()
 { 
 	return m_strColor; 
 }
 
-bool CPojo_ColorItem::GetColor(UIColor** pColor) 
+bool CPojo_ColorItem::GetColor(UIColor** pColor, bool* pbFirstTimeCreate) 
 {
 	if( NULL == pColor )
 		return false;
@@ -830,6 +919,10 @@ bool CPojo_ColorItem::GetColor(UIColor** pColor)
 	if( NULL == m_pColor )
 	{
 		 UIColor::CreateInstance(m_strColor, &m_pColor);
+		 if (NULL != pbFirstTimeCreate)
+		 {
+			 *pbFirstTimeCreate = true;
+		 }
 	}
 	m_pColor->AddRef();
 
@@ -846,6 +939,43 @@ void CPojo_ColorItem::SetColor( const String& strColor )
 	}
 }
 
+void CPojo_ColorItem::SetAttribute(const ATTRMAP& mapAttr)
+{
+	bool   bUseSkinHLS = true;
+
+	ATTRMAP::const_iterator iter = mapAttr.find(XML_COLOR_USESKINHLS);
+	if (mapAttr.end() != iter)
+	{
+		const String& strUseSkinHLS = iter->second;
+		if (strUseSkinHLS ==_T("0") || strUseSkinHLS == _T("false"))
+			bUseSkinHLS = false;
+	}
+
+	this->SetUseSkinHLS(bUseSkinHLS);
+}
+
+bool CPojo_ColorItem::ModifyHLS( short h, short l, short s, int nFlag )
+{
+	if (false == m_bUseSkinHLS)
+		return true;
+
+	if( NULL != m_pColor )
+	{
+		if( NULL == m_pOriginColorValue )
+		{
+			m_pOriginColorValue = new COLORREF;
+			*m_pOriginColorValue = m_pColor->GetColor();
+		}
+
+		BYTE R = GetRValue(*m_pOriginColorValue);
+		BYTE G = GetGValue(*m_pOriginColorValue);
+		BYTE B = GetBValue(*m_pOriginColorValue);
+
+		if (ChangeColorHLS(R,G,B,h,l,s,nFlag))
+			m_pColor->SetColor(RGB(R,G,B));
+	}
+	return true;
+}
 
 CPojo_Color::~CPojo_Color()
 {
@@ -891,7 +1021,25 @@ bool CPojo_Color::GetColor( const String& strID, UIColor** pColorRet )
 	CPojo_ColorItem* p = this->GetColorItem(strID);
 	if( NULL != p )
 	{
-		return p->GetColor(pColorRet);
+		bool bFirstTimeCreate = false;
+		if (false == p->GetColor(pColorRet, &bFirstTimeCreate) )
+			return false;
+
+		if (bFirstTimeCreate)
+		{
+			// 检查当前皮肤的HLS
+			IProjectSkinItemInfo* pSkinItemInfo;
+			UI_GetProjectSkinItemInfo((HSKIN)m_pSkinMgr, &pSkinItemInfo);
+			if (NULL != pSkinItemInfo)
+			{
+				SKIN_HLS_INFO* pHLSInfo = pSkinItemInfo->GetSkinHlsInfo();
+				if ( 0 != pHLSInfo->h || 0 != pHLSInfo->l || 0 != pHLSInfo->s)
+				{
+					p->ModifyHLS(pHLSInfo->h, pHLSInfo->l, pHLSInfo->s, pHLSInfo->nFlag|CHANGE_SKIN_HLS_FLAG_HLS);
+				}
+			}
+		}
+		return true;
 	}
 
 	UI_LOG_ERROR( _T("CPojo_Color::GetColor failed, id=%s"), strID.c_str() );
@@ -911,7 +1059,7 @@ bool CPojo_Color::InsertColor( const String& strID, const String& strColor )
 	pColorItem->SetID( strID );
 	pColorItem->SetColor( strColor );
 
-	this->m_vColors.push_back(pColorItem);  
+	this->m_vColors.push_back(pColorItem); 
 	return true;
 }
 
@@ -961,6 +1109,19 @@ void CPojo_Color::Clear()
 	m_vColors.clear();
 }
 
+bool CPojo_Color::ChangeSkinHLS(short h, short l, short s, int nFlag)
+{
+	vector<CPojo_ColorItem*>::iterator  iter = m_vColors.begin();
+	vector<CPojo_ColorItem*>::iterator  iterEnd = m_vColors.end();
+
+	for( ; iter != iterEnd; iter++ )
+	{
+		CPojo_ColorItem* p = *iter;
+		p->ModifyHLS(h,l,s,nFlag);
+	}
+
+	return true;
+}
 
 //////////////////////////////////////////////////////////////////////////
 //

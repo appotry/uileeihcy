@@ -429,13 +429,22 @@ bool CXmlProjectParse::Save( CPojo_Project*  pProject )
 				continue;
 			}
 
-			if( false == xml.InsertElem( XML_PROJECT_SKIN) )  { bLoopRet = false;  break; }
+			if( false == xml.AddElem( XML_PROJECT_SKIN) )  { bLoopRet = false;  break; }
 			if( false == xml.SetAttrib( XML_PROJECT_SKIN_NAME, pSkinItem->GetSkinName() ))     { bLoopRet = false;  break; }
 
 			// 计算ui.xml相对于 .uiproj文件的相对路径
 			TCHAR szRelative[MAX_PATH] = _T("");
 			Util::CalcRelativePathToFile( m_strDataSource.c_str(), pSkinItem->GetSkinXmlPath().c_str(), szRelative );
 			if( false == xml.SetAttrib( XML_PROJECT_SKIN_PATH, szRelative ))  { bLoopRet = false;  break; }
+
+			// 保存hls数据
+			SKIN_HLS_INFO* pHLSInfo = pSkinItem->GetSkinHlsInfo();
+			if (0 != pHLSInfo->h || 0 != pHLSInfo->l || 0 != pHLSInfo->s)
+			{
+				TCHAR szText[32] = _T("");
+				_stprintf(szText, _T("%d%c%d%c%d%c"), pHLSInfo->h, XML_SEPARATOR, pHLSInfo->l, XML_SEPARATOR, pHLSInfo->s, pHLSInfo->s);
+				if( false == xml.SetAttrib( XML_PROJECT_SKIN_HLS, szText ))  { bLoopRet = false;  break; }
+			}
 		}
 
 		if( !bLoopRet ) break;
@@ -505,6 +514,25 @@ bool CXmlProjectParse::Load( CPojo_Project*  pProject )
 				Util::GetPathDir(m_strDataSource.c_str(), szProjDir);
 				Util::CalcFullPathByRelative(szProjDir, strPath.c_str(), szFull );
 				pItem->SetSkinXmlPath( szFull );
+			}
+
+			String strHLS = xml.GetAttrib(XML_PROJECT_SKIN_HLS);
+			if (!strHLS.empty())
+			{
+				vector<String> vecStr;
+				UI_Split(strHLS, XML_SEPARATOR, vecStr);
+				if (3 != vecStr.size())
+				{
+					UI_LOG_WARN(_T("%s invalid hls string: %s"), FUNC_NAME, strHLS.c_str());
+				}
+				else
+				{
+					int H = _ttoi(vecStr[0].c_str());
+					int L = _ttoi(vecStr[1].c_str());
+					int S = _ttoi(vecStr[2].c_str());
+
+					pItem->SetHLS((char)H,(char)L,(char)S, CHANGE_SKIN_HLS_FLAG_HLS);
+				}
 			}
 
 			if( false == pProject->AddSkinItem(pItem) )    { bLoopRet = false; break; }

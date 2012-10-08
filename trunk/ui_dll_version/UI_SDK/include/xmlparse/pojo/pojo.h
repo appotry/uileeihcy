@@ -29,6 +29,16 @@
 
 namespace UI
 {
+	class SkinManager;
+
+	// 当前皮肤的色调数据
+	struct SKIN_HLS_INFO
+	{
+		char   h;       // -120 ~ 120
+		char   l;       // -100 ~ 100
+		char   s;       // -100 ~ 100
+		int   nFlag;
+	};
 
 	//
 	//	用于暴露给外部的皮肤信息
@@ -38,6 +48,8 @@ namespace UI
 	public:
 		virtual ~IProjectSkinItemInfo() = 0 {}
 		virtual const String& GetSkinNameRef() = 0;
+		virtual SKIN_HLS_INFO* GetSkinHlsInfo()= 0;
+		virtual void SetHLS(char h, char l, char s, int nFlag) = 0;
 	};
 
 	//
@@ -45,13 +57,20 @@ namespace UI
 	//
 	class CPojo_ProjectSkinItem : public IProjectSkinItemInfo
 	{
+	public:
+		CPojo_ProjectSkinItem();
+
 	private:
 		String   m_strSkinName;          // 皮肤项名称
 		String   m_strSkinXmlPath;       // 皮肤描述文件所在路径
 
+		SKIN_HLS_INFO  m_sHlsInfo;
+
 	public:
 		DECLARE_STRING_SETGET( SkinName );
 		DECLARE_STRING_SETGET( SkinXmlPath );
+		void    SetHLS(char h, char l, char s, int nFlag);
+		virtual SKIN_HLS_INFO* GetSkinHlsInfo() { return &m_sHlsInfo; }
 	};
 
 	//
@@ -74,6 +93,7 @@ namespace UI
 		
 		CPojo_ProjectSkinItem*  GetSkinItem( int nIndex );
 		CPojo_ProjectSkinItem*  GetSkinItem( const String& strSkinName );
+		CPojo_ProjectSkinItem*  GetSkinItem( SkinManager* pSkinMgr );
 		CPojo_ProjectSkinItem*  GetActiveSkinItem( );
 		int  GetSkinItemCount();
 		int  GetActiveSkinItemIndex();
@@ -133,9 +153,8 @@ namespace UI
 		String    m_strID;      // image id
 		String    m_strPath;    // image path
 
-
-		bool      m_bUseSkinHue;         // 该图片是否参与皮肤色调改变 
-		ATTRMAP   m_mapAttribute;        // 为该图片配置的属性
+		bool      m_bUseSkinHLS;         // 该图片是否参与皮肤色调改变 
+		ATTRMAP   m_mapAttribute;        // 为该图片配置的属性，例如imagelist的count，icon的width height
 // 		IMAGE_ITEM_TYPE  m_eImageItemType;
 // 		int       m_nIconWidth;
 // 		int       m_nIconHeight;
@@ -150,12 +169,13 @@ namespace UI
 	public:
 		DECLARE_STRING_SETGET( ID );
 		DECLARE_STRING_SETGET( Path );
-		DECLARE_bool_SETGET(UseSkinHue);
+		DECLARE_bool_SETGET(UseSkinHLS);
 
 		bool     ModifyImage( const String& strPath );
 		bool     ModifyHLS( short h, short l, short s, int nFlag );
-		HRBITMAP GetImage(GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI);
-		void     SetMapAttrib(const ATTRMAP& mapAttr);
+		bool     ModifyHLS( IRenderBitmap* pBitmap, short h, short l, short s, int nFlag );
+		HRBITMAP GetImage(GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI, bool* pbFirstTimeCreate=NULL);
+		void     SetAttribute(const ATTRMAP& mapAttr);
 	};
 
 	//
@@ -164,7 +184,7 @@ namespace UI
 	class CPojo_Image
 	{
 	public:
-		CPojo_Image();
+		CPojo_Image(SkinManager*  pSkinMgr);
 		~CPojo_Image();
 	private:
 		vector<CPojo_ImageItem*>   m_vImages;
@@ -183,6 +203,9 @@ namespace UI
 		bool ChangeSkinHLS(short h, short l, short s, int nFlag);
 
 		HRBITMAP GetImage( const String& strID, GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI );
+
+	private:
+		SkinManager*  m_pSkinMgr;
 	};
 
 	//
@@ -249,66 +272,6 @@ namespace UI
 	};
 
 	
-	//
-	//	图标样式
-	//
-// 	class UIAPI UIIcon
-// 	{
-// 	private:
-// 		UIIcon( UIIcon** ppOutRef );
-// 	public:
-// 		~UIIcon();
-// 
-// 		static void CreateInstance( const String strCurFilePath, UIIcon** pOutRef );
-// 		static void CreateInstance( LPTSTR nCursorID, UIIcon** ppOutRef );
-// 		HCURSOR  GetCursor();
-// 		bool     Load( LPTSTR nCursorID );
-// 		void     Attach(HCURSOR hCursor);
-// 		HCURSOR  Detach();
-// 		long     AddRef();
-// 		long     Release();
-// 
-// 	private:
-// 		long      m_dwRef;
-// 		HICON     m_hIcon;
-// 
-// 		UICursor** m_pOutRef;
-// 	};
-// 	class CPojo_IconItem
-// 	{
-// 	public:
-// 		CPojo_IconItem();
-// 
-// 		DECLARE_STRING_SETGET( ID );
-// 		DECLARE_STRING_SETGET( IconFilePath );
-// 
-// 		bool  GetIcon( UIIcon** ppIcon );
-// 		bool  ModifyCursor( const String& strIconFilePath );
-// 
-// 	public:
-// 		String     m_strID;
-// 		String     m_strIconFilePath;     // .cur文件路径
-// 		UIIcon*    m_pIcon;             
-// 	};
-// 	class CPojo_Icon
-// 	{
-// 	public:
-// 		CPojo_Icon();
-// 		~CPojo_Icon();
-// 
-// 	public:
-// 		CPojo_Icon* GetCursorItem( int nIndex );
-// 		CPojo_Icon* GetCursorItem( const String& strID );
-// 		int   GetIconCount();
-// 		bool  GetIcon( const String& strID, UICursor** pCursorRet );
-// 		bool  InsertIcon( const String& strID, const String& strCurFilePath );
-// 		bool  ModifyIcon( const String& strID, const String& strCursor );
-// 		bool  RemoveIcon( const String& strID );
-// 		void  Clear();
-// 
-// 	private:
-// 		vector<CPojo_IconItem*>   m_vIcons;
-// 	};
 
 	//
 	//	让外界通过指针来获取颜色资源，这样每次颜色变化时，可经立即通过获取指针指向的内容来刷新界面
@@ -354,14 +317,23 @@ namespace UI
 
 	private:
 		String    m_strID;
-		String    m_strColor;   // 颜色字符串
-		UIColor*  m_pColor;     // 颜色值，由m_strColor转换而来
+		String    m_strColor;     // 颜色字符串
+		UIColor*  m_pColor;       // 颜色值，由m_strColor转换而来
+
+		COLORREF* m_pOriginColorValue;  // 该COLOR未改变色调前的颜色值，用于还原
+
+		// TODO: 可以再进行扩展。例如文字的黑白颜色变换，是根据文字后面的背景色来决定的，而不是配死的
+		bool      m_bUseSkinHLS;  // 该COLOR是否参与皮肤色调改变 
 
 	public:
 		DECLARE_STRING_SETGET( ID );
+		DECLARE_bool_SETGET(UseSkinHLS);
 		const String&   GetColorStringRef();
-		bool  GetColor( UIColor** pColor );
+		bool  GetColor( UIColor** pColor, bool *bFirstTimeCreate = NULL);
 		void  SetColor( const String& strColor ); 
+
+		void  SetAttribute(const ATTRMAP& mapAttr);
+		bool  ModifyHLS( short h, short l, short s, int nFlag );
 	};
 
 	//
@@ -370,6 +342,7 @@ namespace UI
 	class CPojo_Color
 	{
 	public:
+		CPojo_Color(SkinManager* p){ m_pSkinMgr = p; }
 		~CPojo_Color();
 	private:
 		vector<CPojo_ColorItem*>   m_vColors;
@@ -383,6 +356,11 @@ namespace UI
 		bool  ModifyColor( const String& strID, const String& strColor );
 		bool  RemoveColor( const String& strID );
 		void  Clear();
+
+		bool  ChangeSkinHLS(short h, short l, short s, int nFlag);
+
+	private:
+		SkinManager*  m_pSkinMgr;
 	};
 
 #if 0

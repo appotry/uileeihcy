@@ -157,6 +157,7 @@ namespace UI
 	
 	UIAPI int      UI_GetProjectSkinCount();
 	UIAPI bool     UI_GetProjectSkinItemInfo( int nIndex, IProjectSkinItemInfo** ppSkinItem );
+	UIAPI bool     UI_GetProjectSkinItemInfo( HSKIN, IProjectSkinItemInfo** ppSkinItem );
 
 	UIAPI int      UI_GetSkinImageCount( HSKIN );
 	UIAPI bool     UI_GetSkinImageItemInfo( HSKIN, int nIndex, IImageItemInfo** ppImageItemInfo );

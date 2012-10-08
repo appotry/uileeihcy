@@ -329,7 +329,7 @@ bool WindowBase::Create( const String& ID, HWND hWndParent )
 	::ZeroMemory(&cs, sizeof(CREATESTRUCT));
 	DWORD  dwStyleEx = WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR | WS_EX_WINDOWEDGE;
 
-	cs.style     = WS_OVERLAPPEDWINDOW;
+	cs.style     = WS_OVERLAPPEDWINDOW|WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX;
 	cs.lpszClass = WND_CLASS_NAME;
 	cs.lpszName  = _T("");
 	cs.x = cs.y = 0;

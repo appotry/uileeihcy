@@ -2101,9 +2101,9 @@ namespace UI
 			for( int i = 0; i < bytesperrow; i += bytesperpx )
 			{
 				//int rgb = (int)(pImageBits[i]*0.11 + pImageBits[i+1]*0.59 + pImageBits[i+2]*0.3);  // 去色算法，可优化非浮点运算
-				int rgb = (pImageBits[i]*gray_r_coeff_int   + 
+				int rgb = (pImageBits[i]*gray_b_coeff_int   + 
 					       pImageBits[i+1]*gray_g_coeff_int + 
-						   pImageBits[i+2]*gray_b_coeff_int) >> bit;  
+						   pImageBits[i+2]*gray_r_coeff_int) >> bit;  
 				
 				pNewImageBits[i] = pNewImageBits[i+1] = pNewImageBits[i+2] = rgb;
 
@@ -2312,6 +2312,43 @@ namespace UI
 
 		return true;
 	}
+
+	inline bool ChangeColorHLS(BYTE& R, BYTE& G, BYTE& B, short h, short l , short s, int nFlag )
+	{
+		bool bChangeH = nFlag & CHANGE_SKIN_HLS_FLAG_H ? true:false;
+		bool bChangeL = nFlag & CHANGE_SKIN_HLS_FLAG_L ? true:false;
+		bool bChangeS = nFlag & CHANGE_SKIN_HLS_FLAG_S ? true:false;
+		bool bSetHueMode = nFlag & CHANGE_SKIN_HLS_FALG_REPLACE_MODE ? false:true;
+		if (l == 0)
+			bChangeL = false;
+		if (s == 0)
+			bChangeS = false;
+
+		if(false == bChangeH && false == bChangeL && false == bChangeS)
+			return false;
+
+		float dL = 0, ds = 0;
+		if (bChangeL)
+			dL = (float)(l/100.0); 
+		if (bChangeS)
+			ds = (float)(s/100.0);
+
+		if (bChangeL)
+			ChangeColorLuminance(R,G,B,l,dL);
+
+		if (bChangeH && bChangeS)
+		{
+			ChangeColorHueAndSaturation(R,G,B,h,bSetHueMode,s,ds);
+		}
+		else
+		{
+			if (bChangeH)
+				ChangeColorHue(R,G,B,h,bSetHueMode);
+			if (bChangeS)
+				ChangeColorSaturation(R,G,B,s,ds);
+		}
+		return true;
+	}
 	inline bool Image::ChangeHLS( const ImageData* pOriginImageData, short h, short l , short s, int nFlag )
 	{
 		if( NULL == pOriginImageData )
@@ -2325,6 +2362,11 @@ namespace UI
 		bool bChangeL = nFlag & CHANGE_SKIN_HLS_FLAG_L ? true:false;
 		bool bChangeS = nFlag & CHANGE_SKIN_HLS_FLAG_S ? true:false;
 		bool bSetHueMode = nFlag & CHANGE_SKIN_HLS_FALG_REPLACE_MODE ? false:true;
+
+		if (l == 0)
+			bChangeL = false;
+		if (s == 0)
+			bChangeS = false;
 
 		if(false == bChangeH && false == bChangeL && false == bChangeS)
 			return false;
@@ -2344,9 +2386,9 @@ namespace UI
 		{
 			for( int i = 0; i < bytesperline; i += bytesperpx )
 			{
-				BYTE R = pTemp[i];
+				BYTE B = pTemp[i];
 				BYTE G = pTemp[i+1];
-				BYTE B = pTemp[i+2];
+				BYTE R = pTemp[i+2];
 
 				if (bHaveAlphaChannel)
 					pNewImageBits[i+3] = pTemp[i+3];
@@ -2366,9 +2408,9 @@ namespace UI
 						ChangeColorSaturation(R,G,B,s,ds);
 				}
 
-				pNewImageBits[i]   = R;
+				pNewImageBits[i]   = B;
 				pNewImageBits[i+1] = G;
-				pNewImageBits[i+2] = B;
+				pNewImageBits[i+2] = R;
 			}
 
 			pNewImageBits += m_nPitch;

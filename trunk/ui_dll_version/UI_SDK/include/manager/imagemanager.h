@@ -15,7 +15,7 @@ namespace UI
 class ImageManager
 {
 public:
-	ImageManager(void);
+	ImageManager(SkinManager* pSkinMgr);
 	~ImageManager(void);
 
 public:
@@ -47,6 +47,7 @@ private:
 	CPojo_Image     m_pojoImage;    // 界面图片
 	CPojo_Cursor    m_pojoCursor;   // 鼠标样式图片
 
+	SkinManager*    m_pSkinMgr;
 };
 
 }

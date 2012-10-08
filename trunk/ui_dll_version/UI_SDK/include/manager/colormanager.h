@@ -25,7 +25,7 @@ namespace UI
 	class ColorManager
 	{
 	public:
-		ColorManager(void);
+		ColorManager(SkinManager* pSkinMgr);
 		~ColorManager(void);
 
 	public:
@@ -41,11 +41,12 @@ namespace UI
 		bool       ModifyColorItem( const String& strName, const String& strColor );
 		bool       RemoveColorItem( const String& strID );
 
+		bool       ChangeSkinHLS(short h, short l, short s, int nFlag);
 		IColorParse*   GetColorParse() { return m_pColorParse; }
 
 	private:
 		IColorParse*    m_pColorParse;
 		CPojo_Color     m_pojoColor;              
-
+		SkinManager*    m_pSkinMgr;
 	};
 }

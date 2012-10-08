@@ -5,9 +5,15 @@ ProjectManager::ProjectManager()
 {
 	m_pProjectParse = NULL;
 	m_pCurActiveSkinMgr = NULL;
+	m_bDirty = false;
 }
 ProjectManager::~ProjectManager()
 {
+	if (m_bDirty)
+	{
+		SaveProjectInfo();
+	}
+
 	if( m_pProjectParse != NULL )
 	{
 		m_pProjectParse->Release(); 
@@ -110,7 +116,7 @@ bool ProjectManager::OpenProject( const String& strProjFilePath, bool bOnlyLoadA
 			continue;
 		}
 
-		if( nActiveIndex == i)
+		if (nActiveIndex == i)
 			m_pCurActiveSkinMgr = pSkinMgr;
 	}
 
@@ -186,6 +192,7 @@ bool ProjectManager::ChangeSkin( CPojo_ProjectSkinItem* pSkinItem )
 		pOldSkinMgr = NULL;
 	}
 	
+	m_bDirty = true;
 	return true;
 }
 bool ProjectManager::ChangeSkinHLS( short h, short l, short s, int nFlag )
@@ -195,6 +202,14 @@ bool ProjectManager::ChangeSkinHLS( short h, short l, short s, int nFlag )
 		return false;
 
 	g_pUIApplication->m_TopWindowMgr.InvalidateWindow();
+
+	IProjectSkinItemInfo* pSkinItem = NULL;
+	UI_GetProjectSkinItemInfo(m_pCurActiveSkinMgr, &pSkinItem);
+	if (NULL != pSkinItem)
+	{
+		pSkinItem->SetHLS(h,l,s,nFlag);
+	}
+	m_bDirty = true;
 	return true;
 }
 
@@ -240,7 +255,7 @@ SkinManager* ProjectManager::LoadSkin(CPojo_ProjectSkinItem*  pSkinItem)
 		// 加载image资源
 		//
 
-		pImageMgr = new ImageManager;
+		pImageMgr = new ImageManager(pSkinMgr);
 		if( false == pImageMgr->Load( pSkinInfo->GetImageXmlPath()) )
 		{
 			UI_LOG_ERROR( _T("ProjectManager::OpenProject  create imagemgr failed") );
@@ -252,7 +267,7 @@ SkinManager* ProjectManager::LoadSkin(CPojo_ProjectSkinItem*  pSkinItem)
 		// 加载color资源
 		//
 
-		pColorMgr = new ColorManager;
+		pColorMgr = new ColorManager(pSkinMgr);
 		if( false == pColorMgr->Load( pSkinInfo->GetColorXmlPath()) )
 		{
 			UI_LOG_ERROR( _T("ProjectManager::OpenProject  create color manager failed") );
@@ -557,7 +572,7 @@ bool ProjectManager::CreateSkinImageMgr( SkinManager* pSkinManager, const String
 	//////////////////////////////////////////////////////////////////////////
 	//  加载到运行时对象属性中
 
-	ImageManager* pImageMgr = new ImageManager;
+	ImageManager* pImageMgr = new ImageManager(pSkinManager);
 	if( false == pImageMgr->Create(strXmlPath) )
 	{
 		delete pImageMgr;
@@ -601,7 +616,7 @@ bool ProjectManager::CreateSkinColorMgr( SkinManager* pSkinManager, const String
 	//  加载到运行时对象属性中
 
 	
-	ColorManager* pColorMgr = new ColorManager;
+	ColorManager* pColorMgr = new ColorManager(pSkinManager);
 	if( false == pColorMgr->Create( strXmlPath ) )
 	{
 		delete pColorMgr;
@@ -1087,14 +1102,8 @@ bool ProjectManager::RemoveStyleAttribute( HSKIN hSkin, STYLE_SELECTOR_TYPE type
 //
 bool ProjectManager::Save(HSKIN hSkin, UI_RESOURCE_TYPE eResType)
 {
-	assert( NULL != m_pProjectParse );
-	if( NULL == m_pProjectParse )
-		return false;
-
-	//////////////////////////////////////////////////////////////////////////
-	// 保存工程信息
-
-	bool bRet =  m_pProjectParse->Save(&m_pojoProject);
+	// 保存工程数据
+	bool bRet = SaveProjectInfo();
 
 	//////////////////////////////////////////////////////////////////////////
 	// 保存各皮肤信息
@@ -1117,6 +1126,23 @@ bool ProjectManager::Save(HSKIN hSkin, UI_RESOURCE_TYPE eResType)
 	return bRet;
 }
 
+// 保存工程信息文件
+bool ProjectManager::SaveProjectInfo()
+{
+	assert( NULL != m_pProjectParse );
+	if( NULL == m_pProjectParse )
+		return false;
+
+	//////////////////////////////////////////////////////////////////////////
+	// 保存工程信息
+
+	bool bRet =  m_pProjectParse->Save(&m_pojoProject);
+
+	if (bRet)
+		m_bDirty = false;
+
+	return bRet;
+}
 
 //
 //	获取一个HSKIN对应的在m_vSkinMgrs中的索引
@@ -1221,6 +1247,19 @@ bool ProjectManager::GetSkinItemInfo( int nIndex, IProjectSkinItemInfo** pSkinIt
 		return false;
 
 	*pSkinItem = pItem;
+	return true;
+}
+
+bool ProjectManager::GetSkinItemInfo( HSKIN hSkin, IProjectSkinItemInfo** ppSkinItem )
+{
+	if( NULL == ppSkinItem )
+		return false;
+
+	CPojo_ProjectSkinItem* pItem = m_pojoProject.GetSkinItem( (SkinManager*)hSkin );
+	if( NULL == pItem )
+		return false;
+
+	*ppSkinItem = pItem;
 	return true;
 }
 

@@ -317,9 +317,9 @@
              icon.render.image.drawtype="adapt"/>
   </style>
   <img>
+    <item id="player_skin.png">player_skin.png</item>
     <item id="minimize.bmp">minimize.bmp</item>
     <item id="minimode.bmp">minimode.bmp</item>
-    <item id="player_skin.png">player_skin.png</item>
     <item id="playlist_skin.png">playlist_skin.png</item>
     <item id="close.bmp">close.bmp</item>
     <item id="progress_thumb.bmp">progress_thumb.bmp</item>

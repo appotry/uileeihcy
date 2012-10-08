@@ -150,7 +150,7 @@ UI_RESOURCE_TYPE;
 #define XML_FONT_UNDERLINE   _T("underline")
 #define XML_FONT_STRIKEOUT   _T("strikeout")  
 
-#define XML_IMAGE_USESKINHLS          _T("useskinhls")    // 改变皮肤色调时，该图片是否参与 0/1
+#define XML_IMAGE_USESKINHLS          _T("useskinhls")    // 改变皮肤色调时，该图片是否参与 0/1，默认为1
 #define XML_IMAGE_ITEM_TYPE           _T("type")          // image类型
 #define XML_IMAGE_ITEM_TYPE_IMAGE     _T("image")         // 默认值
 #define XML_IMAGE_ITEM_TYPE_ICON      _T("icon")          // 图标 
@@ -173,12 +173,15 @@ enum IMAGE_ITEM_TYPE
 //	IMAGE_ITEM_TYPE_IMAGE_LIST_GIF
 };
 
+#define XML_COLOR_USESKINHLS          _T("useskinhls")    // 改变皮肤色调时，该颜色是否参与 0/1，默认为1
+
 // 工程配置
 #define XML_PROJECT_NAME       _T("projectname")     // 工程名称
 #define XML_PROJECT_SELECT     _T("select")          // 当前工程使用了哪款皮肤名称
 #define XML_PROJECT_SKIN       _T("skin")            // 工程中一款皮肤
 #define XML_PROJECT_SKIN_NAME  _T("name")            // 皮肤名称
 #define XML_PROJECT_SKIN_PATH  _T("path")            // 皮肤ui.xml所在路径
+#define XML_PROJECT_SKIN_HLS   _T("hls")             // 该皮肤的色调信息,如"10,0,0"
 
 
 //
