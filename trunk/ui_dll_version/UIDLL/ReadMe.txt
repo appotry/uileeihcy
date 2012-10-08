@@ -114,7 +114,13 @@ hr = m_pReader->QueryInterface( IID_IWMHeaderInfo, (void **)&m_pReaderHeaderInfo
 m_pReaderHeaderInfo ->GetAttributeByName(&wStream, g_wszWMDuration, &type, (BYTE*)&duration, &wBytes); 
 
 
+http://tieba.baidu.com/p/1885477077
+
 117.mp3 wmaÆµÆ×·ÖÎö 
+
+Direct2D
+http://msdn.microsoft.com/zh-cn/library/dd756649(v=vs.85).aspx
+
  
 ==================================Finish=============================
  
