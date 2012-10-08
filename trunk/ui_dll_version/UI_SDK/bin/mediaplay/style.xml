@@ -9,7 +9,7 @@
     <class id="imagecheckbutton"  cursor="idc_hand" autosize="content" foregnd.render.type="imagelist" 
            drawfocus="0" foregnd.render.imagelist.count="8"/>
     
-    <SliderCtrl istransparent="1" foregnd.render.type="image" cursor="idc_hand"
+    <SliderCtrl istransparent="1" foregnd.render.type="image" cursor="idc_hand" foregnd.render.image.drawtype="stretch"
            trackbtn.bkgnd.render.type="imagelist" trackbtn.bkgnd.render.imagelist.count="4" trackbtn.styleclass="imagebtn"/>
     
     <Picture foregnd.render.type="image"/>
@@ -59,17 +59,32 @@
              foregnd.render.bordercolor=";menu_item_hover_border"
              foregnd.render.colorlist.count="2"
              icongutterwidth="20"
-             textmarginleft="5"
-             textmarginright="10"
+             textrender.padding="5,0,10,0"
              separatorheight="8"
              radioicon.render.type="image"
              radioicon.render.image="menu_check_icon.png"
              radioicon.render.image.drawtype="center"
+             checkicon.render.type="image"
+             checkicon.render.image="menu_check_icon.png"
+             checkicon.render.image.drawtype="center"
              radiocheckiconbk.render.type="image"
              radiocheckiconbk.render.image="menu_check_bk.png"
              radiocheckiconbk.render.image.drawtype="center"
+             transparent.type="layered" 
+             transparent.maskalpha="230"
              ></Menu>
 
-    <class   id="mainmenu"   border="24,2,2,2" bkgnd.render.image="main_menu_bk.png" bkgnd.render.9region="50,5,5,135"/>
+    <class   id="mainmenu"  
+             border="24,2,2,2" 
+             bkgnd.render.image="main_menu_bk.png" 
+             bkgnd.render.9region="50,5,5,135"/>
+    <class   id="mainmenuitem"  
+             icon.render.type="imagelistitem" 
+             icon.render.image="menuicon_imagelist.png" 
+             icon.render.image.drawtype="adapt"/>
+    <class   id="playmodemenuitem"  
+             icon.render.type="imagelistitem" 
+             icon.render.image="playmode_imagelist.png" 
+             icon.render.image.drawtype="adapt"/>
   </style>
 </ui>

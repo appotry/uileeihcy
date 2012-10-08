@@ -40,9 +40,12 @@ void CEqualizerDlg::OnInitWindow( )
 	UI_GetProjectSkinItemInfo(NULL, &pInfo);
 	if (NULL != pInfo)
 	{
-		m_pH->SetPos(pInfo->GetSkinHlsInfo()->h,false);
-		m_pL->SetPos(pInfo->GetSkinHlsInfo()->l,false);
-		m_pS->SetPos(pInfo->GetSkinHlsInfo()->s,false);
+		if (NULL != m_pH)
+			m_pH->SetPos(pInfo->GetSkinHlsInfo()->h,false);
+		if (NULL != m_pL)
+			m_pL->SetPos(pInfo->GetSkinHlsInfo()->l,false);
+		if (NULL != m_pS)
+			m_pS->SetPos(pInfo->GetSkinHlsInfo()->s,false);
 	}
 }
 void CEqualizerDlg::OnClose()

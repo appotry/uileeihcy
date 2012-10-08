@@ -57,9 +57,9 @@
       <Button     id="sys_close" styleclass="imagebtn" bkgnd.render.image="close.png" layout.right="6" layout.top="4"/>
       <SliderCtrl id="progress_hue1" height="15" width="53" layout.left="112" layout.top="38" trackbtn.styleclass="imagebtn" btn.bkgnd.render.image="eq_balance.png" />
       <SliderCtrl id="progress_hue2" height="15" width="53" layout.left="203" layout.top="38" trackbtn.styleclass="imagebtn" btn.bkgnd.render.image="eq_balance.png" />
-      <Button     id="btn_enable"   styleclass="imagebtn"  bkgnd.render.image="eq_enabled.bmp" layout.top="38" layout.left="18"/>
+      <!--Button     id="btn_enable"   styleclass="imagebtn"  bkgnd.render.image="eq_enabled.bmp" layout.top="38" layout.left="18"/>
       <Button     id="btn_profile"  styleclass="imagebtn"  bkgnd.render.image="eq_profile.png" layout.top="36" layout.left="39"/>
-      <Button     id="btn_reset"    styleclass="imagebtn"  bkgnd.render.image="reset.png" margin="3,0,3,0" layout.top="36" layout.left="59"/>
+      <Button     id="btn_reset"    styleclass="imagebtn"  bkgnd.render.image="reset.png" margin="3,0,3,0" layout.top="36" layout.left="59"/-->
     </CustomWindow>
     <CustomWindow id="lyricdlg"  width="270" height="168" layout.left="570" layout.top="200"
                    bkgnd.render.type="image" bkgnd.render.image="lyric_skin.png" bkgnd.render.9region="100,60,50,15,15,15,20,15"
@@ -72,9 +72,11 @@
       <ListBox id="optionlist" border="1" layout.left="10" layout.top="10" width="100" height="370" padding="4"
         foregnd.render.type="imagelist" foregnd.render.9region="1" foregnd.render.image="listbox.png"
         foregnd.render.image.drawtype="stretch"
-        foregnd.render.imagelist.count="5"  foregnd.render.imagelist.layout="v"
-        bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/>
-     
+        foregnd.render.imagelist.count="8"  foregnd.render.imagelist.layout="v"
+        bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="control_border_color"
+        textrender.align="left|vcenter" textrender.padding="20,0,0,0"
+        />
+        
       <Button id="btn_save_all"  text="全部保存" layout.right="169" layout.bottom="6" width="75" height="21" />
       <Button id="btn_reset_all" text="全部重置" layout.right="88"  layout.bottom="6" width="75" height="21" />
       <Button id="btn_cancel"    text="关闭"     layout.right="8"   layout.bottom="6" width="75" height="21" />
@@ -83,42 +85,69 @@
       <HyperLink id="link_homepage" text="千千音乐在线" tooltip="千千静听在线网站"   href="http://ttplayer.qianqian.com/index.html" layout.left="122" layout.bottom="8" />
       <HyperLink id="link_homepage" text="论坛"         tooltip="千千静听的官方论坛" href="http://bbs.qianqian.com/"                layout.left="202" layout.bottom="8" />
       <HyperLink id="link_homepage" text="帮助"         tooltip="千千静听的帮助页面" href="http://ttplayer.qianqian.com/help.php"   layout.left="234" layout.bottom="8" />
-      <Panel id="option_list_panel_container" layout="card" layout.left="120" layout.top="10" width="426" height="368">
-        <Panel id="control_demo_panel">
-          <GroupBox  id="groupbox1"     text="ui控件" layout.left="110" layout.top="32" width="150" height="250" >
-            <CheckButton id="test_check"  tooltip="test" text="test check button" layout.top="20"  layout.left="10"/>
-            <RadioButton id="test_radio1" tooltip="test" text="单选按钮_1" layout.top="40"  layout.left="10" group="1" />
-            <RadioButton id="test_radio2" tooltip="test" text="单选按钮_2" layout.top="60"  layout.left="10"/>
-            <RadioButton id="test_radio3" tooltip="test" text="单选按钮_3" layout.top="90"  layout.left="10" group="1" />
-            <RadioButton id="test_radio4" tooltip="test" text="单选按钮_4" layout.top="110" layout.left="10"/>
-            <Edit        id="test_edit1"  width="120"  layout.left="10" layout.top="130"/>
-            <Combobox    id="test_combo1" width="120"  height="20" layout.left="10" layout.top="155"/>
-          </GroupBox>
-          <HwndHost id="IDC_EDIT1"   controlid="1003" />
-          <HwndHost id="IDC_CHECK1"  controlid="1009" />
-          <HwndHost id="IDC_RADIO3"  controlid="1008" />
-          <HwndHost id="IDC_RADIO2"  controlid="1007" />
-          <HwndHost id="IDC_RADIO1"  controlid="1006" />
-          <HwndHost id="IDC_BUTTON1" controlid="1002" />
-          <HwndHost id="IDC_BUTTON2" controlid="1005" />
-          <HwndHost id="IDC_COMBO1"  controlid="1010" />
-          <HwndHost id="IDC_GROUPBOX1" controlid="1011"/>"
-        </Panel>
-        <Panel id="richedit_demo_panel">
-          <RichEdit id="richedit_test" border="1" layout.left="10" layout.top="10" width="200" height="200"
-                   bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/>
-          <RichEdit id="richedit_test2" layout.left="220" layout.top="10" width="200" height="200"
-                   bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="border_color"/>
-        </Panel>
-      </Panel>
-    </Window>
+      <GroupBox  bkgnd.render.type="notheme" layout.left="115" layout.right="8" layout.top="10" height="370">
+        <Picture id="title_bk" layout.left="2" layout.right="2" layout.top="2" height="30" foregnd.render.type="gradienth" foregnd.render.colorfrom="option_gradient_from" foregnd.render.colorto="option_gradient_to"/>
+        <GroupBox id="" bkgnd.render.type="notheme" layout.left="2" layout.right="2" layout.top="35" height="2"/>
+        
+        <Label text="“千千静听”的简明介绍" textrender.align="left|vcenter" textrender.color="option_title_text_color_shadow" textrender.font="option_title" layout.left="6" layout.top="3" height="30" layout.right="2"/>
+        <Label text="“千千静听”的简明介绍" textrender.align="left|vcenter" textrender.color="option_title_text_color" textrender.font="option_title" layout.left="5" layout.top="2" height="30" layout.right="2"/>
 
-  <Menu id="main_menu" styleclass="mainmenu" transparent.typex="layered" transparent.maskalphax="200">
-    <String id="1001" text="千千选项"/>
-    <Popup  text="相关链接">
-      <String text="千千主页"/>
-      <String text="千千音乐在线"/>
-      <String text="论坛"/>
+        <Picture foregnd.render.image="ttplayer.ico_48_48" layout.left="15" layout.top="50"/>
+
+        <Label text="千千静听" textrender.color="option_introduce_ttplayer_text3" textrender.font="option_introduce_ttplayer_text" layout.left="76" layout.top="53" />
+        <Label text="千千静听" textrender.color="option_introduce_ttplayer_text2" textrender.font="option_introduce_ttplayer_text" layout.left="74" layout.top="51" />
+        <Label text="千千静听" textrender.color="option_introduce_ttplayer_text1" textrender.font="option_introduce_ttplayer_text" layout.left="75" layout.top="52" />
+        <Label text="作者:"  layout.left="80" layout.top="85"/>
+        <HyperLink text="nanling" href="ttp@qianqian.com" tooltip="ttp@qianqian.com"  layout.left="115" layout.top="85"/>
+        <Label text="版权所有: 2003-2012"  layout.left="220" layout.top="85"/>
+        <Label text="版本: 5.9.4(Unicode)"  layout.left="80" layout.top="105"/>
+        <Label text="完成日期: 2012-8-2" layout.left="220" layout.top="105"/>
+        <GroupBox text="简介" layout.left="10" layout.top="120" layout.right="10" layout.bottom="10">
+          <RichEdit id="option_introduce_text" istransparent="0" layout.left="5" layout.right="5" layout.top="5" layout.bottom="5"
+                    vscrollbar.bkgnd.render.type=""  
+                    vscrollbar.linebtn1.bkgnd.render.type="" 
+                    vscrollbar.linebtn2.bkgnd.render.type=""  
+                    vscrollbar.thubmbtn.bkgnd.render.type=""/>
+        </GroupBox>
+        <!--Panel id="option_list_panel_container" layout="card" layout.left="120" layout.top="10" width="426" height="368">
+          <Panel id="about_panel">
+          </Panel>
+          <Panel id="control_demo_panel">
+            <GroupBox  id="groupbox1"     text="ui控件" layout.left="110" layout.top="32" width="150" height="250" >
+              <CheckButton id="test_check"  tooltip="test" text="test check button" layout.top="20"  layout.left="10"/>
+              <RadioButton id="test_radio1" tooltip="test" text="单选按钮_1" layout.top="40"  layout.left="10" group="1" />
+              <RadioButton id="test_radio2" tooltip="test" text="单选按钮_2" layout.top="60"  layout.left="10"/>
+              <RadioButton id="test_radio3" tooltip="test" text="单选按钮_3" layout.top="90"  layout.left="10" group="1" />
+              <RadioButton id="test_radio4" tooltip="test" text="单选按钮_4" layout.top="110" layout.left="10"/>
+              <Edit        id="test_edit1"  width="120"  layout.left="10" layout.top="130"/>
+              <Combobox    id="test_combo1" width="120"  height="20" layout.left="10" layout.top="155"/>
+            </GroupBox>
+            <HwndHost id="IDC_EDIT1"   controlid="1003" />
+            <HwndHost id="IDC_CHECK1"  controlid="1009" />
+            <HwndHost id="IDC_RADIO3"  controlid="1008" />
+            <HwndHost id="IDC_RADIO2"  controlid="1007" />
+            <HwndHost id="IDC_RADIO1"  controlid="1006" />
+            <HwndHost id="IDC_BUTTON1" controlid="1002" />
+            <HwndHost id="IDC_BUTTON2" controlid="1005" />
+            <HwndHost id="IDC_COMBO1"  controlid="1010" />
+            <HwndHost id="IDC_GROUPBOX1" controlid="1011"/>"
+          </Panel>
+          <Panel id="richedit_demo_panel">
+            <RichEdit id="richedit_test" border="1" layout.left="10" layout.top="10" width="200" height="200"
+                     bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="control_border_color"/>
+            <RichEdit id="richedit_test2" layout.left="220" layout.top="10" width="200" height="200"
+                     bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="control_border_color"/>
+          </Panel>
+        </Panel-->
+      </GroupBox>
+    </Window>
+  <Menu id="main_menu" styleclass="mainmenu">
+    <!--注：xml中的回车换行必须用 &#xD; 或 &#xA; 而不是用\r\n-->
+    <String id="1001" text="千千选项" tooltip="“千千静听”的参数选项&#xD;千千选项" icon.render.type="image" icon.render.image="ttplayer.ico" icon.render.image.drawtype="adapt"/>
+    <Popup  text="相关链接"       styleclass="mainmenuitem" icon.render.imagelistitem.index="28">
+      <String text="千千主页"     styleclass="mainmenuitem" icon.render.imagelistitem.index="34"/>
+      <String text="千千音乐在线" styleclass="mainmenuitem" icon.render.imagelistitem.index="34"/>
+      <String text="论坛"         styleclass="mainmenuitem" icon.render.imagelistitem.index="31"/>
       <Popup  text="论坛">
         <String text="testtesttesttest"/>
         <Separator></Separator>
@@ -128,50 +157,52 @@
       </Popup>
     </Popup>
     <Separator/>
-    <String id="1002" text="播放控制"/>
-    <String id="1003" text="音量控制"/>
-    <String id="1004" text="播放模式"/>
-    <String id="1005" text="播放曲目"/>
+    <String id="1002" text="播放控制" styleclass="mainmenuitem" icon.render.imagelistitem.index="24"/>
+    <String id="1003" text="音量控制" styleclass="mainmenuitem" icon.render.imagelistitem.index="25"/>
+    <String id="1004" text="播放模式" styleclass="mainmenuitem" icon.render.imagelistitem.index="5"/>
+    <String id="1005" text="播放曲目" styleclass="mainmenuitem" icon.render.imagelistitem.index="4"/>
     <Separator/>
-    <String id="1006" text="视觉外观"/>
-    <String id="1007" text="歌词秀"/>
-    <String id="1008" text="均衡器"/>
+    <String id="1006" text="视觉外观" styleclass="mainmenuitem" icon.render.imagelistitem.index="8"/>
+    <String id="1007" text="歌词秀"   styleclass="mainmenuitem" icon.render.imagelistitem.index="9"/>
+    <String id="1008" text="均衡器"   styleclass="mainmenuitem" icon.render.imagelistitem.index="7"/>
     <Separator/>
-    <Popup id="1009" text="皮肤"/>
-    <String id="1010" text="透明"/>
-    <String id="1011" text="查看"/>
+    <Popup id="1009" text="皮肤"      styleclass="mainmenuitem" icon.render.imagelistitem.index="10"/>
+    <String id="1010" text="透明"     styleclass="mainmenuitem" icon.render.imagelistitem.index="11"/>
+    <String id="1011" text="查看"     styleclass="mainmenuitem" icon.render.imagelistitem.index="6"/>
     <Separator/>
-    <String id="1012" text="最小化"/>
-    <String id="1013" text="全屏显示"/>
-    <String id="1014" text="退出"/>
+    <String id="1015" text="显示桌面歌词" tooltip="显示桌面歌词" styleclass="mainmenuitem" icon.render.imagelistitem.index="32"/>
+    <Separator/>
+    <String id="1012" text="最小化"  tooltip="最小化/还原"  styleclass="mainmenuitem" icon.render.imagelistitem.index="2"/>
+    <String id="1013" text="全屏显示" styleclass="mainmenuitem" icon.render.imagelistitem.index="29"/>
+    <String id="1014" text="退出"    tooltip="退出“千千静听”\n退出" styleclass="mainmenuitem" icon.render.imagelistitem.index="3"/>
   </Menu>
 
   <Menu id="menu_playlist_add">
-    <String id="1101" text="文件"/>
-    <String id="1102" text="文件夹"/>
-    <String id="1103" text="本地搜索" disable="1" />
-    <String id="1104" text="网络搜索" disable="1"/>
+    <String id="1101" text="文件" tooltip="选择并添加音频文件\n添加文件"/>
+    <String id="1102" text="文件夹" tooltip="选择并添加文件夹中的音频文件\n添加文件夹"/>
+    <String id="1103" text="本地搜索" disable="1" tooltip="搜索并添加电脑中的音频文件" />
+    <String id="1104" text="网络搜索" disable="1" tooltip="添加网络URL"/>
   </Menu>
 
   <Menu id="menu_playlist_delete">
-    <String id="1201" text="选中的文件"/>
-    <String id="1202" text="重复的文件" disable="1" />
-    <String id="1203" text="错误的文件" disable="1" />
+    <String id="1201" text="选中的文件" tooltip="删除选中的文件"/>
+    <String id="1202" text="重复的文件" disable="1" tooltip="删除重复的文件" />
+    <String id="1203" text="错误的文件" disable="1" tooltip="删除不支持或者不存在的文件"/>
     <Separator/>
-    <String id="1204" text="全部删除"/>
+    <String id="1204" text="全部删除"  tooltip="删除当前列表的所有文件"/>
     <Separator/>
-    <String id="1204" text="物理删除"   disable="1"/>
+    <String id="1204" text="物理删除"   disable="1" tooltip="从硬盘上删除选中的文件"/>
   </Menu>
 
   <Menu id="menu_playlist_mode">
-    <String id="1701" text="单曲播放(S)"/>
-    <String id="1702" text="单曲循环(I)"/>
-    <String id="1703" text="顺序播放(N)"/>
-    <String id="1704" text="循环播放(C)"/>
-    <String id="1705" text="随机播放(R)"/>
+    <String id="1701" text="单曲播放(S)" styleclass="playmodemenuitem" icon.render.imagelistitem.index="0" tooltip="单遍播放当前文件"/>
+    <String id="1702" text="单曲循环(I)" styleclass="playmodemenuitem" icon.render.imagelistitem.index="1" tooltip="循环播放当前文件"/>
+    <String id="1703" text="顺序播放(N)" styleclass="playmodemenuitem" icon.render.imagelistitem.index="2" tooltip="按顺序播放当前列表"/>
+    <String id="1704" text="循环播放(C)" styleclass="playmodemenuitem" icon.render.imagelistitem.index="3" tooltip="循环播放当前列表"/>
+    <String id="1705" text="随机播放(R)" styleclass="playmodemenuitem" icon.render.imagelistitem.index="4" tooltip="随机播放当前列表"/>
     <Separator/>
-    <String id="1706" text="播放跟随光标(F)" disable="1" />
-    <String id="1707" text="自动切换列表(A)" disable="1" />
+    <String id="1706" text="播放跟随光标(F)" disable="1" styleclass="playmodemenuitem" icon.render.imagelistitem.index="5" tooltip="将选中歌曲作为下一个播放对象"/>
+    <String id="1707" text="自动切换列表(A)" disable="1" styleclass="playmodemenuitem" icon.render.imagelistitem.index="6" tooltip="连续播放时当播放完当前列表后自动切换到下一个列表"/>
   </Menu>
   
 </layout>
