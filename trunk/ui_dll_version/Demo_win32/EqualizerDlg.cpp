@@ -37,7 +37,7 @@ void CEqualizerDlg::OnInitWindow( )
 	}
 
 	IProjectSkinItemInfo* pInfo = NULL;
-	UI_GetProjectSkinItemInfo(UI_GetSkinHandle(::UI_GetActiveSkinIndex()), &pInfo);
+	UI_GetProjectSkinItemInfo(NULL, &pInfo);
 	if (NULL != pInfo)
 	{
 		m_pH->SetPos(pInfo->GetSkinHlsInfo()->h,false);

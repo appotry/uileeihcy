@@ -117,6 +117,7 @@ m_pReaderHeaderInfo ->GetAttributeByName(&wStream, g_wszWMDuration, &type, (BYTE
 http://tieba.baidu.com/p/1885477077
 
 117.mp3 wmaÆµÆ×·ÖÎö 
+http://wenku.baidu.com/view/e6de3b2c453610661ed9f4fa.html
 
 Direct2D
 http://msdn.microsoft.com/zh-cn/library/dd756649(v=vs.85).aspx

@@ -207,7 +207,7 @@ bool ProjectManager::ChangeSkinHLS( short h, short l, short s, int nFlag )
 	UI_GetProjectSkinItemInfo(m_pCurActiveSkinMgr, &pSkinItem);
 	if (NULL != pSkinItem)
 	{
-		pSkinItem->SetHLS(h,l,s,nFlag);
+		pSkinItem->SetHLS((char)h,(char)l,(char)s,nFlag);
 	}
 	m_bDirty = true;
 	return true;
@@ -1254,6 +1254,11 @@ bool ProjectManager::GetSkinItemInfo( HSKIN hSkin, IProjectSkinItemInfo** ppSkin
 {
 	if( NULL == ppSkinItem )
 		return false;
+
+	if (NULL == hSkin)
+	{
+		hSkin = m_pCurActiveSkinMgr;
+	}
 
 	CPojo_ProjectSkinItem* pItem = m_pojoProject.GetSkinItem( (SkinManager*)hSkin );
 	if( NULL == pItem )
