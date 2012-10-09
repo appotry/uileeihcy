@@ -7,9 +7,9 @@
 
 CMP3 g_mp3;
 
-bool  mp3_init()
+bool  mp3_init(HWND hMainWnd)
 {
-	return g_mp3.Init();
+	return g_mp3.Init(hMainWnd);
 }
 
 bool  mp3_play()

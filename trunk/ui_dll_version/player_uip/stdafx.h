@@ -20,9 +20,5 @@
 #include <list>
 using namespace std;
 
-#include <DShow.h>
-#pragma comment(lib, "dxguid.lib")
-#pragma comment(lib, "strmiids.lib")
-
 #include "..\UI_SDK\include\common\comdef.h"
 #include "..\UI_SDK\include\common\LeakDetect.h"

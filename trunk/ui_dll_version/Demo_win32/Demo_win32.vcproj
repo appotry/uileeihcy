@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="Player_Demo"
+	Name="Player_UI"
 	ProjectGUID="{0FF607A6-684C-4C95-A8CF-C3A096268AFB}"
 	RootNamespace="Demo_win32"
 	Keyword="Win32Proj"

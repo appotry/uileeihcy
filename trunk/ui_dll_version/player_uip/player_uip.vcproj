@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="Player_UIP"
+	Name="Player_SOUND"
 	ProjectGUID="{DCA81638-42A8-4007-BD48-B443186047BB}"
 	RootNamespace="player_uip"
 	Keyword="Win32Proj"
@@ -63,6 +63,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="..\UI_SDK\lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\ui_sdk\bin\pdb\$(TargetName).pdb"
 				SubSystem="2"
@@ -138,6 +139,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\UI_SDK\lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\ui_sdk\bin\pdb\$(TargetName).pdb"
 				SubSystem="2"
@@ -255,6 +257,30 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+		</Filter>
+		<Filter
+			Name="DirectShow"
+			>
+			<File
+				RelativePath=".\sound\DirectShowEngine.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\sound\DirectShowEngine.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="DirectSound"
+			>
+			<File
+				RelativePath=".\sound\DirectSoundEngine.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\sound\DirectSoundEngine.h"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\ReadMe.txt"

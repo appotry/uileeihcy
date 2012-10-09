@@ -15,14 +15,14 @@ CMainMgr::~CMainMgr()
 
 bool CMainMgr::Initialize()
 {
-	bool bRet = ::mp3_init();
-	::mp3_add_event_callback(this);
-
 	if (NULL == m_pMainWindow)
 	{
 		m_pMainWindow = new MainWindow;
 		m_pMainWindow->Create( _T("mainwindow") );
 	}
+
+	bool bRet = ::mp3_init(m_pMainWindow->m_hWnd);
+	::mp3_add_event_callback(this);
 
 	::GetPlayerListMgr(); // 提前初始化获取插入列表
 	::GetEqualizerMgr();  // 初始化均衡器Mgr
