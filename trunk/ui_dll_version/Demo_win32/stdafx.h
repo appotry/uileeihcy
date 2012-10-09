@@ -54,6 +54,6 @@ using namespace std;
 #include "ui.h"
 #pragma comment(lib,"uidll.lib")
 #include "..\player_uip\player_uip.h"
-#pragma comment(lib,"player_uip.lib")
+#pragma comment(lib,"player_sound.lib")
 
 #include "..\UI_SDK\include\common\LeakDetect.h"

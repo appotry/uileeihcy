@@ -18,7 +18,7 @@ public:
 	virtual void  on_mp3_volume_ind(long lVolumn) = 0;  // 0 µ½ -10000
 };
 
-PLAYER_UIP_API bool  mp3_init();
+PLAYER_UIP_API bool  mp3_init(HWND hMainWnd);
 PLAYER_UIP_API bool  mp3_play();
 PLAYER_UIP_API bool  mp3_pause();
 PLAYER_UIP_API bool  mp3_stop();
