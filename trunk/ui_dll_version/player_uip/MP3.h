@@ -1,11 +1,12 @@
 #pragma once
+#include "MessageOnlyWindow.h"
 class IMp3EventCallback;
 class CMP3;
 
 class ISoundEngine
 {
 public:
-	virtual HRESULT  Init(CMP3* pMgr, HWND hMainWnd) = 0;
+	virtual HRESULT  Init(CMP3* pMgr, CMessageOnlyWindow* pWndEvent) = 0;
 	virtual HRESULT  Release() = 0;
 
 	virtual HRESULT  RenderFile( const TCHAR* szFile, const TCHAR* szExt ) = 0;
@@ -13,9 +14,12 @@ public:
 	virtual HRESULT  Pause() = 0;
 	virtual HRESULT  Stop() = 0;
 	virtual HRESULT  SetCurPos(double) = 0;
+	virtual HRESULT  GetCurPos(double* pdSeconds, double* pdPercent) = 0;
 	virtual HRESULT  SetVolume(double) = 0;
 	virtual HRESULT  Mute(bool) = 0;
 };
+
+
 
 class CMP3
 {
@@ -38,7 +42,7 @@ public:
 public:
 	void    Fire_on_mp3_volume_ind(long lVolumn);
 	void    Fire_on_mp3_stop();
-	void    Fire_on_mp3_progress_ind(LONGLONG llCur, LONGLONG llDuration);
+	void    Fire_on_mp3_progress_ind(double dSeconds, double dPercent);
 protected:
 
 // 	CComPtr<IGraphBuilder>   m_pGraphBuilder;
@@ -51,8 +55,8 @@ protected:
 // 	long     m_nVolumn;   // 记录当前音量，用于在取消静音时使用
 // 	bool     m_bMute;
 // 
-// 	CMessageOnlyWindow   m_hWndEvent;
-// 	friend class CMessageOnlyWindow;
+	CMessageOnlyWindow   m_WndEvent;
+	friend class CMessageOnlyWindow;
 
 	ISoundEngine*   m_pCurrentEngine;
 	ISoundEngine*   m_pDirectShowEngine;
@@ -60,3 +64,4 @@ protected:
 
 	list<IMp3EventCallback*>  m_listEventCallback;
 };
+

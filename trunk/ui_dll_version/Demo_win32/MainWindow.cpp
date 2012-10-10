@@ -521,7 +521,7 @@ void MainWindow::OnMenuClick(UINT nMenuID)
 void MainWindow::OnMusicProgressPosChanged( int nPos, int nScrollType )
 {
 	if( SB_ENDSCROLL == nScrollType )
-		::mp3_set_cur_pos(nPos);
+		::mp3_set_cur_pos(nPos/100.0);
 
 //	UI_ChangeSkinH(nPos);
 }
@@ -532,11 +532,8 @@ void MainWindow::OnVolumnChanged( int nPos, int nScrollType )
 }
 
 
-void MainWindow::OnMp3ProgressInd(LONGLONG llCur, LONGLONG llDuration)
+void MainWindow::OnMp3ProgressInd(double dSeconds, double dPercent)
 {
-	if( 0 == llDuration )
-		return;
-
 	if( ::GetCapture() == m_hWnd )  // 正在拖拽过程中
 	{
 		Object* pObj = this->GetPressObject();
@@ -551,11 +548,11 @@ void MainWindow::OnMp3ProgressInd(LONGLONG llCur, LONGLONG llDuration)
 
 	if( NULL != m_pProgress )
 	{
-		m_pProgress->SetPos((int)(double)(llCur*100/llDuration));
+		m_pProgress->SetPos((int)(double)(dPercent*100));
 	}
 	
 	// 转换为时间
-	int n = (int)(double)(llCur/10000000);
+	int n = (int)dSeconds;
 	int h = n/3600;
 	int temp = n%3600;
 	int m = temp/60;

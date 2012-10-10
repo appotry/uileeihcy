@@ -130,10 +130,6 @@ void CustomWindow::ResetAttribute()
 }
 bool CustomWindow::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 {
-	bool bRet = Window::SetAttribute(mapAttrib, bReload);
-	if( false == bRet )
-		return false;
-
 	ATTRMAP::iterator iter = mapAttrib.find(XML_WINDOW_TRANSPARENT_PART);
 	if (mapAttrib.end() != iter)
 	{
@@ -158,7 +154,7 @@ bool CustomWindow::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 		{
 			m_eTransparentRgnType = WINDOW_TRANSPARENT_PART_NULL;
 		}
-		this->m_mapAttribute.erase(XML_WINDOW_TRANSPARENT_PART);
+		mapAttrib.erase(XML_WINDOW_TRANSPARENT_PART);
 
 		// 获取设置参数
 		if( m_eTransparentRgnType == WINDOW_TRANSPARENT_PART_4_CORNER ||
@@ -170,7 +166,7 @@ bool CustomWindow::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 			{
 				String& str9Region = iter->second;
 				Util::TranslateImage9Region(str9Region, &m_TransparentRgn9Region );
-				this->m_mapAttribute.erase(XML_WINDOW_TRANSPARENT_PART_9REGION);
+				mapAttrib.erase(XML_WINDOW_TRANSPARENT_PART_9REGION);
 			}
 			else
 			{
@@ -183,7 +179,6 @@ bool CustomWindow::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 	if (mapAttrib.end() != iter)
 	{
 		String& strType = iter->second;
-		m_mapAttribute.erase(XML_WINDOW_TRANSPARENT_TYPE);
 
 		if( XML_WINDOW_TRANSPARENT_TYPE_LAYERED == strType )
 		{
@@ -205,7 +200,7 @@ bool CustomWindow::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 		{
 			const String& strColorID =  iter->second;
 			::UI_GetColor( strColorID, &m_pColMask );
-			this->m_mapAttribute.erase(XML_WINDOW_TRANSPARENT_TYPE_MASKCOLOR_VALUE);
+			mapAttrib.erase(XML_WINDOW_TRANSPARENT_TYPE_MASKCOLOR_VALUE);
 
 			m_nWindowTransparentMaskType |= WINDOW_TRANSPARENT_TYPE_MASKCOLOR;
 		}
@@ -215,13 +210,17 @@ bool CustomWindow::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 		if (mapAttrib.end() != iter)
 		{
 			m_nAlphaMask = _ttoi(iter->second.c_str() );
-			this->m_mapAttribute.erase(XML_WINDOW_TRANSPARENT_TYPE_MASKALPHA_VALUE);
+			mapAttrib.erase(XML_WINDOW_TRANSPARENT_TYPE_MASKALPHA_VALUE);
 
 			m_nWindowTransparentMaskType |= WINDOW_TRANSPARENT_TYPE_MASKALPHA;
 		}
+		mapAttrib.erase(XML_WINDOW_TRANSPARENT_TYPE);
 	}
 
-	return true;
+
+	// 注：这里需要将设置分层窗口的属性放在前面。因为object中很多背景图依赖于窗口类型
+	bool bRet = Window::SetAttribute(mapAttrib, bReload);
+	return bRet;
 }
 
 //////////////////////////////////////////////////////////////////////////

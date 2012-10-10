@@ -18,11 +18,18 @@ CMP3::~CMP3(void)
 
 bool CMP3::Init(HWND hMainWnd)
 {
+	if (NULL == m_WndEvent.Create(HWND_MESSAGE))
+		return false;
+
 	m_pDirectShowEngine = new CDirectShowEngine();
 	m_pDirectSoundEngine= new CDirectSoundEngine();
 
-	m_pDirectShowEngine->Init(this, hMainWnd);
-	m_pDirectSoundEngine->Init(this, hMainWnd);
+	HRESULT hr = m_pDirectShowEngine->Init(this, &m_WndEvent);
+	assert(SUCCEEDED(hr));
+	hr = m_pDirectSoundEngine->Init(this, &m_WndEvent);
+	assert(SUCCEEDED(hr));
+
+	m_WndEvent.SetEnginePtr(this, (CDirectShowEngine*)m_pDirectShowEngine, (CDirectSoundEngine*)m_pDirectSoundEngine);
 
 	return true;
 }
@@ -39,6 +46,10 @@ bool CMP3::Release()
 	{
 		m_pDirectSoundEngine->Release();
 		SAFE_DELETE(m_pDirectSoundEngine);
+	}
+	if( m_WndEvent.IsWindow() )
+	{
+		m_WndEvent.DestroyWindow();
 	}
 	return true;
 }
@@ -58,7 +69,7 @@ bool CMP3::RenderFile( const String& strFile )
 	{
 		if (SUCCEEDED(m_pDirectSoundEngine->RenderFile(strFile.c_str(), strExt.c_str())))
 		{
-			m_pCurrentEngine = m_pDirectShowEngine;
+			m_pCurrentEngine = m_pDirectSoundEngine;
 		}
 	}
 	else if (0 == _tcsicmp(strExt.c_str(), _T("wma")))
@@ -176,13 +187,13 @@ void CMP3::Fire_on_mp3_stop()
 	}
 }
 
-void CMP3::Fire_on_mp3_progress_ind(LONGLONG llCur, LONGLONG llDuration)
+void CMP3::Fire_on_mp3_progress_ind(double dSeconds, double dPercent)
 {
 	list<IMp3EventCallback*>::iterator iter = m_listEventCallback.begin();
 	list<IMp3EventCallback*>::iterator iterEnd =m_listEventCallback.end();
 
 	for(; iter != iterEnd; iter++)
 	{
-		(*iter)->on_mp3_progress_ind(llCur,llDuration);
+		(*iter)->on_mp3_progress_ind(dSeconds, dPercent);
 	}
 }

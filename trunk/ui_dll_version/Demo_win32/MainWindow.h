@@ -69,7 +69,7 @@ public:
 	void    OnMp3Pause();
 	void    OnMp3Stop();
 	void    OnMp3Continue();
-	void    OnMp3ProgressInd(LONGLONG dCur, LONGLONG dLen);
+	void    OnMp3ProgressInd(double dSeconds, double dPercent);
 	void    OnMp3VolumeInd(long lVolumn);
 
 	void    OnPlayerListDlgCreated(HWND hWnd);

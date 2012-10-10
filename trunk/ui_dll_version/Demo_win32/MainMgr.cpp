@@ -203,11 +203,11 @@ void CMainMgr::on_mp3_stop()
 		this->Play(p);
 	}
 }
-void CMainMgr::on_mp3_progress_ind(LONGLONG dCur, LONGLONG dLen)
+void CMainMgr::on_mp3_progress_ind(double dSeconds, double dPercent)
 {
 	if (NULL != m_pMainWindow)
 	{
-		m_pMainWindow->OnMp3ProgressInd(dCur, dLen);
+		m_pMainWindow->OnMp3ProgressInd(dSeconds, dPercent);
 	}
 }
 void CMainMgr::on_mp3_volume_ind(long lVolumn)

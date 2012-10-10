@@ -118,6 +118,10 @@ http://tieba.baidu.com/p/1868393695
 http://tieba.baidu.com/p/1885477077
 http://tieba.baidu.com/p/1906977428?from=prin
 
+这个buffer指的就是之前的SoundBuffer中的数据，因为SoundBuffer中的每一个字节（signed char）
+就代表着采样声波某一点的振幅（假如是16位的采样质量那就代表高/低位）（强度） 
+
+
 117.mp3 wma频谱分析 
 WAV 文件格式
 http://wenku.baidu.com/view/801b1537f111f18583d05aa7.html
@@ -137,6 +141,15 @@ http://www.cppblog.com/codejie/archive/2009/03/26/77916.html
 mpg123
 http://sourceforge.net/projects/mpg123
 http://mpg123.org/
+
+频谱demo(支持MP3,WMA,WAV)
+http://www.codeproject.com/Articles/31375/Play-Wave-Files-with-DirectSound-and-Display-its-S
+http://www.codeproject.com/Articles/31709/Play-Audio-Files-with-DirectSound-and-Display-its
+DirectSound Spectrum
+
+
+timeSetEvent来取代开启线程？
+acm是什么？ acmstreamopen。。。
 
 问：千千使用的MP3解码器是哪一个？
 	千千使用的是最新版本的mpg123-0.59s-pre，它是目前已经的开放源代码中最好的MP3
