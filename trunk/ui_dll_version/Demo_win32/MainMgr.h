@@ -26,7 +26,7 @@ public:
 
 protected:	
 	virtual void   on_mp3_stop();
-	virtual void   on_mp3_progress_ind(LONGLONG dCur, LONGLONG dLen);
+	virtual void   on_mp3_progress_ind(double dSeconds, double dPercent);
 	virtual void   on_mp3_volume_ind(long lVolumn);
 
 protected:

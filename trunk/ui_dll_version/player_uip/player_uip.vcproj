@@ -202,6 +202,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\MessageOnlyWindow.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MP3.cpp"
 				>
 			</File>
@@ -235,6 +239,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\MessageOnlyWindow.h"
+				>
+			</File>
 			<File
 				RelativePath=".\MP3.h"
 				>
@@ -279,6 +287,10 @@
 			</File>
 			<File
 				RelativePath=".\sound\DirectSoundEngine.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sound\mpg123.h.in"
 				>
 			</File>
 		</Filter>

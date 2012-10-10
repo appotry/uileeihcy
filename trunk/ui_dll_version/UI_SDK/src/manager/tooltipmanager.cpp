@@ -8,6 +8,24 @@ public:
 	{
 		m_hToolTip = NULL;
 		memset(&m_toolinfo, 0, sizeof(TOOLINFO));
+
+		OSVERSIONINFOEX osvi;
+		ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
+		osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+		GetVersionEx((OSVERSIONINFO*) &osvi);
+
+		m_bUnderXpOs = true;;
+		if (VER_PLATFORM_WIN32_NT == osvi.dwPlatformId)
+		{
+			if (osvi.dwMajorVersion >= 6)
+			{
+				m_bUnderXpOs = false;
+			}
+		}
+		else
+		{
+			m_bUnderXpOs = false;
+		}
 	}
 
 	virtual bool  Create()
@@ -58,6 +76,18 @@ public:
 
 		::SendMessage(m_hToolTip, TTM_ADDTOOL, 0, (LPARAM)&m_toolinfo);
 		::SendMessage(m_hToolTip, TTM_SETMAXTIPWIDTH, 0, TOOLTIP_MAX_WIDTH);   // 备注：该属性如果不和6.0控件一起使用的话，在碰到一个很长的单词时，将无视max width，仅显示一行(仅win7下有效)。
+
+		// 解决非6.0控件时，提示条内容不居中的问题。（测试发现在6.0控件下无视margin的值，但正好6.0就是居中的，可以不管）
+		if (m_bUnderXpOs)
+		{
+			RECT rc = {1,3,0,0};
+			::SendMessage(this->m_hToolTip, TTM_SETMARGIN, 0, (LPARAM)&rc);
+		}
+		else
+		{
+			RECT rc = {2,3,0,0};
+			::SendMessage(this->m_hToolTip, TTM_SETMARGIN, 0, (LPARAM)&rc);
+		}
 		return true;
 	}
 	virtual bool  Destroy()
@@ -122,20 +152,7 @@ protected:
 	void    FixStringWordBreakUnderXP(const String& src, String& strOut)
 	{
 		// 只在XP下处理该字符串
-		OSVERSIONINFOEX osvi;
-		ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
-		osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-		GetVersionEx((OSVERSIONINFO*) &osvi);
-
-		if (VER_PLATFORM_WIN32_NT == osvi.dwPlatformId)
-		{
-			if (osvi.dwMajorVersion >= 6)
-			{
-				strOut = src;
-				return ;
-			}
-		}
-		else
+		if (false == m_bUnderXpOs)
 		{
 			strOut = src;
 			return ;
@@ -179,6 +196,7 @@ protected:
 protected:
 	HWND       m_hToolTip;
 	TOOLINFO   m_toolinfo;
+	bool       m_bUnderXpOs;  // 是否是XP系统。区别于WIN7，两者对于tooltip的显示有些区别
 };
 
 //////////////////////////////////////////////////////////////////////////

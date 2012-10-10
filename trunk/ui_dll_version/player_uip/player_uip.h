@@ -14,7 +14,7 @@ class IMp3EventCallback
 {
 public:
 	virtual void  on_mp3_stop() = 0;
-	virtual void  on_mp3_progress_ind(LONGLONG dCur, LONGLONG dLen) = 0;
+	virtual void  on_mp3_progress_ind(double dSeconds, double dPercent) = 0;
 	virtual void  on_mp3_volume_ind(long lVolumn) = 0;  // 0 µ½ -10000
 };
 

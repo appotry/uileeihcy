@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "DirectShowEngine.h"
 
-CDirectShowEngine::CDirectShowEngine(void):m_hWndEvent(this)
+CDirectShowEngine::CDirectShowEngine(void)
 {
 	m_pGraphBuilder = NULL;
 	m_pMediaControl = NULL;
@@ -14,6 +14,7 @@ CDirectShowEngine::CDirectShowEngine(void):m_hWndEvent(this)
 	m_bMute = false;
 
 	m_pMgr = NULL;
+	m_pWnd = NULL;
 }
 
 CDirectShowEngine::~CDirectShowEngine(void)
@@ -21,10 +22,15 @@ CDirectShowEngine::~CDirectShowEngine(void)
 	this->Release();
 }
 
-HRESULT CDirectShowEngine::Init(CMP3* pMgr, HWND hMainWnd)
+HRESULT CDirectShowEngine::Init(CMP3* pMgr, CMessageOnlyWindow* pWndEvent)
 {
+	if (NULL == pWndEvent || NULL == pMgr)
+		return E_INVALIDARG;
+
 	m_pMgr = pMgr;
-	if( NULL != m_pGraphBuilder )
+	m_pWnd = pWndEvent;
+
+	if (NULL != m_pGraphBuilder)
 		return S_FALSE;
 
 	HRESULT hr = E_FAIL;
@@ -54,10 +60,7 @@ HRESULT CDirectShowEngine::Init(CMP3* pMgr, HWND hMainWnd)
 		if( NULL == m_pBasicAudio )
 			break;
 
-		if( NULL == m_hWndEvent.Create(HWND_MESSAGE) )
-			break;
-
-		hr = m_pMediaEventEx->SetNotifyWindow((OAHWND)m_hWndEvent.m_hWnd, EVENTEX_NOTIFY_MSG, (LONG_PTR)this );
+		hr = m_pMediaEventEx->SetNotifyWindow((OAHWND)m_pWnd->m_hWnd, EVENTEX_NOTIFY_MSG, (LONG_PTR)this );
 		if( FAILED(hr) )
 			break;
 
@@ -81,11 +84,6 @@ HRESULT CDirectShowEngine::Release()
 	SAFE_RELEASE2(m_pMediaEventEx);
 	SAFE_RELEASE2(m_pMediaControl);
 	SAFE_RELEASE2(m_pGraphBuilder);
-	if( m_hWndEvent.IsWindow() )
-	{
-		m_hWndEvent.DestroyWindow();
-
-	}
 
 	return S_OK;
 }
@@ -142,7 +140,7 @@ HRESULT CDirectShowEngine::Play()
 	}
 
 	hr = m_pMediaControl->Run();
-	m_hWndEvent.StartTimer(true);
+	m_pWnd->StartTimer(true);
 
 	return hr;
 }
@@ -152,7 +150,7 @@ HRESULT CDirectShowEngine::Pause()
 		return E_FAIL;
 
 	HRESULT hr = m_pMediaControl->Pause();
-	m_hWndEvent.EndTimer();
+	m_pWnd->EndTimer();
 
 	return hr;
 }
@@ -162,7 +160,7 @@ HRESULT CDirectShowEngine::Stop()
 		return E_FAIL;
 
 	HRESULT hr = m_pMediaControl->Stop();
-	m_hWndEvent.EndTimer();
+	m_pWnd->EndTimer();
 
 	return hr;
 }
@@ -175,10 +173,36 @@ HRESULT CDirectShowEngine::SetCurPos(double percent)
 	REFTIME len;
 	this->m_pMediaPosition->get_Duration(&len);
 
-	REFTIME cur = len * percent / 100.0;
+	REFTIME cur = len * percent;
 	HRESULT hr = this->m_pMediaPosition->put_CurrentPosition(cur);
 
 	return hr;
+}
+
+HRESULT CDirectShowEngine::GetCurPos(double* pdSeconds, double* pdPercent)
+{
+	if( NULL == m_pMediaSeeking )
+		return E_FAIL;
+
+	if (NULL == pdSeconds || NULL == pdPercent)
+		return E_INVALIDARG;
+
+	LONGLONG llDuration = 0, llCur = 0;
+	HRESULT hr = m_pMediaSeeking->GetDuration(&llDuration);
+	if (FAILED(hr))
+		return hr;
+
+	hr = m_pMediaSeeking->GetCurrentPosition(&llCur);
+	if (FAILED(hr))
+		return hr;
+
+	if (0 == llDuration)
+		return E_FAIL;
+
+	*pdPercent = llCur * 1.0 / llDuration;
+	*pdSeconds = (double)(llCur/10000000);
+
+	return S_OK;
 }
 
 int g_volumes[] = 
@@ -239,20 +263,12 @@ HRESULT CDirectShowEngine::Mute(bool bMute)
 	return S_OK;
 }
 
-
-CMessageOnlyWindow::CMessageOnlyWindow(CDirectShowEngine* p)
+//
+// 从MessageOnlyWnd转发过来的消息，用于获取播放结束的消息
+//
+HRESULT CDirectShowEngine::OnNoitfy(UINT uMsg, WPARAM w, LPARAM l)
 {
-	m_pThis = p;
-}
-
-
-HRESULT CMessageOnlyWindow::OnNotifyMsg(UINT msg, WPARAM w, LPARAM l)
-{
-	CDirectShowEngine* pThis = (CDirectShowEngine*)l;
-	if( NULL == pThis )
-		return 0;
-
-	if( NULL == pThis->m_pMediaEventEx )
+	if( NULL == m_pMediaEventEx )
 		return 0;
 
 	long  lEventCode = 0;
@@ -260,7 +276,7 @@ HRESULT CMessageOnlyWindow::OnNotifyMsg(UINT msg, WPARAM w, LPARAM l)
 	long  lParam2 = 0;
 	long  msTimeout = 0;
 
-	HRESULT hr = pThis->m_pMediaEventEx->GetEvent( &lEventCode, &lParam, &lParam2, msTimeout );
+	HRESULT hr = m_pMediaEventEx->GetEvent( &lEventCode, &lParam, &lParam2, msTimeout );
 	if( FAILED(hr) )
 		return 0;
 
@@ -268,62 +284,13 @@ HRESULT CMessageOnlyWindow::OnNotifyMsg(UINT msg, WPARAM w, LPARAM l)
 	{
 	case EC_COMPLETE:  // 播放结束
 		{
-			this->EndTimer();
-			m_pThis->m_pMgr->Fire_on_mp3_stop();
+			this->m_pWnd->EndTimer();
+			m_pMgr->Fire_on_mp3_stop();
 		}
 		break;
 	}
 
-	m_pThis->m_pMediaEventEx->FreeEventParams(lEventCode, lParam, lParam2 );
+	m_pMediaEventEx->FreeEventParams(lEventCode, lParam, lParam2 );
 
 	return 0;
-}
-
-void CMessageOnlyWindow::OnTimer(UINT_PTR nIDEvent)
-{
-	if( TIMER_ID_PROGRESS == nIDEvent )
-	{
-#if 0
-		if( NULL != m_pThis->m_pMediaPosition )
-		{
-			REFTIME rt, len;
-			m_pThis->m_pMediaPosition->get_CurrentPosition(&rt);
-			m_pThis->m_pMediaPosition->get_Duration(&len);
-
-			list<IMp3EventCallback*>::iterator iter = m_pThis->m_listEventCallback.begin();
-			list<IMp3EventCallback*>::iterator iterEnd = m_pThis->m_listEventCallback.end();
-
-			for(; iter != iterEnd; iter++)
-			{
-				(*iter)->on_mp3_progress_ind(rt,len);
-			}
-		}
-#else
-		if( NULL != m_pThis->m_pMediaSeeking )
-		{
-			LONGLONG llDuration = 0, llCur = 0;
-			HRESULT hr = m_pThis->m_pMediaSeeking->GetDuration(&llDuration);
-			if( FAILED(hr) )
-				return;
-
-			hr = m_pThis->m_pMediaSeeking->GetCurrentPosition(&llCur);
-			if( FAILED(hr) )
-				return;
-
-			m_pThis->m_pMgr->Fire_on_mp3_progress_ind(llCur, llDuration);
-		}
-#endif
-	}
-}
-
-void CMessageOnlyWindow::StartTimer(bool bStartNow)
-{
-	::SetTimer( m_hWnd, TIMER_ID_PROGRESS, 500, NULL );
-
-	if( bStartNow )
-		this->OnTimer(TIMER_ID_PROGRESS);
-}
-void CMessageOnlyWindow::EndTimer()
-{
-	::KillTimer( m_hWnd, TIMER_ID_PROGRESS );
 }
