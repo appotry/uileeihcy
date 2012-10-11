@@ -66,8 +66,18 @@ protected:
 	mpg123_handle*     m_hMpg123;   // mp3解码器
 };
 
-#define EVENT_NOTIFY_COUNT  2
 #define USE_THREAD
+#define POSITION_EVENT_COUNT 2
+
+#ifdef USE_THREAD
+#define NOTIFY_EVENT_COUNT  (POSITION_EVENT_COUNT+1)
+#else
+#define NOTIFY_EVENT_COUNT  POSITION_EVENT_COUNT
+#endif
+
+
+class DSMSG_PARAM
+{};
 
 class CDirectSoundEngine : public ISoundEngine
 {
@@ -89,10 +99,15 @@ public:
 
 protected:
 	HRESULT PushBuffer(int nStart, int nCount);
+	void    SetBufferSize(int nSize);
+	int     GetBufferSize() { return m_nDirectSoundBufferSize; }
 
 public:
 #ifdef USE_THREAD	
 	void    EventThreadProc();
+	bool    PostThreadMessage(UINT uMsg, DSMSG_PARAM* pParam);
+	HRESULT OnSetCurPos(double dPercent);
+
 #else
 	void    TimerCallback(UINT nTimerID, UINT nMsg);
 #endif
@@ -105,9 +120,10 @@ protected:
 	ISoundFile*    m_pMp3File;
 	ISoundFile*    m_pWavFile;
 
-	HANDLE         m_hEvents[EVENT_NOTIFY_COUNT];    // 各个position的通知事件
+	HANDLE         m_hEvents[NOTIFY_EVENT_COUNT];  // 各个position的通知事件
 #ifdef USE_THREAD
 	HANDLE         m_hEventThread;
+	DWORD          m_dwThreadID;
 #else
 	UINT           m_nTimerID;
 #endif

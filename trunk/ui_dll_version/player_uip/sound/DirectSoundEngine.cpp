@@ -1,6 +1,21 @@
 #include "StdAfx.h"
 #include "DirectSoundEngine.h"
 
+
+// 设置当前的进度
+#define  DSMSG_SET_CUR_POS    (WM_USER+1)    
+class DSMSG_PARAM_SET_CUR_POS : public DSMSG_PARAM
+{
+public:
+	double   dPercent;
+};
+DSMSG_PARAM* BuildSetCurPosParam(double dPercent)
+{
+	DSMSG_PARAM_SET_CUR_POS* p = new DSMSG_PARAM_SET_CUR_POS;
+	p->dPercent = dPercent;
+	return (DSMSG_PARAM*)p;
+}
+
 CWavFile::CWavFile()
 {
 
@@ -159,22 +174,18 @@ CDirectSoundEngine::CDirectSoundEngine(void)
 	m_pMp3File = NULL;
 	m_pWavFile = NULL;
 
-#ifdef USE_THREAD
-	for (int i = 0; i < EVENT_NOTIFY_COUNT+1; i++)
-#else
-	for (int i = 0; i < EVENT_NOTIFY_COUNT; i++)
-#endif
+	for (int i = 0; i < NOTIFY_EVENT_COUNT; i++)
 	{
 		m_hEvents[i] = 0;
 	}
 #ifdef USE_THREAD
 	m_hEventThread = NULL;
+	m_dwThreadID = 0;
 #else
 	m_nTimerID = 0;
 #endif
 
-	m_nDirectSoundBufferSize = 32*1024;
-	m_nPerEventBufferSize = m_nDirectSoundBufferSize/EVENT_NOTIFY_COUNT;
+	this->SetBufferSize(32*1024);
 }
 
 CDirectSoundEngine::~CDirectSoundEngine(void)
@@ -221,16 +232,12 @@ HRESULT CDirectSoundEngine::Init(CMP3* pMgr, CMessageOnlyWindow* pWndEvent)
 	if (FAILED(hr))
 		return hr;
 
-#ifdef USE_THREAD
-	for (int i = 0; i < EVENT_NOTIFY_COUNT+1; i++)
-#else
-	for (int i = 0; i < EVENT_NOTIFY_COUNT; i++)
-#endif
+	for (int i = 0; i < NOTIFY_EVENT_COUNT; i++)
 	{
 		m_hEvents[i] = CreateEvent(NULL, FALSE, FALSE, NULL);
 	}
 #ifdef USE_THREAD
-	m_hEventThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)gNotifyThreadProc, (LPVOID)this, 0, NULL);
+	m_hEventThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)gNotifyThreadProc, (LPVOID)this, 0, &m_dwThreadID);
 	if (NULL == m_hEventThread)
 		return E_FAIL;
 #endif
@@ -246,18 +253,15 @@ HRESULT CDirectSoundEngine::Release()
 #ifdef USE_THREAD
 	if(m_hEventThread != NULL)
 	{
-		SetEvent(m_hEvents[EVENT_NOTIFY_COUNT]);
+		SetEvent(m_hEvents[POSITION_EVENT_COUNT]);
 		Sleep(1);
 		TerminateThread(m_hEventThread, 0);
 		CloseHandle(m_hEventThread);
 		m_hEventThread = NULL;
+		m_dwThreadID = 0;
 	}
 #endif
-#ifdef USE_THREAD
-	for(int i = 0; i < EVENT_NOTIFY_COUNT; ++ i)
-#else
-	for(int i = 0; i < EVENT_NOTIFY_COUNT+1; ++ i)
-#endif
+	for(int i = 0; i < NOTIFY_EVENT_COUNT; ++ i)
 	{
 		if(m_hEvents[i] != NULL)
 		{
@@ -316,6 +320,7 @@ HRESULT CDirectSoundEngine::RenderFile( const TCHAR* szFile, const TCHAR* szExt 
 		//     DSBCAPS_CTRLPOSITIONNOTIFY，如果不加上这个标志，QueryInterface IID_IDirectSoundNotify8 会返回NOINTERFACE
 		desc.dwFlags = DSBCAPS_CTRLPAN|DSBCAPS_CTRLVOLUME|DSBCAPS_CTRLFREQUENCY|DSBCAPS_GLOBALFOCUS|DSBCAPS_CTRLPOSITIONNOTIFY;  
 		desc.lpwfxFormat =  m_pCurFile->GetFormat();
+		SetBufferSize(desc.lpwfxFormat->nAvgBytesPerSec);
 		desc.dwBufferBytes = m_nDirectSoundBufferSize;    //3*desc.lpwfxFormat->nAvgBytesPerSec;  // 持续3秒的流缓冲区
 
 		IDirectSoundBuffer*  pBuffer = NULL;
@@ -331,19 +336,20 @@ HRESULT CDirectSoundEngine::RenderFile( const TCHAR* szFile, const TCHAR* szExt 
 			return hr;
 
 		// 设置流缓冲的通知事件
-		DSBPOSITIONNOTIFY  notifys[EVENT_NOTIFY_COUNT];
-		for (int i = 0; i < EVENT_NOTIFY_COUNT; i++)
+		DSBPOSITIONNOTIFY  notifys[POSITION_EVENT_COUNT];
+		for (int i = 0; i < POSITION_EVENT_COUNT; i++)
 		{
-			notifys[i].dwOffset = m_nDirectSoundBufferSize/EVENT_NOTIFY_COUNT*(i+1) - 1;
+			notifys[i].dwOffset = m_nDirectSoundBufferSize/POSITION_EVENT_COUNT*(i+1) - 1;
 			notifys[i].hEventNotify = m_hEvents[i];
 		}
-		hr = pNotify->SetNotificationPositions(EVENT_NOTIFY_COUNT, notifys);
+		hr = pNotify->SetNotificationPositions(POSITION_EVENT_COUNT, notifys);
 		SAFE_RELEASE(pNotify);
 		if (FAILED(hr))
 			return hr;
 
 		// 第一次填充完整的buffer
 		hr = this->PushBuffer(0, m_nDirectSoundBufferSize);
+
 		return hr;
 	}
 
@@ -360,6 +366,7 @@ HRESULT CDirectSoundEngine::Play()
 
 	// 流缓冲必须用DSBPLAY_LOOPING，这样当缓冲区读取时能回到起点继续读取
 	HRESULT hr = m_pDirectSoundBuffer8->Play(0,0, DSBPLAY_LOOPING);
+
 
 #ifndef USE_THREAD
 	m_nTimerID = ::timeSetEvent(30, 10, gTimeProc, (DWORD)this, TIME_PERIODIC | TIME_CALLBACK_FUNCTION);  // 这个是用于填充缓冲区数据的
@@ -399,16 +406,21 @@ HRESULT CDirectSoundEngine::SetCurPos(double percent)
 	if (NULL == m_pCurFile || NULL == m_pDirectSoundBuffer8)
 		return E_FAIL;
 
+	this->PostThreadMessage(DSMSG_SET_CUR_POS, BuildSetCurPosParam(percent));
+	return S_OK;
+}
+HRESULT CDirectSoundEngine::OnSetCurPos(double dPercent)
+{
 	HRESULT hr = m_pDirectSoundBuffer8->Stop();
 	if (FAILED(hr))
 		return hr;
 
-	hr = m_pCurFile->SetCurPos(percent);
+	hr = m_pCurFile->SetCurPos(dPercent);
 	if (FAILED(hr))
 		return hr;
 
 	// 重新加载缓存
-	hr = PushBuffer(0, m_nDirectSoundBufferSize);
+	hr = PushBuffer(0, GetBufferSize());  // ??? 注：如果这里不填充所有数据的话，后面会继续播放上次残留的数据，这是为嘛？
 	if (FAILED(hr))
 		return hr;
 
@@ -418,6 +430,7 @@ HRESULT CDirectSoundEngine::SetCurPos(double percent)
 
 	return m_pDirectSoundBuffer8->Play(0,0, DSBPLAY_LOOPING);
 }
+
 HRESULT CDirectSoundEngine::GetCurPos(double* pdSeconds, double* pdPercent)
 {
 	if (NULL == m_pCurFile || NULL == m_pDirectSoundBuffer8)
@@ -436,19 +449,31 @@ HRESULT CDirectSoundEngine::Mute(bool)
 
 
 #ifdef USE_THREAD
+bool CDirectSoundEngine::PostThreadMessage(UINT uMsg, DSMSG_PARAM* pParam)
+{
+	if (FALSE == ::PostThreadMessage(m_dwThreadID, uMsg, (WPARAM)pParam, 0))
+		return false;
+
+	::SetEvent(m_hEvents[POSITION_EVENT_COUNT]);
+	return true;
+}
 void CDirectSoundEngine::EventThreadProc()
 {
-	if (0 == EVENT_NOTIFY_COUNT)
+	if (0 == POSITION_EVENT_COUNT)
 		return;
+
+	// 通知该线程创建消息队列
+	MSG msg;
+	::PeekMessage(&msg, NULL, WM_USER, WM_USER, PM_NOREMOVE);
 
 	while(true)
 	{
-		DWORD nRet = ::WaitForMultipleObjects(EVENT_NOTIFY_COUNT, m_hEvents, FALSE, INFINITE);
+		DWORD nRet = ::WaitForMultipleObjects(NOTIFY_EVENT_COUNT, m_hEvents, FALSE, INFINITE);
 		if (nRet == WAIT_FAILED)
 			return;
 
 		int nIndex = nRet - WAIT_OBJECT_0;
-		if (nIndex >= 0 && nIndex < EVENT_NOTIFY_COUNT)
+		if (nIndex >= 0 && nIndex < POSITION_EVENT_COUNT)
 		{
 			if (FAILED (this->PushBuffer(m_nPerEventBufferSize*nIndex, m_nPerEventBufferSize)))
 			{
@@ -460,9 +485,23 @@ void CDirectSoundEngine::EventThreadProc()
 				
 			}
 		}
-		else if (nIndex == EVENT_NOTIFY_COUNT)
+		else if (nIndex == POSITION_EVENT_COUNT)
 		{
-			this->Stop();
+			//this->Stop();
+			while(::PeekMessage(&msg, NULL, NULL, NULL, PM_REMOVE))
+			{
+				switch(msg.message)
+				{
+				case DSMSG_SET_CUR_POS:
+					{
+						DSMSG_PARAM_SET_CUR_POS* pParam = (DSMSG_PARAM_SET_CUR_POS*)msg.wParam;
+						this->OnSetCurPos(pParam->dPercent);
+						delete pParam;
+					}
+					break;
+				}
+				
+			}
 		}
 		else
 		{
@@ -499,6 +538,11 @@ void  CDirectSoundEngine::TimerCallback(UINT nTimerID, UINT nMsg)
 }
 #endif
 
+void CDirectSoundEngine::SetBufferSize(int nSize)
+{
+	m_nDirectSoundBufferSize = nSize;
+	m_nPerEventBufferSize = m_nDirectSoundBufferSize/POSITION_EVENT_COUNT;
+}
 // 往缓冲区中添加数据
 HRESULT CDirectSoundEngine::PushBuffer(int nStart, int nCount)
 {
@@ -513,8 +557,8 @@ HRESULT CDirectSoundEngine::PushBuffer(int nStart, int nCount)
 		return hr;
 
 	DWORD outsize = 0;
-	BYTE* pbSoundData = new BYTE[ m_nPerEventBufferSize ];
-	hr = m_pCurFile->Read(pbSoundData, m_nPerEventBufferSize, &outsize);
+	BYTE* pbSoundData = new BYTE[ dwSizePart1 ];
+	hr = m_pCurFile->Read(pbSoundData, dwSizePart1, &outsize);
 	if (FAILED(hr))
 	{
 		delete[] pbSoundData;
@@ -526,8 +570,8 @@ HRESULT CDirectSoundEngine::PushBuffer(int nStart, int nCount)
 
 	if(pBitPart2 != 0)
 	{
-		pbSoundData = new BYTE[ m_nPerEventBufferSize ];
-		hr = m_pCurFile->Read(pbSoundData, m_nPerEventBufferSize, &outsize);
+		pbSoundData = new BYTE[ dwSizePart2 ];
+		hr = m_pCurFile->Read(pbSoundData, dwSizePart2, &outsize);
 		if (FAILED(hr))
 		{
 			delete[] pbSoundData;
