@@ -648,10 +648,6 @@ LRESULT WindowBase::DefWindowProc( UINT uMsg, WPARAM wParam, LPARAM lParam )
 //
 LRESULT	WindowBase::WndProc( UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
-	if (WM_INPUTLANGCHANGEREQUEST  == uMsg)
-	{
-		int a = 0;
-	}
 	LRESULT lRes;
 	UIMSG*  pOldMsg = m_pCurMsg;
 	BOOL bRet = this->ProcessWindowMessage( m_hWnd, uMsg, wParam, lParam, lRes, 0 );  // 调用BEGIN_MSG_MAP消息映射列表

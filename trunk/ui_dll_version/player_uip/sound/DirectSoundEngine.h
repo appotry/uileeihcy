@@ -67,6 +67,8 @@ protected:
 };
 
 #define EVENT_NOTIFY_COUNT  2
+#define USE_THREAD
+
 class CDirectSoundEngine : public ISoundEngine
 {
 public:
@@ -89,19 +91,26 @@ protected:
 	HRESULT PushBuffer(int nStart, int nCount);
 
 public:
+#ifdef USE_THREAD	
 	void    EventThreadProc();
+#else
+	void    TimerCallback(UINT nTimerID, UINT nMsg);
+#endif
 
 protected:
 	IDirectSound8*        m_pDirectSound8;
 	IDirectSoundBuffer8*  m_pDirectSoundBuffer8;
-	IDirectSoundNotify8*  m_pDirectSoundNotify8;
 
 	ISoundFile*    m_pCurFile;
 	ISoundFile*    m_pMp3File;
 	ISoundFile*    m_pWavFile;
 
-	HANDLE         m_hEvents[EVENT_NOTIFY_COUNT+1];  // 最后一个event是通知结束线程
+	HANDLE         m_hEvents[EVENT_NOTIFY_COUNT];    // 各个position的通知事件
+#ifdef USE_THREAD
 	HANDLE         m_hEventThread;
+#else
+	UINT           m_nTimerID;
+#endif
 	int            m_nDirectSoundBufferSize;         // 缓冲区的大小。作成一个成员变量，便于以后动态修改
 	int            m_nPerEventBufferSize;            // 每次事件需要填充的buffer大小，保存起来，只计算一次
 
