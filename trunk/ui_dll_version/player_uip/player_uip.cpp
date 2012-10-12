@@ -44,9 +44,9 @@ bool  mp3_set_cur_pos( double percent )
 	return g_mp3.SetCurPos( percent );
 }
 
-bool  mp3_set_volumn( double percent )
+bool  mp3_set_volumn( long lPercent )
 {
-	return g_mp3.SetVolume(percent);
+	return g_mp3.SetVolume(lPercent);
 }
 
 bool  mp3_mute( bool bMute )

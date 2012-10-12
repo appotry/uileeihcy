@@ -147,6 +147,10 @@ http://www.codeproject.com/Articles/31375/Play-Wave-Files-with-DirectSound-and-D
 http://www.codeproject.com/Articles/31709/Play-Audio-Files-with-DirectSound-and-Display-its
 DirectSound Spectrum
 
+http://www.zxxk.com/Article/192456.html   完美的数学声谱图案
+声谱 可视化 小波转换图  声图
+
+一定要记住，3D音效只支持单声道的wave文件，不要试图对一个多声道的wave文件实现三维立体声效果，不会成功的。
 
 timeSetEvent来取代开启线程？
 acm是什么？ acmstreamopen。。。

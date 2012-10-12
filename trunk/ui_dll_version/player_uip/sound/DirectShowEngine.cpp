@@ -93,6 +93,32 @@ HRESULT CDirectShowEngine::RenderFile( const TCHAR* szFile, const TCHAR* szExt )
 	if (NULL == szFile)
 		return E_INVALIDARG;
 
+	this->ClearRender();
+
+	HRESULT hr = m_pGraphBuilder->RenderFile( szFile, NULL );   // render file不会删除以前的filter
+	if( FAILED(hr) )
+		return hr;
+
+// 	if( NULL != m_pBasicAudio )
+// 	{
+// 		long lVolumn = 0;
+// 		HRESULT hr = m_pBasicAudio->get_Volume(&lVolumn); // 在RenderFile之前调用get_Volumn会返回E_NOTIMPL
+// 		m_nVolumn = lVolumn;
+// 
+// 		if (NULL != m_pMgr)
+// 		{
+// 			m_pMgr->Fire_on_mp3_volume_ind(lVolumn);
+// 		}
+// 	}	
+
+	return hr;
+}
+
+HRESULT CDirectShowEngine::ClearRender()
+{
+	if (NULL == m_pGraphBuilder)
+		return E_FAIL;
+
 	IEnumFilters* pEnum = NULL;
 	IBaseFilter*  pFilter = NULL;
 
@@ -107,24 +133,7 @@ HRESULT CDirectShowEngine::RenderFile( const TCHAR* szFile, const TCHAR* szExt )
 		pEnum->Reset();    // 注意：如果不reset，会导致播放完wma后，再播放mp3会失败。因为没有删除干净
 	}
 	pEnum->Release();
-
-	HRESULT hr = m_pGraphBuilder->RenderFile( szFile, NULL );   // render file不会删除以前的filter
-	if( FAILED(hr) )
-		return hr;
-
-	if( NULL != m_pBasicAudio )
-	{
-		long lVolumn = 0;
-		HRESULT hr = m_pBasicAudio->get_Volume(&lVolumn); // 在RenderFile之前调用get_Volumn会返回E_NOTIMPL
-		m_nVolumn = lVolumn;
-
-		if (NULL != m_pMgr)
-		{
-			m_pMgr->Fire_on_mp3_volume_ind(lVolumn);
-		}
-	}	
-
-	return hr;
+	return S_OK;
 }
 
 HRESULT CDirectShowEngine::Play()
@@ -176,6 +185,10 @@ HRESULT CDirectShowEngine::SetCurPos(double percent)
 	REFTIME cur = len * percent;
 	HRESULT hr = this->m_pMediaPosition->put_CurrentPosition(cur);
 
+	// 通知界面立即更新当前进度
+	if (NULL != m_pWnd)
+		::PostMessage(m_pWnd->m_hWnd, WM_TIMER, TIMER_ID_PROGRESS, 0);
+
 	return hr;
 }
 
@@ -205,63 +218,13 @@ HRESULT CDirectShowEngine::GetCurPos(double* pdSeconds, double* pdPercent)
 	return S_OK;
 }
 
-int g_volumes[] = 
-{-10000,-6418,-6147,-6000,
--5892,-4826,-4647,-4540
--4477, -4162,-3876, -3614, -3500,
--3492,-3374,-3261,-3100,-3153,-3048,-2947,-2849,-2755,-2700,
--2663,-2575,-2520,-2489,-2406,-2325,-2280,-2246,-2170,-2095,-2050,
--2023,-1952,-1900, -1884,-1834, -1820, -1800,-1780, -1757,-1695,-1636,-1579,
--1521,-1500,-1464,-1436,-1420, -1408,-1353,-1299,-1246,-1195,-1144,
--1096,-1060, -1049,-1020,-1003,-957,-912,-868, -800, -774,-784, -760, -744,
--705,-667,-630,-610,-594,-570 ,-558,-525,-493,-462,-432,-403,
--375,-348,-322,-297,-285, -273,-250,-228,-207,-187,-176, -168,
--150,-102,-75,-19,-10,0,0};
 
-
-HRESULT CDirectShowEngine::SetVolume(double percent)
+HRESULT CDirectShowEngine::SetVolume(long lVolumn)
 {
-	if( NULL == m_pBasicAudio )
-		return E_FAIL;
-
-	//	long lVolumn = (long)( percent*100.0 - 10000 );
-	if( percent < 0 )
-		percent = 0;
-	if( percent >= sizeof(g_volumes)/sizeof(int) )
-		percent = sizeof(g_volumes)/sizeof(int) -1;
-
-	long lVolumn = (long)( g_volumes[(int)percent] );
-	if( m_bMute )   // 当前处于静音状态，不能调用put_Volumn
-	{
-		m_nVolumn = lVolumn;
-		return S_OK;
-	}
-
 	HRESULT hr = this->m_pBasicAudio->put_Volume(lVolumn);
-
-	if( SUCCEEDED(hr) )
-	{
-		m_nVolumn = lVolumn;
-		return S_OK;
-	}
-
 	return hr;
 }
 
-HRESULT CDirectShowEngine::Mute(bool bMute)
-{
-	if( NULL == m_pBasicAudio )
-		return E_FAIL;
-
-	m_bMute = bMute;
-
-	if( bMute )
-		m_pBasicAudio->put_Volume(-10000);
-	else
-		m_pBasicAudio->put_Volume(m_nVolumn);
-
-	return S_OK;
-}
 
 //
 // 从MessageOnlyWnd转发过来的消息，用于获取播放结束的消息

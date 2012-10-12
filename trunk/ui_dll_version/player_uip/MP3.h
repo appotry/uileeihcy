@@ -10,15 +10,14 @@ public:
 	virtual HRESULT  Release() = 0;
 
 	virtual HRESULT  RenderFile( const TCHAR* szFile, const TCHAR* szExt ) = 0;
+	virtual HRESULT  ClearRender() = 0;
 	virtual HRESULT  Play() = 0;
 	virtual HRESULT  Pause() = 0;
 	virtual HRESULT  Stop() = 0;
 	virtual HRESULT  SetCurPos(double) = 0;
 	virtual HRESULT  GetCurPos(double* pdSeconds, double* pdPercent) = 0;
-	virtual HRESULT  SetVolume(double) = 0;
-	virtual HRESULT  Mute(bool) = 0;
+	virtual HRESULT  SetVolume(long) = 0;
 };
-
 
 
 class CMP3
@@ -36,7 +35,7 @@ public:
 	bool    Pause();
 	bool    Stop();
 	bool    SetCurPos(double);
-	bool    SetVolume(double);
+	bool    SetVolume(long lPercent);
 	bool    Mute(bool);
 
 public:
@@ -52,8 +51,8 @@ protected:
 // 	CComPtr<IMediaPosition>  m_pMediaPosition;
 // 	CComPtr<IBasicAudio>     m_pBasicAudio;
 // 	
-// 	long     m_nVolumn;   // 记录当前音量，用于在取消静音时使用
-// 	bool     m_bMute;
+	long     m_nVolumn;;   // 记录当前音量，用于在取消静音时使用
+	bool     m_bMute;      // 当前是否静音
 // 
 	CMessageOnlyWindow   m_WndEvent;
 	friend class CMessageOnlyWindow;

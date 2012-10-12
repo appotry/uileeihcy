@@ -86,6 +86,11 @@ void MainWindow::OnInitWindow()
 		m_pbtnPause->SetVisible(false);
 	}
 
+	if (NULL != m_pVolume)
+	{
+		m_pVolume->SetPos(100, false);
+	}
+
 	::SetWindowText(m_hWnd, _T("Player_Demo"));
 // 	COptionWindow win;
 // 	win.DoModal(g_hInstance, COptionWindow::IDD, _T("OptionWindow"),m_hWnd);
@@ -188,9 +193,9 @@ void MainWindow::OnBnClickMute()
 		return;
 
 	if( m_pbtnMute->IsChecked() )
-		mp3_mute(false);
-	else
 		mp3_mute(true);
+	else
+		mp3_mute(false);
 }
 
 void MainWindow::OnBnClickPrev()
@@ -540,23 +545,6 @@ void MainWindow::OnVolumnChanged( int nPos, int nScrollType )
 
 void MainWindow::OnMp3ProgressInd(double dSeconds, double dPercent)
 {
-	if( ::GetCapture() == m_hWnd )  // 正在拖拽过程中
-	{
-		Object* pObj = this->GetPressObject();
-		if( NULL != pObj )
-		{
-			if( pObj == m_pProgress || pObj->GetParentObject() == m_pProgress )
-			{
-				return;
-			}
-		}
-	}
-
-	if( NULL != m_pProgress )
-	{
-		m_pProgress->SetPos((int)(double)(dPercent*100));
-	}
-	
 	// 转换为时间
 	int n = (int)dSeconds;
 	int h = n/3600;
@@ -576,6 +564,24 @@ void MainWindow::OnMp3ProgressInd(double dSeconds, double dPercent)
 	if (NULL != m_pLEDTime)
 	{
 		m_pLEDTime->SetText(szTime);
+	}
+
+
+	if( ::GetCapture() == m_hWnd )  // 正在拖拽过程中，不能再去设置它的位置
+	{
+		Object* pObj = this->GetPressObject();
+		if( NULL != pObj )
+		{
+			if( pObj == m_pProgress || pObj->GetParentObject() == m_pProgress )
+			{
+				return;
+			}
+		}
+	}
+
+	if( NULL != m_pProgress )
+	{
+		m_pProgress->SetPos((int)(double)(dPercent*100));
 	}
 }
 

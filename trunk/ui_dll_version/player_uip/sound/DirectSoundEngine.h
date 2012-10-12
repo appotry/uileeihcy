@@ -50,13 +50,13 @@ public:
 	virtual HRESULT  Release();
 
 	virtual HRESULT  RenderFile( const TCHAR* szFile, const TCHAR* szExt );
+	virtual HRESULT  ClearRender();
 	virtual HRESULT  Play();
 	virtual HRESULT  Pause();
 	virtual HRESULT  Stop();
 	virtual HRESULT  SetCurPos(double);
 	virtual HRESULT  GetCurPos(double* pdSeconds, double* pdPercent);
-	virtual HRESULT  SetVolume(double);
-	virtual HRESULT  Mute(bool);
+	virtual HRESULT  SetVolume(long);
 
 protected:
 	HRESULT PushBuffer(int nStart, int nCount);
@@ -67,6 +67,9 @@ public:
 	void    EventThreadProc();
 	bool    PostThreadMessage(UINT uMsg, DSMSG_PARAM* pParam);
 	HRESULT OnSetCurPos(double dPercent);
+	HRESULT OnPlay();
+	HRESULT OnPause();
+	HRESULT OnStop();
 
 protected:
 	IDirectSound8*        m_pDirectSound8;
