@@ -16,12 +16,15 @@
 #pragma comment(lib, "dsound.lib")
 #pragma comment(lib, "Winmm.lib")
 #pragma comment(lib, "dxguid.lib")
+    
+#define POSITION_EVENT_COUNT 2    // 通知事件个数
+#define NOTIFY_EVENT_COUNT  (POSITION_EVENT_COUNT+1)    // EVENT数量（最后一个是msg通知）
 
-//
-// TODO:
-//   在等待线程中调用COM接口的STOP函数，会有问题吗？
-//
+class DSMSG_PARAM
+{
+};
 
+// 各种文件解码的基类
 class ISoundFile
 {
 public:
@@ -35,49 +38,7 @@ public:
 protected:
 	WAVEFORMATEX   m_wfx;
 };
-class CWavFile : public ISoundFile
-{
-public:
-	CWavFile();
-	~CWavFile();
 
-	void     Release();
-
-	virtual  HRESULT   RenderFile(const TCHAR* szFile);
-	virtual  HRESULT   Read(BYTE* pBuffer, DWORD dwSizeToRead, DWORD* pdwSizeRead);
-
-	virtual  HRESULT   SetCurPos(double percent) {return E_NOTIMPL;}
-	virtual  HRESULT   GetCurPos(double* pdSeconds, double* pdPercent) {return E_NOTIMPL;}
-};
-class CMp3File : public ISoundFile
-{
-public:
-	CMp3File();
-	~CMp3File();
-
-	void     Release();
-
-	virtual  HRESULT   RenderFile(const TCHAR* szFile);
-	virtual  HRESULT   Read(BYTE* pBuffer, DWORD dwSizeToRead, DWORD* pdwSizeRead);
-
-	virtual  HRESULT   SetCurPos(double percent);
-	virtual  HRESULT   GetCurPos(double* pdSeconds, double* pdPercent);
-protected:
-	mpg123_handle*     m_hMpg123;   // mp3解码器
-};
-
-#define USE_THREAD
-#define POSITION_EVENT_COUNT 2
-
-#ifdef USE_THREAD
-#define NOTIFY_EVENT_COUNT  (POSITION_EVENT_COUNT+1)
-#else
-#define NOTIFY_EVENT_COUNT  POSITION_EVENT_COUNT
-#endif
-
-
-class DSMSG_PARAM
-{};
 
 class CDirectSoundEngine : public ISoundEngine
 {
@@ -103,14 +64,9 @@ protected:
 	int     GetBufferSize() { return m_nDirectSoundBufferSize; }
 
 public:
-#ifdef USE_THREAD	
 	void    EventThreadProc();
 	bool    PostThreadMessage(UINT uMsg, DSMSG_PARAM* pParam);
 	HRESULT OnSetCurPos(double dPercent);
-
-#else
-	void    TimerCallback(UINT nTimerID, UINT nMsg);
-#endif
 
 protected:
 	IDirectSound8*        m_pDirectSound8;
@@ -121,14 +77,11 @@ protected:
 	ISoundFile*    m_pWavFile;
 
 	HANDLE         m_hEvents[NOTIFY_EVENT_COUNT];  // 各个position的通知事件
-#ifdef USE_THREAD
 	HANDLE         m_hEventThread;
-	DWORD          m_dwThreadID;
-#else
-	UINT           m_nTimerID;
-#endif
-	int            m_nDirectSoundBufferSize;         // 缓冲区的大小。作成一个成员变量，便于以后动态修改
-	int            m_nPerEventBufferSize;            // 每次事件需要填充的buffer大小，保存起来，只计算一次
+	DWORD          m_dwEventThreadID;              // 事件通知线程ID
+
+	int            m_nDirectSoundBufferSize;       // 缓冲区的大小。作成一个成员变量，便于以后动态修改
+	int            m_nPerEventBufferSize;          // 每次事件需要填充的buffer大小，保存起来，只计算一次
 
 	CMP3*          m_pMgr;
 	CMessageOnlyWindow*  m_pWnd;

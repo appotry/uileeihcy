@@ -28,7 +28,7 @@ HRESULT CMessageOnlyWindow::OnNotifyMsg(UINT msg, WPARAM w, LPARAM l)
 
 void CMessageOnlyWindow::OnTimer(UINT_PTR nIDEvent)
 {
-	if( TIMER_ID_PROGRESS == nIDEvent )
+	if (TIMER_ID_PROGRESS == nIDEvent)
 	{
 #if 0
 		if( NULL != m_pThis->m_pMediaPosition )
