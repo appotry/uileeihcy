@@ -17,13 +17,13 @@ public:
 	HRESULT  Release();
 
 	HRESULT  RenderFile( const TCHAR* szFile, const TCHAR* szExt );
+	HRESULT  ClearRender();
 	HRESULT  Play();
 	HRESULT  Pause();
 	HRESULT  Stop();
 	HRESULT  SetCurPos(double);
 	HRESULT  GetCurPos(double* pdSeconds, double* pdPercent);
-	HRESULT  SetVolume(double);
-	HRESULT  Mute(bool);
+	HRESULT  SetVolume(long lVolumn);
 
 public:
 	HRESULT  OnNoitfy(UINT uMsg, WPARAM wParam, LPARAM lParam);

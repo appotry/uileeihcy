@@ -313,6 +313,10 @@ PlayerListItemInfo* CPlayerListMgr::GetNextPlayItem(bool& bPlay)
 			int nResult = rand()%nCount;
 			bPlay = true;
 			PlayerListItemInfo* p = GetItem(nResult);
+			if (p == m_pCurPlayingItem && nCount>1)
+			{
+				return this->GetNextPlayItem(bPlay);  // 又随机到了自己，重来。
+			}
 			m_lstPlayHistory.push_back(p);
 			return p;
 		}

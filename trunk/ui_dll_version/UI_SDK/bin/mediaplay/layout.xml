@@ -26,7 +26,7 @@
       <Button id="btn_stop"  styleclass="imagebtn" tooltip="停止" bkgnd.render.image="stop.png"  layout.bottom="12" layout.left="43"></Button>
       <Button id="btn_prev"  styleclass="imagebtn" tooltip="上一首" bkgnd.render.image="prev.png"  layout.bottom="12" layout.left="75"></Button>
       <Button id="btn_next"  styleclass="imagebtn" tooltip="下一首" bkgnd.render.image="next.png"  layout.bottom="12" layout.left="100"></Button>
-      <CheckButton id="btn_mute" styleclass="imagecheckbutton" tooltip="静音" foregnd.render.image="mute.png"  layout.bottom="10" layout.left="132"></CheckButton>
+      <CheckButton id="btn_mute" styleclass="imagecheckbutton" tooltip="静音" foregnd.render.image="mute.png"  layout.bottom="12" layout.left="132"></CheckButton>
       <SliderCtrl id="progress_voice" foregnd.render.image="volume_fill.png" height="13" width="67" layout.bottom="18" layout.left="163" trackbtn.bkgnd.render.image="volume_thumb.png" />
       <Button id="btn_open" styleclass="imagebtn" tooltip="播放文件" bkgnd.render.image="open.png"  layout.bottom="13" layout.right="12"></Button>
     </CustomWindow>

@@ -9,6 +9,8 @@ CMP3::CMP3(void)
 	m_pCurrentEngine = NULL;
 	m_pDirectShowEngine = NULL;
 	m_pDirectSoundEngine = NULL;
+	m_nVolumn = DSBVOLUME_MAX;
+	m_bMute = false;
 }
 
 CMP3::~CMP3(void)
@@ -57,6 +59,14 @@ bool CMP3::Release()
 bool CMP3::RenderFile( const String& strFile )
 {
 	m_pCurrentEngine = NULL;
+	if (NULL != m_pDirectShowEngine)
+	{
+		m_pDirectShowEngine->ClearRender();
+	}
+	if (NULL != m_pDirectSoundEngine)
+	{
+		m_pDirectSoundEngine->ClearRender();
+	}
 
 	// 简单判断后缀名来决定采用哪个engine来播放
 	size_t nPos = strFile.find_last_of(_T('.'));
@@ -85,6 +95,11 @@ bool CMP3::RenderFile( const String& strFile )
 	{
 		m_pDirectShowEngine->RenderFile(strFile.c_str(), strExt.c_str());
 		m_pCurrentEngine = m_pDirectShowEngine;
+	}
+
+	if (NULL != m_pCurrentEngine)
+	{
+		m_pCurrentEngine->SetVolume(m_bMute?DSBVOLUME_MIN:m_nVolumn);
 	}
 	
 	return true;
@@ -132,12 +147,48 @@ bool CMP3::SetCurPos(double percent)
 		return false;
 }
 
-bool CMP3::SetVolume(double percent)
+
+int g_volumes[] = 
 {
+	-10000,-6418, -6147, -6000, -5892,
+	-4826, -4647, -4540, -4477, -4162,
+	-3876, -3614, -3500, -3492, -3374,
+	-3261, -3100, -3153, -3048, -2947,
+	-2849, -2755, -2700, -2663, -2575, 
+	-2520, -2489, -2406, -2325, -2280, 
+	-2246, -2170, -2095, -2050, -2023, 
+	-1952, -1900, -1884, -1834, -1820, 
+	-1800, -1780, -1757, -1695, -1636, 
+	-1579, -1521, -1500, -1464, -1436, 
+	-1420, -1408, -1353, -1299, -1246, 
+	-1195, -1144, -1096, -1060, -1049, 
+	-1020, -1003, -957,  -912,  -868, 
+	-800,  -774,  -784,  -760,  -744,  
+	-705,  -667,  -630,  -610,  -594,  
+	-570,  -558,  -525,  -493,  -462,  
+	-432,  -403,  -375,  -348,  -322,  
+	-297,  -285,  -273,  -250,  -228,  
+	-207,  -187,  -176,  -168,  -150,  
+	-102,  -75,  -19,    -10,   0, 0
+};
+
+
+bool CMP3::SetVolume(long lPercent)
+{
+	if( lPercent < 0 )
+		lPercent = 0;
+	if( lPercent >= sizeof(g_volumes)/sizeof(int) )
+		lPercent = sizeof(g_volumes)/sizeof(int) -1;
+
+	m_nVolumn = (long)( g_volumes[(int)lPercent] );
+
+	if (m_bMute)
+		return true;
+
 	if (NULL == m_pCurrentEngine)
 		return false;
-
-	if (SUCCEEDED(m_pCurrentEngine->SetVolume(percent)))
+	
+	if (SUCCEEDED(m_pCurrentEngine->SetVolume(m_nVolumn)))
 		return true;
 	else
 		return false;
@@ -145,10 +196,17 @@ bool CMP3::SetVolume(double percent)
 
 bool CMP3::Mute(bool bMute)
 {
+	m_bMute = bMute;
 	if (NULL == m_pCurrentEngine)
 		return false;
 
-	if (SUCCEEDED(m_pCurrentEngine->Mute(bMute)))
+	HRESULT hr = E_FAIL;
+	if (bMute)
+		 hr = m_pCurrentEngine->SetVolume(DSBVOLUME_MIN);
+	else
+		hr = m_pCurrentEngine->SetVolume(m_nVolumn);
+
+	if (SUCCEEDED(hr))
 		return true;
 	else
 		return false;

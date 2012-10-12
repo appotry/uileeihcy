@@ -26,5 +26,5 @@ PLAYER_UIP_API bool  mp3_set_file(const String& strPath);
 PLAYER_UIP_API bool  mp3_release();
 PLAYER_UIP_API bool  mp3_add_event_callback(IMp3EventCallback* p);
 PLAYER_UIP_API bool  mp3_set_cur_pos( double percent );
-PLAYER_UIP_API bool  mp3_set_volumn( double percent );
+PLAYER_UIP_API bool  mp3_set_volumn( long lPercent );
 PLAYER_UIP_API bool  mp3_mute( bool bMute );
