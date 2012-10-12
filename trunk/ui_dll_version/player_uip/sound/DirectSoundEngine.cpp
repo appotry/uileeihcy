@@ -1,6 +1,11 @@
 #include "StdAfx.h"
 #include "DirectSoundEngine.h"
+#include "Mp3File.h"
+#include "WavFile.h"
 
+//////////////////////////////////////////////////////////////////////////
+//
+//  线程通知消息定义
 
 // 设置当前的进度
 #define  DSMSG_SET_CUR_POS    (WM_USER+1)    
@@ -16,153 +21,8 @@ DSMSG_PARAM* BuildSetCurPosParam(double dPercent)
 	return (DSMSG_PARAM*)p;
 }
 
-CWavFile::CWavFile()
-{
-
-}
-CWavFile::~CWavFile()
-{
-	this->Release();
-}
-void CWavFile::Release()
-{
-
-}
-
-HRESULT CWavFile::RenderFile(const TCHAR* szFile)
-{
-	return E_NOTIMPL;
-}
-HRESULT CWavFile::Read(BYTE* pBuffer, DWORD dwSizeToRead, DWORD* pdwSizeRead)
-{
-	return E_NOTIMPL;
-}
 
 //////////////////////////////////////////////////////////////////////////
-
-CMp3File::CMp3File()
-{
-	m_hMpg123 = NULL;
-}
-CMp3File::~CMp3File()
-{
-	this->Release();
-}
-
-void CMp3File::Release()
-{
-	if (NULL != m_hMpg123)
-	{
-		mpg123_tclose(m_hMpg123);
-		mpg123_delete(m_hMpg123);
-		m_hMpg123 = NULL;
-
-		mpg123_exit();
-	}
-}
-HRESULT CMp3File::RenderFile(const TCHAR* szFileName)
-{	
-	int ret = -1;
-	bool bRet = false;
-	do 
-	{
-		if (NULL == m_hMpg123)
-		{
-			if (MPG123_OK != mpg123_init())
-				return E_FAIL;
-
-			m_hMpg123 = mpg123_new(NULL, &ret);
-			if (NULL == m_hMpg123 || MPG123_OK != ret)
-			{
-				mpg123_exit();
-				return E_FAIL;
-			}
-		}
-		else
-		{
-			mpg123_tclose(m_hMpg123);  // 关闭之前的文件
-		}
-
-
-		if (MPG123_OK != mpg123_topen(m_hMpg123, szFileName))
-			break;
-
-		long lRate = 0;
-		int  nChannel = 0;
-		int  nEncoding = 0;
-
-		if (MPG123_OK != mpg123_getformat(m_hMpg123, &lRate, &nChannel, &nEncoding))
-			break;
-
-		if (MPG123_ENC_16 == (nEncoding & MPG123_ENC_16))
-			nEncoding = 16;
-		else if (MPG123_ENC_32 == (nEncoding & MPG123_ENC_32))
-			nEncoding = 32;
-		else
-			nEncoding = 8;
-
-		memset(&m_wfx, 0, sizeof(WAVEFORMATEX));
-		m_wfx.wFormatTag = WAVE_FORMAT_PCM;
-		m_wfx.nChannels = nChannel;
-		m_wfx.nSamplesPerSec = lRate;
-		m_wfx.wBitsPerSample = nEncoding;
-		m_wfx.nBlockAlign = nEncoding / 8 * nChannel;
-		m_wfx.nAvgBytesPerSec = lRate * (nEncoding / 8) * nChannel;
-
-		bRet = true;
-	} while (0);
-	
-	if (false == bRet)
-	{
-		this->Release();
-		return E_FAIL;
-	}
-	return S_OK;
-}
-
-HRESULT CMp3File::Read(BYTE* pBuffer, DWORD dwSizeToRead, DWORD* pdwSizeRead)
-{
-	int ret = mpg123_read(m_hMpg123, pBuffer, dwSizeToRead, (size_t*)pdwSizeRead);
-	if (MPG123_OK != ret)
-		return E_FAIL;
-
-	return S_OK;
-}
-
-HRESULT CMp3File::SetCurPos(double percent)
-{
-	if (NULL == m_hMpg123)
-		return E_FAIL;
-
-	off_t length = mpg123_length(m_hMpg123);
-
-	if (mpg123_seek(m_hMpg123, (off_t)(length*percent), SEEK_SET) < 0)
-		return E_FAIL;	
-	
-	return S_OK;
-}
-
-HRESULT CMp3File::GetCurPos(double* pdSeconds, double* pdPercent)
-{
-	if (NULL == m_hMpg123)
-		return E_FAIL;
-	if (NULL == pdSeconds || NULL == pdPercent)
-		return E_INVALIDARG;
-
-	off_t length = mpg123_length(m_hMpg123);
-	off_t cur = mpg123_tell(m_hMpg123);
-
-	if (0 == length)
-		return E_FAIL;
-
-	*pdPercent = cur * 1.0 / length;
-
-	off_t curFrame = mpg123_tellframe(m_hMpg123);
-	double dFrameTime = mpg123_tpf(m_hMpg123);
-
-	*pdSeconds = dFrameTime * curFrame;
-	return S_OK;
-}
 //////////////////////////////////////////////////////////////////////////
 
 CDirectSoundEngine::CDirectSoundEngine(void)
@@ -178,12 +38,8 @@ CDirectSoundEngine::CDirectSoundEngine(void)
 	{
 		m_hEvents[i] = 0;
 	}
-#ifdef USE_THREAD
 	m_hEventThread = NULL;
-	m_dwThreadID = 0;
-#else
-	m_nTimerID = 0;
-#endif
+	m_dwEventThreadID = 0;
 
 	this->SetBufferSize(32*1024);
 }
@@ -192,8 +48,6 @@ CDirectSoundEngine::~CDirectSoundEngine(void)
 {
 	this->Release();
 }
-#ifdef USE_THREAD
-// 开线程存在同步问题，不好解决。放弃。使用timeSetEvent
 DWORD WINAPI gNotifyThreadProc( LPVOID lpParameter)
 {
 	CDirectSoundEngine* pThis = (CDirectSoundEngine*)lpParameter;
@@ -203,18 +57,6 @@ DWORD WINAPI gNotifyThreadProc( LPVOID lpParameter)
 	pThis->EventThreadProc();
 	return 0;
 }
-
-#else
-// 注：timeSetEvent也是用开辟新线程的方式！无法解决同步问题
-void CALLBACK gTimeProc(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
-{
-	CDirectSoundEngine* pThis = (CDirectSoundEngine*)dwUser;
-	if (NULL != pThis)
-	{
-		pThis->TimerCallback(uTimerID, uMsg);
-	}
-}
-#endif
 
 HRESULT CDirectSoundEngine::Init(CMP3* pMgr, CMessageOnlyWindow* pWndEvent)
 {
@@ -236,11 +78,9 @@ HRESULT CDirectSoundEngine::Init(CMP3* pMgr, CMessageOnlyWindow* pWndEvent)
 	{
 		m_hEvents[i] = CreateEvent(NULL, FALSE, FALSE, NULL);
 	}
-#ifdef USE_THREAD
-	m_hEventThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)gNotifyThreadProc, (LPVOID)this, 0, &m_dwThreadID);
+	m_hEventThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)gNotifyThreadProc, (LPVOID)this, 0, &m_dwEventThreadID);
 	if (NULL == m_hEventThread)
 		return E_FAIL;
-#endif
 
 	return S_OK;
 }
@@ -250,7 +90,6 @@ HRESULT CDirectSoundEngine::Release()
 	SAFE_DELETE(m_pMp3File);
 	SAFE_DELETE(m_pWavFile);
 
-#ifdef USE_THREAD
 	if(m_hEventThread != NULL)
 	{
 		SetEvent(m_hEvents[POSITION_EVENT_COUNT]);
@@ -258,9 +97,8 @@ HRESULT CDirectSoundEngine::Release()
 		TerminateThread(m_hEventThread, 0);
 		CloseHandle(m_hEventThread);
 		m_hEventThread = NULL;
-		m_dwThreadID = 0;
+		m_dwEventThreadID = 0;
 	}
-#endif
 	for(int i = 0; i < NOTIFY_EVENT_COUNT; ++ i)
 	{
 		if(m_hEvents[i] != NULL)
@@ -368,10 +206,6 @@ HRESULT CDirectSoundEngine::Play()
 	HRESULT hr = m_pDirectSoundBuffer8->Play(0,0, DSBPLAY_LOOPING);
 
 
-#ifndef USE_THREAD
-	m_nTimerID = ::timeSetEvent(30, 10, gTimeProc, (DWORD)this, TIME_PERIODIC | TIME_CALLBACK_FUNCTION);  // 这个是用于填充缓冲区数据的
-#endif
-
 	m_pWnd->StartTimer(true);  // 这个是用于向UI层汇报进度和时间
 
 	return hr;
@@ -379,19 +213,11 @@ HRESULT CDirectSoundEngine::Play()
 HRESULT CDirectSoundEngine::Pause()
 {
 	m_pWnd->EndTimer();
-#ifndef USE_THREAD
-	::timeKillEvent(m_nTimerID);
-	m_nTimerID = 0;
-#endif
 	return E_NOTIMPL;
 }
 HRESULT CDirectSoundEngine::Stop()
 {
 	m_pWnd->EndTimer();
-#ifndef USE_THREAD
-	::timeKillEvent(m_nTimerID);
-	m_nTimerID = 0;
-#endif
 
 	if (NULL == m_pCurFile || NULL == m_pDirectSoundBuffer8)
 		return E_FAIL;
@@ -428,7 +254,15 @@ HRESULT CDirectSoundEngine::OnSetCurPos(double dPercent)
 	if (FAILED(hr))
 		return hr;
 
-	return m_pDirectSoundBuffer8->Play(0,0, DSBPLAY_LOOPING);
+	hr = m_pDirectSoundBuffer8->Play(0,0, DSBPLAY_LOOPING);
+	if (FAILED(hr))
+		return hr;
+
+	// 通知界面立即更新当前进度
+	if (NULL != m_pWnd)
+		::PostMessage(m_pWnd->m_hWnd, EVENTEX_NOTIFY_MSG, TIMER_ID_PROGRESS, 0);
+
+	return S_OK;
 }
 
 HRESULT CDirectSoundEngine::GetCurPos(double* pdSeconds, double* pdPercent)
@@ -448,10 +282,9 @@ HRESULT CDirectSoundEngine::Mute(bool)
 }
 
 
-#ifdef USE_THREAD
 bool CDirectSoundEngine::PostThreadMessage(UINT uMsg, DSMSG_PARAM* pParam)
 {
-	if (FALSE == ::PostThreadMessage(m_dwThreadID, uMsg, (WPARAM)pParam, 0))
+	if (FALSE == ::PostThreadMessage(m_dwEventThreadID, uMsg, (WPARAM)pParam, 0))
 		return false;
 
 	::SetEvent(m_hEvents[POSITION_EVENT_COUNT]);
@@ -513,30 +346,6 @@ void CDirectSoundEngine::EventThreadProc()
 
 	return;
 }
-
-#else
-
-void  CDirectSoundEngine::TimerCallback(UINT nTimerID, UINT nMsg)
-{
-	DWORD nRet = ::WaitForMultipleObjects(EVENT_NOTIFY_COUNT, m_hEvents, FALSE, 0/*INFINITE*/); // 仅检测一下
-	if (nRet == WAIT_FAILED)
-		return;
-
-	int nIndex = nRet - WAIT_OBJECT_0;
-	if (nIndex >= 0 && nIndex < EVENT_NOTIFY_COUNT)
-	{
-		if (FAILED (this->PushBuffer(m_nPerEventBufferSize*nIndex, m_nPerEventBufferSize)))
-		{
-			this->Stop();
-			m_pMgr->Fire_on_mp3_stop();
-		}
-		else
-		{
-
-		}
-	}
-}
-#endif
 
 void CDirectSoundEngine::SetBufferSize(int nSize)
 {

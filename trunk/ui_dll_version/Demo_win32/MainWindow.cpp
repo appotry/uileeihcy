@@ -26,6 +26,7 @@ MainWindow::MainWindow(void)
 	m_pBtnLyric = NULL;
 	m_pBtnEqualizer = NULL;
 
+	this->SetWindowResizeType(WRSB_ALL);  // TODO: TESET
 // 	m_lSizeMove = 0;
 // 	m_ptCursorSizeMove.x = m_ptCursorSizeMove.y = 0;
 // 	m_ptWndPosSizeMove.x = m_ptWndPosSizeMove.y = 0;
@@ -231,9 +232,14 @@ void MainWindow::SetPlayerListDlgHandle(HWND hWnd)
 	{
 		SyncWindowData data;
 		data.m_hWnd = hWnd;
-		data.m_nAnchorType = SYNC_OUT_BOTTOM;
-		data.m_rcAnchorData.Width = -1;
+		//data.m_nAnchorType = SYNC_OUT_BOTTOM;
+// 		data.m_rcAnchorData.Width = -1;
+// 		data.m_rcAnchorData.Height = -1;
+		// TODO: TESET
+		data.m_nAnchorType = SYNC_LEFT|SYNC_OUT_BOTTOM|SYNC_RIGHT;
 		data.m_rcAnchorData.Height = -1;
+		data.m_rcAnchorData.xOffset2 = 0;
+		
 		this->AddAnchorItem(data);
 	}
 }

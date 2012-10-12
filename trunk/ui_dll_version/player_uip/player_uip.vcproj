@@ -290,7 +290,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sound\Mp3File.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\sound\Mp3File.h"
+				>
+			</File>
+			<File
 				RelativePath=".\sound\mpg123.h.in"
+				>
+			</File>
+			<File
+				RelativePath=".\sound\WavFile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\sound\WavFile.h"
 				>
 			</File>
 		</Filter>
