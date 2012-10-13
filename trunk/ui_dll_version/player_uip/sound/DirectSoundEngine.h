@@ -6,6 +6,7 @@
 #include <dsound.h>
 #include <DxErr.h>
 #include "mpg123.h"
+#include "FastFourierTransform.h"
 
 #ifdef _DEBUG
 #pragma comment(lib, "libmpg123_d.lib")
@@ -16,7 +17,13 @@
 #pragma comment(lib, "dsound.lib")
 #pragma comment(lib, "Winmm.lib")
 #pragma comment(lib, "dxguid.lib")
-    
+
+
+#define DEFAULT_FFT_SAMPLE_BUFFER_SIZE 2048
+#define DEFAULT_FPS 30
+#define DEFAULT_SPECTRUM_ANALYSER_DECAY 0.05f
+
+
 #define POSITION_EVENT_COUNT 2    // 通知事件个数
 #define NOTIFY_EVENT_COUNT  (POSITION_EVENT_COUNT+1)    // EVENT数量（最后一个是msg通知）
 
@@ -65,6 +72,8 @@ protected:
 
 public:
 	void    EventThreadProc();
+protected:
+	void    EventMsgProc();
 	bool    PostThreadMessage(UINT uMsg, DSMSG_PARAM* pParam);
 	HRESULT OnSetCurPos(double dPercent);
 	HRESULT OnPlay();
@@ -86,6 +95,25 @@ protected:
 	int            m_nDirectSoundBufferSize;       // 缓冲区的大小。作成一个成员变量，便于以后动态修改
 	int            m_nPerEventBufferSize;          // 每次事件需要填充的buffer大小，保存起来，只计算一次
 
+	CFastFourierTransform*  m_pFFT;
 	CMP3*          m_pMgr;
 	CMessageOnlyWindow*  m_pWnd;
+
+	//////////////////////////////////////////////////////////////////////////
+	DWORD GetDistance( int Cursor1,int Cursor2 );
+	int   GetAvailable( DWORD* PlayCursor, DWORD* WriteCursor,int* bufferSize, BOOL fromPlayCursor );
+	int   GetPlayBuffer( void *pBufferToFill,int FillBufferSize );
+	BOOL  GetSampleBufferFromDSound();
+	void  FFTSamples();
+	void  TransformSamples();
+
+	int m_channel,m_sampleType,m_FFTSrcSampleSize,m_FFTDestSampleSize,m_Bands,m_saMultiplier;
+
+	float m_Left[DEFAULT_FFT_SAMPLE_BUFFER_SIZE],m_Right[DEFAULT_FFT_SAMPLE_BUFFER_SIZE];
+	float *m_FFTResult,*m_pBands;
+	float m_saDecay;
+	float *m_OldFFT;
+	float m_MaxFqr;
+
+	byte  m_SampleBuffer[DEFAULT_FFT_SAMPLE_BUFFER_SIZE];
 };

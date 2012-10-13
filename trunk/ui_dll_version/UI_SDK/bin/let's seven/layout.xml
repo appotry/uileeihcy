@@ -37,7 +37,7 @@
     <CustomWindow id="playlistdlg"  bktype="frame" width="322" height="165"
              bkgnd.render.type="image" bkgnd.render.image="playlist_skin.png" bkgnd.render.9region="100,60,50,15,15,15,20,15"
              bkgnd.render.image.drawtype="stretch"
-             transparent.type="maskalpha" transparent.part.type="4corner" transparent.part.9region="14,14,14,14,14,14,14,14"
+             transparent.type="maskalpha" transparent.part="4corner" transparent.part.9region="14,14,14,14,14,14,14,14"
              layout.left="300" layout.top="365" >
       <Button id="sys_close" styleclass="imagebtn" bkgnd.render.image="close.bmp" layout.right="5" layout.top="0"/>
       <Panel layout="stack" layout.left="15" layout.top="31">

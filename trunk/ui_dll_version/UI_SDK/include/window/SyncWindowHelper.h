@@ -237,9 +237,9 @@ protected:
 			if (bTop)
 				y = rcSrcWindow.top + rData.m_rcAnchorData.yOffset;
 			else if (bBottom)
-				y = rcSrcWindow.bottom - rData.m_rcAnchorData.yOffset - w;
+				y = rcSrcWindow.bottom - rData.m_rcAnchorData.yOffset - h;
 			else if (bOutTop)
-				y = rcSrcWindow.top - rData.m_rcAnchorData.yOffset - w;
+				y = rcSrcWindow.top - rData.m_rcAnchorData.yOffset - h;
 			else if (bOutBottom)
 				y = rcSrcWindow.bottom + rData.m_rcAnchorData.yOffset;
 			else

@@ -146,6 +146,8 @@ http://mpg123.org/
 http://www.codeproject.com/Articles/31375/Play-Wave-Files-with-DirectSound-and-Display-its-S
 http://www.codeproject.com/Articles/31709/Play-Audio-Files-with-DirectSound-and-Display-its
 DirectSound Spectrum
+可能是抄袭下面这个java代码
+http://jukes.googlecode.com/svn-history/r25/trunk/src/main/java/com/melloware/jukes/gui/view/component/SpectrumTimeAnalyzer.java
 
 http://www.zxxk.com/Article/192456.html   完美的数学声谱图案
 声谱 可视化 小波转换图  声图
