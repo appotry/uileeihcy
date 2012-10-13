@@ -258,7 +258,7 @@ void CustomWindow::OnEraseBkgnd(HRDC hRDC)
 	// 重新设置窗口透明形状
 	if( m_bNeedToSetWindowRgn )
 	{
-		this->UpdateWindowRgn(hRDC);
+		this->UpdateWindowRgn(m_hRenderTarget);
 	}
 }
 
@@ -356,8 +356,12 @@ void CustomWindow::UpdateWindowRgn( BYTE* pBits )
 			::CombineRgn(hRgn, hRgn, hRgnBottomLeft,  RGN_DIFF );
 			::CombineRgn(hRgn, hRgn, hRgnBottomRight, RGN_DIFF );
 
-			::SetWindowRgn(m_hWnd,hRgn, ::IsWindowVisible(m_hWnd));
+		//	this->SetReDraw(false);
+			// 如果这里的参数不去刷新的话，就会在屏幕上残留下这些被裁掉的region区域。
+			// MSDN: Typically, you set bRedraw to TRUE if the window is visible. 
+			::SetWindowRgn(m_hWnd,hRgn, ::IsWindowVisible(m_hWnd));  
 			::DeleteObject(hRgn);
+		//	this->SetReDraw(true);
 
 			::DeleteObject(hRgnTopRight);
 			::DeleteObject(hRgnBottomLeft);

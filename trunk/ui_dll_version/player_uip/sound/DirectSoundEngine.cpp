@@ -3,6 +3,7 @@
 #include "Mp3File.h"
 #include "WavFile.h"
 
+
 //////////////////////////////////////////////////////////////////////////
 //
 //  线程通知消息定义
@@ -46,6 +47,7 @@ CDirectSoundEngine::CDirectSoundEngine(void)
 	m_hEventThread = NULL;
 	m_dwEventThreadID = 0;
 
+	m_pFFT = NULL;
 	this->SetBufferSize(32*1024);
 }
 
@@ -87,10 +89,12 @@ HRESULT CDirectSoundEngine::Init(CMP3* pMgr, CMessageOnlyWindow* pWndEvent)
 	if (NULL == m_hEventThread)
 		return E_FAIL;
 
+	m_pFFT = new CFastFourierTransform(DEFAULT_FFT_SAMPLE_BUFFER_SIZE/4);
 	return S_OK;
 }
 HRESULT CDirectSoundEngine::Release()
 {
+	SAFE_DELETE(m_pFFT);
 	m_pCurFile = NULL;
 	SAFE_DELETE(m_pMp3File);
 	SAFE_DELETE(m_pWavFile);
@@ -190,11 +194,12 @@ HRESULT CDirectSoundEngine::RenderFile( const TCHAR* szFile, const TCHAR* szExt 
 			return hr;
 
 		// 第一次填充完整的buffer
-		int n = GetTickCount();
 		hr = this->PushBuffer(0, m_nDirectSoundBufferSize);
-		int n2 = GetTickCount()-n;
 
+		//////////////////////////////////////////////////////////////////////////
+		// FFT Part
 
+		//////////////////////////////////////////////////////////////////////////
 		return hr;
 	}
 
@@ -384,43 +389,58 @@ void CDirectSoundEngine::EventThreadProc()
 		}
 		else if (nIndex == POSITION_EVENT_COUNT)
 		{
-			//this->Stop();
-			while(::PeekMessage(&msg, NULL, NULL, NULL, PM_REMOVE))
-			{
-				DSMSG_PARAM* pDSMSG_PARAM = (DSMSG_PARAM*)msg.wParam;
-				switch(msg.message)
-				{
-				case DSMSG_SET_CUR_POS:
-					{
-						DSMSG_PARAM_SET_CUR_POS* pParam = static_cast<DSMSG_PARAM_SET_CUR_POS*>(pDSMSG_PARAM);
-						this->OnSetCurPos(pParam->dPercent);
-					}
-					break;
-				case DSMSG_PLAY:
-					this->OnPlay();
-					break;
-
-				case DSMSG_PAUSE:
-					this->OnPause();
-					break;
-
-				case DSMSG_STOP:
-					this->OnStop();
-					break;
-				}
-
-				SAFE_DELETE(pDSMSG_PARAM);
-			}
+			this->EventMsgProc();
 		}
 		else
 		{
 			continue;
 		}
+
+		//////////////////////////////////////////////////////////////////////////
+
+		if (GetSampleBufferFromDSound())
+		{
+// 			TransformSamples();
+// 			FFTSamples();
+		}
+
+		//////////////////////////////////////////////////////////////////////////
 	}
 
 	this->Stop();
 
 	return;
+}
+
+void CDirectSoundEngine::EventMsgProc()
+{
+	MSG  msg;
+	while(::PeekMessage(&msg, NULL, NULL, NULL, PM_REMOVE))
+	{
+		DSMSG_PARAM* pDSMSG_PARAM = (DSMSG_PARAM*)msg.wParam;
+		switch(msg.message)
+		{
+		case DSMSG_SET_CUR_POS:
+			{
+				DSMSG_PARAM_SET_CUR_POS* pParam = static_cast<DSMSG_PARAM_SET_CUR_POS*>(pDSMSG_PARAM);
+				this->OnSetCurPos(pParam->dPercent);
+			}
+			break;
+		case DSMSG_PLAY:
+			this->OnPlay();
+			break;
+
+		case DSMSG_PAUSE:
+			this->OnPause();
+			break;
+
+		case DSMSG_STOP:
+			this->OnStop();
+			break;
+		}
+
+		SAFE_DELETE(pDSMSG_PARAM);
+	}
 }
 
 void CDirectSoundEngine::SetBufferSize(int nSize)
@@ -469,4 +489,202 @@ HRESULT CDirectSoundEngine::PushBuffer(int nStart, int nCount)
 
 	hr = m_pDirectSoundBuffer8->Unlock(pBitPart1, dwSizePart1, pBitPart2, dwSizePart2);
 	return hr;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// FFT part
+
+DWORD CDirectSoundEngine::GetDistance( int Cursor1,int Cursor2 )
+{
+	int distance = Cursor2 - Cursor1;
+	while (distance < 0)
+		distance += m_nDirectSoundBufferSize;
+	return distance;
+}
+
+//BufferSize record whole DS buffer Size where can be written
+int CDirectSoundEngine::GetAvailable( DWORD* PlayCursor, DWORD* WriteCursor,int* bufferSize, BOOL fromPlayCursor )
+{
+	return 0;
+#if 0
+	int available=0;
+	if (NULL == m_pDirectSoundBuffer8 || NULL == m_pCurFile)
+	{
+		return 0;
+	}
+	if (FAILED(m_pDirectSoundBuffer8->GetCurrentPosition(PlayCursor,WriteCursor)))
+	{
+		return 0;
+	}
+	int Processing=GetDistance((int)*PlayCursor,(int)*WriteCursor);
+	if ((UINT)Processing > m_nDirectSoundBufferSize/2)
+	{
+		*WriteCursor=*PlayCursor;
+		Processing=0;
+	}
+	*bufferSize=m_nDirectSoundBufferSize;
+	if (fromPlayCursor)
+	{
+		*bufferSize += Processing;
+	}
+	if(m_WritePos==-1)
+	{
+		available=*bufferSize;
+	}
+	else
+	{
+		int currWriteAhead = GetDistance( fromPlayCursor ? (int)*PlayCursor : (int)*WriteCursor, m_WritePos);
+		if (currWriteAhead > *bufferSize) 
+		{
+			*bufferSize = currWriteAhead;
+			available = 0;
+		} 
+		else 
+		{
+			available = *bufferSize - currWriteAhead;
+		}
+	}
+	return available;
+#endif
+}
+int CDirectSoundEngine::GetPlayBuffer( void *pBufferToFill,int FillBufferSize )
+{
+	if (NULL == m_pDirectSoundBuffer8 || NULL == m_pCurFile)
+	{
+		return 0;
+	}
+	DWORD PlayCursor,WriteCursor,buffer1Locklen,buffer2Locklen;
+	void* buffer1, *buffer2;
+	if (FAILED(m_pDirectSoundBuffer8->GetCurrentPosition(&PlayCursor,&WriteCursor)))
+	{
+		return 0;
+	}
+	int process=GetDistance(PlayCursor,WriteCursor);
+	if (FillBufferSize>process)
+	{
+		return 0;
+	}
+	HRESULT res=m_pDirectSoundBuffer8->Lock(PlayCursor, FillBufferSize,
+		(LPVOID *) &buffer1, &buffer1Locklen,
+		(LPVOID *) &buffer2, &buffer2Locklen,
+		0);
+	if (SUCCEEDED(res))
+	{
+		if (buffer2)
+		{
+			memcpy_s(pBufferToFill,buffer1Locklen,buffer1,buffer1Locklen);
+			memcpy_s((UCHAR *)pBufferToFill+buffer1Locklen,buffer2Locklen,buffer2,buffer2Locklen);
+		}
+		else
+		{
+			memcpy_s(pBufferToFill,FillBufferSize,buffer1,buffer1Locklen);
+		}
+		m_pDirectSoundBuffer8->Unlock(buffer1, buffer1Locklen, buffer2, buffer2Locklen);
+
+		return buffer1Locklen+buffer2Locklen;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+BOOL CDirectSoundEngine::GetSampleBufferFromDSound()
+{
+	return GetPlayBuffer(m_SampleBuffer,DEFAULT_FFT_SAMPLE_BUFFER_SIZE);
+}
+
+void CDirectSoundEngine::TransformSamples()
+{
+	int SampleSize=DEFAULT_FFT_SAMPLE_BUFFER_SIZE;
+	if (m_channel == 1 && m_sampleType == 1) 
+	{
+		for (int a = 0; a < SampleSize;a++)
+		{
+			m_Left[a] = (float) m_SampleBuffer[a] / 128.0F;
+			m_Right[a] = m_Left[a];
+		}
+
+	} else if (m_channel == 2 && m_sampleType == 1) {
+		for (int a = 0; a < SampleSize;a++) {
+			m_Left[a] = (float) m_SampleBuffer[a<<1] / 128.0F;
+			m_Right[a] = (float) m_SampleBuffer[(a<<1)+1] / 128.0F;
+			a++;
+		}
+
+	} else if ( m_channel == 1 &&  m_sampleType == 2) {
+		for (int a = 0; a <  SampleSize;a++) 
+		{
+			m_Left[a] = (float) (( m_SampleBuffer[(a<<1)+1] << 8) +
+				m_SampleBuffer[a<<1]) / 32767.0F;
+			m_Right[a] =  m_Left[a];
+		}
+
+	} else if ( m_channel == 2 &&  m_sampleType == 2)
+	{
+		for (int a = 0; a <  SampleSize;a++) 
+		{
+			m_Left[a] = (float) (( m_SampleBuffer[(a<<2)+1] << 8) +
+				m_SampleBuffer[(a<<2)]) / 32767.0F;
+			m_Right[a] = (float) (( m_SampleBuffer[(a<<2)+3] << 8) +
+				m_SampleBuffer[(a<<2)+2]) / 32767.0F;
+		}
+
+	}
+}
+
+void CDirectSoundEngine::FFTSamples()
+{	
+	for (int a = 0; a < DEFAULT_FFT_SAMPLE_BUFFER_SIZE; a++) 
+	{
+		m_Left[a] = (m_Left[a] + m_Right[a]) / 2.0f;
+	}
+
+	float* FFTResult = m_pFFT->Calculate(m_Left, DEFAULT_FFT_SAMPLE_BUFFER_SIZE);//FFT was complete
+	if(m_pBands!=NULL)
+		for (int a = 0,  bd = 0; bd < m_Bands; a += (INT)m_saMultiplier, bd++) 
+		{
+			float wFs = 0;
+			for (int b = 0; b < (INT)m_saMultiplier; b++) 
+			{
+				wFs += FFTResult[a + b];
+			}
+			if (wFs>m_MaxFqr)
+			{
+				m_MaxFqr=wFs;
+			}
+			m_pBands[bd]=wFs;
+
+		}
+		float Disten;
+		for (int i=0;i<m_Bands;i++)
+		{
+			if(m_pBands[i]>m_OldFFT[i])
+			{
+				Disten=m_pBands[i]-m_OldFFT[i];
+			}
+			else
+			{
+				Disten=0;
+			}
+			m_OldFFT[i]=m_pBands[i];
+			if (Disten<0.01f)
+			{
+				Disten*=20;
+			}
+			else if (Disten<0.05)
+			{
+				Disten*=10;
+			}
+			else if (Disten<0.1)
+			{
+				Disten*=5;
+			}
+
+
+			m_pBands[i]=Disten*1.5f;
+
+		}
+
 }
