@@ -16,15 +16,15 @@ class   CDirectSoundEngine;
 class CSpectrumAnalyser
 {
 public:
-	CSpectrumAnalyser();
+	CSpectrumAnalyser(CDirectSoundEngine* pDirectSound);
 	~CSpectrumAnalyser();
 
-	HRESULT  Init();
+	HRESULT  InitDefault(HWND hRenderWnd);
 	HRESULT  Release();
 	HRESULT  RenderFile(int nChannel, int nBytePerSample);
 	void     SetRenderWnd(HWND hRenderWnd);
-	int      SetBindCound(int nCount);
-
+	int      SetBandCound(int nCount);
+	int      SetAnalyserBufferSize(int nSize);
 
 	void  FFTSamples();
 	void  TransformSamples();
@@ -62,9 +62,11 @@ public:
 	float *m_FFTResult;
 	float m_saDecay;
 	
+	HANDLE m_hThread;
+	void   ThreadProc();
 	float m_MaxFqr;
 
-	byte  m_SampleBuffer[DEFAULT_FFT_SAMPLE_BUFFER_SIZE];
+	signed char m_SampleBuffer[DEFAULT_FFT_SAMPLE_BUFFER_SIZE];  // 注意：这里是有符号的
 
 	CFastFourierTransform*  m_pFFT;
 	CDirectSoundEngine*     m_pDirectSound;
