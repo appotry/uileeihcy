@@ -31,7 +31,7 @@ DSMSG_PARAM* BuildSetCurPosParam(double dPercent)
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-CDirectSoundEngine::CDirectSoundEngine(void)
+CDirectSoundEngine::CDirectSoundEngine(void) : m_SA(this)
 {
 	m_pMgr = NULL;
 	m_pDirectSound8 = NULL;
@@ -88,8 +88,7 @@ HRESULT CDirectSoundEngine::Init(CMP3* pMgr, CMessageOnlyWindow* pWndEvent)
 	if (NULL == m_hEventThread)
 		return E_FAIL;
 
-	m_SA.Init();
-	m_SA.SetRenderWnd(m_pMgr->GetMainWnd());
+	m_SA.InitDefault(m_pMgr->GetMainWnd());
 	return S_OK;
 }
 HRESULT CDirectSoundEngine::Release()
@@ -548,10 +547,10 @@ int CDirectSoundEngine::GetPlayBuffer( void *pBufferToFill,int FillBufferSize )
 		return 0;
 	}
 	int process=GetDistance(PlayCursor,WriteCursor);
-	if (FillBufferSize>process)
-	{
-		return 0;
-	}
+// 	if (FillBufferSize>process)
+// 	{
+// 		return 0;
+// 	}
 	HRESULT res=m_pDirectSoundBuffer8->Lock(PlayCursor, FillBufferSize,
 		(LPVOID *) &buffer1, &buffer1Locklen,
 		(LPVOID *) &buffer2, &buffer2Locklen,

@@ -17,4 +17,6 @@ public:
 	virtual  HRESULT   GetCurPos(double* pdSeconds, double* pdPercent);
 protected:
 	mpg123_handle*     m_hMpg123;   // mp3解码器
+	bool     m_bFileOpened;    // 为了解决文件不存在时，mpg123_open返回-1，此时再
+	                           // 调用mpg123_close会报assert错误的问题
 };

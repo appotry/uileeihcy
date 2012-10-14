@@ -95,7 +95,9 @@ bool CMP3::RenderFile( const String& strFile )
 
 	if (NULL == m_pCurrentEngine)
 	{
-		m_pDirectShowEngine->RenderFile(strFile.c_str(), strExt.c_str());
+		if (FAILED(m_pDirectShowEngine->RenderFile(strFile.c_str(), strExt.c_str())))
+			return false;
+
 		m_pCurrentEngine = m_pDirectShowEngine;
 	}
 

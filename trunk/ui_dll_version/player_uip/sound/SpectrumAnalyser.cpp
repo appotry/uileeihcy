@@ -1,11 +1,13 @@
 #include "stdafx.h"
 #include "SpectrumAnalyser.h"
 #include "DirectSoundEngine.h"
+#include <math.h>
 
-CSpectrumAnalyser::CSpectrumAnalyser()
+CSpectrumAnalyser::CSpectrumAnalyser(CDirectSoundEngine* pDirectSound)
 {
 	m_pFFT = NULL;
 	m_hRenderWnd = NULL;
+	m_pDirectSound = pDirectSound;
 	
 	m_nChannels = 0;
 	m_nBytePerSample = 0;
@@ -15,23 +17,37 @@ CSpectrumAnalyser::CSpectrumAnalyser()
 
 	m_pBandValue = NULL;
 	m_pOldBandValue = NULL;
+	m_hThread = NULL;
 }
 CSpectrumAnalyser::~CSpectrumAnalyser()
 {
 	this->Release();
 }
 
-HRESULT CSpectrumAnalyser::Init()
+DWORD WINAPI gSpectrumAnalyserThreadProc( LPVOID lpParameter)
 {
-	m_nAnalyserBufferSize = DEFAULT_FFT_SAMPLE_BUFFER_SIZE;
-	m_FFTSrcSampleSize = m_nAnalyserBufferSize/4;
-	m_pFFT = new CFastFourierTransform(m_nAnalyserBufferSize/4);  // ?? 为什么要除以4？
-	
+	CSpectrumAnalyser* pThis = (CSpectrumAnalyser*)lpParameter;
+	if (NULL == pThis)
+		return -1;
+
+	pThis->ThreadProc();
+	return 0;
+}
+
+HRESULT CSpectrumAnalyser::InitDefault(HWND hRenderWnd)
+{
+	this->SetAnalyserBufferSize(DEFAULT_FFT_SAMPLE_BUFFER_SIZE);
+	this->SetBandCound(30);
+	this->SetRenderWnd(hRenderWnd);
+
+	m_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)gSpectrumAnalyserThreadProc, (LPVOID)this, 0, NULL);
 	return S_OK;
 }
 HRESULT CSpectrumAnalyser::Release()
 {
 	SAFE_DELETE(m_pFFT);
+	SAFE_ARRAY_DELETE(m_pBandValue);
+	SAFE_ARRAY_DELETE(m_pOldBandValue);
 	return S_OK;
 }
 
@@ -39,7 +55,7 @@ void CSpectrumAnalyser::SetRenderWnd(HWND hRenderWnd)
 {
 	m_hRenderWnd = hRenderWnd;
 }
-int CSpectrumAnalyser::SetBindCound(int nCount)
+int CSpectrumAnalyser::SetBandCound(int nCount)
 {
 	if (m_nBandCound == nCount)
 		return m_nBandCound;
@@ -55,24 +71,47 @@ int CSpectrumAnalyser::SetBindCound(int nCount)
 	memset(m_pBandValue,    0, sizeof(float)*m_nBandCound);
 	memset(m_pOldBandValue, 0, sizeof(float)*m_nBandCound);
 
+	m_nSamplesPerBand = m_FFTDestSampleSize/m_nBandCound;
 	return nOldCound;
+}
+int CSpectrumAnalyser::SetAnalyserBufferSize(int nSize)
+{
+	if (m_nAnalyserBufferSize == nSize)
+		return m_nAnalyserBufferSize;
+
+	int nOldSize = m_nAnalyserBufferSize;
+	m_nAnalyserBufferSize = nSize/*DEFAULT_FFT_SAMPLE_BUFFER_SIZE*/;
+	m_FFTSrcSampleSize  = m_nAnalyserBufferSize/4;
+	m_FFTDestSampleSize = m_FFTSrcSampleSize/2; 
+
+	SAFE_DELETE(m_pFFT);
+	m_pFFT = new CFastFourierTransform(m_nAnalyserBufferSize/4);  // ?? 为什么要除以4？
+	
+	return nOldSize;
 }
 HRESULT CSpectrumAnalyser::RenderFile(int nChannel, int nBytePerSample)
 {
 	m_nChannels = nChannel;
 	m_nBytePerSample = nBytePerSample;
-
-	m_FFTDestSampleSize=m_FFTSrcSampleSize/2;//why div 2?please read "How to do FFT"
-	m_nSamplesPerBand=m_FFTDestSampleSize/m_nBandCound;
 	
 	return S_OK;
 }
 
 BOOL CSpectrumAnalyser::GetSampleBufferFromDSound()
 {
-	return m_pDirectSound->GetPlayBuffer(m_SampleBuffer,DEFAULT_FFT_SAMPLE_BUFFER_SIZE);
-}
+	if (NULL == m_pDirectSound)
+		return FALSE;
 
+	return m_pDirectSound->GetPlayBuffer(m_SampleBuffer, m_nAnalyserBufferSize);
+}
+void CSpectrumAnalyser::ThreadProc()
+{
+	while(1)
+	{
+		this->Process();
+		Sleep(10);
+	}
+}
 void CSpectrumAnalyser::TransformSamples()
 {
 	int SampleSize=DEFAULT_FFT_SAMPLE_BUFFER_SIZE;
@@ -114,7 +153,7 @@ void CSpectrumAnalyser::TransformSamples()
 
 void CSpectrumAnalyser::FFTSamples()
 {	
-	for (int a = 0; a < DEFAULT_FFT_SAMPLE_BUFFER_SIZE; a++) 
+	for (int a = 0; a < m_nAnalyserBufferSize; a++) 
 	{
 		m_Left[a] = (m_Left[a] + m_Right[a]) / 2.0f;
 	}
@@ -122,49 +161,79 @@ void CSpectrumAnalyser::FFTSamples()
 	float* FFTResult = m_pFFT->Calculate(m_Left, m_nAnalyserBufferSize); 
 	if(m_pBandValue!=NULL)
 	{
-		for (int a = 0,  bd = 0; bd < m_nBandCound; a += (INT)m_nSamplesPerBand, bd++) 
+		for (int a = 0,  nBandIndex = 0; nBandIndex < m_nBandCound; a += (INT)m_nSamplesPerBand, nBandIndex++) 
 		{
 			float wFs = 0;
 			for (int b = 0; b < (INT)m_nSamplesPerBand; b++) 
 			{
 				wFs += FFTResult[a + b];
 			}
-			if (wFs>m_MaxFqr)
+// 			if (wFs>m_MaxFqr)
+// 			{
+// 				m_MaxFqr=wFs;
+// 			}
+// 
+// 			wFs = (wFs * (float) log(nBandIndex + 2.0F));   // -- Log filter.
+// 
+// 			if(wFs > 0.005F && wFs < 0.009F)
+// 				wFs *= 9.0F * PI;
+// 			else if(wFs > 0.01F && wFs < 0.1F)
+// 				wFs *= 3.0F * PI;
+// 			else if(wFs > 0.1F && wFs < 0.5F)
+// 				wFs *= PI; //enlarge PI times, if do not, the bar display abnormally, why??
+// 
+// 			if (wFs > 1.0F) 
+// 			{
+// 				wFs = 0.9F;
+// 			}
+
+			// -- Compute SA decay...
+			if (wFs >= (m_pOldBandValue[nBandIndex] - 0.05/*wSadfrr*/)) 
 			{
-				m_MaxFqr=wFs;
+				m_pOldBandValue[nBandIndex] = wFs;
+			} 
+			else 
+			{
+				m_pOldBandValue[nBandIndex] -= 0.05/*wSadfrr*/;
+				if (m_pOldBandValue[nBandIndex] < 0) 
+				{
+					m_pOldBandValue[nBandIndex] = 0;
+				}
+				wFs = m_pOldBandValue[nBandIndex];
 			}
-			m_pBandValue[bd]=wFs;
+
+			m_pBandValue[nBandIndex]=wFs;
 
 		}
-		float Disten;
-		for (int i=0;i<m_nBandCound;i++)
-		{
-			if(m_pBandValue[i]>m_pOldBandValue[i])
-			{
-				Disten=m_pBandValue[i]-m_pOldBandValue[i];
-			}
-			else
-			{
-				Disten=0;
-			}
-			m_pOldBandValue[i]=m_pBandValue[i];
-			if (Disten<0.01f)
-			{
-				Disten*=20;
-			}
-			else if (Disten<0.05)
-			{
-				Disten*=10;
-			}
-			else if (Disten<0.1)
-			{
-				Disten*=5;
-			}
-
-
-			m_pBandValue[i]=Disten*1.5f;
-
-		}
+// 		float Disten;
+// 		for (int i=0;i<m_nBandCound;i++)
+// 		{
+// 			if(m_pBandValue[i]>m_pOldBandValue[i])
+// 			{
+// 				Disten=m_pBandValue[i]-m_pOldBandValue[i];
+// 			}
+// 			else
+// 			{
+// 				Disten=0;
+// 			}
+// 			m_pOldBandValue[i]=m_pBandValue[i];
+// 			if (Disten<0.01f)
+// 			{
+// 				Disten*=20;
+// 			}
+// 			else if (Disten<0.05)
+// 			{
+// 				Disten*=10;
+// 			}
+// 			else if (Disten<0.1)
+// 			{
+// 				Disten*=5;
+// 			}
+// 
+// 
+// 			m_pBandValue[i]=Disten*1.5f;
+// 
+// 		}
 	}
 }
 // 直接在另一个线程中提交到窗口上面

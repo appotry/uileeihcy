@@ -5,6 +5,7 @@
 CMp3File::CMp3File()
 {
 	m_hMpg123 = NULL;
+	m_bFileOpened = false;
 }
 CMp3File::~CMp3File()
 {
@@ -15,7 +16,11 @@ void CMp3File::Release()
 {
 	if (NULL != m_hMpg123)
 	{
-		mpg123_tclose(m_hMpg123);
+		if (m_bFileOpened)
+		{
+			mpg123_tclose(m_hMpg123);
+			m_bFileOpened = false;
+		}
 		mpg123_delete(m_hMpg123);
 		m_hMpg123 = NULL;
 
@@ -42,12 +47,20 @@ HRESULT CMp3File::RenderFile(const TCHAR* szFileName)
 		}
 		else
 		{
-			mpg123_tclose(m_hMpg123);  // 关闭之前的文件
+			if (m_bFileOpened)
+			{
+				mpg123_tclose(m_hMpg123);  // 关闭之前的文件
+				m_bFileOpened = false;
+			}
 		}
 
 
-		if (MPG123_OK != mpg123_topen(m_hMpg123, szFileName))
-			break;
+		int nRet = mpg123_topen(m_hMpg123, szFileName);
+		if (MPG123_OK != nRet)
+		{
+			return E_FAIL;
+		}
+		m_bFileOpened = true;
 
 		long lRate = 0;
 		int  nChannel = 0;
