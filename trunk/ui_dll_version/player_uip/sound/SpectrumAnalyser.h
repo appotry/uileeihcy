@@ -16,15 +16,15 @@ class   CDirectSoundEngine;
 class CSpectrumAnalyser
 {
 public:
-	CSpectrumAnalyser()
-	{
-		m_pFFT = NULL;
-		m_hRenderWnd = NULL;
-	}
-	~CSpectrumAnalyser()
-	{
-		SAFE_DELETE(m_pFFT);
-	}
+	CSpectrumAnalyser();
+	~CSpectrumAnalyser();
+
+	HRESULT  Init();
+	HRESULT  Release();
+	HRESULT  RenderFile(int nChannel, int nBytePerSample);
+	void     SetRenderWnd(HWND hRenderWnd);
+	int      SetBindCound(int nCount);
+
 
 	void  FFTSamples();
 	void  TransformSamples();
@@ -32,7 +32,6 @@ public:
 
 
 	BOOL GetSampleBufferFromDSound();
-	void Create(HWND hWnd, int nChannel, int nBytePerSample);
 	void Process()
 	{
 		//////////////////////////////////////////////////////////////////////////
@@ -47,19 +46,22 @@ public:
 		//////////////////////////////////////////////////////////////////////////
 	}
 public:
-	int   m_channel;
-	int   m_sampleType;
+	int   m_nChannels;         // 声道数量 1(单声道)  2(立体声)
+	int   m_nBytePerSample;    // 每个取样点的字节数：1(8位)  2(16位)  
+	int   m_nAnalyserBufferSize;  // 每次分析的缓冲区大小
 	int   m_FFTSrcSampleSize;
 	int   m_FFTDestSampleSize;
-	int   m_Bands;
-	int   m_saMultiplier;
+	int   m_nBandCound;        // 要显示的柱形条的数量
+	int   m_nSamplesPerBand;   // 每一个柱形条中包含的取样点数量
+	float *m_pBandValue;       // 每一个柱形条的高度值
+	float *m_pOldBandValue;    // 保存每一个Band上一次的FFT转换后的结果
 
 	float m_Left[DEFAULT_FFT_SAMPLE_BUFFER_SIZE];  // <-- 其实没有必要保存两份
 	float m_Right[DEFAULT_FFT_SAMPLE_BUFFER_SIZE]; // <-- 因为最后只是取了left right的平均值传给fft。这里面的值是个百分数
 
-	float *m_FFTResult,*m_pBands;
+	float *m_FFTResult;
 	float m_saDecay;
-	float *m_OldFFT;
+	
 	float m_MaxFqr;
 
 	byte  m_SampleBuffer[DEFAULT_FFT_SAMPLE_BUFFER_SIZE];

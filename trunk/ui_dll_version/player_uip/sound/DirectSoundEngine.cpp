@@ -88,6 +88,8 @@ HRESULT CDirectSoundEngine::Init(CMP3* pMgr, CMessageOnlyWindow* pWndEvent)
 	if (NULL == m_hEventThread)
 		return E_FAIL;
 
+	m_SA.Init();
+	m_SA.SetRenderWnd(m_pMgr->GetMainWnd());
 	return S_OK;
 }
 HRESULT CDirectSoundEngine::Release()
@@ -117,6 +119,7 @@ HRESULT CDirectSoundEngine::Release()
 	SAFE_RELEASE(m_pDirectSoundBuffer8);
 	SAFE_RELEASE(m_pDirectSound8);
 	
+	m_SA.Release();
 	return S_OK;
 }
 
@@ -193,7 +196,7 @@ HRESULT CDirectSoundEngine::RenderFile( const TCHAR* szFile, const TCHAR* szExt 
 		// 第一次填充完整的buffer
 		hr = this->PushBuffer(0, m_nDirectSoundBufferSize);
 
-		m_SA.Create(m_pMgr->GetMainWnd(), m_pCurFile->GetFormat()->nChannels, m_pCurFile->GetFormat()->wBitsPerSample/8);
+		m_SA.RenderFile(m_pCurFile->GetFormat()->nChannels, m_pCurFile->GetFormat()->wBitsPerSample/8);
 		return hr;
 	}
 
