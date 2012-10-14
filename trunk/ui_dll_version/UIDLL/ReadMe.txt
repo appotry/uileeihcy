@@ -116,7 +116,7 @@ m_pReaderHeaderInfo ->GetAttributeByName(&wStream, g_wszWMDuration, &type, (BYTE
 
 http://tieba.baidu.com/p/1868393695
 http://tieba.baidu.com/p/1885477077
-http://tieba.baidu.com/p/1906977428?from=prin
+http://tieba.baidu.com/p/1906977428
 
 这个buffer指的就是之前的SoundBuffer中的数据，因为SoundBuffer中的每一个字节（signed char）
 就代表着采样声波某一点的振幅（假如是16位的采样质量那就代表高/低位）（强度） 
