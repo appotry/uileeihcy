@@ -38,6 +38,7 @@ public:
 	bool    SetVolume(long lPercent);
 	bool    Mute(bool);
 
+	HWND    GetMainWnd() { return m_hMainWnd; }
 public:
 	void    Fire_on_mp3_volume_ind(long lVolumn);
 	void    Fire_on_mp3_stop();
@@ -51,6 +52,8 @@ protected:
 // 	CComPtr<IMediaPosition>  m_pMediaPosition;
 // 	CComPtr<IBasicAudio>     m_pBasicAudio;
 // 	
+	HWND     m_hMainWnd;
+
 	long     m_nVolumn;;   // 记录当前音量，用于在取消静音时使用
 	bool     m_bMute;      // 当前是否静音
 // 

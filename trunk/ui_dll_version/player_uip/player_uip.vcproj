@@ -326,6 +326,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sound\SpectrumAnalyser.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\sound\SpectrumAnalyser.h"
+				>
+			</File>
+			<File
 				RelativePath=".\sound\WavFile.cpp"
 				>
 			</File>

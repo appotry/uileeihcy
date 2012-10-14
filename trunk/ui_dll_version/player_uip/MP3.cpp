@@ -11,6 +11,7 @@ CMP3::CMP3(void)
 	m_pDirectSoundEngine = NULL;
 	m_nVolumn = DSBVOLUME_MAX;
 	m_bMute = false;
+	m_hMainWnd = NULL;
 }
 
 CMP3::~CMP3(void)
@@ -23,6 +24,7 @@ bool CMP3::Init(HWND hMainWnd)
 	if (NULL == m_WndEvent.Create(HWND_MESSAGE))
 		return false;
 
+	m_hMainWnd = hMainWnd;
 	m_pDirectShowEngine = new CDirectShowEngine();
 	m_pDirectSoundEngine= new CDirectSoundEngine();
 

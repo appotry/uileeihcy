@@ -47,7 +47,6 @@ CDirectSoundEngine::CDirectSoundEngine(void)
 	m_hEventThread = NULL;
 	m_dwEventThreadID = 0;
 
-	m_pFFT = NULL;
 	this->SetBufferSize(32*1024);
 }
 
@@ -89,12 +88,10 @@ HRESULT CDirectSoundEngine::Init(CMP3* pMgr, CMessageOnlyWindow* pWndEvent)
 	if (NULL == m_hEventThread)
 		return E_FAIL;
 
-	m_pFFT = new CFastFourierTransform(DEFAULT_FFT_SAMPLE_BUFFER_SIZE/4);
 	return S_OK;
 }
 HRESULT CDirectSoundEngine::Release()
 {
-	SAFE_DELETE(m_pFFT);
 	m_pCurFile = NULL;
 	SAFE_DELETE(m_pMp3File);
 	SAFE_DELETE(m_pWavFile);
@@ -196,10 +193,7 @@ HRESULT CDirectSoundEngine::RenderFile( const TCHAR* szFile, const TCHAR* szExt 
 		// 第一次填充完整的buffer
 		hr = this->PushBuffer(0, m_nDirectSoundBufferSize);
 
-		//////////////////////////////////////////////////////////////////////////
-		// FFT Part
-
-		//////////////////////////////////////////////////////////////////////////
+		m_SA.Create(m_pMgr->GetMainWnd(), m_pCurFile->GetFormat()->nChannels, m_pCurFile->GetFormat()->wBitsPerSample/8);
 		return hr;
 	}
 
@@ -395,16 +389,6 @@ void CDirectSoundEngine::EventThreadProc()
 		{
 			continue;
 		}
-
-		//////////////////////////////////////////////////////////////////////////
-
-		if (GetSampleBufferFromDSound())
-		{
-// 			TransformSamples();
-// 			FFTSamples();
-		}
-
-		//////////////////////////////////////////////////////////////////////////
 	}
 
 	this->Stop();
@@ -588,103 +572,4 @@ int CDirectSoundEngine::GetPlayBuffer( void *pBufferToFill,int FillBufferSize )
 	{
 		return 0;
 	}
-}
-
-BOOL CDirectSoundEngine::GetSampleBufferFromDSound()
-{
-	return GetPlayBuffer(m_SampleBuffer,DEFAULT_FFT_SAMPLE_BUFFER_SIZE);
-}
-
-void CDirectSoundEngine::TransformSamples()
-{
-	int SampleSize=DEFAULT_FFT_SAMPLE_BUFFER_SIZE;
-	if (m_channel == 1 && m_sampleType == 1) 
-	{
-		for (int a = 0; a < SampleSize;a++)
-		{
-			m_Left[a] = (float) m_SampleBuffer[a] / 128.0F;
-			m_Right[a] = m_Left[a];
-		}
-
-	} else if (m_channel == 2 && m_sampleType == 1) {
-		for (int a = 0; a < SampleSize;a++) {
-			m_Left[a] = (float) m_SampleBuffer[a<<1] / 128.0F;
-			m_Right[a] = (float) m_SampleBuffer[(a<<1)+1] / 128.0F;
-			a++;
-		}
-
-	} else if ( m_channel == 1 &&  m_sampleType == 2) {
-		for (int a = 0; a <  SampleSize;a++) 
-		{
-			m_Left[a] = (float) (( m_SampleBuffer[(a<<1)+1] << 8) +
-				m_SampleBuffer[a<<1]) / 32767.0F;
-			m_Right[a] =  m_Left[a];
-		}
-
-	} else if ( m_channel == 2 &&  m_sampleType == 2)
-	{
-		for (int a = 0; a <  SampleSize;a++) 
-		{
-			m_Left[a] = (float) (( m_SampleBuffer[(a<<2)+1] << 8) +
-				m_SampleBuffer[(a<<2)]) / 32767.0F;
-			m_Right[a] = (float) (( m_SampleBuffer[(a<<2)+3] << 8) +
-				m_SampleBuffer[(a<<2)+2]) / 32767.0F;
-		}
-
-	}
-}
-
-void CDirectSoundEngine::FFTSamples()
-{	
-	for (int a = 0; a < DEFAULT_FFT_SAMPLE_BUFFER_SIZE; a++) 
-	{
-		m_Left[a] = (m_Left[a] + m_Right[a]) / 2.0f;
-	}
-
-	float* FFTResult = m_pFFT->Calculate(m_Left, DEFAULT_FFT_SAMPLE_BUFFER_SIZE);//FFT was complete
-	if(m_pBands!=NULL)
-		for (int a = 0,  bd = 0; bd < m_Bands; a += (INT)m_saMultiplier, bd++) 
-		{
-			float wFs = 0;
-			for (int b = 0; b < (INT)m_saMultiplier; b++) 
-			{
-				wFs += FFTResult[a + b];
-			}
-			if (wFs>m_MaxFqr)
-			{
-				m_MaxFqr=wFs;
-			}
-			m_pBands[bd]=wFs;
-
-		}
-		float Disten;
-		for (int i=0;i<m_Bands;i++)
-		{
-			if(m_pBands[i]>m_OldFFT[i])
-			{
-				Disten=m_pBands[i]-m_OldFFT[i];
-			}
-			else
-			{
-				Disten=0;
-			}
-			m_OldFFT[i]=m_pBands[i];
-			if (Disten<0.01f)
-			{
-				Disten*=20;
-			}
-			else if (Disten<0.05)
-			{
-				Disten*=10;
-			}
-			else if (Disten<0.1)
-			{
-				Disten*=5;
-			}
-
-
-			m_pBands[i]=Disten*1.5f;
-
-		}
-
 }
