@@ -34,6 +34,7 @@ public:
 	void     FFTSamples();
 	void     TransformSamples();
 	void     DrawBands();
+	void     DrawWave();
 
 	void     ThreadProc();
 	void     Process();

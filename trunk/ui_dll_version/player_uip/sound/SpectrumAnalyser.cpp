@@ -60,6 +60,7 @@ HRESULT CSpectrumAnalyser::Release()
 
 	m_FFTSrcSampleSize = 0;
 	m_FFTDestSampleSize = 0;
+	m_pDirectSound = NULL;
 	return S_OK;
 }
 
@@ -139,8 +140,10 @@ void CSpectrumAnalyser::Process()
 	if (GetSampleBufferFromDSound())
 	{
 		TransformSamples();
-		FFTSamples();
-		DrawBands();
+// 		FFTSamples();
+// 		DrawBands();
+
+		DrawWave();
 	}
 }
 
@@ -270,7 +273,7 @@ void CSpectrumAnalyser::DrawBands()
 {
 	HDC  hDC = GetDC(m_hRenderWnd);
 	HDC  hMemDC = ::CreateCompatibleDC(hDC);
-	HBITMAP hBitmap = CreateCompatibleBitmap(hMemDC, 200,100);
+	HBITMAP hBitmap = CreateCompatibleBitmap(hMemDC, 240,100);
 	HBITMAP hOldBmp = (HBITMAP)::SelectObject(hMemDC, hBitmap);
 	for (int i = 0; i < m_nBandCound; i++)
 	{
@@ -280,7 +283,56 @@ void CSpectrumAnalyser::DrawBands()
 		RECT rc = {nx, ny,nx+7, 100};
 		::FillRect(hMemDC,&rc, (HBRUSH)GetStockObject(WHITE_BRUSH));
 	}
-	::BitBlt(hDC, 0,0,200,100,hMemDC,0,0,SRCCOPY);
+	::BitBlt(hDC, 0,0,240,100,hMemDC,0,0,SRCCOPY);
+	::SelectObject(hMemDC, hOldBmp);
+	::DeleteObject(hBitmap);
+	::DeleteDC(hMemDC);
+	::ReleaseDC(m_hRenderWnd,hDC);
+}
+
+void CSpectrumAnalyser::DrawWave()
+{
+	HDC  hDC = GetDC(m_hRenderWnd);
+	HDC  hMemDC = ::CreateCompatibleDC(hDC);
+	HBITMAP hBitmap = CreateCompatibleBitmap(hMemDC, 240,100);
+	HBITMAP hOldBmp = (HBITMAP)::SelectObject(hMemDC, hBitmap);
+	HPEN hPen = CreatePen(PS_SOLID, 1, RGB(255,255,255));
+	HPEN hOldPen = (HPEN)::SelectObject(hMemDC, hPen);
+	int nLineCount  = 30;
+	int nWidth = 240;
+	int nHeight = 100;
+	int noldx = 0, noldy = 0;
+	
+	BOOL bRet = MoveToEx(hMemDC, noldx, noldy, NULL);
+	int nCount = m_nAnalyserSampleCount/240;
+	for (int i = 0,j=0; i < m_nAnalyserSampleCount; j++)
+	{
+		float fData = 0;
+		for (int k = 0; k <nCount; k++)
+		{
+			fData += m_pLeftRightChannelData[i+k];
+		}
+		fData = fData/nCount;
+		
+		int n = fData* nHeight/2;
+		int ny = nHeight/2 - n;
+
+		i+= nCount;
+		int nx = j;
+		
+		
+		bRet = LineTo(hMemDC,nx,ny);
+		int a = 0;
+
+//		RECT rc = {nx, ny,nx+7, 100};
+//		::FillRect(hMemDC,&rc, (HBRUSH)GetStockObject(WHITE_BRUSH));
+// 		noldx = nx;
+// 		noldy = ny;
+	}	
+
+	::BitBlt(hDC, 0,0,240,100,hMemDC,0,0,SRCCOPY);
+	::SelectObject(hMemDC, hOldPen);
+	::DeleteObject(hPen);
 	::SelectObject(hMemDC, hOldBmp);
 	::DeleteObject(hBitmap);
 	::DeleteDC(hMemDC);
