@@ -145,6 +145,7 @@ http://mpg123.org/
 频谱demo(支持MP3,WMA,WAV)
 http://www.codeproject.com/Articles/31375/Play-Wave-Files-with-DirectSound-and-Display-its-S
 http://www.codeproject.com/Articles/31709/Play-Audio-Files-with-DirectSound-and-Display-its
+http://www.cppblog.com/jackyxinli/archive/2009/02/04/72950.html
 DirectSound Spectrum
 可能是抄袭下面这个java代码
 http://jukes.googlecode.com/svn-history/r25/trunk/src/main/java/com/melloware/jukes/gui/view/component/SpectrumTimeAnalyzer.java

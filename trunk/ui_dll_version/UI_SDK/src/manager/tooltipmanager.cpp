@@ -78,15 +78,20 @@ public:
 		::SendMessage(m_hToolTip, TTM_SETMAXTIPWIDTH, 0, TOOLTIP_MAX_WIDTH);   // 备注：该属性如果不和6.0控件一起使用的话，在碰到一个很长的单词时，将无视max width，仅显示一行(仅win7下有效)。
 
 		// 解决非6.0控件时，提示条内容不居中的问题。（测试发现在6.0控件下无视margin的值，但正好6.0就是居中的，可以不管）
-		if (m_bUnderXpOs)
+		// 英文操作系统下面是OK的，不用修改。
+		// win7和xp下面需要调整的参数不一致。
+		if (936 == GetACP())
 		{
-			RECT rc = {1,3,0,0};
-			::SendMessage(this->m_hToolTip, TTM_SETMARGIN, 0, (LPARAM)&rc);
-		}
-		else
-		{
-			RECT rc = {2,3,0,0};
-			::SendMessage(this->m_hToolTip, TTM_SETMARGIN, 0, (LPARAM)&rc);
+			if (m_bUnderXpOs)
+			{
+				RECT rc = {1,3,0,0};
+				::SendMessage(this->m_hToolTip, TTM_SETMARGIN, 0, (LPARAM)&rc);
+			}
+			else
+			{
+				RECT rc = {2,3,0,0};
+				::SendMessage(this->m_hToolTip, TTM_SETMARGIN, 0, (LPARAM)&rc);
+			}
 		}
 		return true;
 	}

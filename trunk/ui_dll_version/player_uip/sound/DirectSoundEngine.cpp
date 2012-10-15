@@ -47,7 +47,7 @@ CDirectSoundEngine::CDirectSoundEngine(void) : m_SA(this)
 	m_hEventThread = NULL;
 	m_dwEventThreadID = 0;
 
-	this->SetBufferSize(32*1024);
+	this->SetBufferSize(4068/*32*1024*/);
 }
 
 CDirectSoundEngine::~CDirectSoundEngine(void)
@@ -226,7 +226,9 @@ HRESULT CDirectSoundEngine::OnPlay()
 	// 流缓冲必须用DSBPLAY_LOOPING，这样当缓冲区读取时能回到起点继续读取
 	HRESULT hr = m_pDirectSoundBuffer8->Play(0,0, DSBPLAY_LOOPING);
 
-	m_pWnd->StartTimer(true);  // 这个是用于向UI层汇报进度和时间
+	m_pWnd->StartTimer(false);  // 这个是用于向UI层汇报进度和时间，注不要用 true参数，不是主线程
+	if (NULL != m_pWnd)         // 由于不是主线程中，postmessage通知界面立即更新当前进度
+		::PostMessage(m_pWnd->m_hWnd, WM_TIMER, TIMER_ID_PROGRESS, 0);
 	return hr;
 }
 HRESULT CDirectSoundEngine::Pause()
