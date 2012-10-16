@@ -1,5 +1,7 @@
 #pragma once
 #include "MessageOnlyWindow.h"
+#include "player_uip.h"
+#include "sound\SpectrumAnalyser.h"
 class IMp3EventCallback;
 class CMP3;
 
@@ -17,6 +19,7 @@ public:
 	virtual HRESULT  SetCurPos(double) = 0;
 	virtual HRESULT  GetCurPos(double* pdSeconds, double* pdPercent) = 0;
 	virtual HRESULT  SetVolume(long) = 0;
+	virtual int      GetPlayBuffer( void *pBufferToFill,int FillBufferSize ) = 0;
 };
 
 
@@ -37,8 +40,10 @@ public:
 	bool    SetCurPos(double);
 	bool    SetVolume(long lPercent);
 	bool    Mute(bool);
+	bool    SetVisualization(VisualizationInfo* pInfo);
 
 	HWND    GetMainWnd() { return m_hMainWnd; }
+	CSpectrumAnalyser* GetSA() { return &m_SA; }
 public:
 	void    Fire_on_mp3_volume_ind(long lVolumn);
 	void    Fire_on_mp3_stop();
@@ -64,6 +69,7 @@ protected:
 	ISoundEngine*   m_pDirectShowEngine;
 	ISoundEngine*   m_pDirectSoundEngine;
 
+	CSpectrumAnalyser         m_SA;
 	list<IMp3EventCallback*>  m_listEventCallback;
 };
 

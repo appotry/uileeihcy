@@ -6,7 +6,6 @@
 #include <dsound.h>
 #include <DxErr.h>
 #include "mpg123.h"
-#include "SpectrumAnalyser.h"
 
 #pragma comment(lib, "dsound.lib")
 #pragma comment(lib, "Winmm.lib")
@@ -59,6 +58,7 @@ public:
 	virtual HRESULT  SetCurPos(double);
 	virtual HRESULT  GetCurPos(double* pdSeconds, double* pdPercent);
 	virtual HRESULT  SetVolume(long);
+	virtual int      GetPlayBuffer( void *pBufferToFill,int FillBufferSize );
 
 protected:
 	HRESULT PushBuffer(int nStart, int nCount);
@@ -70,7 +70,6 @@ public:
 
 	DWORD   GetDistance( int Cursor1,int Cursor2 );
 	int     GetAvailable( DWORD* PlayCursor, DWORD* WriteCursor,int* bufferSize, BOOL fromPlayCursor );
-	int     GetPlayBuffer( void *pBufferToFill,int FillBufferSize );
 
 protected:
 	void    EventMsgProc();
@@ -98,6 +97,4 @@ protected:
 
 	CMP3*          m_pMgr;
 	CMessageOnlyWindow*  m_pWnd;
-
-	CSpectrumAnalyser    m_SA;
 };

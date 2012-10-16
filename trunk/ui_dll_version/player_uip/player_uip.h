@@ -1,10 +1,41 @@
-
+#pragma  once
 
 #ifdef PLAYER_UIP_EXPORTS
 #define PLAYER_UIP_API __declspec(dllexport)
 #else
 #define PLAYER_UIP_API __declspec(dllimport)
 #endif
+
+enum E_VISUALIZATION_TYPE
+{
+	VISUALIZATION_SPECTRUM,   // 频谱图
+	VISUALIZATION_WAVE,       // 波形图
+	VISUALIZATION_XXX,        
+};
+#define VI_MASK_HWND   0x0001
+#define VI_MASK_RECT   0x0002
+#define VI_MASK_TYPE   0x0004
+#define VI_MASK_FPS    0x0008
+
+#define VI_MASK_SPECTRUM_BAND_COUNT  0x0010
+#define VI_MASK_SPECTRUM_BAND_WIDTH  0x0020
+#define VI_MASK_SPECTRUM_GAP_WIDTH   0x0040
+
+struct VisualizationInfo
+{
+	VisualizationInfo() { memset(this, 0, sizeof(VisualizationInfo)); }
+
+	UINT  nMask;
+
+	HWND  hWnd;
+	RECT  rcRender;
+	E_VISUALIZATION_TYPE eType;
+	int   nFps;
+
+	int   nSpectrumBandCount;
+	int   nSpectrumBandWidth;
+	int   nSpectrumGapWidth;
+};
 
 
 // 全局方法
@@ -28,3 +59,4 @@ PLAYER_UIP_API bool  mp3_add_event_callback(IMp3EventCallback* p);
 PLAYER_UIP_API bool  mp3_set_cur_pos( double percent );
 PLAYER_UIP_API bool  mp3_set_volumn( long lPercent );
 PLAYER_UIP_API bool  mp3_mute( bool bMute );
+PLAYER_UIP_API bool  mp3_set_visualization(VisualizationInfo* pInfo);

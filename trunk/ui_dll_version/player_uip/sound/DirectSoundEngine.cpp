@@ -31,7 +31,7 @@ DSMSG_PARAM* BuildSetCurPosParam(double dPercent)
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-CDirectSoundEngine::CDirectSoundEngine(void) : m_SA(this)
+CDirectSoundEngine::CDirectSoundEngine(void)
 {
 	m_pMgr = NULL;
 	m_pDirectSound8 = NULL;
@@ -88,7 +88,6 @@ HRESULT CDirectSoundEngine::Init(CMP3* pMgr, CMessageOnlyWindow* pWndEvent)
 	if (NULL == m_hEventThread)
 		return E_FAIL;
 
-	m_SA.InitDefault(m_pMgr->GetMainWnd());
 	return S_OK;
 }
 HRESULT CDirectSoundEngine::Release()
@@ -118,7 +117,6 @@ HRESULT CDirectSoundEngine::Release()
 	SAFE_RELEASE(m_pDirectSoundBuffer8);
 	SAFE_RELEASE(m_pDirectSound8);
 	
-	m_SA.Release();
 	return S_OK;
 }
 
@@ -195,7 +193,7 @@ HRESULT CDirectSoundEngine::RenderFile( const TCHAR* szFile, const TCHAR* szExt 
 		// 第一次填充完整的buffer
 		hr = this->PushBuffer(0, m_nDirectSoundBufferSize);
 
-		m_SA.RenderFile(m_pCurFile->GetFormat()->nChannels, m_pCurFile->GetFormat()->wBitsPerSample/8);
+		m_pMgr->GetSA()->RenderFile(m_pCurFile->GetFormat()->nChannels, m_pCurFile->GetFormat()->wBitsPerSample/8);
 		return hr;
 	}
 
@@ -226,9 +224,14 @@ HRESULT CDirectSoundEngine::OnPlay()
 	// 流缓冲必须用DSBPLAY_LOOPING，这样当缓冲区读取时能回到起点继续读取
 	HRESULT hr = m_pDirectSoundBuffer8->Play(0,0, DSBPLAY_LOOPING);
 
-	m_pWnd->StartTimer(false);  // 这个是用于向UI层汇报进度和时间，注不要用 true参数，不是主线程
-	if (NULL != m_pWnd)         // 由于不是主线程中，postmessage通知界面立即更新当前进度
-		::PostMessage(m_pWnd->m_hWnd, WM_TIMER, TIMER_ID_PROGRESS, 0);
+	if (SUCCEEDED(hr))
+	{
+		m_pMgr->GetSA()->Play();
+
+		m_pWnd->StartTimer(false);  // 这个是用于向UI层汇报进度和时间，注不要用 true参数，不是主线程
+		if (NULL != m_pWnd)         // 由于不是主线程中，postmessage通知界面立即更新当前进度
+			::PostMessage(m_pWnd->m_hWnd, WM_TIMER, TIMER_ID_PROGRESS, 0);
+	}
 	return hr;
 }
 HRESULT CDirectSoundEngine::Pause()
@@ -245,7 +248,12 @@ HRESULT CDirectSoundEngine::OnPause()
 		return E_FAIL;
 
 	m_pWnd->EndTimer();
-	return m_pDirectSoundBuffer8->Stop();
+	HRESULT hr = m_pDirectSoundBuffer8->Stop();
+	if (SUCCEEDED(hr))
+	{
+		m_pMgr->GetSA()->Pause();
+	}
+	return hr;
 }
 HRESULT CDirectSoundEngine::Stop()
 {
@@ -283,6 +291,8 @@ HRESULT CDirectSoundEngine::OnStop()
 			return hr;
 
 		m_pCurFile->SetCurPos(0);
+
+		m_pMgr->GetSA()->Stop();
 	}
 	return hr;
 }

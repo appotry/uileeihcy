@@ -13,17 +13,18 @@ public:
 	virtual ~CDirectShowEngine(void);
 
 public:
-	HRESULT  Init(CMP3* pMgr, CMessageOnlyWindow* pWndEvent);
-	HRESULT  Release();
+	virtual HRESULT  Init(CMP3* pMgr, CMessageOnlyWindow* pWndEvent);
+	virtual HRESULT  Release();
 
-	HRESULT  RenderFile( const TCHAR* szFile, const TCHAR* szExt );
-	HRESULT  ClearRender();
-	HRESULT  Play();
-	HRESULT  Pause();
-	HRESULT  Stop();
-	HRESULT  SetCurPos(double);
-	HRESULT  GetCurPos(double* pdSeconds, double* pdPercent);
-	HRESULT  SetVolume(long lVolumn);
+	virtual HRESULT  RenderFile( const TCHAR* szFile, const TCHAR* szExt );
+	virtual HRESULT  ClearRender();
+	virtual HRESULT  Play();
+	virtual HRESULT  Pause();
+	virtual HRESULT  Stop();
+	virtual HRESULT  SetCurPos(double);
+	virtual HRESULT  GetCurPos(double* pdSeconds, double* pdPercent);
+	virtual HRESULT  SetVolume(long lVolumn);
+	virtual int      GetPlayBuffer( void *pBufferToFill,int FillBufferSize ){ return 0; }  // ²»Ö§³Ö
 
 public:
 	HRESULT  OnNoitfy(UINT uMsg, WPARAM wParam, LPARAM lParam);
