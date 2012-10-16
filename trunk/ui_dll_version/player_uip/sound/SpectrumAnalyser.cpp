@@ -132,7 +132,7 @@ void CSpectrumAnalyser::ThreadProc()
 	while(1)
 	{
 		this->Process();
-		Sleep(50);  // 大概 20fps
+		Sleep(100/*50*/);  // 大概 20fps
 	}
 }
 void CSpectrumAnalyser::Process()
@@ -298,13 +298,13 @@ void CSpectrumAnalyser::DrawWave()
 	HBITMAP hOldBmp = (HBITMAP)::SelectObject(hMemDC, hBitmap);
 	HPEN hPen = CreatePen(PS_SOLID, 1, RGB(255,255,255));
 	HPEN hOldPen = (HPEN)::SelectObject(hMemDC, hPen);
-	int nLineCount  = 30;
 	int nWidth = 240;
 	int nHeight = 100;
-	int noldx = 0, noldy = 0;
 	
-	BOOL bRet = MoveToEx(hMemDC, noldx, noldy, NULL);
-	int nCount = m_nAnalyserSampleCount/240;
+	
+	BOOL bRet = MoveToEx(hMemDC, 0, nHeight/2, NULL);
+	int nSampleCountPerPX = m_nAnalyserSampleCount/240;
+#if 0
 	for (int i = 0,j=0; i < m_nAnalyserSampleCount; j++)
 	{
 		float fData = 0;
@@ -313,22 +313,71 @@ void CSpectrumAnalyser::DrawWave()
 			fData += m_pLeftRightChannelData[i+k];
 		}
 		fData = fData/nCount;
-		
+
+				
 		int n = fData* nHeight/2;
 		int ny = nHeight/2 - n;
 
 		i+= nCount;
 		int nx = j;
 		
-		
 		bRet = LineTo(hMemDC,nx,ny);
-		int a = 0;
-
-//		RECT rc = {nx, ny,nx+7, 100};
-//		::FillRect(hMemDC,&rc, (HBRUSH)GetStockObject(WHITE_BRUSH));
-// 		noldx = nx;
-// 		noldy = ny;
 	}	
+#else
+	float fPrevData = 0;
+	float f = 0.3f;
+	int   nPrevY = 50;
+	int   fPrevDirection = 0;  // 
+	float fDatas[240] = {0};
+
+	TCHAR szInfo[64];
+	for (int i = 0,j=0; j < 240; j++)
+	{
+		fDatas[j] = m_pLeftRightChannelData[j];
+	}
+
+	// 求相邻结点的平均数据
+// 	float fDatas2[240] = {0};
+// #define AAA 0
+// 	for (int i = 0+AAA; i < 240-AAA; i++)
+// 	{
+// 
+// 		for (int j = i-AAA; j <= i+AAA; j++)
+// 		{
+// 			fDatas2[i] += fDatas[j];
+// 		}
+// 		fDatas2[i] = fDatas2[i]/(AAA*2.0+1.0);
+// 	}
+
+
+#define XXX 0
+	for (int i = 0; i < 240; i++)
+	{
+		int nx = i;
+		int n = (int)(fDatas[i]* nHeight/2);
+		int ny = nHeight/2 - n;
+
+#define SETPIXEL(x,y) ::SetPixel(hMemDC,x,y,RGB(255,255,255));
+		if (ny > nPrevY + XXX)
+		{
+			// 往上爬一格
+			SETPIXEL(nx,nPrevY);
+			SETPIXEL(nx,++nPrevY);
+		}
+		else if (ny < nPrevY-XXX)
+		{
+			// 下降一格
+			SETPIXEL(nx,nPrevY);
+			SETPIXEL(nx,--nPrevY);
+		}
+		else if (ny == nPrevY)
+		{
+			// 不爬,往右延伸一格
+			SETPIXEL(nx-1,ny);
+			SETPIXEL(nx,ny);
+		}
+	}
+#endif
 
 	::BitBlt(hDC, 0,0,240,100,hMemDC,0,0,SRCCOPY);
 	::SelectObject(hMemDC, hOldPen);

@@ -248,6 +248,11 @@ Real Player一般就可以播放Real的音频了，但这项功能目前还未做到完美的兼容性。发布
 Player 8/9时会用到。如果Windows98上不能播放CD或不能CD格式转换成MP3，请先下载并安
 装http://alen.27h.com/aspi32.exe. 
  
+ 
+ 
+ WMP visualizations
+用DirectX实现粒子系统（三） 
+http://www.cnblogs.com/graphics/archive/2012/07/09/2570431.html
 
 ==================================Finish=============================
  
