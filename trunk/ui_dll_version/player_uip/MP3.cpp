@@ -35,12 +35,15 @@ bool CMP3::Init(HWND hMainWnd)
 
 	m_WndEvent.SetEnginePtr(this, (CDirectShowEngine*)m_pDirectShowEngine, (CDirectSoundEngine*)m_pDirectSoundEngine);
 
+	m_SA.InitDefault(m_hMainWnd);
 	return true;
 }
 
 
 bool CMP3::Release()
 {
+	m_SA.Release();
+
 	if (NULL != m_pDirectShowEngine)
 	{
 		m_pDirectShowEngine->Release();
@@ -105,7 +108,8 @@ bool CMP3::RenderFile( const String& strFile )
 	{
 		m_pCurrentEngine->SetVolume(m_bMute?DSBVOLUME_MIN:m_nVolumn);
 	}
-	
+	m_SA.SetSoundEngine(m_pCurrentEngine);
+
 	return true;
 }
 
@@ -214,6 +218,11 @@ bool CMP3::Mute(bool bMute)
 		return true;
 	else
 		return false;
+}
+
+bool CMP3::SetVisualization(VisualizationInfo* pInfo)
+{
+	return m_SA.SetVisualization(pInfo);
 }
 
 bool CMP3::AddEventCallback(IMp3EventCallback* p)

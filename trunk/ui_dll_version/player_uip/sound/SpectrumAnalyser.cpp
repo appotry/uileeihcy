@@ -3,11 +3,10 @@
 #include "DirectSoundEngine.h"
 #include <math.h>
 
-CSpectrumAnalyser::CSpectrumAnalyser(CDirectSoundEngine* pDirectSound)
+CSpectrumAnalyser::CSpectrumAnalyser()
 {
 	m_pFFT = NULL;
-	m_hRenderWnd = NULL;
-	m_pDirectSound = pDirectSound;
+	m_pSoundEngine = NULL;
 	
 	m_nChannels = 0;
 	m_nBytePerSample = 0;
@@ -21,6 +20,19 @@ CSpectrumAnalyser::CSpectrumAnalyser(CDirectSoundEngine* pDirectSound)
 	m_pSampleBuffer = NULL;
 	m_pLeftRightChannelData = NULL;
 	m_hThread = NULL;
+	m_bSuspend = false;
+
+	m_hRenderWnd = NULL;
+	SetRectEmpty(&m_rcRender);
+	m_eType = VISUALIZATION_SPECTRUM;
+	m_nFps = 1000/25;
+	m_nBandWidth = 7;
+	m_nBandGapWidth = 1;
+
+	m_hRenderWndDC = NULL;
+	m_hRenderWndMemDC = NULL;
+	m_hMemBitmap = NULL;
+	m_hOldBitmap = NULL;
 }
 CSpectrumAnalyser::~CSpectrumAnalyser()
 {
@@ -43,7 +55,9 @@ HRESULT CSpectrumAnalyser::InitDefault(HWND hRenderWnd)
 	this->SetBandCount(30);
 	this->SetRenderWnd(hRenderWnd);
 
-	m_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)gSpectrumAnalyserThreadProc, (LPVOID)this, 0, NULL);
+	m_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)gSpectrumAnalyserThreadProc,
+				(LPVOID)this, CREATE_SUSPENDED , NULL);
+	m_bSuspend = true;
 	return S_OK;
 }
 HRESULT CSpectrumAnalyser::Release()
@@ -60,13 +74,37 @@ HRESULT CSpectrumAnalyser::Release()
 
 	m_FFTSrcSampleSize = 0;
 	m_FFTDestSampleSize = 0;
-	m_pDirectSound = NULL;
+	m_pSoundEngine = NULL;
+
+	::SelectObject(m_hRenderWndMemDC, m_hOldBitmap);
+	::DeleteDC(m_hRenderWndMemDC);
+	::ReleaseDC(m_hRenderWnd, m_hRenderWndDC);
+	::DeleteObject(m_hMemBitmap);
+
 	return S_OK;
 }
 
 void CSpectrumAnalyser::SetRenderWnd(HWND hRenderWnd)
 {
-	m_hRenderWnd = hRenderWnd;
+	if( m_hRenderWnd != hRenderWnd)
+	{
+		if (NULL != m_hRenderWndMemDC)
+		{
+			::SelectObject(m_hRenderWndMemDC, m_hOldBitmap);
+			::DeleteDC(m_hRenderWndMemDC);
+		}
+		if (NULL != m_hRenderWndDC)
+			::ReleaseDC(m_hRenderWnd, m_hRenderWndDC);
+	
+		m_hRenderWndDC = GetDC(hRenderWnd);
+		m_hRenderWndMemDC = CreateCompatibleDC(m_hRenderWndDC);
+		if (NULL != m_hMemBitmap)
+		{
+			m_hOldBitmap = (HBITMAP)::SelectObject(m_hRenderWndMemDC, m_hMemBitmap);
+		}
+		
+		m_hRenderWnd = hRenderWnd;
+	}
 }
 int CSpectrumAnalyser::SetBandCount(int nCount)
 {
@@ -107,6 +145,82 @@ int CSpectrumAnalyser::SetAnalyserSampleCount(int nCount)
 
 	return nOldSize;
 }
+
+bool CSpectrumAnalyser::SetVisualization(VisualizationInfo* pInfo)
+{
+	if (NULL == pInfo)
+		return false;
+	
+	bool bHandled = false;
+	if (false == m_bSuspend)
+	{
+		bHandled = true;
+		Pause();
+	}
+
+	if (pInfo->nMask & VI_MASK_HWND)
+	{
+		this->SetRenderWnd(pInfo->hWnd);
+	}
+	if (pInfo->nMask & VI_MASK_RECT)
+	{
+		int nOldW = m_rcRender.right - m_rcRender.left;
+		int nOldH = m_rcRender.bottom - m_rcRender.top;
+		int nNewW = pInfo->rcRender.right - pInfo->rcRender.left;
+		int nNewH = pInfo->rcRender.bottom - pInfo->rcRender.top;
+
+		::CopyRect(&m_rcRender, &(pInfo->rcRender));
+
+		if (nOldH != nNewH || nOldW != nNewW)
+		{
+			if (NULL != m_hRenderWndMemDC)
+			{
+				::SelectObject(m_hRenderWndMemDC, m_hOldBitmap);
+				::DeleteObject(m_hMemBitmap);
+
+				m_hMemBitmap = CreateCompatibleBitmap(m_hRenderWndMemDC, nNewW,nNewW);
+				m_hOldBitmap = (HBITMAP)::SelectObject(m_hRenderWndMemDC, m_hMemBitmap);
+			}
+		}
+	}
+	if (pInfo->nMask & VI_MASK_TYPE)
+	{
+		m_eType = pInfo->eType;
+
+		if (m_eType != VISUALIZATION_SPECTRUM)  // 释放不是该类型的数据
+		{
+			SAFE_ARRAY_DELETE(m_pBandValue);
+			SAFE_ARRAY_DELETE(m_pOldBandValue);
+		}
+	}
+	if (pInfo->nMask & VI_MASK_FPS)
+	{
+		int nFps = pInfo->nFps;
+		if (0 != nFps)
+		{
+			m_nFps = 1000/nFps; // 直接计算出每次要sleep的时间(ms)
+		}
+	}
+
+	if (pInfo->nMask & VI_MASK_SPECTRUM_BAND_COUNT)
+	{
+		this->SetBandCount(pInfo->nSpectrumBandCount);
+	}
+	if (pInfo->nMask & VI_MASK_SPECTRUM_BAND_WIDTH)
+	{
+		m_nBandWidth = pInfo->nSpectrumBandWidth;
+	}
+	if (pInfo->nMask & VI_MASK_SPECTRUM_GAP_WIDTH)
+	{
+		m_nBandWidth = pInfo->nSpectrumGapWidth;
+	}
+
+	if (bHandled)
+	{
+		Play();
+	}
+	return true;
+}
 HRESULT CSpectrumAnalyser::RenderFile(int nChannel, int nBytePerSample)
 {
 	m_nChannels = nChannel;
@@ -122,17 +236,43 @@ HRESULT CSpectrumAnalyser::RenderFile(int nChannel, int nBytePerSample)
 // 从directsound中获取当前正在播放的数据，用于频谱分析
 BOOL CSpectrumAnalyser::GetSampleBufferFromDSound()
 {
-	if (NULL == m_pDirectSound || NULL == m_pSampleBuffer)
+	if (NULL == m_pSoundEngine || NULL == m_pSampleBuffer)
 		return FALSE;
 
-	return m_pDirectSound->GetPlayBuffer(m_pSampleBuffer, m_nSampleBufferSize);
+	return m_pSoundEngine->GetPlayBuffer(m_pSampleBuffer, m_nSampleBufferSize);
+}
+
+void CSpectrumAnalyser::Play()
+{
+	if (NULL != m_hThread && m_bSuspend)
+	{
+		DWORD dwRet = ::ResumeThread(m_hThread);
+		if (1 == dwRet)
+			m_bSuspend = false;
+	}
+}
+void CSpectrumAnalyser::Pause()
+{
+	if (NULL != m_hThread && false == m_bSuspend)
+	{
+		::SuspendThread(m_hThread);
+		m_bSuspend = true;
+	}
+}
+void CSpectrumAnalyser::Stop()
+{
+	if (NULL != m_hThread && false == m_bSuspend)
+	{
+		::SuspendThread(m_hThread);
+		m_bSuspend = true;
+	}
 }
 void CSpectrumAnalyser::ThreadProc()
 {
 	while(1)
 	{
 		this->Process();
-		Sleep(100/*50*/);  // 大概 20fps
+		Sleep(m_nFps); 
 	}
 }
 void CSpectrumAnalyser::Process()
@@ -140,10 +280,16 @@ void CSpectrumAnalyser::Process()
 	if (GetSampleBufferFromDSound())
 	{
 		TransformSamples();
-// 		FFTSamples();
-// 		DrawBands();
-
-		DrawWave();
+		
+		if (m_eType == VISUALIZATION_SPECTRUM)
+		{
+ 			FFTSamples();
+	 		DrawBands();
+		}
+		else
+		{
+			DrawWave();
+		}
 	}
 }
 
@@ -271,23 +417,21 @@ void CSpectrumAnalyser::FFTSamples()
 // 直接在另一个线程中提交到窗口上面
 void CSpectrumAnalyser::DrawBands()
 {
-	HDC  hDC = GetDC(m_hRenderWnd);
-	HDC  hMemDC = ::CreateCompatibleDC(hDC);
-	HBITMAP hBitmap = CreateCompatibleBitmap(hMemDC, 240,100);
-	HBITMAP hOldBmp = (HBITMAP)::SelectObject(hMemDC, hBitmap);
+	int nWidth = m_rcRender.right-m_rcRender.left;
+	int nHeight = m_rcRender.bottom-m_rcRender.top;
+	RECT rc = {0,0, nWidth, nHeight};
+	::FillRect(m_hRenderWndMemDC, &rc, (HBRUSH)::GetStockObject(BLACK_BRUSH));
+
+	HBRUSH hWhiteBrush = (HBRUSH)GetStockObject(WHITE_BRUSH);
 	for (int i = 0; i < m_nBandCound; i++)
 	{
-		int ny = 100 - (int)(100 * m_pBandValue[i]);
-		int nx = i*8;
+		int ny = nHeight - (int)(nHeight * m_pBandValue[i]);
+		int nx = i * (m_nBandGapWidth+m_nBandWidth);
 
-		RECT rc = {nx, ny,nx+7, 100};
-		::FillRect(hMemDC,&rc, (HBRUSH)GetStockObject(WHITE_BRUSH));
+		RECT rc = {nx, ny, nx+m_nBandWidth, nHeight};
+		::FillRect(m_hRenderWndMemDC, &rc, hWhiteBrush);
 	}
-	::BitBlt(hDC, 0,0,240,100,hMemDC,0,0,SRCCOPY);
-	::SelectObject(hMemDC, hOldBmp);
-	::DeleteObject(hBitmap);
-	::DeleteDC(hMemDC);
-	::ReleaseDC(m_hRenderWnd,hDC);
+	::BitBlt(m_hRenderWndDC, m_rcRender.left, m_rcRender.top, nWidth, nHeight, m_hRenderWndMemDC,0,0,SRCCOPY);
 }
 
 void CSpectrumAnalyser::DrawWave()
@@ -330,7 +474,6 @@ void CSpectrumAnalyser::DrawWave()
 	int   fPrevDirection = 0;  // 
 	float fDatas[240] = {0};
 
-	TCHAR szInfo[64];
 	for (int i = 0,j=0; j < 240; j++)
 	{
 		fDatas[j] = m_pLeftRightChannelData[j];

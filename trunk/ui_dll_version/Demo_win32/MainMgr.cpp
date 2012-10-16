@@ -28,6 +28,14 @@ bool CMainMgr::Initialize()
 	::GetEqualizerMgr();  // ³õÊ¼»¯¾ùºâÆ÷Mgr
 
 	m_pMainWindow->ShowWindow();
+
+	VisualizationInfo info;
+	info.nMask = VI_MASK_HWND|VI_MASK_RECT|VI_MASK_SPECTRUM_BAND_COUNT;
+	info.hWnd = m_pMainWindow->m_hWnd;
+	SetRect(&info.rcRender, 28,88,156,128);
+	info.nSpectrumBandCount = (info.rcRender.right-info.rcRender.left)/8;
+	::mp3_set_visualization(&info);
+
 	return bRet;
 }
 

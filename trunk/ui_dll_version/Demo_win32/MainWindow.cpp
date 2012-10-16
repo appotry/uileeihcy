@@ -92,6 +92,7 @@ void MainWindow::OnInitWindow()
 	}
 
 	::SetWindowText(m_hWnd, _T("Player_Demo"));
+
 // 	COptionWindow win;
 // 	win.DoModal(g_hInstance, COptionWindow::IDD, _T("OptionWindow"),m_hWnd);
 }

@@ -53,3 +53,8 @@ bool  mp3_mute( bool bMute )
 {
 	return g_mp3.Mute(bMute);
 }
+
+bool  mp3_set_visualization(VisualizationInfo* pInfo)
+{
+	return g_mp3.SetVisualization(pInfo);
+}
