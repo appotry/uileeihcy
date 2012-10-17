@@ -139,7 +139,7 @@ namespace UI
 	UIAPI int      UI_GetActiveSkinIndex();
 
 	UIAPI void     UI_UpdateLayout( WindowBase* pObj, BOOL bRedraw=TRUE );
-
+	UIAPI BOOL     UI_IsDialogMessage(MSG* pMsg);
 
 	//////////////////////////////////////////////////////////////////////////
 	//
@@ -207,6 +207,7 @@ namespace UI
 	UIAPI void     _cdecl UI_LOG_ERROR( TCHAR*, ... );
 	UIAPI void     _cdecl UI_LOG_FATAL( TCHAR*, ... );
 
+	
 	//////////////////////////////////////////////////////////////////////////
 	// 非导出函数，仅全局调用
 
@@ -228,8 +229,6 @@ namespace UI
 	bool     UI_ShowToolTip(TOOLTIPITEM* pItem);
 	bool     UI_HideToolTip(); 
 	ToolTipManager* UI_GetToolTipMgr();
-
-	BOOL     UI_IsDialogMessage(MSG* pMsg);
 }
 
 #include "message.h"

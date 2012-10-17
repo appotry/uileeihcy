@@ -114,6 +114,10 @@ int CSpectrumAnalyser::SetBandCount(int nCount)
 	int nOldCound = m_nBandCound;
 	m_nBandCound = nCount;
 
+	// 仅频谱图需要设置柱形条
+	if (m_eType != VISUALIZATION_SPECTRUM)
+		return nOldCound;
+
 	SAFE_ARRAY_DELETE(m_pBandValue);
 	SAFE_ARRAY_DELETE(m_pOldBandValue);
 
@@ -144,6 +148,50 @@ int CSpectrumAnalyser::SetAnalyserSampleCount(int nCount)
 	m_pLeftRightChannelData = new float[m_nAnalyserSampleCount];
 
 	return nOldSize;
+}
+int CSpectrumAnalyser::GetAnslyserSampleCount()
+{
+	if (m_eType == VISUALIZATION_SPECTRUM)
+	{
+		return m_nAnalyserSampleCount;
+	}
+	else if (m_eType == VISUALIZATION_WAVE)
+	{
+		return m_rcRender.right - m_rcRender.left;
+	}
+	return 0;
+}
+void CSpectrumAnalyser::SetVisualizationType(E_VISUALIZATION_TYPE eType)
+{
+	if (m_eType == eType)
+		return;
+	m_eType = eType;
+
+	SAFE_ARRAY_DELETE(m_pLeftRightChannelData);
+	SAFE_ARRAY_DELETE(m_pSampleBuffer);
+	SAFE_ARRAY_DELETE(m_pBandValue);
+	SAFE_ARRAY_DELETE(m_pOldBandValue);
+
+	if (VISUALIZATION_WAVE == m_eType)
+	{
+		int nCount = m_rcRender.right - m_rcRender.left;
+		m_pLeftRightChannelData = new float[nCount];
+
+		m_nSampleBufferSize = nCount*m_nChannels*m_nBytePerSample;
+		m_pSampleBuffer = new signed char[m_nSampleBufferSize];
+	}
+	else if (VISUALIZATION_SPECTRUM == m_eType)
+	{
+		m_pBandValue    = new float[m_nBandCound];
+		m_pOldBandValue = new float[m_nBandCound];
+		memset(m_pBandValue,    0, sizeof(float)*m_nBandCound);
+		memset(m_pOldBandValue, 0, sizeof(float)*m_nBandCound);
+
+		m_pLeftRightChannelData = new float[m_nBandCound];
+
+		m_nSampleBufferSize = m_nBandCound*m_nChannels*m_nBytePerSample;
+		m_pSampleBuffer = new signed char[m_nSampleBufferSize];
+	}
 }
 
 bool CSpectrumAnalyser::SetVisualization(VisualizationInfo* pInfo)
@@ -185,14 +233,9 @@ bool CSpectrumAnalyser::SetVisualization(VisualizationInfo* pInfo)
 	}
 	if (pInfo->nMask & VI_MASK_TYPE)
 	{
-		m_eType = pInfo->eType;
-
-		if (m_eType != VISUALIZATION_SPECTRUM)  // 释放不是该类型的数据
-		{
-			SAFE_ARRAY_DELETE(m_pBandValue);
-			SAFE_ARRAY_DELETE(m_pOldBandValue);
-		}
+		this->SetVisualizationType(pInfo->eType);
 	}
+
 	if (pInfo->nMask & VI_MASK_FPS)
 	{
 		int nFps = pInfo->nFps;
@@ -298,7 +341,7 @@ void CSpectrumAnalyser::TransformSamples()
 	if (NULL == m_pLeftRightChannelData)
 		return;
 
-	int SampleSize = m_nAnalyserSampleCount;
+	int SampleSize = GetAnslyserSampleCount();
 	if (m_nChannels == 1 && m_nBytePerSample == 1) 
 	{
 		for (int i = 0; i < SampleSize; i++)
@@ -348,7 +391,6 @@ void CSpectrumAnalyser::TransformSamples()
 
 			m_pLeftRightChannelData[i] = (fLeft+fRight)/65534.0F;
 		}
-
 	}
 }
 
@@ -436,19 +478,6 @@ void CSpectrumAnalyser::DrawBands()
 
 void CSpectrumAnalyser::DrawWave()
 {
-#if 0///
-// 	HDC  hDC = GetDC(m_hRenderWnd);
-// 	HDC  hMemDC = ::CreateCompatibleDC(hDC);
-// 	HBITMAP hBitmap = CreateCompatibleBitmap(hMemDC, 240,100);
-// 	HBITMAP hOldBmp = (HBITMAP)::SelectObject(hMemDC, hBitmap);
-// 	HPEN hPen = CreatePen(PS_SOLID, 1, RGB(255,255,255));
-// 	HPEN hOldPen = (HPEN)::SelectObject(hMemDC, hPen);
-// 	int nWidth = 240;
-// 	int nHeight = 100;
-// 	
-// 	
-// 	BOOL bRet = MoveToEx(hMemDC, 0, nHeight/2, NULL);
-// 	int nSampleCountPerPX = m_nAnalyserSampleCount/240;
 #if 0
 	for (int i = 0,j=0; i < m_nAnalyserSampleCount; j++)
 	{
@@ -469,19 +498,14 @@ void CSpectrumAnalyser::DrawWave()
 		bRet = LineTo(hMemDC,nx,ny);
 	}	
 #else
-	float fPrevData = 0;
-	float f = 0.3f;
-	int   nPrevY = 50;
-	int   fPrevDirection = 0;  // 
-	float fDatas[240] = {0};
-
 	int   nWidth = m_rcRender.right - m_rcRender.left;
 	int   nHeight = m_rcRender.bottom - m_rcRender.top;
+	
+	RECT rc = {0,0, nWidth, nHeight};
+	::FillRect(m_hRenderWndMemDC, &rc, (HBRUSH)::GetStockObject(BLACK_BRUSH));
 
-	for (int i = 0,j=0; j < 240; j++)
-	{
-		fDatas[j] = m_pLeftRightChannelData[j];
-	}
+	HPEN  hPen = ::CreatePen(PS_SOLID, 1, RGB(255,255,255));
+	HPEN  hOldPen = (HPEN)::SelectObject(m_hRenderWndMemDC, hPen);
 
 	// 求相邻结点的平均数据
 // 	float fDatas2[240] = {0};
@@ -498,13 +522,13 @@ void CSpectrumAnalyser::DrawWave()
 
 
 #define XXX 0
-	for (int i = 0; i < 240; i++)
+	int   nPrevY = (int)((nHeight - m_pLeftRightChannelData[0]* nHeight)/2);  // 计算第一个
+	for (int i = 1; i < nWidth; i++)   // 从第二个开始循环
 	{
 		int nx = i;
-		int n = (int)(fDatas[i]* nHeight/2);
-		int ny = nHeight/2 - n;
+		int ny = (int)((nHeight - m_pLeftRightChannelData[i]* nHeight)/2);
 
-#define SETPIXEL(x,y) ::SetPixel(hMemDC,x,y,RGB(255,255,255));
+#define SETPIXEL(x,y) ::SetPixel(m_hRenderWndMemDC,x,y,RGB(255,255,255));
 		if (ny > nPrevY + XXX)
 		{
 			// 往上爬一格
@@ -526,12 +550,7 @@ void CSpectrumAnalyser::DrawWave()
 	}
 #endif
 
-	::BitBlt(hDC, 0,0,240,100,hMemDC,0,0,SRCCOPY);
-	::SelectObject(hMemDC, hOldPen);
+	::BitBlt(m_hRenderWndDC, m_rcRender.left, m_rcRender.top,nWidth,nHeight,m_hRenderWndMemDC,0,0,SRCCOPY);
+	::SelectObject(m_hRenderWndMemDC, hOldPen);
 	::DeleteObject(hPen);
-	::SelectObject(hMemDC, hOldBmp);
-	::DeleteObject(hBitmap);
-	::DeleteDC(hMemDC);
-	::ReleaseDC(m_hRenderWnd,hDC);
-#endif
 }

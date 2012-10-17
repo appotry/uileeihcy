@@ -20,8 +20,8 @@ public:
 		UIMSG_WM_RBUTTONUP(OnRButtonUp)
 	UI_END_MSG_MAP_CHAIN_PARENT(WindowBase)
 
-
 public:
+	virtual BOOL PreTranslateMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT* pRet);
 	BOOL OnInitDialog( HWND, LPARAM );
 	void OnDestroy();
 	void OnClose();
@@ -38,6 +38,7 @@ private:
 	ListBox*   m_pListOption;
 	Combobox*  m_pComboBox;
 	Panel*     m_pPanelAbout;
+	Panel*     m_pPanelVisualization;
 	Panel*     m_pPanelCtrlDemo;
 	Panel*     m_pPanelRichEditDemo;
 

@@ -130,6 +130,10 @@ enum OBJ_TYPE
                                                   // 因为是内部创建的子菜单，内部负责销毁子菜单。而外部自己create出来
                                                   // 的菜单自己要去再创建子菜单，因此外部自己去释放内存
 
+// combobox style
+#define COMBOBOX_STYLE_DROPDOWN         0x0010    // 可编辑下拉列表
+#define COMBOBOX_STYLE_DROPDOWNLIST     0x0020    // 不可编辑下拉列表
+
 // 所有UI类对象的统一基类 
 class UIAPI Object : public ObjTree<Object, Message>
 {
@@ -280,7 +284,7 @@ public:
 	void         SetForcePress( bool b );
 	void         SetHover( bool b );
 	void         SetPress( bool b );
-	void         ModifyStyle( UINT add, UINT remove = 0 );
+	void         ModifyStyle( UINT add, UINT remove = 0, bool bNotify = true);
 	bool         TestStyle(UINT nStyle){ if(m_nStyle&nStyle)return true; return false; }
 	bool         IsTransparent();
 	void         SetActive(bool b);

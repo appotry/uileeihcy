@@ -1833,7 +1833,7 @@ void SystemVScrollBarRender::OnBindObjSize(UINT nType, int cx, int cy)
 	int nNonClientV = pBindObj->GetNonClientR() - pBindObj->GetPaddingR();
 	int nNonClientH = pBindObj->GetNonClientB() - pBindObj->GetPaddingB();
 
-	if (m_pScrollBar->IsVisible())
+	if (m_pScrollBar->IsMySelfVisible())
 		m_pScrollBar->SetObjectPos(cx-nNonClientV, 0, nNonClientV, cy - nNonClientH);
 }
 void SystemHScrollBarRender::OnBindObjSize(UINT nType, int cx, int cy)
@@ -1845,7 +1845,7 @@ void SystemHScrollBarRender::OnBindObjSize(UINT nType, int cx, int cy)
 	int nNonClientV = pBindObj->GetNonClientR() - pBindObj->GetPaddingR();
 	int nNonClientH = pBindObj->GetNonClientB() - pBindObj->GetPaddingB();
 
-	if (m_pScrollBar->IsVisible())
+	if (m_pScrollBar->IsMySelfVisible())
 	{
 		m_pScrollBar->SetObjectPos(0, cy-nNonClientH, cx - nNonClientV, nNonClientH);
 	}
@@ -1938,7 +1938,7 @@ void SystemVScrollBarRender::OnSize(UINT nType, int cx, int cy)
 }
 LRESULT SystemHScrollBarRender::OnNcCalcSize(BOOL bCalcValidRects, LPARAM lprc)
 {
-	if (false == this->m_pScrollBar->IsVisible())
+	if (false == this->m_pScrollBar->IsMySelfVisible())
 		return 0;
 
 	int nHeight = this->m_pScrollBar->GetHeight();
@@ -1952,7 +1952,7 @@ LRESULT SystemHScrollBarRender::OnNcCalcSize(BOOL bCalcValidRects, LPARAM lprc)
 }
 LRESULT SystemVScrollBarRender::OnNcCalcSize(BOOL bCalcValidRects, LPARAM lprc)
 {
-	if (false == this->m_pScrollBar->IsVisible())
+	if (false == this->m_pScrollBar->IsMySelfVisible())
 		return 0;
 
 	int nWidth = this->m_pScrollBar->GetWidth();

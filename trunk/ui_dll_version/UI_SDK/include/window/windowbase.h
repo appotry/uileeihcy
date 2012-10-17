@@ -35,7 +35,7 @@ protected:
 	bool              CreateUI( const String& ID, HWND hWnd );
 	virtual void      DestroyUI();
 	long              ModalLoop(HWND hWndParent);
-	BOOL              PreTranslateMessage(MSG* pMsg);
+	virtual BOOL      PreTranslateMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT* pRet);
 
 public:
 	virtual           void InvalidateObject( Object* pObj, RECT* prc, bool bUpdateNow );

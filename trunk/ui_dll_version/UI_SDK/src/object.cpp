@@ -997,15 +997,33 @@ void Object::clearStateBit( UINT nbit )
 	m_nStateBit &= ~nbit;
 }
 
-void Object::ModifyStyle( UINT nStyleAdd, UINT nStyleRemove )
+void Object::ModifyStyle( UINT nStyleAdd, UINT nStyleRemove, bool bNotify )
 {
+	STYLESTRUCT s;
+	s.styleOld = m_nStyle;
+	s.styleNew = m_nStyle;
+
+	UINT nOldStyle = m_nStyle;
 	if( nStyleAdd != 0 )
 	{
-		m_nStyle |= nStyleAdd;
+		s.styleNew |= nStyleAdd;
 	}
 	if( nStyleRemove != 0 )
 	{
-		m_nStyle &= ~nStyleRemove;
+		s.styleNew &= ~nStyleRemove;
+	}
+
+	if (bNotify)
+	{
+		::UISendMessage(this, WM_STYLECHANGING, GWL_STYLE, (LPARAM)&s);
+	}
+
+	m_nStyle = s.styleNew;
+
+	if (bNotify)
+	{
+		s.styleOld = s.styleOld;
+		::UISendMessage(this, WM_STYLECHANGING, GWL_STYLE, (LPARAM)&s);
 	}
 }
 
