@@ -16,6 +16,8 @@
  19.style 编辑器不应该可以编辑继续得到的属性，也无法保存继续得到的属性问题
  25.优化SetWindowRgn缩放功能
  27.Gdi+下面的MeasureString偏大的原因，以及DrawString放不下的原因
+    好像这个可以解决：Gdiplus::StringFormat format(Gdiplus::StringFormat::GenericTypographic());
+    
  28.换肤时，崩溃。先打开三个窗口，再关闭第二个窗口，换肤，崩溃。
  30.提供一个方法：DoVerb( "action", xxx ); "press" "click" "unpress" "hover" "unhover"
  32.Direct3D + GDI 

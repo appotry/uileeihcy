@@ -436,18 +436,19 @@ void CSpectrumAnalyser::DrawBands()
 
 void CSpectrumAnalyser::DrawWave()
 {
-	HDC  hDC = GetDC(m_hRenderWnd);
-	HDC  hMemDC = ::CreateCompatibleDC(hDC);
-	HBITMAP hBitmap = CreateCompatibleBitmap(hMemDC, 240,100);
-	HBITMAP hOldBmp = (HBITMAP)::SelectObject(hMemDC, hBitmap);
-	HPEN hPen = CreatePen(PS_SOLID, 1, RGB(255,255,255));
-	HPEN hOldPen = (HPEN)::SelectObject(hMemDC, hPen);
-	int nWidth = 240;
-	int nHeight = 100;
-	
-	
-	BOOL bRet = MoveToEx(hMemDC, 0, nHeight/2, NULL);
-	int nSampleCountPerPX = m_nAnalyserSampleCount/240;
+#if 0///
+// 	HDC  hDC = GetDC(m_hRenderWnd);
+// 	HDC  hMemDC = ::CreateCompatibleDC(hDC);
+// 	HBITMAP hBitmap = CreateCompatibleBitmap(hMemDC, 240,100);
+// 	HBITMAP hOldBmp = (HBITMAP)::SelectObject(hMemDC, hBitmap);
+// 	HPEN hPen = CreatePen(PS_SOLID, 1, RGB(255,255,255));
+// 	HPEN hOldPen = (HPEN)::SelectObject(hMemDC, hPen);
+// 	int nWidth = 240;
+// 	int nHeight = 100;
+// 	
+// 	
+// 	BOOL bRet = MoveToEx(hMemDC, 0, nHeight/2, NULL);
+// 	int nSampleCountPerPX = m_nAnalyserSampleCount/240;
 #if 0
 	for (int i = 0,j=0; i < m_nAnalyserSampleCount; j++)
 	{
@@ -473,6 +474,9 @@ void CSpectrumAnalyser::DrawWave()
 	int   nPrevY = 50;
 	int   fPrevDirection = 0;  // 
 	float fDatas[240] = {0};
+
+	int   nWidth = m_rcRender.right - m_rcRender.left;
+	int   nHeight = m_rcRender.bottom - m_rcRender.top;
 
 	for (int i = 0,j=0; j < 240; j++)
 	{
@@ -529,4 +533,5 @@ void CSpectrumAnalyser::DrawWave()
 	::DeleteObject(hBitmap);
 	::DeleteDC(hMemDC);
 	::ReleaseDC(m_hRenderWnd,hDC);
+#endif
 }

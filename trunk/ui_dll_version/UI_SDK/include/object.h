@@ -213,6 +213,7 @@ public:
 	int          GetPaddingB() { return m_rcPadding.bottom; }
 	int          GetPaddingW() { return m_rcPadding.left + m_rcPadding.right; }
 	int          GetPaddingH() { return m_rcPadding.top + m_rcPadding.bottom; }
+	void         SetMarginRegion( CRegion4* prc) { m_rcMargin.CopyRect(prc); }
 	void         GetMarginRegion( CRegion4* prc) { prc->CopyRect(&m_rcMargin); }
 	int          GetMarginL() { return m_rcMargin.left; }
 	int          GetMarginT() { return m_rcMargin.top; }

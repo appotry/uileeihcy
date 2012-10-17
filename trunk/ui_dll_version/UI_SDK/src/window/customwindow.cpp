@@ -888,6 +888,12 @@ void CustomWindow::SetWindowLayered(bool b)
 	if( b )
 	{
 		m_pLayeredWindowWrap = new LayeredWindowWrap(this);
+		m_nWindowTransparentMaskType |= WINDOW_TRANSPARENT_TYPE_LAYERED;
+		if (m_nWindowTransparentMaskType == WINDOW_TRANSPARENT_TYPE_LAYERED)
+		{
+			m_nWindowTransparentMaskType |= WINDOW_TRANSPARENT_TYPE_MASKALPHA;  // 避免忘记了设置该项，否则Commit的时候参数不正确
+			m_nAlphaMask = 255;
+		}
 
 		// Remove WS_EX_LAYERED from this window styles
 		SetWindowLong(m_hWnd, 
@@ -901,6 +907,7 @@ void CustomWindow::SetWindowLayered(bool b)
 	}
 	else
 	{
+		m_nWindowTransparentMaskType &= ~WINDOW_TRANSPARENT_TYPE_LAYERED;
 		// 注：直接去除WS_EX_LAYERED属性，会导致窗口先变黑，然后再刷新一次。
 		//     因此在这里去除分层属性之后，直接将mem bitmap的内容先画到窗口上来规避这个问题。
 		//     同时为了解决画到窗口上的内容有rgn以外的部分，在去除分层属性之前，先计算
@@ -1127,6 +1134,11 @@ void LayeredWindowWrap::OnSize( UINT nType, int cx, int cy )
 	image.Create(cx, -cy, 32, Image::createAlphaChannel);
 	m_hLayeredBitmap = image.Detach();
 	::SelectObject(m_hLayeredMemDC, m_hLayeredBitmap);
+
+// 	const RECT rClear = {0,0,cx,cy};
+// 	FillRect(m_hLayeredMemDC,&rClear, (HBRUSH)::GetStockObject(_BRUSH));
+// 	image.Attach(m_hLayeredBitmap);
+	
 
 	this->InvalidateObject(m_pWindow, TRUE);
 }
@@ -1360,7 +1372,7 @@ void LayeredWindowWrap::Commit2LayeredWindow()
 		}
 	}
 
-	BOOL bRet = ::UpdateLayeredWindow( m_pWindow->m_hWnd, NULL, &m_ptWindow, &m_sizeWindow/*&leftTop, &size*/, m_hLayeredMemDC, &ptMemDC, dwColorMask, &bf, nFlag ); 
+	BOOL bRet = ::UpdateLayeredWindow( m_pWindow->m_hWnd, NULL, &m_ptWindow, &m_sizeWindow, m_hLayeredMemDC, &ptMemDC, dwColorMask, &bf, nFlag ); 
 	if (FALSE == bRet)
 		UI_LOG_ERROR(_T("%s UpdateLayeredWindow Failed."), FUNC_NAME);
 	

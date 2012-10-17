@@ -1,5 +1,130 @@
 #include "stdafx.h"
 
+class ThemeTooltip : public CustomWindow, public IToolTipUI
+{
+public:
+	ThemeTooltip()
+	{
+		m_nLimitWidth = -1;
+	}
+	virtual ~ThemeTooltip()
+	{
+		this->Destroy();
+	}
+
+	UI_DECLARE_OBJECT(ThemeTooltip, OBJ_WINDOW)
+ 	UI_BEGIN_MSG_MAP
+		UIMSG_WM_PAINT(OnPaint)
+	UI_END_MSG_MAP_CHAIN_PARENT(CustomWindow)
+
+	virtual BOOL PreCreateWindow( CREATESTRUCT& cs )
+	{
+		CustomWindow::PreCreateWindow(cs);
+		cs.lpszClass = WND_POPUP_CONTROL_SHADOW_NAME;  // 带阴暗
+		cs.dwExStyle |= WS_EX_TOPMOST|WS_EX_NOACTIVATE;
+		return TRUE;
+	}
+
+	virtual   bool SetAttribute( map<String,String>& mapAttrib, bool bReload)
+	{
+		bool bRet = __super::SetAttribute(mapAttrib, bReload);
+		if (false == bRet)
+			return false;
+
+		if (NULL == m_pBkgndRender)
+		{
+			m_pBkgndRender = RenderFactory::GetRender(RENDER_TYPE_THEME, this);
+		}
+
+		return true;
+	}
+
+	void  OnPaint(HRDC hRDC)
+	{
+		CRect rc;
+		this->GetClientRectAsWin32(&rc);
+
+	//	rc.right +=2;
+		rc.bottom +=2;
+		m_pTextRender->DrawState(hRDC, &rc, 0, m_strText);
+	}
+	virtual bool  Create()
+	{
+		if (NULL != m_hWnd)
+			return false;
+
+		CustomWindow::Create(_T(""),NULL);
+
+		this->SetWindowLayered(true);
+
+		ATTRMAP map;
+		this->SetAttribute(map, false);  // 创建一些默认属性
+
+		CRegion4 b(1,1,1,1);
+		this->SetBorderRegion(&b);
+		CRegion4 r(4,4,4,4);
+		this->SetPaddingRegion(&r);      // 文字与边缘的间距
+
+		this->SetWindowResizeType(WRSB_NONE);  // 禁止拖拽
+		
+		
+		return true;
+	}
+	virtual bool  Destroy() 
+	{
+		if (NULL == m_hWnd)
+			return false;
+
+		::DestroyWindow(m_hWnd);
+		return true;
+	}
+	virtual bool  SetText(const String& strText)
+	{
+		if (NULL == m_hWnd)
+		{
+			Create();
+		}
+		m_strText = strText;
+		
+		// 计算窗口的新大小
+		SIZE s = ::MeasureString(this->GetFont(), strText.c_str(), m_nLimitWidth);
+		s.cx += this->GetNonClientW();
+		s.cy += this->GetNonClientH();
+
+		this->SetObjectPos(0,0, s.cx,s.cy, SWP_NOMOVE);
+		return true;
+	}
+	virtual bool  SetTitle(const String& strText)
+	{
+		if (NULL == m_hWnd)
+		{
+			Create();
+		}
+		return false;
+	}
+	virtual bool  Show()
+	{
+		POINT pt;
+		::GetCursorPos(&pt);
+		this->SetObjectPos(pt.x, pt.y+22, 0,0, SWP_NOSIZE);
+
+		::ShowWindow(m_hWnd, SW_SHOWNOACTIVATE);
+		return true;
+	}
+	virtual bool  Hide() 
+	{
+		this->HideWindow();
+		return true;
+	}
+	virtual bool  SetAttribute(const ATTRMAP& mapAttrib) 
+	{
+		return 0;
+	}
+
+private:
+	String   m_strText;
+	int      m_nLimitWidth;
+};
 
 class CSystemTooltip : public IToolTipUI
 {
@@ -26,6 +151,10 @@ public:
 		{
 			m_bUnderXpOs = false;
 		}
+	}
+	~CSystemTooltip()
+	{
+		this->Destroy();
 	}
 
 	virtual bool  Create()
@@ -77,22 +206,57 @@ public:
 		::SendMessage(m_hToolTip, TTM_ADDTOOL, 0, (LPARAM)&m_toolinfo);
 		::SendMessage(m_hToolTip, TTM_SETMAXTIPWIDTH, 0, TOOLTIP_MAX_WIDTH);   // 备注：该属性如果不和6.0控件一起使用的话，在碰到一个很长的单词时，将无视max width，仅显示一行(仅win7下有效)。
 
+		// Deleted. 该设置仅对默认情况下的宋体字体有效，其它字体没有作用。
+		// 因此决定自己重新实现一个提示条。摆脱系统的限制！
+
 		// 解决非6.0控件时，提示条内容不居中的问题。（测试发现在6.0控件下无视margin的值，但正好6.0就是居中的，可以不管）
 		// 英文操作系统下面是OK的，不用修改。
 		// win7和xp下面需要调整的参数不一致。
-		if (936 == GetACP())
+// 		if (936 == GetACP())
+// 		{
+// 			if (m_bUnderXpOs)
+// 			{
+// 				RECT rc = {1,3,0,0};
+// 				::SendMessage(this->m_hToolTip, TTM_SETMARGIN, 0, (LPARAM)&rc);
+// 			}
+// 			else
+// 			{
+// 				RECT rc = {2,3,0,0};
+// 				::SendMessage(this->m_hToolTip, TTM_SETMARGIN, 0, (LPARAM)&rc);
+// 			}
+// 		}
+
+#if 0
+		const TCHAR* szFontFace =  /*_T("宋体");*/_T("微软雅黑");
+		// 设置字体为 微软雅黑
+		if ( Util::IsFontExist(szFontFace) )
 		{
-			if (m_bUnderXpOs)
+			m_hFont = ::CreateFont(
+				14,//18,                        // nHeight
+				0,                         // nWidth
+				0,                         // nEscapement
+				0,                         // nOrientation
+				FW_NORMAL,                 // nWeight
+				FALSE,                     // bItalic
+				FALSE,                     // bUnderline
+				0,                         // cStrikeOut
+				ANSI_CHARSET,              // nCharSet
+				OUT_DEFAULT_PRECIS,        // nOutPrecision
+				CLIP_DEFAULT_PRECIS,       // nClipPrecision
+				DEFAULT_QUALITY,           // nQuality
+				DEFAULT_PITCH | FF_SWISS,  // nPitchAndFamily
+				szFontFace);               // lpszFacename
+
+			if (NULL != m_hFont)
 			{
-				RECT rc = {1,3,0,0};
-				::SendMessage(this->m_hToolTip, TTM_SETMARGIN, 0, (LPARAM)&rc);
-			}
-			else
-			{
-				RECT rc = {2,3,0,0};
-				::SendMessage(this->m_hToolTip, TTM_SETMARGIN, 0, (LPARAM)&rc);
+				::SendMessage(m_hToolTip, WM_SETFONT, (WPARAM)m_hFont, 0);
+
+				RECT rcMargin;
+				::SendMessage(m_hToolTip, TTM_GETMARGIN, 0, (LPARAM)(LPRECT)&rcMargin);
+				int a= 0;
 			}
 		}
+#endif
 		return true;
 	}
 	virtual bool  Destroy()
@@ -220,7 +384,8 @@ ToolTipManager::~ToolTipManager()
 
 void ToolTipManager::Init()
 {
-	m_pToolTipUI = new CSystemTooltip;
+//	m_pToolTipUI = new CSystemTooltip;
+	m_pToolTipUI = new ThemeTooltip;
 }
 
 bool ToolTipManager::Show(TOOLTIPITEM* pItemInfo)
