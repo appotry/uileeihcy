@@ -19,7 +19,8 @@ public:
 		UIMSG_WM_SIZE(OnSize)
 		UIMSG_WM_INITPOPUPCONTROLWINDOW(OnInitPopupControlWindow)
 		UIMSG_WM_UNINITPOPUPCONTROLWINDOW(OnUnInitPopupControlWindow)
-	
+		UIMSG_WM_STYLECHANGED(OnStyleChanged)
+
 	UIALT_MSG_MAP(1)
 		UIMSG_WM_LBUTTONDOWN(OnBtnLButtonDown)
 
@@ -37,6 +38,7 @@ protected:
 	void     OnEraseBkgnd(HRDC hRDC);
 	void     OnSize( UINT nType, int cx, int cy );
 	void     OnBtnLButtonDown(UINT nFlags, POINT point);
+	void     OnStyleChanged(int nStyleType, LPSTYLESTRUCT lpStyleStruct);
 
 	void     OnInitPopupControlWindow(Object* pObjMsgFrom);
 	void     OnUnInitPopupControlWindow(Object* pObjMsgFrom);

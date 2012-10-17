@@ -679,6 +679,12 @@ protected:
 //			return TRUE;                              \
 // 	}
 
+// void OnStyleChanged(int nStyleType, LPSTYLESTRUCT lpStyleStruct)
+#define UIMSG_WM_STYLECHANGED  MSG_WM_STYLECHANGED
+
+// void OnStyleChanging(int nStyleType, LPSTYLESTRUCT lpStyleStruct)
+#define UIMSG_WM_STYLECHANGING MSG_WM_STYLECHANGING
+
 // void OnSetFocus( Object* pOldFocusObj )
 #define UIMSG_WM_SETFOCUS(func)                       \
 	if( uMsg == WM_SETFOCUS )                         \

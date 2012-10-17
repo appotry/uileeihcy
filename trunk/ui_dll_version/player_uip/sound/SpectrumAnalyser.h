@@ -14,7 +14,7 @@ class   ISoundEngine;
 //////////////////////////////////////////////////////////////////////////
 
 //  Sample是什么？
-//     不太清楚。在这里假设是PCM数据中的一个字节。代表一次取样数据。（16位下面是一次取样的一半了）
+//     不太清楚。在这里假设是PCM数据中的一个音频数据。代表一次取样数据。
 //   
 
 class CSpectrumAnalyser
@@ -30,8 +30,9 @@ public:
 	void     SetRenderWnd(HWND hRenderWnd);
 	int      SetBandCount(int nCount);
 	int      SetAnalyserSampleCount(int nCount = DEFAULT_FFT_SAMPLE_BUFFER_SIZE);
-
+	int      GetAnslyserSampleCount();
 	bool     SetVisualization(VisualizationInfo* pInfo);
+	void     SetVisualizationType(E_VISUALIZATION_TYPE eType);
 
 	BOOL     GetSampleBufferFromDSound();
 	void     FFTSamples();

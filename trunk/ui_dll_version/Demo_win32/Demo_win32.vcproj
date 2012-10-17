@@ -337,6 +337,50 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Skin"
+			>
+			<File
+				RelativePath="..\UI_SDK\bin\ttplayer.uiproj"
+				>
+			</File>
+			<Filter
+				Name="MediaPlayer"
+				>
+				<File
+					RelativePath="..\UI_SDK\bin\mediaplay\font.xml"
+					>
+				</File>
+				<File
+					RelativePath="..\UI_SDK\bin\mediaplay\image.xml"
+					>
+				</File>
+				<File
+					RelativePath="..\UI_SDK\bin\mediaplay\layout.xml"
+					>
+				</File>
+				<File
+					RelativePath="..\UI_SDK\bin\mediaplay\style.xml"
+					>
+				</File>
+				<File
+					RelativePath="..\UI_SDK\bin\mediaplay\ui.xml"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Let&apos;s Serven"
+				>
+				<File
+					RelativePath="..\UI_SDK\bin\let&apos;s seven\layout.xml"
+					>
+				</File>
+				<File
+					RelativePath="..\UI_SDK\bin\let&apos;s seven\UI.xml"
+					>
+				</File>
+			</Filter>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

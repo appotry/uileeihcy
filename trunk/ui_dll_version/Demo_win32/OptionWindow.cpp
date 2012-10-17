@@ -12,14 +12,27 @@ COptionWindow::COptionWindow()
 	m_pPanelCtrlDemo = NULL;
 	m_pPanelRichEditDemo = NULL;
 	m_pIntroduceRichEdit = NULL;
+	m_pPanelVisualization = NULL;
 }
 
+BOOL COptionWindow::PreTranslateMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT* pRet)
+{
+	MSG msg = {m_hWnd, uMsg, wParam, lParam};
+	if (UI_IsDialogMessage(&msg))
+	{
+		*pRet = 0;
+		return TRUE;
+	}
+	return FALSE;
+}
 
 BOOL COptionWindow::OnInitDialog( HWND, LPARAM )
 {
-	m_pPanelAbout = (Panel*)this->FindChildObject(_T("about_panel"));
-	m_pPanelRichEditDemo = (Panel*)this->FindChildObject(_T("richedit_demo_panel"));
-	m_pPanelCtrlDemo = (Panel*)this->FindChildObject(_T("control_demo_panel"));
+	m_pPanelAbout = (Panel*)this->FindChildObject(_T("panel_about"));
+	m_pPanelVisualization = (Panel*)this->FindChildObject(_T("panel_visualization"));
+
+// 	m_pPanelRichEditDemo = (Panel*)this->FindChildObject(_T("richedit_demo_panel"));
+// 	m_pPanelCtrlDemo = (Panel*)this->FindChildObject(_T("control_demo_panel"));
 	m_pIntroduceRichEdit = (RichEdit*)this->FindChildObject(_T("option_introduce_text"));
 
 	if (NULL != m_pPanelCtrlDemo)
@@ -28,6 +41,10 @@ BOOL COptionWindow::OnInitDialog( HWND, LPARAM )
 		m_pPanelRichEditDemo->SetVisible(false, false);
 	if (NULL != m_pPanelAbout)
 		m_pPanelAbout->SetVisible(false,false);
+	if (NULL != m_pPanelVisualization)
+		m_pPanelVisualization->SetVisible(false, false);
+
+	//////////////////////////////////////////////////////////////////////////
 
 	if (NULL != m_pIntroduceRichEdit)
 	{
@@ -54,6 +71,23 @@ L"    一个集播放、音效、转换、歌词等多种功能于一身的专业音频播放软件。\r\n\
 
 		m_pIntroduceRichEdit->GetRichEdit().SetText(strText.c_str());
 	}
+
+	//////////////////////////////////////////////////////////////////////////
+
+	if (NULL != m_pPanelVisualization)
+	{
+		Combobox* pCombo = (Combobox*)m_pPanelVisualization->FindChildObject(_T("combobox_visualization_type"));
+		if (NULL != pCombo)
+		{
+			pCombo->AddString(_T("<不显示>"));
+			pCombo->AddString(_T("梦幻星空"));
+			pCombo->AddString(_T("频谱分析"));
+			pCombo->AddString(_T("示波显示"));
+			pCombo->AddString(_T("专辑封面"));
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
 	
 // 	if (NULL != m_pPanelRichEditDemo)
 // 	{
@@ -79,6 +113,9 @@ L"    一个集播放、音效、转换、歌词等多种功能于一身的专业音频播放软件。\r\n\
 				{
 				case 0:
 					pItem->SetData(m_pPanelAbout);
+					break;
+				case 4:
+					pItem->SetData(m_pPanelVisualization);
 					break;
 				case 13:
 					pItem->SetData(m_pPanelRichEditDemo);

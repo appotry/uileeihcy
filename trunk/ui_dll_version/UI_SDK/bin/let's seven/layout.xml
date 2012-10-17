@@ -100,7 +100,7 @@
       <HyperLink id="link_homepage" text="千千音乐在线" tooltip="千千静听在线网站"   href="http://ttplayer.qianqian.com/index.html" layout.left="122" layout.bottom="8" />
       <HyperLink id="link_homepage" text="论坛"         tooltip="千千静听的官方论坛" href="http://bbs.qianqian.com/"                layout.left="202" layout.bottom="8" />
       <HyperLink id="link_homepage" text="帮助"         tooltip="千千静听的帮助页面" href="http://ttplayer.qianqian.com/help.php"   layout.left="234" layout.bottom="8" />
-      <GroupBox  bkgnd.render.type="notheme" layout.left="115" layout.right="8" layout.top="10" height="370">
+      <GroupBox  id="panel_about" bkgnd.render.type="notheme" layout.left="115" layout.right="8" layout.top="10" height="370">
         <Picture id="title_bk" layout.left="2" layout.right="2" layout.top="2" height="30" foregnd.render.type="gradienth" foregnd.render.colorfrom="option_gradient_from" foregnd.render.colorto="option_gradient_to"/>
         <GroupBox id="" bkgnd.render.type="notheme" layout.left="2" layout.right="2" layout.top="35" height="2"/>
         
@@ -124,36 +124,28 @@
                     vscrollbar.linebtn2.bkgnd.render.type=""  
                     vscrollbar.thubmbtn.bkgnd.render.type=""/>
         </GroupBox>
-        <!--Panel id="option_list_panel_container" layout="card" layout.left="120" layout.top="10" width="426" height="368">
-          <Panel id="about_panel">
-          </Panel>
-          <Panel id="control_demo_panel">
-            <GroupBox  id="groupbox1"     text="ui控件" layout.left="110" layout.top="32" width="150" height="250" >
-              <CheckButton id="test_check"  tooltip="test" text="test check button" layout.top="20"  layout.left="10"/>
-              <RadioButton id="test_radio1" tooltip="test" text="单选按钮_1" layout.top="40"  layout.left="10" group="1" />
-              <RadioButton id="test_radio2" tooltip="test" text="单选按钮_2" layout.top="60"  layout.left="10"/>
-              <RadioButton id="test_radio3" tooltip="test" text="单选按钮_3" layout.top="90"  layout.left="10" group="1" />
-              <RadioButton id="test_radio4" tooltip="test" text="单选按钮_4" layout.top="110" layout.left="10"/>
-              <Edit        id="test_edit1"  width="120"  layout.left="10" layout.top="130"/>
-              <Combobox    id="test_combo1" width="120"  height="20" layout.left="10" layout.top="155"/>
-            </GroupBox>
-            <HwndHost id="IDC_EDIT1"   controlid="1003" />
-            <HwndHost id="IDC_CHECK1"  controlid="1009" />
-            <HwndHost id="IDC_RADIO3"  controlid="1008" />
-            <HwndHost id="IDC_RADIO2"  controlid="1007" />
-            <HwndHost id="IDC_RADIO1"  controlid="1006" />
-            <HwndHost id="IDC_BUTTON1" controlid="1002" />
-            <HwndHost id="IDC_BUTTON2" controlid="1005" />
-            <HwndHost id="IDC_COMBO1"  controlid="1010" />
-            <HwndHost id="IDC_GROUPBOX1" controlid="1011"/>"
-          </Panel>
-          <Panel id="richedit_demo_panel">
-            <RichEdit id="richedit_test" border="1" layout.left="10" layout.top="10" width="200" height="200"
-                     bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="control_border_color"/>
-            <RichEdit id="richedit_test2" layout.left="220" layout.top="10" width="200" height="200"
-                     bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="control_border_color"/>
-          </Panel>
-        </Panel-->
+      </GroupBox>
+      <GroupBox id="panel_visualization" bkgnd.render.type="notheme" layout.left="115" layout.right="8" layout.top="10" height="370">
+        <Picture id="title_bk" layout.left="2" layout.right="2" layout.top="2" height="30" foregnd.render.type="gradienth" foregnd.render.colorfrom="option_gradient_from" foregnd.render.colorto="option_gradient_to"/>
+        <GroupBox id="" bkgnd.render.type="notheme" layout.left="2" layout.right="2" layout.top="35" height="2"/>
+
+        <Label text="视觉效果相关的参数设置" textrender.align="left|vcenter" textrender.color="option_title_text_color_shadow" textrender.font="option_title" layout.left="6" layout.top="3" height="30" layout.right="2"/>
+        <Label text="视觉效果相关的参数设置" textrender.align="left|vcenter" textrender.color="option_title_text_color" textrender.font="option_title" layout.left="5" layout.top="2" height="30" layout.right="2"/>
+
+        <GroupBox text="选项" layout.left="10" layout.top="50" layout.right="10" height="90">
+          <Label text="视觉效果类型:" layout.left="10" layout.top="5"></Label>
+          <Combobox id="combobox_visualization_type" layout.left="95" layout.top="2" width="135" height="20"></Combobox>
+          <Label text="分析显示速度:" layout.left="10" layout.top="30"></Label>
+        </GroupBox>
+        <GroupBox text="频谱分析" layout.left="10" layout.top="145" layout.right="10" height="70">
+
+        </GroupBox>
+        <GroupBox text="示波显示" layout.left="10" layout.top="220" layout.right="10" height="70">
+
+        </GroupBox>
+        <GroupBox text="文字显示" layout.left="10" layout.top="300" layout.right="10" height="50">
+
+        </GroupBox>
       </GroupBox>
     </Window>
   <Menu id="main_menu" styleclass="mainmenu">

@@ -486,7 +486,7 @@ long WindowBase::ModalLoop(HWND hWndParent)
 	return this->m_lDoModalReturn;
 }
 
-BOOL WindowBase::PreTranslateMessage(MSG* pMsg)
+BOOL WindowBase::PreTranslateMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT* pRet)
 {
 	return FALSE;
 }
@@ -622,7 +622,12 @@ LRESULT WindowBase::StartProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 LRESULT  WindowBase::ThunkWndProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	Window* pThis = (Window*)hwnd;
-	return pThis->WndProc( uMsg, wParam, lParam );
+	LRESULT lRet = 0;
+
+	if (FALSE == pThis->PreTranslateMessage(uMsg, wParam, lParam, &lRet))
+		lRet = pThis->WndProc( uMsg, wParam, lParam );
+
+	return lRet;
 }
 
 LRESULT WindowBase::DefWindowProc( UINT uMsg, WPARAM wParam, LPARAM lParam )
@@ -715,8 +720,8 @@ LRESULT	WindowBase::WndProc( UINT uMsg, WPARAM wParam, LPARAM lParam )
 	}
 	if (m_nStyle&WINDOW_STYLE_DESTROYED && pOldMsg == NULL)
 	{
-		this->OnFinalMessage();
 		this->ModifyStyle(0,WINDOW_STYLE_DESTROYED);
+		this->OnFinalMessage();
 	}
 
 	return lRes;

@@ -2,6 +2,8 @@
 
 ComboboxBase::ComboboxBase()
 {
+	this->ModifyStyle(COMBOBOX_STYLE_DROPDOWN, 0);
+
 	UICreateInstance(&m_edit);
 	UICreateInstance(&m_button);
 	UICreateInstance(&m_listbox);
@@ -100,6 +102,7 @@ void ComboboxBase::OnSize( UINT nType, int cx, int cy )
 		SIZE s = m_button->GetDesiredSize(NULL);
 		nBtnW = s.cx;
 	}
+
 	m_button->SetObjectPos(rcClient.right-nBtnW/*-2*/,rcClient.top/*+2*/, nBtnW,rcClient.Height()/*-4*/,SWP_NOREDRAW);
 	m_edit->SetObjectPos(rcClient.left,rcClient.top, rcClient.Width()-nBtnW, rcClient.Height(),SWP_NOREDRAW);
 }
@@ -141,6 +144,23 @@ void ComboboxBase::OnBtnLButtonDown(UINT nFlags, POINT point)
 
 	m_listbox->DropDown();
 	m_button->SetForcePress(true);
+}
+
+void ComboboxBase::OnStyleChanged(int nStyleType, LPSTYLESTRUCT lpStyleStruct)
+{
+	SetMsgHandled(FALSE);
+
+	if (!(lpStyleStruct->styleOld & COMBOBOX_STYLE_DROPDOWN)  &&
+		lpStyleStruct->styleNew & COMBOBOX_STYLE_DROPDOWN)
+	{
+
+	}
+
+	else if (!(lpStyleStruct->styleOld & COMBOBOX_STYLE_DROPDOWNLIST)  &&
+		lpStyleStruct->styleNew & COMBOBOX_STYLE_DROPDOWNLIST)
+	{
+
+	}
 }
 
 // PopupListBoxWindow显示/销毁时，发送过来的消息
