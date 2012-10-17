@@ -44,6 +44,43 @@ int FontHeight2Size(int nHeight)
 	return nSize;
 }
 
+namespace UI { namespace Util {
+int CALLBACK IsFontExistEnumFontsProc(
+						   CONST LOGFONT *lplf,     // logical-font data
+						   CONST TEXTMETRIC *lptm,  // physical-font data
+						   DWORD dwType,            // font type
+						   LPARAM lpData            // application-defined data
+						   )
+{
+	BOOL* pbFind = (BOOL*)lpData;
+	if (NULL != pbFind)
+	{
+		*pbFind = TRUE;
+	}
+	return 0;
+}
+} }
+
+//
+//  判断指定的字体在该系统中是否存在
+//
+//	Parameter
+//		pszFaceName
+//			[in]	要检测的字体名称
+//
+BOOL IsFontExist(const TCHAR* pszFaceName)
+{
+	if (NULL == pszFaceName)
+		return FALSE;
+
+	HDC hDC = GetDC(NULL);
+	BOOL bFind = FALSE;
+	int nRet = EnumFonts(hDC, pszFaceName, UI::Util::IsFontExistEnumFontsProc, (LPARAM)&bFind);
+	::ReleaseDC(NULL, hDC);
+	
+	return bFind;
+}
+
 BOOL GradientFillH( HDC hDC, const RECT* prc, COLORREF colFrom, COLORREF colTo )
 {
 	if( NULL == prc )

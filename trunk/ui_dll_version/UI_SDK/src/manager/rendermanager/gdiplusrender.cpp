@@ -276,25 +276,32 @@ SIZE GdiplusRenderFont::MeasureString( const TCHAR* szText, int nLimitWidth)
 	HDC hDC = UI_GetCacheDC();
 	Gdiplus::Graphics  g(hDC);
 
+	const Gdiplus::StringFormat* pStringFormat = Gdiplus::StringFormat::GenericTypographic();
 	if( -1 != nLimitWidth )
 	{
 		Gdiplus::RectF  layoutRect((Gdiplus::REAL)0,(Gdiplus::REAL)0, (Gdiplus::REAL)nLimitWidth, (Gdiplus::REAL)0 );
 		Gdiplus::RectF  boundingBox;
 
-		g.MeasureString( szText, -1/*_tcslen(szText)*/, m_pFont, layoutRect, &boundingBox );
+		g.MeasureString( szText, -1/*_tcslen(szText)*/, m_pFont, layoutRect, pStringFormat, &boundingBox, NULL,NULL );
 
 		sizeText.cx = (int)boundingBox.Width+1;
 		sizeText.cy = (int)boundingBox.Height+1;
 	}
 	else
 	{
-		Gdiplus::PointF origin((Gdiplus::REAL)0,(Gdiplus::REAL)0 );
-		Gdiplus::RectF  boundingBox;
+// 		Gdiplus::PointF origin((Gdiplus::REAL)0,(Gdiplus::REAL)0 );
+// 		Gdiplus::RectF  boundingBox;
+// 
+// 		g.MeasureString( szText, -1/*_tcslen(szText)*/, m_pFont, origin, pStringFormat, &boundingBox );
+// 
+// 		sizeText.cx = (int)boundingBox.Width+1;
+// 		sizeText.cy = (int)boundingBox.Height+1;
 
-		g.MeasureString( szText, -1/*_tcslen(szText)*/, m_pFont, origin, &boundingBox );
 
-		sizeText.cx = (int)boundingBox.Width+1;
-		sizeText.cy = (int)boundingBox.Height+1;
+		HFONT hFont = this->GetHFONT();
+		HFONT hOldFont = (HFONT)::SelectObject(hDC, hFont);
+		::GetTextExtentPoint32( hDC, szText, _tcslen(szText), &sizeText );
+		::SelectObject(hDC, hOldFont);
 	}
 
 	UI_ReleaseCacheDC(hDC);
@@ -626,7 +633,7 @@ int GdiplusRenderDC::DrawString( const TCHAR* szText, const CRect* lpRect, UINT 
 	colText.SetValue(Gdiplus::Color::MakeARGB(254,GetRValue(col), GetGValue(col), GetBValue(col)));
 	Gdiplus::SolidBrush textBrush(colText);
 
-	Gdiplus::StringFormat format;
+	Gdiplus::StringFormat format(Gdiplus::StringFormat::GenericTypographic());
 	if( nFormat & DT_CENTER )
 	{
 		format.SetAlignment(Gdiplus::StringAlignmentCenter);

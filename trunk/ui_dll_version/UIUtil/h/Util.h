@@ -167,6 +167,7 @@ namespace UI { namespace Util {
 	int  UIUTILAPI FontSize2Height(int nSize);
 	int  UIUTILAPI FontHeight2Size(int nHeight);
 
+	BOOL UIUTILAPI IsFontExist(const TCHAR* pszFaceName);
 	BOOL UIUTILAPI GradientFillH( HDC hDC, const RECT* prc, COLORREF colFrom, COLORREF colTo );
 	BOOL UIUTILAPI GradientFillV( HDC hDC, const RECT* prc, COLORREF colFrom, COLORREF colTo );
 

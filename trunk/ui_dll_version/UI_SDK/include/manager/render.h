@@ -602,7 +602,15 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 
 	//////////////////////////////////////////////////////////////////////////
 
+	class TooltipBkgndThemeRender : public ThemeRenderBase
+	{
+	public:
+		virtual const TCHAR* GetThemeName() { return VSCLASS_TOOLTIP; }
+		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
+		virtual SIZE  GetDesiredSize();
+	};
 	
+	//////////////////////////////////////////////////////////////////////////
 	class TextRenderBase
 	{
 	public:

@@ -153,6 +153,10 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 			CRegion4 r(2,2,2,2);
 			pObj->SetBorderRegion(&r);
 		}
+		else if (_T("ThemeTooltip") == pObj->GetObjectName())
+		{
+			pRender = new TooltipBkgndThemeRender;
+		}
 	}
 	else if( RENDER_TYPE_IMAGE == eType )
 	{
@@ -3162,6 +3166,41 @@ void MenuPopupTriangleRender::DrawTriangle( HDC hDC, const CRect* prc, int nStat
 	SAFE_DELETE_GDIOBJECT(hBrush);
 	SAFE_DELETE_GDIOBJECT(hPen);
 }
+//////////////////////////////////////////////////////////////////////////
+
+void TooltipBkgndThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+{
+	if( m_hTheme )
+	{
+// 		COLORREF colBkgnd = ::GetSysColor(COLOR_INFOBK);
+// 		COLORREF colBorder = RGB(0,0,0);
+// 		Rectangle(hRDC, prc, colBorder, colBkgnd );
+
+// 		CRect r(*prc);
+// 		r.top += 3;
+// 		r.left += 3;
+ 		HDC hDC = GetHDC(hRDC);
+ 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, TTP_STANDARD, TTSS_NORMAL, (RECT*)prc, 0);
+ 		if ( S_OK != hr )
+ 		{
+ 			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
+ 		}
+ 		ReleaseHDC(hRDC, hDC);
+	}
+	else
+	{
+		COLORREF colBkgnd = ::GetSysColor(COLOR_INFOBK);
+		COLORREF colBorder = RGB(0,0,0);
+		Rectangle(hRDC, prc, colBorder, colBkgnd );
+	}
+	
+}
+SIZE TooltipBkgndThemeRender::GetDesiredSize()
+{
+	SIZE s = {0,0};
+	return s;
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                      //
@@ -3360,7 +3399,7 @@ bool TextRender::SetAttribute( const String& strPrefix, ATTRMAP& mapAttrib )
 		else
 		{
 			// 可能是没有窗口对象，比如是一个 popup listbox或者menu，窗口还没有创建。获取默认字体
-			m_hFont = UI_GetDefaultFont((GRAPHICS_RENDER_TYPE)UISendMessage(m_pObject, UI_WM_GETRENDERTYPE));
+			m_hFont = UI_GetDefaultFont(GetGraphicsRenderType(m_pObject));
 		}
 	}
 	return true;
@@ -3477,7 +3516,7 @@ bool ColorListTextRender::SetAttribute( const String& strPrefix, map<String,Stri
 		else
 		{
 			// 可能是没有窗口对象，比如是一个 popup listbox或者menu，窗口还没有创建。获取默认字体
-			m_hFont = UI_GetDefaultFont((GRAPHICS_RENDER_TYPE)UISendMessage(m_pObject, UI_WM_GETRENDERTYPE));
+			m_hFont = UI_GetDefaultFont(GetGraphicsRenderType(m_pObject));
 		}
 	}
 

@@ -1301,8 +1301,8 @@ void Object::GetClientRectAsWin32( CRect* prc )
 	prc->SetRect(
 		0, 
 		0, 
-		this->GetWidth() - m_rcNonClient.Width(), 
-		this->GetHeight()- m_rcNonClient.Height()); 
+		this->GetWidth() - m_rcNonClient.left - m_rcNonClient.right, 
+		this->GetHeight()- m_rcNonClient.top - m_rcNonClient.bottom); 
 }
 
 // clientrect在窗口中的坐标
@@ -1354,7 +1354,7 @@ void Object::SetObjectPos( int x, int y, int cx, int cy, int nFlag )
 	else if( bMove )
 	{
 		cx = this->GetWidth();
-		cx = this->GetHeight();
+		cy = this->GetHeight();
 	}
 	else if( bSize )
 	{
