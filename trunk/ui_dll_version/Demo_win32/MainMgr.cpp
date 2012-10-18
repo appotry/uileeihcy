@@ -201,6 +201,16 @@ void CMainMgr::PlayPrev()
 	Play(GetPlayerListMgr()->GetPrevItem());
 }
 
+bool CMainMgr::SetVisualizationType(int nType)
+{
+	VisualizationInfo info;
+	info.nMask = VI_MASK_TYPE;
+	info.eType = (E_VISUALIZATION_TYPE)nType;
+	::mp3_set_visualization(&info);
+
+	return false;
+}
+
 void CMainMgr::on_mp3_stop()
 {
 	FireEvent(EVENT_TYPE_PLAY, PLAY_EVENT_ID_ON_STOP);

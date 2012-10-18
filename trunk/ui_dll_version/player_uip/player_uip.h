@@ -8,6 +8,7 @@
 
 enum E_VISUALIZATION_TYPE
 {
+	VISUALIZATION_NONE,       // ²»ÏÔÊ¾
 	VISUALIZATION_SPECTRUM,   // ÆµÆ×Í¼
 	VISUALIZATION_WAVE,       // ²¨ÐÎÍ¼
 	VISUALIZATION_XXX,        

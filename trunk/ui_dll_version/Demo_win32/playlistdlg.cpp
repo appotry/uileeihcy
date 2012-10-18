@@ -414,7 +414,7 @@ void CPlayListDlg::OnBtnClickMode(Object* pBtnObj, POINT* pt)
 }
 
 
-void CPlayListDlg::OnLCNDbclick(POINT pt, ListItemBase* pItem)
+void CPlayListDlg::OnLCNDbclick(Message* pObjMsgFrom, POINT pt, ListItemBase* pItem)
 {
 	if (NULL == pItem)
 		return;

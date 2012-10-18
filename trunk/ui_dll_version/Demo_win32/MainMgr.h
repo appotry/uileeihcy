@@ -22,6 +22,7 @@ public:
 	void     PlayNext();
 	void     PlayPrev();
 
+	bool     SetVisualizationType(int nType);
 	void     HandleEvent(IMgr* pSource, int nEventType, int nEventId, WPARAM wParam, LPARAM lParam);
 
 protected:	

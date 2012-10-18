@@ -117,7 +117,7 @@ enum OBJ_TYPE
 #define LISTCTRLBASE_SORT_ASCEND        0x0020    // 升序排序
 #define LISTCTRLBASE_SORT_DESCEND       0x0040    // 降序排序
 #define LISTCTRLBASE_MULTIPLE_SEL       0x0080    // 是否支持多选
-#define LISTCTRLBASE_SEL_HOVER_MODE     0x0100    // 例如菜单，弹出式listbox，在使用方向键时，将不显示hover对象，只显示sel对象
+#define LISTCTRLBASE_SELECT_AS_HOVER_MODE  0x0100 // 例如弹出式listbox，1.在使用方向键时，将不显示hover对象，只显示sel对象 2. 当没有hover时显示sel 3. 当有hover时显示hover
 #define LISTCTRLBASE_SIZE_2_CONTENT     0x0200    // 控件大小决定内容，例如不带横向滚动条的列表框
 #define LISTCTRLBASE_CONTENT_2_SIZE     0x0400    // 内容决定控件大小，例如菜单和弹出式列表框
 
