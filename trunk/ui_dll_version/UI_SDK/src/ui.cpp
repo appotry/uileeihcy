@@ -901,6 +901,13 @@ ToolTipManager* UI_GetToolTipMgr()
 
 	return &(g_pUIApplication->m_ToolTipMgr);
 }
+bool  UI_IsUnderXpOS()
+{
+	if (NULL == g_pUIApplication)
+		return false;
+
+	return g_pUIApplication->IsUnderXpOS();
+}
 
 BOOL  UI_IsDialogMessage( MSG* pMsg )
 {

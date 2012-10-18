@@ -276,7 +276,7 @@ SIZE GdiplusRenderFont::MeasureString( const TCHAR* szText, int nLimitWidth)
 	HDC hDC = UI_GetCacheDC();
 	Gdiplus::Graphics  g(hDC);
 
-	const Gdiplus::StringFormat* pStringFormat = Gdiplus::StringFormat::GenericTypographic();
+	const Gdiplus::StringFormat* pStringFormat = Gdiplus::StringFormat::GenericTypographic();  // 不计算GDIPLUS的左右间距
 	if( -1 != nLimitWidth )
 	{
 		Gdiplus::RectF  layoutRect((Gdiplus::REAL)0,(Gdiplus::REAL)0, (Gdiplus::REAL)nLimitWidth, (Gdiplus::REAL)0 );
@@ -289,19 +289,13 @@ SIZE GdiplusRenderFont::MeasureString( const TCHAR* szText, int nLimitWidth)
 	}
 	else
 	{
-// 		Gdiplus::PointF origin((Gdiplus::REAL)0,(Gdiplus::REAL)0 );
-// 		Gdiplus::RectF  boundingBox;
-// 
-// 		g.MeasureString( szText, -1/*_tcslen(szText)*/, m_pFont, origin, pStringFormat, &boundingBox );
-// 
-// 		sizeText.cx = (int)boundingBox.Width+1;
-// 		sizeText.cy = (int)boundingBox.Height+1;
+		Gdiplus::PointF origin((Gdiplus::REAL)0,(Gdiplus::REAL)0 );
+		Gdiplus::RectF  boundingBox;
 
+		g.MeasureString( szText, -1/*_tcslen(szText)*/, m_pFont, origin, pStringFormat, &boundingBox );
 
-		HFONT hFont = this->GetHFONT();
-		HFONT hOldFont = (HFONT)::SelectObject(hDC, hFont);
-		::GetTextExtentPoint32( hDC, szText, _tcslen(szText), &sizeText );
-		::SelectObject(hDC, hOldFont);
+		sizeText.cx = (int)boundingBox.Width+1;
+		sizeText.cy = (int)boundingBox.Height+1;
 	}
 
 	UI_ReleaseCacheDC(hDC);
@@ -438,6 +432,7 @@ HDC GdiplusRenderDC::GetHDC()
 	::SetViewportOrgEx( hDC, p.x, p.y, NULL );
 	::SelectClipRgn(hDC, hRgn );
 	::DeleteObject(hRgn);
+	::SetBkMode(hDC, TRANSPARENT);
 
 //	::SetTextColor( hDC, m_colorText.ToCOLORREF() );
 //
@@ -633,6 +628,8 @@ int GdiplusRenderDC::DrawString( const TCHAR* szText, const CRect* lpRect, UINT 
 	colText.SetValue(Gdiplus::Color::MakeARGB(254,GetRValue(col), GetGValue(col), GetBValue(col)));
 	Gdiplus::SolidBrush textBrush(colText);
 
+// 	m_pGraphics->SetTextRenderingHint(Gdiplus::TextRenderingHintSystemDefault);
+// 	m_pGraphics->SetSmoothingMode(Gdiplus::SmoothingModeInvalid );
 	Gdiplus::StringFormat format(Gdiplus::StringFormat::GenericTypographic());
 	if( nFormat & DT_CENTER )
 	{
@@ -650,7 +647,6 @@ int GdiplusRenderDC::DrawString( const TCHAR* szText, const CRect* lpRect, UINT 
 	{
 		format.SetLineAlignment(Gdiplus::StringAlignmentFar);
 	}
-
 	// Draw string.
 	Gdiplus::Status s = m_pGraphics->DrawString(
 		szText,
@@ -1190,6 +1186,11 @@ bool GdiplusMemRenderDC::BeginDraw( HDC hDC )
 	{
 		m_pWndGraphics = Gdiplus::Graphics::FromHWND(m_hWnd);
 	}
+
+	// 启用GDIPLUS的cleartype功能
+ 	m_pGraphics->SetTextRenderingHint(Gdiplus::TextRenderingHintClearTypeGridFit);
+	// 消除锯齿模式
+ 	m_pGraphics->SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias );
 	return true;
 }
 

@@ -1,5 +1,10 @@
 #include "stdafx.h"
 
+//
+// 备注：
+//		由于使用了分层窗口，在用Gdiplus DrawString时，对某些字体(如宋体）会出现中文不居中的情况
+//      该问题最后没有解决。但过SetPadding()，稍稍改观了一些。
+//
 class ThemeTooltip : public CustomWindow, public IToolTipUI
 {
 public:
@@ -25,7 +30,7 @@ public:
 		return TRUE;
 	}
 
-	virtual   bool SetAttribute( map<String,String>& mapAttrib, bool bReload)
+	virtual bool SetAttribute( map<String,String>& mapAttrib, bool bReload)
 	{
 		bool bRet = __super::SetAttribute(mapAttrib, bReload);
 		if (false == bRet)
@@ -43,9 +48,6 @@ public:
 	{
 		CRect rc;
 		this->GetClientRectAsWin32(&rc);
-
-	//	rc.right +=2;
-		rc.bottom +=2;
 		m_pTextRender->DrawState(hRDC, &rc, 0, m_strText);
 	}
 	virtual bool  Create()
@@ -62,12 +64,12 @@ public:
 
 		CRegion4 b(1,1,1,1);
 		this->SetBorderRegion(&b);
-		CRegion4 r(4,4,4,4);
+		CRegion4 r(4,3,4,3);
 		this->SetPaddingRegion(&r);      // 文字与边缘的间距
 
 		this->SetWindowResizeType(WRSB_NONE);  // 禁止拖拽
 		
-		
+		::SetWindowPos(m_hWnd,HWND_TOPMOST,0,0,0,0,SWP_NOSIZE|SWP_NOACTIVATE|SWP_NOMOVE|SWP_FRAMECHANGED);
 		return true;
 	}
 	virtual bool  Destroy() 
@@ -138,19 +140,6 @@ public:
 		ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
 		osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
 		GetVersionEx((OSVERSIONINFO*) &osvi);
-
-		m_bUnderXpOs = true;;
-		if (VER_PLATFORM_WIN32_NT == osvi.dwPlatformId)
-		{
-			if (osvi.dwMajorVersion >= 6)
-			{
-				m_bUnderXpOs = false;
-			}
-		}
-		else
-		{
-			m_bUnderXpOs = false;
-		}
 	}
 	~CSystemTooltip()
 	{
@@ -321,7 +310,7 @@ protected:
 	void    FixStringWordBreakUnderXP(const String& src, String& strOut)
 	{
 		// 只在XP下处理该字符串
-		if (false == m_bUnderXpOs)
+		if (false == UI_IsUnderXpOS())
 		{
 			strOut = src;
 			return ;

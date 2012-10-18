@@ -84,6 +84,8 @@ L"    一个集播放、音效、转换、歌词等多种功能于一身的专业音频播放软件。\r\n\
 			pCombo->AddString(_T("频谱分析"));
 			pCombo->AddString(_T("示波显示"));
 			pCombo->AddString(_T("专辑封面"));
+
+			pCombo->ModifyStyle(COMBOBOX_STYLE_DROPDOWNLIST);
 		}
 	}
 

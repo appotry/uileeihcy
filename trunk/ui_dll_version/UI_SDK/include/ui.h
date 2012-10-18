@@ -229,6 +229,7 @@ namespace UI
 	bool     UI_ShowToolTip(TOOLTIPITEM* pItem);
 	bool     UI_HideToolTip(); 
 	ToolTipManager* UI_GetToolTipMgr();
+	bool     UI_IsUnderXpOS();
 }
 
 #include "message.h"

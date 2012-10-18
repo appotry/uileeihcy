@@ -128,6 +128,11 @@ UIApplication::~UIApplication(void)
 
 bool UIApplication::Initialize( const String& strUIProjXmlPath )
 {
+	// 获取操作系统版本信息
+	ZeroMemory(&m_osvi, sizeof(OSVERSIONINFOEX));
+	m_osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+	GetVersionEx((OSVERSIONINFO*) &m_osvi);
+
 	if( false == this->InitLog(strUIProjXmlPath) )
 	{
 #ifdef _DEBUG
@@ -296,6 +301,22 @@ void UIApplication::Save( HSKIN hSkin, UI_RESOURCE_TYPE eResType )
 	m_ProjectMgr.Save(hSkin,eResType);
 }
 
+bool UIApplication::IsUnderXpOS()
+{
+	bool bUnderXpOs = true;;
+	if (VER_PLATFORM_WIN32_NT == m_osvi.dwPlatformId)
+	{
+		if (m_osvi.dwMajorVersion >= 6)
+		{
+			bUnderXpOs = false;
+		}
+	}
+	else
+	{
+		bUnderXpOs = false;
+	}
+	return bUnderXpOs;
+}
 //
 //	为了实现UI对象的创建（从字符串来创建其对应的类），在app类中保存了所有UI对象的创建信息。
 //

@@ -2,7 +2,7 @@
 
 ComboboxBase::ComboboxBase()
 {
-	this->ModifyStyle(COMBOBOX_STYLE_DROPDOWN, 0);
+	this->ModifyStyle(COMBOBOX_STYLE_DROPDOWN, 0, false);
 
 	UICreateInstance(&m_edit);
 	UICreateInstance(&m_button);
@@ -113,21 +113,23 @@ void ComboboxBase::OnEraseBkgnd(HRDC hRDC)
 	if( NULL != m_pBkgndRender )
 	{
 		CRect rc(0,0,GetWidth(),GetHeight());
+
+		bool  bReadOnly = (this->m_nStyle&COMBOBOX_STYLE_DROPDOWNLIST)?true:false;
 		if (!this->IsEnable())
 		{
-			m_pBkgndRender->DrawState(hRDC, &rc, COMBOBOX_BKGND_RENDER_STATE_DISABLE);
+			m_pBkgndRender->DrawState(hRDC, &rc, bReadOnly?COMBOBOX_BKGND_RENDER_STATE_READONLY_DISABLE:COMBOBOX_BKGND_RENDER_STATE_DISABLE);
 		}
 		else if (this->IsPress() /*|| m_button->IsPress() || m_edit->IsPress()*/)
 		{
-			m_pBkgndRender->DrawState(hRDC, &rc, COMBOBOX_BKGND_RENDER_STATE_PRESS);
+			m_pBkgndRender->DrawState(hRDC, &rc, bReadOnly?COMBOBOX_BKGND_RENDER_STATE_READONLY_PRESS:COMBOBOX_BKGND_RENDER_STATE_PRESS);
 		}
 		else if (this->IsHover() /*|| m_button->IsHover() || m_edit->IsHover()*/)
 		{
-			m_pBkgndRender->DrawState(hRDC, &rc, COMBOBOX_BKGND_RENDER_STATE_HOVER);
+			m_pBkgndRender->DrawState(hRDC, &rc, bReadOnly?COMBOBOX_BKGND_RENDER_STATE_READONLY_HOVER:COMBOBOX_BKGND_RENDER_STATE_HOVER);
 		}
 		else
 		{
-			m_pBkgndRender->DrawState(hRDC, &rc, COMBOBOX_BKGND_RENDER_STATE_NORMAL);
+			m_pBkgndRender->DrawState(hRDC, &rc, bReadOnly?COMBOBOX_BKGND_RENDER_STATE_READONLY_NORMAL:COMBOBOX_BKGND_RENDER_STATE_NORMAL);
 		}
 	}
 }
@@ -153,13 +155,19 @@ void ComboboxBase::OnStyleChanged(int nStyleType, LPSTYLESTRUCT lpStyleStruct)
 	if (!(lpStyleStruct->styleOld & COMBOBOX_STYLE_DROPDOWN)  &&
 		lpStyleStruct->styleNew & COMBOBOX_STYLE_DROPDOWN)
 	{
-
+		if (NULL != m_edit)
+		{
+			m_edit->SetVisible(true,false);
+		}
 	}
 
 	else if (!(lpStyleStruct->styleOld & COMBOBOX_STYLE_DROPDOWNLIST)  &&
 		lpStyleStruct->styleNew & COMBOBOX_STYLE_DROPDOWNLIST)
 	{
-
+		if (NULL != m_edit)
+		{
+			m_edit->SetVisible(false,false);
+		}
 	}
 }
 

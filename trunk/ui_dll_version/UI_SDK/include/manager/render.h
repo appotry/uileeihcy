@@ -395,6 +395,11 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 		void DrawHover( HRDC hRDC, const CRect* prc );
 		void DrawPress( HRDC hRDC, const CRect* prc );	
 
+		void DrawReadOnlyDisable( HRDC hRDC, const CRect* prc );
+		void DrawReadOnlyNormal( HRDC hRDC, const CRect* prc );
+		void DrawReadOnlyHover( HRDC hRDC, const CRect* prc );
+		void DrawReadOnlyPress( HRDC hRDC, const CRect* prc );
+
 //		void DrawGlyph( HDC hDC, const CRect* prc, bool bPressDown=false);
 	};
 
