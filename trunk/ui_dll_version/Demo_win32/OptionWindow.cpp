@@ -1,6 +1,6 @@
 #include "StdAfx.h"
 #include "OptionWindow.h"
-
+#include "MainMgr.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -13,6 +13,7 @@ COptionWindow::COptionWindow()
 	m_pPanelRichEditDemo = NULL;
 	m_pIntroduceRichEdit = NULL;
 	m_pPanelVisualization = NULL;
+	m_pComboboxVisualType = NULL;
 }
 
 BOOL COptionWindow::PreTranslateMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT* pRet)
@@ -76,16 +77,16 @@ L"    一个集播放、音效、转换、歌词等多种功能于一身的专业音频播放软件。\r\n\
 
 	if (NULL != m_pPanelVisualization)
 	{
-		Combobox* pCombo = (Combobox*)m_pPanelVisualization->FindChildObject(_T("combobox_visualization_type"));
-		if (NULL != pCombo)
+		m_pComboboxVisualType = (Combobox*)m_pPanelVisualization->FindChildObject(_T("combobox_visualization_type"));
+		if (NULL != m_pComboboxVisualType)
 		{
-			pCombo->AddString(_T("<不显示>"));
-			pCombo->AddString(_T("梦幻星空"));
-			pCombo->AddString(_T("频谱分析"));
-			pCombo->AddString(_T("示波显示"));
-			pCombo->AddString(_T("专辑封面"));
+			m_pComboboxVisualType->AddStringEx(_T("<不显示>"))->SetData((void*)VISUALIZATION_NONE);
+			m_pComboboxVisualType->AddStringEx(_T("梦幻星空"))->SetData((void*)VISUALIZATION_NONE);
+			m_pComboboxVisualType->AddStringEx(_T("频谱分析"))->SetData((void*)VISUALIZATION_SPECTRUM);
+			m_pComboboxVisualType->AddStringEx(_T("示波显示"))->SetData((void*)VISUALIZATION_WAVE);
+			m_pComboboxVisualType->AddStringEx(_T("专辑封面"))->SetData((void*)VISUALIZATION_NONE);
 
-			pCombo->ModifyStyle(COMBOBOX_STYLE_DROPDOWNLIST);
+			m_pComboboxVisualType->ModifyStyle(COMBOBOX_STYLE_DROPDOWNLIST);
 		}
 	}
 
@@ -194,7 +195,7 @@ void COptionWindow::OnRButtonUp(UINT nFlags, CPoint point)
 {
 
 }
-void COptionWindow::OnLCNSelChanged(ListItemBase* pOldSelItem, ListItemBase* pSelItem)
+void COptionWindow::OnLCNSelChanged(Message* pObjMsgFrom, ListItemBase* pOldSelItem, ListItemBase* pSelItem)
 {
 	if (NULL != pOldSelItem)
 	{
@@ -210,6 +211,18 @@ void COptionWindow::OnLCNSelChanged(ListItemBase* pOldSelItem, ListItemBase* pSe
 		if (NULL != pPanel)
 		{
 			pPanel->SetVisible(true, true);
+		}
+	}
+}
+
+void COptionWindow::OnCbnSelChanged(Message* pObjMsgFrom, ListItemBase* pOldSelItem, ListItemBase* pSelItem)
+{
+	if (m_pComboboxVisualType == pObjMsgFrom)
+	{
+		if (NULL != pSelItem)
+		{
+			int nType = (int)(pSelItem->GetData());
+			GetMainMgr()->SetVisualizationType(nType);
 		}
 	}
 }

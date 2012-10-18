@@ -108,7 +108,7 @@ public:
 	void    OnBtnClickAdd(Object* pBtnObj, POINT* pt);
 	void    OnBtnClickDel(Object* pBtnObj, POINT* pt);
 	void    OnBtnClickMode(Object* pBtnObj, POINT* pt);
-	void    OnLCNDbclick(POINT pt, ListItemBase* pItem);
+	void    OnLCNDbclick(Message* pObjMsgFrom, POINT pt, ListItemBase* pItem);
 
 public:
 	void    OnAddItem(PlayerListItemInfo* pItemInfo);

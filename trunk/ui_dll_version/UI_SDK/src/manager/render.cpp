@@ -1916,39 +1916,21 @@ SIZE ComboboxButtonBkThemeRender::GetDesiredSize()
 
 void ComboboxButtonBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 {
-	bool bReadOnlyMode = false;
-	if (((Combobox*)m_pObject)->TestStyle(COMBOBOX_STYLE_DROPDOWNLIST))
-	{
-		bReadOnlyMode = true;
-	}
-
 	switch(nState)
 	{
 	case BUTTON_BKGND_RENDER_STATE_DISABLE:
-		if (bReadOnlyMode)
-			this->DrawReadOnlyDisable(hRDC, (CRect*)prc);
-		else
 			this->DrawDisable(hRDC, (CRect*)prc);
 		break;
 
 	case BUTTON_BKGND_RENDER_STATE_PRESS:
-		if (bReadOnlyMode)
-			this->DrawReadOnlyPress(hRDC, (CRect*)prc);
-		else
 			this->DrawPress(hRDC, (CRect*)prc);
 		break;
 
 	case BUTTON_BKGND_RENDER_STATE_HOVER:
-		if (bReadOnlyMode)
-			this->DrawReadOnlyHover(hRDC, (CRect*)prc);
-		else
 			this->DrawHover(hRDC, (CRect*)prc);
 		break;;
 
 	default:
-		if (bReadOnlyMode)
-			this->DrawReadOnlyNormal(hRDC, (CRect*)prc);
-		else
 			this->DrawNormal(hRDC, (CRect*)prc);
 		break;
 	}
@@ -1976,40 +1958,7 @@ void ComboboxButtonBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc  )
 	}
 	ReleaseHDC(hRDC, hDC);
 }
-
-void ComboboxButtonBkThemeRender::DrawReadOnlyDisable( HRDC hRDC, const CRect* prc  )
-{
-	HDC hDC = GetHDC(hRDC);
-	CRect rc = *prc;
-	if( m_hTheme )
-	{
-		if (UI_IsUnderXpOS())
-		{
-			//rc.DeflateRect(1,1,1,1);
-			HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_DROPDOWNBUTTONRIGHT, CBXSR_DISABLED, &rc, 0);
-			if ( S_OK != hr )
-			{
-				UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
-			}
-		}
-		else
-		{
-			HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_DROPDOWNBUTTONRIGHT, CBXSR_NORMAL, &rc, 0);
-			if ( S_OK != hr )
-			{
-				UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
-			}
-		}
-	}
-	else
-	{
-		rc.DeflateRect(0,2,2,2);
-		//DrawFrameControl(hDC, (RECT*)&rc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_INACTIVE );
-		//DrawGlyph(hDC, &rc);
-		::DrawFrameControl(hDC, (RECT*)&rc, DFC_SCROLL, DFCS_SCROLLCOMBOBOX|DFCS_INACTIVE);
-	}
-	ReleaseHDC(hRDC, hDC);
-}
+ 
 
 void ComboboxButtonBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc  )
 {
@@ -2029,29 +1978,6 @@ void ComboboxButtonBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc  )
  		rc.DeflateRect(0,2,2,2);
 // 		DrawFrameControl(hDC, (RECT*)&rc, DFC_BUTTON, DFCS_BUTTONPUSH );
 // 		DrawGlyph(hDC, &rc);
-		::DrawFrameControl(hDC, (RECT*)&rc, DFC_SCROLL, DFCS_SCROLLCOMBOBOX);
-	}
-	ReleaseHDC(hRDC, hDC);
-}
-
-void ComboboxButtonBkThemeRender::DrawReadOnlyNormal( HRDC hRDC, const CRect* prc  )
-{
-	HDC hDC = GetHDC(hRDC);
-	CRect rc = *prc;
-	if( m_hTheme )
-	{
-		//rc.DeflateRect(1,1,1,1);
-		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, /*CP_DROPDOWNBUTTON*/CP_DROPDOWNBUTTONRIGHT, CBXSR_NORMAL, &rc, 0);
-		if ( S_OK != hr )
-		{
-			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
-		}
-	}
-	else
-	{
-		rc.DeflateRect(0,2,2,2);
-		// 		DrawFrameControl(hDC, (RECT*)&rc, DFC_BUTTON, DFCS_BUTTONPUSH );
-		// 		DrawGlyph(hDC, &rc);
 		::DrawFrameControl(hDC, (RECT*)&rc, DFC_SCROLL, DFCS_SCROLLCOMBOBOX);
 	}
 	ReleaseHDC(hRDC, hDC);
@@ -2080,41 +2006,7 @@ void ComboboxButtonBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc  )
 	}
 	ReleaseHDC(hRDC, hDC);
 }
-
-void ComboboxButtonBkThemeRender::DrawReadOnlyHover( HRDC hRDC, const CRect* prc  )
-{
-	HDC hDC = GetHDC(hRDC);
-
-	CRect rc = *prc;
-	if( m_hTheme )
-	{
-		if (UI_IsUnderXpOS())
-		{
-			//rc.DeflateRect(1,1,1,1);
-			HRESULT hr = DrawThemeBackground(m_hTheme, hDC, /*CP_DROPDOWNBUTTON*/CP_DROPDOWNBUTTONRIGHT, CBXSR_HOT, &rc, 0);
-			if ( S_OK != hr )
-			{
-				UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
-			}
-		}
-		else
-		{
-			HRESULT hr = DrawThemeBackground(m_hTheme, hDC, /*CP_DROPDOWNBUTTON*/CP_DROPDOWNBUTTONRIGHT, CBXSR_NORMAL, &rc, 0);
-			if ( S_OK != hr )
-			{
-				UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
-			}
-		}
-	}
-	else
-	{
-		rc.DeflateRect(0,2,2,2);
-		//DrawFrameControl(hDC, (RECT*)&rc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_HOT );
-		//DrawGlyph(hDC, &rc);
-		::DrawFrameControl(hDC, (RECT*)&rc, DFC_SCROLL, DFCS_SCROLLCOMBOBOX|DFCS_HOT);
-	}
-	ReleaseHDC(hRDC, hDC);
-}
+ 
 void ComboboxButtonBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc  )
 {
 	HDC hDC = GetHDC(hRDC);
@@ -2126,40 +2018,6 @@ void ComboboxButtonBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc  )
 		if ( S_OK != hr )
 		{
 			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
-		}
-	}
-	else
-	{
-		rc.DeflateRect(0,2,2,2);
-		//DrawFrameControl(hDC, (RECT*)&rc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_PUSHED|DFCS_FLAT );
-		//DrawGlyph(hDC, &rc, true);
-		::DrawFrameControl(hDC, (RECT*)&rc, DFC_SCROLL, DFCS_SCROLLCOMBOBOX|DFCS_PUSHED|DFCS_FLAT);
-	}
-	ReleaseHDC(hRDC, hDC);
-}
-void ComboboxButtonBkThemeRender::DrawReadOnlyPress( HRDC hRDC, const CRect* prc  )
-{
-	HDC hDC = GetHDC(hRDC);
-	CRect rc = *prc;
-	if( m_hTheme )
-	{
-		if (UI_IsUnderXpOS())
-		{
-			//rc.DeflateRect(1,1,1,1);
-			HRESULT hr = DrawThemeBackground(m_hTheme, hDC, /*CP_DROPDOWNBUTTON*/CP_DROPDOWNBUTTONRIGHT, CBXSR_PRESSED, &rc, 0);
-			if ( S_OK != hr )
-			{
-				UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
-			}
-		}
-		else
-		{
-			//rc.DeflateRect(1,1,1,1);
-			HRESULT hr = DrawThemeBackground(m_hTheme, hDC, /*CP_DROPDOWNBUTTON*/CP_DROPDOWNBUTTONRIGHT, CBXSR_NORMAL, &rc, 0);
-			if ( S_OK != hr )
-			{
-				UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
-			}
 		}
 	}
 	else
@@ -2350,10 +2208,24 @@ void ComboboxBkThemeRender::DrawReadonlyDisable( HRDC hRDC, const CRect* prc )
 		{
 			UI_LOG_WARN(_T("ComboboxBkThemeRender::DrawDisable  DrawThemeBackground failed."));
 		}
+		{
+			CRect rc(prc);
+			rc.left = rc.right-18;
+			hr = DrawThemeBackground(m_hTheme, hDC, CP_DROPDOWNBUTTONRIGHT, CBXS_DISABLED, (RECT*)&rc, 0);
+			if ( S_OK != hr )
+			{
+				UI_LOG_WARN(_T("%s DrawThemeBackground failed."),FUNC_NAME);
+			}
+		}
 	}
 	else
 	{
 		DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT|BF_MIDDLE);
+
+		CRect rc(prc);
+		rc.DeflateRect(0,2,2,2);
+		rc.left = rc.right - 16;
+		::DrawFrameControl(hDC, (RECT*)&rc, DFC_SCROLL, DFCS_SCROLLCOMBOBOX|DFCS_INACTIVE);
 	}
 	ReleaseHDC(hRDC, hDC);
 }
@@ -2365,20 +2237,28 @@ void ComboboxBkThemeRender::DrawReadonlyNormal( HRDC hRDC, const CRect* prc )
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_READONLY, CBXS_NORMAL, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("ComboboxBkThemeRender::DrawNormal  DrawThemeBackground failed."));
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."),FUNC_NAME);
+		}
+
+		{
+			CRect rc(prc);
+			rc.left = rc.right-18;
+			hr = DrawThemeBackground(m_hTheme, hDC, CP_DROPDOWNBUTTONRIGHT, CBXS_NORMAL, (RECT*)&rc, 0);
+			if ( S_OK != hr )
+			{
+				UI_LOG_WARN(_T("%s DrawThemeBackground failed."),FUNC_NAME);
+			}
 		}
 	}
 	else
 	{
-		if( m_pObject->IsReadonly() )
-		{
-			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT|BF_MIDDLE);
-		}
-		else
-		{
-			::FillRect(hDC, (RECT*)prc, (HBRUSH)GetStockObject(WHITE_BRUSH));
-			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT);
-		}
+		::FillRect(hDC, (RECT*)prc, (HBRUSH)GetStockObject(WHITE_BRUSH));
+		DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT);
+
+		CRect rc(prc);
+		rc.DeflateRect(0,2,2,2);
+		rc.left = rc.right - 16;
+		::DrawFrameControl(hDC, (RECT*)&rc, DFC_SCROLL, DFCS_SCROLLCOMBOBOX);
 	}
 	ReleaseHDC(hRDC, hDC);
 }
@@ -2393,18 +2273,37 @@ void ComboboxBkThemeRender::DrawReadonlyHover( HRDC hRDC, const CRect* prc )
 		{
 			UI_LOG_WARN(_T("ComboboxBkThemeRender::DrawHover  DrawThemeBackground failed."));
 		}
-	}
-	else
-	{
-		if( m_pObject->IsReadonly() )
+
+		if (UI_IsUnderXpOS())
 		{
-			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT|BF_MIDDLE);
+			CRect rc(prc);
+			rc.left = rc.right-18;
+			hr = DrawThemeBackground(m_hTheme, hDC, CP_DROPDOWNBUTTONRIGHT, CBXS_HOT, (RECT*)&rc, 0);
+			if ( S_OK != hr )
+			{
+				UI_LOG_WARN(_T("%s DrawThemeBackground failed."),FUNC_NAME);
+			}
 		}
 		else
 		{
-			::FillRect(hDC, (RECT*)prc, (HBRUSH)GetStockObject(WHITE_BRUSH));
-			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT);
+			CRect rc(prc);
+			rc.left = rc.right-18;
+			hr = DrawThemeBackground(m_hTheme, hDC, CP_DROPDOWNBUTTONRIGHT, CBXS_NORMAL, (RECT*)&rc, 0);
+			if ( S_OK != hr )
+			{
+				UI_LOG_WARN(_T("%s DrawThemeBackground failed."),FUNC_NAME);
+			}
 		}
+	}
+	else
+	{
+		::FillRect(hDC, (RECT*)prc, (HBRUSH)GetStockObject(WHITE_BRUSH));
+		DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT);
+	
+		CRect rc(prc);
+		rc.DeflateRect(0,2,2,2);
+		rc.left = rc.right - 16;
+		::DrawFrameControl(hDC, (RECT*)&rc, DFC_SCROLL, DFCS_SCROLLCOMBOBOX|DFCS_HOT);
 	}
 	ReleaseHDC(hRDC, hDC);
 }
@@ -2418,18 +2317,37 @@ void ComboboxBkThemeRender::DrawReadonlyPress( HRDC hRDC, const CRect* prc )
 		{
 			UI_LOG_WARN(_T("ComboboxBkThemeRender::DrawPress  DrawThemeBackground failed."));
 		}
-	}
-	else
-	{
-		if( m_pObject->IsReadonly() )
+
+		if (UI_IsUnderXpOS())
 		{
-			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT|BF_MIDDLE);
+			CRect rc(prc);
+			rc.left = rc.right-18;
+			hr = DrawThemeBackground(m_hTheme, hDC, CP_DROPDOWNBUTTONRIGHT, CBXS_PRESSED, (RECT*)&rc, 0);
+			if ( S_OK != hr )
+			{
+				UI_LOG_WARN(_T("%s DrawThemeBackground failed."),FUNC_NAME);
+			}
 		}
 		else
 		{
-			::FillRect(hDC, (RECT*)prc, (HBRUSH)GetStockObject(WHITE_BRUSH));
-			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT);
+			CRect rc(prc);
+			rc.left = rc.right-18;
+			hr = DrawThemeBackground(m_hTheme, hDC, CP_DROPDOWNBUTTONRIGHT, CBXS_NORMAL, (RECT*)&rc, 0);
+			if ( S_OK != hr )
+			{
+				UI_LOG_WARN(_T("%s DrawThemeBackground failed."),FUNC_NAME);
+			}
 		}
+	}
+	else
+	{
+		::FillRect(hDC, (RECT*)prc, (HBRUSH)GetStockObject(WHITE_BRUSH));
+		DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT);
+
+		CRect rc(prc);
+		rc.DeflateRect(0,2,2,2);
+		rc.left = rc.right - 16;
+		::DrawFrameControl(hDC, (RECT*)&rc, DFC_SCROLL, DFCS_SCROLLCOMBOBOX|DFCS_PUSHED|DFCS_FLAT);
 	}
 	ReleaseHDC(hRDC, hDC);
 }
@@ -3472,7 +3390,7 @@ TextRenderBase::TextRenderBase()
 {
 	m_pObject = NULL;
 	m_nTextRenderType = TEXTRENDER_TYPE_NULL;
-	m_nDrawTextFlag = DT_SINGLELINE|DT_END_ELLIPSIS|DT_CENTER|DT_VCENTER;
+	m_nDrawTextFlag = DT_SINGLELINE|DT_END_ELLIPSIS|DT_CENTER|DT_VCENTER|DT_NOPREFIX;
 	::SetRectEmpty(&m_rPadding);
 }
 void TextRenderBase::SetTextAlignment(int nDrawFlag)

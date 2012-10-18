@@ -380,6 +380,7 @@ void ListCtrlBase::SetSelectedItem(ListItemBase* pItem, int& nNeedUpdateFlag )
 		msg.code = UI_LCN_SELCHANGED;
 		msg.wParam = (WPARAM)pOldSelectoinItem;
 		msg.lParam = (LPARAM)m_pFirstSelectedItem;
+		msg.pObjMsgFrom = this;
 		this->DoNotify(&msg);
 	}
 }
@@ -797,6 +798,12 @@ void ListCtrlBase::OnMouseMove(UINT nFlags, POINT point)
 	ListItemBase* pNewHover = this->HitTest(point);
 	if( pNewHover != m_pHoverItem )
 	{
+		if (m_nStyle & LISTCTRLBASE_SELECT_AS_HOVER_MODE)
+		{
+			if (NULL == pNewHover)  // 不取消当前高亮，除非有一个新的hover对象
+				return;  
+		}
+
 		ListItemBase* pSave = m_pHoverItem;
 		SetHoverItem(pNewHover);
 		this->ReDrawItem(pSave, m_pHoverItem);
@@ -809,7 +816,7 @@ void ListCtrlBase::OnMouseMove(UINT nFlags, POINT point)
 
 void ListCtrlBase::OnMouseLeave()
 {
-	if (m_nStyle & LISTCTRLBASE_SEL_HOVER_MODE)
+	if (m_nStyle & LISTCTRLBASE_SELECT_AS_HOVER_MODE)  // 鼠标移出时，不取消高亮状态
 		return;
 
 	bool bNeedUpdate = false;
@@ -891,7 +898,7 @@ void ListCtrlBase::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
 
 	if( VK_DOWN == nChar )
 	{
-		if (m_nStyle & LISTCTRLBASE_SEL_HOVER_MODE)  // 菜单或者弹出式列表框
+		if (m_nStyle & LISTCTRLBASE_SELECT_AS_HOVER_MODE)  // 弹出式列表框
 		{
 			if (NULL == m_pHoverItem)
 			{
@@ -926,7 +933,7 @@ void ListCtrlBase::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
 	}
 	else if( VK_UP == nChar )
 	{
-		if (m_nStyle & LISTCTRLBASE_SEL_HOVER_MODE)  // 菜单或者弹出式列表框
+		if (m_nStyle & LISTCTRLBASE_SELECT_AS_HOVER_MODE)  // 菜单或者弹出式列表框
 		{
 			
 			if (NULL == m_pHoverItem)
@@ -1098,7 +1105,7 @@ int ListBoxCompareProc( ListItemBase* p1, ListItemBase* p2 );
 
 ListBox::ListBox()
 {
-	m_nItemHeight = 24;
+	m_nItemHeight = 20;
 
 	this->ModifyStyle(LISTCTRLBASE_SIZE_2_CONTENT);
 	__super::SetSortCompareProc( ListBoxCompareProc );
@@ -1202,6 +1209,9 @@ bool ListBox::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 				p->SetColor(1, RGB(255,255,255));
 				p->SetHRFont(hRFont);
 
+				CRegion4 rPadding(4,0,0,0);
+				p->SetTextPadding(&rPadding);
+				p->SetTextAlignment(DT_SINGLELINE|DT_VCENTER|DT_LEFT|DT_END_ELLIPSIS|DT_NOPREFIX);
 				m_pTextRender->SetAttribute(_T(""), mapAttrib);
 			}
 		}
@@ -1302,6 +1312,14 @@ SIZE ListBox::OnMeasureItem( ListItemBase* p)
 
 void ListBox::OnLButtonUp(UINT nFlags, CPoint point)
 {
+	if (m_nStyle & LISTCTRLBASE_SELECT_AS_HOVER_MODE)    // 以最后鼠标弹出来的那项作为被选中的项
+	{
+		ListItemBase* pNewHover = this->HitTest(point);  // 重新取hover对象。因为当鼠标移到listbox外面时，会仍然保留最后一个hover item
+
+		int nUpdateFlag = 0;
+		if (NULL != pNewHover && pNewHover != m_pFirstSelectedItem)
+			SetSelectedItem(m_pHoverItem, nUpdateFlag);  // 因为即将要关闭了，所以不刷新
+	}
 	if (LISTBOX_STYLE_COMBOBOX == GetListBoxStyle())
 	{
 		this->CloseUp();

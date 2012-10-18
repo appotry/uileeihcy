@@ -395,10 +395,10 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 		void DrawHover( HRDC hRDC, const CRect* prc );
 		void DrawPress( HRDC hRDC, const CRect* prc );	
 
-		void DrawReadOnlyDisable( HRDC hRDC, const CRect* prc );
-		void DrawReadOnlyNormal( HRDC hRDC, const CRect* prc );
-		void DrawReadOnlyHover( HRDC hRDC, const CRect* prc );
-		void DrawReadOnlyPress( HRDC hRDC, const CRect* prc );
+// 		void DrawReadOnlyDisable( HRDC hRDC, const CRect* prc );
+// 		void DrawReadOnlyNormal( HRDC hRDC, const CRect* prc );
+// 		void DrawReadOnlyHover( HRDC hRDC, const CRect* prc );
+// 		void DrawReadOnlyPress( HRDC hRDC, const CRect* prc );
 
 //		void DrawGlyph( HDC hDC, const CRect* prc, bool bPressDown=false);
 	};
@@ -646,7 +646,7 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 		SIZE             GetDesiredSize(const String& strText, int nLimitWidth=-1);
 		int              GetDrawTextFlag() { return m_nDrawTextFlag; }
 		void             GetTextPadding(CRegion4* pRegion4) { pRegion4->CopyRect(&m_rPadding); }
-		void             SetTextPaddingf(CRegion4* pRegion4){ m_rPadding.CopyRect(pRegion4); }
+		void             SetTextPadding(CRegion4* pRegion4){ m_rPadding.CopyRect(pRegion4); }
 
 	protected:
 		Object*          m_pObject;          // 绑定的对象，要绘制谁的文字

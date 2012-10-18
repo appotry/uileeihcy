@@ -204,12 +204,14 @@ enum
 	//		lparam:  ListItemBase*
 	UI_LCN_CLICK,
 
-	//	listctrl 当前选中项改变
+	//	listctrl 当前选中项改变(combobox)
 	//		message: UI_WM_NOTIFY
 	//		code:    UI_LCN_SELCHANGED
 	//		wparam:  ListItemBase* pOld
 	//		lparam:  ListItemBase* pNew
 	UI_LCN_SELCHANGED,
+	UI_CBN_SELCHANGED,
+
 
 	//	点击菜单项
 	//		message: UI_WM_NOTIFY
@@ -1096,36 +1098,37 @@ protected:
 			return TRUE;                              \
 	}
 
-// void OnCBNCloseUp(Combobox);
-#define UIMSG_CBN_CLOSEUP(func)                       \
-	if( uMsg == UI_WM_NOTIFY  &&                      \
-	    code == CBN_CLOSEUP )                         \
-	{                                                 \
-		SetMsgHandled(TRUE);                          \
-		func( (BOOL)wParam );                         \
-		if(IsMsgHandled())                            \
-			return TRUE;                              \
-	}
 
-// void OnLCNDbclick(POINT pt, ListItemBase* pItem)
+// void OnLCNDbclick(Message* pObjMsgFrom, POINT pt, ListItemBase* pItem)
 #define UIMSG_LCN_DBCLICK(func)                       \
 	if( uMsg == UI_WM_NOTIFY  &&                      \
 	    code == UI_LCN_DBCLICK )                      \
 	{                                                 \
 		SetMsgHandled(TRUE);                          \
 		POINT pt = {LOWORD(wParam), HIWORD(lParam) }; \
-		func( pt, (ListItemBase*)lParam);             \
+		func( pObjMsgFrom, pt, (ListItemBase*)lParam);\
 		if(IsMsgHandled())                            \
 			return TRUE;                              \
 	}
 
-// void OnLCNSelChanged(ListItemBase* pOldSelItem, ListItemBase* pSelItem)
+// void OnLcnSelChanged(Message* pObjMsgFrom, ListItemBase* pOldSelItem, ListItemBase* pSelItem)
 #define UIMSG_LCN_SELCHANGED(func)                    \
 	if( uMsg == UI_WM_NOTIFY  &&                      \
 		code == UI_LCN_SELCHANGED )                   \
 	{                                                 \
 		SetMsgHandled(TRUE);                          \
-		func( (ListItemBase*)wParam, (ListItemBase*)lParam); \
+		func( pObjMsgFrom, (ListItemBase*)wParam, (ListItemBase*)lParam); \
+		if(IsMsgHandled())                            \
+			return TRUE;                              \
+	}
+
+// void OnCbnSelChanged(Message* pObjMsgFrom, ListItemBase* pOldSelItem, ListItemBase* pSelItem)
+#define UIMSG_CBM_SELCHANGED(func)                    \
+	if( uMsg == UI_WM_NOTIFY  &&                      \
+		code == UI_CBN_SELCHANGED )                   \
+	{                                                 \
+		SetMsgHandled(TRUE);                          \
+		func( pObjMsgFrom, (ListItemBase*)wParam, (ListItemBase*)lParam); \
 		if(IsMsgHandled())                            \
 			return TRUE;                              \
 	}

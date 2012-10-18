@@ -17,6 +17,7 @@ public:
 		UIMSG_BN_CLICKED(_T("btn_reset_all"), OnBtnResetAll)
 		UICOMMAND_HANDLER_EX(IDC_BUTTON1, BN_CLICKED, OnBtnClick1 )
 		UICOMMAND_HANDLER_EX(IDC_BUTTON2, BN_CLICKED, OnBtnClick2 )
+		UIMSG_CBM_SELCHANGED(OnCbnSelChanged)
 		UIMSG_WM_RBUTTONUP(OnRButtonUp)
 	UI_END_MSG_MAP_CHAIN_PARENT(WindowBase)
 
@@ -32,13 +33,16 @@ public:
 	void OnBtnClick1(UINT uNotifyCode, int nID, HWND wndCtl);
 	void OnBtnClick2(UINT uNotifyCode, int nID, HWND wndCtl);
 	void OnRButtonUp(UINT nFlags, CPoint point);
-	void OnLCNSelChanged(ListItemBase* pOldSelItem, ListItemBase* pSelItem);
-
+	void OnLCNSelChanged(Message* pObjMsgFrom, ListItemBase* pOldSelItem, ListItemBase* pSelItem);
+	void OnCbnSelChanged(Message* pObjMsgFrom, ListItemBase* pOldSelItem, ListItemBase* pSelItem);
 private:
 	ListBox*   m_pListOption;
 	Combobox*  m_pComboBox;
 	Panel*     m_pPanelAbout;
+
 	Panel*     m_pPanelVisualization;
+	Combobox*  m_pComboboxVisualType;
+
 	Panel*     m_pPanelCtrlDemo;
 	Panel*     m_pPanelRichEditDemo;
 

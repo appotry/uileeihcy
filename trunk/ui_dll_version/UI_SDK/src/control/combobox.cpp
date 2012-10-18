@@ -20,9 +20,10 @@ ComboboxBase::ComboboxBase()
 	m_button->SetTabstop(false);
 
 	m_listbox->m_strID = COMBOBOX_LIST_ID;
-	m_listbox->ModifyStyle(LISTCTRLBASE_CONTENT_2_SIZE|LISTCTRLBASE_SORT_ASCEND|LISTCTRLBASE_SEL_HOVER_MODE, LISTCTRLBASE_SIZE_2_CONTENT);
+	m_listbox->ModifyStyle(LISTCTRLBASE_CONTENT_2_SIZE|LISTCTRLBASE_SORT_ASCEND|LISTCTRLBASE_SELECT_AS_HOVER_MODE, LISTCTRLBASE_SIZE_2_CONTENT);
 	m_listbox->SetListBoxStyle(LISTBOX_STYLE_COMBOBOX);
 	m_listbox->SetBindObject(this);
+	m_listbox->AddNotify(this,2);
 	
 	this->AddChild(m_edit);
 	this->AddChild(m_button);
@@ -132,6 +133,18 @@ void ComboboxBase::OnEraseBkgnd(HRDC hRDC)
 			m_pBkgndRender->DrawState(hRDC, &rc, bReadOnly?COMBOBOX_BKGND_RENDER_STATE_READONLY_NORMAL:COMBOBOX_BKGND_RENDER_STATE_NORMAL);
 		}
 	}
+	if (m_nStyle & COMBOBOX_STYLE_DROPDOWNLIST && NULL != m_pTextRender)
+	{
+		ListBoxItem* pItem = (ListBoxItem*)m_listbox->GetSelectionItem();
+		if (NULL != pItem)
+		{
+			CRect rc;
+			this->GetClientRectAsWin32(&rc);
+			rc.left += 4;
+			rc.right -= 20;
+			m_pTextRender->DrawState(hRDC, &rc, 0, pItem->m_strText, DT_SINGLELINE|DT_VCENTER|DT_LEFT);
+		}
+	}
 }
 
 void ComboboxBase::OnStateChanged(int nOld, int nNew)
@@ -139,6 +152,17 @@ void ComboboxBase::OnStateChanged(int nOld, int nNew)
 	this->UpdateObject();
 }
 
+void ComboboxBase::OnLButtonDown(UINT nFlags, POINT point)
+{
+	if (m_nStyle & COMBOBOX_STYLE_DROPDOWNLIST)
+	{
+		if (this->IsForePress())
+			return;
+
+		m_listbox->DropDown();
+		this->SetForcePress(true);
+	}
+}
 void ComboboxBase::OnBtnLButtonDown(UINT nFlags, POINT point)
 {
 	if (m_button->IsForePress())
@@ -146,6 +170,26 @@ void ComboboxBase::OnBtnLButtonDown(UINT nFlags, POINT point)
 
 	m_listbox->DropDown();
 	m_button->SetForcePress(true);
+}
+
+void ComboboxBase::OnLCNSelChanged(Message* pObjMsgFrom, ListItemBase* pOldSelItem, ListItemBase* pSelItem)
+{
+	if (m_nStyle & COMBOBOX_STYLE_DROPDOWNLIST )
+	{
+		this->UpdateObject();
+	}
+	else if (NULL != pSelItem)
+	{
+		m_edit->SetText(((ListBoxItem*)pSelItem)->m_strText);
+	}
+
+	UIMSG   msg;
+	msg.message = UI_WM_NOTIFY;
+	msg.code    = UI_CBN_SELCHANGED;
+	msg.wParam  = (WPARAM)pOldSelItem;
+	msg.lParam  = (LPARAM)pSelItem;
+	msg.pObjMsgFrom = this;
+	this->DoNotify( &msg );
 }
 
 void ComboboxBase::OnStyleChanged(int nStyleType, LPSTYLESTRUCT lpStyleStruct)
@@ -159,6 +203,10 @@ void ComboboxBase::OnStyleChanged(int nStyleType, LPSTYLESTRUCT lpStyleStruct)
 		{
 			m_edit->SetVisible(true,false);
 		}
+		if (NULL != m_button)
+		{
+			m_button->SetVisible(true,false);
+		}
 	}
 
 	else if (!(lpStyleStruct->styleOld & COMBOBOX_STYLE_DROPDOWNLIST)  &&
@@ -167,6 +215,10 @@ void ComboboxBase::OnStyleChanged(int nStyleType, LPSTYLESTRUCT lpStyleStruct)
 		if (NULL != m_edit)
 		{
 			m_edit->SetVisible(false,false);
+		}
+		if (NULL != m_button)
+		{
+			m_button->SetVisible(false,false);
 		}
 	}
 }
@@ -178,17 +230,33 @@ void ComboboxBase::OnInitPopupControlWindow(Object* pObjMsgFrom)
 }
 void ComboboxBase::OnUnInitPopupControlWindow(Object* pObjMsgFrom)
 {
-	int nOldStateBits = m_button->GetStateBit();
-	m_button->SetForcePress(false);
-	::UISendMessage(m_button, UI_WM_STATECHANGED, nOldStateBits, m_button->GetStateBit() ); //刷新按钮
+	if (m_nStyle & COMBOBOX_STYLE_DROPDOWNLIST)
+	{
+		this->SetForcePress(false);   
+		this->UpdateObject();
+	}
+	else
+	{
+		int nOldStateBits = m_button->GetStateBit();
+		m_button->SetForcePress(false);  
+
+		::UISendMessage(m_button, UI_WM_STATECHANGED, nOldStateBits, m_button->GetStateBit() ); //刷新按钮
+	}
 }
 
 bool ComboboxBase::AddString(const String& strText, bool bUpdate)
 { 
-	if (NULL != m_listbox)
-	{
-		m_listbox->AddString(strText, bUpdate) == NULL ? false :true;
-	}
+	if (NULL != this->AddStringEx(strText, bUpdate))
+		return true;
 
 	return false;
+}
+ListBoxItem* ComboboxBase::AddStringEx(const String& strText, bool bUpdate)
+{
+	if (NULL != m_listbox)
+	{
+		return m_listbox->AddString(strText, bUpdate);
+	}
+
+	return NULL;
 }
