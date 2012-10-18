@@ -63,6 +63,10 @@ public:
 	bool RegisterUICreateData(const String& strXmlName, s_UICreateInstancePtr pfun);
 	bool GetUICreateInstanceFuncPtr(const String& strXmlName, s_UICreateInstancePtr* pOut);
 
+	// ----------
+	bool IsUnderXpOS();
+
+
 	// ----------   from uibuilder manager -------------- 
 public:
 	void       Save( HSKIN hSkin, UI_RESOURCE_TYPE eResType );
@@ -95,6 +99,8 @@ private:
 	bool             m_bDesignMode;        // 是否是设计模式
 
 	vector<UI_CREATE_DATA*>   m_vecUICreateData;
+
+	OSVERSIONINFOEX  m_osvi;               // 操作系统版本
 
 };
 

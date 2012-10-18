@@ -1023,7 +1023,7 @@ void Object::ModifyStyle( UINT nStyleAdd, UINT nStyleRemove, bool bNotify )
 	if (bNotify)
 	{
 		s.styleOld = s.styleOld;
-		::UISendMessage(this, WM_STYLECHANGING, GWL_STYLE, (LPARAM)&s);
+		::UISendMessage(this, WM_STYLECHANGED, GWL_STYLE, (LPARAM)&s);
 	}
 }
 
@@ -1354,6 +1354,7 @@ void Object::GetParentRect( CRect* prc )
 
 void Object::SetObjectPos( int x, int y, int cx, int cy, int nFlag )
 {
+	nFlag |= SWP_NOZORDER;   // 该函数不提供修改ZORDER的功能
 	WINDOWPOS wndpos =  {NULL, NULL, x, y, cx, cy, nFlag};
 	UISendMessage(this, WM_WINDOWPOSCHANGING, 0, (LPARAM)&wndpos);
 	x = wndpos.x;

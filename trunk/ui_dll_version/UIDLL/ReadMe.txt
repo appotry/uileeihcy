@@ -16,7 +16,8 @@
  19.style 编辑器不应该可以编辑继续得到的属性，也无法保存继续得到的属性问题
  25.优化SetWindowRgn缩放功能
  27.Gdi+下面的MeasureString偏大的原因，以及DrawString放不下的原因
-    好像这个可以解决：Gdiplus::StringFormat format(Gdiplus::StringFormat::GenericTypographic());
+    通过使用Gdiplus::StringFormat format(Gdiplus::StringFormat::GenericTypographic());可以解决宽度偏大的问题
+    但是高度偏大的问题还是没有找到解决方法。例如宋体字，绘制出来的效果下面就多出2px的空白
     
  28.换肤时，崩溃。先打开三个窗口，再关闭第二个窗口，换肤，崩溃。
  30.提供一个方法：DoVerb( "action", xxx ); "press" "click" "unpress" "hover" "unhover"
@@ -94,7 +95,9 @@
 121.换肤后自动设置属性、位置等等
 122.透明背景频谱
 123.设置频谱参数的线程同步
-123.
+123.mwa,wav文件的directsound支持
+124.文件标签的读取
+125.在分层窗口隐藏的时候，setwindowpos，然后再showwindow，会先显示旧的内容，然后刷新为新的内容 
 
 ==================================疑问==================================
 1. Message类是否需要一个 m_pCurMsg成员变量？
@@ -571,3 +574,10 @@ Windows下S值为0时，H值始终为160（2/3*240）
 
 饱和度调节算法
 http://blog.csdn.net/maozefa/article/details/1781208
+
+
+// 其它一些界面库的架构
+http://blog.csdn.net/jameshooo/article/details/6677272
+http://blog.csdn.net/jameshooo/article/details/5953365
+// 关于是否开源的讨论
+http://topic.csdn.net/u/20100321/15/a93390d2-8022-4154-a019-1faa76bf5202.html
