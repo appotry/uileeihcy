@@ -3,31 +3,6 @@
 #include "Mp3File.h"
 #include "WavFile.h"
 
-
-//////////////////////////////////////////////////////////////////////////
-//
-//  线程通知消息定义
-
-// 设置当前的进度
-#define  DSMSG_SET_CUR_POS    (WM_USER+1)    
-class DSMSG_PARAM_SET_CUR_POS : public DSMSG_PARAM
-{
-public:
-	double   dPercent;
-};
-
-#define  DSMSG_PLAY    (WM_USER+2)    
-#define  DSMSG_PAUSE   (WM_USER+3)    
-#define  DSMSG_STOP    (WM_USER+4)    
-
-DSMSG_PARAM* BuildSetCurPosParam(double dPercent)
-{
-	DSMSG_PARAM_SET_CUR_POS* p = new DSMSG_PARAM_SET_CUR_POS;
-	p->dPercent = dPercent;
-	return (DSMSG_PARAM*)p;
-}
-
-
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
@@ -98,8 +73,8 @@ HRESULT CDirectSoundEngine::Release()
 
 	if(m_hEventThread != NULL)
 	{
-		SetEvent(m_hEvents[POSITION_EVENT_COUNT]);
-		Sleep(1);
+		this->PostThreadMessage(DSMSG_QUIT,NULL);
+		WaitForSingleObject(m_hEventThread, 2000);
 		TerminateThread(m_hEventThread, 0);
 		CloseHandle(m_hEventThread);
 		m_hEventThread = NULL;
@@ -322,8 +297,12 @@ HRESULT CDirectSoundEngine::OnSetCurPos(double dPercent)
 
 	// 重新加载缓存
 	hr = PushBuffer(0, GetBufferSize());  // ??? 注：如果这里不填充所有数据的话，后面会继续播放上次残留的数据，这是为嘛？
-	if (FAILED(hr))
+	if (FAILED(hr))   // 有可能将位置拖动到了文件结束处了
+	{
+		this->Stop();
+		m_pMgr->Fire_on_mp3_stop();
 		return hr;
+	}
 
 	hr = m_pDirectSoundBuffer8->SetCurrentPosition(0);
 	if (FAILED(hr))
@@ -397,7 +376,8 @@ void CDirectSoundEngine::EventThreadProc()
 		}
 		else if (nIndex == POSITION_EVENT_COUNT)
 		{
-			this->EventMsgProc();
+			if(false == this->EventMsgProc())
+				return ;
 		}
 		else
 		{
@@ -410,7 +390,8 @@ void CDirectSoundEngine::EventThreadProc()
 	return;
 }
 
-void CDirectSoundEngine::EventMsgProc()
+// 返回false表示该退出线程了
+bool CDirectSoundEngine::EventMsgProc()
 {
 	MSG  msg;
 	while(::PeekMessage(&msg, NULL, NULL, NULL, PM_REMOVE))
@@ -435,10 +416,15 @@ void CDirectSoundEngine::EventMsgProc()
 		case DSMSG_STOP:
 			this->OnStop();
 			break;
+
+		case DSMSG_QUIT:
+			return false;
+			break;
 		}
 
 		SAFE_DELETE(pDSMSG_PARAM);
 	}
+	return true;
 }
 
 void CDirectSoundEngine::SetBufferSize(int nSize)
@@ -462,10 +448,10 @@ HRESULT CDirectSoundEngine::PushBuffer(int nStart, int nCount)
 	DWORD outsize = 0;
 	BYTE* pbSoundData = new BYTE[ dwSizePart1 ];
 	hr = m_pCurFile->Read(pbSoundData, dwSizePart1, &outsize);
-	if (FAILED(hr))
+	if (FAILED(hr))       // 说明播放完毕了
 	{
 		delete[] pbSoundData;
-		return hr;
+		return hr;   
 	}
 
 	memcpy(pBitPart1, pbSoundData, outsize);

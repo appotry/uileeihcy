@@ -215,7 +215,7 @@ BOOL PopupListBoxWindow::PreCreateWindow( CREATESTRUCT& cs )
 		return FALSE;
 
 	BOOL bRet = __super::PreCreateWindow(cs);
-	cs.lpszClass = WND_POPUP_CONTROL_NAME;  // 不加阴影
+	cs.lpszClass = WND_POPUP_CONTROL_SHADOW_NAME; //WND_POPUP_CONTROL_NAME;  // 不加阴影
 	return bRet;
 }
 void PopupListBoxWindow::OnInitWindow()

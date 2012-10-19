@@ -100,6 +100,9 @@ void MainWindow::OnInitWindow()
 void MainWindow::OnBnClickPlay()
 {
 	GetMainMgr()->Play();
+
+	this->PaintObject(m_pbtnOpen);
+
 }
 void MainWindow::OnMp3Start(PlayerListItemInfo* pItemInfo)
 {

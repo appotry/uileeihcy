@@ -275,6 +275,32 @@ void WindowBase::_InvalidateObjectBkgnd(Object* pInvalidateObj, HDC hDestDC)
 	EndDraw(m_hRenderTarget, nX, nY, nW, nH, nX, nY, true);
 }
 
+// 获取一个控件在窗口上的图像
+HBITMAP WindowBase::PaintObject(Object* pObj)
+{
+	if (NULL == pObj)
+		return NULL;
+
+	pObj->UpdateObject(true);
+
+	Image  image;
+	image.Create(pObj->GetWidth(), pObj->GetHeight(), 32, Image::createAlphaChannel);
+	HBITMAP hBitmap = image.Detach();
+	HDC hDC = UI_GetCacheDC();
+	SelectObject(hDC, hBitmap);
+
+	CRect rcWindow;
+	pObj->GetClientRectInWindow(&rcWindow);
+
+	HDC hdc = m_hRenderTarget->GetHDC();
+	::BitBlt(hDC, 0,0, pObj->GetWidth(), pObj->GetWidth(), hdc, rcWindow.left, rcWindow.top, SRCCOPY);
+	m_hRenderTarget->ReleaseHDC(hdc);
+	
+	image.Attach(hBitmap);
+	image.Save(L"C:\\aaa.png",Gdiplus::ImageFormatPNG);
+	INT A = 0;
+}
+
 //
 //	用于如LISTBOX ReDrawItem，只刷新一部分，而不是整个object
 //

@@ -12,18 +12,21 @@ CSpectrumAnalyser::CSpectrumAnalyser()
 	m_nBytePerSample = 0;
 	m_nAnalyserSampleCount = 0;
 	m_nSampleBufferSize = 0;
-	m_nBandCound = 0;
+	m_nBandCount = 0;
 	m_nSamplesPerBand = 0;
 
 	m_pBandValue = NULL;
 	m_pOldBandValue = NULL;
 	m_pSampleBuffer = NULL;
-	m_pLeftRightChannelData = NULL;
+	m_pLeftRightSampleData = NULL;
 	m_hThread = NULL;
-	m_bSuspend = false;
+	m_bSuspend = FALSE;
+	m_dwThreadID = 0;
+	m_hEventSuspend = NULL;
 
 	m_hRenderWnd = NULL;
 	SetRectEmpty(&m_rcRender);
+	m_hBkgndBmp = NULL;
 	m_eType = VISUALIZATION_SPECTRUM;
 	m_nFps = 1000/25;
 	m_nBandWidth = 7;
@@ -56,17 +59,28 @@ HRESULT CSpectrumAnalyser::InitDefault(HWND hRenderWnd)
 	this->SetRenderWnd(hRenderWnd);
 
 	m_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)gSpectrumAnalyserThreadProc,
-				(LPVOID)this, CREATE_SUSPENDED , NULL);
-	m_bSuspend = true;
+				(LPVOID)this, 0, &m_dwThreadID);
+	m_bSuspend = THREAD_SUSPEND_BY_PLAY_STATE;
+	m_hEventSuspend = CreateEvent(NULL, TRUE, FALSE, NULL);
 	return S_OK;
 }
 HRESULT CSpectrumAnalyser::Release()
 {
+	if (NULL != m_hThread)
+	{
+		this->PostThreadMessage(DSMSG_QUIT,NULL);
+		WaitForSingleObject(m_hThread, 2000);
+		TerminateThread(m_hThread, 0);
+		CloseHandle(m_hThread);
+		CloseHandle(m_hEventSuspend);
+		m_hThread = NULL;
+		m_dwThreadID = 0;
+	}
 	SAFE_DELETE(m_pFFT);
 	SAFE_ARRAY_DELETE(m_pBandValue);
 	SAFE_ARRAY_DELETE(m_pOldBandValue);
 	SAFE_ARRAY_DELETE(m_pSampleBuffer);
-	SAFE_ARRAY_DELETE(m_pLeftRightChannelData);
+	SAFE_ARRAY_DELETE(m_pLeftRightSampleData);
 	m_nAnalyserSampleCount = 0;
 	m_nSampleBufferSize = 0;
 	m_nChannels = 0;
@@ -80,7 +94,7 @@ HRESULT CSpectrumAnalyser::Release()
 	::DeleteDC(m_hRenderWndMemDC);
 	::ReleaseDC(m_hRenderWnd, m_hRenderWndDC);
 	::DeleteObject(m_hMemBitmap);
-
+	::DeleteObject(m_hBkgndBmp);
 	return S_OK;
 }
 
@@ -106,27 +120,25 @@ void CSpectrumAnalyser::SetRenderWnd(HWND hRenderWnd)
 		m_hRenderWnd = hRenderWnd;
 	}
 }
+
+// band仅对频谱图有效，对波形图没有意义
 int CSpectrumAnalyser::SetBandCount(int nCount)
 {
-	if (m_nBandCound == nCount)
-		return m_nBandCound;
+	if (m_nBandCount == nCount)
+		return m_nBandCount;
 
-	int nOldCound = m_nBandCound;
-	m_nBandCound = nCount;
-
-	// 仅频谱图需要设置柱形条
-	if (m_eType != VISUALIZATION_SPECTRUM)
-		return nOldCound;
+	int nOldCound = m_nBandCount;
+	m_nBandCount = nCount;
 
 	SAFE_ARRAY_DELETE(m_pBandValue);
 	SAFE_ARRAY_DELETE(m_pOldBandValue);
 
-	m_pBandValue    = new float[m_nBandCound];
-	m_pOldBandValue = new float[m_nBandCound];
-	memset(m_pBandValue,    0, sizeof(float)*m_nBandCound);
-	memset(m_pOldBandValue, 0, sizeof(float)*m_nBandCound);
+	m_pBandValue    = new float[m_nBandCount];
+	m_pOldBandValue = new float[m_nBandCount];
+	memset(m_pBandValue,    0, sizeof(float)*m_nBandCount);
+	memset(m_pOldBandValue, 0, sizeof(float)*m_nBandCount);
 
-	m_nSamplesPerBand = m_FFTDestSampleSize/m_nBandCound;
+	m_nSamplesPerBand = m_FFTDestSampleSize/m_nBandCount;
 	return nOldCound;
 }
 
@@ -140,12 +152,14 @@ int CSpectrumAnalyser::SetAnalyserSampleCount(int nCount)
 	m_nAnalyserSampleCount = nCount;
 	m_FFTSrcSampleSize  = m_nAnalyserSampleCount/4;  // ?? 为什么要除以4？
 	m_FFTDestSampleSize = m_FFTSrcSampleSize/2;      // FFT计算返回的值是输入值的一半
+	if (0 != m_nBandCount)
+		m_nSamplesPerBand = m_FFTDestSampleSize/m_nBandCount;
 
 	SAFE_DELETE(m_pFFT);
 	m_pFFT = new CFastFourierTransform(m_FFTSrcSampleSize);  
 	
-	SAFE_ARRAY_DELETE(m_pLeftRightChannelData);
-	m_pLeftRightChannelData = new float[m_nAnalyserSampleCount];
+	SAFE_ARRAY_DELETE(m_pLeftRightSampleData);
+	m_pLeftRightSampleData = new float[m_nAnalyserSampleCount];
 
 	return nOldSize;
 }
@@ -161,13 +175,15 @@ int CSpectrumAnalyser::GetAnslyserSampleCount()
 	}
 	return 0;
 }
+
+// 在分析线程中被调用
 void CSpectrumAnalyser::SetVisualizationType(E_VISUALIZATION_TYPE eType)
 {
 	if (m_eType == eType)
 		return;
 	m_eType = eType;
 
-	SAFE_ARRAY_DELETE(m_pLeftRightChannelData);
+	SAFE_ARRAY_DELETE(m_pLeftRightSampleData);
 	SAFE_ARRAY_DELETE(m_pSampleBuffer);
 	SAFE_ARRAY_DELETE(m_pBandValue);
 	SAFE_ARRAY_DELETE(m_pOldBandValue);
@@ -175,37 +191,46 @@ void CSpectrumAnalyser::SetVisualizationType(E_VISUALIZATION_TYPE eType)
 	if (VISUALIZATION_WAVE == m_eType)
 	{
 		int nCount = m_rcRender.right - m_rcRender.left;
-		m_pLeftRightChannelData = new float[nCount];
+		m_pLeftRightSampleData = new float[nCount];
 
 		m_nSampleBufferSize = nCount*m_nChannels*m_nBytePerSample;
 		m_pSampleBuffer = new signed char[m_nSampleBufferSize];
+
+		m_bSuspend &= ~THREAD_SUSPEND_BY_VISUAL_NONE;
 	}
 	else if (VISUALIZATION_SPECTRUM == m_eType)
 	{
-		m_pBandValue    = new float[m_nBandCound];
-		m_pOldBandValue = new float[m_nBandCound];
-		memset(m_pBandValue,    0, sizeof(float)*m_nBandCound);
-		memset(m_pOldBandValue, 0, sizeof(float)*m_nBandCound);
+		m_pBandValue    = new float[m_nBandCount];
+		m_pOldBandValue = new float[m_nBandCount];
+		memset(m_pBandValue,    0, sizeof(float)*m_nBandCount);
+		memset(m_pOldBandValue, 0, sizeof(float)*m_nBandCount);
 
-		m_pLeftRightChannelData = new float[m_nBandCound];
+		m_pLeftRightSampleData = new float[m_nAnalyserSampleCount];
 
-		m_nSampleBufferSize = m_nBandCound*m_nChannels*m_nBytePerSample;
+		m_nSampleBufferSize = m_nAnalyserSampleCount*m_nChannels*m_nBytePerSample;
 		m_pSampleBuffer = new signed char[m_nSampleBufferSize];
+
+		m_bSuspend &= ~THREAD_SUSPEND_BY_VISUAL_NONE;
+	}
+	else
+	{
+		m_bSuspend |= THREAD_SUSPEND_BY_VISUAL_NONE;
 	}
 }
-
+void CSpectrumAnalyser::SetSoundEngine(ISoundEngine* pSoundEngine) 
+{
+	m_pSoundEngine = pSoundEngine; 
+}
 bool CSpectrumAnalyser::SetVisualization(VisualizationInfo* pInfo)
 {
 	if (NULL == pInfo)
 		return false;
 	
-	bool bHandled = false;
-	if (false == m_bSuspend)
-	{
-		bHandled = true;
-		Pause();
-	}
-
+	BOOL bRet = this->PostThreadMessage(DSMSG_SET_VISUALIZATION, BuildSetVisualizationParam(pInfo));
+	return bRet?true:false;
+}
+bool CSpectrumAnalyser::OnSetVisualization(VisualizationInfo* pInfo)
+{
 	if (pInfo->nMask & VI_MASK_HWND)
 	{
 		this->SetRenderWnd(pInfo->hWnd);
@@ -257,21 +282,31 @@ bool CSpectrumAnalyser::SetVisualization(VisualizationInfo* pInfo)
 	{
 		m_nBandWidth = pInfo->nSpectrumGapWidth;
 	}
-
-	if (bHandled)
+	if (pInfo->nMask & VI_MASK_BKGND_BMP)
 	{
-		Play();
+		SAFE_DELETE_GDIOBJECT(m_hBkgndBmp);
+		m_hBkgndBmp = pInfo->hBkgndBmp;
 	}
+
 	return true;
 }
 HRESULT CSpectrumAnalyser::RenderFile(int nChannel, int nBytePerSample)
 {
+	if (m_nChannels == nChannel && m_nBytePerSample == nBytePerSample)
+		return S_FALSE;
+
 	m_nChannels = nChannel;
 	m_nBytePerSample = nBytePerSample;
 	
 	SAFE_ARRAY_DELETE(m_pSampleBuffer);
-	m_nSampleBufferSize = m_nChannels*m_nBytePerSample*m_nAnalyserSampleCount;
-	m_pSampleBuffer = new signed char[m_nSampleBufferSize];
+	switch(m_eType)
+	{
+	case VISUALIZATION_SPECTRUM:
+	case VISUALIZATION_WAVE:
+		m_nSampleBufferSize = GetAnslyserSampleCount()*m_nChannels*m_nBytePerSample;
+		m_pSampleBuffer = new signed char[m_nSampleBufferSize];
+		break;
+	}
 
 	return S_OK;
 }
@@ -285,39 +320,148 @@ BOOL CSpectrumAnalyser::GetSampleBufferFromDSound()
 	return m_pSoundEngine->GetPlayBuffer(m_pSampleBuffer, m_nSampleBufferSize);
 }
 
+//
+//	注：为什么连play函数也要post到分析线程中处理？
+//      因为有可能上一次的stop调用后，onstop还没有触发，又响应了接下来的play函数
+//      导致线程被onstop给挂起
+//
 void CSpectrumAnalyser::Play()
 {
-	if (NULL != m_hThread && m_bSuspend)
-	{
-		DWORD dwRet = ::ResumeThread(m_hThread);
-		if (1 == dwRet)
-			m_bSuspend = false;
-	}
+	this->PostThreadMessage(DSMSG_PLAY, NULL);
 }
+void CSpectrumAnalyser::OnPlay()
+{
+	m_bSuspend &= ~THREAD_SUSPEND_BY_PLAY_STATE;
+}
+
 void CSpectrumAnalyser::Pause()
 {
-	if (NULL != m_hThread && false == m_bSuspend)
-	{
-		::SuspendThread(m_hThread);
-		m_bSuspend = true;
-	}
+	this->PostThreadMessage(DSMSG_PAUSE, NULL);
+}
+
+void CSpectrumAnalyser::OnPause()
+{
+	m_bSuspend |= THREAD_SUSPEND_BY_PLAY_STATE;
 }
 void CSpectrumAnalyser::Stop()
 {
-	if (NULL != m_hThread && false == m_bSuspend)
-	{
-		::SuspendThread(m_hThread);
-		m_bSuspend = true;
-	}
+	this->PostThreadMessage(DSMSG_STOP, NULL);
+}
+void CSpectrumAnalyser::OnStop()
+{
+	m_bSuspend |= THREAD_SUSPEND_BY_PLAY_STATE;
 }
 void CSpectrumAnalyser::ThreadProc()
 {
-	while(1)
+	// 通知该线程创建消息队列
+	MSG msg;
+	::PeekMessage(&msg, NULL, WM_USER, WM_USER, PM_NOREMOVE);
+
+	int nTimeStamp1 = 0, nTimeStamp2 = 0;
+	int nSleepTime = 0;
+	
+	while(true)
 	{
-		this->Process();
-		Sleep(m_nFps); 
+		DWORD nRet = ::WaitForSingleObject(m_hEventSuspend, INFINITE);  // 用于在暂停或未播放时，挂起线程
+		if (nRet == WAIT_FAILED)
+			return;
+
+		ResetEvent(m_hEventSuspend);   // 重置
+
+		if (nRet == WAIT_OBJECT_0)
+		{
+			if (false == this->EventMsgProc())      // 处理事件，比如检查是否将m_bSuspend置为false了
+				return;
+		}
+
+		while(0 == m_bSuspend)         // 开始不断的分析频谱数据，直到有事件将m_bSuspend置为true
+		{
+			nTimeStamp1 = GetTickCount();  // 统计获取消息队列中的消息花费时间
+
+			//////////////////////////////////////////////////////////////////////////
+			this->Process();               // 处理数据分析
+			//////////////////////////////////////////////////////////////////////////
+
+			while(::PeekMessage(&msg, NULL, NULL, NULL, PM_REMOVE))
+			{
+				if (false == this->HandleEventMsg(&msg))
+					return ;
+			}
+			nTimeStamp2 = GetTickCount();
+			nSleepTime = m_nFps - (nTimeStamp2-nTimeStamp1);
+
+			if (nSleepTime > 0)
+				Sleep(nSleepTime); 
+		}
 	}
 }
+
+// return false表示退出线程
+bool CSpectrumAnalyser::EventMsgProc()
+{
+	MSG msg;
+	while(::PeekMessage(&msg, NULL, NULL, NULL, PM_REMOVE))
+	{
+		if (false == this->HandleEventMsg(&msg))
+			return false;
+	}
+
+	return true;
+}
+
+// return false表示退出线程
+bool CSpectrumAnalyser::HandleEventMsg(MSG* pMsg)
+{
+	DSMSG_PARAM* pDSMSG_PARAM = (DSMSG_PARAM*)pMsg->wParam;
+	switch(pMsg->message)
+	{
+	case DSMSG_SET_VISUALIZATION:
+		{
+			DSMSG_PARAM_SET_VISUALIZATION* p = (DSMSG_PARAM_SET_VISUALIZATION*)pDSMSG_PARAM;
+			this->OnSetVisualization(&p->info);
+		}
+		break;
+
+	case DSMSG_PLAY:
+		{
+			this->OnPlay();
+		}
+		break;
+
+	case DSMSG_PAUSE:
+		{
+			this->OnPause();
+		}
+		break;
+
+	case DSMSG_STOP:
+		{
+			this->OnStop();
+		}
+		break;
+
+	case DSMSG_QUIT:
+		{
+			return false;
+		}
+		break;
+	}
+	SAFE_DELETE(pDSMSG_PARAM);
+	return true;
+}
+
+bool CSpectrumAnalyser::PostThreadMessage(UINT uMsg, DSMSG_PARAM* pParam)
+{
+	if (NULL == m_hEventSuspend || 0 == m_dwThreadID)
+		return false;
+
+	if (FALSE == ::PostThreadMessage(m_dwThreadID, uMsg, (WPARAM)pParam, 0))
+		return false;
+
+	::SetEvent(m_hEventSuspend);
+	return true;
+}
+
 void CSpectrumAnalyser::Process()
 {
 	if (GetSampleBufferFromDSound())
@@ -338,7 +482,7 @@ void CSpectrumAnalyser::Process()
 
 void CSpectrumAnalyser::TransformSamples()
 {
-	if (NULL == m_pLeftRightChannelData)
+	if (NULL == m_pLeftRightSampleData)
 		return;
 
 	int SampleSize = GetAnslyserSampleCount();
@@ -349,7 +493,7 @@ void CSpectrumAnalyser::TransformSamples()
 // 			m_Left[a] = (float) m_pSampleBuffer[a] / 128.0F;
 // 			m_Right[a] = m_Left[a];
 
-			m_pLeftRightChannelData[i] = (float)m_pSampleBuffer[i] / 128.0f;
+			m_pLeftRightSampleData[i] = (float)m_pSampleBuffer[i] / 128.0f;
 		}
 
 	} 
@@ -361,7 +505,7 @@ void CSpectrumAnalyser::TransformSamples()
 // 			m_Right[i] = (float) m_pSampleBuffer[(i<<1)+1] / 128.0F;
 
 			int n = i<<1;
-			m_pLeftRightChannelData[i] = (m_pSampleBuffer[n] + m_pSampleBuffer[n+1]) / 256.0F;
+			m_pLeftRightSampleData[i] = (m_pSampleBuffer[n] + m_pSampleBuffer[n+1]) / 256.0F;
 		}
 
 	} 
@@ -373,7 +517,7 @@ void CSpectrumAnalyser::TransformSamples()
 // 				m_pSampleBuffer[i<<1]) / 32767.0F;
 // 			m_Right[i] =  m_Left[i];
 
-			m_pLeftRightChannelData[i] = (float) (( m_pSampleBuffer[(i<<1)+1] << 8) + m_pSampleBuffer[i<<1]) / 32767.0F;
+			m_pLeftRightSampleData[i] = (float) (( m_pSampleBuffer[(i<<1)+1] << 8) + m_pSampleBuffer[i<<1]) / 32767.0F;
 		}
 	} 
 	else if (m_nChannels == 2 &&  m_nBytePerSample == 2)
@@ -389,7 +533,7 @@ void CSpectrumAnalyser::TransformSamples()
 			float fLeft = (float) (( m_pSampleBuffer[n+1] << 8) + m_pSampleBuffer[n]);
 			float fRight = (float) (( m_pSampleBuffer[n+3] << 8) + m_pSampleBuffer[n+2]);
 
-			m_pLeftRightChannelData[i] = (fLeft+fRight)/65534.0F;
+			m_pLeftRightSampleData[i] = (fLeft+fRight)/65534.0F;
 		}
 	}
 }
@@ -401,8 +545,8 @@ void CSpectrumAnalyser::FFTSamples()
 // 		m_Left[a] = (m_Left[a] + m_Right[a]) / 2.0f;
 // 	}
 
-	float* pFFTResult = m_pFFT->Calculate(m_pLeftRightChannelData, m_nAnalyserSampleCount); 
-	for (int i = 0, nBandIndex = 0; nBandIndex < m_nBandCound; i += m_nSamplesPerBand, nBandIndex++) 
+	float* pFFTResult = m_pFFT->Calculate(m_pLeftRightSampleData, m_nAnalyserSampleCount); 
+	for (int i = 0, nBandIndex = 0; nBandIndex < m_nBandCount; i += m_nSamplesPerBand, nBandIndex++) 
 	{
 		float fBandValue = 0;
 		// 计算一个柱形条的能量值。（每个柱形条是包含了m_nSamplesPerBand个取样点）
@@ -462,10 +606,15 @@ void CSpectrumAnalyser::DrawBands()
 	int nWidth = m_rcRender.right-m_rcRender.left;
 	int nHeight = m_rcRender.bottom-m_rcRender.top;
 	RECT rc = {0,0, nWidth, nHeight};
-	::FillRect(m_hRenderWndMemDC, &rc, (HBRUSH)::GetStockObject(BLACK_BRUSH));
+//	::FillRect(m_hRenderWndMemDC, &rc, (HBRUSH)::GetStockObject(BLACK_BRUSH));
+
+	HDC hDC = ::CreateCompatibleDC(NULL);
+	SelectObject(hDC, m_hBkgndBmp);
+	::BitBlt(m_hRenderWndMemDC, 0,0,nWidth, nHeight, hDC, 0,0, SRCCOPY);
+	::DeleteDC(hDC);
 
 	HBRUSH hWhiteBrush = (HBRUSH)GetStockObject(WHITE_BRUSH);
-	for (int i = 0; i < m_nBandCound; i++)
+	for (int i = 0; i < m_nBandCount; i++)
 	{
 		int ny = nHeight - (int)(nHeight * m_pBandValue[i]);
 		int nx = i * (m_nBandGapWidth+m_nBandWidth);
@@ -522,11 +671,11 @@ void CSpectrumAnalyser::DrawWave()
 
 
 #define XXX 0
-	int   nPrevY = (int)((nHeight - m_pLeftRightChannelData[0]* nHeight)/2);  // 计算第一个
+	int   nPrevY = (int)((nHeight - m_pLeftRightSampleData[0]* nHeight)/2);  // 计算第一个
 	for (int i = 1; i < nWidth; i++)   // 从第二个开始循环
 	{
 		int nx = i;
-		int ny = (int)((nHeight - m_pLeftRightChannelData[i]* nHeight)/2);
+		int ny = (int)((nHeight - m_pLeftRightSampleData[i]* nHeight)/2);
 
 #define SETPIXEL(x,y) ::SetPixel(m_hRenderWndMemDC,x,y,RGB(255,255,255));
 		if (ny > nPrevY + XXX)

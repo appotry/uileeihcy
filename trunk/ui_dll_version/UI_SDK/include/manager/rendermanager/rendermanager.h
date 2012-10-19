@@ -150,14 +150,6 @@ public:
 // 	virtual COLORREF SetTextColor( COLORREF color, byte Alpha = 255 ) = 0;
 // 	virtual COLORREF GetTextColor( ) = 0;
 	
-	virtual bool     BeginDraw( HDC hDC ) = 0;
-	virtual void     EndDraw( ) = 0;
-	virtual void     EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish ) = 0;
-	virtual void     ResizeRenderTarget( int nWidth, int nHeight ) = 0;
-	virtual BYTE*    LockBits() = 0;
-	virtual void     UnlockBits() = 0;
-	virtual void     Save( const String& strPath ) = 0;
-
 	virtual int      DrawString( const TCHAR* szText, const CRect* lpRect, UINT nFormat, HRFONT hRFont, COLORREF col ) = 0;
 	virtual void     FillRgn( HRGN hRgn, COLORREF col ) = 0;
 	virtual void     FillRect( const CRect* lprc, COLORREF col) = 0;
@@ -183,6 +175,16 @@ public:
 	virtual bool     LoadBitmapFromFile( String strPath ){return false;};
 	virtual bool     LoadBitmapFromResource(){return false;};
 	virtual bool     LoadBitmapFromZip() {return false;};
+
+	// 仅memdc才有用的
+	virtual bool     BeginDraw( HDC hDC ) = 0;
+	virtual void     EndDraw( ) = 0;
+	virtual void     EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish ) = 0;
+	virtual void     ResizeRenderTarget( int nWidth, int nHeight ) = 0;
+	virtual BYTE*    LockBits() = 0;
+	virtual void     UnlockBits() = 0;
+	virtual void     Save( const String& strPath ) = 0;
+	virtual HBITMAP  CopyBitmap(RECT *prc) = 0;
 
 protected:
 	HWND    m_hWnd;   // 用于ReleaseDC(m_hWnd, m_hDC);

@@ -34,9 +34,27 @@ bool CMainMgr::Initialize()
 	info.hWnd = m_pMainWindow->m_hWnd;
 	SetRect(&info.rcRender, 28,88,156,128);
 	info.nSpectrumBandCount = (info.rcRender.right-info.rcRender.left)/8;
-	info.eType = VISUALIZATION_WAVE;
-	::mp3_set_visualization(&info);
+	info.eType = VISUALIZATION_SPECTRUM;
 
+
+	// »ñÈ¡Í¸Ã÷±³¾°Í¼
+	HDC hDC = GetDC(info.hWnd);
+	HDC hMemDC = ::CreateCompatibleDC(hDC);
+	HBITMAP hBitmap = CreateCompatibleBitmap(hDC, info.rcRender.right-info.rcRender.left, info.rcRender.bottom-info.rcRender.top);
+	HBITMAP hOldBmp = (HBITMAP)::SelectObject(hMemDC, hBitmap);
+	::BitBlt(hMemDC, 0,0, info.rcRender.right-info.rcRender.left, info.rcRender.bottom-info.rcRender.top,
+		hDC, info.rcRender.left, info.rcRender.top, SRCCOPY);
+	::SelectObject(hMemDC, hOldBmp);
+	::DeleteDC(hMemDC);
+	::ReleaseDC(info.hWnd, hDC);
+	info.hBkgndBmp = hBitmap;
+	
+	Image image;
+	image.Attach(hBitmap);
+	image.Save(L"C:\\aaa.png",Gdiplus::ImageFormatPNG);
+	image.Detach();
+
+	::mp3_set_visualization(&info);
 	return bRet;
 }
 
