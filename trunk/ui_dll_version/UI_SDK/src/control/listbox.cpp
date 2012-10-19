@@ -807,6 +807,12 @@ void ListCtrlBase::OnMouseMove(UINT nFlags, POINT point)
 		ListItemBase* pSave = m_pHoverItem;
 		SetHoverItem(pNewHover);
 		this->ReDrawItem(pSave, m_pHoverItem);
+
+		if (m_nStyle & LISTCTRLBASE_SELECT_AS_HOVER_MODE)
+		{
+			if (NULL != m_pFirstSelectedItem)
+				this->ReDrawItem(m_pFirstSelectedItem);  // 当有hover项时，不显示selected项
+		}
 	}
 	if (NULL != m_pHoverItem)
 	{
@@ -844,7 +850,11 @@ void ListCtrlBase::OnLButtonDown(UINT nFlags, POINT point)
 		{
 			int nNeedUpdateObjectFlag = LISTCTRLBASE_NEED_UPDATE_FLAG_NONE;
 			ListItemBase* pOldSelItem = m_pFirstSelectedItem;
-			SetSelectedItem(m_pPressItem, nNeedUpdateObjectFlag);
+
+			if (m_nStyle & LISTCTRLBASE_SELECT_AS_HOVER_MODE)   // 仅在鼠标弹起时选择
+			{}
+			else
+				SetSelectedItem(m_pPressItem, nNeedUpdateObjectFlag);
 
 			if (nNeedUpdateObjectFlag & LISTCTRLBASE_NEED_UPDATE_FLAG_ALL) // 产生了滚动，刷新整个列表
 			{
@@ -873,6 +883,15 @@ void ListCtrlBase::OnLButtonUp(UINT nFlags, POINT point)
 		msg.pObjMsgFrom = this;
 
 		this->DoNotify(&msg);
+	}
+
+	if (m_nStyle & LISTCTRLBASE_SELECT_AS_HOVER_MODE)    // 以最后鼠标弹出来的那项作为被选中的项
+	{
+		ListItemBase* pNewHover = this->HitTest(point);  // 重新取hover对象。因为当鼠标移到listbox外面时，会仍然保留最后一个hover item
+
+		int nUpdateFlag = 0;
+		if (NULL != pNewHover && pNewHover != m_pFirstSelectedItem)
+			SetSelectedItem(m_pHoverItem, nUpdateFlag);  // 因为即将要关闭了，所以不刷新
 	}
 }
 void ListCtrlBase::OnDBClick(UINT nFlags, POINT point)
@@ -1204,9 +1223,10 @@ bool ListBox::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 			if (NULL != m_pTextRender)
 			{
 				ColorListTextRender* p = (ColorListTextRender*)m_pTextRender;
-				p->SetCount(2);
-				p->SetColor(0, RGB(0,0,0));
-				p->SetColor(1, RGB(255,255,255));
+				p->SetCount(8);
+				p->SetColor(0, RGB(0,0,0));        // LISTCTRLITEM_FOREGND_RENDER_STATE_NORMAL
+				p->SetColor(1, RGB(255,255,255));  // LISTCTRLITEM_FOREGND_RENDER_STATE_HOVER
+				p->SetColor(5, RGB(255,255,255));  // LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_HOVER
 				p->SetHRFont(hRFont);
 
 				CRegion4 rPadding(4,0,0,0);
@@ -1312,14 +1332,8 @@ SIZE ListBox::OnMeasureItem( ListItemBase* p)
 
 void ListBox::OnLButtonUp(UINT nFlags, CPoint point)
 {
-	if (m_nStyle & LISTCTRLBASE_SELECT_AS_HOVER_MODE)    // 以最后鼠标弹出来的那项作为被选中的项
-	{
-		ListItemBase* pNewHover = this->HitTest(point);  // 重新取hover对象。因为当鼠标移到listbox外面时，会仍然保留最后一个hover item
+	__super::OnLButtonUp(nFlags, point);
 
-		int nUpdateFlag = 0;
-		if (NULL != pNewHover && pNewHover != m_pFirstSelectedItem)
-			SetSelectedItem(m_pHoverItem, nUpdateFlag);  // 因为即将要关闭了，所以不刷新
-	}
 	if (LISTBOX_STYLE_COMBOBOX == GetListBoxStyle())
 	{
 		this->CloseUp();
@@ -1366,6 +1380,7 @@ void ListBox::OnInitPopupControlWindow(Object* pObjMsgFrom)
 
 void ListBox::OnUnInitPopupControlWindow(Object* pObjMsgFrom)
 {
+	this->SetHoverItem(NULL);  // 清空被选中的item，以防下次再次弹出时，状态未更新，仍然显示上一次的hover item
 	m_pPopupWrapWnd = NULL;
 
 	if (NULL != m_pBindObject)

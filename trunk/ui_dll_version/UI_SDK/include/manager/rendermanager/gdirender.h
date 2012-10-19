@@ -242,6 +242,7 @@ public:
 	virtual void     UnlockBits();
 	virtual void     Save( const String& strPath );
 
+	HBITMAP GetMemBitmap() { return m_hOldBitmap; }
 protected:
 	GDIRenderBitmap*  m_pMemBitmap;
 	HBITMAP   m_hOldBitmap; // selectobject的返回值，用于将m_pMemBitmap从m_hDC中选出

@@ -95,6 +95,7 @@ HRESULT CDirectShowEngine::RenderFile( const TCHAR* szFile, const TCHAR* szExt )
 
 	this->ClearRender();
 
+	// 注. 如果将.wma文件改为.mp3后缀，RenderFile也无法识别出来。真是个悲剧！
 	HRESULT hr = m_pGraphBuilder->RenderFile( szFile, NULL );   // render file不会删除以前的filter
 	if( FAILED(hr) )
 		return hr;

@@ -17,6 +17,7 @@ enum E_VISUALIZATION_TYPE
 #define VI_MASK_RECT   0x0002
 #define VI_MASK_TYPE   0x0004
 #define VI_MASK_FPS    0x0008
+#define VI_MASK_BKGND_BMP  0x0080
 
 #define VI_MASK_SPECTRUM_BAND_COUNT  0x0010
 #define VI_MASK_SPECTRUM_BAND_WIDTH  0x0020
@@ -26,16 +27,17 @@ struct VisualizationInfo
 {
 	VisualizationInfo() { memset(this, 0, sizeof(VisualizationInfo)); }
 
-	UINT  nMask;
+	UINT     nMask;
 
-	HWND  hWnd;
-	RECT  rcRender;
+	HWND     hWnd;
+	RECT     rcRender;
+	HBITMAP  hBkgndBmp;
 	E_VISUALIZATION_TYPE eType;
-	int   nFps;
+	int      nFps;
 
-	int   nSpectrumBandCount;
-	int   nSpectrumBandWidth;
-	int   nSpectrumGapWidth;
+	int      nSpectrumBandCount;
+	int      nSpectrumBandWidth;
+	int      nSpectrumGapWidth;
 };
 
 

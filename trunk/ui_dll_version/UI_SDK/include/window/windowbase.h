@@ -46,7 +46,7 @@ public:
 protected:
 	void              _InvalidateObject(Object* pInvalidateObj, HDC hDestDC);
 	void              _InvalidateObjectBkgnd(Object* pInvalidateObj, HDC hDestDC);
-
+	
 public:
 	// 一些公共方法
 	void			  CalcWindowSizeByClientSize( SIZE sizeClient, SIZE* pSizeWindow );
@@ -61,6 +61,7 @@ public:
 	Object*           GetHoverObject();
 	Object*           GetPressObject();
 	HRFONT            GetHRFONT();    // 获取字体流程：先获取自己的m_pTextRender，如果没有则调用自己的m_pWindow的GetHRFONT
+	HBITMAP           PaintObject(Object* pObj);
 
 	void              Control_NotifyMe( const String&  idPath, int nNotifyMapID );
 	void              Control_NotifyMe( Object*  pObj, int nNotifyMapID );

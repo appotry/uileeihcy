@@ -6,6 +6,7 @@
 #include <dsound.h>
 #include <DxErr.h>
 #include "mpg123.h"
+#include "..\\threadmessage.h"
 
 #pragma comment(lib, "dsound.lib")
 #pragma comment(lib, "Winmm.lib")
@@ -21,9 +22,6 @@
 #define POSITION_EVENT_COUNT 2    // 通知事件个数
 #define NOTIFY_EVENT_COUNT  (POSITION_EVENT_COUNT+1)    // EVENT数量（最后一个是msg通知）
 
-class DSMSG_PARAM
-{
-};
 
 // 各种文件解码的基类
 class ISoundFile
@@ -72,7 +70,7 @@ public:
 	int     GetAvailable( DWORD* PlayCursor, DWORD* WriteCursor,int* bufferSize, BOOL fromPlayCursor );
 
 protected:
-	void    EventMsgProc();
+	bool    EventMsgProc();
 	bool    PostThreadMessage(UINT uMsg, DSMSG_PARAM* pParam);
 	HRESULT OnSetCurPos(double dPercent);
 	HRESULT OnPlay();
