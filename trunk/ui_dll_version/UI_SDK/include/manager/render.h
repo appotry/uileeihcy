@@ -114,9 +114,10 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 		virtual void DrawState(HRDC hRDC, const CRect* prc, int nState) {};
 		virtual SIZE GetDesiredSize() { SIZE s = {0,0}; return s; }
 		virtual void Init() {};
+		virtual void SetObject( Object* pObject ) { this->m_pObject = pObject; }
 
 	public:
-		void         SetObject( Object* pObject ) { this->m_pObject = pObject; }
+		
 		void         SetRenderType( const RENDER_TYPE& nType ){ m_nRenderType = nType ; }
 		RENDER_TYPE  GetRenderType() { return m_nRenderType; }
 		bool         IsThemeRender() {return m_nRenderType > RENDER_TYPE_THEME_FIRST && m_nRenderType < RENDER_TYPE_THEME_LAST; }
@@ -631,18 +632,29 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 	};
 	
 	//////////////////////////////////////////////////////////////////////////
+	class ProgressCtrl;
 	class ProgressCtrlBkgndThemeRender : public ThemeRenderBase
 	{
 	public:
+		ProgressCtrlBkgndThemeRender() { m_pProgress = NULL; }
 		virtual const TCHAR* GetThemeName() { return VSCLASS_PROGRESS; }
 		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
+		virtual void  SetObject( Object* pObject );
+
+	private:
+		ProgressCtrl*   m_pProgress;
 	};
 
 	class ProgressCtrlForegndThemeRender : public ThemeRenderBase
 	{
 	public:
+		ProgressCtrlForegndThemeRender() { m_pProgress = NULL; }
 		virtual const TCHAR* GetThemeName() { return VSCLASS_PROGRESS; }
 		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
+		virtual void  SetObject( Object* pObject );
+
+	private:
+		ProgressCtrl*   m_pProgress;
 	};
 
 	//////////////////////////////////////////////////////////////////////////

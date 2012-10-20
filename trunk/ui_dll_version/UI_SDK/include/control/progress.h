@@ -1,13 +1,7 @@
 #pragma once
 namespace UI
 {
-	enum PROGRESS_SCROLL_DIRECTION_TYPE
-	{
-		PROGRESS_SCROLL_LEFT_2_RIGHT,
-		PROGRESS_SCROLL_BOTTOM_2_TOP,
-		PROGRESS_SCROLL_RIGHT_2_LEFT,
-		PROGRESS_SCROLL_TOP_2_BOTTOM
-	};
+
 
 //   ½ø¶ÈÌõ
 class UIAPI ProgressCtrlBase : public Control
@@ -37,6 +31,7 @@ public:
 	int         GetRange() { return m_nMax - m_nMin - m_nPage; }
 
 	void        SetDirectionType(PROGRESS_SCROLL_DIRECTION_TYPE eType) { m_eDirectionType = eType; }
+	PROGRESS_SCROLL_DIRECTION_TYPE GetDirectionType() { return m_eDirectionType; }
 	int         GetProgressStyle();
 	void        SetProgressStyle(int n);
 
@@ -65,6 +60,8 @@ public:
 public:
 	void     OnPaint(IRenderDC* pDC);
 private:
+
+
 };
 
 }
