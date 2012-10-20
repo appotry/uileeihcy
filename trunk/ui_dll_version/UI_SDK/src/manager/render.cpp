@@ -3400,7 +3400,7 @@ void  ProgressCtrlBkgndThemeRender::DrawState(HRDC hRDC, const CRect* prc, int n
 	HDC hDC = GetHDC(hRDC);
 	if( m_hTheme )
 	{
-		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, PP_TRANSPARENTBAR, PBFS_NORMAL, (RECT*)prc, 0);
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, PP_BAR, PBFS_NORMAL, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
 			UI_LOG_WARN(_T("%s  DrawThemeBackground failed."), FUNC_NAME);
@@ -3408,15 +3408,31 @@ void  ProgressCtrlBkgndThemeRender::DrawState(HRDC hRDC, const CRect* prc, int n
 	}
 	else
 	{
+		// TODO: 有没有更直接的方法来绘制这种背景边缘？
+		DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_SOFT|BF_RIGHT|BF_BOTTOM|BF_MIDDLE);
+		CRect rc(prc);
+		rc.right--;
+		rc.bottom--;
+		DrawEdge(hDC, (RECT*)&rc, EDGE_SUNKEN, BF_FLAT|BF_LEFT|BF_TOP);
 	}
 	ReleaseHDC(hRDC, hDC);
 }
 void  ProgressCtrlForegndThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 {
+	CRect rc(prc);
+
 	HDC hDC = GetHDC(hRDC);
 	if( m_hTheme )
 	{
-		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, PP_CHUNK, PBFS_NORMAL, (RECT*)prc, 0);
+		if (UI_IsUnderXpOS())
+		{
+			rc.DeflateRect(3,3,3,3);
+		}
+		else
+		{
+			rc.DeflateRect(1,1,1,1);
+		}
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, PP_CHUNK/*PP_CHUNK*/, PBFS_NORMAL, (RECT*)&rc, 0);
 		if ( S_OK != hr )
 		{
 			UI_LOG_WARN(_T("%s  DrawThemeBackground failed."), FUNC_NAME);
@@ -3424,6 +3440,20 @@ void  ProgressCtrlForegndThemeRender::DrawState(HRDC hRDC, const CRect* prc, int
 	}
 	else
 	{
+		HBRUSH hBrush = CreateSolidBrush(GetSysColor(COLOR_HIGHLIGHT));
+		rc.DeflateRect(2,2,2,2);
+		for (int i = rc.left; i < rc.right; )
+		{
+			int j = i+12;
+			if (j > rc.right)
+				j = rc.right;
+
+			CRect rcItem(i,rc.top,j,rc.bottom);
+			::FillRect(hDC, &rcItem, hBrush);
+
+			i += 14;
+		}
+		::DeleteObject(hBrush);
 	}
 	ReleaseHDC(hRDC, hDC);
 }

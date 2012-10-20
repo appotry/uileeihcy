@@ -4,7 +4,7 @@ ProgressCtrlBase::ProgressCtrlBase()
 {
 	m_nMin  = 0;
 	m_nMax  = 100;
-	m_nCur  = 75;
+	m_nCur  = 100;
 	m_nPage = 10;
 	m_nLine = 1;
 	m_eDirectionType = PROGRESS_SCROLL_LEFT_2_RIGHT;
@@ -33,9 +33,6 @@ bool ProgressCtrlBase::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 		}
 		this->m_mapAttribute.erase(XML_PROGRESSCTRL_DIRECTION);
 	}
-	CRegion4 rBorder(1,1,1,1);
-	this->SetBorderRegion(&rBorder);
-
 	return true;
 }
 
@@ -146,7 +143,7 @@ bool ProgressCtrl::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 	{
 		m_pForegndRender = RenderFactory::GetRender(RENDER_TYPE_THEME_PROGRESS_FOREGND, this);
 	}
- 
+
 	return true;
 }
 
