@@ -1155,7 +1155,10 @@ int ListBoxCompareProc( ListItemBase* p1, ListItemBase* p2 )
 	else if (NULL == pItem1)
 		return -1;
 
-	return( pItem1->m_strText.compare(pItem2->m_strText) );
+	//collate
+	//return( pItem1->m_strText.compare(pItem2->m_strText) );  // <-- 注：该compare不支持中文拼音的排序
+
+	return _tcscoll(pItem1->m_strText.c_str(), pItem2->m_strText.c_str());
 }
 ListBoxItem* ListBox::AddString(const String& strText, bool bUpdate)
 {
@@ -1168,13 +1171,23 @@ ListBoxItem* ListBox::AddString(const String& strText, bool bUpdate)
 }
 bool ListBox::SetSel(int nIndex)
 {
-	ListBoxItem* pItem = (ListBoxItem*)this->GetItemBase(nIndex);
-	if (false == pItem)
-		return false;
-
 	int nNeedUpdateObjectFlag = 0;
 	ListItemBase* pOldSelItem = m_pFirstSelectedItem;
-	this->SetSelectedItem(pItem, nNeedUpdateObjectFlag);
+
+	// 清除当前选项
+	if (-1 == nIndex && NULL != m_pFirstSelectedItem)
+	{
+		this->SetSelectedItem(NULL, nNeedUpdateObjectFlag);
+	}
+	else
+	{
+		ListBoxItem* pItem = (ListBoxItem*)this->GetItemBase(nIndex);
+		if (false == pItem)
+			return false;
+
+		int nNeedUpdateObjectFlag = 0;
+		this->SetSelectedItem(pItem, nNeedUpdateObjectFlag);
+	}
 
 	if (nNeedUpdateObjectFlag & LISTCTRLBASE_NEED_UPDATE_FLAG_ALL) // 产生了滚动，刷新整个列表
 	{

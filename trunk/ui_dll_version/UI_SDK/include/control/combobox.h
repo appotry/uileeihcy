@@ -37,7 +37,9 @@ public:
 public:
 	bool     AddString(const String& strText, bool bUpdate=true);
 	ListBoxItem* AddStringEx(const String& strText, bool bUpdate=true);
-
+	bool     SetCurSel(int nIndex);
+	ListBox* GetListBox() { return m_listbox; }
+	Edit*    GetEdit()    { return m_edit; }
 protected:
 	void     OnStateChanged(int nOld, int nNew);
 	void     OnEraseBkgnd(HRDC hRDC);

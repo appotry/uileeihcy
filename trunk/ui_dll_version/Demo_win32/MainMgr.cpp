@@ -2,7 +2,6 @@
 #include "MainMgr.h"
 #include "MainWindow.h"
 
-
 CMainMgr::CMainMgr()
 {
 	m_pMainWindow = NULL;
@@ -15,6 +14,10 @@ CMainMgr::~CMainMgr()
 
 bool CMainMgr::Initialize()
 {
+	// 加载配置文件
+	m_configFile.Load(&m_config);
+
+	// 初始化
 	if (NULL == m_pMainWindow)
 	{
 		m_pMainWindow = new MainWindow;
@@ -24,18 +27,21 @@ bool CMainMgr::Initialize()
 	bool bRet = ::mp3_init(m_pMainWindow->m_hWnd);
 	::mp3_add_event_callback(this);
 
-	::GetPlayerListMgr(); // 提前初始化获取插入列表
+	::GetPlayerListMgr(); // 提前初始化获取播放列表
 	::GetEqualizerMgr();  // 初始化均衡器Mgr
 
 	m_pMainWindow->ShowWindow();
+	::UpdateWindow(m_pMainWindow->m_hWnd);
+
 
 	VisualizationInfo info;
-	info.nMask = VI_MASK_HWND|VI_MASK_RECT|VI_MASK_SPECTRUM_BAND_COUNT|VI_MASK_TYPE;
+	info.nMask = VI_MASK_HWND|VI_MASK_RECT|VI_MASK_SPECTRUM_BAND_COUNT|VI_MASK_TYPE|VI_MASK_BKGND_BMP|VI_MASK_SPECTRUM_BAND_WIDTH|VI_MASK_FPS;
 	info.hWnd = m_pMainWindow->m_hWnd;
-	SetRect(&info.rcRender, 28,88,156,128);
-	info.nSpectrumBandCount = (info.rcRender.right-info.rcRender.left)/8;
-	info.eType = VISUALIZATION_SPECTRUM;
-
+	info.hBkgndBmp = m_pMainWindow->GetVisualizationInfo(&info.rcRender);
+	info.nSpectrumBandWidth = 3;
+	info.nSpectrumBandCount = (info.rcRender.right-info.rcRender.left)/4;
+	info.eType = (E_VISUALIZATION_TYPE)m_config.visual.m_nType;
+	info.nFps = m_config.visual.m_nFps;
 
 	// 获取透明背景图
 	HDC hDC = GetDC(info.hWnd);
@@ -47,13 +53,7 @@ bool CMainMgr::Initialize()
 	::SelectObject(hMemDC, hOldBmp);
 	::DeleteDC(hMemDC);
 	::ReleaseDC(info.hWnd, hDC);
-	info.hBkgndBmp = hBitmap;
 	
-	Image image;
-	image.Attach(hBitmap);
-	image.Save(L"C:\\aaa.png",Gdiplus::ImageFormatPNG);
-	image.Detach();
-
 	::mp3_set_visualization(&info);
 	return bRet;
 }
@@ -224,7 +224,12 @@ bool CMainMgr::SetVisualizationType(int nType)
 	VisualizationInfo info;
 	info.nMask = VI_MASK_TYPE;
 	info.eType = (E_VISUALIZATION_TYPE)nType;
-	::mp3_set_visualization(&info);
+	if (::mp3_set_visualization(&info))
+	{
+		m_config.visual.m_bDirty = true;
+		m_config.visual.m_nType = nType;
+		m_configFile.Save(&m_config);
+	}
 
 	return false;
 }

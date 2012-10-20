@@ -42,7 +42,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\UI_SDK\include\3rd\wtl80\include"
+				AdditionalIncludeDirectories="..\UI_SDK\include\3rd\wtl80\include;..\UI_SDK\include\atl"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;PLAYER_UIP_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -119,7 +119,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\UI_SDK\include\3rd\wtl80\include"
+				AdditionalIncludeDirectories="..\UI_SDK\include\3rd\wtl80\include;..\UI_SDK\include\atl"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;PLAYER_UIP_EXPORTS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"

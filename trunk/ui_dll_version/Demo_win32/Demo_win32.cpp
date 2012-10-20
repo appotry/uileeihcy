@@ -13,10 +13,6 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
                      LPTSTR    lpCmdLine,
                      int       nCmdShow)
 {
-	COLORREF col = RGB(69,54,71);
-	WORD h,l,s;
-	::ColorRGBToHLS(col,&h,&l,&s);
-
 	g_hInstance = hInstance;
 	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
  

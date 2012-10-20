@@ -133,6 +133,9 @@ bool UIApplication::Initialize( const String& strUIProjXmlPath )
 	m_osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
 	GetVersionEx((OSVERSIONINFO*) &m_osvi);
 
+	// 设置当前语言。主要是用于 strcoll 中文拼音排序(如：combobox排序)(TODO:这一个是不是需要作成一个配置项？)
+	_wsetlocale( LC_ALL, _T("chs") );
+
 	if( false == this->InitLog(strUIProjXmlPath) )
 	{
 #ifdef _DEBUG

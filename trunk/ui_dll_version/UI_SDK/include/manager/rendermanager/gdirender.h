@@ -97,6 +97,10 @@ public:
 		return m_image.ChangeHLS(pOriginImageData, h, l, s, nFlag );
 	}
 
+	virtual HBITMAP CopyRect(RECT *prc)
+	{
+		return m_image.CopyRect(prc);
+	}
 protected:
 	Image   m_image;
 };
@@ -203,6 +207,7 @@ public:
 	virtual BYTE*    LockBits() {return NULL;};
 	virtual void     UnlockBits(){};
 	virtual void     Save( const String& strPath ){};
+	virtual HBITMAP  CopyRect(RECT *prc) {return NULL;}
 
 	virtual int      DrawString( const TCHAR* szText, const CRect* lpRect, UINT nFormat, HRFONT hRFont, COLORREF col );
 	virtual void     FillRgn( HRGN, COLORREF color );
@@ -241,6 +246,7 @@ public:
 	virtual BYTE*    LockBits();
 	virtual void     UnlockBits();
 	virtual void     Save( const String& strPath );
+	virtual HBITMAP  CopyRect(RECT *prc);
 
 	HBITMAP GetMemBitmap() { return m_hOldBitmap; }
 protected:

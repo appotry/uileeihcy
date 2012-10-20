@@ -16,6 +16,7 @@
       <LEDCtrl id="led_time" text=" 00:00" layout.right="23" layout.top="83" indexmap="0123456789:-"
                foregnd.render.type="imagelist"  foregnd.render.image="number.png" foregnd.render.imagelist.count="12"
                foregnd.render.imagelist.layout="h"/>
+      <Picture id="visualization" layout.left="32" layout.top="94" width="110" height="32"/>
       <Label   id="label_voice_status" text="立体声"    layout.right="112" layout.top="91"  textrender.color="voice_channel"/>
       <Label   id="label_playstatus"   text="状态:停止" layout.right="112" layout.top="111" textrender.color="play_statue"/>
       <Button  id="btn_playlist"  styleclass="imagebtn"  tooltip="播放列表" bkgnd.render.image="playlist.png"  bkgnd.render.imagelist.count="8" layout.top="64"  layout.right="72"/>
@@ -90,6 +91,7 @@
         foregnd.render.imagelist.count="8"  foregnd.render.imagelist.layout="v"
         bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="control_border_color"
         textrender.align="left|vcenter" textrender.padding="20,0,0,0"
+        textrender.color="black;white;white;white;white;white;white;white"
         />
         
       <Button id="btn_save_all"  text="全部保存" layout.right="169" layout.bottom="6" width="75" height="21" />
@@ -371,6 +373,8 @@
     <item id="voice_channel">87,139,164</item>
     <item id="play_statue">87,139,164</item>
     <item id="default">255,255,255</item>
+    <item id="white">255,255,255</item>
+    <item id="black">0,0,0</item>
     <item id="control_border_color">137,140,149</item>
     <item id="playlistbk_color">29,56,64</item>
     <item id="playlistbk_color2">24,51,60</item>

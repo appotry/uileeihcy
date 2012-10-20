@@ -283,22 +283,10 @@ HBITMAP WindowBase::PaintObject(Object* pObj)
 
 	pObj->UpdateObject(true);
 
-	Image  image;
-	image.Create(pObj->GetWidth(), pObj->GetHeight(), 32, Image::createAlphaChannel);
-	HBITMAP hBitmap = image.Detach();
-	HDC hDC = UI_GetCacheDC();
-	SelectObject(hDC, hBitmap);
-
 	CRect rcWindow;
 	pObj->GetClientRectInWindow(&rcWindow);
-
-	HDC hdc = m_hRenderTarget->GetHDC();
-	::BitBlt(hDC, 0,0, pObj->GetWidth(), pObj->GetWidth(), hdc, rcWindow.left, rcWindow.top, SRCCOPY);
-	m_hRenderTarget->ReleaseHDC(hdc);
-	
-	image.Attach(hBitmap);
-	image.Save(L"C:\\aaa.png",Gdiplus::ImageFormatPNG);
-	INT A = 0;
+	HBITMAP hBitmap = m_hRenderTarget->CopyRect(&rcWindow);
+	return hBitmap;
 }
 
 //

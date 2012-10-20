@@ -351,6 +351,7 @@ namespace UI
 		bool   SaveBits( ImageData* pImageData );
 		void   RestoreBits( ImageData* pImageData );
 		bool   ImageList_Draw(HDC hDestDC, int x, int y, int col, int row, int cx, int cy );  // libo add 20120401 增加图像列表绘制方法
+		HBITMAP CopyRect(RECT* prc);    // libo add 20121019 增加拷贝图片的一部分的方法
 
 	private:
 		HBITMAP m_hBitmap;
@@ -2464,6 +2465,24 @@ namespace UI
 		return true;
 	}
 
+	inline HBITMAP Image::CopyRect(RECT* prc)
+	{
+		if (NULL == prc)
+			return NULL;
+
+		int nWidth = prc->right - prc->left;
+		int nHight = prc->bottom - prc->top;
+
+		Image image;
+		image.Create(nWidth, nHight, 32, Image::createAlphaChannel);
+
+		HDC hDC = image.GetDC();
+		this->BitBlt(hDC, 0,0, nWidth, nHight, prc->left, prc->top);
+		image.ReleaseDC();
+
+		HBITMAP hRetValue = image.Detach();
+		return hRetValue;
+	}
 };  // namespace 
 
 

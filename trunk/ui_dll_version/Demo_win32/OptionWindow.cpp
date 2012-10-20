@@ -74,12 +74,16 @@ L"    一个集播放、音效、转换、歌词等多种功能于一身的专业音频播放软件。\r\n\
 	}
 
 	//////////////////////////////////////////////////////////////////////////
+	const CConfigData* pConfigData = GetMainMgr()->GetConfigData();
+
+	//////////////////////////////////////////////////////////////////////////
 
 	if (NULL != m_pPanelVisualization)
 	{
 		m_pComboboxVisualType = (Combobox*)m_pPanelVisualization->FindChildObject(_T("combobox_visualization_type"));
 		if (NULL != m_pComboboxVisualType)
 		{
+			m_pComboboxVisualType->GetListBox()->SetSortCompareProc(NULL);
 			m_pComboboxVisualType->AddStringEx(_T("<不显示>"))->SetData((void*)VISUALIZATION_NONE);
 			m_pComboboxVisualType->AddStringEx(_T("梦幻星空"))->SetData((void*)VISUALIZATION_NONE);
 			m_pComboboxVisualType->AddStringEx(_T("频谱分析"))->SetData((void*)VISUALIZATION_SPECTRUM);
@@ -87,6 +91,21 @@ L"    一个集播放、音效、转换、歌词等多种功能于一身的专业音频播放软件。\r\n\
 			m_pComboboxVisualType->AddStringEx(_T("专辑封面"))->SetData((void*)VISUALIZATION_NONE);
 
 			m_pComboboxVisualType->ModifyStyle(COMBOBOX_STYLE_DROPDOWNLIST);
+
+			switch(pConfigData->visual.m_nType)
+			{
+			case VISUALIZATION_SPECTRUM:
+				m_pComboboxVisualType->SetCurSel(2);
+				break;
+
+			case VISUALIZATION_WAVE:
+				m_pComboboxVisualType->SetCurSel(3);
+				break;
+
+			default:
+				m_pComboboxVisualType->SetCurSel(0);
+				break;
+			}
 		}
 	}
 
