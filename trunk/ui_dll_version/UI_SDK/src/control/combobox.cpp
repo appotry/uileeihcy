@@ -260,3 +260,8 @@ ListBoxItem* ComboboxBase::AddStringEx(const String& strText, bool bUpdate)
 
 	return NULL;
 }
+
+bool ComboboxBase::SetCurSel(int nIndex)
+{
+	return m_listbox->SetSel(nIndex);
+}

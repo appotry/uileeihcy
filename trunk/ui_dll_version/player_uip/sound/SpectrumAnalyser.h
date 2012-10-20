@@ -24,6 +24,10 @@ enum THREAD_SUSPEND_REASON
 //     是PCM数据中的一个音频数据。代表一次取样数据。
 //   
 
+// TODO:
+//
+//     TMD, 这里面的参数设置也太乱了。相互之间的依赖已经管不过来了！
+
 class CSpectrumAnalyser
 {
 public:

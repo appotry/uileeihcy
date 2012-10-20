@@ -329,6 +329,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PlayerConfigData.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PlayerConfigData.h"
+				>
+			</File>
+			<File
 				RelativePath=".\PlayerListData.cpp"
 				>
 			</File>
@@ -340,6 +348,10 @@
 		<Filter
 			Name="05. Skin"
 			>
+			<File
+				RelativePath="..\UI_SDK\bin\player.xml"
+				>
+			</File>
 			<File
 				RelativePath="..\UI_SDK\bin\ttplayer.uiproj"
 				>

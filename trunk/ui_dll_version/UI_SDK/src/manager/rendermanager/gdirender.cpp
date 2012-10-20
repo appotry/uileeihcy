@@ -869,3 +869,11 @@ void GDIMemRenderDC::Save( const String& strPath )
 		m_pMemBitmap->GetBitmap()->Save( strPath.c_str(), guidType);
 	}
 }
+
+HBITMAP GDIMemRenderDC::CopyRect(RECT *prc)
+{
+	if (NULL == m_pMemBitmap)
+		return NULL;
+
+	return m_pMemBitmap->CopyRect(prc);
+}

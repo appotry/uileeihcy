@@ -184,7 +184,7 @@ public:
 	virtual BYTE*    LockBits() = 0;
 	virtual void     UnlockBits() = 0;
 	virtual void     Save( const String& strPath ) = 0;
-	virtual HBITMAP  CopyBitmap(RECT *prc) = 0;
+	virtual HBITMAP  CopyRect(RECT *prc) = 0;
 
 protected:
 	HWND    m_hWnd;   // ”√”⁄ReleaseDC(m_hWnd, m_hDC);

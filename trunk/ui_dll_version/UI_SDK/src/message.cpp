@@ -167,12 +167,12 @@ void Message::ClearNotify( )
 {
 	list< MsgNotify* >::iterator  iter    = m_lNotifyMsgMap.begin();
 	list< MsgNotify* >::iterator  iterEnd = m_lNotifyMsgMap.end();
-	for( ; iter!=iterEnd; )
+	for( ; iter!=iterEnd; iter++)
 	{
 		MsgNotify*  pNotify = *iter;
 		delete      pNotify;
-		iter = this->m_lNotifyMsgMap.erase( iter );
 	}
+	this->m_lNotifyMsgMap.clear();
 }
 
 //
@@ -318,12 +318,12 @@ void Message::ClearHook( )
 {
 	list< MsgHook* >::iterator  iter    = m_lHookMsgMap.begin();
 	list< MsgHook* >::iterator  iterEnd = m_lHookMsgMap.end();
-	for( ; iter!=iterEnd;  )
+	for( ; iter!=iterEnd; iter++ )
 	{
 		MsgHook*  pHook = *iter;
 		delete    pHook;
-		iter = this->m_lHookMsgMap.erase( iter );
 	}
+	this->m_lHookMsgMap.clear();
 }
 
 

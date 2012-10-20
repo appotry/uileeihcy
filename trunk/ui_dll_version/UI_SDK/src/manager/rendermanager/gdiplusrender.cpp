@@ -1310,3 +1310,11 @@ void GdiplusMemRenderDC::Save( const String& strPath )
 		this->GetMemBitmap()->Save(strPath.c_str(),&pngClsid, NULL);
 	}
 }
+
+HBITMAP GdiplusMemRenderDC::CopyRect(RECT *prc)
+{
+	if (NULL == m_pMemBitmap || NULL == prc)
+		return NULL;
+
+	return m_pMemBitmap->CopyRect(prc);
+}

@@ -88,6 +88,8 @@ public:
 	void    SetPlayerListDlgHandle(HWND hWnd);
 	void    SetEqualizerDlgHandle(HWND hWnd);
 
+	HBITMAP GetVisualizationInfo(RECT* prc);
+
 protected:
 	HWND            m_hWndPlayerList;
 	CLyricDlg*      m_pLyricDlg;

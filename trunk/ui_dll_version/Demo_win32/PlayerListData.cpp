@@ -9,12 +9,15 @@ CPlayerListData::~CPlayerListData()
 
 void  CPlayerListData::Load()
 {
-	TCHAR szPath[MAX_PATH] = _T("");
-	Util::GetAppPath_(szPath);
-	_tcscat(szPath, _T("player.xml"));
+// 	TCHAR szPath[MAX_PATH] = _T("");
+// 	Util::GetAppPath_(szPath);
+// 	_tcscat(szPath, _T("playerlist.xml"));
+
+	String strConfigXmlPath;
+	this->GetConfigXmlPath(strConfigXmlPath);
 
 	CMarkup  xml;
-	if (false == xml.Load(szPath))
+	if (false == xml.Load(strConfigXmlPath.c_str()))
 		return;
 
 	do
@@ -140,7 +143,7 @@ void CPlayerListData::GetConfigXmlPath(String& str)
 {
 	TCHAR szPath[MAX_PATH] = _T("");
 	Util::GetAppPath_(szPath);
-	_tcscat(szPath, _T("player.xml"));
+	_tcscat(szPath, _T("playerlist.xml"));
 
 	str = szPath;
 }

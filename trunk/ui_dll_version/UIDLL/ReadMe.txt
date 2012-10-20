@@ -20,6 +20,8 @@
     但是高度偏大的问题还是没有找到解决方法。例如宋体字，绘制出来的效果下面就多出2px的空白
     
  28.换肤时，崩溃。先打开三个窗口，再关闭第二个窗口，换肤，崩溃。
+    20121020， 仍然存在崩溃。
+    
  30.提供一个方法：DoVerb( "action", xxx ); "press" "click" "unpress" "hover" "unhover"
  32.Direct3D + GDI 
     1). 在Render当中的 EndScene前添加：

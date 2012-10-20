@@ -100,9 +100,6 @@ void MainWindow::OnInitWindow()
 void MainWindow::OnBnClickPlay()
 {
 	GetMainMgr()->Play();
-
-	this->PaintObject(m_pbtnOpen);
-
 }
 void MainWindow::OnMp3Start(PlayerListItemInfo* pItemInfo)
 {
@@ -633,4 +630,22 @@ void MainWindow::OnEqualizerDlgVisibleChanged(HWND wParam, BOOL bVisible)
 		m_pBtnEqualizer->SetCheck(bVisible?BST_CHECKED:BST_UNCHECKED);
 		m_pBtnEqualizer->UpdateObject();
 	}
+}
+
+HBITMAP MainWindow::GetVisualizationInfo(RECT* prc)
+{
+	Picture* p = (Picture*)this->FindChildObject(_T("visualization"));
+	if (NULL != p)
+	{
+		CRect rc;
+		p->GetClientRectInWindow(&rc);
+		::CopyRect(prc, &rc);
+		HBITMAP hBitmap = this->PaintObject(p);
+// 		Image image;
+// 		image.Attach(hBitmap);
+// 		image.Save(L"C:\\adf.png", Gdiplus::ImageFormatPNG);
+// 		image.Detach();
+		return hBitmap;
+	}
+	return NULL;
 }

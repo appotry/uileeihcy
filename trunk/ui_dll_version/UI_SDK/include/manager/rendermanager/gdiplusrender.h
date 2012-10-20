@@ -255,6 +255,30 @@ public:
 		return true;
 	}
 
+	HBITMAP  CopyRect(RECT* prc)
+	{
+		UIASSERT(0);  // TODO: 未测试过的函数，未完成的函数 
+
+		if (NULL == prc)
+			return NULL;
+
+		int nWidth = prc->right - prc->left;
+		int  nHight = prc->bottom - prc->top;
+
+		Gdiplus::BitmapData data;
+		Gdiplus::Rect rect(prc->left ,prc->top, nWidth, nHight);
+		m_pBitmap->LockBits(&rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &data);
+
+		HBITMAP hBitmap = NULL;
+		Gdiplus::Color c(0,0,0,0);
+		Gdiplus::Bitmap* pBitmap = new Gdiplus::Bitmap(nWidth, nHight, data.Stride, PixelFormat32bppARGB, (BYTE*)data.Scan0);
+		pBitmap->GetHBITMAP(c, &hBitmap);
+		delete pBitmap;
+		m_pBitmap->UnlockBits(&data);
+
+		return hBitmap;
+	}
+
 protected:
 	Gdiplus::Bitmap*     m_pBitmap;
 	Gdiplus::BitmapData* m_pBitmapData;        // LockBits 过程中使用到的临时变量
@@ -366,6 +390,7 @@ public:
 	virtual BYTE*    LockBits() {return NULL;};
 	virtual void     UnlockBits(){};
 	virtual void     Save( const String& strPath ){};
+	virtual HBITMAP  CopyRect(RECT *prc){return NULL;}
 
 	virtual int      DrawString( const TCHAR* szText, const CRect* lpRect, UINT nFormat, HRFONT hRFont, COLORREF col );
 	virtual void     FillRgn( HRGN hRgn, COLORREF color );
@@ -414,6 +439,7 @@ public:
 	virtual BYTE*    LockBits();
 	virtual void     UnlockBits();
 	virtual void     Save( const String& strPath );
+	virtual HBITMAP  CopyRect(RECT *prc);
 
 protected:
 	GdiplusRenderBitmap*  m_pMemBitmap;    // 双缓冲内存位图

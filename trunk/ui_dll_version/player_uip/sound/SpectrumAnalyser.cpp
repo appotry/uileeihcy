@@ -111,7 +111,7 @@ void CSpectrumAnalyser::SetRenderWnd(HWND hRenderWnd)
 			::ReleaseDC(m_hRenderWnd, m_hRenderWndDC);
 	
 		m_hRenderWndDC = GetDC(hRenderWnd);
-		m_hRenderWndMemDC = CreateCompatibleDC(m_hRenderWndDC);
+		m_hRenderWndMemDC = CreateCompatibleDC(NULL);
 		if (NULL != m_hMemBitmap)
 		{
 			m_hOldBitmap = (HBITMAP)::SelectObject(m_hRenderWndMemDC, m_hMemBitmap);
@@ -124,7 +124,7 @@ void CSpectrumAnalyser::SetRenderWnd(HWND hRenderWnd)
 // band仅对频谱图有效，对波形图没有意义
 int CSpectrumAnalyser::SetBandCount(int nCount)
 {
-	if (m_nBandCount == nCount)
+	if (m_nBandCount == nCount || 0 == nCount)
 		return m_nBandCount;
 
 	int nOldCound = m_nBandCount;
@@ -251,7 +251,17 @@ bool CSpectrumAnalyser::OnSetVisualization(VisualizationInfo* pInfo)
 				::SelectObject(m_hRenderWndMemDC, m_hOldBitmap);
 				::DeleteObject(m_hMemBitmap);
 
-				m_hMemBitmap = CreateCompatibleBitmap(m_hRenderWndMemDC, nNewW,nNewW);
+				BITMAPINFO bmi;
+				memset( &bmi, 0, sizeof( BITMAPINFO ) );
+				bmi.bmiHeader.biSize = sizeof( BITMAPINFO );
+				bmi.bmiHeader.biWidth = nNewW;
+				bmi.bmiHeader.biHeight = -nNewH;
+				bmi.bmiHeader.biPlanes = 1;
+				bmi.bmiHeader.biBitCount = USHORT( 32 );
+				bmi.bmiHeader.biCompression = BI_RGB;
+
+				void* pBits = NULL;
+				m_hMemBitmap = ::CreateDIBSection( NULL, &bmi, DIB_RGB_COLORS, &pBits, NULL, 0 );
 				m_hOldBitmap = (HBITMAP)::SelectObject(m_hRenderWndMemDC, m_hMemBitmap);
 			}
 		}
@@ -556,7 +566,7 @@ void CSpectrumAnalyser::FFTSamples()
 		}
 
 		// 下面的这些代码完成是抄的，不明白取这些值的原由
-		fBandValue = (fBandValue * (float) log(nBandIndex + 2.0F));   // -- Log filter.
+//		fBandValue = (fBandValue * (float) log(nBandIndex + 2.0F));   // -- Log filter.
 
 		if (fBandValue > 0.005F && fBandValue < 0.009F)
 			fBandValue *= 9.0F * PI;
@@ -606,9 +616,8 @@ void CSpectrumAnalyser::DrawBands()
 	int nWidth = m_rcRender.right-m_rcRender.left;
 	int nHeight = m_rcRender.bottom-m_rcRender.top;
 	RECT rc = {0,0, nWidth, nHeight};
-//	::FillRect(m_hRenderWndMemDC, &rc, (HBRUSH)::GetStockObject(BLACK_BRUSH));
 
-	HDC hDC = ::CreateCompatibleDC(NULL);
+	HDC hDC = ::CreateCompatibleDC(m_hRenderWndMemDC);
 	SelectObject(hDC, m_hBkgndBmp);
 	::BitBlt(m_hRenderWndMemDC, 0,0,nWidth, nHeight, hDC, 0,0, SRCCOPY);
 	::DeleteDC(hDC);
@@ -627,77 +636,65 @@ void CSpectrumAnalyser::DrawBands()
 
 void CSpectrumAnalyser::DrawWave()
 {
-#if 0
-	for (int i = 0,j=0; i < m_nAnalyserSampleCount; j++)
-	{
-		float fData = 0;
-		for (int k = 0; k <nCount; k++)
-		{
-			fData += m_pLeftRightChannelData[i+k];
-		}
-		fData = fData/nCount;
-
-				
-		int n = fData* nHeight/2;
-		int ny = nHeight/2 - n;
-
-		i+= nCount;
-		int nx = j;
-		
-		bRet = LineTo(hMemDC,nx,ny);
-	}	
-#else
 	int   nWidth = m_rcRender.right - m_rcRender.left;
 	int   nHeight = m_rcRender.bottom - m_rcRender.top;
 	
 	RECT rc = {0,0, nWidth, nHeight};
-	::FillRect(m_hRenderWndMemDC, &rc, (HBRUSH)::GetStockObject(BLACK_BRUSH));
+//	::FillRect(m_hRenderWndMemDC, &rc, (HBRUSH)::GetStockObject(BLACK_BRUSH));
 
-	HPEN  hPen = ::CreatePen(PS_SOLID, 1, RGB(255,255,255));
+	HDC hDC = ::CreateCompatibleDC(m_hRenderWndMemDC);
+	SelectObject(hDC, m_hBkgndBmp);
+	::BitBlt(m_hRenderWndMemDC, 0,0,nWidth, nHeight, hDC, 0,0, SRCCOPY);
+	::DeleteDC(hDC);
+
+	HPEN  hPen = ::CreatePen(PS_SOLID, 1, RGB(25,77,92));
 	HPEN  hOldPen = (HPEN)::SelectObject(m_hRenderWndMemDC, hPen);
 
-	// 求相邻结点的平均数据
-// 	float fDatas2[240] = {0};
-// #define AAA 0
-// 	for (int i = 0+AAA; i < 240-AAA; i++)
-// 	{
-// 
-// 		for (int j = i-AAA; j <= i+AAA; j++)
-// 		{
-// 			fDatas2[i] += fDatas[j];
-// 		}
-// 		fDatas2[i] = fDatas2[i]/(AAA*2.0+1.0);
-// 	}
+#define XXX 0  // 定义一个值，相差多大时表示相关一级
 
+	int    nPrevY = (int)((nHeight - m_pLeftRightSampleData[0]* nHeight)/2);  // 计算第一个
+	POINT* ppt = new POINT[2*nWidth];
 
-#define XXX 0
-	int   nPrevY = (int)((nHeight - m_pLeftRightSampleData[0]* nHeight)/2);  // 计算第一个
 	for (int i = 1; i < nWidth; i++)   // 从第二个开始循环
 	{
 		int nx = i;
 		int ny = (int)((nHeight - m_pLeftRightSampleData[i]* nHeight)/2);
 
-#define SETPIXEL(x,y) ::SetPixel(m_hRenderWndMemDC,x,y,RGB(255,255,255));
+#define SETPIXEL(x,y) ::SetPixel(m_hRenderWndMemDC,x,y,RGB(25,77,92));
 		if (ny > nPrevY + XXX)
 		{
 			// 往上爬一格
-			SETPIXEL(nx,nPrevY);
-			SETPIXEL(nx,++nPrevY);
+			ppt[i*2].x = nx;
+			ppt[i*2].y = nPrevY;
+			ppt[i*2+1].x = nx;
+			ppt[i*2+1].y = ++nPrevY;
+// 			SETPIXEL(nx,nPrevY);
+// 			SETPIXEL(nx,++nPrevY);
 		}
 		else if (ny < nPrevY-XXX)
 		{
 			// 下降一格
-			SETPIXEL(nx,nPrevY);
-			SETPIXEL(nx,--nPrevY);
+			ppt[i*2].x = nx;
+			ppt[i*2].y = nPrevY;
+			ppt[i*2+1].x = nx;
+			ppt[i*2+1].y = --nPrevY;
+// 			SETPIXEL(nx,nPrevY);
+// 			SETPIXEL(nx,--nPrevY);
 		}
-		else if (ny == nPrevY)
+		else// if (ny == nPrevY)
 		{
 			// 不爬,往右延伸一格
-			SETPIXEL(nx-1,ny);
-			SETPIXEL(nx,ny);
+			ppt[i*2].x = nx-1;
+			ppt[i*2].y = nPrevY;
+			ppt[i*2+1].x = nx;
+			ppt[i*2+1].y = nPrevY;
+// 			SETPIXEL(nx-1,ny);
+// 			SETPIXEL(nx,ny);
 		}
 	}
-#endif
+	
+	Polyline(m_hRenderWndMemDC, ppt, 2*nWidth);
+	delete[] ppt;
 
 	::BitBlt(m_hRenderWndDC, m_rcRender.left, m_rcRender.top,nWidth,nHeight,m_hRenderWndMemDC,0,0,SRCCOPY);
 	::SelectObject(m_hRenderWndMemDC, hOldPen);

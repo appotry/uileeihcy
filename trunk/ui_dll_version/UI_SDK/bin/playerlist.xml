@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<config>
+  
+  <!--加载的播放文件列表-->
+  <playlist>
+<item>G:\Misuc\pal3.wma</item>
+<item>G:\Misuc\wine-of-bincos-lunba.mp3</item>
+<item>G:\Misuc\又见炊烟.mp3</item>
+<item>G:\Misuc\宁夏.mp3</item>
+<item>G:\Misuc\宁夏128kb.mp3</item>
+<item>G:\Misuc\滴答.mp3</item>
+<item>G:\Misuc\萧人凤 - 仙剑问情（仙剑奇侠传）.mp3</item>
+<item>G:\Misuc\1.MP3</item>
+</playlist>
+</config>
