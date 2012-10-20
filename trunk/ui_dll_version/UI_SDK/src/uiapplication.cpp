@@ -391,6 +391,7 @@ void UIApplication::RegisterDefaultUIObject()
 	REGISTER_UI_OBJECT( Label );
 	REGISTER_UI_OBJECT( Picture );
 	REGISTER_UI_OBJECT( Edit );
+	REGISTER_UI_OBJECT( ProgressCtrl );
 	REGISTER_UI_OBJECT( SliderCtrl );
 	REGISTER_UI_OBJECT( ListBox );
 	REGISTER_UI_OBJECT( HScrollBar );

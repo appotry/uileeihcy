@@ -353,6 +353,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\UI_SDK\bin\playerlist.xml"
+				>
+			</File>
+			<File
 				RelativePath="..\UI_SDK\bin\ttplayer.uiproj"
 				>
 			</File>
@@ -395,5 +399,9 @@
 		</Filter>
 	</Files>
 	<Globals>
+		<Global
+			Name="RESOURCE_FILE"
+			Value="Demo_win32.rc"
+		/>
 	</Globals>
 </VisualStudioProject>

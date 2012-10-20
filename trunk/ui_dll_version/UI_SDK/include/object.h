@@ -106,7 +106,6 @@ enum OBJ_TYPE
 #define PROGRESS_STYLE_MASK             0x000F    // 进度条类型使用的位
 #define PROGRESS_STYLE_PROGRESS         0x0000    // 普通进度条
 #define PROGRESS_STYLE_SLIDER           0x0001    // 可拖动的slider ctrl
-//#define PROGRESS_STYLE_SCROLLBAR        0x0002    // 作为滚动条的一部分 -- 过期,现滚动条完全采用三个按钮来实现，不采用sliderctrl
 
 // edit style
 #define EDIT_STYLE_MASK                 0x000F    // 编辑框类型使用的位

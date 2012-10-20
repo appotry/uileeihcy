@@ -33,7 +33,7 @@ BOOL COptionWindow::OnInitDialog( HWND, LPARAM )
 	m_pPanelVisualization = (Panel*)this->FindChildObject(_T("panel_visualization"));
 
 // 	m_pPanelRichEditDemo = (Panel*)this->FindChildObject(_T("richedit_demo_panel"));
-// 	m_pPanelCtrlDemo = (Panel*)this->FindChildObject(_T("control_demo_panel"));
+ 	m_pPanelCtrlDemo = (Panel*)this->FindChildObject(_T("control_demo_panel"));
 	m_pIntroduceRichEdit = (RichEdit*)this->FindChildObject(_T("option_introduce_text"));
 
 	if (NULL != m_pPanelCtrlDemo)

@@ -454,14 +454,17 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 		SAFE_DELETE(m_pBkgndRender);
 
 		const String& strBkgndRenderType = iter->second;
-		this->m_pBkgndRender = RenderFactory::GetRender( strBkgndRenderType, this );
-		if( NULL != this->m_pBkgndRender )
+		if (!strBkgndRenderType.empty())
 		{
-			this->m_pBkgndRender->SetAttribute( XML_BACKGND_RENDER_PREFIX, m_mapAttribute );
-		}
-		else
-		{
-			UI_LOG_WARN( _T("%s Invalid %s=\"%s\""), FUNC_NAME, XML_BACKGND_RENDER_PREFIX XML_RENDER_TYPE, strBkgndRenderType.c_str() );
+			this->m_pBkgndRender = RenderFactory::GetRender( strBkgndRenderType, this );
+			if( NULL != this->m_pBkgndRender )
+			{
+				this->m_pBkgndRender->SetAttribute( XML_BACKGND_RENDER_PREFIX, m_mapAttribute );
+			}
+			else
+			{
+				UI_LOG_WARN( _T("%s Invalid %s=\"%s\""), FUNC_NAME, XML_BACKGND_RENDER_PREFIX XML_RENDER_TYPE, strBkgndRenderType.c_str() );
+			}
 		}
 		this->m_mapAttribute.erase(XML_BACKGND_RENDER_PREFIX XML_RENDER_TYPE);
 	}

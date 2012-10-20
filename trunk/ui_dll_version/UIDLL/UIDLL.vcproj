@@ -417,6 +417,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\UI_SDK\include\control\sliderctrl.h"
+						>
+					</File>
+					<File
 						RelativePath="..\UI_SDK\include\control\tooltip.h"
 						>
 					</File>
@@ -698,6 +702,10 @@
 					</File>
 					<File
 						RelativePath="..\UI_SDK\src\control\scrollbar.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\UI_SDK\src\control\sliderctrl.cpp"
 						>
 					</File>
 					<File
