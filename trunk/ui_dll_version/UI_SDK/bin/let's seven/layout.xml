@@ -11,7 +11,7 @@
         <Button id="sys_minimize" styleclass="imagebtn" tooltip="最小化"    bkgnd.render.image="minimize.bmp" />
       </Panel>
       <SliderCtrl id="progress_music" foregnd.render.image="progress_fill.bmp" height="12" width="192"
-                  direction="x" layout.left="20" layout.top="68" btn.id="progress_btn"
+                  direction="h" layout.left="20" layout.top="68" btn.id="progress_btn"
                   trackbtn.bkgnd.render.image="progress_thumb.bmp"/>
       <LEDCtrl id="led_time" text=" 00:00" layout.right="23" layout.top="83" indexmap="0123456789:-"
                foregnd.render.type="imagelist"  foregnd.render.image="number.png" foregnd.render.imagelist.count="12"
@@ -102,53 +102,60 @@
       <HyperLink id="link_homepage" text="千千音乐在线" tooltip="千千静听在线网站"   href="http://ttplayer.qianqian.com/index.html" layout.left="122" layout.bottom="8" />
       <HyperLink id="link_homepage" text="论坛"         tooltip="千千静听的官方论坛" href="http://bbs.qianqian.com/"                layout.left="202" layout.bottom="8" />
       <HyperLink id="link_homepage" text="帮助"         tooltip="千千静听的帮助页面" href="http://ttplayer.qianqian.com/help.php"   layout.left="234" layout.bottom="8" />
-      <GroupBox  id="panel_about" bkgnd.render.type="notheme" layout.left="115" layout.right="8" layout.top="10" height="370">
-        <Picture id="title_bk" layout.left="2" layout.right="2" layout.top="2" height="30" foregnd.render.type="gradienth" foregnd.render.colorfrom="option_gradient_from" foregnd.render.colorto="option_gradient_to"/>
-        <GroupBox id="" bkgnd.render.type="notheme" layout.left="2" layout.right="2" layout.top="35" height="2"/>
+
+      <GroupBox layout="card" bkgnd.render.type="notheme" layout.left="115" layout.right="8" layout.top="10" height="370">
+
+        <Panel id="panel_about" >
+          <Picture id="title_bk" layout.left="2" layout.right="2" layout.top="2" height="30" foregnd.render.type="gradienth" foregnd.render.colorfrom="option_gradient_from" foregnd.render.colorto="option_gradient_to"/>
+          <GroupBox id="" bkgnd.render.type="notheme" layout.left="2" layout.right="2" layout.top="35" height="2"/>
+          <Label text="“千千静听”的简明介绍" textrender.align="left|vcenter" textrender.color="option_title_text_color_shadow" textrender.font="option_title" layout.left="6" layout.top="3" height="30" layout.right="2"/>
+          <Label text="“千千静听”的简明介绍" textrender.align="left|vcenter" textrender.color="option_title_text_color" textrender.font="option_title" layout.left="5" layout.top="2" height="30" layout.right="2"/>
+          <Picture foregnd.render.image="ttplayer.ico_48_48" layout.left="15" layout.top="50"/>
+          <Label text="千千静听" textrender.color="option_introduce_ttplayer_text3" textrender.font="option_introduce_ttplayer_text" layout.left="76" layout.top="53" />
+          <Label text="千千静听" textrender.color="option_introduce_ttplayer_text2" textrender.font="option_introduce_ttplayer_text" layout.left="74" layout.top="51" />
+          <Label text="千千静听" textrender.color="option_introduce_ttplayer_text1" textrender.font="option_introduce_ttplayer_text" layout.left="75" layout.top="52" />
+          <Label text="作者:"  layout.left="80" layout.top="85"/>
+          <HyperLink text="nanling" href="ttp@qianqian.com" tooltip="ttp@qianqian.com"  layout.left="115" layout.top="85"/>
+          <Label text="版权所有: 2003-2012"  layout.left="220" layout.top="85"/>
+          <Label text="版本: 5.9.4(Unicode)"  layout.left="80" layout.top="105"/>
+          <Label text="完成日期: 2012-8-2" layout.left="220" layout.top="105"/>
+          <GroupBox text="简介" layout.left="10" layout.top="120" layout.right="10" layout.bottom="10">
+            <RichEdit id="option_introduce_text" istransparent="0" layout.left="5" layout.right="5" layout.top="5" layout.bottom="5"
+                      vscrollbar.bkgnd.render.type=""  
+                      vscrollbar.linebtn1.bkgnd.render.type="" 
+                      vscrollbar.linebtn2.bkgnd.render.type=""  
+                      vscrollbar.thubmbtn.bkgnd.render.type=""/>
+          </GroupBox>
+        </Panel>
         
-        <Label text="“千千静听”的简明介绍" textrender.align="left|vcenter" textrender.color="option_title_text_color_shadow" textrender.font="option_title" layout.left="6" layout.top="3" height="30" layout.right="2"/>
-        <Label text="“千千静听”的简明介绍" textrender.align="left|vcenter" textrender.color="option_title_text_color" textrender.font="option_title" layout.left="5" layout.top="2" height="30" layout.right="2"/>
+        <Panel id="panel_visualization" >
+          <Picture id="title_bk" layout.left="2" layout.right="2" layout.top="2" height="30" foregnd.render.type="gradienth" foregnd.render.colorfrom="option_gradient_from" foregnd.render.colorto="option_gradient_to"/>
+          <GroupBox id="" bkgnd.render.type="notheme" layout.left="2" layout.right="2" layout.top="35" height="2"/>
+          <Label text="视觉效果相关的参数设置" textrender.align="left|vcenter" textrender.color="option_title_text_color_shadow" textrender.font="option_title" layout.left="6" layout.top="3" height="30" layout.right="2"/>
+          <Label text="视觉效果相关的参数设置" textrender.align="left|vcenter" textrender.color="option_title_text_color" textrender.font="option_title" layout.left="5" layout.top="2" height="30" layout.right="2"/>
+          <GroupBox text="选项" layout.left="10" layout.top="50" layout.right="10" height="90">
+            <Label text="视觉效果类型:" layout.left="10" layout.top="5"></Label>
+            <Combobox id="combobox_visualization_type" layout.left="95" layout.top="2" width="135" height="20"/>
+            <Label text="分析显示速度:" layout.left="10" layout.top="30"></Label>
+          </GroupBox>
+          <GroupBox text="频谱分析" layout.left="10" layout.top="145" layout.right="10" height="70">
+          </GroupBox>
+          <GroupBox text="示波显示" layout.left="10" layout.top="220" layout.right="10" height="70">
+          </GroupBox>
+          <GroupBox text="文字显示" layout.left="10" layout.top="300" layout.right="10" height="50">
+          </GroupBox>
+        </Panel>
+        
+        <Panel id="control_demo_panel">
+          <Picture id="title_bk" layout.left="2" layout.right="2" layout.top="2" height="30" foregnd.render.type="gradienth" foregnd.render.colorfrom="option_gradient_from" foregnd.render.colorto="option_gradient_to"/>
+          <GroupBox id="" bkgnd.render.type="notheme" layout.left="2" layout.right="2" layout.top="35" height="2"/>
+          <Label text="控件测试页面" textrender.align="left|vcenter" textrender.color="option_title_text_color_shadow" textrender.font="option_title" layout.left="6" layout.top="3" height="30" layout.right="2"/>
+          <Label text="控件测试页面" textrender.align="left|vcenter" textrender.color="option_title_text_color" textrender.font="option_title" layout.left="5" layout.top="2" height="30" layout.right="2"/>
 
-        <Picture foregnd.render.image="ttplayer.ico_48_48" layout.left="15" layout.top="50"/>
-
-        <Label text="千千静听" textrender.color="option_introduce_ttplayer_text3" textrender.font="option_introduce_ttplayer_text" layout.left="76" layout.top="53" />
-        <Label text="千千静听" textrender.color="option_introduce_ttplayer_text2" textrender.font="option_introduce_ttplayer_text" layout.left="74" layout.top="51" />
-        <Label text="千千静听" textrender.color="option_introduce_ttplayer_text1" textrender.font="option_introduce_ttplayer_text" layout.left="75" layout.top="52" />
-        <Label text="作者:"  layout.left="80" layout.top="85"/>
-        <HyperLink text="nanling" href="ttp@qianqian.com" tooltip="ttp@qianqian.com"  layout.left="115" layout.top="85"/>
-        <Label text="版权所有: 2003-2012"  layout.left="220" layout.top="85"/>
-        <Label text="版本: 5.9.4(Unicode)"  layout.left="80" layout.top="105"/>
-        <Label text="完成日期: 2012-8-2" layout.left="220" layout.top="105"/>
-        <GroupBox text="简介" layout.left="10" layout.top="120" layout.right="10" layout.bottom="10">
-          <RichEdit id="option_introduce_text" istransparent="0" layout.left="5" layout.right="5" layout.top="5" layout.bottom="5"
-                    vscrollbar.bkgnd.render.type=""  
-                    vscrollbar.linebtn1.bkgnd.render.type="" 
-                    vscrollbar.linebtn2.bkgnd.render.type=""  
-                    vscrollbar.thubmbtn.bkgnd.render.type=""/>
-        </GroupBox>
+          <ProgressCtrl layout.lelft="10" layout.top="100" width="100" height="20"/>
+        </Panel>
       </GroupBox>
-      <GroupBox id="panel_visualization" bkgnd.render.type="notheme" layout.left="115" layout.right="8" layout.top="10" height="370">
-        <Picture id="title_bk" layout.left="2" layout.right="2" layout.top="2" height="30" foregnd.render.type="gradienth" foregnd.render.colorfrom="option_gradient_from" foregnd.render.colorto="option_gradient_to"/>
-        <GroupBox id="" bkgnd.render.type="notheme" layout.left="2" layout.right="2" layout.top="35" height="2"/>
-
-        <Label text="视觉效果相关的参数设置" textrender.align="left|vcenter" textrender.color="option_title_text_color_shadow" textrender.font="option_title" layout.left="6" layout.top="3" height="30" layout.right="2"/>
-        <Label text="视觉效果相关的参数设置" textrender.align="left|vcenter" textrender.color="option_title_text_color" textrender.font="option_title" layout.left="5" layout.top="2" height="30" layout.right="2"/>
-
-        <GroupBox text="选项" layout.left="10" layout.top="50" layout.right="10" height="90">
-          <Label text="视觉效果类型:" layout.left="10" layout.top="5"></Label>
-          <Combobox id="combobox_visualization_type" layout.left="95" layout.top="2" width="135" height="20"></Combobox>
-          <Label text="分析显示速度:" layout.left="10" layout.top="30"></Label>
-        </GroupBox>
-        <GroupBox text="频谱分析" layout.left="10" layout.top="145" layout.right="10" height="70">
-
-        </GroupBox>
-        <GroupBox text="示波显示" layout.left="10" layout.top="220" layout.right="10" height="70">
-
-        </GroupBox>
-        <GroupBox text="文字显示" layout.left="10" layout.top="300" layout.right="10" height="50">
-
-        </GroupBox>
-      </GroupBox>
+     
     </Window>
   <Menu id="main_menu" styleclass="mainmenu">
     <!--注：xml中的回车换行必须用 &#xD; 或 &#xA; 而不是用\r\n-->

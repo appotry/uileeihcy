@@ -218,6 +218,7 @@ enum IMAGE_ITEM_TYPE
 #define XML_RENDER_TYPE_COLORLIST         _T("colorlist")               // 类似office 2003工具栏式按钮
 #define XML_RENDER_TYPE_NOTHEME           _T("notheme")                 // win2000主题控件
 #define XML_RENDER_TYPE_THEME             _T("theme")                   // 系统主题控件
+#define XML_RENDER_TYPE_NULL              _T("null")                    // 不绘制该render，但也会实例化该render指针，避免控件默认使用theme主题
 
 
 #define XML_RENDER_COLOR                  _T("render.color")            // 填充颜色
@@ -269,6 +270,8 @@ enum RENDER_TYPE
 	RENDER_TYPE_THEME_VSCROLLBARBACKGND,
 	RENDER_TYPE_THEME_HSCROLLBARBACKGND,
 	RENDER_TYPE_THEME_SCROLLBAR_SIZEBOX,
+	RENDER_TYPE_THEME_PROGRESS_BKGND,
+	RENDER_TYPE_THEME_PROGRESS_FOREGND,
 	RENDER_TYPE_THEME_LAST,
 };
 
@@ -557,9 +560,9 @@ typedef enum
 //////////////////////////////////////////////////////////////////////////
 // ImageSliderCtrl
 #define  XML_PROGRESSCTRL_DIRECTION            _T("direction")       // 滚动条的方向，可取值为 x,y，默认为x
-#define  XML_PROGRESSCTRL_DIRECTION_X          _T("x")               // 图片横向排列
-#define  XML_PROGRESSCTRL_DIRECTION_Y          _T("y")               // 图片纵向排列
-#define  PROGRESSCTRL_FLAG_DIRECTION_Y         0x0001                // 纵向滚动条，默认0为横向
+#define  XML_PROGRESSCTRL_DIRECTION_H          _T("h")               // 图片横向排列
+#define  XML_PROGRESSCTRL_DIRECTION_V          _T("v")               // 图片纵向排列
+#define  PROGRESSCTRL_FLAG_DIRECTION_V         0x0001                // 纵向滚动条，默认0为横向
 
 #define  XML_SLIDERCTRL_BUTTON_ATTR_PRIFIX     _T("trackbtn.")       // 滑动控件的按钮属性前缀
 

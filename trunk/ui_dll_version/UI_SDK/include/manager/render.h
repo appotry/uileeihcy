@@ -134,6 +134,11 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 		static RenderBase* GetRender( RENDER_TYPE eType, Object* pObj );
 	};
 
+	class NullRenderBase : public RenderBase
+	{
+	public:
+
+	};
 
 	//
 	// 背景颜色+边框颜色（两者都是可选的）
@@ -625,6 +630,25 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 		virtual SIZE  GetDesiredSize();
 	};
 	
+	//////////////////////////////////////////////////////////////////////////
+	class ProgressCtrlBkgndThemeRender : public ThemeRenderBase
+	{
+	public:
+		virtual const TCHAR* GetThemeName() { return VSCLASS_PROGRESS; }
+		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
+	};
+
+	class ProgressCtrlForegndThemeRender : public ThemeRenderBase
+	{
+	public:
+		virtual const TCHAR* GetThemeName() { return VSCLASS_PROGRESS; }
+		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
+	};
+
+	//////////////////////////////////////////////////////////////////////////
+	//
+	//                  TEXT  RENDER
+	//
 	//////////////////////////////////////////////////////////////////////////
 	class TextRenderBase
 	{

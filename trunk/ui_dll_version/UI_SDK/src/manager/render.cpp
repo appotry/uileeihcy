@@ -53,6 +53,9 @@ RenderBase* RenderFactory::GetRender( const String& strType, Object* pObj )
 	else if (XML_RENDER_TYPE_NOTHEME == strType)
 		eType = RENDER_TYPE_NOTHEME;
 
+	else if (XML_RENDER_TYPE_NULL == strType)
+		eType = RENDER_TYPE_NULL;
+
 	else
 		return NULL;
 
@@ -265,6 +268,18 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 	else if (RENDER_TYPE_THEME_SCROLLBAR_SIZEBOX == eType)
 	{
 		pRender = new ScrollBarSizeBoxThemeRender();
+	}
+	else if (RENDER_TYPE_THEME_PROGRESS_FOREGND == eType)
+	{
+		pRender = new ProgressCtrlForegndThemeRender();
+	}
+	else if (RENDER_TYPE_THEME_PROGRESS_BKGND == eType)
+	{
+		pRender = new ProgressCtrlBkgndThemeRender();
+	}
+	else if (RENDER_TYPE_NULL == eType)
+	{
+		pRender = new NullRenderBase();
 	}
 	else
 	{
@@ -2271,7 +2286,7 @@ void ComboboxBkThemeRender::DrawReadonlyHover( HRDC hRDC, const CRect* prc )
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_READONLY, CBXS_HOT, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("ComboboxBkThemeRender::DrawHover  DrawThemeBackground failed."));
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
 		}
 
 		if (UI_IsUnderXpOS())
@@ -2676,7 +2691,7 @@ void ListboxBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, LBCP_BORDER_NOSCROLL, LBPSH_DISABLED, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("ListboxBkThemeRender::DrawDisable  DrawThemeBackground failed."));
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
 		}
 	}
 	else
@@ -2693,7 +2708,7 @@ void ListboxBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, LBCP_BORDER_NOSCROLL, LBPSH_NORMAL, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("ListboxBkThemeRender::DrawNormal  DrawThemeBackground failed."));
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
 		}
 	}
 	else
@@ -2719,7 +2734,7 @@ void ListboxBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, LBCP_BORDER_NOSCROLL, LBPSH_HOT, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("ListboxBkThemeRender::DrawHover  DrawThemeBackground failed."));
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
 		}
 	}
 	else
@@ -2744,7 +2759,7 @@ void ListboxBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc )
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, LBCP_BORDER_NOSCROLL, LBPSH_FOCUSED, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("ListboxBkThemeRender::DrawPress  DrawThemeBackground failed."));
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
 		}
 	}
 	else
@@ -2787,7 +2802,7 @@ void MenuBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 			hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPBORDERS, 1, (RECT*)prc, 0);
 			if (S_OK != hr)
 			{
-				UI_LOG_WARN(_T("MenuBkThemeRender::DrawNormal  DrawThemeBackground failed."));
+				UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
 			}
 		}
 
@@ -2805,7 +2820,7 @@ void MenuBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 			hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPGUTTER, 1, (RECT*)&rcIconGutter, 0);
 			if ( S_OK != hr )
 			{
-				UI_LOG_WARN(_T("%s DrawThemeBackground MENU_POPUPGUTTER failed."), _T(__FUNCTION__));
+				UI_LOG_WARN(_T("%s DrawThemeBackground MENU_POPUPGUTTER failed."), FUNC_NAME);
 			}
 		}
 	}
@@ -2852,7 +2867,7 @@ void MenuStringItemRender::DrawDisable( HRDC hRDC, const CRect* prc )
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPITEM, MPI_DISABLED, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("MenuStringItemRender::DrawDisable  DrawThemeBackground failed."));
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
 		}
 	}
 	else
@@ -2868,7 +2883,7 @@ void MenuStringItemRender::DrawNormal( HRDC hRDC, const CRect* prc )
 // 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPITEM, MPI_NORMAL, (RECT*)prc, 0);
 // 		if ( S_OK != hr )
 // 		{
-// 			UI_LOG_WARN(_T("MenuStringItemRender::DrawDisable  DrawThemeBackground failed."));
+// 			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
 // 		}
 // 	}
 // 	else
@@ -2884,7 +2899,7 @@ void MenuStringItemRender::DrawHover( HRDC hRDC, const CRect* prc )
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPITEM, MPI_HOT, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("MenuStringItemRender::DrawDisable  DrawThemeBackground failed."));
+			UI_LOG_WARN(_T("%s  DrawThemeBackground failed."), FUNC_NAME);
 		}
 	}
 	else
@@ -3216,7 +3231,7 @@ void MenuRadioCheckIconBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECKBACKGROUND, MCB_DISABLED, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), _T(__FUNCTION__));
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
 		}
 	}
 	else
@@ -3251,7 +3266,7 @@ void MenuPopupTriangleRender::DrawDisable( HRDC hRDC, const CRect* prc )
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPSUBMENU, MSM_DISABLED, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("MenuPopupTriangleRender::DrawDisable  DrawThemeBackground failed."));
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
 		}
 	}
 	else
@@ -3269,7 +3284,7 @@ void MenuPopupTriangleRender::DrawNormal( HRDC hRDC, const CRect* prc )
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPSUBMENU, MSM_NORMAL, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("MenuPopupTriangleRender::DrawDisable  DrawThemeBackground failed."));
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
 		}
 	}
 	else
@@ -3287,7 +3302,7 @@ void MenuPopupTriangleRender::DrawHover( HRDC hRDC, const CRect* prc )
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPSUBMENU, MSM_NORMAL, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("MenuPopupTriangleRender::DrawDisable  DrawThemeBackground failed."));
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
 		}
 	}
 	else
@@ -3378,6 +3393,40 @@ SIZE TooltipBkgndThemeRender::GetDesiredSize()
 	return s;
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+void  ProgressCtrlBkgndThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, PP_TRANSPARENTBAR, PBFS_NORMAL, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s  DrawThemeBackground failed."), FUNC_NAME);
+		}
+	}
+	else
+	{
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+void  ProgressCtrlForegndThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+{
+	HDC hDC = GetHDC(hRDC);
+	if( m_hTheme )
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, PP_CHUNK, PBFS_NORMAL, (RECT*)prc, 0);
+		if ( S_OK != hr )
+		{
+			UI_LOG_WARN(_T("%s  DrawThemeBackground failed."), FUNC_NAME);
+		}
+	}
+	else
+	{
+	}
+	ReleaseHDC(hRDC, hDC);
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                      //
@@ -3667,6 +3716,7 @@ bool ColorListTextRender::SetAttribute( const String& strPrefix, map<String,Stri
 		{
 			if(! vColors[i].empty() )
 			{
+				SAFE_RELEASE(m_vTextColor[i]);
 				::UI_GetColor(vColors[i], &m_vTextColor[i]);
 			}
 		}
