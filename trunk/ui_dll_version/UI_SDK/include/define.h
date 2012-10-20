@@ -560,9 +560,23 @@ typedef enum
 //////////////////////////////////////////////////////////////////////////
 // ImageSliderCtrl
 #define  XML_PROGRESSCTRL_DIRECTION            _T("direction")       // 滚动条的方向，可取值为 x,y，默认为x
-#define  XML_PROGRESSCTRL_DIRECTION_H          _T("h")               // 图片横向排列
-#define  XML_PROGRESSCTRL_DIRECTION_V          _T("v")               // 图片纵向排列
-#define  PROGRESSCTRL_FLAG_DIRECTION_V         0x0001                // 纵向滚动条，默认0为横向
+#define  XML_PROGRESSCTRL_DIRECTION_LEFTRIGHT  _T("lefttoright")       // 左->右
+#define  XML_PROGRESSCTRL_DIRECTION_BOTTOMTOP  _T("bottomtotop")       // 下->上
+#define  XML_PROGRESSCTRL_DIRECTION_RIGHTLEFT  _T("righttoleft")       // 右->左
+#define  XML_PROGRESSCTRL_DIRECTION_TOPBOTTOM  _T("toptobottom")       // 上->下
+
+enum PROGRESS_SCROLL_DIRECTION_TYPE
+{
+	PROGRESS_SCROLL_LEFT_2_RIGHT,
+	PROGRESS_SCROLL_BOTTOM_2_TOP,
+	PROGRESS_SCROLL_RIGHT_2_LEFT,
+	PROGRESS_SCROLL_TOP_2_BOTTOM
+};
+
+// #define  PROGRESSCTRL_FLAG_DIRECTION_LEFTRIGHT    0x0000
+// #define  PROGRESSCTRL_FLAG_DIRECTION_TOPBOTTOM    0x0001                
+// #define  PROGRESSCTRL_FLAG_DIRECTION_RIGHTLEFT    0x0002
+// #define  PROGRESSCTRL_FLAG_DIRECTION_BOTTOMTOP    0x0003
 
 #define  XML_SLIDERCTRL_BUTTON_ATTR_PRIFIX     _T("trackbtn.")       // 滑动控件的按钮属性前缀
 

@@ -4,7 +4,7 @@ ProgressCtrlBase::ProgressCtrlBase()
 {
 	m_nMin  = 0;
 	m_nMax  = 100;
-	m_nCur  = 100;
+	m_nCur  = 50;
 	m_nPage = 10;
 	m_nLine = 1;
 	m_eDirectionType = PROGRESS_SCROLL_LEFT_2_RIGHT;
@@ -19,13 +19,21 @@ bool ProgressCtrlBase::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 	if (mapAttrib.end() != iter )
 	{
 		String& str = iter->second;
-		if ( str == XML_PROGRESSCTRL_DIRECTION_H )
+		if (XML_PROGRESSCTRL_DIRECTION_LEFTRIGHT == str)
 		{
 			m_eDirectionType = PROGRESS_SCROLL_LEFT_2_RIGHT;
 		}
-		else if ( str == XML_PROGRESSCTRL_DIRECTION_V )
+		else if (XML_PROGRESSCTRL_DIRECTION_BOTTOMTOP == str)
 		{
 			m_eDirectionType = PROGRESS_SCROLL_BOTTOM_2_TOP;
+		}
+		else if (XML_PROGRESSCTRL_DIRECTION_RIGHTLEFT == str)
+		{
+			m_eDirectionType = PROGRESS_SCROLL_RIGHT_2_LEFT;
+		}
+		else if (XML_PROGRESSCTRL_DIRECTION_TOPBOTTOM == str)
+		{
+			m_eDirectionType = PROGRESS_SCROLL_TOP_2_BOTTOM;
 		}
 		else
 		{
@@ -87,8 +95,8 @@ void ProgressCtrlBase::SetRange(int nLower, int nUpper, bool bUpdate)
 	m_nMax = nUpper;
 	m_nMin = nLower;
 
-	if( m_nCur > m_nMax-m_nPage )
-		m_nCur = m_nMax-m_nPage;
+	if( m_nCur > m_nMax )
+		m_nCur = m_nMax;
 	if (m_nCur < m_nMin)
 		m_nCur = m_nMin;
 
@@ -125,7 +133,7 @@ void ProgressCtrlBase::SetProgressStyle(int n)
 		return;
 
 	m_nStyle &= ~PROGRESS_STYLE_MASK;
-	m_nStyle |= n;
+	m_nStyle |= n&PROGRESS_STYLE_MASK;
 }
 
 
@@ -154,12 +162,40 @@ void ProgressCtrl::OnPaint(IRenderDC* pDC)
 
 	if (NULL != m_pForegndRender)
 	{
-		CRect rcClient;
-		this->GetClientRectAsWin32(&rcClient);
+		CRect rc;
+		this->GetClientRectAsWin32(&rc);
 
-		int nX = rcClient.Width() * m_nCur / (m_nMax-m_nMin);
-		rcClient.right = nX;
+		switch(m_eDirectionType)
+		{
+		case PROGRESS_SCROLL_LEFT_2_RIGHT:
+			{
+				int nX = rc.Width() * m_nCur / (m_nMax-m_nMin);
+				rc.right = nX;
+			}
+			break;
 
-		m_pForegndRender->DrawState(pDC, &rcClient, 0);
+		case PROGRESS_SCROLL_RIGHT_2_LEFT:
+			{
+				int nX = rc.Width() * m_nCur / (m_nMax-m_nMin);
+				rc.left = rc.right - nX;
+			}
+			break;
+
+		case PROGRESS_SCROLL_TOP_2_BOTTOM:
+			{
+				int nY = rc.Height() * m_nCur / (m_nMax-m_nMin);
+				rc.bottom = nY;
+			}
+			break;
+
+		case PROGRESS_SCROLL_BOTTOM_2_TOP:
+			{
+				int nY = rc.Height() * m_nCur / (m_nMax-m_nMin);
+				rc.top = rc.bottom - nY;
+			}
+			break;
+		}
+
+		m_pForegndRender->DrawState(pDC, &rc, 0);
 	}
 }

@@ -11,7 +11,7 @@
         <Button id="sys_minimize" styleclass="imagebtn" tooltip="最小化"    bkgnd.render.image="minimize.bmp" />
       </Panel>
       <SliderCtrl id="progress_music" foregnd.render.image="progress_fill.bmp" height="12" width="192"
-                  direction="h" layout.left="20" layout.top="68" btn.id="progress_btn"
+                  direction="lefttoright" layout.left="20" layout.top="68" btn.id="progress_btn"
                   trackbtn.bkgnd.render.image="progress_thumb.bmp"/>
       <LEDCtrl id="led_time" text=" 00:00" layout.right="23" layout.top="83" indexmap="0123456789:-"
                foregnd.render.type="imagelist"  foregnd.render.image="number.png" foregnd.render.imagelist.count="12"
@@ -152,7 +152,7 @@
           <Label text="控件测试页面" textrender.align="left|vcenter" textrender.color="option_title_text_color_shadow" textrender.font="option_title" layout.left="6" layout.top="3" height="30" layout.right="2"/>
           <Label text="控件测试页面" textrender.align="left|vcenter" textrender.color="option_title_text_color" textrender.font="option_title" layout.left="5" layout.top="2" height="30" layout.right="2"/>
 
-          <ProgressCtrl layout.lelft="10" layout.top="100" width="100" height="20"/>
+          <ProgressCtrl direction="lefttoright" layout.left="10" layout.top="100" width="200" height="20"/>
         </Panel>
       </GroupBox>
      

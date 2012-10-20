@@ -3395,12 +3395,26 @@ SIZE TooltipBkgndThemeRender::GetDesiredSize()
 
 //////////////////////////////////////////////////////////////////////////
 
+void ProgressCtrlBkgndThemeRender::SetObject( Object* pObject ) 
+{ 
+	this->m_pObject = pObject; 
+	m_pProgress = dynamic_cast<ProgressCtrl*>(pObject);
+}
 void  ProgressCtrlBkgndThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 {
 	HDC hDC = GetHDC(hRDC);
 	if( m_hTheme )
 	{
-		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, PP_BAR, PBFS_NORMAL, (RECT*)prc, 0);
+		int iPartId = PP_BAR;
+		if (NULL != m_pProgress)
+		{
+			PROGRESS_SCROLL_DIRECTION_TYPE eType = m_pProgress->GetDirectionType();
+			if (PROGRESS_SCROLL_BOTTOM_2_TOP == eType || PROGRESS_SCROLL_TOP_2_BOTTOM == eType)
+			{
+				iPartId = PP_BARVERT;
+			}
+		}
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, iPartId, PBFS_NORMAL, (RECT*)prc, 0);
 		if ( S_OK != hr )
 		{
 			UI_LOG_WARN(_T("%s  DrawThemeBackground failed."), FUNC_NAME);
@@ -3417,6 +3431,12 @@ void  ProgressCtrlBkgndThemeRender::DrawState(HRDC hRDC, const CRect* prc, int n
 	}
 	ReleaseHDC(hRDC, hDC);
 }
+
+void ProgressCtrlForegndThemeRender::SetObject( Object* pObject ) 
+{ 
+	this->m_pObject = pObject; 
+	m_pProgress = dynamic_cast<ProgressCtrl*>(pObject);
+}
 void  ProgressCtrlForegndThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 {
 	CRect rc(prc);
@@ -3430,28 +3450,95 @@ void  ProgressCtrlForegndThemeRender::DrawState(HRDC hRDC, const CRect* prc, int
 		}
 		else
 		{
-			rc.DeflateRect(1,1,1,1);
+			//rc.DeflateRect(1,1,1,1);
 		}
-		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, PP_CHUNK/*PP_CHUNK*/, PBFS_NORMAL, (RECT*)&rc, 0);
+
+		// 判断该进度条是否是纵向的
+		bool bVert = false;
+		if (NULL != m_pProgress)
+		{
+			PROGRESS_SCROLL_DIRECTION_TYPE eType = m_pProgress->GetDirectionType();
+			if (PROGRESS_SCROLL_BOTTOM_2_TOP == eType || PROGRESS_SCROLL_TOP_2_BOTTOM == eType)
+			{
+				bVert = true;
+			}
+		}
+
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, bVert?PP_FILLVERT:PP_FILL, PBFS_NORMAL, (RECT*)&rc, 0);
 		if ( S_OK != hr )
 		{
-			UI_LOG_WARN(_T("%s  DrawThemeBackground failed."), FUNC_NAME);
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
 		}
+		//hr = DrawThemeBackground(m_hTheme, hDC, PP_MOVEOVERLAY, PBFS_NORMAL, (RECT*)&rc, 0);
 	}
 	else
 	{
 		HBRUSH hBrush = CreateSolidBrush(GetSysColor(COLOR_HIGHLIGHT));
 		rc.DeflateRect(2,2,2,2);
-		for (int i = rc.left; i < rc.right; )
+
+		PROGRESS_SCROLL_DIRECTION_TYPE eType = PROGRESS_SCROLL_LEFT_2_RIGHT;
+		if (NULL != m_pProgress)
 		{
-			int j = i+12;
-			if (j > rc.right)
-				j = rc.right;
+			eType = m_pProgress->GetDirectionType();
+		}
 
-			CRect rcItem(i,rc.top,j,rc.bottom);
-			::FillRect(hDC, &rcItem, hBrush);
+		switch (eType)
+		{
+		case PROGRESS_SCROLL_RIGHT_2_LEFT:
+			for (int i = rc.right; i > rc.left; )
+			{
+				int j = i-12;
+				if (j < rc.left)
+					j = rc.left;
 
-			i += 14;
+				CRect rcItem(j,rc.top,i,rc.bottom);
+				::FillRect(hDC, &rcItem, hBrush);
+
+				i -= 14;
+			}
+			break;
+		
+		case PROGRESS_SCROLL_BOTTOM_2_TOP:
+			for (int i = rc.bottom; i > rc.top; )
+			{
+				int j = i-12;
+				if (j < rc.left)
+					j = rc.left;
+
+				CRect rcItem(rc.left,j,rc.right, i);
+				::FillRect(hDC, &rcItem, hBrush);
+
+				i -= 14;
+			}
+			break;
+
+		case PROGRESS_SCROLL_TOP_2_BOTTOM:
+			for (int i = rc.top; i < rc.bottom; )
+			{
+				int j = i+12;
+				if (j > rc.bottom)
+					j = rc.bottom;
+
+				CRect rcItem(rc.left, i, rc.right, j);
+				::FillRect(hDC, &rcItem, hBrush);
+
+				i += 14;
+			}
+			break;
+
+		default:
+			for (int i = rc.left; i < rc.right; )
+			{
+				int j = i+12;
+				if (j > rc.right)
+					j = rc.right;
+
+				CRect rcItem(i,rc.top,j,rc.bottom);
+				::FillRect(hDC, &rcItem, hBrush);
+
+				i += 14;
+			}
+			break;
 		}
 		::DeleteObject(hBrush);
 	}
