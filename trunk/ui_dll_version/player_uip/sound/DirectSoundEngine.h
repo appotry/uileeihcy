@@ -85,6 +85,7 @@ protected:
 	ISoundFile*    m_pCurFile;
 	ISoundFile*    m_pMp3File;
 	ISoundFile*    m_pWavFile;
+	ISoundFile*    m_pWmaFile;
 
 	HANDLE         m_hEvents[NOTIFY_EVENT_COUNT];  // 各个position的通知事件
 	HANDLE         m_hEventThread;
