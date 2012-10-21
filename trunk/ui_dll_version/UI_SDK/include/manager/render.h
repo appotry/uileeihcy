@@ -583,7 +583,7 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 		virtual int GetThemeStateNormal()    { return ABS_RIGHTNORMAL; }
 		virtual int GetThemeStateHover()     { return ABS_RIGHTHOT; }
 		virtual int GetThemeStatePress()     { return ABS_RIGHTPRESSED; }
-		virtual int GetNoThemeState() { return DFCS_SCROLLRIGHT; }
+		virtual int GetNoThemeState()        { return DFCS_SCROLLRIGHT; }
 	};
 
 	class ScrollThumbButtonThemeRender : public ThemeRenderBase
@@ -655,6 +655,37 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 
 	private:
 		ProgressCtrl*   m_pProgress;
+	};
+	//////////////////////////////////////////////////////////////////////////
+
+	class SliderCtrl;
+	class SliderCtrlBkgndThemeRender : public ThemeRenderBase
+	{
+	public:
+		SliderCtrlBkgndThemeRender() { m_pSliderCtrl = NULL; }
+		virtual const TCHAR* GetThemeName() { return VSCLASS_TRACKBAR; }
+		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
+		virtual void  SetObject( Object* pObject );
+
+	private:
+		SliderCtrl*   m_pSliderCtrl;
+	};
+
+	class SliderTrackButtonThemeRender : public ThemeRenderBase
+	{
+	public:
+		SliderTrackButtonThemeRender() { m_pSliderCtrl = NULL; }
+		virtual const TCHAR* GetThemeName() { return VSCLASS_TRACKBAR; }
+		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
+		virtual void  SetObject( Object* pObject );
+		virtual SIZE  GetDesiredSize( );
+
+		void DrawNoThemeState(HDC hDC, const CRect* prc, int nDrawState);
+		void DrawThemeState(HRDC hRDC, const CRect* prc, int nDrawState);
+		int  GetDrawThemeStateID(int iPartID, int nDrawState);
+
+	private:
+		SliderCtrl*   m_pSliderCtrl;
 	};
 
 	//////////////////////////////////////////////////////////////////////////

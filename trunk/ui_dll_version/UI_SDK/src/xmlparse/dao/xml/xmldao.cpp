@@ -1239,21 +1239,29 @@ bool CXmlColorParse::load_from_file( CMarkup* pXml, const String& strDataSource,
 		if( false == pXml->FindElem( ) )                      break;    // 忽略root结点的名称
 		if( false == pXml->IntoElem() )                       break;
 
-		if( false == pXml->FindElem( XML_COLOR ))               break;
+		if( false == pXml->FindElem( XML_COLOR ))             break;
 		if( false == pXml->IntoElem() )                       break;
 
 		bool bLoopRet = true;
 		for ( ;; )
 		{
-			if( false == pXml->FindElem(XML_ITEM) )       break;
+			if( false == pXml->FindElem(XML_ITEM) )           break;
 
-			String strID = pXml->GetAttrib(XML_ID);
-			String strValue = pXml->GetData();
-
-			if( false == pColorInfo->InsertColor( strID, strValue ) )
+			//	加载所有属性
+			ATTRMAP  mapAttrib;
+			for( int j = 0; ; j++ )
 			{
-				UI_LOG_WARN(_T("CXmlColorParse::load_from_file insert color failed. m_strID=%s, value=%s"), strID.c_str(), strValue.c_str() );
+				String key = pXml->GetAttribName(j);
+				if( _T("") == key )
+					break;
+
+				String value = pXml->GetAttrib( key );
+				mapAttrib[key]= value;
 			}
+
+			String strValue = pXml->GetData();
+			if (false == pColorInfo->LoadItem(mapAttrib, strValue))
+						UI_LOG_WARN(_T("%s insert color failed."), FUNC_NAME);
 		}
 		if( !bLoopRet )  break;
 

@@ -8,9 +8,9 @@ public:
 
 	UI_BEGIN_MSG_MAP
 		UIMSG_WM_CLOSE( OnClose )
-		UIMSG_TRBN_POSCHANGED( _T("progress_hls_h"), OnHLSChanged_H )
-		UIMSG_TRBN_POSCHANGED( _T("progress_hls_l"), OnHLSChanged_L )
-		UIMSG_TRBN_POSCHANGED( _T("progress_hls_s"), OnHLSChanged_S )
+		UIMSG_TRBN_POSCHANGED_ID( _T("progress_hls_h"), OnHLSChanged_H )
+		UIMSG_TRBN_POSCHANGED_ID( _T("progress_hls_l"), OnHLSChanged_L )
+		UIMSG_TRBN_POSCHANGED_ID( _T("progress_hls_s"), OnHLSChanged_S )
 	UI_END_MSG_MAP_CHAIN_PARENT(CustomWindow)
 
 	virtual void OnInitWindow( );

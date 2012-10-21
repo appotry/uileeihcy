@@ -258,7 +258,7 @@ enum RENDER_TYPE
 	RENDER_TYPE_COLORLIST,
 	RENDER_TYPE_IMAGELIST,
 	
-	RENDER_TYPE_NOTHEME,    // 使用系统无主题样式的样式（win2000样式）
+	RENDER_TYPE_NOTHEME,    // 强制使用系统无主题样式的样式（win2000样式），目前仅GroupBox支持
 	RENDER_TYPE_THEME_FIRST,
 	RENDER_TYPE_THEME,
 	RENDER_TYPE_THEME_MENUSTRINGITEM,
@@ -272,6 +272,7 @@ enum RENDER_TYPE
 	RENDER_TYPE_THEME_SCROLLBAR_SIZEBOX,
 	RENDER_TYPE_THEME_PROGRESS_BKGND,
 	RENDER_TYPE_THEME_PROGRESS_FOREGND,
+	RENDER_TYPE_THEME_TRACKBAR_BKGND,
 	RENDER_TYPE_THEME_LAST,
 };
 
@@ -558,7 +559,8 @@ typedef enum
 //#define  XML_BUTTON_BK_TYPE_COLOR              _T("color")    
 
 //////////////////////////////////////////////////////////////////////////
-// ImageSliderCtrl
+// ProgressCtrl / SliderCtrl
+
 #define  XML_PROGRESSCTRL_DIRECTION            _T("direction")       // 滚动条的方向，可取值为 x,y，默认为x
 #define  XML_PROGRESSCTRL_DIRECTION_LEFTRIGHT  _T("lefttoright")       // 左->右
 #define  XML_PROGRESSCTRL_DIRECTION_BOTTOMTOP  _T("bottomtotop")       // 下->上
@@ -572,6 +574,14 @@ enum PROGRESS_SCROLL_DIRECTION_TYPE
 	PROGRESS_SCROLL_RIGHT_2_LEFT,
 	PROGRESS_SCROLL_TOP_2_BOTTOM
 };
+
+#define  XML_SLIDERCTRL_THUMB_POINT_DIRECTION          _T("thumbarrow")  // 滑块按钮的指向
+#define  XML_SLIDERCTRL_THUMB_POINT_DIRECTION_BOTH     _T("both")            // 默认值
+#define  XML_SLIDERCTRL_THUMB_POINT_DIRECTION_LEFT     _T("left")    
+#define  XML_SLIDERCTRL_THUMB_POINT_DIRECTION_TOP      _T("top")     
+#define  XML_SLIDERCTRL_THUMB_POINT_DIRECTION_RIGHT    _T("right")   
+#define  XML_SLIDERCTRL_THUMB_POINT_DIRECTION_BOTTOM   _T("bottom")   
+
 
 // #define  PROGRESSCTRL_FLAG_DIRECTION_LEFTRIGHT    0x0000
 // #define  PROGRESSCTRL_FLAG_DIRECTION_TOPBOTTOM    0x0001                

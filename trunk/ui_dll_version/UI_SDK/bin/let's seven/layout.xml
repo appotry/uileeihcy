@@ -137,6 +137,11 @@
             <Label text="视觉效果类型:" layout.left="10" layout.top="5"></Label>
             <Combobox id="combobox_visualization_type" layout.left="95" layout.top="2" width="135" height="20"/>
             <Label text="分析显示速度:" layout.left="10" layout.top="30"></Label>
+            <SliderCtrl id="slider_visualization_fps" direction="lefttoright" thumbarrow="bottom" layout.left="95" layout.top="25" width="135"  height="30"  bkgnd.render.type="" trackbtn.bkgnd.render.type=""/>
+            <Label id="label_visualizatoin_fps" text="10" layout.left="235" layout.top="30"/>
+            <Label text="帧/秒" layout.left="250" layout.top="30"/>
+            <Label text="10" layout.left="95" layout.top="55"/>
+            <Label text="40" layout.left="220" layout.top="55"/>
           </GroupBox>
           <GroupBox text="频谱分析" layout.left="10" layout.top="145" layout.right="10" height="70">
           </GroupBox>
@@ -153,6 +158,7 @@
           <Label text="控件测试页面" textrender.align="left|vcenter" textrender.color="option_title_text_color" textrender.font="option_title" layout.left="5" layout.top="2" height="30" layout.right="2"/>
 
           <ProgressCtrl direction="lefttoright" layout.left="10" layout.top="100" width="200" height="20"/>
+          <SliderCtrl direction="lefttoright" thumbarrow="right" layout.left="10" layout.top="140" width="200"  height="22"  bkgnd.render.type="" trackbtn.bkgnd.render.type=""/>
         </Panel>
       </GroupBox>
      
@@ -230,8 +236,15 @@
     <class id="imagecheckbutton"  cursor="idc_hand" autosize="content" foregnd.render.type="imagelist" 
            drawfocus="0" foregnd.render.imagelist.count="8"/>
     
-    <SliderCtrl istransparent="1" foregnd.render.type="image" cursor="idc_hand" foregnd.render.image.drawtype="stretch"
-           trackbtn.bkgnd.render.type="imagelist" trackbtn.bkgnd.render.imagelist.count="4" trackbtn.styleclass="imagebtn"/>
+    <SliderCtrl 
+              istransparent="1" 
+              bkgnd.render.type="null" 
+              foregnd.render.type="image" 
+              cursor="idc_hand" 
+              foregnd.render.image.drawtype="stretch"
+              trackbtn.bkgnd.render.type="imagelist" 
+              trackbtn.bkgnd.render.imagelist.count="4" 
+              trackbtn.styleclass="imagebtn"/>
 
     <Picture foregnd.render.type="image"/>
 
@@ -349,7 +362,7 @@
     <item id="eq_enabled.bmp">eq_enabled.bmp</item>
     <item id="eq_profile.png">eq_profile.png</item>
     <item id="reset.bmp">reset.bmp</item>
-    <item id="listbox.png" userskinhue="0">listbox.png</item>
+    <item id="listbox.png" useskinhls="0">listbox.png</item>
     <item id="scrollbar_bar.bmp">scrollbar_bar.bmp</item>
     <item id="scrollbar_button_linedown.bmp">scrollbar_button_linedown.bmp</item>
     <item id="scrollbar_button_lineup.bmp">scrollbar_button_lineup.bmp</item>
@@ -363,10 +376,10 @@
     <item id="main_menu_bk.png">main_menu_bk.png</item>
     <item id="menu_check_bk.png">menu_check_bk.png</item>
     <item id="menu_check_icon.png">menu_check_icon.png</item>
-    <item type="imagelist" id="menuicon_imagelist.png"  count="50">menuicon_imagelist.png</item>
-    <item type="imagelist" id="playmode_imagelist.png"  count="7">playmode_imagelist.png</item>
-    <item type="imagelist" id="some_imagelist.png"      count="9">some_imagelist.png</item>
-    <item type="imagelist" id="lyricedit_imagelist.png" count="17">lyricedit_imagelist.png</item>
+    <item type="imagelist" useskinhls="0" id="menuicon_imagelist.png"  count="50">menuicon_imagelist.png</item>
+    <item type="imagelist" useskinhls="0" id="playmode_imagelist.png"  count="7">playmode_imagelist.png</item>
+    <item type="imagelist" useskinhls="0" id="some_imagelist.png"      count="9">some_imagelist.png</item>
+    <item type="imagelist" useskinhls="0" id="lyricedit_imagelist.png" count="17">lyricedit_imagelist.png</item>
     <item type="icon" id="ttplayer.ico"       useskinhls="0" width="16" height="16">ttplayer.ico</item>
     <item type="icon" id="ttplayer.ico_32_32" useskinhls="0" width="32" height="32">ttplayer.ico</item>
     <item type="icon" id="ttplayer.ico_48_48" useskinhls="0" width="48" height="48">ttplayer.ico</item>
@@ -380,8 +393,8 @@
     <item id="voice_channel">87,139,164</item>
     <item id="play_statue">87,139,164</item>
     <item id="default">255,255,255</item>
-    <item id="white">255,255,255</item>
-    <item id="black">0,0,0</item>
+    <item id="white"  useskinhls="0">255,255,255</item>
+    <item id="black"  useskinhls="0">0,0,0</item>
     <item id="control_border_color">137,140,149</item>
     <item id="playlistbk_color">29,56,64</item>
     <item id="playlistbk_color2">24,51,60</item>
@@ -392,13 +405,13 @@
     <item id="playlist_select_color2">38,70,81</item>
     <item id="menu_item_hover">193,210,238</item>
     <item id="menu_item_hover_border">49,106,197</item>
-    <item id="option_gradient_from">48,106,198</item>
-    <item id="option_gradient_to">255,255,255</item>
-    <item id="option_title_text_color">255,255,255</item>
-    <item id="option_title_text_color_shadow">32,32,32</item>
-    <item id="option_introduce_ttplayer_text1">255,155,0</item>
-    <item id="option_introduce_ttplayer_text2">255,255,255</item>
-    <item id="option_introduce_ttplayer_text3">32,32,32</item>
+    <item id="option_gradient_from" useskinhls="0">48,106,198</item>
+    <item id="option_gradient_to"  useskinhls="0">255,255,255</item>
+    <item id="option_title_text_color" useskinhls="0">255,255,255</item>
+    <item id="option_title_text_color_shadow" useskinhls="0">32,32,32</item>
+    <item id="option_introduce_ttplayer_text1" useskinhls="0">255,155,0</item>
+    <item id="option_introduce_ttplayer_text2" useskinhls="0">255,255,255</item>
+    <item id="option_introduce_ttplayer_text3" useskinhls="0">32,32,32</item>
   </color>
 </ui>
 

@@ -101,11 +101,19 @@ enum OBJ_TYPE
 #define BUTTON_STYLE_SCROLLLINERIGHT    0x000A
 #define BUTTON_STYLE_HSCROLLTHUMB       0x000B    // 滚动条拖拽按钮
 #define BUTTON_STYLE_VSCROLLTHUMB       0x000C    // 滚动条拖拽按钮
+#define BUTOTN_STYLE_SLIDERTRACKBUTTON  0x000D    // 滑动条上面的按钮
 
 // progress style
 #define PROGRESS_STYLE_MASK             0x000F    // 进度条类型使用的位
 #define PROGRESS_STYLE_PROGRESS         0x0000    // 普通进度条
 #define PROGRESS_STYLE_SLIDER           0x0001    // 可拖动的slider ctrl
+
+#define SLIDER_STYLE_POINT_LEFT         0x0100    // 滑块按钮箭头指针左侧 默认为无指向
+#define SLIDER_STYLE_POINT_TOP          0x0100    // 滑块按钮箭头指针上侧
+#define SLIDER_STYLE_POINT_RIGHT        0x0200    // 滑块按钮箭头指针右侧
+#define SLIDER_STYLE_POINT_BOTTOM       0x0200    // 滑块按钮箭头指针下侧
+#define SLIDER_STYLE_SHOWTICKS          0x0400    // 显示刻度，默认只显示第一个和最后一个值的刻度
+#define SLIDER_STYLE_AUTOTICKS          0x0800    // 自动显示刻度，默认每增一个值显示一个刻度
 
 // edit style
 #define EDIT_STYLE_MASK                 0x000F    // 编辑框类型使用的位

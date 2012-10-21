@@ -4,7 +4,7 @@ ProgressCtrlBase::ProgressCtrlBase()
 {
 	m_nMin  = 0;
 	m_nMax  = 100;
-	m_nCur  = 50;
+	m_nCur  = 0;
 	m_nPage = 10;
 	m_nLine = 1;
 	m_eDirectionType = PROGRESS_SCROLL_LEFT_2_RIGHT;
@@ -58,8 +58,8 @@ int ProgressCtrlBase::SetPos(int nPos, bool bUpdate)
 {
 	int oldPos = m_nCur;
 
-	if (nPos >= m_nMax - m_nPage)
-		nPos = m_nMax - m_nPage;
+	if (nPos >= m_nMax)
+		nPos = m_nMax;
 
 	if (nPos <= m_nMin)
 		nPos = m_nMin;

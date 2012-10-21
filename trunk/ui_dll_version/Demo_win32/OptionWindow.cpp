@@ -14,6 +14,8 @@ COptionWindow::COptionWindow()
 	m_pIntroduceRichEdit = NULL;
 	m_pPanelVisualization = NULL;
 	m_pComboboxVisualType = NULL;
+	m_pSliderVisualFps = NULL;
+	m_pLabelVisualFps = NULL;
 }
 
 BOOL COptionWindow::PreTranslateMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT* pRet)
@@ -81,6 +83,9 @@ L"    一个集播放、音效、转换、歌词等多种功能于一身的专业音频播放软件。\r\n\
 	if (NULL != m_pPanelVisualization)
 	{
 		m_pComboboxVisualType = (Combobox*)m_pPanelVisualization->FindChildObject(_T("combobox_visualization_type"));
+		m_pSliderVisualFps = (SliderCtrl*)m_pPanelVisualization->FindChildObject(_T("slider_visualization_fps"));
+		m_pLabelVisualFps = (Label*)m_pPanelVisualization->FindChildObject(_T("label_visualizatoin_fps"));
+
 		if (NULL != m_pComboboxVisualType)
 		{
 			m_pComboboxVisualType->GetListBox()->SetSortCompareProc(NULL);
@@ -106,6 +111,14 @@ L"    一个集播放、音效、转换、歌词等多种功能于一身的专业音频播放软件。\r\n\
 				m_pComboboxVisualType->SetCurSel(0);
 				break;
 			}
+		}
+		if (NULL != m_pSliderVisualFps)
+		{
+			m_pSliderVisualFps->SetRange(10,40,false);
+			m_pSliderVisualFps->SetTickFreq(1);
+			m_pSliderVisualFps->SetPos(pConfigData->visual.m_nFps);
+			this->OnVisualFpsChanged(pConfigData->visual.m_nFps, 0);
+			m_pSliderVisualFps->ModifyStyle(SLIDER_STYLE_AUTOTICKS,0);
 		}
 	}
 
@@ -243,5 +256,20 @@ void COptionWindow::OnCbnSelChanged(Message* pObjMsgFrom, ListItemBase* pOldSelI
 			int nType = (int)(pSelItem->GetData());
 			GetMainMgr()->SetVisualizationType(nType);
 		}
+	}
+}
+
+void COptionWindow::OnVisualFpsChanged( int nPos, int nScrollType )
+{
+	if (nScrollType != SB_ENDSCROLL)
+	{
+		if (NULL != m_pLabelVisualFps)
+		{	
+			TCHAR szInfo[8] = _T("");
+			_itot(nPos, szInfo, 10);
+			m_pLabelVisualFps->SetText(String(szInfo));
+		}
+
+		::GetMainMgr()->SetVisualizationFps(nPos);
 	}
 }

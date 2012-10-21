@@ -112,7 +112,7 @@ bool ColorManager::InsertColorItem( const String& strID, const String& strColor 
 	if( NULL == m_pColorParse )
 		return false;
 
-	if( false == m_pojoColor.InsertColor(strID,strColor) )
+	if( false == m_pojoColor.InsertColor(strID,strColor,NULL) )
 	{
 		UI_LOG_ERROR(_T("ColorManager::InsertColorItem  m_pojoColor.InsertColorItem strID=%s"), strID.c_str());
 		return false;

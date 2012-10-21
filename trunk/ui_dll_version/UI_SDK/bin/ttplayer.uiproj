@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ui>
 <project projectname="ttplayer" select="let&apos;s seven">
+<skin name="let&apos;s seven" path=".\let&apos;s seven\ui.xml" hls="64,-8,7"/>
 <skin name="mediaplayer" path=".\mediaplay\ui.xml"/>
-<skin name="let&apos;s seven" path=".\let&apos;s seven\ui.xml"/>
 </project>
 <log switch="on">
     <item name="ui" switch="on" path="log\ui.log" level="debug" flag="0x3"   fileflag="0x1"/>

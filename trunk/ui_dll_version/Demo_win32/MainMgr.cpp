@@ -233,6 +233,20 @@ bool CMainMgr::SetVisualizationType(int nType)
 
 	return false;
 }
+bool CMainMgr::SetVisualizationFps(int nFps)
+{
+	VisualizationInfo info;
+	info.nMask = VI_MASK_FPS;
+	info.nFps = nFps;
+	if (::mp3_set_visualization(&info))
+	{
+		m_config.visual.m_bDirty = true;
+		m_config.visual.m_nFps = nFps;
+		m_configFile.Save(&m_config);
+	}
+
+	return false;
+}
 
 void CMainMgr::on_mp3_stop()
 {

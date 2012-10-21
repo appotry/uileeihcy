@@ -1046,7 +1046,34 @@ bool CPojo_Color::GetColor( const String& strID, UIColor** pColorRet )
 	return false;
 }
 
-bool CPojo_Color::InsertColor( const String& strID, const String& strColor )
+
+//
+// 从文件中加载一项(由CXmlImageParse::load_from_file中调用)
+//
+bool CPojo_Color::LoadItem(ATTRMAP& mapAttr, const String& strValue)
+{
+	String strID;
+
+	ATTRMAP::iterator iter;
+	iter = mapAttr.find(XML_ID);
+	if (mapAttr.end() != iter)
+	{
+		strID = iter->second;
+	}
+
+	CPojo_ColorItem* pItem = NULL;
+	if (this->InsertColor(strID, strValue, &pItem))
+	{
+		pItem->SetAttribute(mapAttr);
+		return true;
+	}
+	else
+	{
+		UI_LOG_WARN( _T("%s insert image m_strID=%s, path=%s failed."), FUNC_NAME, strID.c_str(), strValue.c_str());
+		return false;
+	}
+}
+bool CPojo_Color::InsertColor( const String& strID, const String& strColor, CPojo_ColorItem** pItem )
 {
 	CPojo_ColorItem* p = this->GetColorItem(strID);
 	if( NULL != p )
@@ -1060,6 +1087,11 @@ bool CPojo_Color::InsertColor( const String& strID, const String& strColor )
 	pColorItem->SetColor( strColor );
 
 	this->m_vColors.push_back(pColorItem); 
+
+	if (NULL != pItem)
+	{
+		*pItem = pColorItem;
+	}
 	return true;
 }
 
