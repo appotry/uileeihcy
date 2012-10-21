@@ -318,18 +318,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\sound\Mp3File.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\sound\Mp3File.h"
-				>
-			</File>
-			<File
-				RelativePath=".\sound\mpg123.h.in"
-				>
-			</File>
-			<File
 				RelativePath=".\sound\SpectrumAnalyser.cpp"
 				>
 			</File>
@@ -337,14 +325,46 @@
 				RelativePath=".\sound\SpectrumAnalyser.h"
 				>
 			</File>
-			<File
-				RelativePath=".\sound\WavFile.cpp"
+			<Filter
+				Name="mp3"
 				>
-			</File>
-			<File
-				RelativePath=".\sound\WavFile.h"
+				<File
+					RelativePath=".\sound\Mp3File.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\sound\Mp3File.h"
+					>
+				</File>
+				<File
+					RelativePath=".\sound\mpg123.h.in"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="wave"
 				>
-			</File>
+				<File
+					RelativePath=".\sound\WavFile.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\sound\WavFile.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="wma"
+				>
+				<File
+					RelativePath=".\sound\WmaFile.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\sound\WmaFile.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<File
 			RelativePath=".\ReadMe.txt"

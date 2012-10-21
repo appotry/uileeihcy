@@ -2,6 +2,7 @@
 #include "DirectSoundEngine.h"
 #include "Mp3File.h"
 #include "WavFile.h"
+#include "WmaFile.h"
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -14,6 +15,7 @@ CDirectSoundEngine::CDirectSoundEngine(void)
 	m_pCurFile = NULL;
 	m_pMp3File = NULL;
 	m_pWavFile = NULL;
+	m_pWmaFile = NULL;
 
 	for (int i = 0; i < NOTIFY_EVENT_COUNT; i++)
 	{
@@ -70,6 +72,7 @@ HRESULT CDirectSoundEngine::Release()
 	m_pCurFile = NULL;
 	SAFE_DELETE(m_pMp3File);
 	SAFE_DELETE(m_pWavFile);
+	SAFE_DELETE(m_pWmaFile);
 
 	if(m_hEventThread != NULL)
 	{
@@ -105,15 +108,7 @@ HRESULT CDirectSoundEngine::RenderFile( const TCHAR* szFile, const TCHAR* szExt 
 
 	this->ClearRender();
 		
-	if (0 == _tcsicmp(szExt, _T("wav")))
-	{
-		if (NULL == m_pWavFile)
-		{
-			m_pWavFile = new CWavFile();
-		}
-		m_pCurFile = m_pWavFile;
-	}
-	else if (0 == _tcsicmp(szExt, _T("mp3")))
+	if (0 == _tcsicmp(szExt, _T("mp3")))
 	{
 		if (NULL == m_pMp3File)
 		{
@@ -121,6 +116,23 @@ HRESULT CDirectSoundEngine::RenderFile( const TCHAR* szFile, const TCHAR* szExt 
 		}
 		m_pCurFile = m_pMp3File;
 	}
+	else if (0 == _tcsicmp(szExt, _T("wma")))
+	{
+		if (NULL == m_pWmaFile)
+		{
+			m_pWmaFile = new CWmaFile();
+		}
+		m_pCurFile = m_pWmaFile;
+	}
+	else if (0 == _tcsicmp(szExt, _T("wav")))
+	{
+		if (NULL == m_pWavFile)
+		{
+			m_pWavFile = new CWavFile();
+		}
+		m_pCurFile = m_pWavFile;
+	}
+	
 
 	if (NULL != m_pCurFile)
 	{
@@ -167,6 +179,8 @@ HRESULT CDirectSoundEngine::RenderFile( const TCHAR* szFile, const TCHAR* szExt 
 
 		// 第一次填充完整的buffer
 		hr = this->PushBuffer(0, m_nDirectSoundBufferSize);
+		if (FAILED(hr))
+			return hr;
 
 		m_pMgr->GetSA()->RenderFile(m_pCurFile->GetFormat()->nChannels, m_pCurFile->GetFormat()->wBitsPerSample/8);
 		return hr;
@@ -451,6 +465,7 @@ HRESULT CDirectSoundEngine::PushBuffer(int nStart, int nCount)
 	if (FAILED(hr))       // 说明播放完毕了
 	{
 		delete[] pbSoundData;
+		m_pDirectSoundBuffer8->Unlock(pBitPart1, dwSizePart1, pBitPart2, dwSizePart2);
 		return hr;   
 	}
 
@@ -464,6 +479,7 @@ HRESULT CDirectSoundEngine::PushBuffer(int nStart, int nCount)
 		if (FAILED(hr))
 		{
 			delete[] pbSoundData;
+			m_pDirectSoundBuffer8->Unlock(pBitPart1, dwSizePart1, pBitPart2, dwSizePart2);
 			return hr;
 		}
 

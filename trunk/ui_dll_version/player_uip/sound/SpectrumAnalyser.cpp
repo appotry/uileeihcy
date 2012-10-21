@@ -647,7 +647,7 @@ void CSpectrumAnalyser::DrawWave()
 	::BitBlt(m_hRenderWndMemDC, 0,0,nWidth, nHeight, hDC, 0,0, SRCCOPY);
 	::DeleteDC(hDC);
 
-	HPEN  hPen = ::CreatePen(PS_SOLID, 1, RGB(25,77,92));
+	HPEN  hPen = ::CreatePen(PS_SOLID, 1, RGB(255,255,255));
 	HPEN  hOldPen = (HPEN)::SelectObject(m_hRenderWndMemDC, hPen);
 
 #define XXX 0  // 定义一个值，相差多大时表示相关一级

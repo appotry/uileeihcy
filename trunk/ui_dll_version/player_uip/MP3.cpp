@@ -80,16 +80,13 @@ bool CMP3::RenderFile( const String& strFile )
 
 	nPos++;
 	String strExt = strFile.substr(nPos,strFile.length()-nPos);
-	if (0 == _tcsicmp(strExt.c_str(), _T("mp3")))
+	if (0 == _tcsicmp(strExt.c_str(), _T("mp3")) ||
+		0 == _tcsicmp(strExt.c_str(), _T("wma")))
 	{
 		if (SUCCEEDED(m_pDirectSoundEngine->RenderFile(strFile.c_str(), strExt.c_str())))
 		{
 			m_pCurrentEngine = m_pDirectSoundEngine;
 		}
-	}
-	else if (0 == _tcsicmp(strExt.c_str(), _T("wma")))
-	{
-
 	}
 	else if (0 == _tcsicmp(strExt.c_str(), _T("wav")))
 	{
