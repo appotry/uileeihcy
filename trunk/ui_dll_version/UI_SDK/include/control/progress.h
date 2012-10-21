@@ -28,7 +28,7 @@ public:
 	int         GetPage(){ return m_nPage; }
 	int         GetLine(){ return m_nLine; }
 	void        GetRange(int& nLower, int& nUpper){ nLower = m_nMin; nUpper = m_nMax; }
-	int         GetRange() { return m_nMax - m_nMin - m_nPage; }
+	int         GetRange() { return m_nMax - m_nMin; }
 
 	void        SetDirectionType(PROGRESS_SCROLL_DIRECTION_TYPE eType) { m_eDirectionType = eType; }
 	PROGRESS_SCROLL_DIRECTION_TYPE GetDirectionType() { return m_eDirectionType; }

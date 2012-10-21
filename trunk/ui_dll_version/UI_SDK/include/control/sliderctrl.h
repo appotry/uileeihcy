@@ -6,17 +6,19 @@ namespace UI
 	{
 	public:
 		SliderCtrlBase();
+		~SliderCtrlBase();
 
 		UI_BEGIN_MSG_MAP
 			UIMSG_WM_PAINT(OnPaint)
 			UIMSG_WM_SIZE(OnSize)
 			UIMSG_WM_LBUTTONDOWN(OnLButtonDown)
-			//		UIMSG_WM_SETCURSOR(OnSetCursor)
 			UIMSG_WM_KEYDOWN(OnKeyDown)
 			UIMSG_WM_KEYUP(OnKeyUp)
+			UIMSG_WM_STATECHANGED(OnStateChanged)
+			UIMSG_WM_STYLECHANGED(OnStyleChanged)
 
 			// 按钮的事件
-			UIALT_MSG_MAP(1)   
+		UIALT_MSG_MAP(1)   
 			UIMSG_WM_LBUTTONDOWN(OnBtnLButtonDown)	
 			UIMSG_WM_MOUSEMOVE(OnBtnMouseMove)	
 			UIMSG_WM_SETCURSOR(OnSetCursor)
@@ -36,6 +38,7 @@ namespace UI
 		virtual      void   SetScrollInfo(LPCSCROLLINFO lpsi, bool bUpdate=true);
 
 		void         UpdateButtonRect();
+		int          SetTickFreq(int nFreq);
 
 	protected:
 		void         OnPaint( HRDC hDC );
@@ -47,11 +50,15 @@ namespace UI
 		void         OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags );
 		void         OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
 		void         OnSize( UINT nType, int cx, int cy );
+		void         OnStyleChanged(int nStyleType, LPSTYLESTRUCT lpStyleStruct);
+		void         OnStateChanged(int nOld, int nNew);
 
+		void         UpdateTicksData();
 		void         UpdateUIData(bool bCalBeginEnd=false, bool bUpdateButtonRect=true);
 		void         CalcCurPosByUITrackPos(int nWindowPos);
 
 		int          WindowPoint2UITrackPos(const POINT* ptWindow);
+		
 	protected:
 		// 界面显示数据
 		int          m_nBegin;     // 对应m_nMin，进度条开始绘制的坐标，PADDING + half of button size
@@ -59,8 +66,18 @@ namespace UI
 		int          m_nTrack;     // 对应m_nCur，当前按钮所在的坐标，middle of button
 
 		// show
-		ButtonBase*    m_pButton;     // 拖拽用的按钮控件，子类负责实例化
-		int            m_nDiffFix;    // 误差消除，拖动时，鼠标离core m_nTrack的偏差
+		Button*      m_pButton;    // 拖拽用的按钮控件，子类负责实例化
+		int          m_nDiffFix;   // 误差消除，拖动时，鼠标离core m_nTrack的偏差
+
+		// 刻度绘制相关
+		RenderBase*  m_pTickRender; // 刻度绘制
+		int          m_nFreq;       // auto tick时，指定显示刻度的频率
+		struct TickInfo
+		{
+			int    nPos;              // 显示哪一个刻度
+			CRect  rcRect;            // 该刻度最后要显示位置，（在大小、参数改变后，需要重新计算）
+		};
+		vector<TickInfo*>  m_vTickInfo;
 	};
 
 	class UIAPI SliderCtrl : public SliderCtrlBase

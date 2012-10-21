@@ -352,11 +352,12 @@ namespace UI
 		CPojo_ColorItem* GetColorItem( const String& strID );
 		int   GetColorCount() ;
 		bool  GetColor( const String& strID, UIColor** pColorRet );
-		bool  InsertColor( const String& strID, const String& strColor );
+		bool  InsertColor( const String& strID, const String& strColor, CPojo_ColorItem** pItem );
 		bool  ModifyColor( const String& strID, const String& strColor );
 		bool  RemoveColor( const String& strID );
 		void  Clear();
 
+		bool  LoadItem(ATTRMAP& mapAttr, const String& strValue);
 		bool  ChangeSkinHLS(short h, short l, short s, int nFlag);
 
 	private:

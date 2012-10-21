@@ -17,6 +17,7 @@ public:
 		UIMSG_BN_CLICKED(_T("btn_reset_all"), OnBtnResetAll)
 		UICOMMAND_HANDLER_EX(IDC_BUTTON1, BN_CLICKED, OnBtnClick1 )
 		UICOMMAND_HANDLER_EX(IDC_BUTTON2, BN_CLICKED, OnBtnClick2 )
+		UIMSG_TRBN_POSCHANGED(m_pSliderVisualFps, OnVisualFpsChanged)
 		UIMSG_CBM_SELCHANGED(OnCbnSelChanged)
 		UIMSG_WM_RBUTTONUP(OnRButtonUp)
 	UI_END_MSG_MAP_CHAIN_PARENT(WindowBase)
@@ -35,6 +36,7 @@ public:
 	void OnRButtonUp(UINT nFlags, CPoint point);
 	void OnLCNSelChanged(Message* pObjMsgFrom, ListItemBase* pOldSelItem, ListItemBase* pSelItem);
 	void OnCbnSelChanged(Message* pObjMsgFrom, ListItemBase* pOldSelItem, ListItemBase* pSelItem);
+	void OnVisualFpsChanged( int nPos, int nScrollType );
 private:
 	ListBox*   m_pListOption;
 	Combobox*  m_pComboBox;
@@ -42,6 +44,8 @@ private:
 
 	Panel*     m_pPanelVisualization;
 	Combobox*  m_pComboboxVisualType;
+	SliderCtrl* m_pSliderVisualFps;
+	Label*      m_pLabelVisualFps;
 
 	Panel*     m_pPanelCtrlDemo;
 	Panel*     m_pPanelRichEditDemo;

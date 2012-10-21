@@ -22,8 +22,8 @@ public:
 		UIMSG_BN_CLICKED( _T("btn_mute"),  OnBnClickMute )
 		UIMSG_BN_CLICKED( _T("btn_prev"),  OnBnClickPrev )
 		UIMSG_BN_CLICKED( _T("btn_next"),  OnBnClickNext )
-		UIMSG_TRBN_POSCHANGED( _T("progress_music"), OnMusicProgressPosChanged )
-		UIMSG_TRBN_POSCHANGED( _T("progress_voice"), OnVolumnChanged )
+		UIMSG_TRBN_POSCHANGED_ID( _T("progress_music"), OnMusicProgressPosChanged )
+		UIMSG_TRBN_POSCHANGED_ID( _T("progress_voice"), OnVolumnChanged )
 
 // 		UIMSG_WM_LBUTTONDOWN( OnLButtonDown )
 // 		UIMSG_WM_LBUTTONUP( OnLButtonUp )

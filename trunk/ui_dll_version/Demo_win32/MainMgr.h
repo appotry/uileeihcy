@@ -23,6 +23,7 @@ public:
 	void     PlayPrev();
 
 	bool     SetVisualizationType(int nType);
+	bool     SetVisualizationFps(int nFps);
 	void     HandleEvent(IMgr* pSource, int nEventType, int nEventId, WPARAM wParam, LPARAM lParam);
 	const CConfigData*  GetConfigData() { return &m_config; }
 

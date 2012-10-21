@@ -1086,7 +1086,7 @@ protected:
 	}
 
 // void OnTrbnPosChanged( int nPos, int nScrollType );
-#define UIMSG_TRBN_POSCHANGED( OBJID, func )          \
+#define UIMSG_TRBN_POSCHANGED_ID( OBJID, func )       \
 	if( uMsg == UI_WM_NOTIFY  &&                      \
 		code == UI_TRBN_POSCHANGED &&                 \
 		NULL != pObjMsgFrom &&                        \
@@ -1097,7 +1097,17 @@ protected:
 		if(IsMsgHandled())                            \
 			return TRUE;                              \
 	}
-
+#define UIMSG_TRBN_POSCHANGED( p, func )              \
+	if( uMsg == UI_WM_NOTIFY  &&                      \
+		code == UI_TRBN_POSCHANGED &&                 \
+		NULL != pObjMsgFrom &&                        \
+		((ProgressCtrlBase*)pObjMsgFrom) == p)        \
+	{                                                 \
+		SetMsgHandled(TRUE);                          \
+		func( (int)wParam, (int)lParam );             \
+		if(IsMsgHandled())                            \
+			return TRUE;                              \
+	}
 
 // void OnLCNDbclick(Message* pObjMsgFrom, POINT pt, ListItemBase* pItem)
 #define UIMSG_LCN_DBCLICK(func)                       \

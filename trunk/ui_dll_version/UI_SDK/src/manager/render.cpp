@@ -104,6 +104,10 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 			{
 				pRender = new HScrollThumbButtonThemeRender();
 			}
+			else if (BUTOTN_STYLE_SLIDERTRACKBUTTON == nButtonStyle)
+			{
+				pRender = new SliderTrackButtonThemeRender();
+			}
 			else
 			{
 				pRender = new ButtonBkThemeRender();
@@ -276,6 +280,10 @@ RenderBase* RenderFactory::GetRender( RENDER_TYPE eType, Object* pObj )
 	else if (RENDER_TYPE_THEME_PROGRESS_BKGND == eType)
 	{
 		pRender = new ProgressCtrlBkgndThemeRender();
+	}
+	else if (RENDER_TYPE_THEME_TRACKBAR_BKGND == eType)
+	{
+		pRender = new SliderCtrlBkgndThemeRender();
 	}
 	else if (RENDER_TYPE_NULL == eType)
 	{
@@ -1177,19 +1185,19 @@ void ButtonBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 	switch(nState)
 	{
 	case BUTTON_BKGND_RENDER_STATE_DISABLE:
-		this->DrawDisable(hRDC, (CRect*)prc);
+		this->DrawDisable(hRDC, prc);
 		break;
 
 	case BUTTON_BKGND_RENDER_STATE_PRESS:
-		this->DrawPress(hRDC, (CRect*)prc);
+		this->DrawPress(hRDC, prc);
 		break;
 
 	case BUTTON_BKGND_RENDER_STATE_HOVER:
-		this->DrawHover(hRDC, (CRect*)prc);
+		this->DrawHover(hRDC, prc);
 		break;;
 
 	default:
-		this->DrawNormal(hRDC, (CRect*)prc);
+		this->DrawNormal(hRDC, prc);
 		break;
 	}
 }
@@ -3543,6 +3551,335 @@ void  ProgressCtrlForegndThemeRender::DrawState(HRDC hRDC, const CRect* prc, int
 		::DeleteObject(hBrush);
 	}
 	ReleaseHDC(hRDC, hDC);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void SliderCtrlBkgndThemeRender::SetObject( Object* pObject )
+{
+	__super::SetObject(pObject);
+
+	m_pSliderCtrl = dynamic_cast<SliderCtrl*>(pObject);
+}
+void SliderCtrlBkgndThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+{
+	CRect rc(prc);
+	PROGRESS_SCROLL_DIRECTION_TYPE eType = PROGRESS_SCROLL_LEFT_2_RIGHT;
+	if (NULL != m_pSliderCtrl)
+	{
+		eType = m_pSliderCtrl->GetDirectionType();
+	}
+
+	switch(eType)
+	{
+	case PROGRESS_SCROLL_TOP_2_BOTTOM:
+	case PROGRESS_SCROLL_BOTTOM_2_TOP:
+		{
+			rc.left += (rc.Width()-4)/2;
+			rc.right = rc.left + 4;
+		}
+		break;
+
+	default:
+		{
+			rc.top += (rc.Height()-4)/2;
+			rc.bottom = rc.top + 4;
+		}
+		break;
+	}
+
+	HDC hDC = GetHDC(hRDC);
+	if (m_hTheme)
+	{
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, TKP_TRACK, TKS_NORMAL, (RECT*)&rc, 0);
+		if (S_OK != hr)
+		{
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
+		}
+	}
+	else
+	{
+		DrawEdge(hDC, (RECT*)&rc, EDGE_SUNKEN, BF_RECT|BF_MIDDLE);
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+
+
+void SliderTrackButtonThemeRender::SetObject( Object* pObject )
+{
+	__super::SetObject(pObject);
+
+	if (NULL != pObject->GetParentObject())
+		m_pSliderCtrl = dynamic_cast<SliderCtrl*>(pObject->GetParentObject());
+}
+SIZE SliderTrackButtonThemeRender::GetDesiredSize( )
+{
+	PROGRESS_SCROLL_DIRECTION_TYPE eType = PROGRESS_SCROLL_LEFT_2_RIGHT;
+	if (NULL != m_pSliderCtrl)
+	{
+		eType = m_pSliderCtrl->GetDirectionType();
+	}
+
+	switch(eType)
+	{
+	case PROGRESS_SCROLL_TOP_2_BOTTOM:
+	case PROGRESS_SCROLL_BOTTOM_2_TOP:
+		{
+			SIZE s = {22,11};
+			return s;
+		}
+
+	default:
+		{
+			SIZE s = {11,22};
+			return s;
+		}
+	}
+
+	SIZE s = {11,22};
+	return s;
+}
+void SliderTrackButtonThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+{
+	if (NULL != m_hTheme)
+	{
+		this->DrawThemeState(hRDC, prc, nState);
+		return;
+	}
+	else
+	{
+		HDC hDC = GetHDC(hRDC);
+		this->DrawNoThemeState(hDC, prc, nState);
+		ReleaseHDC(hRDC, hDC);
+	}
+}
+
+int  SliderTrackButtonThemeRender::GetDrawThemeStateID(int iPartID, int nDrawState)
+{
+	switch(iPartID)
+	{
+	case TKP_THUMB:
+		{
+			switch(nDrawState)
+			{
+			case BUTTON_BKGND_RENDER_STATE_DISABLE:
+				return TUS_DISABLED;
+			case BUTTON_BKGND_RENDER_STATE_PRESS:
+				return TUS_PRESSED;
+			case BUTTON_BKGND_RENDER_STATE_HOVER:
+				return TUS_HOT;
+			default:
+				return TUS_NORMAL;
+			}
+		}
+		break;
+
+	case TKP_THUMBBOTTOM:
+		{
+			switch(nDrawState)
+			{
+			case BUTTON_BKGND_RENDER_STATE_DISABLE:
+				return TUBS_DISABLED;
+			case BUTTON_BKGND_RENDER_STATE_PRESS:
+				return TUBS_PRESSED;
+			case BUTTON_BKGND_RENDER_STATE_HOVER:
+				return TUBS_HOT;
+			default:
+				return TUBS_NORMAL;
+			}
+		}
+		break;
+
+	case TKP_THUMBTOP:
+		{
+			switch(nDrawState)
+			{
+			case BUTTON_BKGND_RENDER_STATE_DISABLE:
+				return TUTS_DISABLED;
+			case BUTTON_BKGND_RENDER_STATE_PRESS:
+				return TUTS_PRESSED;
+			case BUTTON_BKGND_RENDER_STATE_HOVER:
+				return TUTS_HOT;
+			default:
+				return TUTS_NORMAL;
+			}
+		}
+		break;
+
+	case TKP_THUMBVERT:
+		{
+			switch(nDrawState)
+			{
+			case BUTTON_BKGND_RENDER_STATE_DISABLE:
+				return TUVS_DISABLED;
+			case BUTTON_BKGND_RENDER_STATE_PRESS:
+				return TUVS_PRESSED;
+			case BUTTON_BKGND_RENDER_STATE_HOVER:
+				return TUVS_HOT;
+			default:
+				return TUVS_NORMAL;
+			}
+		}
+		break;
+	
+	case TKP_THUMBLEFT:
+		{
+			switch(nDrawState)
+			{
+			case BUTTON_BKGND_RENDER_STATE_DISABLE:
+				return TUVLS_DISABLED;
+			case BUTTON_BKGND_RENDER_STATE_PRESS:
+				return TUVLS_PRESSED;
+			case BUTTON_BKGND_RENDER_STATE_HOVER:
+				return TUVLS_HOT;
+			default:
+				return TUVLS_NORMAL;
+			}
+		}
+		break;
+			
+	case TKP_THUMBRIGHT:
+		{
+			switch(nDrawState)
+			{
+			case BUTTON_BKGND_RENDER_STATE_DISABLE:
+				return TUVRS_DISABLED;
+			case BUTTON_BKGND_RENDER_STATE_PRESS:
+				return TUVRS_PRESSED;
+			case BUTTON_BKGND_RENDER_STATE_HOVER:
+				return TUVRS_HOT;
+			default:
+				return TUVRS_NORMAL;
+			}
+		}
+		break;
+	}
+	return 0;
+}
+
+void SliderTrackButtonThemeRender::DrawThemeState(HRDC hRDC, const CRect* prc, int nDrawState)
+{
+	CRect rc(prc);
+	HDC hDC = GetHDC(hRDC);
+
+	int iPart = TKP_THUMB;
+	int iState = TKS_NORMAL;
+	if (m_hTheme)
+	{
+		PROGRESS_SCROLL_DIRECTION_TYPE eType = PROGRESS_SCROLL_LEFT_2_RIGHT;
+		bool bPointLeftTop = false;
+		bool bPointRightBottom = false;
+		if (NULL != m_pSliderCtrl)
+		{
+			eType = m_pSliderCtrl->GetDirectionType();
+			bPointLeftTop = m_pSliderCtrl->TestStyle(SLIDER_STYLE_POINT_LEFT);
+			bPointRightBottom = m_pSliderCtrl->TestStyle(SLIDER_STYLE_POINT_RIGHT);
+		}
+
+		switch(eType)
+		{
+		case PROGRESS_SCROLL_TOP_2_BOTTOM:
+		case PROGRESS_SCROLL_BOTTOM_2_TOP:
+			{
+				if (bPointLeftTop)
+				{
+					iPart = TKP_THUMBLEFT;
+				}
+				else if (bPointRightBottom)
+				{
+					iPart = TKP_THUMBRIGHT;
+				}
+				else
+					iPart = TKP_THUMBVERT;
+			}
+			break;
+
+		default:
+			{
+
+				if (bPointLeftTop)
+				{
+					iPart = TKP_THUMBTOP;
+				}
+				else if (bPointRightBottom)
+				{
+					iPart = TKP_THUMBBOTTOM;
+				}
+				else
+					iPart = TKP_THUMB;
+			}
+			break;
+		}
+		int nStateID = this->GetDrawThemeStateID(iPart, nDrawState);
+		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, iPart, nStateID, (RECT*)&rc, 0);
+		if (S_OK != hr)
+		{
+			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
+		}
+	}
+	ReleaseHDC(hRDC, hDC);
+}
+void SliderTrackButtonThemeRender::DrawNoThemeState( HDC hDC, const CRect* prc, int nDrawState)
+{
+	// TODO: 又没有直接的方法来绘制。。。 NND，随便画吧
+	CRect rc(prc);
+
+	HBRUSH hBrush = ::CreateSolidBrush(RGB(212,208,200));
+	::FillRect(hDC, &rc, hBrush);
+	::DeleteObject(hBrush);
+
+	rc.bottom -= 7;
+	HPEN hPen = CreatePen(PS_SOLID, 1, RGB(255,255,255));
+	HPEN hOldPen = (HPEN)::SelectObject(hDC, hPen);
+	::MoveToEx(hDC,rc.left, rc.bottom,NULL);
+	::LineTo(hDC, rc.left, rc.top);
+	::LineTo(hDC, rc.right, rc.top);
+	::SelectObject(hDC, hOldPen);
+	DeleteObject(hPen);
+
+	rc.right--;
+	hPen = CreatePen(PS_SOLID, 1, RGB(64,64,64));
+	hOldPen = (HPEN)::SelectObject(hDC, hPen);
+	::MoveToEx(hDC,rc.right, rc.top,NULL);
+	::LineTo(hDC, rc.right, rc.bottom);
+	::SelectObject(hDC, hOldPen);
+	DeleteObject(hPen);
+
+	rc.right--;
+	hPen = CreatePen(PS_SOLID, 1, RGB(128,128,128));
+	hOldPen = (HPEN)::SelectObject(hDC, hPen);
+	::MoveToEx(hDC,rc.right, rc.top+1,NULL);
+	::LineTo(hDC, rc.right, rc.bottom);
+	::LineTo(hDC, rc.right+2, rc.bottom);
+
+	rc.bottom++;
+	rc.left++;
+
+	::SetPixel(hDC, rc.left++,  rc.bottom, RGB(128,128,128));
+	::SetPixel(hDC, rc.left,    rc.bottom, RGB(128,128,128));
+	::SetPixel(hDC, rc.right--, rc.bottom, RGB(128,128,128));
+	::SetPixel(hDC, rc.right,   rc.bottom++, RGB(128,128,128));
+
+	::SetPixel(hDC, rc.left++,  rc.bottom, RGB(128,128,128));
+	::SetPixel(hDC, rc.left,    rc.bottom, RGB(128,128,128));
+	::SetPixel(hDC, rc.right--, rc.bottom, RGB(128,128,128));
+	::SetPixel(hDC, rc.right,   rc.bottom++, RGB(128,128,128));
+
+	::SetPixel(hDC, rc.left++,  rc.bottom, RGB(128,128,128));
+	::SetPixel(hDC, rc.left,    rc.bottom, RGB(128,128,128));
+	::SetPixel(hDC, rc.right--, rc.bottom, RGB(128,128,128));
+	::SetPixel(hDC, rc.right,   rc.bottom++, RGB(128,128,128));
+
+	::SetPixel(hDC, rc.left++,  rc.bottom, RGB(128,128,128));
+	::SetPixel(hDC, rc.left,    rc.bottom, RGB(128,128,128));
+	::SetPixel(hDC, rc.right--, rc.bottom, RGB(128,128,128));
+	::SetPixel(hDC, rc.right,   rc.bottom++, RGB(128,128,128));
+	
+	::SetPixel(hDC, rc.right, rc.bottom, RGB(0,0,0));
+
+	::SelectObject(hDC, hOldPen);
+	DeleteObject(hPen);
+
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
