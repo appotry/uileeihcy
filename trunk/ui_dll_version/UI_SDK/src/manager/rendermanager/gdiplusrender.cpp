@@ -11,7 +11,7 @@ int GetEncoderClsid(const WCHAR* format, CLSID* pClsid);
 //	Remark
 //
 //		Q: 为什么用Gdiplus在透明窗口上面绘制文字不能用alpha 255?
-//		A: (从网上抄的，不一定正确)  alpha值会由于RED值的进位导致255变成0
+//		A: (从网上抄的，不一定正确)  alpha值会由于Red值的进位导致255变成0
 //
 
 GdiplusRenderBitmap::GdiplusRenderBitmap(IRenderBitmap** ppOutRef) : GdiplusRenderBitmapImpl<IRenderBitmap>(ppOutRef)
@@ -270,14 +270,17 @@ SIZE GdiplusRenderFont::MeasureString( const TCHAR* szText, int nLimitWidth)
 {
 	CSize sizeText(0, 0);
 
-	if(  NULL == m_pFont )
+	if (NULL == m_pFont)
+		return sizeText;
+
+	if (NULL == szText || _tcslen(szText)==0)
 		return sizeText;
 
 	HDC hDC = UI_GetCacheDC();
 	Gdiplus::Graphics  g(hDC);
 
 	const Gdiplus::StringFormat* pStringFormat = Gdiplus::StringFormat::GenericTypographic();  // 不计算GDIPLUS的左右间距
-	if( -1 != nLimitWidth )
+	if (-1 != nLimitWidth)
 	{
 		Gdiplus::RectF  layoutRect((Gdiplus::REAL)0,(Gdiplus::REAL)0, (Gdiplus::REAL)nLimitWidth, (Gdiplus::REAL)0 );
 		Gdiplus::RectF  boundingBox;
@@ -305,7 +308,7 @@ SIZE GdiplusRenderFont::MeasureString( const TCHAR* szText, int nLimitWidth)
 
 UINT GdiplusRenderFont::GetTextMetricsHeight( )
 {
-	if( NULL == m_pFont )
+	if (NULL == m_pFont)
 		return 0;
 
 	HDC hDC = ::UI_GetCacheDC();
@@ -320,9 +323,9 @@ UINT GdiplusRenderFont::GetTextMetricsHeight( )
 HFONT GdiplusRenderFont::GetHFONT()
 {
 	HFONT hFont = m_hFontAttach;
-	if( NULL == hFont )  
+	if (NULL == hFont)  
 	{
-		if( NULL == m_hFontForGDI )  // TODO: 如果m_pFont属性改变，那m_hFontForGDI也会一起改变吗？是否是每次获取前都将m_hFontForGDI干掉？
+		if (NULL == m_hFontForGDI)  // TODO: 如果m_pFont属性改变，那m_hFontForGDI也会一起改变吗？是否是每次获取前都将m_hFontForGDI干掉？
 		{
 			LOGFONT lf;
 			this->GetLogFont(&lf);

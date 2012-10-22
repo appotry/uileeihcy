@@ -14,6 +14,7 @@ namespace UI
 			UIMSG_WM_DESTROY(OnDestroy)
 			UIMESSAGE_HANDLER_EX(UI_WM_ENTERPOPUPLOOP, OnEnterPopupLoop)
 			UIMESSAGE_HANDLER_EX(UI_WM_EXITPOPUPLOOP, OnExitPopupLoop)
+			UIMSG_WM_GETGRAPHICSRENDERTYPE(OnGetGraphicsRenderType)
 		UI_END_MSG_MAP_CHAIN_PARENT(CustomWindow)
 
 	protected:
@@ -28,6 +29,7 @@ namespace UI
 		LRESULT   OnExitPopupLoop(UINT uMsg, WPARAM wParam, LPARAM lParam);
 		int       OnMouseActivate(HWND wndTopLevel, UINT nHitTest, UINT message);
 		void      OnActivateApp(BOOL bActive, DWORD dwThreadID);
+		LRESULT   OnGetGraphicsRenderType();
 
 	protected:
 		void      PopupLoop();

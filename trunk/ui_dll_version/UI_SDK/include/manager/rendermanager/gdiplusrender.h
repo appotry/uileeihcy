@@ -257,13 +257,11 @@ public:
 
 	HBITMAP  CopyRect(RECT* prc)
 	{
-		UIASSERT(0);  // TODO: 未测试过的函数，未完成的函数 
-
 		if (NULL == prc)
 			return NULL;
 
 		int nWidth = prc->right - prc->left;
-		int  nHight = prc->bottom - prc->top;
+		int nHight = prc->bottom - prc->top;
 
 		Gdiplus::BitmapData data;
 		Gdiplus::Rect rect(prc->left ,prc->top, nWidth, nHight);

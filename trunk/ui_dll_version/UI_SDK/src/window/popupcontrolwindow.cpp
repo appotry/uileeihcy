@@ -203,6 +203,23 @@ BOOL PopupControlWindow::OnEraseBkgnd(HRDC hRDC)
 	return TRUE;
 }
 
+LRESULT PopupControlWindow::OnGetGraphicsRenderType()
+{
+	if (NULL != m_pObject)
+	{
+		// 注：这里没有去调用GetGraphicsRenderType，因为GetGraphicsRenderType中m_pObject又会反调用m_pWindow->GetRenderType
+		//     有可能导致死嵌套
+
+		GRAPHICS_RENDER_TYPE e = (GRAPHICS_RENDER_TYPE)UISendMessage( m_pObject, UI_WM_GETRENDERTYPE );
+		if (GRAPHICS_RENDER_TYPE_AUTO == e)
+		{
+			e = GRAPHICS_RENDER_TYPE_GDI;
+		}
+		return e;
+	}
+	return  GRAPHICS_RENDER_TYPE_AUTO;
+}
+
 PopupListBoxWindow::PopupListBoxWindow(ListBox* pListBox, Object* pBindObj) : PopupControlWindow(pListBox)
 {
 	m_pBindObj = pBindObj;

@@ -194,7 +194,7 @@ void MenuBase::HidePopupSubMenu()
 // 用于支持分层窗口样式的菜单 
 // 由于菜单刚创建时没有窗口，因此给Menu分配字体时，不知道使用哪种类型
 // 因此给Menu发一个GetRenderType来获取
-LRESULT MenuBase::OnGetRenderType()
+LRESULT MenuBase::OnGetGraphicsRenderType()
 {
 	if (m_bLayered)
 	{

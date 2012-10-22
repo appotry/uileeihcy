@@ -114,7 +114,7 @@ public:
 
 	// UI事件的消息处理
 	UI_BEGIN_MSG_MAP
-		UIMSG_WM_GETRENDERTYPE( OnGetRenderType )
+		UIMSG_WM_GETGRAPHICSRENDERTYPE( OnGetGraphicsRenderType )
 		UIMSG_WM_ERASEBKGND( OnEraseBkgnd )
 	UI_END_MSG_MAP_CHAIN_PARENT(Panel)
 
@@ -134,7 +134,7 @@ protected:
 	LRESULT           _OnSyncWindow( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
 	
 	BOOL              OnEraseBkgnd(HRDC);
-	LRESULT           OnGetRenderType();
+	LRESULT           OnGetGraphicsRenderType();
 
 public:
 	HWND              m_hWnd;                // 窗口句柄

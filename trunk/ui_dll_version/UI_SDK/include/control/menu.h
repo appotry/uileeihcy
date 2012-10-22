@@ -64,7 +64,7 @@ namespace UI
 			UIMSG_WM_TIMER(OnTimer)
 			UIMSG_WM_INITPOPUPCONTROLWINDOW(OnInitPopupControlWindow)
 			UIMSG_WM_UNINITPOPUPCONTROLWINDOW(OnUnInitPopupControlWindow)
-			UIMSG_WM_GETRENDERTYPE(OnGetRenderType)
+			UIMSG_WM_GETGRAPHICSRENDERTYPE(OnGetGraphicsRenderType)
 			UIMSG_WM_THEMECHANGED(OnThemeChanged)
 		UI_END_MSG_MAP_CHAIN_PARENT(ListCtrlBase)
 
@@ -80,7 +80,7 @@ namespace UI
 		void     OnLButtonDown(UINT nFlags, POINT point);
 		void     OnLButtonUp(UINT nFlags, POINT point);
 		void     OnTimer(UINT_PTR nIDEvent, LPARAM lParam);
-		LRESULT  OnGetRenderType();
+		LRESULT  OnGetGraphicsRenderType();
 		void     OnMouseMove(UINT nFlags, CPoint point);
 	    void     OnMouseLeave();
 		void     OnSubMenuMouseMove(MenuBase* pSubMenu);
