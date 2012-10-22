@@ -102,7 +102,7 @@ public:
 	HDC      m_hRenderWndMemDC;
 	HBITMAP  m_hMemBitmap;
 	HBITMAP  m_hOldBitmap;
-	HBITMAP  m_hBkgndBmp;            // 窗口上的背景图。每一次的频谱图、波形图都绘制在该背景上
+	volatile HBITMAP  m_hBkgndBmp;            // 窗口上的背景图。每一次的频谱图、波形图都绘制在该背景上
 
 	// 线程数据
 	HANDLE   m_hThread;              // 频谱分析线程

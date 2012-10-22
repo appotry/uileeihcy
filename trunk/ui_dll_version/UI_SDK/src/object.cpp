@@ -508,7 +508,8 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 	iter = mapAttrib.find(XML_BACKGND_IS_TRANSPARENT);
 	if (mapAttrib.end() != iter)
 	{
-		if(_ttoi(iter->second.c_str()))
+		if( _T("1")==iter->second ||
+		    _T("true") == iter->second)
 		{
 			this->ModifyStyle(OBJECT_STYLE_TRANSPARENT);
 		}

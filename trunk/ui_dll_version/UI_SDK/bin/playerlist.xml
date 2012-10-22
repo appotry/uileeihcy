@@ -3,13 +3,22 @@
   
   <!--加载的播放文件列表-->
   <playlist>
+<item>C:\Program Files\Microsoft DirectX SDK (March 2009)\Samples\Media\Wavs\Counting.wav</item>
+<item>C:\Program Files\Microsoft DirectX SDK (March 2009)\Samples\Media\Wavs\Electro_1.wav</item>
+<item>C:\Program Files\Microsoft DirectX SDK (March 2009)\Samples\Media\Wavs\heli.wav</item>
+<item>C:\Program Files\Microsoft DirectX SDK (March 2009)\Samples\Media\Wavs\HipHoppy_1.wav</item>
+<item>C:\Program Files\Microsoft DirectX SDK (March 2009)\Samples\Media\Wavs\MusicMono.wav</item>
+<item>C:\Program Files\Microsoft DirectX SDK (March 2009)\Samples\Media\Wavs\MusicSurround.wav</item>
+<item>C:\Program Files\Microsoft DirectX SDK (March 2009)\Samples\Media\Wavs\Techno_1.wav</item>
+<item>G:\Misuc\1.MP3</item>
 <item>G:\Misuc\pal3.wma</item>
+<item>G:\Misuc\Take me away.mp3</item>
 <item>G:\Misuc\wine-of-bincos-lunba.mp3</item>
+<item>G:\Misuc\一生何求xx.mp3</item>
 <item>G:\Misuc\又见炊烟.mp3</item>
 <item>G:\Misuc\宁夏.mp3</item>
 <item>G:\Misuc\宁夏128kb.mp3</item>
 <item>G:\Misuc\滴答.mp3</item>
 <item>G:\Misuc\萧人凤 - 仙剑问情（仙剑奇侠传）.mp3</item>
-<item>G:\Misuc\1.MP3</item>
 </playlist>
 </config>

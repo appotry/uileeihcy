@@ -61,11 +61,23 @@ void TopWindowManager::ChangeSkin(SkinManager* pNewSkinMgr)
 	if( NULL == pNewSkinMgr )
 		return;
 
+	vector<WindowBase*>  vecNotJoinChangeSkinWindows;  // 将不参与换肤的窗口放在该列表中，这样只需要发送一次UI_WM_SKINCHANGING消息
+
 	list<WindowBase*>::iterator  iter = m_lTopWindowObject.begin();
 	list<WindowBase*>::iterator  iterEnd = m_lTopWindowObject.end();
 	for( ; iter!=iterEnd; iter++ )
 	{
 		WindowBase* pWindow = *iter;
+		if (NULL == pWindow)
+			continue;
+
+		BOOL bChangeSkin = TRUE;
+		UISendMessage(pWindow, UI_WM_SKINCHANGING, (WPARAM)&bChangeSkin, 0);
+		if (FALSE == bChangeSkin)
+		{
+			vecNotJoinChangeSkinWindows.push_back(pWindow);
+			continue;
+		}
 
 		//////////////////////////////////////////////////////////////////////////
 		//
@@ -107,6 +119,16 @@ void TopWindowManager::ChangeSkin(SkinManager* pNewSkinMgr)
 	for( iter = m_lTopWindowObject.begin(); iter!=iterEnd; iter++ )
 	{
 		WindowBase* pWindow = *iter;
+		if (NULL == pWindow)
+			continue;
+
+		// 该窗口不参与换肤
+		int nSize = (int)vecNotJoinChangeSkinWindows.size();
+		for (int i = 0; i < nSize; i++)
+		{
+			if (vecNotJoinChangeSkinWindows[i] == pWindow)
+				continue;
+		}
 
 		int nOldWidth = pWindow->GetWidth();
 		int nOldHeight = pWindow->GetHeight();
@@ -122,6 +144,9 @@ void TopWindowManager::ChangeSkin(SkinManager* pNewSkinMgr)
 				pWindow->UpdateObject();
 			}
 		}
+
+		// 通知
+		UISendMessage(pWindow, UI_WM_SKINCHANGED, 0, 0);
 	}
 }
 
@@ -174,4 +199,22 @@ void TopWindowManager::GetAllChildIntoList( Object* pParent, list<Object*>& list
 		if( pChild->GetObjectType() != OBJ_CONTROL )
 			this->GetAllChildIntoList(pChild, listObjects);
 	}
+}
+
+void TopWindowManager::OnSkinHLSChanged()
+{
+	list<WindowBase*>::iterator  iter = m_lTopWindowObject.begin();
+	list<WindowBase*>::iterator  iterEnd = m_lTopWindowObject.end();
+
+	// 刷新窗口
+	for( iter = m_lTopWindowObject.begin(); iter!=iterEnd; iter++ )
+	{
+		WindowBase* pWindow = *iter;
+		if (NULL == pWindow)
+			continue;
+
+		UISendMessage(pWindow, UI_WM_SKINHLSCHANGED);
+		pWindow->InvalidateObject(pWindow,NULL,true);
+	}
+	return;
 }

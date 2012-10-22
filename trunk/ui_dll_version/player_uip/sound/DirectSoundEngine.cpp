@@ -189,7 +189,16 @@ HRESULT CDirectSoundEngine::RenderFile( const TCHAR* szFile, const TCHAR* szExt 
 	return E_FAIL;;
 }
 
-HRESULT  CDirectSoundEngine::ClearRender()
+HRESULT  CDirectSoundEngine::ClearRender()  // 不能在这里立即delete m_pDirectSoundBuffer8，因为buffer填充线程可能正在使用m_pDirectSoundBuffer8，还没来得及响应OnStop
+{
+	if (NULL == m_pCurFile || NULL == m_pDirectSoundBuffer8)
+		return E_FAIL;
+
+	this->PostThreadMessage(DSMSG_CLEAR, NULL);
+	return S_OK;
+}
+
+HRESULT CDirectSoundEngine::OnClearRender()
 {
 	m_pCurFile = NULL;
 	SAFE_RELEASE(m_pDirectSoundBuffer8);
@@ -431,9 +440,14 @@ bool CDirectSoundEngine::EventMsgProc()
 			this->OnStop();
 			break;
 
+		case DSMSG_CLEAR:
+			this->OnClearRender();
+			break;
+
 		case DSMSG_QUIT:
 			return false;
 			break;
+
 		}
 
 		SAFE_DELETE(pDSMSG_PARAM);

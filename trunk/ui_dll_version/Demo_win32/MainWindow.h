@@ -25,6 +25,8 @@ public:
 		UIMSG_TRBN_POSCHANGED_ID( _T("progress_music"), OnMusicProgressPosChanged )
 		UIMSG_TRBN_POSCHANGED_ID( _T("progress_voice"), OnVolumnChanged )
 
+		UIMSG_WM_SKINHLSCHANGED(OnSkinHLSChanged)
+		UIMSG_WM_SKINCHANGED(OnSkinChanged)
 // 		UIMSG_WM_LBUTTONDOWN( OnLButtonDown )
 // 		UIMSG_WM_LBUTTONUP( OnLButtonUp )
 // 		UIMSG_WM_MOUSEMOVE( OnMouseMove )
@@ -64,6 +66,8 @@ public:
     void    OnContextMenu(HWND wnd, POINT point);
 	void    OnMenuClick(UINT nMenuID);
 	void    OnSysCommand(UINT nID, CPoint lParam);
+	void    OnSkinHLSChanged();
+	void    OnSkinChanged();
 	
 	void    OnMp3Start(PlayerListItemInfo* pItemInfo);
 	void    OnMp3Pause();

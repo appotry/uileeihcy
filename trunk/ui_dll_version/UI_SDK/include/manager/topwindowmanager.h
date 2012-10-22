@@ -13,11 +13,11 @@ public:
 				
 	void      SendMessage( UIMSG* pMsg );
 	void      ChangeSkin(SkinManager* pNewSkinMgr);
-	bool      InvalidateWindow( );
-
+	void      OnSkinHLSChanged();
+	bool      InvalidateWindow();
 
 protected:
-	void      GetAllChildIntoList( Object* pParent, list<Object*>& listObjects );
+	void      GetAllChildIntoList(Object* pParent, list<Object*>& listObjects);
 
 private:
 	list<WindowBase*>   m_lTopWindowObject;

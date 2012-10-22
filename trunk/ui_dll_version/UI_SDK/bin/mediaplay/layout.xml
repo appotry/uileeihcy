@@ -3,7 +3,7 @@
 <layout>
     <CustomWindow id="mainwindow" layout.left="300" layout.top="200" width="270" height="168"
                   bkgnd.render.type="image" bkgnd.render.image="player_skin.png"
-                  transparent.typex="maskalpha" transparent.maskalphax="1" transparent.type="layered" transparent.maskalpha="240">
+                  transparent.type="maskalpha" transparent.maskalpha="1" transparent.typex="layered" transparent.maskalphax="240">
       <Picture id="icon"  foregnd.render.image="ttplayer.ico" layout.left="5" layout.top="6"/>
       <!--Label id="label_time" text="00:00" layout.right="10" layout.top="60" textrender.color="time_color" width="70" halign="right" /-->
       <LEDCtrl id="led_time" text=" 00:00" layout.right="10" layout.top="58" indexmap="0123456789:-"
@@ -21,6 +21,7 @@
         <Button id="btn_browser"   styleclass="imagebtn" bkgnd.render.image="browser.png" margin="0,0,1,0"/>
       </Panel>
       <SliderCtrl id="progress_music" foregnd.render.image="progress_fill.png" trackbtn.bkgnd.render.image="progress_thumb.png" height="10" width="258" direction="x" layout.left="6" layout.top="112"/>
+      <Picture id="visualization" istransparent="1" layout.left="8" layout.top="50" width="160" height="58"/>
       <Button id="btn_play"  styleclass="imagebtn" tooltip="开始" bkgnd.render.image="play.png"  layout.bottom="8" layout.left="10"></Button>
       <Button id="btn_pause" styleclass="imagebtn" tooltip="暂停" bkgnd.render.image="pause.png" layout.bottom="8" layout.left="10"></Button>
       <Button id="btn_stop"  styleclass="imagebtn" tooltip="停止" bkgnd.render.image="stop.png"  layout.bottom="12" layout.left="43"></Button>

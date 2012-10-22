@@ -24,6 +24,8 @@ public:
 
 	bool     SetVisualizationType(int nType);
 	bool     SetVisualizationFps(int nFps);
+	bool     SetVisualizationBkgndBmp(HBITMAP hBitmap);
+	bool     SetVisualizationBkgndBmpAndRect(HBITMAP hBitmap, RECT* prc);
 	void     HandleEvent(IMgr* pSource, int nEventType, int nEventId, WPARAM wParam, LPARAM lParam);
 	const CConfigData*  GetConfigData() { return &m_config; }
 

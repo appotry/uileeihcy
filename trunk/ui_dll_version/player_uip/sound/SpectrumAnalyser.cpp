@@ -226,6 +226,14 @@ bool CSpectrumAnalyser::SetVisualization(VisualizationInfo* pInfo)
 	if (NULL == pInfo)
 		return false;
 	
+	// 注：m_BkgndBmp特殊，需要立即更新(HLS变换...)
+	if (pInfo->nMask & VI_MASK_BKGND_BMP)
+	{
+	//	m_hBkgndBmp = pInfo->hBkgndBmp;
+		HBITMAP hTemp = (HBITMAP)::InterlockedExchange((LONG*)&m_hBkgndBmp, (LONG)pInfo->hBkgndBmp);
+		SAFE_DELETE_GDIOBJECT(hTemp);
+	}
+
 	BOOL bRet = this->PostThreadMessage(DSMSG_SET_VISUALIZATION, BuildSetVisualizationParam(pInfo));
 	return bRet?true:false;
 }
@@ -292,11 +300,7 @@ bool CSpectrumAnalyser::OnSetVisualization(VisualizationInfo* pInfo)
 	{
 		m_nBandWidth = pInfo->nSpectrumGapWidth;
 	}
-	if (pInfo->nMask & VI_MASK_BKGND_BMP)
-	{
-		SAFE_DELETE_GDIOBJECT(m_hBkgndBmp);
-		m_hBkgndBmp = pInfo->hBkgndBmp;
-	}
+	
 
 	return true;
 }

@@ -201,8 +201,10 @@ bool ProjectManager::ChangeSkinHLS( short h, short l, short s, int nFlag )
 	if( false == bRet )
 		return false;
 
-	g_pUIApplication->m_TopWindowMgr.InvalidateWindow();
+	// 通知窗口刷新
+	g_pUIApplication->m_TopWindowMgr.OnSkinHLSChanged(); //InvalidateWindow();
 
+	// 保存该 HLS 数据
 	IProjectSkinItemInfo* pSkinItem = NULL;
 	UI_GetProjectSkinItemInfo(m_pCurActiveSkinMgr, &pSkinItem);
 	if (NULL != pSkinItem)
