@@ -37,7 +37,7 @@ void CEqualizerDlg::OnInitWindow( )
 	}
 
 	IProjectSkinItemInfo* pInfo = NULL;
-	UI_GetProjectSkinItemInfo(NULL, &pInfo);
+	UI_GetProjectSkinItemInfo((HSKIN)NULL, &pInfo);
 	if (NULL != pInfo)
 	{
 		if (NULL != m_pH)

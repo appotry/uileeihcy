@@ -16,8 +16,8 @@ CWavFile::~CWavFile()
 }
 void CWavFile::Release()
 {
-	SAFE_ARRAY_DELETE(m_pResourceBuffer);
-	m_dwSize = 0;
+ 	SAFE_ARRAY_DELETE(m_pResourceBuffer);
+ 	m_dwSize = 0;
 	memset(&m_ck, 0, sizeof(MMCKINFO));
 	memset(&m_ckRiff, 0, sizeof(MMCKINFO));
 	this->Close();
@@ -25,6 +25,10 @@ void CWavFile::Release()
 
 HRESULT CWavFile::RenderFile(const TCHAR* szFile)
 {
+	if (m_pResourceBuffer == (CHAR*)1)
+	{
+		int a = 0;
+	}
 	if (NULL == szFile)
 		return E_INVALIDARG;
 
@@ -33,6 +37,7 @@ HRESULT CWavFile::RenderFile(const TCHAR* szFile)
 	HRESULT hr = E_FAIL;
 	m_hMmio = mmioOpen((TCHAR*)szFile, NULL, MMIO_ALLOCBUF | MMIO_READ);
 
+#if 0
 	if (NULL == m_hMmio)  // 尝试从RC资源中读取...
 	{
 		HRSRC   hResInfo = NULL;
@@ -70,11 +75,13 @@ HRESULT CWavFile::RenderFile(const TCHAR* szFile)
 
 		m_hMmio = mmioOpen( NULL, &mmioInfo, MMIO_ALLOCBUF | MMIO_READ );
 	}
+#endif
 
 	if( FAILED( hr = ReadMMIO() ) )
 	{
 		// ReadMMIO will fail if its an not a wave file
 		mmioClose( m_hMmio, 0 );
+		m_hMmio = NULL;
 		return hr;
 	}
 
@@ -144,6 +151,9 @@ HRESULT CWavFile::ReadMMIO()
 	}
 	else
 	{
+		assert(0);
+		return E_FAIL;  // 以下这段代码有问题，会导致整个类内存被覆盖，NND，
+#if 0
 		// Read in length of extra bytes.
 		WORD cbExtraBytes = 0L;
 		if( mmioRead( m_hMmio, ( CHAR* )&cbExtraBytes, sizeof( WORD ) ) != sizeof( WORD ) )
@@ -160,6 +170,7 @@ HRESULT CWavFile::ReadMMIO()
 		{
 			return E_FAIL;
 		}
+#endif
 	}
 
 	// Ascend the input file out of the 'fmt ' chunk.
@@ -265,12 +276,20 @@ HRESULT CWavFile::Read( BYTE* pBuffer, DWORD dwSizeToRead, DWORD* pdwSizeRead )
 
 HRESULT CWavFile::SetCurPos(double percent) 
 {
-	int nOffset = (DWORD)(m_dwSize*percent);
+	int nOffset = (DWORD)(m_dwSize*percent);  // TODO: TNND，如果offset不是一个偶数的话，mmioseek就会将声音破坏。什么道理?
+	                                          //       wfx.wBitsPerSample==16，每个音节占两位的原因么？
+	if (nOffset%2!=0)
+	{
+		nOffset--;
+		if (nOffset < 0)
+		{
+			nOffset=0;
+		}
+	}
 	this->ResetFile();
 
 	// Seek to the data
-	if( -1 == mmioSeek( m_hMmio, nOffset,
-		SEEK_CUR ) )
+	if( -1 == mmioSeek( m_hMmio, nOffset, SEEK_CUR ) )
 		return E_FAIL;
 
 	m_ck.cksize = m_dwSize - nOffset;
@@ -282,6 +301,10 @@ HRESULT CWavFile::GetCurPos(double* pdSeconds, double* pdPercent)
 	if (m_dwSize == 0)
 		return E_FAIL;
 
+	int bytesPerSec = (m_wfx.nChannels*(m_wfx.wBitsPerSample>>3)*m_wfx.nSamplesPerSec);
+	if (0 != bytesPerSec)
+		*pdSeconds = (m_dwSize-m_ck.cksize)/bytesPerSec;
+
 	*pdPercent = (m_dwSize-m_ck.cksize)*1.0/m_dwSize;
-	return S_OK;;
+	return S_OK;
 }

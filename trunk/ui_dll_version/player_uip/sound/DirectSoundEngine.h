@@ -87,6 +87,7 @@ protected:
 	HRESULT OnPlay();
 	HRESULT OnPause();
 	HRESULT OnStop();
+	HRESULT OnClearRender();
 
 
 protected:

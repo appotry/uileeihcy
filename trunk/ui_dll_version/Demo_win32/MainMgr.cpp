@@ -248,6 +248,22 @@ bool CMainMgr::SetVisualizationFps(int nFps)
 	return false;
 }
 
+bool CMainMgr::SetVisualizationBkgndBmp(HBITMAP hBitmap)
+{
+	VisualizationInfo info;
+	info.nMask = VI_MASK_BKGND_BMP;
+	info.hBkgndBmp = hBitmap;
+	return mp3_set_visualization(&info);
+}
+
+bool CMainMgr::SetVisualizationBkgndBmpAndRect(HBITMAP hBitmap, RECT* prc)
+{
+	VisualizationInfo info;
+	info.nMask = VI_MASK_BKGND_BMP|VI_MASK_RECT;
+	info.hBkgndBmp = hBitmap;
+	CopyRect(&info.rcRender, prc);
+	return mp3_set_visualization(&info);
+}
 void CMainMgr::on_mp3_stop()
 {
 	FireEvent(EVENT_TYPE_PLAY, PLAY_EVENT_ID_ON_STOP);

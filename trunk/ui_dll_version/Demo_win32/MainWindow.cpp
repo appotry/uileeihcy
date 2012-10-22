@@ -648,3 +648,26 @@ HBITMAP MainWindow::GetVisualizationInfo(RECT* prc)
 	}
 	return NULL;
 }
+
+void MainWindow::OnSkinHLSChanged()
+{
+	Picture* p = (Picture*)this->FindChildObject(_T("visualization"));
+	if (NULL != p)
+	{
+		HBITMAP hBitmap = this->PaintObject(p);
+		GetMainMgr()->SetVisualizationBkgndBmp(hBitmap);
+	}
+	
+}
+void MainWindow::OnSkinChanged()
+{
+	Picture* p = (Picture*)this->FindChildObject(_T("visualization"));
+	if (NULL != p)
+	{
+		CRect rc;
+		p->GetClientRectInWindow(&rc);
+		HBITMAP hBitmap = this->PaintObject(p);
+
+		GetMainMgr()->SetVisualizationBkgndBmpAndRect(hBitmap, &rc);
+	}
+}

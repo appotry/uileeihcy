@@ -95,6 +95,34 @@ enum
 	UI_WM_STATECHANGED,
 
 	//
+	//  在窗口换肤之前，给窗口发送一个通知。窗口可以在这里阻止自己参与换肤
+	//		message: UI_WM_SKINCHANGING
+	//		code:
+	//		wparam:  BOOL* pbChangeSkin
+	//		lparam: 
+	//
+	//	Return:
+	//
+	UI_WM_SKINCHANGING,
+	
+	//
+	//	在窗口换肤完成后，给窗口发送一个通知
+	//
+	//		message: UI_WM_SKINCHANGED
+	//		code:
+	//		wparam:  
+	//		lparam: 
+	//
+	//	Return:
+	//
+	UI_WM_SKINCHANGED,
+
+	//
+	//	在窗口的HLS变化后，给窗口发送一个通知
+	//
+	UI_WM_SKINHLSCHANGED,
+
+	//
 	//	获取当前绘制的偏移量，用于OnDraw
 	//
 	//		message: UI_WM_GETSCROLLOFFSET
@@ -1184,9 +1212,39 @@ protected:
 			return TRUE;                              \
 	}
 
+// void OnSkinChanging(BOOL* pbChange)
+#define UIMSG_WM_SKINCHANGING(fun)                    \
+	if( uMsg == UI_WM_SKINCHANGING )                  \
+	{                                                 \
+		SetMsgHandled(TRUE);                          \
+		func((BOOL*)wParam);                          \
+		if(IsMsgHandled())                            \
+			return TRUE;                              \
+	}
+
+// void OnSkinChanged()
+#define UIMSG_WM_SKINCHANGED(func)                    \
+	if( uMsg == UI_WM_SKINCHANGED )                   \
+	{                                                 \
+		SetMsgHandled(TRUE);                          \
+		func();                                       \
+		if(IsMsgHandled())                            \
+			return TRUE;                              \
+	}
+
+// void OnSkinHLSChanged(BOOL* pbChange)
+#define UIMSG_WM_SKINHLSCHANGED(func)                 \
+	if( uMsg == UI_WM_SKINHLSCHANGED )                \
+	{                                                 \
+		SetMsgHandled(TRUE);                          \
+		func();                                       \
+		if(IsMsgHandled())                            \
+			return TRUE;                              \
+	}
+
 // void OnGetScrollOffsetInfo(int* pxOffset, int* pyOffset);
 #define UIMSG_WM_GETSCROLLOFFSETINFO(func)            \
-	if(uMsg == UI_WM_GETSCROLLOFFSET)             \
+	if(uMsg == UI_WM_GETSCROLLOFFSET)                 \
 	{                                                 \
 		SetMsgHandled(TRUE);                          \
 		func((int*)wParam, (int*)lParam);             \
@@ -1195,7 +1253,7 @@ protected:
 	}
 
 #define UIMSG_WM_SETSCROLLOFFSETINFO(func)            \
-	if(uMsg == UI_WM_SETSCROLLOFFSET)             \
+	if(uMsg == UI_WM_SETSCROLLOFFSET)                 \
 	{                                                 \
 		SetMsgHandled(TRUE);                          \
 		func((int)wParam, (int)lParam);               \

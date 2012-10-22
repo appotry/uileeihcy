@@ -29,6 +29,8 @@ public:
 	VisualizationInfo   info;
 };
 
+#define  DSMSG_CLEAR   (WM_USER+7)
+
 inline DSMSG_PARAM* BuildSetCurPosParam(double dPercent)
 {
 	DSMSG_PARAM_SET_CUR_POS* p = new DSMSG_PARAM_SET_CUR_POS;

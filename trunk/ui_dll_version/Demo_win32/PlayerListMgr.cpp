@@ -349,7 +349,9 @@ PlayerListItemInfo* CPlayerListMgr::GetPrevItem()
 			
 			if (NULL == p)
 			{
-				p = GetItem(0);
+				/*p = GetItem(0);*/
+				bool bPlay = false;
+				p = this->GetNextPlayItem(bPlay);  // 利用GetNextPlayItem再随机获取
 			}
 			else
 			{
