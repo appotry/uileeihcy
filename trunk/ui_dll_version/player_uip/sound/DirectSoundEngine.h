@@ -28,10 +28,21 @@ class ISoundFile
 {
 public:
 	virtual  ~ISoundFile() = 0 {};
+
+	// 设置要播放的文件。负责初始化和解析文件的WAVEFORMATEX
 	virtual  HRESULT   RenderFile(const TCHAR* szFile) = 0;
+
+	// 读取dwSizeToRead大小的数据到directsound buffer中进行播放，pdwSizeRead返回所读取到的数据大小 
+	// 当读取结束时，返回FAILED hr，directsound将 stop
 	virtual  HRESULT   Read(BYTE* pBuffer, DWORD dwSizeToRead, DWORD* pdwSizeRead) = 0;
+
+	// 返回创建directsound buffer使用的参数
 	virtual  WAVEFORMATEX*  GetFormat() { return &m_wfx; }
+
+	// 设置当前播放的位置
 	virtual  HRESULT   SetCurPos(double percent) = 0;
+
+	// 返回当前的播放进度（该函数获取的数据有问题，不是获取当前播放位置，而不获取到了当前读位置，有误差，需要改进）
 	virtual  HRESULT   GetCurPos(double* pdSeconds, double* pdPercent) = 0;
 
 protected:

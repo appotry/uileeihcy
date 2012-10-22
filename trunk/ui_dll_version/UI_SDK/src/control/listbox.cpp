@@ -1393,7 +1393,7 @@ void ListBox::OnInitPopupControlWindow(Object* pObjMsgFrom)
 
 void ListBox::OnUnInitPopupControlWindow(Object* pObjMsgFrom)
 {
-	this->SetHoverItem(NULL);  // 清空被选中的item，以防下次再次弹出时，状态未更新，仍然显示上一次的hover item
+	this->SetHoverItem(NULL);  // 清空被选中的item，以防下次再次弹出时，状态未更新，仍然显示上一次的hover item。（弹出窗口向listbox获取,listbox向combobox获取,combobox其实是向它所在的窗口获取）
 	m_pPopupWrapWnd = NULL;
 
 	if (NULL != m_pBindObject)
@@ -1401,3 +1401,12 @@ void ListBox::OnUnInitPopupControlWindow(Object* pObjMsgFrom)
 		UISendMessage(m_pBindObject, UI_WM_UNINITPOPUPCONTROLWINDOW, 0,0,0, this);
 	}
 }
+LRESULT ListBox::OnGetGraphicsRenderType()
+{
+	if (NULL != m_pBindObject)  // 对于弹出式的listbox，由于窗口是弹出时才创建的，因此listbox向它的owner获取graphics type
+	{
+		return GetGraphicsRenderType(m_pBindObject);
+	}
+	return GRAPHICS_RENDER_TYPE_GDI;
+}
+

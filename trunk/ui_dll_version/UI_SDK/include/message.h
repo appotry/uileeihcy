@@ -728,8 +728,8 @@ protected:
 			return TRUE; \
 	}
 
-// LRESULT OnGetRenderType()
-#define UIMSG_WM_GETRENDERTYPE(func)                      \
+// LRESULT OnGetGraphicsRenderType()
+#define UIMSG_WM_GETGRAPHICSRENDERTYPE(func)              \
 	if( uMsg == UI_WM_GETRENDERTYPE )                     \
 	{                                                     \
 		SetMsgHandled(TRUE);                              \

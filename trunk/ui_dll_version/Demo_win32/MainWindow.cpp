@@ -26,7 +26,6 @@ MainWindow::MainWindow(void)
 	m_pBtnLyric = NULL;
 	m_pBtnEqualizer = NULL;
 
-	this->SetWindowResizeType(WRSB_ALL);  // TODO: TESET
 // 	m_lSizeMove = 0;
 // 	m_ptCursorSizeMove.x = m_ptCursorSizeMove.y = 0;
 // 	m_ptWndPosSizeMove.x = m_ptWndPosSizeMove.y = 0;
@@ -214,7 +213,7 @@ void MainWindow::OnBnClickOpen()
 // 	win.DoModal(g_hInstance, COptionWindow::IDD, _T("OptionWindow"),m_hWnd);
 // 	return;
 
-	CFileDialog dlg(TRUE, _T("*.mp3"), 0,4|2, _T("*.mp3\0*.mp3\0\0"));
+	CFileDialog dlg(TRUE, _T("*.mp3"), 0,4|2, _T("*.mp3\0*.mp3\0*.wma\0*.wma\0*.wav\0*.wav\0*.mp3;*.wma;*.wav;\0*.wma;*.mp3;*.wav\0*.*\0*.*\0\0"));
 	if(IDCANCEL == dlg.DoModal())
 		return;
 

@@ -129,7 +129,7 @@ namespace UI
 			UIMSG_WM_LBUTTONDBLCLK(OnDBClick)
 			UIMSG_WM_KEYDOWN(OnKeyDown)
 			UIMSG_WM_SIZE(OnSize) 
-			UIMSG_WM_GETRENDERTYPE(OnGetRenderType)
+			UIMSG_WM_GETGRAPHICSRENDERTYPE(OnGetGraphicsRenderType)
 			UICHAIN_MSG_MAP_MEMBER(m_MgrScrollbar)
 		UI_END_MSG_MAP_CHAIN_PARENT(Control)
 
@@ -143,7 +143,7 @@ namespace UI
 		void     OnDBClick(UINT nFlags, POINT point);
 		void     OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags );
 		void     OnSize( UINT nType, int cx, int cy );
-		LRESULT  OnGetRenderType(){return GRAPHICS_RENDER_TYPE_GDI;}  // 用于popup listbox获取字体
+		LRESULT  OnGetGraphicsRenderType(){return GRAPHICS_RENDER_TYPE_GDI;}  // 用于popup listbox获取字体
 		LRESULT  OnGetToolTipInfo(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	public:
 		// 虚函数
@@ -258,6 +258,7 @@ namespace UI
 			UIMSG_WM_LBUTTONUP(OnLButtonUp)
 			UIMSG_WM_INITPOPUPCONTROLWINDOW(OnInitPopupControlWindow)
 			UIMSG_WM_UNINITPOPUPCONTROLWINDOW(OnUnInitPopupControlWindow)
+			UIMSG_WM_GETGRAPHICSRENDERTYPE(OnGetGraphicsRenderType)
 		UI_END_MSG_MAP_CHAIN_PARENT(ListCtrlBase)
 
 	public:
@@ -271,6 +272,7 @@ namespace UI
 		void     OnLButtonUp(UINT nFlags, CPoint point);
 		void     OnInitPopupControlWindow(Object* pObjMsgFrom);
 		void     OnUnInitPopupControlWindow(Object* pObjMsgFrom);
+		LRESULT  OnGetGraphicsRenderType();
 
 	public:
 		ListBoxItem*  AddString(const String& strText, bool bUpdate=true);

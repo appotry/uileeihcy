@@ -342,7 +342,7 @@
 				</File>
 			</Filter>
 			<Filter
-				Name="wave"
+				Name="wav"
 				>
 				<File
 					RelativePath=".\sound\WavFile.cpp"

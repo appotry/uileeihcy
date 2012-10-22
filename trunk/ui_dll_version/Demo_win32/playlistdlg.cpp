@@ -300,7 +300,7 @@ void CPlayListDlg::OnBtnClickAdd(Object* pBtnObj, POINT* pt)
 	{
 	case 1101:
 		{
-			CFileDialog dlg(TRUE, _T("*.mp3"), 0,4|2, _T("*.mp3\0*.mp3\0*.wma\0*.wma\0*.mp3;*.wma;\0*.wma;*.mp3\0\0"));
+			CFileDialog dlg(TRUE, _T("*.mp3"), 0,4|2, _T("*.mp3\0*.mp3\0*.wma\0*.wma\0*.wav\0*.wav\0*.mp3;*.wma;*.wav;\0*.wma;*.mp3;*.wav\0*.*\0*.*\0\0"));
 			if(IDCANCEL != dlg.DoModal())
 			{
 				::GetPlayerListMgr()->AddFile(dlg.m_szFileName);

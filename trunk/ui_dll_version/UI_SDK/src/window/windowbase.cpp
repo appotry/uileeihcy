@@ -1024,7 +1024,7 @@ BOOL WindowBase::OnEraseBkgnd(HRDC hRDC)
 	return bRet;
 }
 
-LRESULT WindowBase::OnGetRenderType()
+LRESULT WindowBase::OnGetGraphicsRenderType()
 {
 	return  /*GRAPHICS_RENDER_TYPE_GDIPLUS*/ GRAPHICS_RENDER_TYPE_AUTO;
 }
