@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ui>
   <layout>
-    <CustomWindow id="mainwindow" layout.left="300" layout.top="200"  width="322" height="165" 
+    <CustomWindow id="mainwindow" layout.left="1000" layout.top="700"  width="322" height="165" 
                    bkgnd.render.type="image" bkgnd.render.image="player_skin.png" 
                    transparent.type="maskalpha">
       <Picture id="icon" foregnd.render.image="ttplayer.ico" layout.left="10" layout.top="6"/>
       <Panel layout="stack" layout.right="5" layout.top="0" layout.direction="righttoleft">
-        <Button id="sys_close"    styleclass="imagebtn" tooltip="退出"     bkgnd.render.image="close.bmp" />
+        <Button id="sys_close"    styleclass="imagebtn" tooltip="退出abcdefg hijklmn退出"     bkgnd.render.image="close.bmp" />
         <Button id="btn_minimode" styleclass="imagebtn" tooltip="迷你模式"  bkgnd.render.image="minimode.bmp" />
         <Button id="sys_minimize" styleclass="imagebtn" tooltip="最小化"    bkgnd.render.image="minimize.bmp" />
       </Panel>

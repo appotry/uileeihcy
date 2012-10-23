@@ -20,7 +20,7 @@
 
 
 #define POSITION_EVENT_COUNT 2    // 通知事件个数
-#define NOTIFY_EVENT_COUNT  (POSITION_EVENT_COUNT+1)    // EVENT数量（最后一个是msg通知）
+#define NOTIFY_EVENT_COUNT  (POSITION_EVENT_COUNT+1)    // EVENT数量（最后一个是msg通知[msg机制已被废弃]）
 
 
 // 各种文件解码的基类
@@ -43,12 +43,11 @@ public:
 	virtual  HRESULT   SetCurPos(double percent) = 0;
 
 	// 返回当前的播放进度（该函数获取的数据有问题，不是获取当前播放位置，而不获取到了当前读位置，有误差，需要改进）
-	virtual  HRESULT   GetCurPos(double* pdSeconds, double* pdPercent) = 0;
+	virtual  HRESULT   GetCurPos(int nPlayBufferSize, double* pdSeconds, double* pdPercent) = 0;
 
 protected:
 	WAVEFORMATEX   m_wfx;
 };
-
 
 class CDirectSoundEngine : public ISoundEngine
 {
@@ -68,6 +67,7 @@ public:
 	virtual HRESULT  GetCurPos(double* pdSeconds, double* pdPercent);
 	virtual HRESULT  SetVolume(long);
 	virtual int      GetPlayBuffer( void *pBufferToFill,int FillBufferSize );
+	virtual void     OnNoitfy(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 protected:
 	HRESULT PushBuffer(int nStart, int nCount);
@@ -81,8 +81,8 @@ public:
 	int     GetAvailable( DWORD* PlayCursor, DWORD* WriteCursor,int* bufferSize, BOOL fromPlayCursor );
 
 protected:
-	bool    EventMsgProc();
-	bool    PostThreadMessage(UINT uMsg, DSMSG_PARAM* pParam);
+//	bool    EventMsgProc();
+//	bool    PostThreadMessage(UINT uMsg, DSMSG_PARAM* pParam);
 	HRESULT OnSetCurPos(double dPercent);
 	HRESULT OnPlay();
 	HRESULT OnPause();
@@ -101,11 +101,14 @@ protected:
 
 	HANDLE         m_hEvents[NOTIFY_EVENT_COUNT];  // 各个position的通知事件
 	HANDLE         m_hEventThread;
-	DWORD          m_dwEventThreadID;              // 事件通知线程ID
+	DWORD          m_dwEventThreadID;              // 事件通知线程ID // TODO. 该变量可删除了
 
 	int            m_nDirectSoundBufferSize;       // 缓冲区的大小。作成一个成员变量，便于以后动态修改
 	int            m_nPerEventBufferSize;          // 每次事件需要填充的buffer大小，保存起来，只计算一次
 
 	CMP3*          m_pMgr;
-	CMessageOnlyWindow*  m_pWnd;
+	CMessageOnlyWindow*  m_pMessageOnlyWnd;
+	HWND           m_hMessageOnlyWnd;
+	
+	CRITICAL_SECTION  m_cs;
 };

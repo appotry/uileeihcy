@@ -117,24 +117,40 @@ HRESULT CMp3File::SetCurPos(double percent)
 	return S_OK;
 }
 
-HRESULT CMp3File::GetCurPos(double* pdSeconds, double* pdPercent)
+HRESULT CMp3File::GetCurPos(int nWriteBufferSize, double* pdSeconds, double* pdPercent)
 {
+	// 因为这里的mpg123_tell读取出来的计数是sample计数的，不是bytes计数，因此将nPlayBufferSize转化一下
+	nWriteBufferSize = nWriteBufferSize/(m_wfx.nChannels*m_wfx.wBitsPerSample>>3);  
+
 	if (NULL == m_hMpg123)
 		return E_FAIL;
 	if (NULL == pdSeconds || NULL == pdPercent)
 		return E_INVALIDARG;
 
 	off_t length = mpg123_length(m_hMpg123);
-	off_t cur = mpg123_tell(m_hMpg123);
+	off_t cur = mpg123_tell(m_hMpg123) - nWriteBufferSize;  // 减去已经加入缓存区的数据
 
 	if (0 == length)
 		return E_FAIL;
 
+	assert(cur >= 0);
+
 	*pdPercent = cur * 1.0 / length;
 
 	off_t curFrame = mpg123_tellframe(m_hMpg123);
-	double dFrameTime = mpg123_tpf(m_hMpg123);
+	if (curFrame < 0)
+		return E_FAIL;
 
-	*pdSeconds = dFrameTime * curFrame;
+	int   spf = mpg123_spf(m_hMpg123);
+	int   nPlayingFrame = curFrame;
+	if (nWriteBufferSize > 0)
+	{
+		nPlayingFrame = (int)((double)curFrame - spf*1.0/nWriteBufferSize);
+	}
+	
+	assert(nPlayingFrame >= 0);
+
+	double dFrameTime = mpg123_tpf(m_hMpg123);
+	*pdSeconds = dFrameTime * nPlayingFrame;
 	return S_OK;
 }

@@ -230,10 +230,10 @@ HRESULT CDirectShowEngine::SetVolume(long lVolumn)
 //
 // 从MessageOnlyWnd转发过来的消息，用于获取播放结束的消息
 //
-HRESULT CDirectShowEngine::OnNoitfy(UINT uMsg, WPARAM w, LPARAM l)
+void CDirectShowEngine::OnNoitfy(UINT uMsg, WPARAM w, LPARAM l)
 {
 	if( NULL == m_pMediaEventEx )
-		return 0;
+		return ;
 
 	long  lEventCode = 0;
 	long  lParam = 0;
@@ -242,7 +242,7 @@ HRESULT CDirectShowEngine::OnNoitfy(UINT uMsg, WPARAM w, LPARAM l)
 
 	HRESULT hr = m_pMediaEventEx->GetEvent( &lEventCode, &lParam, &lParam2, msTimeout );
 	if( FAILED(hr) )
-		return 0;
+		return;
 
 	switch( lEventCode )
 	{
@@ -256,5 +256,5 @@ HRESULT CDirectShowEngine::OnNoitfy(UINT uMsg, WPARAM w, LPARAM l)
 
 	m_pMediaEventEx->FreeEventParams(lEventCode, lParam, lParam2 );
 
-	return 0;
+	return;
 }

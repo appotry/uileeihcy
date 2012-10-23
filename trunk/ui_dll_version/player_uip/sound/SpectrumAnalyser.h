@@ -102,15 +102,15 @@ public:
 	HDC      m_hRenderWndMemDC;
 	HBITMAP  m_hMemBitmap;
 	HBITMAP  m_hOldBitmap;
-	volatile HBITMAP  m_hBkgndBmp;            // 窗口上的背景图。每一次的频谱图、波形图都绘制在该背景上
+	HBITMAP  m_hBkgndBmp;            // 窗口上的背景图。每一次的频谱图、波形图都绘制在该背景上
 
 	// 线程数据
 	HANDLE   m_hThread;              // 频谱分析线程
 	DWORD    m_dwThreadID;           // 频谱分析线程ID
 	LONG     m_bSuspend;             // 标志当前线程是否被挂起，被挂起时，不处理频谱分析。该变量仅在频谱分析线程中调用
 	HANDLE   m_hEventSuspend;        // 标志当前线程是否被挂起。例如停止、暂停时，不进行频谱分析
+	CRITICAL_SECTION  m_cs;
 
 	// 其它模块数据
 	ISoundEngine* m_pSoundEngine;
-
 };

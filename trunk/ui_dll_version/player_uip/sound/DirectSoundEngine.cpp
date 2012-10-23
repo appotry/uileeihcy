@@ -25,11 +25,13 @@ CDirectSoundEngine::CDirectSoundEngine(void)
 	m_dwEventThreadID = 0;
 
 	this->SetBufferSize(4068/*32*1024*/);
+	InitializeCriticalSection(&m_cs); 
 }
 
 CDirectSoundEngine::~CDirectSoundEngine(void)
 {
 	this->Release();
+	::DeleteCriticalSection(&m_cs);
 }
 DWORD WINAPI gNotifyThreadProc( LPVOID lpParameter)
 {
@@ -47,13 +49,14 @@ HRESULT CDirectSoundEngine::Init(CMP3* pMgr, CMessageOnlyWindow* pWndEvent)
 		return E_INVALIDARG;
 
 	m_pMgr = pMgr;
-	m_pWnd = pWndEvent;
+	m_pMessageOnlyWnd = pWndEvent;
+	m_hMessageOnlyWnd = pWndEvent->m_hWnd;
 	
 	HRESULT hr = ::DirectSoundCreate8(NULL, &m_pDirectSound8, NULL);
 	if (NULL == m_pDirectSound8)
 		return hr;
 
-	hr = m_pDirectSound8->SetCooperativeLevel(pWndEvent->m_hWnd, DSSCL_PRIORITY);  // 这个窗口句柄不能设置为NULL，否则会返回无效参数错误
+	hr = m_pDirectSound8->SetCooperativeLevel(m_hMessageOnlyWnd, DSSCL_PRIORITY);  // 这个窗口句柄不能设置为NULL，否则会返回无效参数错误
 	if (FAILED(hr))
 		return hr;
 
@@ -76,7 +79,8 @@ HRESULT CDirectSoundEngine::Release()
 
 	if(m_hEventThread != NULL)
 	{
-		this->PostThreadMessage(DSMSG_QUIT,NULL);
+//		this->PostThreadMessage(DSMSG_QUIT,NULL);
+		SetEvent(m_hEvents[NOTIFY_EVENT_COUNT-1]);
 		WaitForSingleObject(m_hEventThread, 2000);
 		TerminateThread(m_hEventThread, 0);
 		CloseHandle(m_hEventThread);
@@ -106,7 +110,7 @@ HRESULT CDirectSoundEngine::RenderFile( const TCHAR* szFile, const TCHAR* szExt 
 	if (NULL == m_pDirectSound8)
 		return E_FAIL;
 
-	this->ClearRender();
+	DECLARE_CS_PROTECT
 		
 	if (0 == _tcsicmp(szExt, _T("mp3")))
 	{
@@ -194,7 +198,9 @@ HRESULT  CDirectSoundEngine::ClearRender()  // 不能在这里立即delete m_pDirectSou
 	if (NULL == m_pCurFile || NULL == m_pDirectSoundBuffer8)
 		return E_FAIL;
 
-	this->PostThreadMessage(DSMSG_CLEAR, NULL);
+	DECLARE_CS_PROTECT;
+//	this->PostThreadMessage(DSMSG_CLEAR, NULL);
+	this->OnClearRender();
 	return S_OK;
 }
 
@@ -210,7 +216,10 @@ HRESULT CDirectSoundEngine::Play()
 	if (NULL == m_pCurFile || NULL == m_pDirectSoundBuffer8)
 		return E_FAIL;
 
-	this->PostThreadMessage(DSMSG_PLAY, NULL);
+	DECLARE_CS_PROTECT;
+
+//	this->PostThreadMessage(DSMSG_PLAY, NULL);
+	OnPlay();
 	return S_OK;
 }
 
@@ -226,9 +235,9 @@ HRESULT CDirectSoundEngine::OnPlay()
 	{
 		m_pMgr->GetSA()->Play();
 
-		m_pWnd->StartTimer(false);  // 这个是用于向UI层汇报进度和时间，注不要用 true参数，不是主线程
-		if (NULL != m_pWnd)         // 由于不是主线程中，postmessage通知界面立即更新当前进度
-			::PostMessage(m_pWnd->m_hWnd, WM_TIMER, TIMER_ID_PROGRESS, 0);
+		m_pMessageOnlyWnd->StartTimer(false);  // 这个是用于向UI层汇报进度和时间，注不要用 true参数，不是主线程
+		if (NULL != m_pMessageOnlyWnd)         // 由于不是主线程中，postmessage通知界面立即更新当前进度
+			::PostMessage(m_pMessageOnlyWnd->m_hWnd, WM_TIMER, TIMER_ID_PROGRESS, 0);
 	}
 	return hr;
 }
@@ -237,7 +246,9 @@ HRESULT CDirectSoundEngine::Pause()
 	if (NULL == m_pDirectSoundBuffer8)
 		return E_FAIL;
 
-	this->PostThreadMessage(DSMSG_PAUSE, NULL);
+	DECLARE_CS_PROTECT;
+//	this->PostThreadMessage(DSMSG_PAUSE, NULL);
+	OnPause();
 	return S_OK;
 }
 HRESULT CDirectSoundEngine::OnPause()
@@ -245,7 +256,7 @@ HRESULT CDirectSoundEngine::OnPause()
 	if (NULL == m_pDirectSoundBuffer8)
 		return E_FAIL;
 
-	m_pWnd->EndTimer();
+	m_pMessageOnlyWnd->EndTimer();
 	HRESULT hr = m_pDirectSoundBuffer8->Stop();
 	if (SUCCEEDED(hr))
 	{
@@ -258,7 +269,9 @@ HRESULT CDirectSoundEngine::Stop()
 	if (NULL == m_pCurFile || NULL == m_pDirectSoundBuffer8)
 		return E_FAIL;
 
-	this->PostThreadMessage(DSMSG_STOP, NULL);
+	DECLARE_CS_PROTECT;
+//	this->PostThreadMessage(DSMSG_STOP, NULL);
+	OnStop();
 	return S_OK;
 }
 
@@ -267,7 +280,7 @@ HRESULT CDirectSoundEngine::OnStop()
 	if (NULL == m_pCurFile || NULL == m_pDirectSoundBuffer8)
 		return E_FAIL;
 
-	m_pWnd->EndTimer();
+	m_pMessageOnlyWnd->EndTimer();
 
 	HRESULT hr = m_pDirectSoundBuffer8->Stop();
 	if(SUCCEEDED(hr))
@@ -299,7 +312,9 @@ HRESULT CDirectSoundEngine::SetCurPos(double percent)
 	if (NULL == m_pCurFile || NULL == m_pDirectSoundBuffer8)
 		return E_FAIL;
 
-	this->PostThreadMessage(DSMSG_SET_CUR_POS, BuildSetCurPosParam(percent));
+	DECLARE_CS_PROTECT;
+//	this->PostThreadMessage(DSMSG_SET_CUR_POS, BuildSetCurPosParam(percent));
+	OnSetCurPos(percent);
 	return S_OK;
 }
 HRESULT CDirectSoundEngine::OnSetCurPos(double dPercent)
@@ -339,8 +354,8 @@ HRESULT CDirectSoundEngine::OnSetCurPos(double dPercent)
 	}
 
 	// 通知界面立即更新当前进度
-	if (NULL != m_pWnd)
-		::PostMessage(m_pWnd->m_hWnd, WM_TIMER, TIMER_ID_PROGRESS, 0);
+	if (NULL != m_pMessageOnlyWnd)
+		::PostMessage(m_pMessageOnlyWnd->m_hWnd, WM_TIMER, TIMER_ID_PROGRESS, 0);
 
 	return S_OK;
 }
@@ -350,7 +365,18 @@ HRESULT CDirectSoundEngine::GetCurPos(double* pdSeconds, double* pdPercent)
 	if (NULL == m_pCurFile || NULL == m_pDirectSoundBuffer8)
 		return E_FAIL;
 
-	return m_pCurFile->GetCurPos(pdSeconds, pdPercent);
+	int process= 0;
+	DWORD PlayCursor = 0,WriteCursor = 0;
+	if (SUCCEEDED(m_pDirectSoundBuffer8->GetCurrentPosition(&PlayCursor,&WriteCursor)))
+	{
+		process = GetDistance(PlayCursor,WriteCursor);
+	}
+	else
+	{
+		return E_FAIL;
+	}
+	
+	return m_pCurFile->GetCurPos(process, pdSeconds, pdPercent);
 }
 HRESULT CDirectSoundEngine::SetVolume(long lVolumn)
 {
@@ -361,14 +387,14 @@ HRESULT CDirectSoundEngine::SetVolume(long lVolumn)
 	return hr;
 }
 
-bool CDirectSoundEngine::PostThreadMessage(UINT uMsg, DSMSG_PARAM* pParam)
-{
-	if (FALSE == ::PostThreadMessage(m_dwEventThreadID, uMsg, (WPARAM)pParam, 0))
-		return false;
-
-	::SetEvent(m_hEvents[POSITION_EVENT_COUNT]);
-	return true;
-}
+// bool CDirectSoundEngine::PostThreadMessage(UINT uMsg, DSMSG_PARAM* pParam)
+// {
+// 	if (FALSE == ::PostThreadMessage(m_dwEventThreadID, uMsg, (WPARAM)pParam, 0))
+// 		return false;
+// 
+// 	::SetEvent(m_hEvents[POSITION_EVENT_COUNT]);
+// 	return true;
+// }
 void CDirectSoundEngine::EventThreadProc()
 {
 	if (0 == POSITION_EVENT_COUNT)
@@ -387,21 +413,33 @@ void CDirectSoundEngine::EventThreadProc()
 		int nIndex = nRet - WAIT_OBJECT_0;
 		if (nIndex >= 0 && nIndex < POSITION_EVENT_COUNT)
 		{
+			DECLARE_CS_PROTECT;
+
+			if (NULL == m_pDirectSoundBuffer8)
+				continue;
+
 			if (FAILED (this->PushBuffer(m_nPerEventBufferSize*nIndex, m_nPerEventBufferSize)))
 			{
-				this->Stop();
-				m_pMgr->Fire_on_mp3_stop();
+				::PostMessage(m_hMessageOnlyWnd, EVENTEX_NOTIFY_MSG, 0, (LPARAM)this);
+				// this->Stop();
+				// m_pMgr->Fire_on_mp3_stop(); 该函数不支持多线程
 			}
 			else
 			{
 				
 			}
 		}
-		else if (nIndex == POSITION_EVENT_COUNT)
+
+ 		else if (nIndex == POSITION_EVENT_COUNT)
 		{
-			if(false == this->EventMsgProc())
-				return ;
+			// 退出的通知
+			return;
 		}
+// 		{
+// 			assert(0);
+// 			if(false == this->EventMsgProc())
+// 				return ;
+// 		}
 		else
 		{
 			continue;
@@ -414,45 +452,52 @@ void CDirectSoundEngine::EventThreadProc()
 }
 
 // 返回false表示该退出线程了
-bool CDirectSoundEngine::EventMsgProc()
+// bool CDirectSoundEngine::EventMsgProc()
+// {
+// 	MSG  msg;
+// 	while(::PeekMessage(&msg, NULL, NULL, NULL, PM_REMOVE))
+// 	{
+// 		DSMSG_PARAM* pDSMSG_PARAM = (DSMSG_PARAM*)msg.wParam;
+// 		switch(msg.message)
+// 		{
+// 		case DSMSG_SET_CUR_POS:
+// 			{
+// 				DSMSG_PARAM_SET_CUR_POS* pParam = static_cast<DSMSG_PARAM_SET_CUR_POS*>(pDSMSG_PARAM);
+// 				this->OnSetCurPos(pParam->dPercent);
+// 			}
+// 			break;
+// 		case DSMSG_PLAY:
+// 			this->OnPlay();
+// 			break;
+// 
+// 		case DSMSG_PAUSE:
+// 			this->OnPause();
+// 			break;
+// 
+// 		case DSMSG_STOP:
+// 			this->OnStop();
+// 			break;
+// 
+// 		case DSMSG_CLEAR:
+// 			this->OnClearRender();
+// 			break;
+// 
+// 		case DSMSG_QUIT:
+// 			return false;
+// 			break;
+// 
+// 		}
+// 
+// 		SAFE_DELETE(pDSMSG_PARAM);
+// 	}
+// 	return true;
+// }
+
+// 向message only window转发消息来切换当前线程
+void  CDirectSoundEngine::OnNoitfy(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	MSG  msg;
-	while(::PeekMessage(&msg, NULL, NULL, NULL, PM_REMOVE))
-	{
-		DSMSG_PARAM* pDSMSG_PARAM = (DSMSG_PARAM*)msg.wParam;
-		switch(msg.message)
-		{
-		case DSMSG_SET_CUR_POS:
-			{
-				DSMSG_PARAM_SET_CUR_POS* pParam = static_cast<DSMSG_PARAM_SET_CUR_POS*>(pDSMSG_PARAM);
-				this->OnSetCurPos(pParam->dPercent);
-			}
-			break;
-		case DSMSG_PLAY:
-			this->OnPlay();
-			break;
-
-		case DSMSG_PAUSE:
-			this->OnPause();
-			break;
-
-		case DSMSG_STOP:
-			this->OnStop();
-			break;
-
-		case DSMSG_CLEAR:
-			this->OnClearRender();
-			break;
-
-		case DSMSG_QUIT:
-			return false;
-			break;
-
-		}
-
-		SAFE_DELETE(pDSMSG_PARAM);
-	}
-	return true;
+	this->Stop();
+	m_pMgr->Fire_on_mp3_stop();
 }
 
 void CDirectSoundEngine::SetBufferSize(int nSize)
@@ -512,7 +557,7 @@ HRESULT CDirectSoundEngine::PushBuffer(int nStart, int nCount)
 DWORD CDirectSoundEngine::GetDistance( int Cursor1,int Cursor2 )
 {
 	int distance = Cursor2 - Cursor1;
-	while (distance < 0)
+	while (distance <= 0)
 		distance += m_nDirectSoundBufferSize;
 	return distance;
 }
@@ -562,6 +607,13 @@ int CDirectSoundEngine::GetAvailable( DWORD* PlayCursor, DWORD* WriteCursor,int*
 	return available;
 #endif
 }
+
+// TODO: 不能这样获取buffer
+// This method returns write pointers only. The application should not try to read sound data from this pointer, 
+// because the data might not be valid. For example, if the buffer is located in on-card memory, the pointer 
+// might be an address to a temporary buffer in system memory. When IDirectSoundBuffer8::Unlock is called, the
+// contents of this temporary buffer are transferred to the on-card memory.
+//
 int CDirectSoundEngine::GetPlayBuffer( void *pBufferToFill,int FillBufferSize )
 {
 	if (NULL == m_pDirectSoundBuffer8 || NULL == m_pCurFile)
@@ -603,3 +655,4 @@ int CDirectSoundEngine::GetPlayBuffer( void *pBufferToFill,int FillBufferSize )
 		return 0;
 	}
 }
+
