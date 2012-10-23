@@ -5,6 +5,8 @@
 #include "OptionWindow.h"
 #include "MainMgr.h"
 #include "EqualizerMgr.h"
+#define  TIMER_ID_RESTORE_STATUS_TEXT  1
+#define  TIME_RESTORE_STATUS_TEXT      2000
 
 MainWindow::MainWindow(void)
 {
@@ -87,9 +89,19 @@ void MainWindow::OnInitWindow()
 
 	if (NULL != m_pVolume)
 	{
-		m_pVolume->SetPos(100, false);
+		m_pVolume->SetPos(GetMainMgr()->GetConfigData()->player.m_byteVolumn, false);
 	}
 
+	if (NULL != m_pbtnMute)
+	{
+		if (GetMainMgr()->GetConfigData()->player.m_bMute)
+			m_pbtnMute->SetChecked();
+	}
+
+	if (NULL != m_pLabelPlaystatus)
+	{
+		m_strStatusText = m_pLabelPlaystatus->GetText();
+	}
 	::SetWindowText(m_hWnd, _T("Player_Demo"));
 
 // 	COptionWindow win;
@@ -113,7 +125,8 @@ void MainWindow::OnMp3Start(PlayerListItemInfo* pItemInfo)
 
 	if( NULL != m_pLabelPlaystatus )
 	{
-		m_pLabelPlaystatus->SetText(_T("×´Ì¬:²¥·Å"));
+		m_strStatusText = _T("×´Ì¬:²¥·Å");
+		m_pLabelPlaystatus->SetText(m_strStatusText);
 	}
 
 	::SetWindowText(m_hWnd, pItemInfo->GetFileName().c_str());
@@ -131,7 +144,8 @@ void MainWindow::OnMp3Continue()
 
 	if( NULL != m_pLabelPlaystatus )
 	{
-		m_pLabelPlaystatus->SetText(_T("×´Ì¬:²¥·Å"));
+		m_strStatusText = _T("×´Ì¬:²¥·Å");
+		m_pLabelPlaystatus->SetText(m_strStatusText);
 	}
 }
 
@@ -150,7 +164,8 @@ void MainWindow::OnMp3Pause()
 
 	if( NULL != m_pLabelPlaystatus )
 	{
-		m_pLabelPlaystatus->SetText(_T("×´Ì¬:ÔÝÍ£"));
+		m_strStatusText = _T("×´Ì¬:ÔÝÍ£");
+		m_pLabelPlaystatus->SetText(m_strStatusText);
 	}
 }
 
@@ -174,7 +189,8 @@ void MainWindow::OnMp3Stop()
 
 	if( NULL != m_pLabelPlaystatus )
 	{
-		m_pLabelPlaystatus->SetText(_T("×´Ì¬:Í£Ö¹"));
+		m_strStatusText = _T("×´Ì¬:Í£Ö¹");
+		m_pLabelPlaystatus->SetText(m_strStatusText);
 	}
 	if( NULL != m_pProgress )
 	{
@@ -192,10 +208,8 @@ void MainWindow::OnBnClickMute()
 	if( NULL == m_pbtnMute )
 		return;
 
-	if( m_pbtnMute->IsChecked() )
-		mp3_mute(true);
-	else
-		mp3_mute(false);
+	bool bMute = m_pbtnMute->IsChecked();
+	GetMainMgr()->SetMute(bMute);
 }
 
 void MainWindow::OnBnClickPrev()
@@ -539,7 +553,23 @@ void MainWindow::OnMusicProgressPosChanged( int nPos, int nScrollType )
 void MainWindow::OnVolumnChanged( int nPos, int nScrollType )
 {
 	if( nScrollType != SB_ENDSCROLL )
-		::mp3_set_volumn(nPos);
+	{
+		if (GetMainMgr()->SetVolumn(nPos))
+		{
+			if (NULL != m_pLabelPlaystatus)
+			{
+				TCHAR szInfo[16] = _T("");
+				_stprintf(szInfo, _T("ÒôÁ¿:%d%%"), nPos);
+				m_pLabelPlaystatus->SetText(String(szInfo));
+			}
+		}
+	}
+	else
+	{
+		KillTimer(m_hWnd, TIMER_ID_RESTORE_STATUS_TEXT);
+		SetTimer(m_hWnd, TIMER_ID_RESTORE_STATUS_TEXT, TIME_RESTORE_STATUS_TEXT, NULL);
+		//m_pLabelPlaystatus->SetText(m_strStatusText);
+	}
 }
 
 
@@ -585,26 +615,54 @@ void MainWindow::OnMp3ProgressInd(double dSeconds, double dPercent)
 	}
 }
 
-void MainWindow::OnMp3VolumeInd(long lVolumn)
+void MainWindow::OnBalanceChanged(long lPercent, bool bFinish)
 {
-	if( ::GetCapture() == m_hWnd )  // ÕýÔÚÍÏ×§¹ý³ÌÖÐ
+	if (bFinish)
 	{
-		Object* pObj = this->GetPressObject();
-		if( NULL != pObj )
-		{
-			if( pObj == m_pVolume || pObj->GetParentObject() == m_pVolume )
-			{
-				return;
-			}
-		}
+//		m_pLabelPlaystatus->SetText(m_strStatusText);
+		KillTimer(m_hWnd, TIMER_ID_RESTORE_STATUS_TEXT);
+		SetTimer(m_hWnd, TIMER_ID_RESTORE_STATUS_TEXT, TIME_RESTORE_STATUS_TEXT, NULL);
 	}
+	else
+	{
 
-	int percent = (10000 + lVolumn) / 100;
-	if( NULL != m_pVolume )
-	{
-		m_pVolume->SetPos(percent);
+		TCHAR szInfo[16] = _T("");
+		if (lPercent < 0)
+		{
+			_stprintf(szInfo, _T("Æ«×ó:%d%%"), -lPercent);
+		}
+		else if (lPercent > 0)
+		{
+			_stprintf(szInfo, _T("Æ«ÓÒ:%d%%"), lPercent);
+		}
+		else 
+		{
+			_stprintf(szInfo, _T("Æ½ºâ:¾ÓÖÐ"));
+		}
+		m_pLabelPlaystatus->SetText(String(szInfo));
 	}
+		
 }
+// void MainWindow::OnMp3VolumeInd(long lVolumn)
+// {
+// 	if( ::GetCapture() == m_hWnd )  // ÕýÔÚÍÏ×§¹ý³ÌÖÐ
+// 	{
+// 		Object* pObj = this->GetPressObject();
+// 		if( NULL != pObj )
+// 		{
+// 			if( pObj == m_pVolume || pObj->GetParentObject() == m_pVolume )
+// 			{
+// 				return;
+// 			}
+// 		}
+// 	}
+// 
+// 	int percent = (10000 + lVolumn) / 100;
+// 	if( NULL != m_pVolume )
+// 	{
+// 		m_pVolume->SetPos(percent);
+// 	}
+// }
 
 void MainWindow::OnPlayerListDlgCreated(HWND hWnd)
 {
@@ -670,4 +728,40 @@ void MainWindow::OnSkinChanged()
 
 		GetMainMgr()->SetVisualizationBkgndBmpAndRect(hBitmap, &rc);
 	}
+}
+
+void MainWindow::OnTimer(UINT_PTR nIDEvent, LPARAM lParam)
+{
+	if (nIDEvent == TIMER_ID_RESTORE_STATUS_TEXT)
+	{
+		KillTimer(m_hWnd, nIDEvent);
+		if (NULL != m_pLabelPlaystatus)
+		{
+			m_pLabelPlaystatus->SetText(m_strStatusText);
+		}
+	}
+}
+BOOL MainWindow::OnMouseWheel(UINT nFlags, short zDelta, POINT pt)
+{
+	if (NULL != m_pVolume)
+	{
+		int nPos = m_pVolume->GetPos();
+		if (zDelta>0)
+		{
+			nPos += 3;
+		}
+		else
+		{
+			nPos -= 3;
+		}
+		if (nPos < 0)
+			nPos = 0;
+		if (nPos > 100)
+			nPos = 100;
+		m_pVolume->SetPos(nPos);
+
+		this->OnVolumnChanged(nPos, SB_ENDSCROLL+1);
+		this->OnVolumnChanged(nPos, SB_ENDSCROLL);
+	}
+	return TRUE;
 }

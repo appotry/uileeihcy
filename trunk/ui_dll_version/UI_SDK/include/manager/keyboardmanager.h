@@ -36,7 +36,7 @@ private:
 	void     KeyDown( WPARAM,LPARAM );
 	void     KeyUp( WPARAM,LPARAM );
 	void     NcDestroy();
-	void     MouseWheel( WPARAM, LPARAM );
+	long     MouseWheel( WPARAM, LPARAM );
 
 public:
 	void     Tab_2_NextControl();

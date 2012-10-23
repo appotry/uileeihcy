@@ -56,7 +56,7 @@
                   transparent.type="maskcolor" transparent.maskcolor="maskcolor" >
       <Button     id="sys_close" styleclass="imagebtn" bkgnd.render.image="close.png" layout.right="6" layout.top="4"/>
       <SliderCtrl id="progress_pan" height="15" width="50" layout.left="114" layout.top="38" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_balance.png" />
-      <SliderCtrl id="progress_hue2" height="15" width="53" layout.left="203" layout.top="38" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_balance.png" />
+      <SliderCtrl id="progress_3d" height="15" width="53" layout.left="203" layout.top="38" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_balance.png" />
       <Button     id="btn_enable"   styleclass="imagebtn"  bkgnd.render.image="eq_enabled.bmp" layout.top="38" layout.left="18"/>
       <Button     id="btn_profile"  styleclass="imagebtn"  bkgnd.render.image="eq_profile.png" layout.top="36" layout.left="39"/>
       <Button     id="btn_reset"    styleclass="imagebtn"  bkgnd.render.image="reset.png" margin="3,0,3,0" layout.top="36" layout.left="59"/>

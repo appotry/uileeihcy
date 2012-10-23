@@ -29,7 +29,9 @@ public:
 	void     HandleEvent(IMgr* pSource, int nEventType, int nEventId, WPARAM wParam, LPARAM lParam);
 	CConfigData*  GetConfigData() { return &m_config; }
 
-	bool     SetMute(bool bMute){return false;}
+	bool     SetMute(bool bMute);
+	bool     SetVolumn(long lPercent);
+
 protected:	
 	virtual void   on_mp3_stop();
 	virtual void   on_mp3_progress_ind(double dSeconds, double dPercent);

@@ -784,10 +784,23 @@ void SliderCtrlBase::OnBtnLButtonUp(UINT nFlags, POINT point)
 
 void SliderCtrlBase::OnStateChanged(int nOld, int nNew)
 {
-	if (nOld&CSB_FOCUS && !(nNew&CSB_FOCUS) ||
-		nNew&CSB_FOCUS && !(nOld&CSB_FOCUS))
+	// TODO: 绘制焦点focus rect。还需要继续拦截button的focus变化
+// 	if (nOld&CSB_FOCUS && !(nNew&CSB_FOCUS) ||
+// 		nNew&CSB_FOCUS && !(nOld&CSB_FOCUS))
+// 	{
+// 		this->UpdateObject();
+// 	}
+// 	else
+	if (m_pButton != NULL)
 	{
-		this->UpdateObject();
+		if(nOld&OSB_DISABLE && !(nNew&OSB_DISABLE))
+		{
+			m_pButton->SetEnable(true);
+		}
+		else if (nNew&OSB_DISABLE && !(nOld&OSB_DISABLE))
+		{
+			m_pButton->SetEnable(false);
+		}
 	}
 }
 

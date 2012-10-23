@@ -28,5 +28,5 @@ public:
 	SliderCtrl* m_pS;
 
 	SliderCtrl* m_pBalance;
-
+	SliderCtrl* m_p3DSound;  // 暂不支持杜比环绕立体声，没有设备
 };

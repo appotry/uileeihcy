@@ -1202,11 +1202,14 @@ void Object::SetEnable( bool b )
 	}
 
 	bool bOld = IsEnable();
+	int  nOldBits = m_nStateBit;
 	if( b )
 		this->clearStateBit( OSB_DISABLE );
 	else
 		this->setStateBit( OSB_DISABLE );
-		
+	
+	UISendMessage(this, UI_WM_STATECHANGED, nOldBits, m_nStateBit);
+
 	if( b != bOld )
 		this->UpdateObject();
 }

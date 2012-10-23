@@ -11,6 +11,7 @@ CEqualizerDlg::CEqualizerDlg()
 	m_pS = NULL;
 
 	m_pBalance = NULL;
+	m_p3DSound = NULL;
 }
 void CEqualizerDlg::OnInitWindow( )
 {
@@ -52,11 +53,17 @@ void CEqualizerDlg::OnInitWindow( )
 	}
 
 	m_pBalance = (SliderCtrl*)this->FindChildObject(_T("progress_pan"));
+	m_p3DSound = (SliderCtrl*)this->FindChildObject(_T("progress_3d"));
+
 	if (NULL != m_pBalance)
 	{
 		m_pBalance->SetRange(-10,10, false);
 		int nPercent = GetMainMgr()->GetConfigData()->player.m_byteBalance;
 		m_pBalance->SetPos(nPercent/10, false);
+	}
+	if (NULL != m_p3DSound)
+	{
+		m_p3DSound->SetEnable(false);
 	}
 }
 void CEqualizerDlg::OnClose()
@@ -92,6 +99,5 @@ void CEqualizerDlg::OnHLSChanged_S( int nPos, int nScrollType )
 
 void CEqualizerDlg::OnBalanceChanged( int nPos, int nScrollType )
 {
-	if (nScrollType != SB_ENDSCROLL)
-		GetEqualizerMgr()->SetBalance(nPos*10);  // 百分制
+	GetEqualizerMgr()->SetBalance(nPos*10, SB_ENDSCROLL==nScrollType);  // 百分制
 }
