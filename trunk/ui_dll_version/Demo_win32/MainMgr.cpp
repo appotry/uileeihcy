@@ -31,6 +31,7 @@ bool CMainMgr::Initialize()
 	::GetEqualizerMgr();  // 初始化均衡器Mgr
 
 	::mp3_mute(m_config.player.m_bMute);
+	::mp3_set_volumn(m_config.player.m_byteVolumn);
 
 	m_pMainWindow->ShowWindow();
 	::UpdateWindow(m_pMainWindow->m_hWnd);
@@ -139,6 +140,10 @@ void CMainMgr::HandleEvent(IMgr* pSource, int nEventType, int nEventId, WPARAM w
 				{
 					m_pCurPlayingItem = NULL;
 				}
+			}
+			else if (PLAY_EVENT_ID_BALANCE_CHANGED == nEventId)
+			{
+				m_pMainWindow->OnBalanceChanged(wParam, lParam?true:false);
 			}
 		}
 		break;
@@ -270,6 +275,29 @@ bool CMainMgr::SetVisualizationBkgndBmpAndRect(HBITMAP hBitmap, RECT* prc)
 	CopyRect(&info.rcRender, prc);
 	return mp3_set_visualization(&info);
 }
+
+bool CMainMgr::SetMute(bool bMute)
+{
+	bool bRet = mp3_mute(bMute);
+	if (bRet)
+	{
+		m_config.player.m_bMute = bMute;
+		m_config.player.m_bDirty = true;
+	}
+	return bRet;
+}
+
+bool CMainMgr::SetVolumn(long lPercent)
+{
+	bool bRet = ::mp3_set_volumn(lPercent);
+	if (bRet)
+	{
+		m_config.player.m_byteVolumn = (byte)lPercent;
+		m_config.player.m_bDirty = true;
+	}
+	return bRet;
+}
+
 void CMainMgr::on_mp3_stop()
 {
 	FireEvent(EVENT_TYPE_PLAY, PLAY_EVENT_ID_ON_STOP);
@@ -288,10 +316,11 @@ void CMainMgr::on_mp3_progress_ind(double dSeconds, double dPercent)
 		m_pMainWindow->OnMp3ProgressInd(dSeconds, dPercent);
 	}
 }
-void CMainMgr::on_mp3_volume_ind(long lVolumn)
+void CMainMgr::on_mp3_volume_ind(long lVolumn)  // 该回调已废弃
 {
-	if (NULL != m_pMainWindow)
-	{
-		m_pMainWindow->OnMp3VolumeInd(lVolumn);
-	}
+// 	if (NULL != m_pMainWindow)
+// 	{
+// 		m_pMainWindow->OnMp3VolumeInd(lVolumn);
+// 	}
 }
+

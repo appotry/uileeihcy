@@ -17,7 +17,7 @@ public:
 
 	virtual  void  HandleEvent(IMgr* pSource, int nEventType, int nEventId, WPARAM wParam, LPARAM lParam);
 
-	bool   SetBalance(long lPercent);
+	bool   SetBalance(long lPercent, bool bFinish);
 
 private:
 	CEqualizerDlg*   m_pEqualizerDlg;

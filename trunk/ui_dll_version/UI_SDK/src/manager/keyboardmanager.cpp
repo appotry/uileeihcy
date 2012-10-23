@@ -151,9 +151,9 @@ LRESULT KeyboardManager::HandleMessage( UINT msg, WPARAM w, LPARAM l )
 		break;
 
 	case WM_MOUSEWHEEL:
-		this->MouseWheel(w,l);
+		return this->MouseWheel(w,l);  // 该消息可能需要上抛给主窗口处理
 	}
-	return 0L;
+	return 1L;  // 表示已经处理了该消息
 }
 
 void KeyboardManager::NcDestroy()
@@ -222,12 +222,13 @@ void KeyboardManager::KeyUp( WPARAM w,LPARAM l )
 	}
 }
 
-void KeyboardManager::MouseWheel( WPARAM w, LPARAM l )
+long KeyboardManager::MouseWheel( WPARAM w, LPARAM l )
 {
 	if( this->m_pFocusObject != NULL )
 	{
-		UISendMessage( m_pFocusObject, WM_MOUSEWHEEL, w, l );
+		return UISendMessage( m_pFocusObject, WM_MOUSEWHEEL, w, l );
 	}
+	return 0;
 }
 
 void KeyboardManager::Tab_2_NextControl()

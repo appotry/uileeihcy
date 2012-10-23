@@ -37,6 +37,7 @@ enum PLAYER_PALY_EVENT_ID
 	PLAY_EVENT_ID_ON_STOP,
 	PLAY_EVENT_ID_REMOVEALL,                // 播放列表被清空
 	PLAY_EVENT_ID_REMOVEITEM,               // 删除某一项，WPARAM: PlayItemInfo*
+	PLAY_EVENT_ID_BALANCE_CHANGED,          // 修改了平衡参数, WPARAM: -100 - 100
 };
 
 

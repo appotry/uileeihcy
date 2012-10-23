@@ -23,10 +23,12 @@ public:
 		UIMSG_BN_CLICKED( _T("btn_prev"),  OnBnClickPrev )
 		UIMSG_BN_CLICKED( _T("btn_next"),  OnBnClickNext )
 		UIMSG_TRBN_POSCHANGED_ID( _T("progress_music"), OnMusicProgressPosChanged )
-		UIMSG_TRBN_POSCHANGED_ID( _T("progress_voice"), OnVolumnChanged )
+		UIMSG_TRBN_POSCHANGED( m_pVolume, OnVolumnChanged )
 
 		UIMSG_WM_SKINHLSCHANGED(OnSkinHLSChanged)
 		UIMSG_WM_SKINCHANGED(OnSkinChanged)
+		UIMSG_WM_TIMER(OnTimer)
+		UIMSG_WM_MOUSEWHEEL(OnMouseWheel)
 // 		UIMSG_WM_LBUTTONDOWN( OnLButtonDown )
 // 		UIMSG_WM_LBUTTONUP( OnLButtonUp )
 // 		UIMSG_WM_MOUSEMOVE( OnMouseMove )
@@ -68,18 +70,21 @@ public:
 	void    OnSysCommand(UINT nID, CPoint lParam);
 	void    OnSkinHLSChanged();
 	void    OnSkinChanged();
+	BOOL    OnMouseWheel(UINT nFlags, short zDelta, POINT pt);
 	
 	void    OnMp3Start(PlayerListItemInfo* pItemInfo);
 	void    OnMp3Pause();
 	void    OnMp3Stop();
 	void    OnMp3Continue();
 	void    OnMp3ProgressInd(double dSeconds, double dPercent);
-	void    OnMp3VolumeInd(long lVolumn);
+//	void    OnMp3VolumeInd(long lVolumn);
 
 	void    OnPlayerListDlgCreated(HWND hWnd);
 	void    OnPlayerListDlgVisibleChanged(HWND wParam, BOOL lParam);
 	void    OnEqualizerDlgCreated(HWND hWnd);
 	void    OnEqualizerDlgVisibleChanged(HWND wParam, BOOL lParam);
+	void    OnBalanceChanged(long lPercent, bool bFinish);
+	void    OnTimer(UINT_PTR nIDEvent, LPARAM lParam);
 
 // 	void    OnLButtonDown(UINT nFlags, POINT point);
 // 	void    OnLButtonUp(UINT nFlags, POINT point);
@@ -117,4 +122,6 @@ protected:
 	LEDCtrl*        m_pLEDTime;
 	SliderCtrl*     m_pProgress;
 	SliderCtrl*     m_pVolume;
+
+	String     m_strStatusText;
 };

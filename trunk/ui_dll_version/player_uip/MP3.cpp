@@ -190,7 +190,7 @@ bool CMP3::SetVolume(long lPercent)
 		return true;
 
 	if (NULL == m_pCurrentEngine)
-		return false;
+		return true;
 	
 	if (SUCCEEDED(m_pCurrentEngine->SetVolume(m_nVolumn)))
 		return true;

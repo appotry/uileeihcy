@@ -932,9 +932,12 @@ LRESULT WindowBase::_OnHandleMouseMessage( UINT uMsg, WPARAM wParam, LPARAM lPar
 }
 LRESULT WindowBase::_OnHandleKeyboardMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
 {
-	bHandled = TRUE;
-
-	this->m_MgrKeyboard.HandleMessage( uMsg, wParam, lParam );
+	bHandled = FALSE;
+	bool bRet = this->m_MgrKeyboard.HandleMessage( uMsg, wParam, lParam );
+	if (bRet)
+	{
+		bHandled = TRUE;
+	}
 	return 1;
 }
 LRESULT WindowBase::_OnSetFocus( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )

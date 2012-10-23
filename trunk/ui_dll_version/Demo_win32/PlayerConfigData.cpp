@@ -105,6 +105,7 @@ bool  CPlayerConfigData::Load(CConfigData* pData)
 
 bool CPlayerConfigData::Save(CConfigData* pData)
 {
+	bool  bNeedSave = false;
 	TCHAR szText[64] = _T("");
 	do
 	{
@@ -116,7 +117,7 @@ bool CPlayerConfigData::Save(CConfigData* pData)
 		{
 			if (false == m_xml.FindElem(_T("Player")))
 			{
-				m_xml.InsertElem(_T("Visual"));
+				m_xml.InsertElem(_T("Player"));
 			}
 
 			_stprintf(szText, _T("%d"), pData->player.m_bMute?1:0);
@@ -125,6 +126,8 @@ bool CPlayerConfigData::Save(CConfigData* pData)
 			m_xml.SetAttrib(_T("Volume"), szText);
 			_stprintf(szText, _T("%d"), pData->player.m_byteBalance);
 			m_xml.SetAttrib(_T("Balance"), szText);
+
+			bNeedSave = true;
 		}
 
 		if (pData->visual.m_bDirty)
@@ -137,11 +140,16 @@ bool CPlayerConfigData::Save(CConfigData* pData)
 			m_xml.SetAttrib(_T("Type"), szText);
 			_stprintf(szText, _T("%d"), pData->visual.m_nFps);
 			m_xml.SetAttrib(_T("FramesPerSec"), szText);
-		}
 
-		
+			bNeedSave = true;
+		}
 	}
 	while(0);
+
+	if (!bNeedSave)
+	{
+		return true;
+	}
 
 	String  strConfigXmlPath;
 	this->GetConfigXmlPath(strConfigXmlPath);

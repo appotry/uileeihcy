@@ -72,7 +72,7 @@ void CEqualizerMgr::HandleEvent(IMgr* pSource, int nEventType, int nEventId, WPA
 	}
 }
 
-bool CEqualizerMgr::SetBalance(long lPercent)
+bool CEqualizerMgr::SetBalance(long lPercent, bool bFinish)
 {
 	bool bRet = ::mp3_set_pan(lPercent);
 	
@@ -80,6 +80,8 @@ bool CEqualizerMgr::SetBalance(long lPercent)
 	{
 		GetMainMgr()->GetConfigData()->player.m_byteBalance = (char)lPercent;
 		GetMainMgr()->GetConfigData()->player.m_bDirty = true;
+
+		this->FireEvent(EVENT_TYPE_PLAY, PLAY_EVENT_ID_BALANCE_CHANGED, (WPARAM)lPercent, (LPARAM)bFinish);
 	}
 	return bRet;
 }

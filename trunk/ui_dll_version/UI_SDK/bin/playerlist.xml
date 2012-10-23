@@ -3,15 +3,56 @@
   
   <!--加载的播放文件列表-->
   <playlist>
-<item>G:\Misuc\1.MP3</item>
-<item>G:\Misuc\pal3.wma</item>
-<item>G:\Misuc\Take me away.mp3</item>
-<item>G:\Misuc\wine-of-bincos-lunba.mp3</item>
-<item>G:\Misuc\一生何求xx.mp3</item>
-<item>G:\Misuc\又见炊烟.mp3</item>
-<item>G:\Misuc\宁夏.mp3</item>
-<item>G:\Misuc\宁夏128kb.mp3</item>
-<item>G:\Misuc\滴答.mp3</item>
-<item>G:\Misuc\萧人凤 - 仙剑问情（仙剑奇侠传）.mp3</item>
+<item>E:\歌曲库\Take me away.mp3</item>
+<item>E:\歌曲库\三生石 三生路.mp3</item>
+<item>E:\歌曲库\两只蝴蝶.mp3</item>
+<item>E:\歌曲库\云河-邓丽君.mp3</item>
+<item>E:\歌曲库\人约黄昏后-邓丽君.mp3</item>
+<item>E:\歌曲库\何日君再来-邓丽君.mp3</item>
+<item>E:\歌曲库\凤阳花鼓-邓丽君.mp3</item>
+<item>E:\歌曲库\小城故事-邓丽君.mp3</item>
+<item>E:\歌曲库\小螺号-程琳.mp3</item>
+<item>E:\歌曲库\就是爱-蔡依林.mp3</item>
+<item>E:\歌曲库\属于80后的190首经典歌曲\Beyonce(碧昂斯)-Halo.mp3</item>
+<item>E:\歌曲库\属于80后的190首经典歌曲\Britney Spears(布兰妮)-Baby one more time.mp3</item>
+<item>E:\歌曲库\属于80后的190首经典歌曲\Britney Spears-3.mp3</item>
+<item>E:\歌曲库\属于80后的190首经典歌曲\Dido(蒂朵)-Thank You.mp3</item>
+<item>E:\歌曲库\属于80后的190首经典歌曲\Eagles(老鹰乐队)-hotel california(加洲旅馆).mp3</item>
+<item>E:\歌曲库\属于80后的190首经典歌曲\F.I.R(飞儿乐团)-我们的爱.mp3</item>
+<item>E:\歌曲库\属于80后的190首经典歌曲\Green Day-21 Guns.mp3</item>
+<item>E:\歌曲库\属于80后的190首经典歌曲\Groove Coverage(舞动精灵乐团)-Far Away From Home.mp3</item>
+<item>E:\歌曲库\属于80后的190首经典歌曲\jason mraz-try try try.mp3</item>
+<item>E:\歌曲库\属于80后的190首经典歌曲\Jay sean-down.mp3</item>
+<item>E:\歌曲库\属于80后的190首经典歌曲\Jay-Z&amp;Rihanna&amp;Kanye West-Run This Town.mp3</item>
+<item>E:\歌曲库\属于80后的190首经典歌曲\Kanye West(坎耶·维斯特)&amp;T-Pain-Good Life.mp3</item>
+<item>E:\歌曲库\属于80后的190首经典歌曲\Lenka-The Show.mp3</item>
+<item>E:\歌曲库\属于80后的190首经典歌曲\Taylor Swift(泰勒史薇芙特)-You Belong With Me.mp3</item>
+<item>E:\歌曲库\属于80后的190首经典歌曲\The Beatles-Let It Be.mp3</item>
+<item>E:\歌曲库\属于80后的190首经典歌曲\The Ting Tings-That's Not My Name.mp3</item>
+<item>E:\歌曲库\属于80后的190首经典歌曲\Usher-Papers.mp3</item>
+<item>E:\歌曲库\属于80后的190首经典歌曲\Whitney Houston(惠特尼.休斯顿)-Salute.mp3</item>
+<item>E:\歌曲库\属于80后的190首经典歌曲\三生石 三生路.mp3</item>
+<item>E:\歌曲库\属于80后的190首经典歌曲\后弦&amp;SARA-你还欠我一个拥抱.mp3</item>
+<item>E:\歌曲库\属于80后的190首经典歌曲\江美琪-亲爱的你怎么不在我身边.mp3</item>
+<item>E:\歌曲库\属于80后的190首经典歌曲\蔡依林-说爱你.mp3</item>
+<item>E:\歌曲库\属于80后的190首经典歌曲\蔡健雅-无底洞.mp3</item>
+<item>E:\歌曲库\属于80后的190首经典歌曲\蔡淳佳-依恋.mp3</item>
+<item>E:\歌曲库\属于80后的190首经典歌曲\费玉清-一剪梅.mp3</item>
+<item>E:\歌曲库\属于80后的190首经典歌曲\郭静-下一个天亮.mp3</item>
+<item>E:\歌曲库\忘不了-邓丽君.MP3</item>
+<item>E:\歌曲库\映山红.mp3</item>
+<item>E:\歌曲库\晚风花香-邓丽君.mp3</item>
+<item>E:\歌曲库\枉凝眉-红楼梦.mp3</item>
+<item>E:\歌曲库\格格 - 火苗.mp3</item>
+<item>E:\歌曲库\梅花-邓丽君.mp3</item>
+<item>E:\歌曲库\波斯猫-S.H.E.mp3</item>
+<item>E:\歌曲库\相聚-程琳.mp3</item>
+<item>E:\歌曲库\简单爱.MP3</item>
+<item>E:\歌曲库\紫菱洲歌-红楼梦.mp3</item>
+<item>E:\歌曲库\美酒加咖啡-邓丽君.MP3</item>
+<item>E:\歌曲库\茉莉花.mp3</item>
+<item>E:\歌曲库\路边的野花不要采-邓丽君.mp3</item>
+<item>E:\歌曲库\送大哥-李谷一.mp3</item>
+<item>E:\歌曲库\雨夜花-邓丽君.mp3</item>
 </playlist>
 </config>
