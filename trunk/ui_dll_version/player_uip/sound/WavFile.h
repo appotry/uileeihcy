@@ -15,7 +15,7 @@ public:
 	virtual  HRESULT   Read(BYTE* pBuffer, DWORD dwSizeToRead, DWORD* pdwSizeRead);
 
 	virtual  HRESULT   SetCurPos(double percent);
-	virtual  HRESULT   GetCurPos(double* pdSeconds, double* pdPercent) ;
+	virtual  HRESULT   GetCurPos(int nWriteBufferSize, double* pdSeconds, double* pdPercent) ;
 
 protected:
 	HRESULT  Close();

@@ -20,6 +20,7 @@ public:
 	virtual HRESULT  GetCurPos(double* pdSeconds, double* pdPercent) = 0;
 	virtual HRESULT  SetVolume(long) = 0;
 	virtual int      GetPlayBuffer( void *pBufferToFill,int FillBufferSize ) = 0;
+	virtual void     OnNoitfy(UINT uMsg, WPARAM w, LPARAM l) = 0;
 };
 
 

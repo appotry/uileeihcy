@@ -14,7 +14,7 @@ public:
 	virtual  HRESULT   Read(BYTE* pBuffer, DWORD dwSizeToRead, DWORD* pdwSizeRead);
 
 	virtual  HRESULT   SetCurPos(double percent);
-	virtual  HRESULT   GetCurPos(double* pdSeconds, double* pdPercent);
+	virtual  HRESULT   GetCurPos(int nWriteBufferSize, double* pdSeconds, double* pdPercent);
 protected:
 	mpg123_handle*     m_hMpg123;   // mp3解码器
 	bool     m_bFileOpened;    // 为了解决文件不存在时，mpg123_open返回-1，此时再

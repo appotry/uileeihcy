@@ -19,11 +19,12 @@ void CMessageOnlyWindow::SetEnginePtr(CMP3* pMgr, CDirectShowEngine* p1, CDirect
 
 HRESULT CMessageOnlyWindow::OnNotifyMsg(UINT msg, WPARAM w, LPARAM l)
 {
-	CDirectShowEngine* pThis = (CDirectShowEngine*)l;
+	ISoundEngine* pThis = (CDirectShowEngine*)l;
 	if( NULL == pThis )
 		return 0;
 
-	return pThis->OnNoitfy(msg, w, l);
+	pThis->OnNoitfy(msg, w, l);
+	return 0;
 }
 
 void CMessageOnlyWindow::OnTimer(UINT_PTR nIDEvent)

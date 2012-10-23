@@ -201,12 +201,14 @@ HRESULT CWmaFile::SetCurPos(double percent)
 	HRESULT hr = m_pWMSyncReader->SetRange(qw, 0);
 	return hr;
 }
-HRESULT CWmaFile::GetCurPos(double* pdSeconds, double* pdPercent)
+HRESULT CWmaFile::GetCurPos(int nWriteBufferSize, double* pdSeconds, double* pdPercent)
 {
 	if (NULL == m_pWMSyncReader || 0 == m_nDuration.QuadPart)
 		return E_FAIL;
 
-	*pdSeconds = (double)(m_nSampleTime/10000000);
+	double dDiff = nWriteBufferSize*1.0/m_wfx.nAvgBytesPerSec;  // 已经加入缓存区的数据
+
+	*pdSeconds = (double)(m_nSampleTime/10000000.0) - dDiff;
 	*pdPercent = (double)(m_nSampleTime*1.0/m_nDuration.QuadPart);
 
 	return S_OK;

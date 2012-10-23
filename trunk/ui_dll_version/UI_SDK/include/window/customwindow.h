@@ -31,6 +31,7 @@ public:
 		MESSAGE_HANDLER(WM_NCPAINT, _OnNcPaint)
 		MESSAGE_HANDLER(WM_NCACTIVATE, _OnNcActivate)
 		MESSAGE_HANDLER(WM_NCDESTROY,  _OnNcDestroy)
+		MESSAGE_HANDLER(WM_WINDOWPOSCHANGING, _OnWindowPosChanging)
 		MESSAGE_HANDLER(WM_WINDOWPOSCHANGED, _OnWindowPosChanged)
 		MESSAGE_HANDLER(WM_CANCELMODE, _OnCancelMode)
 		CHAIN_MSG_MAP(Window)
@@ -93,6 +94,7 @@ protected:
 	LRESULT  _OnNcPaint( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
 	LRESULT  _OnNcActivate( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
 	LRESULT  _OnNcDestroy( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+	LRESULT  _OnWindowPosChanging( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
 	LRESULT  _OnWindowPosChanged( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
 	LRESULT  _OnCancelMode( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
 	
@@ -169,6 +171,7 @@ public:
 	void      InitLayeredWindow();
 	void      ReleaseLayeredWindow();
 	void      OnSize( UINT nType, int cx, int cy );
+	void      OnWindowPosChanging(LPWINDOWPOS lpWndPos);
 	void      OnWindowPosChanged(LPWINDOWPOS lpWndPos);
 	void      InvalidateObject( Object* pInvalidateObj, bool bUpdateNow );
 	HRDC      BeginDrawObject( Object* pInvalidateObj);

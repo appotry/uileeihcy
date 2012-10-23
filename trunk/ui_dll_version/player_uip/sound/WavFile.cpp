@@ -296,15 +296,17 @@ HRESULT CWavFile::SetCurPos(double percent)
 
 	return S_OK;
 }
-HRESULT CWavFile::GetCurPos(double* pdSeconds, double* pdPercent) 
+HRESULT CWavFile::GetCurPos(int nWriteBufferSize, double* pdSeconds, double* pdPercent) 
 {
 	if (m_dwSize == 0)
 		return E_FAIL;
 
 	int bytesPerSec = (m_wfx.nChannels*(m_wfx.wBitsPerSample>>3)*m_wfx.nSamplesPerSec);
-	if (0 != bytesPerSec)
-		*pdSeconds = (m_dwSize-m_ck.cksize)/bytesPerSec;
+	int nPlayedBytes = m_dwSize-(m_ck.cksize+nWriteBufferSize);    // 减去已经加入缓存区的数据
 
-	*pdPercent = (m_dwSize-m_ck.cksize)*1.0/m_dwSize;
+	if (0 != bytesPerSec)
+		*pdSeconds = nPlayedBytes/bytesPerSec;
+
+	*pdPercent = nPlayedBytes*1.0/m_dwSize;
 	return S_OK;
 }

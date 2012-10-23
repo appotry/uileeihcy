@@ -88,6 +88,20 @@ LRESULT CustomWindow::_OnNcActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 // 注：在这里没有使用响应WM_SHOWWINDOW来通过分层窗口刷新，因为在响应WM_SHOWWINDOW的时候，IsWindowVisible还是FALSE
 //     因此改用OnWindowPosChanged来得到窗口显示的时机，通过分层窗口刷新
 //   
+LRESULT CustomWindow::_OnWindowPosChanging( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
+{
+	bHandled = FALSE;
+	LPWINDOWPOS lpWndPos = (LPWINDOWPOS)lParam;
+
+	if (NULL != m_pLayeredWindowWrap)
+	{
+		m_pLayeredWindowWrap->OnWindowPosChanging(lpWndPos);
+	}
+	return 0;
+}
+//
+//	通知分层窗口新的位置和大小
+//
 LRESULT CustomWindow::_OnWindowPosChanged( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
 {
 	bHandled = FALSE;
@@ -1143,6 +1157,13 @@ void LayeredWindowWrap::OnSize( UINT nType, int cx, int cy )
 	this->InvalidateObject(m_pWindow, TRUE);
 }
 
+void LayeredWindowWrap::OnWindowPosChanging(LPWINDOWPOS lpWndPos)
+{
+	if (lpWndPos->flags & SWP_SHOWWINDOW)  // 窗口显示（窗口隐藏时，DrawObject会失败）
+	{
+		this->InvalidateObject(m_pWindow, TRUE);
+	}
+}
 void LayeredWindowWrap::OnWindowPosChanged(LPWINDOWPOS lpWndPos)
 {
 	if (!(lpWndPos->flags & SWP_NOMOVE))
@@ -1155,9 +1176,6 @@ void LayeredWindowWrap::OnWindowPosChanged(LPWINDOWPOS lpWndPos)
 		m_sizeWindow.cx = lpWndPos->cx;
 		m_sizeWindow.cy = lpWndPos->cy;
 	}
-
-	if (lpWndPos->flags & SWP_SHOWWINDOW)  // 窗口显示（窗口隐藏时，DrawObject会失败）
-		this->InvalidateObject(m_pWindow, TRUE);
 }
 
 void LayeredWindowWrap::InvalidateObject( Object* pInvalidateObj, bool bUpdateNow )

@@ -25,9 +25,9 @@ public:
 	virtual HRESULT  GetCurPos(double* pdSeconds, double* pdPercent);
 	virtual HRESULT  SetVolume(long lVolumn);
 	virtual int      GetPlayBuffer( void *pBufferToFill,int FillBufferSize ){ return 0; }  // ²»Ö§³Ö
-
+	virtual void     OnNoitfy(UINT uMsg, WPARAM wParam, LPARAM lParam);
 public:
-	HRESULT  OnNoitfy(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	
 
 protected:
 	CComPtr<IGraphBuilder>   m_pGraphBuilder;

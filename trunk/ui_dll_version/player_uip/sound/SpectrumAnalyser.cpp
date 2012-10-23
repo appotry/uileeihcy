@@ -36,10 +36,12 @@ CSpectrumAnalyser::CSpectrumAnalyser()
 	m_hRenderWndMemDC = NULL;
 	m_hMemBitmap = NULL;
 	m_hOldBitmap = NULL;
+	InitializeCriticalSection(&m_cs);
 }
 CSpectrumAnalyser::~CSpectrumAnalyser()
 {
 	this->Release();
+	DeleteCriticalSection(&m_cs);
 }
 
 DWORD WINAPI gSpectrumAnalyserThreadProc( LPVOID lpParameter)
@@ -227,14 +229,18 @@ bool CSpectrumAnalyser::SetVisualization(VisualizationInfo* pInfo)
 		return false;
 	
 	// 注：m_BkgndBmp特殊，需要立即更新(HLS变换...)
-	if (pInfo->nMask & VI_MASK_BKGND_BMP)
-	{
-	//	m_hBkgndBmp = pInfo->hBkgndBmp;
-		HBITMAP hTemp = (HBITMAP)::InterlockedExchange((LONG*)&m_hBkgndBmp, (LONG)pInfo->hBkgndBmp);
-		SAFE_DELETE_GDIOBJECT(hTemp);
-	}
+// 	if (pInfo->nMask & VI_MASK_BKGND_BMP)
+// 	{
+// 	//	m_hBkgndBmp = pInfo->hBkgndBmp;
+// 		HBITMAP hTemp = (HBITMAP)::InterlockedExchange((LONG*)&m_hBkgndBmp, (LONG)pInfo->hBkgndBmp);
+// 		SAFE_DELETE_GDIOBJECT(hTemp);
+// 	}
 
-	BOOL bRet = this->PostThreadMessage(DSMSG_SET_VISUALIZATION, BuildSetVisualizationParam(pInfo));
+//	BOOL bRet = this->PostThreadMessage(DSMSG_SET_VISUALIZATION, BuildSetVisualizationParam(pInfo));
+
+	DECLARE_CS_PROTECT;
+	BOOL bRet = this->OnSetVisualization(pInfo);
+	::SetEvent(m_hEventSuspend);  // 允许运行一次，检测m_bSuspend
 	return bRet?true:false;
 }
 bool CSpectrumAnalyser::OnSetVisualization(VisualizationInfo* pInfo)
@@ -300,7 +306,11 @@ bool CSpectrumAnalyser::OnSetVisualization(VisualizationInfo* pInfo)
 	{
 		m_nBandWidth = pInfo->nSpectrumGapWidth;
 	}
-	
+	if (pInfo->nMask & VI_MASK_BKGND_BMP)
+	{
+		SAFE_DELETE_GDIOBJECT(m_hBkgndBmp);
+		m_hBkgndBmp = pInfo->hBkgndBmp;
+	}
 
 	return true;
 }
@@ -478,6 +488,7 @@ bool CSpectrumAnalyser::PostThreadMessage(UINT uMsg, DSMSG_PARAM* pParam)
 
 void CSpectrumAnalyser::Process()
 {
+	DECLARE_CS_PROTECT;
 	if (GetSampleBufferFromDSound())
 	{
 		TransformSamples();

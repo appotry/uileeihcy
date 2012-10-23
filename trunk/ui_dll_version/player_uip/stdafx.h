@@ -13,6 +13,7 @@
 #include <assert.h>
 
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS      // 某些 CString 构造函数将是显式的
+#pragma warning(disable:4996)  // 'wcsncpy': This function or variable may be unsafe. Consider using wcsncpy_s instead. To disable deprecation
 
 #include <atlbase.h>
 #include <atlstr.h>
