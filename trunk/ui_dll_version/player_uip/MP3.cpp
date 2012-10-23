@@ -12,6 +12,7 @@ CMP3::CMP3(void)
 	m_nVolumn = DSBVOLUME_MAX;
 	m_bMute = false;
 	m_hMainWnd = NULL;
+	m_lPan = DSBPAN_CENTER;
 }
 
 CMP3::~CMP3(void)
@@ -101,6 +102,7 @@ bool CMP3::RenderFile( const String& strFile )
 	if (NULL != m_pCurrentEngine)
 	{
 		m_pCurrentEngine->SetVolume(m_bMute?DSBVOLUME_MIN:m_nVolumn);
+		m_pCurrentEngine->SetPan(m_lPan);
 	}
 	m_SA.SetSoundEngine(m_pCurrentEngine);
 
@@ -200,13 +202,28 @@ bool CMP3::Mute(bool bMute)
 {
 	m_bMute = bMute;
 	if (NULL == m_pCurrentEngine)
-		return false;
+		return true;
 
 	HRESULT hr = E_FAIL;
 	if (bMute)
 		 hr = m_pCurrentEngine->SetVolume(DSBVOLUME_MIN);
 	else
 		hr = m_pCurrentEngine->SetVolume(m_nVolumn);
+
+	if (SUCCEEDED(hr))
+		return true;
+	else
+		return false;
+}
+
+bool CMP3::SetPan(long lPanPercent)
+{
+	m_lPan = lPanPercent;
+
+	if (NULL == m_pCurrentEngine)
+		return true;
+
+	HRESULT hr = m_pCurrentEngine->SetPan(lPanPercent);
 
 	if (SUCCEEDED(hr))
 		return true;

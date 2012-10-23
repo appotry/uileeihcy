@@ -30,9 +30,10 @@ bool CMainMgr::Initialize()
 	::GetPlayerListMgr(); // 提前初始化获取播放列表
 	::GetEqualizerMgr();  // 初始化均衡器Mgr
 
+	::mp3_mute(m_config.player.m_bMute);
+
 	m_pMainWindow->ShowWindow();
 	::UpdateWindow(m_pMainWindow->m_hWnd);
-
 
 	VisualizationInfo info;
 	info.nMask = VI_MASK_HWND|VI_MASK_RECT|VI_MASK_SPECTRUM_BAND_COUNT|VI_MASK_TYPE|VI_MASK_BKGND_BMP|VI_MASK_SPECTRUM_BAND_WIDTH|VI_MASK_FPS;
@@ -61,7 +62,12 @@ bool CMainMgr::Initialize()
 bool CMainMgr::Release()
 {
 	SAFE_DELETE(m_pMainWindow);
-	return ::mp3_release();
+
+	bool bRet = ::mp3_release();
+	if (false == bRet)
+		return false;
+
+	return this->m_configFile.Save(&m_config);
 }
 
 HWND CMainMgr::GetMainWnd()

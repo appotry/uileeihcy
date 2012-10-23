@@ -11,6 +11,7 @@ public:
 		UIMSG_TRBN_POSCHANGED_ID( _T("progress_hls_h"), OnHLSChanged_H )
 		UIMSG_TRBN_POSCHANGED_ID( _T("progress_hls_l"), OnHLSChanged_L )
 		UIMSG_TRBN_POSCHANGED_ID( _T("progress_hls_s"), OnHLSChanged_S )
+		UIMSG_TRBN_POSCHANGED( m_pBalance, OnBalanceChanged )
 	UI_END_MSG_MAP_CHAIN_PARENT(CustomWindow)
 
 	virtual void OnInitWindow( );
@@ -20,7 +21,12 @@ public:
 	void    OnHLSChanged_L( int nPos, int nScrollType );
 	void    OnHLSChanged_S( int nPos, int nScrollType );
 
+	void    OnBalanceChanged( int nPos, int nScrollType );
+
 	SliderCtrl* m_pH;
 	SliderCtrl* m_pL;
 	SliderCtrl* m_pS;
+
+	SliderCtrl* m_pBalance;
+
 };

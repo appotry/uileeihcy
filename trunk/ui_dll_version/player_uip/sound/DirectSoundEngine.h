@@ -65,9 +65,11 @@ public:
 	virtual HRESULT  Stop();
 	virtual HRESULT  SetCurPos(double);
 	virtual HRESULT  GetCurPos(double* pdSeconds, double* pdPercent);
-	virtual HRESULT  SetVolume(long);
 	virtual int      GetPlayBuffer( void *pBufferToFill,int FillBufferSize );
 	virtual void     OnNoitfy(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+	virtual HRESULT  SetVolume(long);
+	virtual HRESULT  SetPan(long lPan);
 
 protected:
 	HRESULT PushBuffer(int nStart, int nCount);

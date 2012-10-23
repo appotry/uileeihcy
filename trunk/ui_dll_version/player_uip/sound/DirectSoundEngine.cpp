@@ -187,6 +187,8 @@ HRESULT CDirectSoundEngine::RenderFile( const TCHAR* szFile, const TCHAR* szExt 
 			return hr;
 
 		m_pMgr->GetSA()->RenderFile(m_pCurFile->GetFormat()->nChannels, m_pCurFile->GetFormat()->wBitsPerSample/8);
+
+		m_pDirectSoundBuffer8->SetPan(DSBPAN_RIGHT);
 		return hr;
 	}
 
@@ -384,6 +386,15 @@ HRESULT CDirectSoundEngine::SetVolume(long lVolumn)
 		return E_FAIL;
 
 	HRESULT hr = m_pDirectSoundBuffer8->SetVolume(lVolumn);
+	return hr;
+}
+
+HRESULT CDirectSoundEngine::SetPan(long lPanPercent)
+{
+	if (NULL == m_pCurFile || NULL == m_pDirectSoundBuffer8)
+		return E_FAIL;
+
+	HRESULT hr = m_pDirectSoundBuffer8->SetPan(lPanPercent*100);
 	return hr;
 }
 
