@@ -18,9 +18,12 @@ public:
 	virtual HRESULT  Stop() = 0;
 	virtual HRESULT  SetCurPos(double) = 0;
 	virtual HRESULT  GetCurPos(double* pdSeconds, double* pdPercent) = 0;
-	virtual HRESULT  SetVolume(long) = 0;
 	virtual int      GetPlayBuffer( void *pBufferToFill,int FillBufferSize ) = 0;
 	virtual void     OnNoitfy(UINT uMsg, WPARAM w, LPARAM l) = 0;
+
+	virtual HRESULT  SetVolume(long) = 0;
+	virtual HRESULT  SetPan(long lPan) = 0;
+	
 };
 
 
@@ -40,6 +43,7 @@ public:
 	bool    Stop();
 	bool    SetCurPos(double);
 	bool    SetVolume(long lPercent);
+	bool    SetPan(long lPanPercent);
 	bool    Mute(bool);
 	bool    SetVisualization(VisualizationInfo* pInfo);
 
@@ -62,6 +66,7 @@ protected:
 
 	long     m_nVolumn;;   // 记录当前音量，用于在取消静音时使用
 	bool     m_bMute;      // 当前是否静音
+	long     m_lPan;
 // 
 	CMessageOnlyWindow   m_WndEvent;
 	friend class CMessageOnlyWindow;

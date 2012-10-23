@@ -25,6 +25,8 @@ bool CEqualizerMgr::Initialize()
 
 	this->FireEvent(EVENT_TYPE_UI, UI_EVENT_ID_ON_EQUALIZERDLG_CREATE, (WPARAM)m_pEqualizerDlg->m_hWnd);
 
+	::mp3_set_pan(GetMainMgr()->GetConfigData()->player.m_byteBalance);
+
 	return true;
 }
 bool CEqualizerMgr::Release()
@@ -68,4 +70,16 @@ void CEqualizerMgr::HandleEvent(IMgr* pSource, int nEventType, int nEventId, WPA
 		}
 		break;
 	}
+}
+
+bool CEqualizerMgr::SetBalance(long lPercent)
+{
+	bool bRet = ::mp3_set_pan(lPercent);
+	
+	if (bRet)
+	{
+		GetMainMgr()->GetConfigData()->player.m_byteBalance = (char)lPercent;
+		GetMainMgr()->GetConfigData()->player.m_bDirty = true;
+	}
+	return bRet;
 }

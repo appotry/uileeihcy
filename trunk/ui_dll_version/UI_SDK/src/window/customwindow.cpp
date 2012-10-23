@@ -1159,10 +1159,10 @@ void LayeredWindowWrap::OnSize( UINT nType, int cx, int cy )
 
 void LayeredWindowWrap::OnWindowPosChanging(LPWINDOWPOS lpWndPos)
 {
-	if (lpWndPos->flags & SWP_SHOWWINDOW)  // 窗口显示（窗口隐藏时，DrawObject会失败）
-	{
-		this->InvalidateObject(m_pWindow, TRUE);
-	}
+// 	if (lpWndPos->flags & SWP_SHOWWINDOW)  // 窗口显示（窗口隐藏时，DrawObject会失败）
+// 	{
+// 		this->InvalidateObject(m_pWindow, TRUE);
+// 	}
 }
 void LayeredWindowWrap::OnWindowPosChanged(LPWINDOWPOS lpWndPos)
 {
@@ -1175,6 +1175,10 @@ void LayeredWindowWrap::OnWindowPosChanged(LPWINDOWPOS lpWndPos)
 	{
 		m_sizeWindow.cx = lpWndPos->cx;
 		m_sizeWindow.cy = lpWndPos->cy;
+	}
+	if (lpWndPos->flags & SWP_SHOWWINDOW)  // 窗口显示（窗口隐藏时，DrawObject会失败）
+	{
+		this->InvalidateObject(m_pWindow, TRUE);
 	}
 }
 

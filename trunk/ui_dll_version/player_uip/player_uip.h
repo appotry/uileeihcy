@@ -62,4 +62,5 @@ PLAYER_UIP_API bool  mp3_add_event_callback(IMp3EventCallback* p);
 PLAYER_UIP_API bool  mp3_set_cur_pos( double percent );
 PLAYER_UIP_API bool  mp3_set_volumn( long lPercent );
 PLAYER_UIP_API bool  mp3_mute( bool bMute );
+PLAYER_UIP_API bool  mp3_set_pan(long lPanPercent);
 PLAYER_UIP_API bool  mp3_set_visualization(VisualizationInfo* pInfo);

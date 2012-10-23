@@ -27,8 +27,9 @@ public:
 	bool     SetVisualizationBkgndBmp(HBITMAP hBitmap);
 	bool     SetVisualizationBkgndBmpAndRect(HBITMAP hBitmap, RECT* prc);
 	void     HandleEvent(IMgr* pSource, int nEventType, int nEventId, WPARAM wParam, LPARAM lParam);
-	const CConfigData*  GetConfigData() { return &m_config; }
+	CConfigData*  GetConfigData() { return &m_config; }
 
+	bool     SetMute(bool bMute){return false;}
 protected:	
 	virtual void   on_mp3_stop();
 	virtual void   on_mp3_progress_ind(double dSeconds, double dPercent);

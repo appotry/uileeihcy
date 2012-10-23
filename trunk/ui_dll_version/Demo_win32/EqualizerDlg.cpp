@@ -2,12 +2,15 @@
 #include "player.h"
 #include "EqualizerDlg.h"
 #include "EqualizerMgr.h"
+#include "MainMgr.h"
 
 CEqualizerDlg::CEqualizerDlg()
 {
 	m_pH = NULL;
 	m_pL = NULL;
 	m_pS = NULL;
+
+	m_pBalance = NULL;
 }
 void CEqualizerDlg::OnInitWindow( )
 {
@@ -47,6 +50,14 @@ void CEqualizerDlg::OnInitWindow( )
 		if (NULL != m_pS)
 			m_pS->SetPos(pInfo->GetSkinHlsInfo()->s,false);
 	}
+
+	m_pBalance = (SliderCtrl*)this->FindChildObject(_T("progress_pan"));
+	if (NULL != m_pBalance)
+	{
+		m_pBalance->SetRange(-10,10, false);
+		int nPercent = GetMainMgr()->GetConfigData()->player.m_byteBalance;
+		m_pBalance->SetPos(nPercent/10, false);
+	}
 }
 void CEqualizerDlg::OnClose()
 {
@@ -76,4 +87,11 @@ void CEqualizerDlg::OnHLSChanged_S( int nPos, int nScrollType )
 	//	UI_ChangeSkinHLS(0, 0, nPos, CHANGE_SKIN_HLS_FLAG_S);
 		UI_ChangeSkinHLS(m_pH->GetPos(), m_pL->GetPos(), nPos, CHANGE_SKIN_HLS_FLAG_HLS);
 	}
+}
+
+
+void CEqualizerDlg::OnBalanceChanged( int nPos, int nScrollType )
+{
+	if (nScrollType != SB_ENDSCROLL)
+		GetEqualizerMgr()->SetBalance(nPos*10);  // °Ù·ÖÖÆ
 }

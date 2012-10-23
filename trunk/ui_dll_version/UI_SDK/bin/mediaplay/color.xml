@@ -14,13 +14,13 @@
     <item id="playlistbk_color2">32,32,32</item>
     <item id="menu_item_hover">193,210,238</item>
     <item id="menu_item_hover_border">49,106,197</item>
-    <item id="option_gradient_from">48,106,198</item>
-    <item id="option_gradient_to">255,255,255</item>
-    <item id="option_title_text_color">255,255,255</item>
-    <item id="option_title_text_color_shadow">32,32,32</item>
-    <item id="option_introduce_ttplayer_text1">255,155,0</item>
-    <item id="option_introduce_ttplayer_text2">255,255,255</item>
-    <item id="option_introduce_ttplayer_text3">32,32,32</item>
+    <item id="option_gradient_from" useskinhls="0">48,106,198</item>
+    <item id="option_gradient_to"  useskinhls="0">255,255,255</item>
+    <item id="option_title_text_color" useskinhls="0">255,255,255</item>
+    <item id="option_title_text_color_shadow" useskinhls="0">32,32,32</item>
+    <item id="option_introduce_ttplayer_text1" useskinhls="0">255,155,0</item>
+    <item id="option_introduce_ttplayer_text2" useskinhls="0">255,255,255</item>
+    <item id="option_introduce_ttplayer_text3" useskinhls="0">32,32,32</item>
   </color>
 </ui>
 

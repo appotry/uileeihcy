@@ -5,7 +5,6 @@
                   bkgnd.render.type="image" bkgnd.render.image="player_skin.png"
                   transparent.type="maskalpha" transparent.maskalpha="1" transparent.typex="layered" transparent.maskalphax="240">
       <Picture id="icon"  foregnd.render.image="ttplayer.ico" layout.left="5" layout.top="6"/>
-      <!--Label id="label_time" text="00:00" layout.right="10" layout.top="60" textrender.color="time_color" width="70" halign="right" /-->
       <LEDCtrl id="led_time" text=" 00:00" layout.right="10" layout.top="58" indexmap="0123456789:-"
              foregnd.render.type="imagelist"  foregnd.render.image="number.png" foregnd.render.imagelist.count="12"
              foregnd.render.imagelist.layout="h"/>
@@ -56,11 +55,11 @@
                   bkgnd.render.image.drawtype="stretch"
                   transparent.type="maskcolor" transparent.maskcolor="maskcolor" >
       <Button     id="sys_close" styleclass="imagebtn" bkgnd.render.image="close.png" layout.right="6" layout.top="4"/>
-      <SliderCtrl id="progress_hue1" height="15" width="53" layout.left="112" layout.top="38" trackbtn.styleclass="imagebtn" btn.bkgnd.render.image="eq_balance.png" />
-      <SliderCtrl id="progress_hue2" height="15" width="53" layout.left="203" layout.top="38" trackbtn.styleclass="imagebtn" btn.bkgnd.render.image="eq_balance.png" />
-      <!--Button     id="btn_enable"   styleclass="imagebtn"  bkgnd.render.image="eq_enabled.bmp" layout.top="38" layout.left="18"/>
+      <SliderCtrl id="progress_pan" height="15" width="50" layout.left="114" layout.top="38" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_balance.png" />
+      <SliderCtrl id="progress_hue2" height="15" width="53" layout.left="203" layout.top="38" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_balance.png" />
+      <Button     id="btn_enable"   styleclass="imagebtn"  bkgnd.render.image="eq_enabled.bmp" layout.top="38" layout.left="18"/>
       <Button     id="btn_profile"  styleclass="imagebtn"  bkgnd.render.image="eq_profile.png" layout.top="36" layout.left="39"/>
-      <Button     id="btn_reset"    styleclass="imagebtn"  bkgnd.render.image="reset.png" margin="3,0,3,0" layout.top="36" layout.left="59"/-->
+      <Button     id="btn_reset"    styleclass="imagebtn"  bkgnd.render.image="reset.png" margin="3,0,3,0" layout.top="36" layout.left="59"/>
     </CustomWindow>
     <CustomWindow id="lyricdlg"  width="270" height="168" layout.left="570" layout.top="200"
                    bkgnd.render.type="image" bkgnd.render.image="lyric_skin.png" bkgnd.render.9region="100,60,50,15,15,15,20,15"
@@ -86,60 +85,64 @@
       <HyperLink id="link_homepage" text="千千音乐在线" tooltip="千千静听在线网站"   href="http://ttplayer.qianqian.com/index.html" layout.left="122" layout.bottom="8" />
       <HyperLink id="link_homepage" text="论坛"         tooltip="千千静听的官方论坛" href="http://bbs.qianqian.com/"                layout.left="202" layout.bottom="8" />
       <HyperLink id="link_homepage" text="帮助"         tooltip="千千静听的帮助页面" href="http://ttplayer.qianqian.com/help.php"   layout.left="234" layout.bottom="8" />
-      <GroupBox  bkgnd.render.type="notheme" layout.left="115" layout.right="8" layout.top="10" height="370">
-        <Picture id="title_bk" layout.left="2" layout.right="2" layout.top="2" height="30" foregnd.render.type="gradienth" foregnd.render.colorfrom="option_gradient_from" foregnd.render.colorto="option_gradient_to"/>
-        <GroupBox id="" bkgnd.render.type="notheme" layout.left="2" layout.right="2" layout.top="35" height="2"/>
+
+      <GroupBox layout="card" bkgnd.render.type="notheme" layout.left="115" layout.right="8" layout.top="10" height="370">
+
+        <Panel id="panel_about" >
+          <Picture id="title_bk" layout.left="2" layout.right="2" layout.top="2" height="30" foregnd.render.type="gradienth" foregnd.render.colorfrom="option_gradient_from" foregnd.render.colorto="option_gradient_to"/>
+          <GroupBox id="" bkgnd.render.type="notheme" layout.left="2" layout.right="2" layout.top="35" height="2"/>
+          <Label text="“千千静听”的简明介绍" textrender.align="left|vcenter" textrender.color="option_title_text_color_shadow" textrender.font="option_title" layout.left="6" layout.top="3" height="30" layout.right="2"/>
+          <Label text="“千千静听”的简明介绍" textrender.align="left|vcenter" textrender.color="option_title_text_color" textrender.font="option_title" layout.left="5" layout.top="2" height="30" layout.right="2"/>
+          <Picture foregnd.render.image="ttplayer.ico_48_48" layout.left="15" layout.top="50"/>
+          <Label text="千千静听" textrender.color="option_introduce_ttplayer_text3" textrender.font="option_introduce_ttplayer_text" layout.left="76" layout.top="53" />
+          <Label text="千千静听" textrender.color="option_introduce_ttplayer_text2" textrender.font="option_introduce_ttplayer_text" layout.left="74" layout.top="51" />
+          <Label text="千千静听" textrender.color="option_introduce_ttplayer_text1" textrender.font="option_introduce_ttplayer_text" layout.left="75" layout.top="52" />
+          <Label text="作者:"  layout.left="80" layout.top="85"/>
+          <HyperLink text="nanling" href="ttp@qianqian.com" tooltip="ttp@qianqian.com"  layout.left="115" layout.top="85"/>
+          <Label text="版权所有: 2003-2012"  layout.left="220" layout.top="85"/>
+          <Label text="版本: 5.9.4(Unicode)"  layout.left="80" layout.top="105"/>
+          <Label text="完成日期: 2012-8-2" layout.left="220" layout.top="105"/>
+          <GroupBox text="简介" layout.left="10" layout.top="120" layout.right="10" layout.bottom="10">
+            <RichEdit id="option_introduce_text" istransparent="0" layout.left="5" layout.right="5" layout.top="5" layout.bottom="5"
+                      vscrollbar.bkgnd.render.type=""  
+                      vscrollbar.linebtn1.bkgnd.render.type="" 
+                      vscrollbar.linebtn2.bkgnd.render.type=""  
+                      vscrollbar.thubmbtn.bkgnd.render.type=""/>
+          </GroupBox>
+        </Panel>
         
-        <Label text="“千千静听”的简明介绍" textrender.align="left|vcenter" textrender.color="option_title_text_color_shadow" textrender.font="option_title" layout.left="6" layout.top="3" height="30" layout.right="2"/>
-        <Label text="“千千静听”的简明介绍" textrender.align="left|vcenter" textrender.color="option_title_text_color" textrender.font="option_title" layout.left="5" layout.top="2" height="30" layout.right="2"/>
+        <Panel id="panel_visualization" >
+          <Picture id="title_bk" layout.left="2" layout.right="2" layout.top="2" height="30" foregnd.render.type="gradienth" foregnd.render.colorfrom="option_gradient_from" foregnd.render.colorto="option_gradient_to"/>
+          <GroupBox id="" bkgnd.render.type="notheme" layout.left="2" layout.right="2" layout.top="35" height="2"/>
+          <Label text="视觉效果相关的参数设置" textrender.align="left|vcenter" textrender.color="option_title_text_color_shadow" textrender.font="option_title" layout.left="6" layout.top="3" height="30" layout.right="2"/>
+          <Label text="视觉效果相关的参数设置" textrender.align="left|vcenter" textrender.color="option_title_text_color" textrender.font="option_title" layout.left="5" layout.top="2" height="30" layout.right="2"/>
+          <GroupBox text="选项" layout.left="10" layout.top="50" layout.right="10" height="90">
+            <Label text="视觉效果类型:" layout.left="10" layout.top="5"></Label>
+            <Combobox id="combobox_visualization_type" layout.left="95" layout.top="2" width="135" height="20"/>
+            <Label text="分析显示速度:" layout.left="10" layout.top="30"></Label>
+            <SliderCtrl id="slider_visualization_fps" direction="lefttoright" thumbarrow="bottom" layout.left="95" layout.top="25" width="135"  height="30"  bkgnd.render.type="" trackbtn.bkgnd.render.type=""/>
+            <Label id="label_visualizatoin_fps" text="10" layout.left="235" layout.top="30"/>
+            <Label text="帧/秒" layout.left="250" layout.top="30"/>
+            <Label text="10" layout.left="95" layout.top="55"/>
+            <Label text="40" layout.left="220" layout.top="55"/>
+          </GroupBox>
+          <GroupBox text="频谱分析" layout.left="10" layout.top="145" layout.right="10" height="70">
+          </GroupBox>
+          <GroupBox text="示波显示" layout.left="10" layout.top="220" layout.right="10" height="70">
+          </GroupBox>
+          <GroupBox text="文字显示" layout.left="10" layout.top="300" layout.right="10" height="50">
+          </GroupBox>
+        </Panel>
+        
+        <Panel id="control_demo_panel">
+          <Picture id="title_bk" layout.left="2" layout.right="2" layout.top="2" height="30" foregnd.render.type="gradienth" foregnd.render.colorfrom="option_gradient_from" foregnd.render.colorto="option_gradient_to"/>
+          <GroupBox id="" bkgnd.render.type="notheme" layout.left="2" layout.right="2" layout.top="35" height="2"/>
+          <Label text="控件测试页面" textrender.align="left|vcenter" textrender.color="option_title_text_color_shadow" textrender.font="option_title" layout.left="6" layout.top="3" height="30" layout.right="2"/>
+          <Label text="控件测试页面" textrender.align="left|vcenter" textrender.color="option_title_text_color" textrender.font="option_title" layout.left="5" layout.top="2" height="30" layout.right="2"/>
 
-        <Picture foregnd.render.image="ttplayer.ico_48_48" layout.left="15" layout.top="50"/>
-
-        <Label text="千千静听" textrender.color="option_introduce_ttplayer_text3" textrender.font="option_introduce_ttplayer_text" layout.left="76" layout.top="53" />
-        <Label text="千千静听" textrender.color="option_introduce_ttplayer_text2" textrender.font="option_introduce_ttplayer_text" layout.left="74" layout.top="51" />
-        <Label text="千千静听" textrender.color="option_introduce_ttplayer_text1" textrender.font="option_introduce_ttplayer_text" layout.left="75" layout.top="52" />
-        <Label text="作者:"  layout.left="80" layout.top="85"/>
-        <HyperLink text="nanling" href="ttp@qianqian.com" tooltip="ttp@qianqian.com"  layout.left="115" layout.top="85"/>
-        <Label text="版权所有: 2003-2012"  layout.left="220" layout.top="85"/>
-        <Label text="版本: 5.9.4(Unicode)"  layout.left="80" layout.top="105"/>
-        <Label text="完成日期: 2012-8-2" layout.left="220" layout.top="105"/>
-        <GroupBox text="简介" layout.left="10" layout.top="120" layout.right="10" layout.bottom="10">
-          <RichEdit id="option_introduce_text" istransparent="0" layout.left="5" layout.right="5" layout.top="5" layout.bottom="5"
-                    vscrollbar.bkgnd.render.type=""  
-                    vscrollbar.linebtn1.bkgnd.render.type="" 
-                    vscrollbar.linebtn2.bkgnd.render.type=""  
-                    vscrollbar.thubmbtn.bkgnd.render.type=""/>
-        </GroupBox>
-        <!--Panel id="option_list_panel_container" layout="card" layout.left="120" layout.top="10" width="426" height="368">
-          <Panel id="about_panel">
-          </Panel>
-          <Panel id="control_demo_panel">
-            <GroupBox  id="groupbox1"     text="ui控件" layout.left="110" layout.top="32" width="150" height="250" >
-              <CheckButton id="test_check"  tooltip="test" text="test check button" layout.top="20"  layout.left="10"/>
-              <RadioButton id="test_radio1" tooltip="test" text="单选按钮_1" layout.top="40"  layout.left="10" group="1" />
-              <RadioButton id="test_radio2" tooltip="test" text="单选按钮_2" layout.top="60"  layout.left="10"/>
-              <RadioButton id="test_radio3" tooltip="test" text="单选按钮_3" layout.top="90"  layout.left="10" group="1" />
-              <RadioButton id="test_radio4" tooltip="test" text="单选按钮_4" layout.top="110" layout.left="10"/>
-              <Edit        id="test_edit1"  width="120"  layout.left="10" layout.top="130"/>
-              <Combobox    id="test_combo1" width="120"  height="20" layout.left="10" layout.top="155"/>
-            </GroupBox>
-            <HwndHost id="IDC_EDIT1"   controlid="1003" />
-            <HwndHost id="IDC_CHECK1"  controlid="1009" />
-            <HwndHost id="IDC_RADIO3"  controlid="1008" />
-            <HwndHost id="IDC_RADIO2"  controlid="1007" />
-            <HwndHost id="IDC_RADIO1"  controlid="1006" />
-            <HwndHost id="IDC_BUTTON1" controlid="1002" />
-            <HwndHost id="IDC_BUTTON2" controlid="1005" />
-            <HwndHost id="IDC_COMBO1"  controlid="1010" />
-            <HwndHost id="IDC_GROUPBOX1" controlid="1011"/>"
-          </Panel>
-          <Panel id="richedit_demo_panel">
-            <RichEdit id="richedit_test" border="1" layout.left="10" layout.top="10" width="200" height="200"
-                     bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="control_border_color"/>
-            <RichEdit id="richedit_test2" layout.left="220" layout.top="10" width="200" height="200"
-                     bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="control_border_color"/>
-          </Panel>
-        </Panel-->
+          <ProgressCtrl direction="lefttoright" layout.left="10" layout.top="100" width="200" height="20"/>
+          <SliderCtrl direction="lefttoright" thumbarrow="right" layout.left="10" layout.top="140" width="200"  height="22"  bkgnd.render.type="" trackbtn.bkgnd.render.type=""/>
+        </Panel>
       </GroupBox>
     </Window>
   <Menu id="main_menu" styleclass="mainmenu">

@@ -11,6 +11,11 @@ CConfigData::CConfigData()
 	visual.m_nFps = 25;
 	visual.m_nType = 0;
 	visual.m_bDirty = false;
+
+	player.m_bMute = false;
+	player.m_byteVolumn = 100;
+	player.m_byteBalance = 100;
+	player.m_bDirty = false;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -44,22 +49,54 @@ bool  CPlayerConfigData::Load(CConfigData* pData)
 		if (false == m_xml.IntoElem())    break;
 
 		//////////////////////////////////////////////////////////////////////////
+		// 播放器配置信息
+
+		if (m_xml.FindElem(_T("Player")))
+		{
+			String  str = m_xml.GetAttrib(_T("Mute"));
+			if (_T("1")==str || _T("true")==str)
+			{
+				pData->player.m_bMute = true;
+			}
+			else
+			{
+				pData->player.m_bMute = false;
+			}
+
+			str = m_xml.GetAttrib(_T("Volume"));
+			pData->player.m_byteVolumn = (byte)_ttoi(str.c_str());
+			if (pData->player.m_byteVolumn > 100)
+			{
+				pData->player.m_byteVolumn = 100;
+			}
+
+			str = m_xml.GetAttrib(_T("Balance"));
+			pData->player.m_byteBalance = (byte)_ttoi(str.c_str());
+			if (pData->player.m_byteBalance < -100)
+				pData->player.m_byteBalance = -100;
+			if (pData->player.m_byteBalance > 100)
+				pData->player.m_byteBalance = 100;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
 		// 可视化配置信息
 
-		if (false == m_xml.FindElem(_T("Visual")))   break;
-
-		String  str = m_xml.GetAttrib(_T("Type"));
-		if (!str.empty())
+		if (m_xml.FindElem(_T("Visual")))
 		{
-			pData->visual.m_nType = _ttoi(str.c_str());
-		}
+			String  str = m_xml.GetAttrib(_T("Type"));
+			if (!str.empty())
+			{
+				pData->visual.m_nType = _ttoi(str.c_str());
+			}
 
-		str = m_xml.GetAttrib(_T("FramesPerSec"));
-		if (!str.empty())
-		{
-			pData->visual.m_nFps = _ttoi(str.c_str());
+			str = m_xml.GetAttrib(_T("FramesPerSec"));
+			if (!str.empty())
+			{
+				pData->visual.m_nFps = _ttoi(str.c_str());
+			}
+			pData->visual.m_bDirty = false;
 		}
-		pData->visual.m_bDirty = false;
 	}
 	while(0);
 
@@ -75,6 +112,21 @@ bool CPlayerConfigData::Save(CConfigData* pData)
 		if (false == m_xml.FindElem())    break;
 		if (false == m_xml.IntoElem())     break;
 
+		if (pData->player.m_bDirty)
+		{
+			if (false == m_xml.FindElem(_T("Player")))
+			{
+				m_xml.InsertElem(_T("Visual"));
+			}
+
+			_stprintf(szText, _T("%d"), pData->player.m_bMute?1:0);
+			m_xml.SetAttrib(_T("Mute"), szText);
+			_stprintf(szText, _T("%d"), pData->player.m_byteVolumn);
+			m_xml.SetAttrib(_T("Volume"), szText);
+			_stprintf(szText, _T("%d"), pData->player.m_byteBalance);
+			m_xml.SetAttrib(_T("Balance"), szText);
+		}
+
 		if (pData->visual.m_bDirty)
 		{
 			if (false == m_xml.FindElem(_T("Visual")))
@@ -86,6 +138,8 @@ bool CPlayerConfigData::Save(CConfigData* pData)
 			_stprintf(szText, _T("%d"), pData->visual.m_nFps);
 			m_xml.SetAttrib(_T("FramesPerSec"), szText);
 		}
+
+		
 	}
 	while(0);
 
