@@ -297,3 +297,22 @@ typedef struct _DSFXWavesReverb
 　MP3编码原理的限制，甚至于到现在还没人能准确地标定出各个子带的频率。Wplay大胆地在其EQ
 　对话框中标出了频率值，但那是盲目地抄WinAmp的，你只要用几个单一频率的MP3文件测试一下就
 　知道了。目前90%以上实现了EQ功能的MP3播放器都是采用了这类方法。 
+
+
+基于频域滤波数字均衡器的设计
+http://wenku.baidu.com/view/8f71d97e27284b73f2425059.html
+
+fftw
+http://www.fftw.org/
+
+fftw的用法
+http://stackoverflow.com/questions/5818558/computing-fft-and-ifft-with-fftw-h-in-c
+http://www.docin.com/p-71818494.html
+
+/--
+How to implement the FFT algorithm
+http://www.codeproject.com/Articles/9388/How-to-implement-the-FFT-algorithm
+用于ARM上的FFT与IFFT源代码（C语言，不依赖特定平台） 
+http://blog.csdn.net/syrchina/article/details/6670517
+
+
