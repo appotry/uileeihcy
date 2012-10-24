@@ -305,9 +305,22 @@ http://wenku.baidu.com/view/8f71d97e27284b73f2425059.html
 fftw
 http://www.fftw.org/
 
+将def编译成lib文件。在命令提示行中输入：
+lib /machine:ix86 /def:libfftw3-3.def
+lib /machine:ix86 /def:libfftw3f-3.def
+lib /machine:ix86 /def:libfftw3l-3.def
+
 fftw的用法
 http://stackoverflow.com/questions/5818558/computing-fft-and-ifft-with-fftw-h-in-c
 http://www.docin.com/p-71818494.html
+
+创建完方案（fftw_plan）后，就可以用fftw_execute对指定的 数据in/out做任意次变换。
+如果想变换一个相同大小（N相等）但数据不同的另外一个数组in，可以创建一个新方案，
+FFTW会自动重用上次方案的信 息。这一点其实是非常好的，比如你首先用FFTW_MEASURE模
+式创建了一个最优的变换方案，只要变换数据的大小不变，你可以用 fftw_plan_dft_1d创
+建新的方案以对新数据执行变换，同时新变换仍然是最优的。一个fftw_plan只能对固定的
+in/out进行变换， 但可以在变换后改变in的内容（大小不变）以用同一个方案执行新的变换。
+
 
 /--
 How to implement the FFT algorithm
