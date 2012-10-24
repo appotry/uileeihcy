@@ -11,6 +11,7 @@ public:
 		bool m_bMute;         // 是否静音
 		byte m_byteVolumn;    // 当前音量  0 - 100 ，百分制
 		char m_byteBalance;   // 均衡器设置--平衡， -100 - 100，百分制
+		byte m_bytePlayMode;  // 播放列表播放模式，参见PLAY_MODE
 
 		bool m_bDirty;
 	}player;

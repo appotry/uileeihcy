@@ -39,6 +39,7 @@ bool CPlayerListMgr::Initialize()
 	srand( (unsigned)time( NULL ) );
 
 	m_data.Load();  // 从配置文件中读取历史记录
+	m_ePlayMode = (PLAY_MODE) GetMainMgr()->GetConfigData()->player.m_bytePlayMode;
 
 	return true;
 }
@@ -441,4 +442,12 @@ void CPlayerListMgr::HandleEvent(IMgr* pSource, int nEventType, int nEventId, WP
 		}
 		break;
 	}
+}
+
+void CPlayerListMgr::SetPlayMode(PLAY_MODE e) 
+{ 
+	m_ePlayMode = e; 
+
+	GetMainMgr()->GetConfigData()->player.m_bytePlayMode = m_ePlayMode;
+	GetMainMgr()->GetConfigData()->player.m_bDirty = true;
 }

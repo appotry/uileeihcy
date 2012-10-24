@@ -15,6 +15,7 @@ CConfigData::CConfigData()
 	player.m_bMute = false;
 	player.m_byteVolumn = 100;
 	player.m_byteBalance = 100;
+	player.m_bytePlayMode = (byte)ALL_LOOP;
 	player.m_bDirty = false;
 }
 
@@ -76,6 +77,9 @@ bool  CPlayerConfigData::Load(CConfigData* pData)
 				pData->player.m_byteBalance = -100;
 			if (pData->player.m_byteBalance > 100)
 				pData->player.m_byteBalance = 100;
+
+			str = m_xml.GetAttrib(_T("PlayMode"));
+			pData->player.m_bytePlayMode = (byte)_ttoi(str.c_str());
 		}
 
 
@@ -126,7 +130,8 @@ bool CPlayerConfigData::Save(CConfigData* pData)
 			m_xml.SetAttrib(_T("Volume"), szText);
 			_stprintf(szText, _T("%d"), pData->player.m_byteBalance);
 			m_xml.SetAttrib(_T("Balance"), szText);
-
+			_stprintf(szText, _T("%d"), pData->player.m_bytePlayMode);
+			m_xml.SetAttrib(_T("PlayMode"), szText);
 			bNeedSave = true;
 		}
 
