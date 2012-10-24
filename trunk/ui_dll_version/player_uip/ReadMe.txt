@@ -45,6 +45,11 @@ http://www.cppblog.com/codejie/archive/2009/03/26/77916.html
 mpg123
 http://sourceforge.net/projects/mpg123
 http://mpg123.org/
+ 
+关于FFT 傅里叶变换
+http://www.douban.com/note/164400821/
+http://blog.csdn.net/v_JULY_v/article/details/6196862
+但是对于非周期性的信号，我们需要用无穷多不同频率的正弦曲线来表示，这对于计算机来说是不可能实现的。所以对于离散信号的变换只有离散傅立叶变换（DFT）才能被适用，对于计算机来说只有离散的和有限长度的数据才能被处理，对于其它的变换类型只有在数学演算中才能用到，在计算机面前我们只能用DFT方法，
 
 频谱demo(支持MP3,WMA,WAV)
 http://www.codeproject.com/Articles/31375/Play-Wave-Files-with-DirectSound-and-Display-its-S
@@ -160,3 +165,135 @@ Player 8/9时会用到。如果Windows98上不能播放CD或不能CD格式转换
  WMP visualizations
 用DirectX实现粒子系统（三） 
 http://www.cnblogs.com/graphics/archive/2012/07/09/2570431.html
+
+
+///
+特效注释
+
+1、和声（Chorus）特技
+
+typedef struct _DSFXChorus {
+　FLOAT fWetDryMix;//压缩信号和未压缩信号的比率，缺省值50
+　FLOAT fDepth; //低频率振荡器调制信号的延迟时间的百分比，缺省是10%
+　FLOAT fFeedback;//输出信号对特技输入信号的反馈百分比，缺省25%
+　FLOAT fFrequency;//LFO的频率，缺省是1.1
+　LONG lWaveform;//LFO的波形类型，缺省是正弦波
+　FLOAT fDelay;//音频播放时的延迟时间，缺省是16ms
+　LONG lPhase; //左右声道声波的相位差别，取值为-180，-90，0，90，180 度
+} DSFXChorus, *LPDSFXChorus;
+
+2、压限特技（Compressor ）
+
+typedef struct _DSFXCompressor 
+{
+　FLOAT fGain; //压限后输出信号的强度，缺省值是0db
+　FLOAT fAttack;//压限达到最大值的时间，缺省是10ms
+　FLOAT fRelease;//输入小于fThreshold后，压缩停止的时间，缺省是200ms
+　FLOAT fThreshold;//压缩开始的临界点的db值，缺省是-20db
+　FLOAT fRatio;//压缩的比率，缺省是3，即3:1
+　FLOAT fPredelay;//lThreshold 达到临界点，attack phase开始前的延迟时间
+} DSFXCompressor, *LPDSFXCompressor;
+
+3、失真特技（Distorion）
+
+typedef struct _DSFXDistortion 
+{
+　FLOAT fGain;//信号失真后的音量的强度变化，缺省是比原来衰减 18db。
+　FLOAT fEdge;//失真的强度，用百分比来表示，缺省值是15
+　FLOAT fPostEQCenterFrequency;//信号叠加的中心频率，缺省是2400hz
+　FLOAT fPostEQBandwidth;//信号的带宽 ，缺省是2400hz
+　FLOAT fPreLowpassCutoff;//高通滤波的最高值，缺省是8000hz
+} DSFXDistortion, *LPDSFXDistortion; 
+
+
+4、回声特技（ Echo）
+
+typedef struct _DSFXEcho 
+{
+　FLOAT fWetDryMix;处理过的信号和没有处理的信号的比率，缺省值是50
+　FLOAT fFeedback;//输出信号反馈到输入信号的百分比, 缺省值是50 
+　FLOAT fLeftDelay;//左声道延迟的时间，缺省值500ms
+　FLOAT fRightDelay;//右声道延迟的时间，缺省值500ms
+　LONG lPanDelay;//是否左右声道交替延迟，缺省值 0，左右声道不交替
+} DSFXEcho, *LPDSFXEcho;
+
+
+5、波浪特技（Flanger）
+
+typedef struct _DSFXFlanger 
+{
+　FLOAT fWetDryMix;//处理过的信号和没有处理的信号的比率，取值范围 0~~100，缺省值是50
+　FLOAT fDepth;//低频振荡器调整延迟时间的百分比，取值范围 0~~100，缺省值 是100
+　FLOAT fFeedback;//输出信号反馈到输入信号的百分比,取值范围 -99~~99， 缺省值是-50 
+　FLOAT fFrequency;//低频振荡器的频率， 缺省值是 0.25
+　LONG lWaveform;//低频振荡器的波形，分为三角形，和正弦波形
+　FLOAT fDelay;//播放之前的延迟，以毫秒作单位，缺省值是2ms
+　LONG lPhase;//相位
+} DSFXFlanger, *LPDSFXFlanger;
+
+6、咕噜声效特技（Gargle）
+
+typedef struct _DSFXGargle 
+{
+　DWORD dwRateHz;//调制波频率，取值范围 1 ~~1000 hz，缺省值是20 hz
+　DWORD dwWaveShape;//调制波形状，分为三角形和正方形两种，DSFXGARGLE_WAVE_TRIANGLE DSFXGARGLE_WAVE_SQUARE
+} DSFXGargle, *LPDSFXGargle;
+
+7、参数平衡特技（ParamEQ）
+
+typedef struct _DSFXParamEq 
+{
+　FLOAT fCenter;//中心的频率 ，单位是hz，取值范围是 80.0f hz~~16000.0f ，缺省值 是 8000hz
+　FLOAT fBandwidth;//音的带宽，以半音为单位，取值范围是 1.0f~~36.0f,缺省值 是12
+　FLOAT fGain;//音频的音量，以db为单位，取值范围是 -15.0db ~~15.0f db,缺省值是0db
+} DSFXParamEq, *LPDSFXParamEq;
+DSFXPARAMEQ_CENTER_MIN 
+8、混响（Reverb）
+
+typedef struct _DSFXWavesReverb 
+{
+　FLOAT fInGain; //输入信号的音量的大小,即db值,缺省值是 0db。
+　FLOAT fReverbMix;//回响混合音量强度大小，用db值来表示，缺省值是 0db。
+　FLOAT fReverbTime;//回响的时间，单位是ms，缺省值是 1000.0f ms
+　FLOAT fHighFreqR//高频回响所占时间的比率 ， 缺省值 0.001f 。TRatio;
+} DSFXWavesReverb, *LPDSFXWavesReverb;
+
+///
+
+说到EQ，相信只要是有后期基础的童鞋都不会陌生。
+
+没错，这就是经常被后期们挂在嘴边的：均衡器！
+
+说起来她的原理并不复杂，无非就是增加某一频段的音量，降低某一频段的音量，但往往刚上手的童鞋都会被这个小小的EQ弄得很抓狂。
+
+我想做一个音频均衡器，可以调整低音、中音、高音，达到不同的效果。因为没做过这方面的，
+看了些资料后，知道了大概过程：对采样数据经行傅立叶变换，即时频变换，再对不同频率进行处理，
+最后再经过傅立叶逆变换。
+
+
+
+/////
+
+多线程协作技术：你的MP3播放器性能的好坏全看这一点做得如何了。
+处理不好，你的MP3播放器就会像老牛拉破车一样。
+为了提高效率，你要善于使用信号灯同步技术而不要使用Windows的消息系统。 
+
+////
+
+　Equalizer(均衡效果)：玩过音响的朋友都知道EQ处理，通过精心调节各个独立频率段的增益，
+　可适当地弥补音源的不足或提升其效果。一般调节范围为±20dB。在MP3播放器中实现EQ处理并
+　不是很难，总的来说分为两种实现方法。 
+　
+　推荐：一类以WinAmp为代表的播放器，崇尚精确调节，其EQ对话框中对频率点的标定基本准确，
+　用户在调节时较少出现因过增益而产生的阻塞现象。其实现原理为：将用户调节的10个频率点
+　增益值适当地通过一对多映射对应到一个576个浮点数组成的数组，其中576是MP3解码原理中
+　推导出来的常量。再实时地用这576个增益值同Huffman解码后，仍处于频域的MP3帧数据相乘，
+　进行衰减/提升。这样做的优点是：频率准确，较少产生阻塞，缺点是：运算量稍大。有关这
+　种EQ实现的具体方法，请参见X11AMP公布的源程序。
+　 
+　不推荐：另一类以XAudio为代表的播放器或许是还不懂WinAmp是怎么实现EQ的或许是认为平平淡
+　淡才是真。在实现EQ时采用了较为不精确的处理。其实现原理为：直接用32个增益值同每帧中32
+　个子带(sub－bands)分量相乘。其优点是运算简单，时滞小。缺点为频率调节极其不准确，由于
+　MP3编码原理的限制，甚至于到现在还没人能准确地标定出各个子带的频率。Wplay大胆地在其EQ
+　对话框中标出了频率值，但那是盲目地抄WinAmp的，你只要用几个单一频率的MP3文件测试一下就
+　知道了。目前90%以上实现了EQ功能的MP3播放器都是采用了这类方法。 

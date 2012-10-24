@@ -152,7 +152,7 @@ HRESULT CDirectSoundEngine::RenderFile( const TCHAR* szFile, const TCHAR* szExt 
 		desc.dwSize = sizeof(DSBUFFERDESC);
 		// 注：DSBCAPS_GLOBALFOCUS，如果不加上这个标志，当窗口失去焦点的时候，directsound 会停止播放
 		//     DSBCAPS_CTRLPOSITIONNOTIFY，如果不加上这个标志，QueryInterface IID_IDirectSoundNotify8 会返回NOINTERFACE
-		desc.dwFlags = DSBCAPS_CTRLPAN|DSBCAPS_CTRLVOLUME|DSBCAPS_CTRLFREQUENCY|DSBCAPS_GLOBALFOCUS|DSBCAPS_CTRLPOSITIONNOTIFY;  
+		desc.dwFlags = DSBCAPS_CTRLPAN|DSBCAPS_CTRLVOLUME|DSBCAPS_CTRLFX|DSBCAPS_GLOBALFOCUS|DSBCAPS_CTRLPOSITIONNOTIFY;  
 		desc.lpwfxFormat =  m_pCurFile->GetFormat();
 		SetBufferSize(desc.lpwfxFormat->nAvgBytesPerSec);
 		desc.dwBufferBytes = m_nDirectSoundBufferSize;    //3*desc.lpwfxFormat->nAvgBytesPerSec;  // 持续3秒的流缓冲区
@@ -181,6 +181,7 @@ HRESULT CDirectSoundEngine::RenderFile( const TCHAR* szFile, const TCHAR* szExt 
 		if (FAILED(hr))
 			return hr;
 
+
 		// 第一次填充完整的buffer
 		hr = this->PushBuffer(0, m_nDirectSoundBufferSize);
 		if (FAILED(hr))
@@ -188,10 +189,9 @@ HRESULT CDirectSoundEngine::RenderFile( const TCHAR* szFile, const TCHAR* szExt 
 
 		m_pMgr->GetSA()->RenderFile(m_pCurFile->GetFormat()->nChannels, m_pCurFile->GetFormat()->wBitsPerSample/8);
 
-		m_pDirectSoundBuffer8->SetPan(DSBPAN_RIGHT);
 		return hr;
 	}
-
+	
 	return E_FAIL;;
 }
 
@@ -389,12 +389,20 @@ HRESULT CDirectSoundEngine::SetVolume(long lVolumn)
 	return hr;
 }
 
+// 其实就是设置左右扬声器的出声比例，名字起的挺奇怪的
 HRESULT CDirectSoundEngine::SetPan(long lPanPercent)
 {
 	if (NULL == m_pCurFile || NULL == m_pDirectSoundBuffer8)
 		return E_FAIL;
 
 	HRESULT hr = m_pDirectSoundBuffer8->SetPan(lPanPercent*100);
+	return hr;
+}
+
+// 该功能需要directsoundbuffer开启DSBCAPS_CTRLFX
+HRESULT CDirectSoundEngine::SetEqualizer()
+{
+	HRESULT hr = E_FAIL;
 	return hr;
 }
 

@@ -70,6 +70,7 @@ public:
 
 	virtual HRESULT  SetVolume(long);
 	virtual HRESULT  SetPan(long lPan);
+	virtual HRESULT  SetEqualizer();
 
 protected:
 	HRESULT PushBuffer(int nStart, int nCount);
