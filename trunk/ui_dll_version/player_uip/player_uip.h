@@ -6,6 +6,21 @@
 #define PLAYER_UIP_API __declspec(dllimport)
 #endif
 
+enum E_EQ_FREQ
+{
+	EQ_FREQ_16K,
+	EQ_FREQ_8K,
+	EQ_FREQ_4K,
+	EQ_FREQ_2K,
+	EQ_FREQ_1K,
+	EQ_FREQ_500,
+	EQ_FREQ_250,
+	EQ_FREQ_125,
+	EQ_FREQ_63,
+	EQ_FREQ_31,
+};
+#define EQ_FREQ_COUNT 10
+
 enum E_VISUALIZATION_TYPE
 {
 	VISUALIZATION_NONE,       // ≤ªœ‘ æ
@@ -63,4 +78,5 @@ PLAYER_UIP_API bool  mp3_set_cur_pos( double percent );
 PLAYER_UIP_API bool  mp3_set_volumn( long lPercent );
 PLAYER_UIP_API bool  mp3_mute( bool bMute );
 PLAYER_UIP_API bool  mp3_set_pan(long lPanPercent);
+PLAYER_UIP_API bool  mp3_set_eq(E_EQ_FREQ eFreq, int nValue);
 PLAYER_UIP_API bool  mp3_set_visualization(VisualizationInfo* pInfo);

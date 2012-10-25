@@ -318,6 +318,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sound\fftw3.h"
+				>
+			</File>
+			<File
 				RelativePath=".\sound\SpectrumAnalyser.cpp"
 				>
 			</File>

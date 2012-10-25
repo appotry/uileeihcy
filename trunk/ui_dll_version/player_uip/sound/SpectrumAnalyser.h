@@ -6,7 +6,7 @@
 #include "..\\threadmessage.h"
 class   ISoundEngine;
 
-#define DEFAULT_FFT_SAMPLE_BUFFER_SIZE 16/*2048*/
+#define DEFAULT_FFT_SAMPLE_BUFFER_SIZE /*16*/2048
 
 enum THREAD_SUSPEND_REASON
 {
@@ -87,6 +87,7 @@ public:
 // 	double*        m_pfftw3_in;
 // 	fftw_complex*  m_pfftw3_out;
 // 	fftw_plan      m_fftw_plan;
+
 
 	// 绘制参数
 	HWND     m_hRenderWnd;           // 绘制窗口

@@ -35,6 +35,7 @@
     <item id="eq_profile.png">eq_profile.png</item>
     <item id="reset.png">eq_reset.png</item>
     <item id="eq_balance.png">eq_balance.png</item>
+    <item id="eq_thumb.png">eq_thumb.png</item>
     <item id="listbox.png" userskinhue="0">listbox.png</item>
     <item id="scrollbar_bar.bmp">scrollbar_bar.bmp</item>
     <item id="scrollbar_button_linedown.bmp">scrollbar_button_linedown.bmp</item>

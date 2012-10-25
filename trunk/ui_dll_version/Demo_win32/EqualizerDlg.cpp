@@ -6,51 +6,25 @@
 
 CEqualizerDlg::CEqualizerDlg()
 {
-	m_pH = NULL;
-	m_pL = NULL;
-	m_pS = NULL;
-
 	m_pBalance = NULL;
 	m_p3DSound = NULL;
+
+	m_pEq_16k = NULL;
+	m_pEq_8k = NULL;
+	m_pEq_4k = NULL;
+	m_pEq_2k = NULL;
+	m_pEq_1k = NULL;
+	m_pEq_500 = NULL;
+	m_pEq_250 = NULL;
+	m_pEq_125 = NULL;
+	m_pEq_63 = NULL;
+	m_pEq_31 = NULL;
+	m_pEq_preamp = NULL;
+
 }
 void CEqualizerDlg::OnInitWindow( )
 {
 	CustomWindow::OnInitWindow();
-
-	m_pH = (SliderCtrl*)this->FindChildObject( _T("progress_hls_h"));
-	if( NULL != m_pH )
-	{
-		m_pH->SetRange(-120,120);
-// 		srand( (unsigned)time( NULL ) );
-// 		int n = rand()%240-120;
-// 		m_pH->SetPos(n);
-// 		if (0 != n)
-// 		{
-// 			UI_ChangeSkinHLS(n, 0,0, CHANGE_SKIN_HLS_FLAG_H);
-// 		}
-	}
-	m_pL = (SliderCtrl*)this->FindChildObject( _T("progress_hls_l"));
-	if( NULL != m_pL )
-	{
-		m_pL->SetRange(-100,100);
-	}
-	m_pS = (SliderCtrl*)this->FindChildObject( _T("progress_hls_s"));
-	if( NULL != m_pS )
-	{
-		m_pS->SetRange(-100,100);
-	}
-
-	IProjectSkinItemInfo* pInfo = NULL;
-	UI_GetProjectSkinItemInfo((HSKIN)NULL, &pInfo);
-	if (NULL != pInfo)
-	{
-		if (NULL != m_pH)
-			m_pH->SetPos(pInfo->GetSkinHlsInfo()->h,false);
-		if (NULL != m_pL)
-			m_pL->SetPos(pInfo->GetSkinHlsInfo()->l,false);
-		if (NULL != m_pS)
-			m_pS->SetPos(pInfo->GetSkinHlsInfo()->s,false);
-	}
 
 	m_pBalance = (SliderCtrl*)this->FindChildObject(_T("progress_pan"));
 	m_p3DSound = (SliderCtrl*)this->FindChildObject(_T("progress_3d"));
@@ -65,39 +39,225 @@ void CEqualizerDlg::OnInitWindow( )
 	{
 		m_p3DSound->SetEnable(false);
 	}
+
+	m_pEq_16k = (SliderCtrl*)this->FindChildObject(_T("progress_eq_16k"));
+	m_pEq_8k =  (SliderCtrl*)this->FindChildObject(_T("progress_eq_8k"));
+	m_pEq_4k =  (SliderCtrl*)this->FindChildObject(_T("progress_eq_4k"));
+	m_pEq_2k =  (SliderCtrl*)this->FindChildObject(_T("progress_eq_2k"));
+	m_pEq_1k =  (SliderCtrl*)this->FindChildObject(_T("progress_eq_1k"));
+	m_pEq_500 = (SliderCtrl*)this->FindChildObject(_T("progress_eq_500"));
+	m_pEq_250 = (SliderCtrl*)this->FindChildObject(_T("progress_eq_250"));
+	m_pEq_125 = (SliderCtrl*)this->FindChildObject(_T("progress_eq_125"));
+	m_pEq_63 = (SliderCtrl*)this->FindChildObject(_T("progress_eq_63"));
+	m_pEq_31 = (SliderCtrl*)this->FindChildObject(_T("progress_eq_31"));
+	m_pEq_preamp = (SliderCtrl*)this->FindChildObject(_T("progress_eq_preamp"));
+
+	if (NULL != m_pEq_16k)
+	{
+		m_pEq_16k->SetRange(-12,12,false);
+		m_pEq_16k->SetPos(0, false);
+	}
+	if (NULL != m_pEq_8k)
+	{
+		m_pEq_8k->SetRange(-12,12,false);
+		m_pEq_8k->SetPos(0, false);
+	}
+	if (NULL != m_pEq_4k)
+	{
+		m_pEq_4k->SetRange(-12,12,false);
+		m_pEq_4k->SetPos(0, false);
+	}
+	if (NULL != m_pEq_2k)
+	{
+		m_pEq_2k->SetRange(-12,12,false);
+		m_pEq_2k->SetPos(0, false);
+	}
+	if (NULL != m_pEq_16k)
+	{
+		m_pEq_1k->SetRange(-12,12,false);
+		m_pEq_1k->SetPos(0, false);
+	}
+	if (NULL != m_pEq_500)
+	{
+		m_pEq_500->SetRange(-12,12,false);
+		m_pEq_500->SetPos(0, false);
+	}
+	if (NULL != m_pEq_250)
+	{
+		m_pEq_250->SetRange(-12,12,false);
+		m_pEq_250->SetPos(0, false);
+	}
+	if (NULL != m_pEq_125)
+	{
+		m_pEq_125->SetRange(-12,12,false);
+		m_pEq_125->SetPos(0, false);
+	}
+	if (NULL != m_pEq_63)
+	{
+		m_pEq_63->SetRange(-12,12,false);
+		m_pEq_63->SetPos(0, false);
+		m_pEq_63->SetEnable(false);
+	}
+	if (NULL != m_pEq_31)
+	{
+		m_pEq_31->SetRange(-12,12,false);
+		m_pEq_31->SetPos(0, false);
+		m_pEq_31->SetEnable(false);
+	}
+	if (NULL != m_pEq_preamp)
+	{
+		m_pEq_preamp->SetRange(-12,12,false);
+		m_pEq_preamp->SetPos(0, false);
+		m_pEq_preamp->SetEnable(false);
+	}
+
+	m_pBtnEnable = (CheckButton*)this->FindChildObject(_T("btn_enable"));
+	if (NULL != m_pBtnEnable)
+	{
+		m_pBtnEnable->SetChecked();
+	}
+
+	m_pBtnProfile = (Button*)this->FindChildObject(_T("btn_profile"));
 }
 void CEqualizerDlg::OnClose()
 {
 	this->HideWindow();
 	GetEqualizerMgr()->OnEqualizerDlgHide();
 }
-void CEqualizerDlg::OnHLSChanged_H( int nPos, int nScrollType )
-{
-	if( nScrollType != SB_ENDSCROLL )
-	{
-	//	UI_ChangeSkinHLS(nPos, 0, 0, CHANGE_SKIN_HLS_FLAG_H);
-		UI_ChangeSkinHLS(nPos, m_pL->GetPos(), m_pS->GetPos(), CHANGE_SKIN_HLS_FLAG_HLS);
-	}
-}
-void CEqualizerDlg::OnHLSChanged_L( int nPos, int nScrollType )
-{
-	if( nScrollType != SB_ENDSCROLL )
-	{
-	//	UI_ChangeSkinHLS(0, nPos, 0, CHANGE_SKIN_HLS_FLAG_L);
-		UI_ChangeSkinHLS(m_pH->GetPos(), nPos, m_pS->GetPos(), CHANGE_SKIN_HLS_FLAG_HLS);
-	}
-}
-void CEqualizerDlg::OnHLSChanged_S( int nPos, int nScrollType )
-{
-	if( nScrollType != SB_ENDSCROLL )
-	{
-	//	UI_ChangeSkinHLS(0, 0, nPos, CHANGE_SKIN_HLS_FLAG_S);
-		UI_ChangeSkinHLS(m_pH->GetPos(), m_pL->GetPos(), nPos, CHANGE_SKIN_HLS_FLAG_HLS);
-	}
-}
-
 
 void CEqualizerDlg::OnBalanceChanged( int nPos, int nScrollType )
 {
 	GetEqualizerMgr()->SetBalance(nPos*10, SB_ENDSCROLL==nScrollType);  // °Ù·ÖÖÆ
+}
+void CEqualizerDlg::OnEqChanged16k( int nPos, int nScrollType )
+{
+	if (nScrollType == SB_ENDSCROLL)
+		GetEqualizerMgr()->SetEq(EQ_FREQ_16K, nPos);
+}
+void CEqualizerDlg::OnEqChanged8k( int nPos, int nScrollType )
+{
+	if (nScrollType == SB_ENDSCROLL)
+		GetEqualizerMgr()->SetEq(EQ_FREQ_8K, nPos);
+}
+void CEqualizerDlg::OnEqChanged4k( int nPos, int nScrollType )
+{
+	if (nScrollType == SB_ENDSCROLL)
+		GetEqualizerMgr()->SetEq(EQ_FREQ_4K, nPos);
+}
+void CEqualizerDlg::OnEqChanged2k( int nPos, int nScrollType )
+{
+	if (nScrollType == SB_ENDSCROLL)
+		GetEqualizerMgr()->SetEq(EQ_FREQ_2K, nPos);
+}
+void CEqualizerDlg::OnEqChanged1k( int nPos, int nScrollType )
+{
+	if (nScrollType == SB_ENDSCROLL)
+		GetEqualizerMgr()->SetEq(EQ_FREQ_1K, nPos);
+}
+void CEqualizerDlg::OnEqChanged500( int nPos, int nScrollType )
+{
+	if (nScrollType == SB_ENDSCROLL)
+		GetEqualizerMgr()->SetEq(EQ_FREQ_500, nPos);
+}
+void CEqualizerDlg::OnEqChanged250( int nPos, int nScrollType )
+{
+	if (nScrollType == SB_ENDSCROLL)
+		GetEqualizerMgr()->SetEq(EQ_FREQ_250, nPos);
+}
+void CEqualizerDlg::OnEqChanged125( int nPos, int nScrollType )
+{
+	if (nScrollType == SB_ENDSCROLL)
+		GetEqualizerMgr()->SetEq(EQ_FREQ_125, nPos);
+}
+
+void CEqualizerDlg::OnBtnEnable()
+{
+	bool bRet = m_pBtnEnable->IsChecked();
+	if (NULL != m_pEq_16k)
+		m_pEq_16k->SetEnable(bRet);
+	if (NULL != m_pEq_8k)
+		m_pEq_8k->SetEnable(bRet);
+	if (NULL != m_pEq_4k)
+		m_pEq_4k->SetEnable(bRet);
+	if (NULL != m_pEq_2k)
+		m_pEq_2k->SetEnable(bRet);
+	if (NULL != m_pEq_1k)
+		m_pEq_1k->SetEnable(bRet);
+	if (NULL != m_pEq_500)
+		m_pEq_500->SetEnable(bRet);
+	if (NULL != m_pEq_250)
+		m_pEq_250->SetEnable(bRet);
+	if (NULL != m_pEq_125)
+		m_pEq_125->SetEnable(bRet);
+}
+void CEqualizerDlg::OnBtnReset()
+{
+	if (NULL != m_pEq_16k)
+	{
+		m_pEq_16k->SetPos(0);
+		this->OnEqChanged16k(0, SB_ENDSCROLL+1);
+		this->OnEqChanged16k(0, SB_ENDSCROLL);
+	}
+	if (NULL != m_pEq_8k)
+	{
+		m_pEq_8k->SetPos(0);
+		this->OnEqChanged8k(0, SB_ENDSCROLL+1);
+		this->OnEqChanged8k(0, SB_ENDSCROLL);
+	}
+	if (NULL != m_pEq_4k)
+	{
+		m_pEq_4k->SetPos(0);
+		this->OnEqChanged4k(0, SB_ENDSCROLL+1);
+		this->OnEqChanged4k(0, SB_ENDSCROLL);
+	}
+	if (NULL != m_pEq_2k)
+	{
+		m_pEq_2k->SetPos(0);
+		this->OnEqChanged2k(0, SB_ENDSCROLL+1);
+		this->OnEqChanged2k(0, SB_ENDSCROLL);
+	}
+	if (NULL != m_pEq_1k)
+	{
+		m_pEq_1k->SetPos(0);
+		this->OnEqChanged1k(0, SB_ENDSCROLL+1);
+		this->OnEqChanged1k(0, SB_ENDSCROLL);
+	}
+	if (NULL != m_pEq_500)
+	{
+		m_pEq_500->SetPos(0);
+		this->OnEqChanged500(0, SB_ENDSCROLL+1);
+		this->OnEqChanged500(0, SB_ENDSCROLL);
+	}
+	if (NULL != m_pEq_250)
+	{
+		m_pEq_250->SetPos(0);
+		this->OnEqChanged250(0, SB_ENDSCROLL+1);
+		this->OnEqChanged250(0, SB_ENDSCROLL);
+	}
+	if (NULL != m_pEq_125)
+	{
+		m_pEq_125->SetPos(0);
+		this->OnEqChanged125(0, SB_ENDSCROLL+1);
+		this->OnEqChanged125(0, SB_ENDSCROLL);
+	}
+}
+void CEqualizerDlg::OnBtnProfile()
+{
+	Menu* pMenu = UI_LoadMenu(_T("menu_eq_profile"));
+	if (NULL == pMenu)
+		return ;
+
+	CRect rc;
+	m_pBtnProfile->GetWindowRect(&rc);
+	::MapWindowPoints(m_hWnd, NULL, (LPPOINT)&rc, 2);
+
+	int nRet = pMenu->TrackPopupMenu(TPM_RETURNCMD, rc.left, rc.bottom, NULL);
+	switch (nRet)
+	{
+	case 1301:
+		break;
+	default:
+		break;
+	}
+	SAFE_DELETE(pMenu);
 }

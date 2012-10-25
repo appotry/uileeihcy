@@ -5,6 +5,15 @@
 #include "WmaFile.h"
 
 //////////////////////////////////////////////////////////////////////////
+
+double f[] = {16000, 8000, 4000, 2000, 1000, 500, 250, 125, 63, 32.1, 15.75};
+
+double  GetFreqByType(E_EQ_FREQ e)
+{
+	return f[e];
+}
+
+//////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
 CDirectSoundEngine::CDirectSoundEngine(void)
@@ -199,18 +208,17 @@ HRESULT CDirectSoundEngine::RenderFile( const TCHAR* szFile, const TCHAR* szExt 
 		}
 		hr = m_pDirectSoundBuffer8->SetFX(10, effectdesc, NULL);
 
-		float f[10] = {/*15.75,*/ 31.5, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000};
-		for (int i = 0; i < 10; i++)
+		for (int i = 0; i < EQ_FREQ_COUNT; i++)
 		{
 			IDirectSoundFXParamEq8* pEq = NULL;
 			m_pDirectSoundBuffer8->GetObjectInPath(GUID_DSFX_STANDARD_PARAMEQ,i,
 				IID_IDirectSoundFXParamEq8, (void**)&pEq);
 
 			DSFXParamEq param;
-			param.fCenter = f[i];
-			param.fGain = -7;
-			param.fBandwidth = 36;
-			hr = pEq->SetAllParameters(&param);
+			param.fCenter = (float)f[i];
+			param.fGain = 0;
+			param.fBandwidth = 12;
+			pEq->SetAllParameters(&param);
 			pEq->Release();
 		}
 
@@ -425,9 +433,26 @@ HRESULT CDirectSoundEngine::SetPan(long lPanPercent)
 }
 
 // 该功能需要directsoundbuffer开启DSBCAPS_CTRLFX
-HRESULT CDirectSoundEngine::SetEqualizer()
+HRESULT CDirectSoundEngine::SetEq(E_EQ_FREQ eFreq, int nValue)
 {
-	HRESULT hr = E_FAIL;
+	if (eFreq > EQ_FREQ_COUNT || eFreq < 0)
+		return false;
+
+	if (NULL == m_pDirectSoundBuffer8)
+		return E_FAIL;
+
+	IDirectSoundFXParamEq8* pEq = NULL;
+	HRESULT hr = m_pDirectSoundBuffer8->GetObjectInPath(GUID_DSFX_STANDARD_PARAMEQ, eFreq,
+		IID_IDirectSoundFXParamEq8, (void**)&pEq);
+	if (FAILED(hr) || NULL == pEq)
+		return hr;
+
+	DSFXParamEq param;
+	param.fCenter = (float)GetFreqByType(eFreq);
+	param.fGain = (float)nValue;
+	param.fBandwidth = 36;
+	hr = pEq->SetAllParameters(&param);
+	pEq->Release();
 	return hr;
 }
 

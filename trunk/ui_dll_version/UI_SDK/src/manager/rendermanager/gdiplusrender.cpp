@@ -719,9 +719,14 @@ void GdiplusRenderDC::Rectangle( const CRect* lprc, COLORREF colBorder, COLORREF
 	if( NULL == m_pGraphics )
 		return;
 
+	 // Remark:在这里如果不减1的话，会导致右、下的边框显示不全，原因未知
+	CRect rc(lprc);
+	rc.bottom--;
+	rc.right--;
+
 	if( false == bNullBack )
 	{
-		this->FillRect(lprc,colBack);
+		this->FillRect(&rc,colBack);
 	}
 
 	Gdiplus::Color color;
@@ -729,10 +734,9 @@ void GdiplusRenderDC::Rectangle( const CRect* lprc, COLORREF colBorder, COLORREF
 	Gdiplus::Pen pen(color, (Gdiplus::REAL)nBorder);
 
 	m_pGraphics->DrawRectangle(&pen,   
-		lprc->left, lprc->top, 
-		lprc->Width()-1, lprc->Height()-1   // Remark:在这里如果不减1的话，会导致右、下的边框显示不全，原因未知
+		rc.left, rc.top, 
+		rc.Width(), rc.Height()  
 		);  
-
 }
 
 void GdiplusRenderDC::DrawFocusRect( const CRect* lprc )

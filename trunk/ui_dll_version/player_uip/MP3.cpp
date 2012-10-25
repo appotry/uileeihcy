@@ -13,6 +13,8 @@ CMP3::CMP3(void)
 	m_bMute = false;
 	m_hMainWnd = NULL;
 	m_lPan = DSBPAN_CENTER;
+
+	memset(m_arrEqValue, 0, sizeof(int)*EQ_FREQ_COUNT);
 }
 
 CMP3::~CMP3(void)
@@ -234,6 +236,24 @@ bool CMP3::SetPan(long lPanPercent)
 bool CMP3::SetVisualization(VisualizationInfo* pInfo)
 {
 	return m_SA.SetVisualization(pInfo);
+}
+
+bool CMP3::SetEq(E_EQ_FREQ eFreq, int nValue)
+{
+	if (eFreq > EQ_FREQ_COUNT || eFreq < 0)
+		return false;
+
+	m_arrEqValue[eFreq]	= nValue;
+
+	if (NULL == m_pCurrentEngine)
+		return true;
+
+	HRESULT hr = m_pCurrentEngine->SetEq(eFreq, nValue);
+
+	if (SUCCEEDED(hr))
+		return true;
+	else
+		return false;
 }
 
 bool CMP3::AddEventCallback(IMp3EventCallback* p)

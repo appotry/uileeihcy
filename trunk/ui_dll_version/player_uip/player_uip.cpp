@@ -63,3 +63,8 @@ bool  mp3_set_visualization(VisualizationInfo* pInfo)
 {
 	return g_mp3.SetVisualization(pInfo);
 }
+
+bool  mp3_set_eq(E_EQ_FREQ eFreq, int nValue)
+{
+	return g_mp3.SetEq(eFreq, nValue);
+}
