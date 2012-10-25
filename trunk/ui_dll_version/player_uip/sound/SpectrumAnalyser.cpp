@@ -163,6 +163,10 @@ int CSpectrumAnalyser::SetAnalyserSampleCount(int nCount)
 	SAFE_ARRAY_DELETE(m_pLeftRightSampleData);
 	m_pLeftRightSampleData = new float[m_nAnalyserSampleCount];
 
+// 	m_pfftw3_in = (double*)fftw_malloc(sizeof(double)*nCount);
+// 	m_pfftw3_out = fftw_alloc_complex(sizeof(fftw_complex)*(nCount/2+1));
+// 	m_fftw_plan = fftw_plan_dft_r2c_1d(nCount, m_pfftw3_in, m_pfftw3_out, FFTW_ESTIMATE);
+
 	return nOldSize;
 }
 int CSpectrumAnalyser::GetAnslyserSampleCount()
@@ -569,20 +573,32 @@ void CSpectrumAnalyser::FFTSamples()
 // 	{
 // 		m_Left[a] = (m_Left[a] + m_Right[a]) / 2.0f;
 // 	}
+// 	memcpy(m_pfftw3_in, m_pLeftRightSampleData, sizeof(double)*m_nAnalyserSampleCount);
+// 	for (int i = 0; i < m_nAnalyserSampleCount; i++)
+// 	{
+// 		m_pfftw3_in[i] = m_pLeftRightSampleData[i];
+// 	}
+// 	fftw_execute(m_fftw_plan);
+// 	double* pFFTResult = (double*)m_pfftw3_out;
+// 	m_nSamplesPerBand = m_nAnalyserSampleCount/(2*m_nBandCount);
 
 	float* pFFTResult = m_pFFT->Calculate(m_pLeftRightSampleData, m_nAnalyserSampleCount); 
+
 	for (int i = 0, nBandIndex = 0; nBandIndex < m_nBandCount; i += m_nSamplesPerBand, nBandIndex++) 
 	{
 		float fBandValue = 0;
 		// 计算一个柱形条的能量值。（每个柱形条是包含了m_nSamplesPerBand个取样点）
 		for (int j = 0; j < (INT)m_nSamplesPerBand; j++) 
 		{
+			// 求振幅值。复数的模
+			// 幅度就对FFT的结果取模值再乘以 2/N系数
+		//	double An = sqrt(m_pfftw3_out[i+j][0]*m_pfftw3_out[i+j][0] + m_pfftw3_out[i+j][1]*m_pfftw3_out[i+j][1]);
+		//	fBandValue += An*2/m_nAnalyserSampleCount;
+		
 			fBandValue += pFFTResult[i + j];
 		}
 
-		// 下面的这些代码完成是抄的，不明白取这些值的原由
-//		fBandValue = (fBandValue * (float) log(nBandIndex + 2.0F));   // -- Log filter.
-
+		// 将数据放大便于显示
 		if (fBandValue > 0.005F && fBandValue < 0.009F)
 			fBandValue *= 9.0F * PI;
 		else if (fBandValue > 0.01F && fBandValue < 0.1F)
@@ -594,18 +610,6 @@ void CSpectrumAnalyser::FFTSamples()
 		{
 			fBandValue = 0.9F;
 		}
-// 		if (fBandValue<0.01f)
-// 		{
-// 			fBandValue *= 20;
-// 		}
-// 		else if (fBandValue<0.05)
-// 		{
-// 			fBandValue*=10;
-// 		}
-// 		else if (fBandValue<0.1)
-// 		{
-// 			fBandValue*=5;
-// 		}
 
 		// -- Compute SA decay...
 		if (fBandValue >= (m_pOldBandValue[nBandIndex] - 0.05f)) // 取新值

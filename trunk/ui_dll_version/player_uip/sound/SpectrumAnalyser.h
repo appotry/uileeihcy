@@ -1,10 +1,12 @@
 #pragma  once
 #include "FastFourierTransform.h"
+#include "fftw3.h"
+#pragma comment(lib, "libfftw3-3.lib")
 #include "..\player_uip.h"
 #include "..\\threadmessage.h"
 class   ISoundEngine;
 
-#define DEFAULT_FFT_SAMPLE_BUFFER_SIZE 2048
+#define DEFAULT_FFT_SAMPLE_BUFFER_SIZE 16/*2048*/
 
 enum THREAD_SUSPEND_REASON
 {
@@ -82,6 +84,9 @@ public:
 	int      m_FFTSrcSampleSize;     //  ?? FFT的构造参数
 	int      m_FFTDestSampleSize;    //  ?? FFT的返回值大小
 	CFastFourierTransform*  m_pFFT;  // FFT傅里叶算法
+// 	double*        m_pfftw3_in;
+// 	fftw_complex*  m_pfftw3_out;
+// 	fftw_plan      m_fftw_plan;
 
 	// 绘制参数
 	HWND     m_hRenderWnd;           // 绘制窗口
