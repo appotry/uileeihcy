@@ -189,6 +189,31 @@ HRESULT CDirectSoundEngine::RenderFile( const TCHAR* szFile, const TCHAR* szExt 
 
 		m_pMgr->GetSA()->RenderFile(m_pCurFile->GetFormat()->nChannels, m_pCurFile->GetFormat()->wBitsPerSample/8);
 
+		//EQ
+		DSEFFECTDESC effectdesc[10];
+		for (int i = 0; i < 10; i++)
+		{
+			memset(&effectdesc[i], 0, sizeof(DSEFFECTDESC));
+			effectdesc[i].dwSize = sizeof(DSEFFECTDESC);
+			effectdesc[i].guidDSFXClass = GUID_DSFX_STANDARD_PARAMEQ;
+		}
+		hr = m_pDirectSoundBuffer8->SetFX(10, effectdesc, NULL);
+
+		float f[10] = {/*15.75,*/ 31.5, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000};
+		for (int i = 0; i < 10; i++)
+		{
+			IDirectSoundFXParamEq8* pEq = NULL;
+			m_pDirectSoundBuffer8->GetObjectInPath(GUID_DSFX_STANDARD_PARAMEQ,i,
+				IID_IDirectSoundFXParamEq8, (void**)&pEq);
+
+			DSFXParamEq param;
+			param.fCenter = f[i];
+			param.fGain = -7;
+			param.fBandwidth = 36;
+			hr = pEq->SetAllParameters(&param);
+			pEq->Release();
+		}
+
 		return hr;
 	}
 	
