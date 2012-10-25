@@ -27,6 +27,7 @@ public:
 	virtual void     OnNoitfy(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	virtual HRESULT  SetVolume(long lVolumn);
 	virtual HRESULT  SetPan(long lPan) { return E_NOTIMPL; }
+	virtual HRESULT  SetEq(E_EQ_FREQ eFreq, int nValue) { return E_NOTIMPL; }
 public:
 	
 

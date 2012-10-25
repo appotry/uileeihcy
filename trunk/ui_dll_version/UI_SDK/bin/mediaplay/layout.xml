@@ -19,7 +19,7 @@
         <CheckButton id="btn_lyric" styleclass="imagecheckbutton" tooltip="歌词"     foregnd.render.image="lyric.png"  margin="1,0,1,0" />
         <Button id="btn_browser"   styleclass="imagebtn" bkgnd.render.image="browser.png" margin="0,0,1,0"/>
       </Panel>
-      <SliderCtrl id="progress_music" foregnd.render.image="progress_fill.png" trackbtn.bkgnd.render.image="progress_thumb.png" height="10" width="258" direction="x" layout.left="6" layout.top="112"/>
+      <SliderCtrl id="progress_music" foregnd.render.image="progress_fill.png" trackbtn.bkgnd.render.image="progress_thumb.png" height="10" width="258" layout.left="6" layout.top="112"/>
       <Picture id="visualization" istransparent="1" layout.left="8" layout.top="50" width="160" height="58"/>
       <Button id="btn_play"  styleclass="imagebtn" tooltip="开始" bkgnd.render.image="play.png"  layout.bottom="8" layout.left="10"></Button>
       <Button id="btn_pause" styleclass="imagebtn" tooltip="暂停" bkgnd.render.image="pause.png" layout.bottom="8" layout.left="10"></Button>
@@ -57,7 +57,18 @@
       <Button     id="sys_close" styleclass="imagebtn" bkgnd.render.image="close.png" layout.right="6" layout.top="4"/>
       <SliderCtrl id="progress_pan" height="15" width="50" layout.left="114" layout.top="38" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_balance.png" />
       <SliderCtrl id="progress_3d" height="15" width="53" layout.left="203" layout.top="38" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_balance.png" />
-      <Button     id="btn_enable"   styleclass="imagebtn"  bkgnd.render.image="eq_enabled.bmp" layout.top="38" layout.left="18"/>
+      <SliderCtrl id="progress_eq_16k"  direction="bottomtotop" height="75" width="16" layout.left="236" layout.top="65" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_thumb.png" />
+      <SliderCtrl id="progress_eq_8k"   direction="bottomtotop" height="75" width="16" layout.left="215" layout.top="65" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_thumb.png" />
+      <SliderCtrl id="progress_eq_4k"   direction="bottomtotop" height="75" width="16" layout.left="194" layout.top="65" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_thumb.png" />
+      <SliderCtrl id="progress_eq_2k"   direction="bottomtotop" height="75" width="16" layout.left="173" layout.top="65" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_thumb.png" />
+      <SliderCtrl id="progress_eq_1k"   direction="bottomtotop" height="75" width="16" layout.left="152" layout.top="65" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_thumb.png" />
+      <SliderCtrl id="progress_eq_500"  direction="bottomtotop" height="75" width="16" layout.left="131" layout.top="65" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_thumb.png" />
+      <SliderCtrl id="progress_eq_250"  direction="bottomtotop" height="75" width="16" layout.left="110" layout.top="65" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_thumb.png" />
+      <SliderCtrl id="progress_eq_125"  direction="bottomtotop" height="75" width="16" layout.left="89"  layout.top="65" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_thumb.png" />
+      <SliderCtrl id="progress_eq_63"   direction="bottomtotop" height="75" width="16" layout.left="68"  layout.top="65" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_thumb.png" />
+      <SliderCtrl id="progress_eq_31"   direction="bottomtotop" height="75" width="16" layout.left="47"  layout.top="65" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_thumb.png" />
+      <SliderCtrl id="progress_eq_preamp"  direction="bottomtotop" height="75" width="16" layout.left="18"  layout.top="65" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_thumb.png" />
+      <CheckButton id="btn_enable"   styleclass="imagecheckbutton"  foregnd.render.image="eq_enabled.bmp" layout.top="38" layout.left="18"/>
       <Button     id="btn_profile"  styleclass="imagebtn"  bkgnd.render.image="eq_profile.png" layout.top="36" layout.left="39"/>
       <Button     id="btn_reset"    styleclass="imagebtn"  bkgnd.render.image="reset.png" margin="3,0,3,0" layout.top="36" layout.left="59"/>
     </CustomWindow>
@@ -66,7 +77,13 @@
                    bkgnd.render.image.drawtype="stretch"
                    transparent.type="layered" transparent.maskalpha="230" >
       <Button id="sys_close" styleclass="imagebtn" bkgnd.render.image="close.png" layout.right="6" layout.top="4"/>
-      <CheckButton id="switch_layered" layout.right="50" layout.top="5" text="切换透明窗口" tooltip="切换透明窗口" />   
+      <CheckButton id="switch_layered" layout.right="50" layout.top="5" text="切换透明窗口" tooltip="切换透明窗口" />
+      <Label id="label_hls_h" text="H:" layout.left="17" layout.top="91" textrender.color="default"/>
+      <SliderCtrl id="progress_hls_h" foregnd.render.image="progress_fill.png" height="10" width="210" layout.left="30" layout.top="93" />
+      <Label id="label_hls_h" text="S:" layout.left="17" layout.top="112" textrender.color="default"/>
+      <SliderCtrl id="progress_hls_s" foregnd.render.image="progress_fill.png" height="10" width="210" layout.left="30" layout.top="114" />
+      <Label id="label_hls_h" text="L:" layout.left="17" layout.top="133" textrender.color="default"/>
+      <SliderCtrl id="progress_hls_l" foregnd.render.image="progress_fill.png" height="10" width="210" layout.left="30" layout.top="135" />
     </CustomWindow>
     <Window id="OptionWindow" font="normal" width="556" height="440">
       <ListBox id="optionlist" border="1" layout.left="10" layout.top="10" width="100" height="370" padding="4"
@@ -207,6 +224,27 @@
     <Separator/>
     <String id="1706" text="播放跟随光标(F)" disable="1" styleclass="playmodemenuitem" icon.render.imagelistitem.index="5" tooltip="将选中歌曲作为下一个播放对象"/>
     <String id="1707" text="自动切换列表(A)" disable="1" styleclass="playmodemenuitem" icon.render.imagelistitem.index="6" tooltip="连续播放时当播放完当前列表后自动切换到下一个列表"/>
+  </Menu>
+
+  <Menu id="menu_eq_profile">
+    <String id="1301" text="推荐配置" styleclass="mainmenuitem" icon.render.imagelistitem.index="42" tooltip="使用推荐的EQ配置"/>
+    <String id="1302" text="自定义"   styleclass="mainmenuitem" icon.render.imagelistitem.index="43" tooltip="使用自定义的EQ配置"/>
+    <Separator/>
+    <String id="1303" text="流行音乐"/>
+    <String id="1304" text="摇滚"/>
+    <String id="1305" text="金属乐"/>
+    <String id="1306" text="舞曲"/>
+    <String id="1307" text="电子乐"/>
+    <String id="1308" text="乡村音乐"/>
+    <String id="1309" text="爵士乐"/>
+    <String id="1310" text="古典乐"/>
+    <String id="1311" text="布鲁斯"/>
+    <String id="1312" text="怀旧音乐"/>
+    <String id="1313" text="歌剧"/>
+    <String id="1314" text="语音"/>
+    <Separator/>
+    <String id="1315" text="从文件加载..."/>
+    <String id="1316" text="保存到文件..."/>
   </Menu>
   
 </layout>

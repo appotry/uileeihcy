@@ -23,7 +23,7 @@ public:
 
 	virtual HRESULT  SetVolume(long) = 0;
 	virtual HRESULT  SetPan(long lPan) = 0;
-	
+	virtual HRESULT  SetEq(E_EQ_FREQ eFreq, int nValue) = 0;
 };
 
 
@@ -46,7 +46,7 @@ public:
 	bool    SetPan(long lPanPercent);
 	bool    Mute(bool);
 	bool    SetVisualization(VisualizationInfo* pInfo);
-
+	bool    SetEq(E_EQ_FREQ eFreq, int nValue);
 	HWND    GetMainWnd() { return m_hMainWnd; }
 	CSpectrumAnalyser* GetSA() { return &m_SA; }
 public:
@@ -67,6 +67,7 @@ protected:
 	long     m_nVolumn;;   // 记录当前音量，用于在取消静音时使用
 	bool     m_bMute;      // 当前是否静音
 	long     m_lPan;
+	int      m_arrEqValue[EQ_FREQ_COUNT];
 // 
 	CMessageOnlyWindow   m_WndEvent;
 	friend class CMessageOnlyWindow;

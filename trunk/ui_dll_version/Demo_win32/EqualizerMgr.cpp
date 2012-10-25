@@ -24,6 +24,7 @@ bool CEqualizerMgr::Initialize()
 	::SetWindowPos( m_pEqualizerDlg->m_hWnd, NULL, rc.right, rc.bottom, 0,0/*rc.right-rc.left, rc.bottom-rc.top*/, SWP_NOZORDER|SWP_NOSIZE );
 
 	this->FireEvent(EVENT_TYPE_UI, UI_EVENT_ID_ON_EQUALIZERDLG_CREATE, (WPARAM)m_pEqualizerDlg->m_hWnd);
+	this->ToggleShowEqualizerDlg();
 
 	::mp3_set_pan(GetMainMgr()->GetConfigData()->player.m_byteBalance);
 
@@ -84,4 +85,8 @@ bool CEqualizerMgr::SetBalance(long lPercent, bool bFinish)
 		this->FireEvent(EVENT_TYPE_PLAY, PLAY_EVENT_ID_BALANCE_CHANGED, (WPARAM)lPercent, (LPARAM)bFinish);
 	}
 	return bRet;
+}
+bool CEqualizerMgr::SetEq(E_EQ_FREQ e, int nValue)
+{
+	return ::mp3_set_eq(e, nValue);
 }
