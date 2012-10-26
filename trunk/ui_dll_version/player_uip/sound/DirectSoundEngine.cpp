@@ -3,6 +3,7 @@
 #include "Mp3File.h"
 #include "WavFile.h"
 #include "WmaFile.h"
+#include "Equalizer/eq.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -77,6 +78,9 @@ HRESULT CDirectSoundEngine::Init(CMP3* pMgr, CMessageOnlyWindow* pWndEvent)
 	if (NULL == m_hEventThread)
 		return E_FAIL;
 
+	// 均衡器初始化
+	init_equliazer(0);
+
 	return S_OK;
 }
 HRESULT CDirectSoundEngine::Release()
@@ -108,6 +112,8 @@ HRESULT CDirectSoundEngine::Release()
 	SAFE_RELEASE(m_pDirectSoundBuffer8);
 	SAFE_RELEASE(m_pDirectSound8);
 	
+	// 释放均衡器
+	uninit_equliazer();
 	return S_OK;
 }
 
@@ -198,6 +204,7 @@ HRESULT CDirectSoundEngine::RenderFile( const TCHAR* szFile, const TCHAR* szExt 
 
 		m_pMgr->GetSA()->RenderFile(m_pCurFile->GetFormat()->nChannels, m_pCurFile->GetFormat()->wBitsPerSample/8);
 
+#if 0
 		//EQ
 		DSEFFECTDESC effectdesc[10];
 		for (int i = 0; i < 10; i++)
@@ -221,7 +228,7 @@ HRESULT CDirectSoundEngine::RenderFile( const TCHAR* szFile, const TCHAR* szExt 
 			pEq->SetAllParameters(&param);
 			pEq->Release();
 		}
-
+#endif
 		return hr;
 	}
 	
@@ -438,9 +445,10 @@ HRESULT CDirectSoundEngine::SetEq(E_EQ_FREQ eFreq, int nValue)
 	if (eFreq > EQ_FREQ_COUNT || eFreq < 0)
 		return false;
 
-	if (NULL == m_pDirectSoundBuffer8)
+	if (NULL == m_pDirectSoundBuffer8 || NULL == m_pCurFile)
 		return E_FAIL;
 
+#if 0
 	IDirectSoundFXParamEq8* pEq = NULL;
 	HRESULT hr = m_pDirectSoundBuffer8->GetObjectInPath(GUID_DSFX_STANDARD_PARAMEQ, eFreq,
 		IID_IDirectSoundFXParamEq8, (void**)&pEq);
@@ -453,7 +461,34 @@ HRESULT CDirectSoundEngine::SetEq(E_EQ_FREQ eFreq, int nValue)
 	param.fBandwidth = 36;
 	hr = pEq->SetAllParameters(&param);
 	pEq->Release();
+
 	return hr;
+#endif
+
+	int nChannels = m_pCurFile->GetFormat()->nChannels;
+	for (int i = 0; i < nChannels; i++)
+	{
+		::set_eq_value((float)nValue, eFreq, 0);
+	}
+	
+	return S_OK;
+}
+
+HRESULT CDirectSoundEngine::SetEqPreamp(int nValue)
+{
+	if (NULL == m_pDirectSoundBuffer8 || NULL == m_pCurFile)
+		return E_FAIL;
+
+	if (nValue > 12 || nValue < -12)
+		return E_INVALIDARG;
+
+	int nChannels = m_pCurFile->GetFormat()->nChannels;
+	for (int i = 0; i < nChannels; i++)
+	{
+		::set_eq_value((float)nValue, -1, i);
+	}
+	
+	return S_OK;
 }
 
 // bool CDirectSoundEngine::PostThreadMessage(UINT uMsg, DSMSG_PARAM* pParam)
@@ -597,6 +632,9 @@ HRESULT CDirectSoundEngine::PushBuffer(int nStart, int nCount)
 		return hr;   
 	}
 
+	// 均衡器处理1
+	do_equliazer((short*)pbSoundData,outsize, m_pCurFile->GetFormat()->nSamplesPerSec, m_pCurFile->GetFormat()->nChannels);
+
 	memcpy(pBitPart1, pbSoundData, outsize);
 	delete[] pbSoundData;
 
@@ -610,6 +648,9 @@ HRESULT CDirectSoundEngine::PushBuffer(int nStart, int nCount)
 			m_pDirectSoundBuffer8->Unlock(pBitPart1, dwSizePart1, pBitPart2, dwSizePart2);
 			return hr;
 		}
+
+		// 均衡器处理2
+		do_equliazer((short*)pbSoundData,outsize, m_pCurFile->GetFormat()->nSamplesPerSec, m_pCurFile->GetFormat()->nChannels);
 
 		memcpy(pBitPart2, pbSoundData, outsize);
 		delete[] pbSoundData;
@@ -629,52 +670,6 @@ DWORD CDirectSoundEngine::GetDistance( int Cursor1,int Cursor2 )
 	while (distance <= 0)
 		distance += m_nDirectSoundBufferSize;
 	return distance;
-}
-
-//BufferSize record whole DS buffer Size where can be written
-int CDirectSoundEngine::GetAvailable( DWORD* PlayCursor, DWORD* WriteCursor,int* bufferSize, BOOL fromPlayCursor )
-{
-	return 0;
-#if 0
-	int available=0;
-	if (NULL == m_pDirectSoundBuffer8 || NULL == m_pCurFile)
-	{
-		return 0;
-	}
-	if (FAILED(m_pDirectSoundBuffer8->GetCurrentPosition(PlayCursor,WriteCursor)))
-	{
-		return 0;
-	}
-	int Processing=GetDistance((int)*PlayCursor,(int)*WriteCursor);
-	if ((UINT)Processing > m_nDirectSoundBufferSize/2)
-	{
-		*WriteCursor=*PlayCursor;
-		Processing=0;
-	}
-	*bufferSize=m_nDirectSoundBufferSize;
-	if (fromPlayCursor)
-	{
-		*bufferSize += Processing;
-	}
-	if(m_WritePos==-1)
-	{
-		available=*bufferSize;
-	}
-	else
-	{
-		int currWriteAhead = GetDistance( fromPlayCursor ? (int)*PlayCursor : (int)*WriteCursor, m_WritePos);
-		if (currWriteAhead > *bufferSize) 
-		{
-			*bufferSize = currWriteAhead;
-			available = 0;
-		} 
-		else 
-		{
-			available = *bufferSize - currWriteAhead;
-		}
-	}
-	return available;
-#endif
 }
 
 // TODO: 不能这样获取buffer
