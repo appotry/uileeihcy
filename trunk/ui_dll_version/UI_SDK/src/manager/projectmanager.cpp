@@ -1138,7 +1138,7 @@ bool ProjectManager::SaveProjectInfo()
 	//////////////////////////////////////////////////////////////////////////
 	// 保存工程信息
 
-	bool bRet =  m_pProjectParse->Save(&m_pojoProject);
+	bool bRet = m_pProjectParse->Save(&m_pojoProject);
 
 	if (bRet)
 		m_bDirty = false;

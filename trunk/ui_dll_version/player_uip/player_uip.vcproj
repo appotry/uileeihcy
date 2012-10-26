@@ -293,81 +293,149 @@
 				RelativePath=".\sound\DirectSoundEngine.h"
 				>
 			</File>
-			<File
-				RelativePath=".\sound\FastFourierTransform.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\sound\FastFourierTransform.h"
-				>
-			</File>
-			<File
-				RelativePath=".\sound\fftw3.h"
-				>
-			</File>
-			<File
-				RelativePath=".\sound\SpectrumAnalyser.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\sound\SpectrumAnalyser.h"
-				>
-			</File>
 			<Filter
-				Name="mp3"
+				Name="02. FFT"
 				>
 				<File
-					RelativePath=".\sound\Mp3File.cpp"
+					RelativePath=".\sound\FastFourierTransform.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="2"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="2"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\sound\FastFourierTransform.h"
 					>
 				</File>
 				<File
-					RelativePath=".\sound\Mp3File.h"
-					>
-				</File>
-				<File
-					RelativePath=".\sound\mpg123.h.in"
+					RelativePath=".\sound\fftw3.h"
 					>
 				</File>
 			</Filter>
 			<Filter
-				Name="wav"
+				Name="04. Visualization"
 				>
 				<File
-					RelativePath=".\sound\WavFile.cpp"
+					RelativePath=".\sound\SpectrumAnalyser.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\sound\WavFile.h"
+					RelativePath=".\sound\SpectrumAnalyser.h"
 					>
 				</File>
 			</Filter>
 			<Filter
-				Name="wma"
+				Name="03. Equalizer"
 				>
 				<File
-					RelativePath=".\sound\WmaFile.cpp"
+					RelativePath=".\sound\Equalizer\eq.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\sound\Equalizer\eq.h"
 					>
 				</File>
 				<File
-					RelativePath=".\sound\WmaFile.h"
+					RelativePath=".\sound\Equalizer\iir.h"
 					>
 				</File>
+				<File
+					RelativePath=".\sound\Equalizer\iir_cfs.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\sound\Equalizer\iir_cfs.h"
+					>
+				</File>
+				<File
+					RelativePath=".\sound\Equalizer\iir_fpu.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\sound\Equalizer\iir_fpu.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="01. File"
+				>
+				<Filter
+					Name="01. mp3"
+					>
+					<File
+						RelativePath=".\sound\Mp3File.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\sound\Mp3File.h"
+						>
+					</File>
+					<File
+						RelativePath=".\sound\mpg123.h.in"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="02. wav"
+					>
+					<File
+						RelativePath=".\sound\WavFile.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\sound\WavFile.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="03. wma"
+					>
+					<File
+						RelativePath=".\sound\WmaFile.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\sound\WmaFile.h"
+						>
+					</File>
+				</Filter>
 			</Filter>
 		</Filter>
 		<File

@@ -71,6 +71,7 @@ public:
 	virtual HRESULT  SetVolume(long);
 	virtual HRESULT  SetPan(long lPan);
 	virtual HRESULT  SetEq(E_EQ_FREQ eFreq, int nValue);
+	virtual HRESULT  SetEqPreamp(int nValue);
 
 protected:
 	HRESULT PushBuffer(int nStart, int nCount);
@@ -81,7 +82,6 @@ public:
 	void    EventThreadProc();
 
 	DWORD   GetDistance( int Cursor1,int Cursor2 );
-	int     GetAvailable( DWORD* PlayCursor, DWORD* WriteCursor,int* bufferSize, BOOL fromPlayCursor );
 
 protected:
 //	bool    EventMsgProc();

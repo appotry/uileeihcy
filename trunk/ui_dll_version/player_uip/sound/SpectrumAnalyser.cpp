@@ -88,8 +88,6 @@ HRESULT CSpectrumAnalyser::Release()
 	m_nChannels = 0;
 	m_nBytePerSample = 0;
 
-	m_FFTSrcSampleSize = 0;
-	m_FFTDestSampleSize = 0;
 	m_pSoundEngine = NULL;
 
 	::SelectObject(m_hRenderWndMemDC, m_hOldBitmap);
@@ -140,7 +138,9 @@ int CSpectrumAnalyser::SetBandCount(int nCount)
 	memset(m_pBandValue,    0, sizeof(float)*m_nBandCount);
 	memset(m_pOldBandValue, 0, sizeof(float)*m_nBandCount);
 
-	m_nSamplesPerBand = m_FFTDestSampleSize/m_nBandCount;
+	if (NULL != m_pFFT)
+		m_nSamplesPerBand = m_pFFT->GetFFTOutputSize()/m_nBandCount;
+	
 	return nOldCound;
 }
 
@@ -152,20 +152,21 @@ int CSpectrumAnalyser::SetAnalyserSampleCount(int nCount)
 
 	int nOldSize = m_nAnalyserSampleCount;
 	m_nAnalyserSampleCount = nCount;
-	m_FFTSrcSampleSize  = m_nAnalyserSampleCount/4;  // ?? 为什么要除以4？
-	m_FFTDestSampleSize = m_FFTSrcSampleSize/2;      // FFT计算返回的值是输入值的一半
-	if (0 != m_nBandCount)
-		m_nSamplesPerBand = m_FFTDestSampleSize/m_nBandCount;
+
 
 	SAFE_DELETE(m_pFFT);
-	m_pFFT = new CFastFourierTransform(m_FFTSrcSampleSize);  
-	
+#if 0
+	m_pFFT = new CFastFourierTransformWrap();  // 使用从网上拿到的一个FFT类来做FFT算法 
+#else
+	m_pFFT = new FFTWWrap();      // 使用FFTW开源库来做FFT算法 
+#endif
+	m_pFFT->Init(m_nAnalyserSampleCount);
+
+	if (0 != m_nBandCount)
+		m_nSamplesPerBand = m_pFFT->GetFFTOutputSize()/m_nBandCount;
+		
 	SAFE_ARRAY_DELETE(m_pLeftRightSampleData);
 	m_pLeftRightSampleData = new float[m_nAnalyserSampleCount];
-
-// 	m_pfftw3_in = (double*)fftw_malloc(sizeof(double)*nCount);
-// 	m_pfftw3_out = fftw_alloc_complex(sizeof(fftw_complex)*(nCount/2+1));
-// 	m_fftw_plan = fftw_plan_dft_r2c_1d(nCount, m_pfftw3_in, m_pfftw3_out, FFTW_ESTIMATE);
 
 	return nOldSize;
 }
@@ -232,14 +233,6 @@ bool CSpectrumAnalyser::SetVisualization(VisualizationInfo* pInfo)
 	if (NULL == pInfo)
 		return false;
 	
-	// 注：m_BkgndBmp特殊，需要立即更新(HLS变换...)
-// 	if (pInfo->nMask & VI_MASK_BKGND_BMP)
-// 	{
-// 	//	m_hBkgndBmp = pInfo->hBkgndBmp;
-// 		HBITMAP hTemp = (HBITMAP)::InterlockedExchange((LONG*)&m_hBkgndBmp, (LONG)pInfo->hBkgndBmp);
-// 		SAFE_DELETE_GDIOBJECT(hTemp);
-// 	}
-
 //	BOOL bRet = this->PostThreadMessage(DSMSG_SET_VISUALIZATION, BuildSetVisualizationParam(pInfo));
 
 	DECLARE_CS_PROTECT;
@@ -573,28 +566,26 @@ void CSpectrumAnalyser::FFTSamples()
 // 	{
 // 		m_Left[a] = (m_Left[a] + m_Right[a]) / 2.0f;
 // 	}
-// 	memcpy(m_pfftw3_in, m_pLeftRightSampleData, sizeof(double)*m_nAnalyserSampleCount);
-// 	for (int i = 0; i < m_nAnalyserSampleCount; i++)
-// 	{
-// 		m_pfftw3_in[i] = m_pLeftRightSampleData[i];
-// 	}
-// 	fftw_execute(m_fftw_plan);
-// 	double* pFFTResult = (double*)m_pfftw3_out;
-// 	m_nSamplesPerBand = m_nAnalyserSampleCount/(2*m_nBandCount);
 
-	float* pFFTResult = m_pFFT->Calculate(m_pLeftRightSampleData, m_nAnalyserSampleCount); 
+	m_pFFT->DoFFT(m_pLeftRightSampleData);
+	float* pFFTResult = NULL;
+	int nResultSize = m_pFFT->GetAmplitude(&pFFTResult);
 
-	for (int i = 0, nBandIndex = 0; nBandIndex < m_nBandCount; i += m_nSamplesPerBand, nBandIndex++) 
+	// 当返回的大小比要显示的柱行条小时，修改参数，只显示nResultSize个柱形条
+	int nBandCount = m_nBandCount;
+	int nSamplesPerBand = m_nSamplesPerBand;
+	if (nResultSize < nBandCount)
+	{
+		nBandCount = nResultSize;
+		nSamplesPerBand = 1;
+	}
+
+	for (int i = 0, nBandIndex = 0; nBandIndex < nBandCount; i += nSamplesPerBand, nBandIndex++) 
 	{
 		float fBandValue = 0;
 		// 计算一个柱形条的能量值。（每个柱形条是包含了m_nSamplesPerBand个取样点）
-		for (int j = 0; j < (INT)m_nSamplesPerBand; j++) 
+		for (int j = 0; j < (INT)nSamplesPerBand; j++) 
 		{
-			// 求振幅值。复数的模
-			// 幅度就对FFT的结果取模值再乘以 2/N系数
-		//	double An = sqrt(m_pfftw3_out[i+j][0]*m_pfftw3_out[i+j][0] + m_pfftw3_out[i+j][1]*m_pfftw3_out[i+j][1]);
-		//	fBandValue += An*2/m_nAnalyserSampleCount;
-		
 			fBandValue += pFFTResult[i + j];
 		}
 
@@ -669,7 +660,7 @@ void CSpectrumAnalyser::DrawWave()
 	HPEN  hPen = ::CreatePen(PS_SOLID, 1, RGB(255,255,255));
 	HPEN  hOldPen = (HPEN)::SelectObject(m_hRenderWndMemDC, hPen);
 
-#define XXX 0  // 定义一个值，相差多大时表示相关一级
+#define XXX 0  // 定义一个值，相差多大时表示相差一级
 
 	int    nPrevY = (int)((nHeight - m_pLeftRightSampleData[0]* nHeight)/2);  // 计算第一个
 	POINT* ppt = new POINT[2*nWidth];

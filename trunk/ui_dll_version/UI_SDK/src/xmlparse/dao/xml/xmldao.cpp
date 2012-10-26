@@ -442,7 +442,7 @@ bool CXmlProjectParse::Save( CPojo_Project*  pProject )
 			if (0 != pHLSInfo->h || 0 != pHLSInfo->l || 0 != pHLSInfo->s)
 			{
 				TCHAR szText[32] = _T("");
-				_stprintf(szText, _T("%d%c%d%c%d%c"), pHLSInfo->h, XML_SEPARATOR, pHLSInfo->l, XML_SEPARATOR, pHLSInfo->s, pHLSInfo->s);
+				_stprintf(szText, _T("%d%c%d%c%d"), pHLSInfo->h, XML_SEPARATOR, pHLSInfo->l, XML_SEPARATOR, pHLSInfo->s);
 				if( false == xml.SetAttrib( XML_PROJECT_SKIN_HLS, szText ))  { bLoopRet = false;  break; }
 			}
 		}

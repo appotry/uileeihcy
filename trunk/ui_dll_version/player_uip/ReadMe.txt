@@ -93,6 +93,29 @@ acm是什么？ acmstreamopen。。。
 wmvcore.dll 这个是什么？使用WMF SDK时会从这个DLL中引用
 就是引用WMCreateSyncReader的引用lib
 
+
+拥有自主研发的全新音频引擎，支持DirectSound、Kernel Streaming和ASIO等高级音频流输出方式、
+64比特混音、AddIn插件扩展技术，具有资源占用低、运行效率高，扩展能力强等特点。
+ 　　
+千千静听支持几乎所有常见的音频格式，包括MP/mp3PRO、AAC/AAC+、M4A/MP4、WMA、APE、MPC、OGG、
+WAVE、CD、FLAC、RM、TTA、AIFF、AU等音频格式以及多种MOD和MIDI音乐，以及AVI、VCD、DVD等多种
+视频文件中的音频流，还支持CUE音轨索引文件。 格式转换：通过简单便捷的操作，可以在多种音频
+格式之间进行轻松转换，包括上述所有格式（以及CD或DVD中的音频流）到WAVE、MP3、APE、WMA等格
+式的转换；通过基于COM接口的AddIn插件或第三方提供的命令行编码器还能支持更多格式的播放和转换。 　　
+
+回放增益：千千静听支持高级采样频率转换(SSRC)和多种比特输出方式，并具有强大的回放增益功能，
+可在播放时自动将音量调节到最佳水平以实现不同文件相同音量；基于频域的10波段均衡器、多级杜
+比环绕、交叉淡入淡出音效，兼容并可同时激活多个Winamp2的音效插件。 　　
+
+标签功能：支持所有常见的标签格式，包括ID3v1/v2、WMA、RM、APE和Vorbis等，支持批量修改标签
+和以标签重命名文件，轻松管理播放列表；并且采用freedb接口实现自动在线获取CD的音轨信息的功能。 　　
+
+歌词同步：千千静听倍受用户喜爱和推崇的是强大而完善的同步歌词功能。在播放歌曲的同时，可以自
+动连接到千千静听庞大的歌词库服务器，下载相匹配的歌词，并且以卡拉OK式效果同步滚动显示，并支
+持鼠标拖动定位播放；另有独具特色的歌词编辑功能，可以自己制作或修改同步歌词，还可以直接将自
+己精心制作的歌词上传到服务器实现与他人共享！ 
+
+
  “千千静听”作者的自我推荐
                                   ——献给所有使用汉字并且喜欢用电脑听音乐的人们
 
@@ -159,7 +182,6 @@ Real Player一般就可以播放Real的音频了，但这项功能目前还未�
 包里的wmadmod.dll和msdmo.dll是用来解压WMA的，当你的电脑上没有安装Windows Media
 Player 8/9时会用到。如果Windows98上不能播放CD或不能CD格式转换成MP3，请先下载并安
 装http://alen.27h.com/aspi32.exe. 
- 
  
  
  WMP visualizations
@@ -364,3 +386,14 @@ const double EQ_Frecs[][40] = {
  
  DirectX与VB.NET编程（八）*EQ均衡器 
  http://hi.baidu.com/jadechoice/item/096446bf8d0276d285dd7935
+ 
+ audition 操作——滤波和均衡
+ http://majingyinyue.blog.163.com/blog/static/17078000820110201119761/
+ 
+ IIR均衡器。(在FFT均衡器之下，IIR均衡器的质量和精度都是最高的)。【这个意思是不是就是说FFT均衡器更加的牛掰?】
+ 
+ xmms X Multimedia System (XMMS)是一套自由的音频播放器，其外表极像Winamp，但是运行在Unix-like 操作系统。
+ 虽然原来的授权是闭源的，但现已变为开源，采用GNU General Public License。
+ http://www.xmms.org/
+ iir 能找到的唯一一个相关代码及基使用方法工程
+ http://repository-of-projects.googlecode.com/svn/trunk/Win32/oggdemo/ra_ogg/

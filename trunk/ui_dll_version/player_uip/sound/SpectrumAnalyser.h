@@ -1,18 +1,17 @@
 #pragma  once
 #include "FastFourierTransform.h"
-#include "fftw3.h"
-#pragma comment(lib, "libfftw3-3.lib")
 #include "..\player_uip.h"
 #include "..\\threadmessage.h"
 class   ISoundEngine;
 
-#define DEFAULT_FFT_SAMPLE_BUFFER_SIZE /*16*/2048
+#define DEFAULT_FFT_SAMPLE_BUFFER_SIZE   256/*2048*/    // FFT的大小，看大家都是设置为2048.但再设置小点不是能更节省计算量吗？
 
 enum THREAD_SUSPEND_REASON
 {
 	THREAD_SUSPEND_BY_PLAY_STATE = 0x01,   // 未播放
 	THREAD_SUSPEND_BY_VISUAL_NONE = 0x02,  // 不显示频谱图
 };
+
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -81,13 +80,7 @@ public:
 	int      m_nSampleBufferSize;    // m_pSampleBuffer的大小 = m_nAnalyserSampleCount*m_nBytePerSample*m_nChannels
 	signed char* m_pSampleBuffer;    // 即将播放的数据，也是需要FFT转换的数据。注意：这里是有符号的
 	
-	int      m_FFTSrcSampleSize;     //  ?? FFT的构造参数
-	int      m_FFTDestSampleSize;    //  ?? FFT的返回值大小
-	CFastFourierTransform*  m_pFFT;  // FFT傅里叶算法
-// 	double*        m_pfftw3_in;
-// 	fftw_complex*  m_pfftw3_out;
-// 	fftw_plan      m_fftw_plan;
-
+	FFT*     m_pFFT;                 // FFT傅里叶算法
 
 	// 绘制参数
 	HWND     m_hRenderWnd;           // 绘制窗口
