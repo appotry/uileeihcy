@@ -364,6 +364,10 @@
 				Name="MediaPlayer"
 				>
 				<File
+					RelativePath="..\UI_SDK\bin\mediaplay\color.xml"
+					>
+				</File>
+				<File
 					RelativePath="..\UI_SDK\bin\mediaplay\font.xml"
 					>
 				</File>

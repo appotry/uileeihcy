@@ -94,7 +94,8 @@ public:
 	}
 	virtual bool  ChangeHLS( const ImageData* pOriginImageData, short h, short l , short s, int nFlag )
 	{
-		return m_image.ChangeHLS(pOriginImageData, h, l, s, nFlag );
+		bool bRet = m_image.ChangeHLS(pOriginImageData, h, l, s, nFlag );
+		return bRet;
 	}
 
 	virtual HBITMAP CopyRect(RECT *prc)

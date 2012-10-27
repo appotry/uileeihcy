@@ -933,7 +933,7 @@ LRESULT WindowBase::_OnHandleMouseMessage( UINT uMsg, WPARAM wParam, LPARAM lPar
 LRESULT WindowBase::_OnHandleKeyboardMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
 {
 	bHandled = FALSE;
-	bool bRet = this->m_MgrKeyboard.HandleMessage( uMsg, wParam, lParam );
+	LRESULT bRet = this->m_MgrKeyboard.HandleMessage( uMsg, wParam, lParam );
 	if (bRet)
 	{
 		bHandled = TRUE;

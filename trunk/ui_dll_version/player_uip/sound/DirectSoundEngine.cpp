@@ -14,15 +14,6 @@ double  GetFreqByType(E_EQ_FREQ e)
 	return f[e];
 }
 
-FFTWWrap* pFFTW = NULL;
-void  Equliazation(byte* bData, int nSize, int channels, int nBytePerSample)
-{
-	if (NULL == pFFTW)
-	{
-		pFFTW = new FFTWWrap;
-		pFFTW->Init(32000);
-	}
-}
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 

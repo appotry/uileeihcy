@@ -2094,8 +2094,8 @@ namespace UI
 
 		const BYTE* pImageBits = (const BYTE*)pImage->GetBits();
 		BYTE* pNewImageBits = (BYTE*)m_pBits;
-		int   bytesperrow   = abs(m_nPitch);
-		int   bytesperpx    = m_nBPP/8;
+		int   bytesperpx    = m_nBPP>>3;
+		int   bytesperrow   = bytesperpx*m_nWidth;  /*abs(m_nPitch);*/;   // 注：由于位于一行要求是4的位置，可能导致当宽度为奇数数，后面会补充无用的位。因此这里不能直接用m_nPitch
 
 		for (int row = 0; row < m_nHeight; row ++ )
 		{
@@ -2373,8 +2373,8 @@ namespace UI
 			return false;
 
 		BYTE* pNewImageBits = (BYTE*)m_pBits;
-		int   bytesperline   = abs(m_nPitch);
-		int   bytesperpx    = m_nBPP/8;
+		int   bytesperpx    = m_nBPP>>3;
+		int   bytesperline   = bytesperpx*m_nWidth;  /*abs(m_nPitch);*/ // 注：由于位于一行要求是4的位置，可能导致当宽度为奇数数，后面会补充无用的位。因此这里不能直接用m_nPitch
 		bool  bHaveAlphaChannel = GetBPP() == 32;
 
 		float dL = 0, ds = 0;
