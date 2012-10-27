@@ -20,7 +20,7 @@
         <Button id="btn_browser"   styleclass="imagebtn" bkgnd.render.image="browser.png" margin="0,0,1,0"/>
       </Panel>
       <SliderCtrl id="progress_music" foregnd.render.image="progress_fill.png" trackbtn.bkgnd.render.image="progress_thumb.png" height="10" width="258" layout.left="6" layout.top="112"/>
-      <Picture id="visualization" istransparent="1" layout.left="8" layout.top="50" width="160" height="58"/>
+      <Picture id="visualization" istransparent="1" layout.left="8" layout.top="53" width="160" height="55"/>
       <Button id="btn_play"  styleclass="imagebtn" tooltip="开始" bkgnd.render.image="play.png"  layout.bottom="8" layout.left="10"></Button>
       <Button id="btn_pause" styleclass="imagebtn" tooltip="暂停" bkgnd.render.image="pause.png" layout.bottom="8" layout.left="10"></Button>
       <Button id="btn_stop"  styleclass="imagebtn" tooltip="停止" bkgnd.render.image="stop.png"  layout.bottom="12" layout.left="43"></Button>

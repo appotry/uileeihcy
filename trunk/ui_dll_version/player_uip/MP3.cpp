@@ -13,7 +13,7 @@ CMP3::CMP3(void)
 	m_bMute = false;
 	m_hMainWnd = NULL;
 	m_lPan = DSBPAN_CENTER;
-	m_bEqEnable = true;
+	m_bEqEnable = false;
 	memset(m_arrEqValue, 0, sizeof(int)*EQ_FREQ_COUNT);
 	
 }

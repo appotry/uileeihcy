@@ -4,7 +4,7 @@
 #include "..\\threadmessage.h"
 class   ISoundEngine;
 
-#define DEFAULT_FFT_SAMPLE_BUFFER_SIZE   256/*2048*/    // FFT的大小，看大家都是设置为2048.但再设置小点不是能更节省计算量吗？
+#define DEFAULT_FFT_SAMPLE_BUFFER_SIZE   2048/*2048*/    // FFT的大小，看大家都是设置为2048.但再设置小点不是能更节省计算量吗？
 
 enum THREAD_SUSPEND_REASON
 {
@@ -74,8 +74,8 @@ public:
 	int      m_nChannels;            // 声道数量 1(单声道)  2(立体声)
 	int      m_nBytePerSample;       // 每个取样点的字节数：1(8位)  2(16位)  
 	
-	int      m_nAnalyserSampleCount; // 每次分析的数据大小
-	float*	 m_pLeftRightSampleData; // m_Left m_Right的平均值，大小为m_nAnalyserSampleCount
+	int      m_nAnalyserSampleCount; // 每次FFT分析的数据大小
+	float*	 m_pLeftRightSampleData; // m_Left m_Right声道的平均值，大小为m_nAnalyserSampleCount。
 
 	int      m_nSampleBufferSize;    // m_pSampleBuffer的大小 = m_nAnalyserSampleCount*m_nBytePerSample*m_nChannels
 	signed char* m_pSampleBuffer;    // 即将播放的数据，也是需要FFT转换的数据。注意：这里是有符号的
@@ -94,12 +94,15 @@ public:
 	int      m_nSamplesPerBand;      // 每一个柱形条中包含的取样点数量
 	float*   m_pBandValue;           // 每一个柱形条的高度值
 	float*   m_pOldBandValue;        // 保存每一个Band上一次的FFT转换后的结果，用于柱形条的缓慢衰减
+	int*     m_pPeaksValue;
+	int*     m_pPeaksDelay; 
 
 	HDC      m_hRenderWndDC;
 	HDC      m_hRenderWndMemDC;
 	HBITMAP  m_hMemBitmap;
 	HBITMAP  m_hOldBitmap;
 	HBITMAP  m_hBkgndBmp;            // 窗口上的背景图。每一次的频谱图、波形图都绘制在该背景上
+	HBITMAP  m_hForegndBmp;          // 柱形条的图片
 
 	// 线程数据
 	HANDLE   m_hThread;              // 频谱分析线程

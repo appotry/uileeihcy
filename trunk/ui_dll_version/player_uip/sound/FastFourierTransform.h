@@ -17,8 +17,17 @@ public:
 
 
 
-#define PI_2 6.283185F
+
 #define PI   3.1415925F
+#define PI_2 6.283185F
+#define PI_3 9.4247775F
+#define PI_4 12.56637F
+#define PI_5 15.7079625F
+#define PI_6 18.849555F
+#define PI_7 21.9911475F
+#define PI_8 25.13274F
+#define PI_9 28.2743325F
+
 class CFastFourierTransform
 {
 private:

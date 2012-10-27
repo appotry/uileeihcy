@@ -352,6 +352,10 @@ namespace UI
 		void   RestoreBits( ImageData* pImageData );
 		bool   ImageList_Draw(HDC hDestDC, int x, int y, int col, int row, int cx, int cy );  // libo add 20120401 增加图像列表绘制方法
 		HBITMAP CopyRect(RECT* prc);    // libo add 20121019 增加拷贝图片的一部分的方法
+		
+		// libo add 20121027 增加一个向该Bitmap绘制内容的方法
+		HDC    BeginDrawToMyself() { this->GetDC(); return m_hDC; }
+		void   EndDrawToMyself() { this->ReleaseDC(); }
 
 	private:
 		HBITMAP m_hBitmap;

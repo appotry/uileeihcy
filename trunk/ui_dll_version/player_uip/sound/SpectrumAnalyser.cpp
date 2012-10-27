@@ -17,6 +17,8 @@ CSpectrumAnalyser::CSpectrumAnalyser()
 
 	m_pBandValue = NULL;
 	m_pOldBandValue = NULL;
+	m_pPeaksValue = NULL;
+	m_pPeaksDelay = NULL;
 	m_pSampleBuffer = NULL;
 	m_pLeftRightSampleData = NULL;
 	m_hThread = NULL;
@@ -36,6 +38,7 @@ CSpectrumAnalyser::CSpectrumAnalyser()
 	m_hRenderWndMemDC = NULL;
 	m_hMemBitmap = NULL;
 	m_hOldBitmap = NULL;
+	m_hForegndBmp = NULL;
 	InitializeCriticalSection(&m_cs);
 }
 CSpectrumAnalyser::~CSpectrumAnalyser()
@@ -60,10 +63,12 @@ HRESULT CSpectrumAnalyser::InitDefault(HWND hRenderWnd)
 	this->SetBandCount(30);
 	this->SetRenderWnd(hRenderWnd);
 
-	m_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)gSpectrumAnalyserThreadProc,
-				(LPVOID)this, 0, &m_dwThreadID);
+	m_hEventSuspend = CreateEvent(NULL, TRUE, FALSE, NULL);  // 注：必须先创建事件，再创建线程。否则线程中事件还没创建好就退出了。
 	m_bSuspend = THREAD_SUSPEND_BY_PLAY_STATE;
-	m_hEventSuspend = CreateEvent(NULL, TRUE, FALSE, NULL);
+
+	m_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)gSpectrumAnalyserThreadProc,
+					(LPVOID)this, 0, &m_dwThreadID);
+	
 	return S_OK;
 }
 HRESULT CSpectrumAnalyser::Release()
@@ -81,6 +86,8 @@ HRESULT CSpectrumAnalyser::Release()
 	SAFE_DELETE(m_pFFT);
 	SAFE_ARRAY_DELETE(m_pBandValue);
 	SAFE_ARRAY_DELETE(m_pOldBandValue);
+	SAFE_ARRAY_DELETE(m_pPeaksValue);
+	SAFE_ARRAY_DELETE(m_pPeaksDelay);
 	SAFE_ARRAY_DELETE(m_pSampleBuffer);
 	SAFE_ARRAY_DELETE(m_pLeftRightSampleData);
 	m_nAnalyserSampleCount = 0;
@@ -95,6 +102,7 @@ HRESULT CSpectrumAnalyser::Release()
 	::ReleaseDC(m_hRenderWnd, m_hRenderWndDC);
 	::DeleteObject(m_hMemBitmap);
 	::DeleteObject(m_hBkgndBmp);
+	::DeleteObject(m_hForegndBmp);
 	return S_OK;
 }
 
@@ -102,21 +110,21 @@ void CSpectrumAnalyser::SetRenderWnd(HWND hRenderWnd)
 {
 	if( m_hRenderWnd != hRenderWnd)
 	{
-		if (NULL != m_hRenderWndMemDC)
-		{
-			::SelectObject(m_hRenderWndMemDC, m_hOldBitmap);
-			::DeleteDC(m_hRenderWndMemDC);
-		}
+// 		if (NULL != m_hRenderWndMemDC)
+// 		{
+// 			::SelectObject(m_hRenderWndMemDC, m_hOldBitmap);
+// 			::DeleteDC(m_hRenderWndMemDC);
+// 		}
 		if (NULL != m_hRenderWndDC)
 			::ReleaseDC(m_hRenderWnd, m_hRenderWndDC);
 	
 		m_hRenderWndDC = GetDC(hRenderWnd);
-		m_hRenderWndMemDC = CreateCompatibleDC(NULL);
+
+		if (NULL == m_hRenderWndMemDC)
+			m_hRenderWndMemDC = CreateCompatibleDC(NULL);
 		if (NULL != m_hMemBitmap)
-		{
 			m_hOldBitmap = (HBITMAP)::SelectObject(m_hRenderWndMemDC, m_hMemBitmap);
-		}
-		
+
 		m_hRenderWnd = hRenderWnd;
 	}
 }
@@ -132,11 +140,18 @@ int CSpectrumAnalyser::SetBandCount(int nCount)
 
 	SAFE_ARRAY_DELETE(m_pBandValue);
 	SAFE_ARRAY_DELETE(m_pOldBandValue);
+	SAFE_ARRAY_DELETE(m_pPeaksValue);
+	SAFE_ARRAY_DELETE(m_pPeaksDelay);
 
 	m_pBandValue    = new float[m_nBandCount];
 	m_pOldBandValue = new float[m_nBandCount];
 	memset(m_pBandValue,    0, sizeof(float)*m_nBandCount);
 	memset(m_pOldBandValue, 0, sizeof(float)*m_nBandCount);
+
+	m_pPeaksValue   = new int[m_nBandCount];
+	m_pPeaksDelay   = new int[m_nBandCount];
+	memset(m_pPeaksValue,   0, sizeof(int)*m_nBandCount);
+	memset(m_pPeaksDelay,   0, sizeof(int)*m_nBandCount);
 
 	if (NULL != m_pFFT)
 		m_nSamplesPerBand = m_pFFT->GetFFTOutputSize()/m_nBandCount;
@@ -194,6 +209,8 @@ void CSpectrumAnalyser::SetVisualizationType(E_VISUALIZATION_TYPE eType)
 	SAFE_ARRAY_DELETE(m_pSampleBuffer);
 	SAFE_ARRAY_DELETE(m_pBandValue);
 	SAFE_ARRAY_DELETE(m_pOldBandValue);
+	SAFE_ARRAY_DELETE(m_pPeaksDelay);
+	SAFE_ARRAY_DELETE(m_pPeaksValue);
 
 	if (VISUALIZATION_WAVE == m_eType)
 	{
@@ -209,8 +226,12 @@ void CSpectrumAnalyser::SetVisualizationType(E_VISUALIZATION_TYPE eType)
 	{
 		m_pBandValue    = new float[m_nBandCount];
 		m_pOldBandValue = new float[m_nBandCount];
+		m_pPeaksValue   = new int[m_nBandCount];
+		m_pPeaksDelay   = new int[m_nBandCount];
 		memset(m_pBandValue,    0, sizeof(float)*m_nBandCount);
 		memset(m_pOldBandValue, 0, sizeof(float)*m_nBandCount);
+		memset(m_pPeaksValue,   0, sizeof(int)*m_nBandCount);
+		memset(m_pPeaksDelay,   0, sizeof(int)*m_nBandCount);
 
 		m_pLeftRightSampleData = new float[m_nAnalyserSampleCount];
 
@@ -301,12 +322,17 @@ bool CSpectrumAnalyser::OnSetVisualization(VisualizationInfo* pInfo)
 	}
 	if (pInfo->nMask & VI_MASK_SPECTRUM_GAP_WIDTH)
 	{
-		m_nBandWidth = pInfo->nSpectrumGapWidth;
+		m_nBandGapWidth = pInfo->nSpectrumGapWidth;
 	}
 	if (pInfo->nMask & VI_MASK_BKGND_BMP)
 	{
 		SAFE_DELETE_GDIOBJECT(m_hBkgndBmp);
 		m_hBkgndBmp = pInfo->hBkgndBmp;
+	}
+	if (pInfo->nMask & VI_MASK_FOREGND_BMP)
+	{
+		SAFE_DELETE_GDIOBJECT(m_hForegndBmp);
+		m_hForegndBmp = pInfo->hForegndBmp;
 	}
 
 	return true;
@@ -562,12 +588,8 @@ void CSpectrumAnalyser::TransformSamples()
 
 void CSpectrumAnalyser::FFTSamples()
 {	
-// 	for (int a = 0; a < m_nAnalyserSampleCount; a++) 
-// 	{
-// 		m_Left[a] = (m_Left[a] + m_Right[a]) / 2.0f;
-// 	}
-
 	m_pFFT->DoFFT(m_pLeftRightSampleData);
+
 	float* pFFTResult = NULL;
 	int nResultSize = m_pFFT->GetAmplitude(&pFFTResult);
 
@@ -580,6 +602,7 @@ void CSpectrumAnalyser::FFTSamples()
 		nSamplesPerBand = 1;
 	}
 
+	float* arrBandValue = new float[nBandCount];
 	for (int i = 0, nBandIndex = 0; nBandIndex < nBandCount; i += nSamplesPerBand, nBandIndex++) 
 	{
 		float fBandValue = 0;
@@ -590,11 +613,14 @@ void CSpectrumAnalyser::FFTSamples()
 		}
 
 		// 将数据放大便于显示
-		if (fBandValue > 0.005F && fBandValue < 0.009F)
-			fBandValue *= 9.0F * PI;
-		else if (fBandValue > 0.01F && fBandValue < 0.1F)
-			fBandValue *= 3.0F * PI;
-		else if (fBandValue > 0.1F && fBandValue < 0.5F)
+	//	fBandValue = (fBandValue * (float) log(nBandIndex + 2.0F));   // -- Log filter.
+
+		// 1.3.9 / 2,5,8
+		if (fBandValue > 0.001F && fBandValue < 0.01F)
+			fBandValue *= PI_9;
+		else if (fBandValue >= 0.01F && fBandValue < 0.1F)
+			fBandValue *= PI_3;
+		else if (fBandValue >= 0.1F && fBandValue < 0.5F)
 			fBandValue *= PI; //enlarge PI times, if do not, the bar display abnormally, why??
 
 		if (fBandValue > 1.0F) 
@@ -602,6 +628,33 @@ void CSpectrumAnalyser::FFTSamples()
 			fBandValue = 0.9F;
 		}
 
+		arrBandValue[nBandIndex] = fBandValue;
+	}
+
+	// 求平均.为什么要求平均呢，是为了保证相邻两个柱形条之间不要差距太大，否则当gap width=0时，
+	// 绘制出来的图片很难看，不连贯。
+	float* arrBandValue2 = NULL;
+	if (m_nBandGapWidth !=0 )
+	{
+		arrBandValue2 = arrBandValue;
+	}
+	else
+	{
+		arrBandValue2 = new float[nBandCount];
+		arrBandValue2[0] = arrBandValue[0];
+		for (int i = 1; i < nBandCount-1; i++) 
+		{
+			arrBandValue2[i] = (arrBandValue[i-1] + arrBandValue[i] + arrBandValue[i+1])/3;
+		}
+		arrBandValue2[nBandCount-1] = arrBandValue[nBandCount-1];
+		delete []arrBandValue;
+	}
+	
+
+	// 缓慢的衰减
+	for (int nBandIndex = 0; nBandIndex < nBandCount; nBandIndex++) 
+	{
+		float fBandValue = arrBandValue2[nBandIndex];
 		// -- Compute SA decay...
 		if (fBandValue >= (m_pOldBandValue[nBandIndex] - 0.05f)) // 取新值
 		{
@@ -619,6 +672,7 @@ void CSpectrumAnalyser::FFTSamples()
 
 		m_pBandValue[nBandIndex] = fBandValue;
 	}
+	delete []arrBandValue2;
 }
 // 直接在另一个线程中提交到窗口上面
 void CSpectrumAnalyser::DrawBands()
@@ -628,9 +682,9 @@ void CSpectrumAnalyser::DrawBands()
 	RECT rc = {0,0, nWidth, nHeight};
 
 	HDC hDC = ::CreateCompatibleDC(m_hRenderWndMemDC);
-	SelectObject(hDC, m_hBkgndBmp);
+	HBITMAP hOldBitmap = (HBITMAP)SelectObject(hDC, m_hBkgndBmp);
 	::BitBlt(m_hRenderWndMemDC, 0,0,nWidth, nHeight, hDC, 0,0, SRCCOPY);
-	::DeleteDC(hDC);
+	SelectObject(hDC, m_hForegndBmp);
 
 	HBRUSH hWhiteBrush = (HBRUSH)GetStockObject(WHITE_BRUSH);
 	for (int i = 0; i < m_nBandCount; i++)
@@ -638,10 +692,42 @@ void CSpectrumAnalyser::DrawBands()
 		int ny = nHeight - (int)(nHeight * m_pBandValue[i]);
 		int nx = i * (m_nBandGapWidth+m_nBandWidth);
 
+		// 分析peaks
+		if (ny <= m_pPeaksValue[i])
+		{
+			m_pPeaksValue[i] = ny-1;
+			m_pPeaksDelay[i] = 10;
+		}
+		else
+		{
+			m_pPeaksDelay[i]--;
+			if (m_pPeaksDelay[i] < 0)
+			{
+				m_pPeaksValue[i]++;  // 下降
+			}
+			if (m_pPeaksValue[i] >= nHeight)
+			{
+				m_pPeaksValue[i] = nHeight-1;
+			}
+		}
+
 		RECT rc = {nx, ny, nx+m_nBandWidth, nHeight};
-		::FillRect(m_hRenderWndMemDC, &rc, hWhiteBrush);
+		RECT rcPeak = {nx, m_pPeaksValue[i], nx+m_nBandWidth, m_pPeaksValue[i]+1};
+		if (NULL == m_hForegndBmp)
+		{
+			::FillRect(m_hRenderWndMemDC, &rcPeak, hWhiteBrush);
+			::FillRect(m_hRenderWndMemDC, &rc, hWhiteBrush);
+		}
+		else
+		{
+			::FillRect(m_hRenderWndMemDC, &rcPeak, hWhiteBrush);
+			::BitBlt(m_hRenderWndMemDC, rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top, hDC, rc.left, rc.top, SRCCOPY);
+		}
 	}
+
 	::BitBlt(m_hRenderWndDC, m_rcRender.left, m_rcRender.top, nWidth, nHeight, m_hRenderWndMemDC,0,0,SRCCOPY);
+	::SelectObject(hDC, hOldBitmap);
+	::DeleteDC(hDC);
 }
 
 void CSpectrumAnalyser::DrawWave()

@@ -33,7 +33,8 @@ enum E_VISUALIZATION_TYPE
 #define VI_MASK_RECT   0x0002
 #define VI_MASK_TYPE   0x0004
 #define VI_MASK_FPS    0x0008
-#define VI_MASK_BKGND_BMP  0x0080
+#define VI_MASK_BKGND_BMP    0x0080
+#define VI_MASK_FOREGND_BMP  0x0100
 
 #define VI_MASK_SPECTRUM_BAND_COUNT  0x0010
 #define VI_MASK_SPECTRUM_BAND_WIDTH  0x0020
@@ -48,6 +49,7 @@ struct VisualizationInfo
 	HWND     hWnd;
 	RECT     rcRender;
 	HBITMAP  hBkgndBmp;
+	HBITMAP  hForegndBmp;
 	E_VISUALIZATION_TYPE eType;
 	int      nFps;
 

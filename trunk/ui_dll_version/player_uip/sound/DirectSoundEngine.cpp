@@ -34,9 +34,9 @@ CDirectSoundEngine::CDirectSoundEngine(void)
 	m_hEventThread = NULL;
 	m_dwEventThreadID = 0;
 
-	this->SetBufferSize(4068/*32*1024*/);
+//	this->SetBufferSize(32*1024);
 	InitializeCriticalSection(&m_cs); 
-	m_bEqEnable = true;
+	m_bEqEnable = false;
 }
 
 CDirectSoundEngine::~CDirectSoundEngine(void)
@@ -86,11 +86,6 @@ HRESULT CDirectSoundEngine::Init(CMP3* pMgr, CMessageOnlyWindow* pWndEvent)
 }
 HRESULT CDirectSoundEngine::Release()
 {
-	m_pCurFile = NULL;
-	SAFE_DELETE(m_pMp3File);
-	SAFE_DELETE(m_pWavFile);
-	SAFE_DELETE(m_pWmaFile);
-
 	if(m_hEventThread != NULL)
 	{
 //		this->PostThreadMessage(DSMSG_QUIT,NULL);
@@ -101,6 +96,12 @@ HRESULT CDirectSoundEngine::Release()
 		m_hEventThread = NULL;
 		m_dwEventThreadID = 0;
 	}
+
+	m_pCurFile = NULL;   // 这个的置空要放在线程结束之后，否则可能导致线程中空指针崩溃
+	SAFE_DELETE(m_pMp3File);
+	SAFE_DELETE(m_pWavFile);
+	SAFE_DELETE(m_pWmaFile);
+
 	for(int i = 0; i < NOTIFY_EVENT_COUNT; ++ i)
 	{
 		if(m_hEvents[i] != NULL)

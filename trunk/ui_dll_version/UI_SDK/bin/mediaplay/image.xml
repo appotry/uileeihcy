@@ -57,5 +57,6 @@
     <item type="icon" id="ttplayer.ico"       useskinhls="0" width="16" height="16">ttplayer.ico</item>
     <item type="icon" id="ttplayer.ico_32_32" useskinhls="0" width="32" height="32">ttplayer.ico</item>
     <item type="icon" id="ttplayer.ico_48_48" useskinhls="0" width="48" height="48">ttplayer.ico</item>
+    <item id="visualization_band.bmp">visualization_band.bmp</item>
   </img>
 </ui>

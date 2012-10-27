@@ -37,11 +37,12 @@ bool CMainMgr::Initialize()
 	::UpdateWindow(m_pMainWindow->m_hWnd);
 
 	VisualizationInfo info;
-	info.nMask = VI_MASK_HWND|VI_MASK_RECT|VI_MASK_SPECTRUM_BAND_COUNT|VI_MASK_TYPE|VI_MASK_BKGND_BMP|VI_MASK_SPECTRUM_BAND_WIDTH|VI_MASK_FPS;
+	info.nMask = VI_MASK_HWND|VI_MASK_RECT|VI_MASK_SPECTRUM_BAND_COUNT|VI_MASK_TYPE|VI_MASK_SPECTRUM_BAND_WIDTH|VI_MASK_FPS|VI_MASK_SPECTRUM_GAP_WIDTH;
 	info.hWnd = m_pMainWindow->m_hWnd;
 	info.hBkgndBmp = m_pMainWindow->GetVisualizationInfo(&info.rcRender);
-	info.nSpectrumBandWidth = 3;
-	info.nSpectrumBandCount = (info.rcRender.right-info.rcRender.left)/4;
+	info.nSpectrumBandWidth = 1;
+	info.nSpectrumGapWidth = 0;
+	info.nSpectrumBandCount = (info.rcRender.right-info.rcRender.left)/(info.nSpectrumBandWidth+info.nSpectrumGapWidth);
 	info.eType = (E_VISUALIZATION_TYPE)m_config.visual.m_nType;
 	info.nFps = m_config.visual.m_nFps;
 
@@ -55,6 +56,24 @@ bool CMainMgr::Initialize()
 	::SelectObject(hMemDC, hOldBmp);
 	::DeleteDC(hMemDC);
 	::ReleaseDC(info.hWnd, hDC);
+	info.nMask |= VI_MASK_BKGND_BMP;
+
+	// 设置一个前景图
+	GDIRenderBitmap* pBitmap = (GDIRenderBitmap*)UI_GetBitmap(_T("visualization_band.bmp"));
+	if (NULL != pBitmap)
+	{
+ 		Image  image;
+ 		RECT rc = {0,0, info.rcRender.right - info.rcRender.left, info.rcRender.bottom - info.rcRender.top};
+ 		image.Create(rc.right, rc.bottom, 32, Image::createAlphaChannel);
+ 		hDC = image.BeginDrawToMyself();
+// 		UI::Util::GradientFillV(hDC, &rc, RGB(255,0,0), RGB(0,255,0));
+		pBitmap->GetBitmap()->BitBlt(hDC, 0, 0);
+ 		image.EndDrawToMyself();
+ 		info.hForegndBmp = image.Detach();
+		info.nMask |= VI_MASK_FOREGND_BMP;
+		pBitmap->Release();
+	}
+	
 	
 	::mp3_set_visualization(&info);
 	return bRet;
