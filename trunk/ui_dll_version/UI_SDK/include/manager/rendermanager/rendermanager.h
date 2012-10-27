@@ -47,7 +47,7 @@ typedef struct tagDRAWBITMAPPARAM
 
 }DRAWBITMAPPARAM, *LPDRAWBITMAPPARAM;
 
-class IRenderResource
+class UIAPI IRenderResource
 {
 protected:
 	IRenderResource(IRenderResource** ppOutRef);
@@ -66,7 +66,7 @@ protected:
 									 // UIImage*，在UIImage的析构函数中将中置空
 };
 
-class IRenderBitmap : public IRenderResource
+class UIAPI IRenderBitmap : public IRenderResource
 {
 protected:
 	IRenderBitmap(IRenderResource**  ppOutRef);   // 只能通过Create来创建

@@ -112,3 +112,14 @@ void CLyricDlg::OnHLSChanged_S( int nPos, int nScrollType )
 		UI_ChangeSkinHLS(m_pH->GetPos(), m_pL->GetPos(), nPos, CHANGE_SKIN_HLS_FLAG_HLS);
 	}
 }
+
+void CLyricDlg::OnLButtonDblClk(UINT nFlags, POINT point)
+{
+	UI_ChangeSkinHLS(0, 0, 0, CHANGE_SKIN_HLS_FLAG_HLS);
+	if (NULL != m_pH)
+		m_pH->SetPos(0);
+	if (NULL != m_pL)
+		m_pL->SetPos(0);
+	if (NULL != m_pS)
+		m_pS->SetPos(0);
+}

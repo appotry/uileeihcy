@@ -14,6 +14,7 @@ public:
 		UIMSG_TRBN_POSCHANGED_ID( _T("progress_hls_h"), OnHLSChanged_H )
 		UIMSG_TRBN_POSCHANGED_ID( _T("progress_hls_l"), OnHLSChanged_L )
 		UIMSG_TRBN_POSCHANGED_ID( _T("progress_hls_s"), OnHLSChanged_S )
+		UIMSG_WM_LBUTTONDBLCLK(OnLButtonDblClk)
 	UI_END_MSG_MAP_CHAIN_PARENT(CustomWindow)
 
 public:
@@ -26,6 +27,7 @@ public:
 	void    OnHLSChanged_H( int nPos, int nScrollType );
 	void    OnHLSChanged_L( int nPos, int nScrollType );
 	void    OnHLSChanged_S( int nPos, int nScrollType );
+	void    OnLButtonDblClk(UINT nFlags, POINT point);
 
 	SliderCtrl* m_pH;
 	SliderCtrl* m_pL;

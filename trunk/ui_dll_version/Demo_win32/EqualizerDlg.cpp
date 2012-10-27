@@ -111,11 +111,16 @@ void CEqualizerDlg::OnInitWindow( )
 	m_pBtnEnable = (CheckButton*)this->FindChildObject(_T("btn_enable"));
 	if (NULL != m_pBtnEnable)
 	{
-		m_pBtnEnable->SetChecked();
+//		m_pBtnEnable->SetChecked();
 	}
 
 	m_pBtnProfile = (Button*)this->FindChildObject(_T("btn_profile"));
+	
+	// 由于采用的IIR均衡算法存在问题，基于频域的算法很多细节又不知道如何实现，
+	// 因此默认先禁用均衡器
+	this->OnBtnEnable();
 }
+
 void CEqualizerDlg::OnClose()
 {
 	this->HideWindow();
