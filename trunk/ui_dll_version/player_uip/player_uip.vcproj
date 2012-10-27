@@ -411,6 +411,10 @@
 						RelativePath=".\sound\mpg123.h.in"
 						>
 					</File>
+					<File
+						RelativePath=".\sound\mpg123.in.h"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="02. wav"

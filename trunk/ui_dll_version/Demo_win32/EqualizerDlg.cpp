@@ -96,19 +96,16 @@ void CEqualizerDlg::OnInitWindow( )
 	{
 		m_pEq_63->SetRange(-12,12,false);
 		m_pEq_63->SetPos(0, false);
-		m_pEq_63->SetEnable(false);
 	}
 	if (NULL != m_pEq_31)
 	{
 		m_pEq_31->SetRange(-12,12,false);
 		m_pEq_31->SetPos(0, false);
-		m_pEq_31->SetEnable(false);
 	}
 	if (NULL != m_pEq_preamp)
 	{
 		m_pEq_preamp->SetRange(-12,12,false);
 		m_pEq_preamp->SetPos(0, false);
-		m_pEq_preamp->SetEnable(false);
 	}
 
 	m_pBtnEnable = (CheckButton*)this->FindChildObject(_T("btn_enable"));
@@ -170,9 +167,26 @@ void CEqualizerDlg::OnEqChanged125( int nPos, int nScrollType )
 		GetEqualizerMgr()->SetEq(EQ_FREQ_125, nPos);
 }
 
+void CEqualizerDlg::OnEqChanged63( int nPos, int nScrollType )
+{
+	if (nScrollType == SB_ENDSCROLL)
+		GetEqualizerMgr()->SetEq(EQ_FREQ_63, nPos);
+}
+void CEqualizerDlg::OnEqChanged31( int nPos, int nScrollType )
+{
+	if (nScrollType == SB_ENDSCROLL)
+		GetEqualizerMgr()->SetEq(EQ_FREQ_31, nPos);
+}
+void CEqualizerDlg::OnEqChangedPreamp( int nPos, int nScrollType )
+{
+	if (nScrollType == SB_ENDSCROLL)
+		GetEqualizerMgr()->SetEq(EQ_FREQ_PREAMP, nPos);
+}
 void CEqualizerDlg::OnBtnEnable()
 {
 	bool bRet = m_pBtnEnable->IsChecked();
+	GetEqualizerMgr()->EnableEq(bRet);
+
 	if (NULL != m_pEq_16k)
 		m_pEq_16k->SetEnable(bRet);
 	if (NULL != m_pEq_8k)
@@ -189,56 +203,58 @@ void CEqualizerDlg::OnBtnEnable()
 		m_pEq_250->SetEnable(bRet);
 	if (NULL != m_pEq_125)
 		m_pEq_125->SetEnable(bRet);
+	if (NULL != m_pEq_63)
+		m_pEq_63->SetEnable(bRet);
+	if (NULL != m_pEq_31)
+		m_pEq_31->SetEnable(bRet);
+	if (NULL != m_pEq_preamp)
+		m_pEq_preamp->SetEnable(bRet);
 }
 void CEqualizerDlg::OnBtnReset()
 {
 	if (NULL != m_pEq_16k)
 	{
 		m_pEq_16k->SetPos(0);
-		this->OnEqChanged16k(0, SB_ENDSCROLL+1);
-		this->OnEqChanged16k(0, SB_ENDSCROLL);
 	}
 	if (NULL != m_pEq_8k)
 	{
 		m_pEq_8k->SetPos(0);
-		this->OnEqChanged8k(0, SB_ENDSCROLL+1);
-		this->OnEqChanged8k(0, SB_ENDSCROLL);
 	}
 	if (NULL != m_pEq_4k)
 	{
 		m_pEq_4k->SetPos(0);
-		this->OnEqChanged4k(0, SB_ENDSCROLL+1);
-		this->OnEqChanged4k(0, SB_ENDSCROLL);
 	}
 	if (NULL != m_pEq_2k)
 	{
 		m_pEq_2k->SetPos(0);
-		this->OnEqChanged2k(0, SB_ENDSCROLL+1);
-		this->OnEqChanged2k(0, SB_ENDSCROLL);
 	}
 	if (NULL != m_pEq_1k)
 	{
 		m_pEq_1k->SetPos(0);
-		this->OnEqChanged1k(0, SB_ENDSCROLL+1);
-		this->OnEqChanged1k(0, SB_ENDSCROLL);
 	}
 	if (NULL != m_pEq_500)
 	{
 		m_pEq_500->SetPos(0);
-		this->OnEqChanged500(0, SB_ENDSCROLL+1);
-		this->OnEqChanged500(0, SB_ENDSCROLL);
 	}
 	if (NULL != m_pEq_250)
 	{
 		m_pEq_250->SetPos(0);
-		this->OnEqChanged250(0, SB_ENDSCROLL+1);
-		this->OnEqChanged250(0, SB_ENDSCROLL);
 	}
 	if (NULL != m_pEq_125)
 	{
 		m_pEq_125->SetPos(0);
-		this->OnEqChanged125(0, SB_ENDSCROLL+1);
-		this->OnEqChanged125(0, SB_ENDSCROLL);
+	}
+	if (NULL != m_pEq_63)
+	{
+		m_pEq_63->SetPos(0);
+	}
+	if (NULL != m_pEq_31)
+	{
+		m_pEq_31->SetPos(0);
+	}
+	if (NULL != m_pEq_preamp)
+	{
+		m_pEq_preamp->SetPos(0);
 	}
 }
 void CEqualizerDlg::OnBtnProfile()

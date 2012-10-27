@@ -15,6 +15,9 @@ public:
 
 	virtual  HRESULT   SetCurPos(double percent);
 	virtual  HRESULT   GetCurPos(int nWriteBufferSize, double* pdSeconds, double* pdPercent);
+
+	virtual  HRESULT   SetEq(int nBand, double nValue);
+		
 protected:
 	mpg123_handle*     m_hMpg123;   // mp3解码器
 	bool     m_bFileOpened;    // 为了解决文件不存在时，mpg123_open返回-1，此时再

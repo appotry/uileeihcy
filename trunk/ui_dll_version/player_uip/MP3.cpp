@@ -13,8 +13,9 @@ CMP3::CMP3(void)
 	m_bMute = false;
 	m_hMainWnd = NULL;
 	m_lPan = DSBPAN_CENTER;
-
+	m_bEqEnable = true;
 	memset(m_arrEqValue, 0, sizeof(int)*EQ_FREQ_COUNT);
+	
 }
 
 CMP3::~CMP3(void)
@@ -105,6 +106,8 @@ bool CMP3::RenderFile( const String& strFile )
 	{
 		m_pCurrentEngine->SetVolume(m_bMute?DSBVOLUME_MIN:m_nVolumn);
 		m_pCurrentEngine->SetPan(m_lPan);
+		m_pCurrentEngine->EnableEq(m_bEqEnable);
+		// TODO: SetEq
 	}
 	m_SA.SetSoundEngine(m_pCurrentEngine);
 
@@ -218,14 +221,33 @@ bool CMP3::Mute(bool bMute)
 		return false;
 }
 
+// 为了均匀切换声道，必须再从数组中取对应的值，而不是线性的
 bool CMP3::SetPan(long lPanPercent)
 {
-	m_lPan = lPanPercent;
+	if (lPanPercent > 0)
+	{
+		int nIndex = 100 - lPanPercent;
+		if (nIndex>100 || nIndex<0)
+			return false;
+
+ 		m_lPan = (long)( g_volumes[nIndex] );
+ 		m_lPan *= -1;
+	}
+	else if (lPanPercent < 0)
+	{
+		int nIndex = 100 + lPanPercent;
+		if (nIndex>100 || nIndex<0)
+			return false;
+
+		m_lPan = (long)( g_volumes[nIndex] );
+	}
+	else
+		m_lPan = 0;
 
 	if (NULL == m_pCurrentEngine)
 		return true;
 
-	HRESULT hr = m_pCurrentEngine->SetPan(lPanPercent);
+	HRESULT hr = m_pCurrentEngine->SetPan(m_lPan);
 
 	if (SUCCEEDED(hr))
 		return true;
@@ -254,6 +276,17 @@ bool CMP3::SetEq(E_EQ_FREQ eFreq, int nValue)
 		return true;
 	else
 		return false;
+}
+
+bool CMP3::EnableEq(bool bEnable)
+{
+	m_bEqEnable = bEnable;
+
+	if (NULL == m_pCurrentEngine)
+		return true;
+
+	m_pCurrentEngine->EnableEq(m_bEqEnable);
+	return true;
 }
 
 bool CMP3::AddEventCallback(IMp3EventCallback* p)

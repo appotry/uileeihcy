@@ -75,7 +75,11 @@ void CEqualizerMgr::HandleEvent(IMgr* pSource, int nEventType, int nEventId, WPA
 
 bool CEqualizerMgr::SetBalance(long lPercent, bool bFinish)
 {
-	bool bRet = ::mp3_set_pan(lPercent);
+	bool bRet = false;
+	if (!bFinish)
+	{
+		bRet = ::mp3_set_pan(lPercent);
+	}
 	
 	if (bRet)
 	{
@@ -89,4 +93,8 @@ bool CEqualizerMgr::SetBalance(long lPercent, bool bFinish)
 bool CEqualizerMgr::SetEq(E_EQ_FREQ e, int nValue)
 {
 	return ::mp3_set_eq(e, nValue);
+}
+bool CEqualizerMgr::EnableEq(bool bEnable)
+{
+	return ::mp3_enable_eq(bEnable);
 }
