@@ -107,7 +107,10 @@ bool CMP3::RenderFile( const String& strFile )
 		m_pCurrentEngine->SetVolume(m_bMute?DSBVOLUME_MIN:m_nVolumn);
 		m_pCurrentEngine->SetPan(m_lPan);
 		m_pCurrentEngine->EnableEq(m_bEqEnable);
-		// TODO: SetEq
+		for (int i = 0; i < EQ_FREQ_COUNT; i++)
+		{
+			m_pCurrentEngine->SetEq((E_EQ_FREQ)i, m_arrEqValue[i]);
+		}
 	}
 	m_SA.SetSoundEngine(m_pCurrentEngine);
 
@@ -287,6 +290,23 @@ bool CMP3::EnableEq(bool bEnable)
 
 	m_pCurrentEngine->EnableEq(m_bEqEnable);
 	return true;
+}
+bool CMP3::ReSetEq()
+{
+	for (int i = 0; i < EQ_FREQ_COUNT; i++)
+	{
+		m_arrEqValue[i] = 0;
+	}
+	if (NULL == m_pCurrentEngine)
+		return true;
+
+	for (int i = 0; i < EQ_FREQ_COUNT; i++)
+	{
+		m_pCurrentEngine->SetEq((E_EQ_FREQ)i, m_arrEqValue[i]);
+	}
+
+	return true;
+
 }
 
 bool CMP3::AddEventCallback(IMp3EventCallback* p)

@@ -14,6 +14,15 @@ double  GetFreqByType(E_EQ_FREQ e)
 	return f[e];
 }
 
+FFTWWrap* pFFTW = NULL;
+void  Equliazation(byte* bData, int nSize, int channels, int nBytePerSample)
+{
+	if (NULL == pFFTW)
+	{
+		pFFTW = new FFTWWrap;
+		pFFTW->Init(32000);
+	}
+}
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
@@ -170,7 +179,7 @@ HRESULT CDirectSoundEngine::RenderFile( const TCHAR* szFile, const TCHAR* szExt 
 		//     DSBCAPS_CTRLPOSITIONNOTIFY，如果不加上这个标志，QueryInterface IID_IDirectSoundNotify8 会返回NOINTERFACE
 		desc.dwFlags = DSBCAPS_CTRLPAN|DSBCAPS_CTRLVOLUME|DSBCAPS_CTRLFX|DSBCAPS_GLOBALFOCUS|DSBCAPS_CTRLPOSITIONNOTIFY;  
 		desc.lpwfxFormat =  m_pCurFile->GetFormat();
-		SetBufferSize(desc.lpwfxFormat->nAvgBytesPerSec);
+		SetBufferSize(desc.lpwfxFormat->nAvgBytesPerSec*2); // 因为使用IIR的均衡器，对于1channel8bits的音频，如果不乘以2，则会出现沙沙的声音。（可能是因为IIR内容默认所有的都是16bits吧）
 		desc.dwBufferBytes = m_nDirectSoundBufferSize;    //3*desc.lpwfxFormat->nAvgBytesPerSec;  // 持续3秒的流缓冲区
 
 		IDirectSoundBuffer*  pBuffer = NULL;
@@ -653,7 +662,10 @@ HRESULT CDirectSoundEngine::PushBuffer(int nStart, int nCount)
 
 	// 均衡器处理1
 	if (m_bEqEnable)
+	{
 		do_equliazer((short*)pbSoundData,outsize, m_pCurFile->GetFormat()->nSamplesPerSec, m_pCurFile->GetFormat()->nChannels);
+//		Equliazation()
+	}
 
 	memcpy(pBitPart1, pbSoundData, outsize);
 	delete[] pbSoundData;
@@ -671,7 +683,9 @@ HRESULT CDirectSoundEngine::PushBuffer(int nStart, int nCount)
 
 		// 均衡器处理2
 		if (m_bEqEnable)
+		{
 			do_equliazer((short*)pbSoundData,outsize, m_pCurFile->GetFormat()->nSamplesPerSec, m_pCurFile->GetFormat()->nChannels);
+		}
 
 		memcpy(pBitPart2, pbSoundData, outsize);
 		delete[] pbSoundData;

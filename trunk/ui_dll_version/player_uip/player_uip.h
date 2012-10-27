@@ -80,5 +80,6 @@ PLAYER_UIP_API bool  mp3_set_volumn( long lPercent );
 PLAYER_UIP_API bool  mp3_mute( bool bMute );
 PLAYER_UIP_API bool  mp3_set_pan(long lPanPercent);
 PLAYER_UIP_API bool  mp3_enable_eq(bool bEnable);
+PLAYER_UIP_API bool  mp3_reset_eq();
 PLAYER_UIP_API bool  mp3_set_eq(E_EQ_FREQ eFreq, int nValue);
 PLAYER_UIP_API bool  mp3_set_visualization(VisualizationInfo* pInfo);

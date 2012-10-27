@@ -49,6 +49,7 @@ public:
 	bool    SetVisualization(VisualizationInfo* pInfo);
 	bool    SetEq(E_EQ_FREQ eFreq, int nValue);
 	bool    EnableEq(bool bEnable);
+	bool    ReSetEq();
 	HWND    GetMainWnd() { return m_hMainWnd; }
 	CSpectrumAnalyser* GetSA() { return &m_SA; }
 public:

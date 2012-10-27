@@ -256,6 +256,7 @@ void CEqualizerDlg::OnBtnReset()
 	{
 		m_pEq_preamp->SetPos(0);
 	}
+	GetEqualizerMgr()->ReSetEq();
 }
 void CEqualizerDlg::OnBtnProfile()
 {
