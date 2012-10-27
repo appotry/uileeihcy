@@ -556,9 +556,9 @@ HRGN CustomWindow::GetExcludeRgn( BYTE* pBits, const RECT& rc, bool bOffsetToOri
 		{
 			POINT pt = { j, i };
 
-			BYTE r = *p++;
-			BYTE g = *p++;
 			BYTE b = *p++;
+			BYTE g = *p++;
+			BYTE r = *p++;
 			BYTE a = *p++;
 
 			bool bExclude = false;
