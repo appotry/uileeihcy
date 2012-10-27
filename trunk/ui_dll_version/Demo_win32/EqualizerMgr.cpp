@@ -98,3 +98,7 @@ bool CEqualizerMgr::EnableEq(bool bEnable)
 {
 	return ::mp3_enable_eq(bEnable);
 }
+bool CEqualizerMgr::ReSetEq()
+{
+	return ::mp3_reset_eq();
+}

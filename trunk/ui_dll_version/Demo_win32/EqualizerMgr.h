@@ -20,6 +20,8 @@ public:
 	bool   SetBalance(long lPercent, bool bFinish);
 	bool   EnableEq(bool bEnable);
 	bool   SetEq(E_EQ_FREQ e, int nValue);
+	bool   ReSetEq();
+
 private:
 	CEqualizerDlg*   m_pEqualizerDlg;
 };

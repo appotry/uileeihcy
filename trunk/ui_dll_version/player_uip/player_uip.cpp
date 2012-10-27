@@ -72,3 +72,8 @@ bool  mp3_set_eq(E_EQ_FREQ eFreq, int nValue)
 {
 	return g_mp3.SetEq(eFreq, nValue);
 }
+
+bool  mp3_reset_eq()
+{
+	return g_mp3.ReSetEq();
+}
