@@ -36,6 +36,7 @@ CDirectSoundEngine::CDirectSoundEngine(void)
 
 	this->SetBufferSize(4068/*32*1024*/);
 	InitializeCriticalSection(&m_cs); 
+	m_bEqEnable = true;
 }
 
 CDirectSoundEngine::~CDirectSoundEngine(void)
@@ -430,16 +431,23 @@ HRESULT CDirectSoundEngine::SetVolume(long lVolumn)
 }
 
 // 其实就是设置左右扬声器的出声比例，名字起的挺奇怪的
-HRESULT CDirectSoundEngine::SetPan(long lPanPercent)
+// DSBPAN_LEFT to DSBPAN_RIGHT.
+HRESULT CDirectSoundEngine::SetPan(long lPan)
 {
 	if (NULL == m_pCurFile || NULL == m_pDirectSoundBuffer8)
 		return E_FAIL;
 
-	HRESULT hr = m_pDirectSoundBuffer8->SetPan(lPanPercent*100);
+	HRESULT hr = m_pDirectSoundBuffer8->SetPan(lPan);
 	return hr;
 }
 
 // 该功能需要directsoundbuffer开启DSBCAPS_CTRLFX
+HRESULT CDirectSoundEngine::EnableEq(bool bEnable)
+{
+	m_bEqEnable = bEnable;
+	return S_OK;
+}
+
 HRESULT CDirectSoundEngine::SetEq(E_EQ_FREQ eFreq, int nValue)
 {
 	if (eFreq > EQ_FREQ_COUNT || eFreq < 0)
@@ -465,12 +473,23 @@ HRESULT CDirectSoundEngine::SetEq(E_EQ_FREQ eFreq, int nValue)
 	return hr;
 #endif
 
+
+#if 1
 	int nChannels = m_pCurFile->GetFormat()->nChannels;
-	for (int i = 0; i < nChannels; i++)
+	for (int i = 0; i < 2/*nChannels*/; i++)
 	{
-		::set_eq_value((float)nValue, eFreq, 0);
+		if (EQ_FREQ_PREAMP == eFreq)
+		{
+			::set_eq_value((float)nValue, -1, i);
+		}
+		else
+		{
+			::set_eq_value((float)nValue, eFreq, i);
+		}
 	}
 	
+#endif
+//	m_pCurFile->SetEq(eFreq, nValue);
 	return S_OK;
 }
 
@@ -483,7 +502,7 @@ HRESULT CDirectSoundEngine::SetEqPreamp(int nValue)
 		return E_INVALIDARG;
 
 	int nChannels = m_pCurFile->GetFormat()->nChannels;
-	for (int i = 0; i < nChannels; i++)
+	for (int i = 0; i < 2/*nChannels*/; i++)
 	{
 		::set_eq_value((float)nValue, -1, i);
 	}
@@ -633,7 +652,8 @@ HRESULT CDirectSoundEngine::PushBuffer(int nStart, int nCount)
 	}
 
 	// 均衡器处理1
-	do_equliazer((short*)pbSoundData,outsize, m_pCurFile->GetFormat()->nSamplesPerSec, m_pCurFile->GetFormat()->nChannels);
+	if (m_bEqEnable)
+		do_equliazer((short*)pbSoundData,outsize, m_pCurFile->GetFormat()->nSamplesPerSec, m_pCurFile->GetFormat()->nChannels);
 
 	memcpy(pBitPart1, pbSoundData, outsize);
 	delete[] pbSoundData;
@@ -650,7 +670,8 @@ HRESULT CDirectSoundEngine::PushBuffer(int nStart, int nCount)
 		}
 
 		// 均衡器处理2
-		do_equliazer((short*)pbSoundData,outsize, m_pCurFile->GetFormat()->nSamplesPerSec, m_pCurFile->GetFormat()->nChannels);
+		if (m_bEqEnable)
+			do_equliazer((short*)pbSoundData,outsize, m_pCurFile->GetFormat()->nSamplesPerSec, m_pCurFile->GetFormat()->nChannels);
 
 		memcpy(pBitPart2, pbSoundData, outsize);
 		delete[] pbSoundData;

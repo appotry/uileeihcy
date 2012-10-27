@@ -20,6 +20,9 @@ public:
 		UIMSG_TRBN_POSCHANGED( m_pEq_500, OnEqChanged500 )
 		UIMSG_TRBN_POSCHANGED( m_pEq_250, OnEqChanged250 )
 		UIMSG_TRBN_POSCHANGED( m_pEq_125, OnEqChanged125 )
+		UIMSG_TRBN_POSCHANGED( m_pEq_63,  OnEqChanged63 )
+		UIMSG_TRBN_POSCHANGED( m_pEq_31,  OnEqChanged31 )
+		UIMSG_TRBN_POSCHANGED( m_pEq_preamp, OnEqChangedPreamp )
 	UI_END_MSG_MAP_CHAIN_PARENT(CustomWindow)
 
 	virtual void OnInitWindow( );
@@ -34,6 +37,9 @@ public:
 	void    OnEqChanged500( int nPos, int nScrollType );
 	void    OnEqChanged250( int nPos, int nScrollType );
 	void    OnEqChanged125( int nPos, int nScrollType );
+	void    OnEqChanged63( int nPos, int nScrollType );
+	void    OnEqChanged31( int nPos, int nScrollType );
+	void    OnEqChangedPreamp( int nPos, int nScrollType );
 
 	void    OnBtnEnable();
 	void    OnBtnReset();

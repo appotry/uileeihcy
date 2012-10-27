@@ -154,3 +154,9 @@ HRESULT CMp3File::GetCurPos(int nWriteBufferSize, double* pdSeconds, double* pdP
 	*pdSeconds = dFrameTime * nPlayingFrame;
 	return S_OK;
 }
+
+HRESULT CMp3File::SetEq(int nBand, double nValue)
+{
+	mpg123_eq(m_hMpg123, MPG123_LR, nBand, nValue);
+	return S_OK;
+}

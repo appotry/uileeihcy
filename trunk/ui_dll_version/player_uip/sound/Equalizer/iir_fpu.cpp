@@ -71,11 +71,10 @@ void set_preamp(int chn, double val)
 /* Init the filters */
 void init_iir(int nBand)
 {
+	set_eq_value(20.0f , -1 , 0) ;
+	set_eq_value(20.0f , -1 , 1) ;
 	for(int iBand = 0 ; iBand < EQ_MAX_BANDS ; iBand ++)
 	{
-		set_eq_value(20.0f , -iBand , 0) ;
-		set_eq_value(20.0f , -iBand , 1) ;
-
 		set_eq_value(0.0f , iBand , 0) ;
 		set_eq_value(0.0f , iBand , 1) ;
 	}
@@ -83,7 +82,7 @@ void init_iir(int nBand)
 	/* XXX: Take all the eqcfg. stuff out of this file */
 	g_band_count = nBand;
 	g_rate = 44100;
-	g_iir_cf = get_coeffs(&g_band_count, g_rate, true);
+	g_iir_cf = get_coeffs(&g_band_count, g_rate, false);
 	clean_history();
 }
 

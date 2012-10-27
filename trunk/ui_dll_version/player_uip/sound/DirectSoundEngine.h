@@ -12,6 +12,7 @@
 #pragma comment(lib, "Winmm.lib")
 #pragma comment(lib, "dxguid.lib")
 #ifdef _DEBUG
+//#pragma comment(lib, "sound\\mpg123-1.14.4\\ports\\MSVC++\\2008\\Debug\\libmpg123.lib")
 #pragma comment(lib, "libmpg123_d.lib")
 #else
 #pragma comment(lib, "libmpg123.lib")
@@ -45,6 +46,7 @@ public:
 	// 返回当前的播放进度（该函数获取的数据有问题，不是获取当前播放位置，而不获取到了当前读位置，有误差，需要改进）
 	virtual  HRESULT   GetCurPos(int nPlayBufferSize, double* pdSeconds, double* pdPercent) = 0;
 
+	virtual  HRESULT   SetEq(int nBand, double nValue){ return E_NOTIMPL; } // 不好用，TO DELETE
 protected:
 	WAVEFORMATEX   m_wfx;
 };
@@ -72,6 +74,7 @@ public:
 	virtual HRESULT  SetPan(long lPan);
 	virtual HRESULT  SetEq(E_EQ_FREQ eFreq, int nValue);
 	virtual HRESULT  SetEqPreamp(int nValue);
+	virtual HRESULT  EnableEq(bool bEnable);
 
 protected:
 	HRESULT PushBuffer(int nStart, int nCount);
@@ -113,5 +116,7 @@ protected:
 	CMessageOnlyWindow*  m_pMessageOnlyWnd;
 	HWND           m_hMessageOnlyWnd;
 	
+	bool           m_bEqEnable;                    // 是否启用均衡器
+
 	CRITICAL_SECTION  m_cs;
 };

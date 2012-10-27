@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ui>
 <project projectname="ttplayer" select="mediaplayer">
-<skin name="mediaplayer" path=".\mediaplay\ui.xml" hls="-7,0,-6"/>
+<skin name="mediaplayer" path=".\mediaplay\ui.xml" hls=""/>
 <skin name="let&apos;s seven" path=".\let&apos;s seven\ui.xml"/>
 </project>
 <log switch="on">

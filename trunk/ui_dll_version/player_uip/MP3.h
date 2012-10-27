@@ -23,6 +23,7 @@ public:
 
 	virtual HRESULT  SetVolume(long) = 0;
 	virtual HRESULT  SetPan(long lPan) = 0;
+	virtual HRESULT  EnableEq(bool bEnable) = 0;
 	virtual HRESULT  SetEq(E_EQ_FREQ eFreq, int nValue) = 0;
 };
 
@@ -47,6 +48,7 @@ public:
 	bool    Mute(bool);
 	bool    SetVisualization(VisualizationInfo* pInfo);
 	bool    SetEq(E_EQ_FREQ eFreq, int nValue);
+	bool    EnableEq(bool bEnable);
 	HWND    GetMainWnd() { return m_hMainWnd; }
 	CSpectrumAnalyser* GetSA() { return &m_SA; }
 public:
@@ -68,6 +70,7 @@ protected:
 	bool     m_bMute;      // µ±Ç°ÊÇ·ñ¾²Òô
 	long     m_lPan;
 	int      m_arrEqValue[EQ_FREQ_COUNT];
+	bool     m_bEqEnable;
 // 
 	CMessageOnlyWindow   m_WndEvent;
 	friend class CMessageOnlyWindow;
