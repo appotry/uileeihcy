@@ -92,6 +92,7 @@
         foregnd.render.imagelist.count="8"  foregnd.render.imagelist.layout="v"
         bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.bordercolor="control_border_color"
         textrender.align="left|vcenter" textrender.padding="20,0,0,0"
+        textrender.color="black;white;white;white;white;white;white;white"
         />
         
       <Button id="btn_save_all"  text="全部保存" layout.right="169" layout.bottom="6" width="75" height="21" />

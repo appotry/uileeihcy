@@ -52,6 +52,9 @@ public:
 	bool    ReSetEq();
 	HWND    GetMainWnd() { return m_hMainWnd; }
 	CSpectrumAnalyser* GetSA() { return &m_SA; }
+	HBITMAP GetVisualSnapshot() { return m_SA.GetVisualSnapshot(); }
+	void    ReleaseVisualSnapshot() { m_SA.ReleaseVisualSnapshot(); }
+
 public:
 	void    Fire_on_mp3_volume_ind(long lVolumn);
 	void    Fire_on_mp3_stop();

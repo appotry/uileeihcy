@@ -8,8 +8,9 @@ class   ISoundEngine;
 
 enum THREAD_SUSPEND_REASON
 {
-	THREAD_SUSPEND_BY_PLAY_STATE = 0x01,   // 未播放
-	THREAD_SUSPEND_BY_VISUAL_NONE = 0x02,  // 不显示频谱图
+	THREAD_SUSPEND_BY_PLAY_STOP = 0x01,     // 未播放
+	THREAD_SUSPEND_BY_PLAY_PAUSE = 0x02,    // 暂停
+	THREAD_SUSPEND_BY_VISUAL_NONE = 0x04,   // 不显示频谱图
 };
 
 
@@ -51,6 +52,9 @@ public:
 	void     Stop();
 	void     ThreadProc();
 
+	HBITMAP  GetVisualSnapshot();
+	void     ReleaseVisualSnapshot();
+
 protected:
 	void     Process();
 	bool     EventMsgProc();
@@ -58,13 +62,13 @@ protected:
 	bool     PostThreadMessage(UINT uMsg, DSMSG_PARAM* pParam);
 
 private:
-	// 这些设置函数，是在分析线程中被调用的。因此不对外部开放，避免线程同步问题
 	void     SetRenderWnd(HWND hRenderWnd);
 	int      SetBandCount(int nCount);
 	int      SetAnalyserSampleCount(int nCount = DEFAULT_FFT_SAMPLE_BUFFER_SIZE);
 	void     SetVisualizationType(E_VISUALIZATION_TYPE eType);
 	
 	bool     OnSetVisualization(VisualizationInfo* pInfo);
+
 	void     OnPlay();
 	void     OnPause();
 	void     OnStop();

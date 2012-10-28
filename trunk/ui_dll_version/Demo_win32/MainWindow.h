@@ -12,6 +12,7 @@ public:
 	~MainWindow(void);
 
 	UI_BEGIN_MSG_MAP
+		UIMSG_WM_PAINT(OnPaint)
 		UIMSG_BN_CLICKED( _T("btn_playlist"),  OnBnClickPlaylist )
 		UIMSG_BN_CLICKED( _T("btn_lyric"),     OnBnClickLyric )
 		UIMSG_BN_CLICKED( _T("btn_equalizer"), OnBnClickEqualizer )
@@ -52,6 +53,8 @@ public:
 public:
 	virtual void OnInitWindow();
 	virtual BOOL PreCreateWindow( CREATESTRUCT& cs );
+
+	void    OnPaint(HRDC hRDC);
 	void    OnDestroy();
 	void    OnBnClickPlay();
 	void    OnBnClickOpen();
@@ -98,6 +101,7 @@ public:
 	void    SetEqualizerDlgHandle(HWND hWnd);
 
 	HBITMAP GetVisualizationInfo(RECT* prc);
+	void    OnVisualiazationTypeChanged(int nType);
 
 protected:
 	HWND            m_hWndPlayerList;
@@ -122,6 +126,7 @@ protected:
 	LEDCtrl*        m_pLEDTime;
 	SliderCtrl*     m_pProgress;
 	SliderCtrl*     m_pVolume;
+	Picture*        m_pVisuallzationPic;
 
 	String     m_strStatusText;
 };

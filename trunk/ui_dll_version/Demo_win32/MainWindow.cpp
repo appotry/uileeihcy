@@ -27,6 +27,7 @@ MainWindow::MainWindow(void)
 	m_pBtnPlaylist = NULL;
 	m_pBtnLyric = NULL;
 	m_pBtnEqualizer = NULL;
+	m_pVisuallzationPic = NULL;
 
 // 	m_lSizeMove = 0;
 // 	m_ptCursorSizeMove.x = m_ptCursorSizeMove.y = 0;
@@ -76,6 +77,7 @@ void MainWindow::OnInitWindow()
 	m_pProgress        = (SliderCtrl*)this->FindChildObject(_T("progress_music"));
 	m_pVolume          = (SliderCtrl*)this->FindChildObject(_T("progress_voice"));
 	m_pLEDTime         = (LEDCtrl*)this->FindChildObject(_T("led_time"));
+	m_pVisuallzationPic= (Picture*)this->FindChildObject(_T("visualization"));
 
 	if( NULL != m_pbtnStop )
 	{
@@ -106,6 +108,29 @@ void MainWindow::OnInitWindow()
 
 // 	COptionWindow win;
 // 	win.DoModal(g_hInstance, COptionWindow::IDD, _T("OptionWindow"),m_hWnd);
+}
+
+void MainWindow::OnPaint(HRDC hRDC)
+{
+	CRect rcClient;
+	m_pVisuallzationPic->GetClientRectInWindow(&rcClient);
+
+	HBITMAP hBitmap = GetMainMgr()->GetVisualSnapshot();
+	if (NULL != hBitmap)
+	{
+		HDC hDC = GetHDC(hRDC);
+		Image image;
+		image.Attach(hBitmap);
+		image.BitBlt(hDC, rcClient.left, rcClient.top, rcClient.Width(), rcClient.Height(), 0,0);
+		image.Detach();
+		ReleaseHDC(hRDC, hDC);
+		::OutputDebugString(_T("aaa\n"));
+	}
+	else
+	{
+		int a = 0;
+	}
+	GetMainMgr()->ReleaseVisualSnapshot();
 }
 
 void MainWindow::OnBnClickPlay()
@@ -177,30 +202,32 @@ void MainWindow::OnMp3Stop()
 {
 	if( NULL != m_pbtnStart && NULL != m_pbtnPause )
 	{
-		m_pbtnStart->SetVisible(true);
-		m_pbtnPause->SetVisible(false);
+		m_pbtnStart->SetVisible(true, false);
+		m_pbtnPause->SetVisible(false, false);
 	}
 	if( NULL != m_pbtnStop )
 	{
 		m_pbtnStop->SetEnable(false);
 	}
 
-	UI_UpdateLayout(this);
+	UI_UpdateLayout(this, FALSE);
 
 	if( NULL != m_pLabelPlaystatus )
 	{
 		m_strStatusText = _T("״̬:ֹͣ");
-		m_pLabelPlaystatus->SetText(m_strStatusText);
+		m_pLabelPlaystatus->SetText(m_strStatusText, false);
 	}
 	if( NULL != m_pProgress )
 	{
-		m_pProgress->SetPos(0);
+		m_pProgress->SetPos(0, false);
 	}
 
 	if (NULL != m_pLEDTime)
 	{
-		m_pLEDTime->SetText(_T(" 00:00"));
+		m_pLEDTime->SetText(_T(" 00:00"), false);
 	}
+
+	this->UpdateObject();
 }
 
 void MainWindow::OnBnClickMute()
@@ -691,13 +718,12 @@ void MainWindow::OnEqualizerDlgVisibleChanged(HWND wParam, BOOL bVisible)
 
 HBITMAP MainWindow::GetVisualizationInfo(RECT* prc)
 {
-	Picture* p = (Picture*)this->FindChildObject(_T("visualization"));
-	if (NULL != p)
+	if (NULL != m_pVisuallzationPic)
 	{
 		CRect rc;
-		p->GetClientRectInWindow(&rc);
+		m_pVisuallzationPic->GetClientRectInWindow(&rc);
 		::CopyRect(prc, &rc);
-		HBITMAP hBitmap = this->PaintObject(p);
+		HBITMAP hBitmap = this->PaintObject(m_pVisuallzationPic);
 // 		Image image;
 // 		image.Attach(hBitmap);
 // 		image.Save(L"C:\\adf.png", Gdiplus::ImageFormatPNG);
@@ -709,24 +735,23 @@ HBITMAP MainWindow::GetVisualizationInfo(RECT* prc)
 
 void MainWindow::OnSkinHLSChanged()
 {
-	Picture* p = (Picture*)this->FindChildObject(_T("visualization"));
-	if (NULL != p)
+	if (NULL != m_pVisuallzationPic)
 	{
-		HBITMAP hBitmap = this->PaintObject(p);
+		HBITMAP hBitmap = this->PaintObject(m_pVisuallzationPic);
 		GetMainMgr()->SetVisualizationBkgndBmp(hBitmap);
 	}
 	
 }
 void MainWindow::OnSkinChanged()
 {
-	Picture* p = (Picture*)this->FindChildObject(_T("visualization"));
-	if (NULL != p)
+	if (NULL != m_pVisuallzationPic)
 	{
-		CRect rc;
-		p->GetClientRectInWindow(&rc);
-		HBITMAP hBitmap = this->PaintObject(p);
-
-		GetMainMgr()->SetVisualizationBkgndBmpAndRect(hBitmap, &rc);
+// 		CRect rc;
+// 		m_pVisuallzationPic->GetClientRectInWindow(&rc);
+// 		HBITMAP hBitmap = this->PaintObject(m_pVisuallzationPic);
+// 
+// 		GetMainMgr()->SetVisualizationBkgndBmpAndRect(hBitmap, &rc);
+		GetMainMgr()->InitVisualization();
 	}
 }
 
@@ -764,4 +789,11 @@ BOOL MainWindow::OnMouseWheel(UINT nFlags, short zDelta, POINT pt)
 		this->OnVolumnChanged(nPos, SB_ENDSCROLL);
 	}
 	return TRUE;
+}
+void MainWindow::OnVisualiazationTypeChanged(int nType)
+{
+	if (NULL != m_pVisuallzationPic)
+	{
+		m_pVisuallzationPic->UpdateObject();
+	}
 }

@@ -64,7 +64,7 @@ HRESULT CSpectrumAnalyser::InitDefault(HWND hRenderWnd)
 	this->SetRenderWnd(hRenderWnd);
 
 	m_hEventSuspend = CreateEvent(NULL, TRUE, FALSE, NULL);  // 注：必须先创建事件，再创建线程。否则线程中事件还没创建好就退出了。
-	m_bSuspend = THREAD_SUSPEND_BY_PLAY_STATE;
+	m_bSuspend = THREAD_SUSPEND_BY_PLAY_STOP;
 
 	m_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)gSpectrumAnalyserThreadProc,
 					(LPVOID)this, 0, &m_dwThreadID);
@@ -150,7 +150,7 @@ int CSpectrumAnalyser::SetBandCount(int nCount)
 
 	m_pPeaksValue   = new int[m_nBandCount];
 	m_pPeaksDelay   = new int[m_nBandCount];
-	memset(m_pPeaksValue,   0, sizeof(int)*m_nBandCount);
+	memset(m_pPeaksValue,   m_rcRender.bottom-m_rcRender.top, sizeof(int)*m_nBandCount);
 	memset(m_pPeaksDelay,   0, sizeof(int)*m_nBandCount);
 
 	if (NULL != m_pFFT)
@@ -230,7 +230,7 @@ void CSpectrumAnalyser::SetVisualizationType(E_VISUALIZATION_TYPE eType)
 		m_pPeaksDelay   = new int[m_nBandCount];
 		memset(m_pBandValue,    0, sizeof(float)*m_nBandCount);
 		memset(m_pOldBandValue, 0, sizeof(float)*m_nBandCount);
-		memset(m_pPeaksValue,   0, sizeof(int)*m_nBandCount);
+		memset(m_pPeaksValue,   m_rcRender.bottom-m_rcRender.top, sizeof(int)*m_nBandCount);
 		memset(m_pPeaksDelay,   0, sizeof(int)*m_nBandCount);
 
 		m_pLeftRightSampleData = new float[m_nAnalyserSampleCount];
@@ -261,6 +261,7 @@ bool CSpectrumAnalyser::SetVisualization(VisualizationInfo* pInfo)
 	::SetEvent(m_hEventSuspend);  // 允许运行一次，检测m_bSuspend
 	return bRet?true:false;
 }
+
 bool CSpectrumAnalyser::OnSetVisualization(VisualizationInfo* pInfo)
 {
 	if (pInfo->nMask & VI_MASK_HWND)
@@ -296,6 +297,9 @@ bool CSpectrumAnalyser::OnSetVisualization(VisualizationInfo* pInfo)
 				m_hMemBitmap = ::CreateDIBSection( NULL, &bmi, DIB_RGB_COLORS, &pBits, NULL, 0 );
 				m_hOldBitmap = (HBITMAP)::SelectObject(m_hRenderWndMemDC, m_hMemBitmap);
 			}
+
+			memset(m_pPeaksValue,   nNewH, sizeof(int)*m_nBandCount);
+			memset(m_pPeaksDelay,   0, sizeof(int)*m_nBandCount);
 		}
 	}
 	if (pInfo->nMask & VI_MASK_TYPE)
@@ -374,30 +378,44 @@ BOOL CSpectrumAnalyser::GetSampleBufferFromDSound()
 //
 void CSpectrumAnalyser::Play()
 {
-	this->PostThreadMessage(DSMSG_PLAY, NULL);
+//	this->PostThreadMessage(DSMSG_PLAY, NULL);
+
+	DECLARE_CS_PROTECT;
+	this->OnPlay();
+	::SetEvent(m_hEventSuspend);  // 允许运行一次，检测m_bSuspend
 }
 void CSpectrumAnalyser::OnPlay()
 {
-	m_bSuspend &= ~THREAD_SUSPEND_BY_PLAY_STATE;
+	m_bSuspend &= ~THREAD_SUSPEND_BY_PLAY_STOP;
+	m_bSuspend &= ~THREAD_SUSPEND_BY_PLAY_PAUSE;
 }
 
 void CSpectrumAnalyser::Pause()
 {
-	this->PostThreadMessage(DSMSG_PAUSE, NULL);
+//	this->PostThreadMessage(DSMSG_PAUSE, NULL);
+
+	DECLARE_CS_PROTECT;
+	this->OnPause();
+	::SetEvent(m_hEventSuspend);  // 允许运行一次，检测m_bSuspend
 }
 
 void CSpectrumAnalyser::OnPause()
 {
-	m_bSuspend |= THREAD_SUSPEND_BY_PLAY_STATE;
+	m_bSuspend |= THREAD_SUSPEND_BY_PLAY_PAUSE;
 }
 void CSpectrumAnalyser::Stop()
 {
-	this->PostThreadMessage(DSMSG_STOP, NULL);
+//	this->PostThreadMessage(DSMSG_STOP, NULL);
+
+	DECLARE_CS_PROTECT;
+	this->OnStop();
+	::SetEvent(m_hEventSuspend);  // 允许运行一次，检测m_bSuspend
 }
 void CSpectrumAnalyser::OnStop()
 {
-	m_bSuspend |= THREAD_SUSPEND_BY_PLAY_STATE;
+	m_bSuspend |= THREAD_SUSPEND_BY_PLAY_STOP;
 }
+
 void CSpectrumAnalyser::ThreadProc()
 {
 	// 通知该线程创建消息队列
@@ -417,7 +435,7 @@ void CSpectrumAnalyser::ThreadProc()
 
 		if (nRet == WAIT_OBJECT_0)
 		{
-			if (false == this->EventMsgProc())      // 处理事件，比如检查是否将m_bSuspend置为false了
+			if (false == this->EventMsgProc())  // 处理事件，比如检查是否将m_bSuspend置为false了
 				return;
 		}
 
@@ -677,6 +695,8 @@ void CSpectrumAnalyser::FFTSamples()
 // 直接在另一个线程中提交到窗口上面
 void CSpectrumAnalyser::DrawBands()
 {
+	DECLARE_CS_PROTECT;
+
 	int nWidth = m_rcRender.right-m_rcRender.left;
 	int nHeight = m_rcRender.bottom-m_rcRender.top;
 	RECT rc = {0,0, nWidth, nHeight};
@@ -687,6 +707,9 @@ void CSpectrumAnalyser::DrawBands()
 	SelectObject(hDC, m_hForegndBmp);
 
 	HBRUSH hWhiteBrush = (HBRUSH)GetStockObject(WHITE_BRUSH);
+	HBRUSH hWhiteBrush2 = (HBRUSH)CreateSolidBrush(RGB(191,191,191));
+	HBRUSH hWhiteBrush3 = (HBRUSH)CreateSolidBrush(RGB(127,127,127));
+	HBRUSH hWhiteBrush4 = (HBRUSH)CreateSolidBrush(RGB(63,63,63));
 	for (int i = 0; i < m_nBandCount; i++)
 	{
 		int ny = nHeight - (int)(nHeight * m_pBandValue[i]);
@@ -700,14 +723,18 @@ void CSpectrumAnalyser::DrawBands()
 		}
 		else
 		{
-			m_pPeaksDelay[i]--;
-			if (m_pPeaksDelay[i] < 0)
+			if (m_pPeaksDelay[i]>0)   // delay大小0表示继续维持在最顶端， 等于0表示正在下降， 小于0表示已下降到最底端
+			{
+				m_pPeaksDelay[i]--;
+			}
+			if (m_pPeaksDelay[i] == 0)
 			{
 				m_pPeaksValue[i]++;  // 下降
 			}
-			if (m_pPeaksValue[i] >= nHeight)
+			if (m_pPeaksValue[i] >= nHeight) // 最底端
 			{
 				m_pPeaksValue[i] = nHeight-1;
+				m_pPeaksDelay[i] = -1;  
 			}
 		}
 
@@ -721,6 +748,15 @@ void CSpectrumAnalyser::DrawBands()
 		else
 		{
 			::FillRect(m_hRenderWndMemDC, &rcPeak, hWhiteBrush);
+			if (0 == m_nBandGapWidth && m_pPeaksDelay[i] == 0) // 正在下降
+			{
+				rcPeak.top--; rcPeak.bottom--;
+				::FillRect(m_hRenderWndMemDC, &rcPeak, hWhiteBrush2);
+				rcPeak.top--; rcPeak.bottom--;
+				::FillRect(m_hRenderWndMemDC, &rcPeak, hWhiteBrush3);
+				rcPeak.top--; rcPeak.bottom--;
+				::FillRect(m_hRenderWndMemDC, &rcPeak, hWhiteBrush4);
+			}
 			::BitBlt(m_hRenderWndMemDC, rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top, hDC, rc.left, rc.top, SRCCOPY);
 		}
 	}
@@ -728,10 +764,15 @@ void CSpectrumAnalyser::DrawBands()
 	::BitBlt(m_hRenderWndDC, m_rcRender.left, m_rcRender.top, nWidth, nHeight, m_hRenderWndMemDC,0,0,SRCCOPY);
 	::SelectObject(hDC, hOldBitmap);
 	::DeleteDC(hDC);
+	::DeleteObject(hWhiteBrush2);
+	::DeleteObject(hWhiteBrush3);
+	::DeleteObject(hWhiteBrush4);
 }
 
 void CSpectrumAnalyser::DrawWave()
 {
+	DECLARE_CS_PROTECT;
+
 	int   nWidth = m_rcRender.right - m_rcRender.left;
 	int   nHeight = m_rcRender.bottom - m_rcRender.top;
 	
@@ -795,4 +836,19 @@ void CSpectrumAnalyser::DrawWave()
 	::BitBlt(m_hRenderWndDC, m_rcRender.left, m_rcRender.top,nWidth,nHeight,m_hRenderWndMemDC,0,0,SRCCOPY);
 	::SelectObject(m_hRenderWndMemDC, hOldPen);
 	::DeleteObject(hPen);
+}
+
+HBITMAP CSpectrumAnalyser::GetVisualSnapshot()
+{
+	EnterCriticalSection(&m_cs);
+	if (m_bSuspend & THREAD_SUSPEND_BY_PLAY_STOP || m_bSuspend & THREAD_SUSPEND_BY_VISUAL_NONE)
+		return NULL;
+
+	::SelectObject(m_hRenderWndMemDC, m_hOldBitmap);
+	return m_hMemBitmap;
+}
+void CSpectrumAnalyser::ReleaseVisualSnapshot()
+{
+	::SelectObject(m_hRenderWndMemDC, m_hMemBitmap);
+	LeaveCriticalSection(&m_cs);
 }

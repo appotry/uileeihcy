@@ -95,7 +95,8 @@ HRESULT CWmaFile::RenderFile(const TCHAR* szFile)
 			bRet = true;
 		} 
 		while (0);
-		
+
+			
 		if (NULL != pMediaType)
 		{
 			free(pMediaType);
@@ -197,8 +198,18 @@ HRESULT CWmaFile::SetCurPos(double percent)
 	if (NULL == m_pWMSyncReader)
 		return E_FAIL;
 
-	QWORD qw = (QWORD)(m_nDuration.QuadPart*percent);
-	HRESULT hr = m_pWMSyncReader->SetRange(qw, 0);
+	HRESULT hr = E_FAIL;
+// 	if (0 == percent)
+// 	{
+// 		hr = m_pWMSyncReader->SetRangeByFrame(m_wStreamNum, 1, 0);
+// 		m_nSampleTime = 0;
+// 	}
+// 	else
+	{
+		QWORD qw = (QWORD)(m_nDuration.QuadPart*percent);
+		hr = m_pWMSyncReader->SetRange(qw, 0);
+		m_nSampleTime = qw;
+	}
 	return hr;
 }
 HRESULT CWmaFile::GetCurPos(int nWriteBufferSize, double* pdSeconds, double* pdPercent)

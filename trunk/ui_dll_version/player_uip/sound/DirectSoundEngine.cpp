@@ -37,6 +37,8 @@ CDirectSoundEngine::CDirectSoundEngine(void)
 //	this->SetBufferSize(32*1024);
 	InitializeCriticalSection(&m_cs); 
 	m_bEqEnable = false;
+
+	m_nWriteCursor = m_nPlayCursor = 0;
 }
 
 CDirectSoundEngine::~CDirectSoundEngine(void)
@@ -169,7 +171,7 @@ HRESULT CDirectSoundEngine::RenderFile( const TCHAR* szFile, const TCHAR* szExt 
 		desc.dwSize = sizeof(DSBUFFERDESC);
 		// 注：DSBCAPS_GLOBALFOCUS，如果不加上这个标志，当窗口失去焦点的时候，directsound 会停止播放
 		//     DSBCAPS_CTRLPOSITIONNOTIFY，如果不加上这个标志，QueryInterface IID_IDirectSoundNotify8 会返回NOINTERFACE
-		desc.dwFlags = DSBCAPS_CTRLPAN|DSBCAPS_CTRLVOLUME|DSBCAPS_CTRLFX|DSBCAPS_GLOBALFOCUS|DSBCAPS_CTRLPOSITIONNOTIFY;  
+		desc.dwFlags = DSBCAPS_CTRLPAN|DSBCAPS_CTRLVOLUME|DSBCAPS_CTRLFX|DSBCAPS_GLOBALFOCUS|DSBCAPS_CTRLPOSITIONNOTIFY|DSBCAPS_GETCURRENTPOSITION2 ;  
 		desc.lpwfxFormat =  m_pCurFile->GetFormat();
 		SetBufferSize(desc.lpwfxFormat->nAvgBytesPerSec*2); // 因为使用IIR的均衡器，对于1channel8bits的音频，如果不乘以2，则会出现沙沙的声音。（可能是因为IIR内容默认所有的都是16bits吧）
 		desc.dwBufferBytes = m_nDirectSoundBufferSize;    //3*desc.lpwfxFormat->nAvgBytesPerSec;  // 持续3秒的流缓冲区
@@ -198,8 +200,8 @@ HRESULT CDirectSoundEngine::RenderFile( const TCHAR* szFile, const TCHAR* szExt 
 		if (FAILED(hr))
 			return hr;
 
-
 		// 第一次填充完整的buffer
+		m_nPlayCursor = m_nWriteCursor = 0;
 		hr = this->PushBuffer(0, m_nDirectSoundBufferSize);
 		if (FAILED(hr))
 			return hr;
@@ -324,28 +326,36 @@ HRESULT CDirectSoundEngine::OnStop()
 	if (NULL == m_pCurFile || NULL == m_pDirectSoundBuffer8)
 		return E_FAIL;
 
+	m_nPlayCursor = 0;
 	m_pMessageOnlyWnd->EndTimer();
 
 	HRESULT hr = m_pDirectSoundBuffer8->Stop();
 	if(SUCCEEDED(hr))
 	{
 		// 清空缓冲区
-		LPVOID pBitPart1 = NULL;
-		DWORD  dwSizePart1 = 0;
-		HRESULT hr = m_pDirectSoundBuffer8->Lock(0, 0, &pBitPart1, &dwSizePart1,NULL, NULL, DSBLOCK_ENTIREBUFFER);
-		if (FAILED(hr))
-			return hr;
+// 		LPVOID pBitPart1 = NULL;
+// 		DWORD  dwSizePart1 = 0;
+// 		HRESULT hr = m_pDirectSoundBuffer8->Lock(0, 0, &pBitPart1, &dwSizePart1,NULL, NULL, DSBLOCK_ENTIREBUFFER);
+// 		if (FAILED(hr))
+// 			return hr;
+// 
+// 		memset(pBitPart1, 0, dwSizePart1);
+// 		hr = m_pDirectSoundBuffer8->Unlock(pBitPart1, dwSizePart1, NULL, 0);
+// 		if (FAILED(hr))
+// 			return hr;
+// 
+// 		m_nWriteCursor = dwSizePart1;
 
-		memset(pBitPart1, 0, dwSizePart1);
-		hr = m_pDirectSoundBuffer8->Unlock(pBitPart1, dwSizePart1, NULL, 0);
-		if (FAILED(hr))
-			return hr;
-
+		m_pCurFile->SetCurPos(0);
 		hr = m_pDirectSoundBuffer8->SetCurrentPosition(0);
 		if (FAILED(hr))
 			return hr;
 
-		m_pCurFile->SetCurPos(0);
+		// 再次填充完整的buffer，用于下次如果仍然播放该文件
+		m_nPlayCursor = m_nWriteCursor = 0;
+		hr = this->PushBuffer(0, m_nDirectSoundBufferSize);
+		if (FAILED(hr))
+			return hr;
 
 		m_pMgr->GetSA()->Stop();
 	}
@@ -411,9 +421,15 @@ HRESULT CDirectSoundEngine::GetCurPos(double* pdSeconds, double* pdPercent)
 
 	int process= 0;
 	DWORD PlayCursor = 0,WriteCursor = 0;
-	if (SUCCEEDED(m_pDirectSoundBuffer8->GetCurrentPosition(&PlayCursor,&WriteCursor)))
+	if (SUCCEEDED(m_pDirectSoundBuffer8->GetCurrentPosition(&PlayCursor,NULL)))  // 第二个参数中返回的WriteCursor不是我们写入的数据write cursor，真正是什么，我也不知道。
 	{
-		process = GetDistance(PlayCursor,WriteCursor);
+		if (0 == m_nWriteCursor)
+			process = 0;
+		else
+		{
+			WriteCursor = m_nWriteCursor%m_nDirectSoundBufferSize;
+			process = GetDistance(PlayCursor,WriteCursor);
+		}
 	}
 	else
 	{
@@ -639,6 +655,17 @@ HRESULT CDirectSoundEngine::PushBuffer(int nStart, int nCount)
 	DWORD   dwSizePart1 = NULL, dwSizePart2 = NULL;
 
 	HRESULT hr = m_pDirectSoundBuffer8->Lock(nStart, nCount, &pBitPart1, &dwSizePart1, &pBitPart2, &dwSizePart2, 0);
+
+	// If the buffer was lost, restore and retry lock. 
+	if (DSERR_BUFFERLOST == hr) 
+	{ 
+#ifdef _DEBUG
+		assert(0 && _T("DSERR_BUFFERLOST == hr 会出现这种情况吗"));
+#endif
+		m_pDirectSoundBuffer8->Restore(); 
+		hr = m_pDirectSoundBuffer8->Lock(nStart, nCount, &pBitPart1, &dwSizePart1, &pBitPart2, &dwSizePart2, 0);
+	} 
+
 	if (FAILED(hr))
 		return hr;
 
@@ -683,6 +710,7 @@ HRESULT CDirectSoundEngine::PushBuffer(int nStart, int nCount)
 		delete[] pbSoundData;
 	}
 
+	m_nWriteCursor += dwSizePart2 + dwSizePart1;
 	hr = m_pDirectSoundBuffer8->Unlock(pBitPart1, dwSizePart1, pBitPart2, dwSizePart2);
 	return hr;
 }

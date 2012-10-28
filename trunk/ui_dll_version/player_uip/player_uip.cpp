@@ -77,3 +77,13 @@ bool  mp3_reset_eq()
 {
 	return g_mp3.ReSetEq();
 }
+
+HBITMAP mp3_get_visual_snapshot()
+{	
+	return g_mp3.GetVisualSnapshot();
+}	
+
+void    mp3_release_visual_snapshot()
+{
+	return g_mp3.ReleaseVisualSnapshot();
+}

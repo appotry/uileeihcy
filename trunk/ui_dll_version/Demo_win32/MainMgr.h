@@ -22,10 +22,14 @@ public:
 	void     PlayNext();
 	void     PlayPrev();
 
+	bool     InitVisualization();
 	bool     SetVisualizationType(int nType);
 	bool     SetVisualizationFps(int nFps);
 	bool     SetVisualizationBkgndBmp(HBITMAP hBitmap);
 	bool     SetVisualizationBkgndBmpAndRect(HBITMAP hBitmap, RECT* prc);
+	HBITMAP  GetVisualSnapshot() { return ::mp3_get_visual_snapshot(); }
+	void     ReleaseVisualSnapshot() { ::mp3_release_visual_snapshot(); }
+
 	void     HandleEvent(IMgr* pSource, int nEventType, int nEventId, WPARAM wParam, LPARAM lParam);
 	CConfigData*  GetConfigData() { return &m_config; }
 

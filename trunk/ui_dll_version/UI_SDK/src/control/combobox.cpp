@@ -75,6 +75,8 @@ bool ComboboxBase::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 }
 void ComboboxBase::ResetAttribute()
 {
+	__super::ResetAttribute();
+
 	m_edit->ResetAttribute();
 	m_button->ResetAttribute();
 	m_listbox->ResetAttribute();
