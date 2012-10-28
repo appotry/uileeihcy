@@ -373,8 +373,8 @@ ToolTipManager::~ToolTipManager()
 
 void ToolTipManager::Init()
 {
-//	m_pToolTipUI = new CSystemTooltip;
-	m_pToolTipUI = new ThemeTooltip;
+	m_pToolTipUI = new CSystemTooltip;
+//	m_pToolTipUI = new ThemeTooltip;
 }
 
 bool ToolTipManager::Show(TOOLTIPITEM* pItemInfo)

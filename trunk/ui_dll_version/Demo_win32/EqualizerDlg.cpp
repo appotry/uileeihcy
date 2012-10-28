@@ -193,75 +193,78 @@ void CEqualizerDlg::OnBtnEnable()
 	GetEqualizerMgr()->EnableEq(bRet);
 
 	if (NULL != m_pEq_16k)
-		m_pEq_16k->SetEnable(bRet);
+		m_pEq_16k->SetEnable(bRet, false);
 	if (NULL != m_pEq_8k)
-		m_pEq_8k->SetEnable(bRet);
+		m_pEq_8k->SetEnable(bRet, false);
 	if (NULL != m_pEq_4k)
-		m_pEq_4k->SetEnable(bRet);
+		m_pEq_4k->SetEnable(bRet, false);
 	if (NULL != m_pEq_2k)
-		m_pEq_2k->SetEnable(bRet);
+		m_pEq_2k->SetEnable(bRet, false);
 	if (NULL != m_pEq_1k)
-		m_pEq_1k->SetEnable(bRet);
+		m_pEq_1k->SetEnable(bRet, false);
 	if (NULL != m_pEq_500)
-		m_pEq_500->SetEnable(bRet);
+		m_pEq_500->SetEnable(bRet, false);
 	if (NULL != m_pEq_250)
-		m_pEq_250->SetEnable(bRet);
+		m_pEq_250->SetEnable(bRet, false);
 	if (NULL != m_pEq_125)
-		m_pEq_125->SetEnable(bRet);
+		m_pEq_125->SetEnable(bRet, false);
 	if (NULL != m_pEq_63)
-		m_pEq_63->SetEnable(bRet);
+		m_pEq_63->SetEnable(bRet, false);
 	if (NULL != m_pEq_31)
-		m_pEq_31->SetEnable(bRet);
+		m_pEq_31->SetEnable(bRet, false);
 	if (NULL != m_pEq_preamp)
-		m_pEq_preamp->SetEnable(bRet);
+		m_pEq_preamp->SetEnable(bRet, false);
+
+	this->UpdateObject();
 }
 void CEqualizerDlg::OnBtnReset()
 {
 	if (NULL != m_pEq_16k)
 	{
-		m_pEq_16k->SetPos(0);
+		m_pEq_16k->SetPos(0, false);
 	}
 	if (NULL != m_pEq_8k)
 	{
-		m_pEq_8k->SetPos(0);
+		m_pEq_8k->SetPos(0, false);
 	}
 	if (NULL != m_pEq_4k)
 	{
-		m_pEq_4k->SetPos(0);
+		m_pEq_4k->SetPos(0, false);
 	}
 	if (NULL != m_pEq_2k)
 	{
-		m_pEq_2k->SetPos(0);
+		m_pEq_2k->SetPos(0, false);
 	}
 	if (NULL != m_pEq_1k)
 	{
-		m_pEq_1k->SetPos(0);
+		m_pEq_1k->SetPos(0, false);
 	}
 	if (NULL != m_pEq_500)
 	{
-		m_pEq_500->SetPos(0);
+		m_pEq_500->SetPos(0, false);
 	}
 	if (NULL != m_pEq_250)
 	{
-		m_pEq_250->SetPos(0);
+		m_pEq_250->SetPos(0, false);
 	}
 	if (NULL != m_pEq_125)
 	{
-		m_pEq_125->SetPos(0);
+		m_pEq_125->SetPos(0, false);
 	}
 	if (NULL != m_pEq_63)
 	{
-		m_pEq_63->SetPos(0);
+		m_pEq_63->SetPos(0, false);
 	}
 	if (NULL != m_pEq_31)
 	{
-		m_pEq_31->SetPos(0);
+		m_pEq_31->SetPos(0, false);
 	}
 	if (NULL != m_pEq_preamp)
 	{
-		m_pEq_preamp->SetPos(0);
+		m_pEq_preamp->SetPos(0, false);
 	}
 	GetEqualizerMgr()->ReSetEq();
+	this->UpdateObject();
 }
 void CEqualizerDlg::OnBtnProfile()
 {

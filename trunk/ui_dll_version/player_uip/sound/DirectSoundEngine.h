@@ -51,6 +51,17 @@ protected:
 	WAVEFORMATEX   m_wfx;
 };
 
+// 关于direct sound中的 write cursor:
+//  The write cursor moves with the play cursor, not with data written to the buffer. 
+//  If you're streaming data, you are responsible for maintaining your own pointer into 
+//  the buffer to indicate where the next block of data should be written.
+//
+//  An application can retrieve the play and write cursors by calling the 
+//  IDirectSoundBuffer8::GetCurrentPosition method. The IDirectSoundBuffer8::SetCurrentPosition 
+//  method lets you move the play cursor. Applications do not control the position of 
+//  the write cursor.
+
+
 class CDirectSoundEngine : public ISoundEngine
 {
 public:
@@ -111,6 +122,9 @@ protected:
 
 	int            m_nDirectSoundBufferSize;       // 缓冲区的大小。作成一个成员变量，便于以后动态修改
 	int            m_nPerEventBufferSize;          // 每次事件需要填充的buffer大小，保存起来，只计算一次
+
+	LONGLONG       m_nPlayCursor;
+	LONGLONG       m_nWriteCursor;                 // 由于Directsound不能提供目前向buffer向提交了多少数据，需要我们自己维护一个
 
 	CMP3*          m_pMgr;
 	CMessageOnlyWindow*  m_pMessageOnlyWnd;

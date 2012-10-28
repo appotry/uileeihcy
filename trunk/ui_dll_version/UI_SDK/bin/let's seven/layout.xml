@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ui>
   <layout>
-    <CustomWindow id="mainwindow" layout.left="1000" layout.top="700"  width="322" height="165" 
+    <CustomWindow id="mainwindow" layout.left="300" layout.top="200"  width="322" height="165" 
                    bkgnd.render.type="image" bkgnd.render.image="player_skin.png" 
                    transparent.type="maskalpha">
       <Picture id="icon" foregnd.render.image="ttplayer.ico" layout.left="10" layout.top="6"/>
@@ -67,19 +67,19 @@
         <Button id="btn_reset"    styleclass="imagebtn"  bkgnd.render.image="reset.bmp" margin="3,0,3,0"></Button>
         <Button id="btn_profile"  styleclass="imagebtn"  bkgnd.render.image="eq_profile.png"></Button>
       </Panel>
-      <SliderCtrl id="progress_pan" height="15" width="50" layout.left="114" layout.top="38" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_balance.png" />
-      <SliderCtrl id="progress_3d" height="15" width="53" layout.left="203" layout.top="38" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_balance.png" />
-      <SliderCtrl id="progress_eq_16k"  direction="bottomtotop" height="75" width="16" layout.left="236" layout.top="65" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_thumb.png" />
-      <SliderCtrl id="progress_eq_8k"   direction="bottomtotop" height="75" width="16" layout.left="215" layout.top="65" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_thumb.png" />
-      <SliderCtrl id="progress_eq_4k"   direction="bottomtotop" height="75" width="16" layout.left="194" layout.top="65" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_thumb.png" />
-      <SliderCtrl id="progress_eq_2k"   direction="bottomtotop" height="75" width="16" layout.left="173" layout.top="65" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_thumb.png" />
-      <SliderCtrl id="progress_eq_1k"   direction="bottomtotop" height="75" width="16" layout.left="152" layout.top="65" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_thumb.png" />
-      <SliderCtrl id="progress_eq_500"  direction="bottomtotop" height="75" width="16" layout.left="131" layout.top="65" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_thumb.png" />
-      <SliderCtrl id="progress_eq_250"  direction="bottomtotop" height="75" width="16" layout.left="110" layout.top="65" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_thumb.png" />
-      <SliderCtrl id="progress_eq_125"  direction="bottomtotop" height="75" width="16" layout.left="89"  layout.top="65" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_thumb.png" />
-      <SliderCtrl id="progress_eq_63"   direction="bottomtotop" height="75" width="16" layout.left="68"  layout.top="65" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_thumb.png" />
-      <SliderCtrl id="progress_eq_31"   direction="bottomtotop" height="75" width="16" layout.left="47"  layout.top="65" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_thumb.png" />
-      <SliderCtrl id="progress_eq_preamp"  direction="bottomtotop" height="75" width="16" layout.left="18"  layout.top="65" trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.image="eq_thumb.png" />
+      <SliderCtrl id="progress_pan" height="8" width="53" layout.left="23" layout.top="54" foregnd.render.image="eqfactor_full2.bmp" trackbtn.bkgnd.render.type="null"/>
+      <SliderCtrl id="progress_3d"  height="8" width="53" layout.left="23" layout.top="85" foregnd.render.image="eqfactor_full2.bmp" trackbtn.bkgnd.render.type="null"/>
+      <SliderCtrl id="progress_eq_16k"  direction="bottomtotop" height="64" width="8" layout.left="292" layout.top="47"  foregnd.render.image="eqfactor_full.bmp" trackbtn.bkgnd.render.type="null"/>
+      <SliderCtrl id="progress_eq_8k"   direction="bottomtotop" height="64" width="8" layout.left="274" layout.top="47"  foregnd.render.image="eqfactor_full.bmp" trackbtn.bkgnd.render.type="null"/>
+      <SliderCtrl id="progress_eq_4k"   direction="bottomtotop" height="64" width="8" layout.left="256" layout.top="47"  foregnd.render.image="eqfactor_full.bmp" trackbtn.bkgnd.render.type="null"/>
+      <SliderCtrl id="progress_eq_2k"   direction="bottomtotop" height="64" width="8" layout.left="238" layout.top="47"  foregnd.render.image="eqfactor_full.bmp" trackbtn.bkgnd.render.type="null"/>
+      <SliderCtrl id="progress_eq_1k"   direction="bottomtotop" height="64" width="8" layout.left="220" layout.top="47"  foregnd.render.image="eqfactor_full.bmp" trackbtn.bkgnd.render.type="null"/>
+      <SliderCtrl id="progress_eq_500"  direction="bottomtotop" height="64" width="8" layout.left="202" layout.top="47"  foregnd.render.image="eqfactor_full.bmp" trackbtn.bkgnd.render.type="null"/>
+      <SliderCtrl id="progress_eq_250"  direction="bottomtotop" height="64" width="8" layout.left="184" layout.top="47"  foregnd.render.image="eqfactor_full.bmp" trackbtn.bkgnd.render.type="null"/>
+      <SliderCtrl id="progress_eq_125"  direction="bottomtotop" height="64" width="8" layout.left="166"  layout.top="47"  foregnd.render.image="eqfactor_full.bmp" trackbtn.bkgnd.render.type="null"/>
+      <SliderCtrl id="progress_eq_63"   direction="bottomtotop" height="64" width="8" layout.left="148"  layout.top="47"  foregnd.render.image="eqfactor_full.bmp" trackbtn.bkgnd.render.type="null"/>
+      <SliderCtrl id="progress_eq_31"   direction="bottomtotop" height="64" width="8" layout.left="130"  layout.top="47"  foregnd.render.image="eqfactor_full.bmp" trackbtn.bkgnd.render.type="null"/>
+      <SliderCtrl id="progress_eq_preamp"  direction="bottomtotop" height="64" width="8" layout.left="91"  layout.top="47" foregnd.render.image="eqfactor_full.bmp" trackbtn.bkgnd.render.type="null"/>
       
     </CustomWindow>
     <CustomWindow id="lyricdlg" layout.left="622" layout.top="200" width="322" height="165"
@@ -415,6 +415,9 @@
     <item type="icon" id="ttplayer.ico"       useskinhls="0" width="16" height="16">ttplayer.ico</item>
     <item type="icon" id="ttplayer.ico_32_32" useskinhls="0" width="32" height="32">ttplayer.ico</item>
     <item type="icon" id="ttplayer.ico_48_48" useskinhls="0" width="48" height="48">ttplayer.ico</item>
+    <item id="visualization_band.bmp">visualization_band.bmp</item>
+    <item id="eqfactor_full.bmp">eqfactor_full.bmp</item>
+    <item id="eqfactor_full2.bmp">eqfactor_full2.bmp</item>
 </img>
   <font>
     <item id="normal" facename="宋体" size="9" />

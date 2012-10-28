@@ -278,7 +278,7 @@ public:
 	bool         IsMySelfVisible();
 	bool         IsEnable();
 	void         SetVisible( bool b, bool bUpdateNow=true );
-	void         SetEnable( bool b );
+	void         SetEnable( bool b, bool bUpdateNow=true );
 	bool         IsDefault();
 	bool         IsReadonly();
 	bool         IsHover();

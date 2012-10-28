@@ -85,3 +85,5 @@ PLAYER_UIP_API bool  mp3_enable_eq(bool bEnable);
 PLAYER_UIP_API bool  mp3_reset_eq();
 PLAYER_UIP_API bool  mp3_set_eq(E_EQ_FREQ eFreq, int nValue);
 PLAYER_UIP_API bool  mp3_set_visualization(VisualizationInfo* pInfo);
+PLAYER_UIP_API HBITMAP mp3_get_visual_snapshot();
+PLAYER_UIP_API void    mp3_release_visual_snapshot();

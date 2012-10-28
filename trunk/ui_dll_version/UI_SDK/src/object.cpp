@@ -1188,7 +1188,7 @@ void Object::SetVisible( bool b, bool bUpdateNow )
 		}
 	}
 }
-void Object::SetEnable( bool b )
+void Object::SetEnable( bool b, bool bUpdateNow)
 {
 	if( this->GetObjectType() == OBJ_WINDOW )
 	{
@@ -1210,7 +1210,7 @@ void Object::SetEnable( bool b )
 	
 	UISendMessage(this, UI_WM_STATECHANGED, nOldBits, m_nStateBit);
 
-	if( b != bOld )
+	if( b != bOld && bUpdateNow)
 		this->UpdateObject();
 }
 
