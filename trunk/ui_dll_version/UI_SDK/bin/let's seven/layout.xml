@@ -35,11 +35,12 @@
       <SliderCtrl id="progress_voice" foregnd.render.image="progress_fill.bmp" height="12" width="63" layout.right="26" layout.bottom="13"
                          trackbtn.bkgnd.render.image="progress_thumb.bmp" />
     </CustomWindow>
-    <CustomWindow id="playlistdlg"  bktype="frame" width="322" height="165"
-             bkgnd.render.type="image" bkgnd.render.image="playlist_skin.png" bkgnd.render.9region="100,60,50,15,15,15,20,15"
-             bkgnd.render.image.drawtype="stretch"
-             transparent.type="maskalpha" transparent.part="4corner" transparent.part.9region="14,14,14,14,14,14,14,14"
-             layout.left="300" layout.top="365" >
+    <CustomWindow id="playlistdlg"  
+                  width="322" height="165" minwidth="322" minheight="165"
+                  bkgnd.render.type="image" bkgnd.render.image="playlist_skin.png" bkgnd.render.9region="100,60,50,15,15,15,20,15"
+                  bkgnd.render.image.drawtype="stretch"
+                  transparent.type="maskalpha" transparent.part="4corner" transparent.part.9region="14,14,14,14,14,14,14,14"
+                  layout.left="300" layout.top="365" >
       <Button id="sys_close" styleclass="imagebtn" bkgnd.render.image="close.bmp" layout.right="5" layout.top="0"/>
       <Panel layout="stack" layout.left="15" layout.top="31">
         <Button id="playlist_add"  styleclass="imagebtn" tooltip="添加" bkgnd.render.image="playlist_add.bmp"  bkgnd.render.imagelist.layout="v"/>
@@ -82,7 +83,8 @@
       <SliderCtrl id="progress_eq_preamp"  direction="bottomtotop" height="64" width="8" layout.left="91"  layout.top="47" foregnd.render.image="eqfactor_full.bmp" trackbtn.bkgnd.render.type="null"/>
       
     </CustomWindow>
-    <CustomWindow id="lyricdlg" layout.left="622" layout.top="200" width="322" height="165"
+    <CustomWindow id="lyricdlg" layout.left="622" layout.top="200" 
+                  width="322" height="165" minwidth="322" minheight="165"
                   bkgnd.render.type="image" bkgnd.render.image="lyric_bk.png" bkgnd.render.9region="100,60,50,15,15,15,20,15"
                   bkgnd.render.image.drawtype="stretch"
                   transparent.type="layered" transparent.maskalpha="230" >

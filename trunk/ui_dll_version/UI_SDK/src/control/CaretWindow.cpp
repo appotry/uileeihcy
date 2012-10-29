@@ -158,7 +158,7 @@ void CCaretWindow::CreateCaret(HWND hWndParent, int nWidth, int nHeight)
 
 		SyncWindowData data;
 		data.m_hWnd = m_hWnd;
-		data.m_nAnchorType = SYNC_CUSTOM;
+		data.m_nAnchorType = ANCHOR_CUSTOM;
 		::SendMessage(hWndParent, UI_WM_SYNC_WINDOW, (WPARAM)ADD_SYNC_WINDOW, (LPARAM)&data);
 	}
 	else

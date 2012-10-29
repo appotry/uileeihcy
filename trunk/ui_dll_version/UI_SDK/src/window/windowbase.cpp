@@ -11,6 +11,9 @@ WindowBase::WindowBase()
 	this->m_bEndModal      = false;
 	this->m_lDoModalReturn = 0;
 
+	m_nMinWidth = m_nMinHeight = NDEF;
+	m_nMaxWidth = m_nMaxHeight = NDEF;
+
 	this->m_MgrMouse.SetWindow( this );
 	this->m_MgrMouse.SetKeyboardManager( &this->m_MgrKeyboard );
 	this->m_MgrKeyboard.SetWindow( this );
@@ -33,6 +36,9 @@ void WindowBase::ResetAttribute()
 		::UI_ReleaseFont(m_hFont);
 		m_hFont = NULL;
 	}
+
+	m_nMinWidth = m_nMinHeight = NDEF;
+	m_nMaxWidth = m_nMaxHeight = NDEF;
 }
 bool WindowBase::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 {
@@ -65,6 +71,32 @@ bool WindowBase::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 		{
 			UI_AttachFont(&m_hFont, hFont, GetGraphicsRenderType(m_hWnd));
 		}
+	}
+
+
+	iter = mapAttrib.find(XML_WINDOW_MAX_WIDTH);
+	if (mapAttrib.end() != iter)
+	{
+		m_nMaxWidth = _ttoi(iter->second.c_str());
+		m_mapAttribute.erase(XML_WINDOW_MAX_WIDTH);
+	}
+	iter = mapAttrib.find(XML_WINDOW_MAX_HEIGHT);
+	if (mapAttrib.end() != iter)
+	{
+		m_nMaxHeight = _ttoi(iter->second.c_str());
+		m_mapAttribute.erase(XML_WINDOW_MAX_HEIGHT);
+	}
+	iter = mapAttrib.find(XML_WINDOW_MIN_WIDHT);
+	if (mapAttrib.end() != iter)
+	{
+		m_nMinWidth = _ttoi(iter->second.c_str());
+		m_mapAttribute.erase(XML_WINDOW_MIN_WIDHT);
+	}
+	iter = mapAttrib.find(XML_WINDOW_MIN_HEIGHT);
+	if (mapAttrib.end() != iter)
+	{
+		m_nMinHeight = _ttoi(iter->second.c_str());
+		m_mapAttribute.erase(XML_WINDOW_MIN_HEIGHT);
 	}
 
 	return true;
@@ -900,6 +932,8 @@ LRESULT WindowBase::_OnNcDestroy( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 {
 	bHandled = FALSE;
 
+	SyncWindowHelper<WindowBase>::_OnNcDestroy();
+
 	if( !IsChildWindow() )
 	{
 		g_pUIApplication->m_TopWindowMgr.RemoveTopWindowObject( this );
@@ -981,6 +1015,30 @@ LRESULT WindowBase::_OnThemeChange( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 	return 0;
 }
 
+LRESULT WindowBase::_OnGetMinMaxInfo( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
+{
+	 MINMAXINFO* pInfo = (MINMAXINFO*)lParam;
+	 if (NDEF != m_nMaxWidth)
+	 {
+		 pInfo->ptMaxSize.x = m_nMaxWidth;
+		 pInfo->ptMaxTrackSize.x = m_nMaxWidth;
+	 }
+	 if (NDEF != m_nMaxHeight)
+	 {
+		 pInfo->ptMaxSize.y = m_nMaxHeight;
+		 pInfo->ptMaxTrackSize.y = m_nMaxHeight;
+	 }
+	 if (NDEF != m_nMinWidth)
+	 {
+		 pInfo->ptMinTrackSize.x = m_nMinWidth;
+	 }
+	 if (NDEF != m_nMinHeight)
+	 {
+		 pInfo->ptMinTrackSize.y = m_nMinHeight;
+	 }
+	 return 0;
+}
+
 LRESULT WindowBase::_OnWindowPosChanging( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
 {
 	bHandled = TRUE;
@@ -990,21 +1048,65 @@ LRESULT WindowBase::_OnWindowPosChanging( UINT uMsg, WPARAM wParam, LPARAM lPara
 }
 LRESULT WindowBase::_OnSyncWindow( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
 {
-	const SyncWindowData& data = *(SyncWindowData*)(lParam);
 	switch(wParam)
 	{
 	case ADD_SYNC_WINDOW:
-		this->AddAnchorItem(data);
+		{
+			const SyncWindowData& data = *(SyncWindowData*)(lParam);
+			this->AddAnchorItem(data);
+		}
 		break;
 	case MODIFY_SYNC_WINDOW:
-		this->ModifyAnchorItem(data);
+		{
+			const SyncWindowData& data = *(SyncWindowData*)(lParam);
+			this->ModifyAnchorItem(data);
+		}
 		break;
 	case REMOVE_SYNC_WINDOW:
-		this->RemoveAnchorItem(data.m_hWnd);
+		{
+			const SyncWindowData& data = *(SyncWindowData*)(lParam);
+			this->RemoveAnchorItem(data.m_hWnd);
+		}
+		break;
+	case ADD_SYNC_WINDOW_RESULT:
+		{
+			this->OnAddAnchorItem((HWND)lParam);
+		}
+		break;
+	case MODIFY_SYNC_WINDOW_RESULT:
+		{
+			this->OnModifyAnchorItem((HWND)lParam);
+		}
+		break;
+	case REMOVE_SYNC_WINDOW_RESULT:
+		{
+			this->OnRemoveAnchorItem((HWND)lParam);
+		}
+		break;
+	case HOST_WINDOW_DESTROYED:
+		{
+			this->OnRemoveAnchorItem((HWND)lParam);
+		}
+		break;
+	case HOST_WINDOW_POSCHANGING:
+		{
+			this->OnHostWindowPosChanging();
+		}
 		break;
 	}
 	return 0;
 }
+LRESULT WindowBase::_OnEnterSizeMove( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
+{
+	SyncWindowHelper<WindowBase>::_OnEnterSizeMove();
+	return 0;
+}
+LRESULT WindowBase::_OnExitSizeMove( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
+{
+	SyncWindowHelper<WindowBase>::_OnExitSizeMove();
+	return 0;
+}	
+
 BOOL WindowBase::OnEraseBkgnd(HRDC hRDC)
 {
 	BOOL bRet = __super::OnEraseBkgnd(hRDC);  // 如果m_pEraseBkgndRender没有处理，在这里调用系统过程

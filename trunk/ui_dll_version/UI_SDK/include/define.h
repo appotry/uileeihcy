@@ -330,6 +330,12 @@ enum TEXTRENDER_TYPE
 // #define  XML_BACK_RENDER_COLOR_BORDER_PRESS_COLOR    _T("borderhovercol")   // 边框颜色
 // #define  XML_BACK_RENDER_COLOR_BORDER_DISABLE_COLOR  _T("borderdisablecol") // 边框颜色
 
+// windows attribute
+#define  XML_WINDOW_MAX_WIDTH                           _T("maxwidth")
+#define  XML_WINDOW_MAX_HEIGHT                          _T("maxheight")
+#define  XML_WINDOW_MIN_WIDHT                           _T("minwidth")
+#define  XML_WINDOW_MIN_HEIGHT                          _T("minheight")
+
 // window rgn
 #define  XML_WINDOW_TRANSPARENT_TYPE                    _T("transparent.type")
 #define  XML_WINDOW_TRANSPARENT_PART                    _T("transparent.part") // 窗口透明区域类型

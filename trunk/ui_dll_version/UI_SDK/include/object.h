@@ -174,10 +174,6 @@ protected:
 	int      m_nConfigHeight;  // 对象的高度，可取值： 数值 | "auto" . （对于window对象，height是指client区域的大小，不是整个窗口的大小；height包括padding，但不包括margin）
 						       // 在这里需要说明，对象的最终占用的宽度= margin.left + width + margin.right
 							   // 也就是说这里的width = padding.left + padding.right + content.width
-// 	int     minwidth;
-// 	int     minheight;
-// 	int     maxwidth;
-// 	int     maxheight;
 
 	UINT     m_nStateBit;      // 对象的状态，如visible/disable
 	UINT     m_nDropDragBit;

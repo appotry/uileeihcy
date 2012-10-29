@@ -9,9 +9,7 @@ Object::Object(void)
 	::SetRectEmpty(&m_rcPadding);
 	::SetRectEmpty(&m_rcBorder);
 
-	m_nConfigWidth    = m_nConfigHeight    = AUTO;
-// 	minwidth = minheight = NDEF;
-// 	maxwidth = maxheight = NDEF;
+	m_nConfigWidth = m_nConfigHeight    = AUTO;
 //	desiredWidth = desiredHeight = NDEF;
 	
 	this->m_hRgn = NULL;

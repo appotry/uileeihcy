@@ -3,7 +3,6 @@
 	2. DoModal的退出还没有做好
 	
  未实现：
- 1. Min max width/height 限制
  4. 由uibuilder启动时，ui的日志没有输出到 console 中
  5. 在拖动窗口大小的时候，EDIT位置变化时，CARAT没有随者变化
  7. 测试font的效果，是否可以改变
@@ -226,7 +225,10 @@
 
 141.mediaplayer皮肤的HLS变换又出现问题了，按钮有不正常的颜色。这又是闹哪样？
     --> 在获取图片数据时，忽略了图片如果是奇数宽时，最后有一位（或者三位）是对齐用的，不能用于循环当中    
-    	
+    
+ 1. Min max width/height 限制
+    --> 20121029. 为windowbase增加maxwidth maxheight minwidht minheight属性，同时设置分层窗口的窗口拉伸函数
+     	
 备注：
 1. Q: 怎么解决用VS2008编译生成的程序对vc运行库的依赖？
    A: 造成这种现象即“使用标准Windows库”的工程要依赖于msvcr90.dll，是因为这个项目是由VC2008创建，自动有这个依赖关系。
