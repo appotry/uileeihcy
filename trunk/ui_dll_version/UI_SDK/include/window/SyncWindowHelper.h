@@ -6,6 +6,11 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
+// TODO: 
+//		1. 窗口对屏幕边缘的粘贴
+//		2. 窗口对其它site window的粘贴及解除粘贴
+//		3. host 窗口移动对site window的粘贴
+
 #define ANCHOR_NONE        0
 #define ANCHOR_LEFT        0x0001
 #define ANCHOR_RIGHT       0x0002
@@ -196,17 +201,27 @@ protected:
 		
 		if (m_bSizeMove)   // 如果不是真的在用鼠标拖拽拉伸，则不处理，例如窗口刚创建，
 		{
-			bool bSize = (lpWndPos->flags & SWP_NOSIZE)?false:true;
+			bool bSize = (lpWndPos->flags & SWP_NOSIZE)?false:true;   // 该字段不正确，即使只拖动窗口，也没有SWP_NOSIZE标志
 			bool bMove = (lpWndPos->flags & SWP_NOMOVE)?false:true;
 			if (!bSize && !bMove)
 				return false;
 
-			CRect rcHost, rcSite;
-			::GetWindowRect(m_hHostWnd, &rcHost);
-			this->GetRectByWNDPOS(lpWndPos, &rcSite);
-
 			SyncWindowData data;
 			data.m_hWnd = GetMyHWND();
+
+			CRect rcHost, rcSite, rcSiteOld;
+			::GetWindowRect(m_hHostWnd, &rcHost);
+			::GetWindowRect(data.m_hWnd, &rcSiteOld);
+			this->GetRectByWNDPOS(lpWndPos, &rcSite);
+
+			if (rcSiteOld.Width() != lpWndPos->cx || rcSiteOld.Height() != lpWndPos->cy)
+			{
+				bSize = true;
+			}
+			else
+			{
+				bSize = false;
+			}
 			bool bRet = this->CheckRectAnchor( &rcHost, &rcSite, bSize, &data );
 			
 			if (bRet)  // 粘上了，修改窗口的位置
@@ -229,19 +244,20 @@ protected:
 	//    返回两个区域是否粘合上
 	//
 	// Remark
-	//  Q1. 如果区分本次是MOVE，还是SIZE？检查LPWINDOWPOS->flags中的SWP_NOSIZE
+	//  Q1. 如果区分本次是MOVE，还是SIZE？当前窗口现在的高和宽，对比lpWindowPos中的高和宽来决定现在是否是在change size.
+	//      TODO: 可能会不准确吧...
 	//
 	bool   CheckRectAnchor(const CRect* prcHost, CRect* prcSite, bool bChangeSize, SyncWindowData* pData)
 	{
-		bChangeSize = true;
-
 		bool bLeftLeft = (abs(prcSite->left - prcHost->left) < m_nAnchorMagnetCapability);
 		bool bLeftRight = (abs(prcSite->left - prcHost->right)< m_nAnchorMagnetCapability);
 		bool bRightLeft = (abs(prcSite->right - prcHost->left) < m_nAnchorMagnetCapability);
 		bool bRightRight = (abs(prcSite->right - prcHost->right) < m_nAnchorMagnetCapability);
 		bool bX = bLeftLeft || bLeftRight || bRightRight || bRightLeft || 
 			(prcSite->left>prcHost->left && prcSite->left<prcHost->right) || 
-			(prcSite->right>prcHost->left && prcSite->right<prcHost->right);
+			(prcSite->right>prcHost->left && prcSite->right<prcHost->right) ||
+			(prcHost->left>prcSite->left && prcHost->left<prcSite->right) ||
+			(prcHost->right>prcSite->left && prcHost->right<prcSite->right);
 
 		bool bTopTop = (abs(prcHost->top - prcSite->top) < m_nAnchorMagnetCapability);
 		bool bTopBottom = (abs(prcSite->top - prcHost->bottom)< m_nAnchorMagnetCapability);
@@ -249,7 +265,9 @@ protected:
 		bool bBottomBottom = (abs(prcSite->bottom - prcHost->bottom) < m_nAnchorMagnetCapability);
 		bool bY = bTopTop || bTopBottom || bBottomTop || bBottomBottom ||
 			(prcSite->top>prcHost->top && prcSite->top<prcHost->bottom) ||
-			(prcSite->bottom>prcHost->top && prcSite->bottom<prcHost->bottom);
+			(prcSite->bottom>prcHost->top && prcSite->bottom<prcHost->bottom) ||
+			(prcHost->top>prcSite->top && prcHost->top<prcSite->bottom) ||
+			(prcHost->bottom>prcSite->top && prcHost->bottom<prcSite->bottom);
 
 		bool bXAnchored = false;
 		bool bYAnchored = false;

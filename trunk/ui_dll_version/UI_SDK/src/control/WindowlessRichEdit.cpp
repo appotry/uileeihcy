@@ -5,38 +5,24 @@
 //       问题原来是从riched20.lib联系在一起的IID_ITextServices，是错误的。
 const IID IID_ITextServices_Fix = { 0x8d33f740, 0xcf58, 0x11ce, {0xa8, 0x9d, 0x00, 0xaa, 0x00, 0x6c, 0xad, 0xc5} };
 
-
 // HIMETRIC units per inch (used for conversion)
 #define HIMETRIC_PER_INCH 2540
-
 // Convert Himetric along the X axis to X pixels
-LONG HimetricXtoDX(LONG xHimetric, LONG xPerInch)
-{
-	return (LONG) MulDiv(xHimetric, xPerInch, HIMETRIC_PER_INCH);
-}
-
+LONG HimetricXtoDX(LONG xHimetric, LONG xPerInch) {	return (LONG) MulDiv(xHimetric, xPerInch, HIMETRIC_PER_INCH);}
 // Convert Himetric along the Y axis to Y pixels
-LONG HimetricYtoDY(LONG yHimetric, LONG yPerInch)
-{
-	return (LONG) MulDiv(yHimetric, yPerInch, HIMETRIC_PER_INCH);
-}
-
+LONG HimetricYtoDY(LONG yHimetric, LONG yPerInch) {	return (LONG) MulDiv(yHimetric, yPerInch, HIMETRIC_PER_INCH);}
 // Convert Pixels on the X axis to Himetric
-LONG DXtoHimetricX(LONG dx, LONG xPerInch)
-{
-	return (LONG) MulDiv(dx, HIMETRIC_PER_INCH, xPerInch);
-}
-
+LONG DXtoHimetricX(LONG dx, LONG xPerInch) { return (LONG) MulDiv(dx, HIMETRIC_PER_INCH, xPerInch); }
 // Convert Pixels on the Y axis to Himetric
-LONG DYtoHimetricY(LONG dy, LONG yPerInch)
-{
-	return (LONG) MulDiv(dy, HIMETRIC_PER_INCH, yPerInch);
-}
+LONG DYtoHimetricY(LONG dy, LONG yPerInch) { return (LONG) MulDiv(dy, HIMETRIC_PER_INCH, yPerInch); }
 
+HMODULE WindowlessRichEdit::s_RichEditDll = NULL;
+LONG    WindowlessRichEdit::s_refDll = 0;
 
 WindowlessRichEdit::WindowlessRichEdit(RichEditBase* pRichEditBase)
 {
 	m_pRichEditBase = pRichEditBase;
+//	this->InitRichEidtDll();
 }
 
 WindowlessRichEdit::~WindowlessRichEdit(void)
@@ -52,12 +38,15 @@ WindowlessRichEdit::~WindowlessRichEdit(void)
 		m_spTextServices.Release();
 		m_spTextServices = NULL;
 	}
+//	this->ReleaseRichEidtDll();
 }
 
 bool WindowlessRichEdit::Create(HWND hWndParent)
 {
 	if (NULL == m_pRichEditBase)
 		return false;
+
+	LRESULT lr = 0;
 
 	HDC hdc = GetDC(hWndParent);
 	m_nxPerInch = GetDeviceCaps(hdc, LOGPIXELSX); 
@@ -102,7 +91,6 @@ bool WindowlessRichEdit::Create(HWND hWndParent)
 	// 避免英文字体与中文字体不统一的问题
 	if (NULL != m_spTextServices)
 	{
-		LRESULT lr = 0;
 		m_spTextServices->TxSendMessage(EM_SETLANGOPTIONS, IMF_DUALFONT, 0, &lr);
 	}
 
@@ -112,9 +100,45 @@ bool WindowlessRichEdit::Create(HWND hWndParent)
 		RegisterDragDrop();
 	}
 
+	IRichEditOle* pOle = NULL;
+	hr = m_spTextServices->TxSendMessage(EM_GETOLEINTERFACE,0, (LPARAM)&pOle, &lr);
+	if (SUCCEEDED(hr) && NULL != pOle)
+	{
+		m_spOle = pOle;
+	}
+
+	hr = m_spTextServices->TxSendMessage(EM_SETOLECALLBACK, 0, (LPARAM)this, &lr);
 	
-	
+	this->InsertGif(_T("C:\\richedit.gir"));
 	return true;
+}
+
+
+LPCTSTR WindowlessRichEdit::GetLibraryName()
+{
+#if (_RICHEDIT_VER >= 0x0200)
+	return _T("RICHED20.DLL");
+#else
+	return _T("RICHED32.DLL");
+#endif
+}
+
+void WindowlessRichEdit::InitRichEidtDll()
+{
+	if (NULL == s_RichEditDll)
+	{
+		s_RichEditDll = ::LoadLibrary(GetLibraryName());
+	}
+	s_refDll++;
+}
+void WindowlessRichEdit::ReleaseRichEidtDll()
+{
+	s_refDll--;
+	if (0 == s_refDll)
+	{
+		FreeLibrary(s_RichEditDll);
+		s_RichEditDll = NULL;
+	}
 }
 
 void WindowlessRichEdit::Draw(HDC hDC)
@@ -392,11 +416,7 @@ HRESULT STDMETHODCALLTYPE WindowlessRichEdit::QueryInterface(REFIID riid,void **
 	if (NULL == ppvObject)
 		return E_INVALIDARG;
 
-	if (::IsEqualIID(IID_IUnknown,riid))
-	{
-		*ppvObject = static_cast<IUnknown*>(this);		
-	}
-	else if (::IsEqualIID(IID_ITextHost,riid))
+	if (::IsEqualIID(IID_IUnknown,riid) || ::IsEqualIID(IID_ITextHost,riid))
 	{
 		*ppvObject = static_cast<ITextHost*>(this);
 	}
@@ -1033,4 +1053,202 @@ bool ITextHostImpl::SetText(const TCHAR* szText)
 	}
 	return false; 
 }
+
+bool ITextHostImpl::InsertGif(const TCHAR* szGifPath)
+{
+	if (NULL == m_spOle)
+		return false;
+
+	bool    bRet = false;
+	HRESULT hr = E_FAIL;
+	LPOLECLIENTSITE pClientSite = NULL;
+	GifObject*      pGifObject = NULL;
+	IStorage*       pStorage = NULL;
+	ILockBytes*     pLockbytes = NULL;
+
+	do 
+	{
+		hr = ::CreateILockBytesOnHGlobal(NULL, TRUE, &pLockbytes);
+		if (FAILED(hr) || NULL == pLockbytes)
+			break;
+
+		hr = ::StgCreateDocfileOnILockBytes(pLockbytes,
+			STGM_SHARE_EXCLUSIVE|STGM_CREATE|STGM_READWRITE, 0, &pStorage);
+		if (FAILED(hr))
+			break;
+
+		pGifObject = new GifObject;
+
+		hr = m_spOle->GetClientSite(&pClientSite);
+		if (FAILED(hr))
+			break;
+
+		hr = pGifObject->SetClientSite(pClientSite);
+// 		if (FAILED(hr))
+// 			break;
+
+		hr = pGifObject->LoadGif(szGifPath);
+// 		if (FAILED(hr))
+// 			break;
+
+		hr = OleSetContainedObject(static_cast<IOleObject*>(pGifObject), TRUE);
+		if (FAILED(hr))
+			break;
+
+		REOBJECT reObj;
+		ZeroMemory(&reObj, sizeof(REOBJECT));
+		reObj.cbStruct = sizeof(REOBJECT);
+		//reObj.clsid = __uuidof(...);
+		reObj.poleobj = pGifObject;
+		reObj.polesite = pClientSite;
+		reObj.dvaspect = DVASPECT_CONTENT;
+		reObj.dwFlags = REO_BELOWBASELINE;
+		reObj.pstg = pStorage;
+		reObj.dwUser = 0;
+
+		SIZEL  sizel = {0,0};
+		reObj.sizel.cx = 0;
+		reObj.sizel.cy = 0;
+
+		hr = m_spOle->InsertObject(&reObj);
+		if (FAILED(hr))
+			break;
+
+		pClientSite->OnShowWindow(TRUE);
+		SAFE_RELEASE(pClientSite);
+
+		bRet = true;
+	} 
+	while (0);
+
+	if (false == bRet)
+	{
+		SAFE_RELEASE(pClientSite);
+		SAFE_RELEASE(pLockbytes);
+		SAFE_RELEASE(pStorage);
+	}
+
+	return false;
+}
+
+
+/************************************************************************/
+/*                                                                      */
+/************************************************************************/
+
+// *** IRichEditOleCallback methods ***
+
+// This method must be implemented to allow cut, copy, paste, drag, 
+// and drop operations of Component Object Model (COM) objects.
+// 例如向richedit中随便拖入一个桌面上的图标，就会调用该函数
+HRESULT IRichEditOleCallbackImpl::GetNewStorage(LPSTORAGE FAR * lplpstg)
+{
+	if (NULL == lplpstg)
+	{
+		return E_INVALIDARG;
+	}
+	LPLOCKBYTES lpLockBytes = NULL;
+	SCODE sc = ::CreateILockBytesOnHGlobal(NULL, TRUE, &lpLockBytes);
+	if (sc != S_OK)
+	{
+		return E_OUTOFMEMORY;
+	}
+
+	sc = ::StgCreateDocfileOnILockBytes(lpLockBytes,
+		STGM_SHARE_EXCLUSIVE|STGM_CREATE|STGM_READWRITE, 0, lplpstg);
+	if (sc != S_OK)
+	{
+		return E_OUTOFMEMORY;
+	}
+
+	return S_OK;
+}
+HRESULT IRichEditOleCallbackImpl::GetInPlaceContext(LPOLEINPLACEFRAME FAR * lplpFrame,
+													LPOLEINPLACEUIWINDOW FAR * lplpDoc,
+													LPOLEINPLACEFRAMEINFO lpFrameInfo)
+{
+	return E_NOTIMPL;
+}
+HRESULT IRichEditOleCallbackImpl::ShowContainerUI(BOOL fShow)
+{
+	return E_NOTIMPL;
+}
+// 在从外部拖入一个文件到richedit时，先响应了GetNewStorage成功后，就会再调到这个接口函数
+// 当返回S_OK时，这个对象将被插入，返回FALSE时，对象将不会被插入
+HRESULT IRichEditOleCallbackImpl::QueryInsertObject(LPCLSID lpclsid, LPSTORAGE lpstg,
+													LONG cp)
+{
+	return S_OK;
+}
+// 例如将richedit中的一人COM对象删除，则会调用一次该接口函数
+// 例如将richedit中的一个COM对象用鼠标拖拽到另一个位置，则会调用一次该接口函数
+// 该函数仅是一个通知，告诉我们有一个对象要被deleted from rich edit control;
+HRESULT IRichEditOleCallbackImpl::DeleteObject(LPOLEOBJECT lpoleobj)
+{
+	return S_OK;
+}
+
+// 在richedit中使用 CTRL+V时被调用
+HRESULT IRichEditOleCallbackImpl::QueryAcceptData(LPDATAOBJECT lpdataobj,
+												  CLIPFORMAT FAR * lpcfFormat, DWORD reco,
+												  BOOL fReally, HGLOBAL hMetaPict)
+{
+	return E_NOTIMPL;
+}
+HRESULT IRichEditOleCallbackImpl::ContextSensitiveHelp(BOOL fEnterMode)
+{
+	return E_NOTIMPL;
+}
+// 在richedit中使用 CTRL+C 时被调用
+HRESULT IRichEditOleCallbackImpl::GetClipboardData(CHARRANGE FAR * lpchrg, DWORD reco,
+												   LPDATAOBJECT FAR * lplpdataobj)
+{
+	return E_NOTIMPL;
+}
+
+// 在richedit中使用鼠标拖拽时被调用
+HRESULT IRichEditOleCallbackImpl::GetDragDropEffect(BOOL fDrag, DWORD grfKeyState,
+													LPDWORD pdwEffect)
+{
+	if (!fDrag) // allowable dest effects
+	{
+		DWORD dwEffect;
+		// check for force link
+		if ((grfKeyState & (MK_CONTROL|MK_SHIFT)) == (MK_CONTROL|MK_SHIFT))
+			dwEffect = DROPEFFECT_LINK;
+		// check for force copy
+		else if ((grfKeyState & MK_CONTROL) == MK_CONTROL)
+			dwEffect = DROPEFFECT_COPY;
+		// check for force move
+		else if ((grfKeyState & MK_ALT) == MK_ALT)
+			dwEffect = DROPEFFECT_MOVE;
+		// default -- recommended action is move
+		else
+			dwEffect = DROPEFFECT_MOVE;
+		if (dwEffect & *pdwEffect) // make sure allowed type
+			*pdwEffect = dwEffect;
+	}
+	return S_OK;
+}
+
+// 右击RichEdit时被调用，根据鼠标右键时，鼠标下面的对象的不同，得到的参数也不同，
+// 例如在空白处右击，seltype=0, lpoleobj=NULL
+// 例如在一个COM对象处右击，可能seltype=2, lpoleobj = xxx;
+HRESULT IRichEditOleCallbackImpl::GetContextMenu(WORD seltype, LPOLEOBJECT lpoleobj,
+												 CHARRANGE FAR * lpchrg,
+												 HMENU FAR * lphmenu)
+{
+#ifdef _DEBUG
+	HMENU& hMenu = *lphmenu;
+	TCHAR szInfo[128] = _T("");
+	_stprintf(szInfo, _T("GetContextMenu Args: seltype=%d, lpoleobj=%08x, lpchrg=%d,%d"),
+		seltype, lpoleobj, lpchrg->cpMin, lpchrg->cpMax);
+
+	hMenu = CreatePopupMenu();
+	BOOL bRet = ::AppendMenu(hMenu, MF_STRING, 10001, szInfo);
+#endif
+	return S_OK;
+}
+
+
 
