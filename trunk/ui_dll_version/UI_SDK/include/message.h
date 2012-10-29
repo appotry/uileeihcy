@@ -145,7 +145,7 @@ enum
 	//  非UI消息，采用::SendMessage发送
 	//  处理一个同步移动窗口事件(添加、修改、删除)
 	//		wparam:  SYNC_WINDOW_EVENT_TYPE
-	//		lparam:  SyncWindowData*
+	//		lparam:  具体查看SYNC_WINDOW_EVENT_TYPE定义
 	UI_WM_SYNC_WINDOW,
 
 	//

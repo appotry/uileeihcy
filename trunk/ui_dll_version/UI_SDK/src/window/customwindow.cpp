@@ -1255,13 +1255,20 @@ void LayeredWindowWrap::OnMouseMove()
 	int oldCX = m_sizeWindow.cx;
 	int oldCY = m_sizeWindow.cy;
 
-	// 计算窗口的新坐标
+	// 计算窗口的新坐标 (注：对于向左/上拉伸时，如果限制了最大宽/高，则在计算坐标时需要按照最大宽/高来计算，而不是鼠标位置)
 	switch(m_nHitTestFlag)
 	{
 	case HTLEFT:
 		nxMoveDiff = m_ptStartSizeMove.x - ptCursor.x;
-		m_ptWindow.x = m_ptWindowOld.x - nxMoveDiff;
 		m_sizeWindow.cx = m_sizeWindowOld.cx + nxMoveDiff;
+	
+		if (m_pWindow->m_nMaxWidth != NDEF && m_sizeWindow.cx > m_pWindow->m_nMaxWidth)
+			m_sizeWindow.cx = m_pWindow->m_nMaxWidth;
+		if (m_pWindow->m_nMinWidth != NDEF && m_sizeWindow.cx < m_pWindow->m_nMinWidth)
+			m_sizeWindow.cx = m_pWindow->m_nMinWidth;
+
+		m_ptWindow.x = m_ptWindowOld.x + m_sizeWindowOld.cx - m_sizeWindow.cx;
+		
 		break;
 
 	case HTRIGHT:
@@ -1271,8 +1278,15 @@ void LayeredWindowWrap::OnMouseMove()
 
 	case HTTOP:
 		nyMoveDiff = m_ptStartSizeMove.y - ptCursor.y;
-		m_ptWindow.y = m_ptWindowOld.y - nyMoveDiff;
 		m_sizeWindow.cy = m_sizeWindowOld.cy + nyMoveDiff;
+
+		if (m_pWindow->m_nMaxHeight != NDEF && m_sizeWindow.cy > m_pWindow->m_nMaxHeight)
+			m_sizeWindow.cy = m_pWindow->m_nMaxHeight;
+		if (m_pWindow->m_nMinHeight != NDEF && m_sizeWindow.cy < m_pWindow->m_nMinHeight)
+			m_sizeWindow.cy = m_pWindow->m_nMinHeight;
+
+		m_ptWindow.y = m_ptWindowOld.y+m_sizeWindowOld.cy - m_sizeWindow.cy;
+
 		break;
 
 	case HTBOTTOM:
@@ -1282,12 +1296,23 @@ void LayeredWindowWrap::OnMouseMove()
 
 	case HTTOPLEFT:
 		nxMoveDiff = m_ptStartSizeMove.x - ptCursor.x;
-		m_ptWindow.x = m_ptWindowOld.x - nxMoveDiff;
 		m_sizeWindow.cx = m_sizeWindowOld.cx + nxMoveDiff;
 
 		nyMoveDiff = m_ptStartSizeMove.y - ptCursor.y;
-		m_ptWindow.y = m_ptWindowOld.y - nyMoveDiff;
 		m_sizeWindow.cy = m_sizeWindowOld.cy + nyMoveDiff;
+
+		if (m_pWindow->m_nMaxWidth != NDEF && m_sizeWindow.cx > m_pWindow->m_nMaxWidth)
+			m_sizeWindow.cx = m_pWindow->m_nMaxWidth;
+		if (m_pWindow->m_nMaxHeight != NDEF && m_sizeWindow.cy > m_pWindow->m_nMaxHeight)
+			m_sizeWindow.cy = m_pWindow->m_nMaxHeight;
+		if (m_pWindow->m_nMinWidth != NDEF && m_sizeWindow.cx < m_pWindow->m_nMinWidth)
+			m_sizeWindow.cx = m_pWindow->m_nMinWidth;
+		if (m_pWindow->m_nMinHeight != NDEF && m_sizeWindow.cy < m_pWindow->m_nMinHeight)
+			m_sizeWindow.cy = m_pWindow->m_nMinHeight;
+
+		m_ptWindow.y = m_ptWindowOld.y+m_sizeWindowOld.cy - m_sizeWindow.cy;
+		m_ptWindow.x = m_ptWindowOld.x + m_sizeWindowOld.cx - m_sizeWindow.cx;
+		
 		break;
 
 	case HTTOPRIGHT:
@@ -1295,14 +1320,26 @@ void LayeredWindowWrap::OnMouseMove()
 		m_sizeWindow.cx = m_sizeWindowOld.cx + nxMoveDiff;
 
 		nyMoveDiff = m_ptStartSizeMove.y - ptCursor.y;
-		m_ptWindow.y = m_ptWindowOld.y - nyMoveDiff;
 		m_sizeWindow.cy = m_sizeWindowOld.cy + nyMoveDiff;
+
+		if (m_pWindow->m_nMaxHeight != NDEF && m_sizeWindow.cy > m_pWindow->m_nMaxHeight)
+			m_sizeWindow.cy = m_pWindow->m_nMaxHeight;
+		if (m_pWindow->m_nMinHeight != NDEF && m_sizeWindow.cy < m_pWindow->m_nMinHeight)
+			m_sizeWindow.cy = m_pWindow->m_nMinHeight;
+
+		m_ptWindow.y = m_ptWindowOld.y+m_sizeWindowOld.cy - m_sizeWindow.cy;
 		break;
 
 	case HTBOTTOMLEFT:
 		nxMoveDiff = m_ptStartSizeMove.x - ptCursor.x;
-		m_ptWindow.x = m_ptWindowOld.x - nxMoveDiff;
 		m_sizeWindow.cx = m_sizeWindowOld.cx + nxMoveDiff;
+
+		if (m_pWindow->m_nMaxWidth != NDEF && m_sizeWindow.cx > m_pWindow->m_nMaxWidth)
+			m_sizeWindow.cx = m_pWindow->m_nMaxWidth;
+		if (m_pWindow->m_nMinWidth != NDEF && m_sizeWindow.cx < m_pWindow->m_nMinWidth)
+			m_sizeWindow.cx = m_pWindow->m_nMinWidth;
+
+		m_ptWindow.x = m_ptWindowOld.x + m_sizeWindowOld.cx - m_sizeWindow.cx;
 
 		nyMoveDiff = ptCursor.y - m_ptStartSizeMove.y;
 		m_sizeWindow.cy = m_sizeWindowOld.cy + nyMoveDiff;
@@ -1316,6 +1353,16 @@ void LayeredWindowWrap::OnMouseMove()
 		m_sizeWindow.cy = m_sizeWindowOld.cy + nyMoveDiff;
 		break;
 	}
+
+	// 限制窗口大小
+	if (m_pWindow->m_nMaxWidth != NDEF && m_sizeWindow.cx > m_pWindow->m_nMaxWidth)
+		m_sizeWindow.cx = m_pWindow->m_nMaxWidth;
+	if (m_pWindow->m_nMaxHeight != NDEF && m_sizeWindow.cy > m_pWindow->m_nMaxHeight)
+		m_sizeWindow.cy = m_pWindow->m_nMaxHeight;
+	if (m_pWindow->m_nMinWidth != NDEF && m_sizeWindow.cx < m_pWindow->m_nMinWidth)
+		m_sizeWindow.cx = m_pWindow->m_nMinWidth;
+	if (m_pWindow->m_nMinHeight != NDEF && m_sizeWindow.cy < m_pWindow->m_nMinHeight)
+		m_sizeWindow.cy = m_pWindow->m_nMinHeight;
 
 	if (oldCX == m_sizeWindow.cx && oldCY == m_sizeWindow.cy)
 	{

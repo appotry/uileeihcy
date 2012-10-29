@@ -87,8 +87,11 @@ public:
 		MESSAGE_HANDLER( WM_MOUSEMOVE,     _OnHandleMouseMessage )
 		MESSAGE_HANDLER( WM_ERASEBKGND,    _OnEraseBkgnd )
 		MESSAGE_HANDLER( WM_PAINT,         _OnPaint )
+		MESSAGE_HANDLER( WM_GETMINMAXINFO, _OnGetMinMaxInfo)
 		MESSAGE_HANDLER( WM_WINDOWPOSCHANGING, _OnWindowPosChanging )
 		MESSAGE_HANDLER( UI_WM_SYNC_WINDOW,    _OnSyncWindow)
+		MESSAGE_HANDLER( WM_ENTERSIZEMOVE, _OnEnterSizeMove)
+		MESSAGE_HANDLER( WM_EXITSIZEMOVE,  _OnExitSizeMove)
 		MESSAGE_HANDLER( WM_MOUSELEAVE,    _OnHandleMouseMessage )
 		MESSAGE_HANDLER( WM_LBUTTONDOWN,   _OnHandleMouseMessage )
 		MESSAGE_HANDLER( WM_LBUTTONUP,     _OnHandleMouseMessage )
@@ -132,7 +135,10 @@ protected:
 	LRESULT           _OnThemeChange( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
 	LRESULT           _OnWindowPosChanging( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
 	LRESULT           _OnSyncWindow( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
-	
+	LRESULT           _OnGetMinMaxInfo( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+	LRESULT           _OnEnterSizeMove( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+	LRESULT           _OnExitSizeMove( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+
 	BOOL              OnEraseBkgnd(HRDC);
 	LRESULT           OnGetGraphicsRenderType();
 
@@ -141,6 +147,10 @@ public:
 	HRDC              m_hRenderTarget;       // 双缓冲DC
 	HRFONT            m_hFont;               // 当xml中配置了字体时，m_hFont为xml中的字体。当没有字体时，使用窗口字体。窗口字体也没时，则使用default font.
 
+	int               m_nMinWidth;
+	int               m_nMinHeight;
+	int               m_nMaxWidth;
+	int               m_nMaxHeight;
 protected:
 	CWndProcThunk     m_thunk;               // ATL中的THUNK，用于将一个窗口过程作成自己的成员函数
 	WNDPROC           m_oldWndProc;          // 该窗口的原始窗口过程

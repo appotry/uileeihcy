@@ -282,7 +282,7 @@ void MainWindow::SetPlayerListDlgHandle(HWND hWnd)
 // 		data.m_rcAnchorData.Width = -1;
 // 		data.m_rcAnchorData.Height = -1;
 		// TODO: TESET
-		data.m_nAnchorType = SYNC_LEFT|SYNC_OUT_BOTTOM|SYNC_RIGHT;
+		data.m_nAnchorType = ANCHOR_LEFT|ANCHOR_OUT_BOTTOM|ANCHOR_RIGHT;
 		data.m_rcAnchorData.Height = -1;
 		data.m_rcAnchorData.xOffset2 = 0;
 		
@@ -299,7 +299,7 @@ void MainWindow::SetEqualizerDlgHandle(HWND hWnd)
 	{
 		SyncWindowData data;
 		data.m_hWnd = hWnd;
-		data.m_nAnchorType = SYNC_OUT_RIGHT|SYNC_OUT_BOTTOM;
+		data.m_nAnchorType = ANCHOR_OUT_RIGHT|ANCHOR_OUT_BOTTOM;
 		data.m_rcAnchorData.Width = data.m_rcAnchorData.Height = -1;
 		this->AddAnchorItem(data);
 	}
@@ -320,7 +320,7 @@ void MainWindow::OnBnClickLyric()
 
 		SyncWindowData data;
 		data.m_hWnd = m_pLyricDlg->m_hWnd;
-		data.m_nAnchorType = SYNC_OUT_RIGHT;
+		data.m_nAnchorType = ANCHOR_OUT_RIGHT;
 		data.m_rcAnchorData.Width = data.m_rcAnchorData.Height = -1;
 		this->AddAnchorItem(data);
 	}
