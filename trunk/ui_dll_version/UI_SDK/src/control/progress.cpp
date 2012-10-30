@@ -15,8 +15,8 @@ bool ProgressCtrlBase::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 	if (false == Control::SetAttribute(mapAttrib,bReload))
 		return false;
 
-	ATTRMAP::iterator iter = mapAttrib.find(XML_PROGRESSCTRL_DIRECTION);
-	if (mapAttrib.end() != iter )
+	ATTRMAP::iterator iter = m_mapAttribute.find(XML_PROGRESSCTRL_DIRECTION);
+	if (m_mapAttribute.end() != iter )
 	{
 		String& str = iter->second;
 		if (XML_PROGRESSCTRL_DIRECTION_LEFTRIGHT == str)
@@ -39,7 +39,7 @@ bool ProgressCtrlBase::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 		{
 			UI_LOG_WARN(_T("%s  \"%s\" is invalid: %s"), FUNC_NAME, XML_PROGRESSCTRL_DIRECTION, str.c_str() );
 		}
-		this->m_mapAttribute.erase(XML_PROGRESSCTRL_DIRECTION);
+		m_mapAttribute.erase(iter);
 	}
 	return true;
 }

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "GifImage.h"
+#include "util/GifImage.h"
 
 Gif_Timer::Gif_Timer()
 {
@@ -474,7 +474,7 @@ void GifImage::build_one_frame_data(
 //
 //	使用路径进行文件GIF加载
 //
-bool GifImage::Load(TCHAR* szPath)
+bool GifImage::Load(const TCHAR* szPath)
 {
 	fstream f;
 	f.open(szPath, ios_base::in|ios_base::binary);
@@ -487,13 +487,13 @@ bool GifImage::Load(TCHAR* szPath)
 		// 文件标志
 		GIF_FileMark header;
 		f.read((char*)&header, sizeof(GIF_FileMark));
-		if( f.fail() )      break;
-		if(!header.Valid()) break;
+		if (f.fail())        break;
+		if (!header.Valid()) break;
 
 		// 文件全局信息
 		GIF_LogicalScreenDescriptor logicScreenDesc;
 		f.read((char*)&logicScreenDesc, sizeof(GIF_LogicalScreenDescriptor));
-		if(f.fail())        break;
+		if (f.fail())        break;
 
 		this->m_nImageWidth = logicScreenDesc.logical_screen_width;
 		this->m_nImageHeight = logicScreenDesc.logical_screen_height;
@@ -502,10 +502,10 @@ bool GifImage::Load(TCHAR* szPath)
 		void* pGlobalColorTable = NULL;
 		int   nGlobalColorTableSize = 0;
 
-		if( logicScreenDesc.global_color_table_flag )
+		if (logicScreenDesc.global_color_table_flag)
 			nGlobalColorTableSize = static_cast<int>(3*pow((double)2,(int)(logicScreenDesc.size_of_global_color_table+1)));
 
-		if( 0 != nGlobalColorTableSize )
+		if (0 != nGlobalColorTableSize)
 		{
 			pGlobalColorTable = (void*)new char[nGlobalColorTableSize];
 			f.read((char*)pGlobalColorTable, nGlobalColorTableSize);
@@ -520,27 +520,27 @@ bool GifImage::Load(TCHAR* szPath)
 			BYTE bNextBlockFlag = 0;
 			f.read((char*)&bNextBlockFlag, 1);
 
-			if( bNextBlockFlag == GIF_BLOCK_FLAG_TRAILER )
+			if (bNextBlockFlag == GIF_BLOCK_FLAG_TRAILER)
 			{
 				bRet = true;
 				break;   // 文件结束
 			}
 
-			if( NULL == pFrame )
+			if (NULL == pFrame)
 			{
 				pFrame = new GIF_Frame;
 				nFrameStartPos = f.tellg();
 				nFrameStartPos -= 1;
 			}
 
-			switch(bNextBlockFlag)
+			switch (bNextBlockFlag)
 			{
 			case GIF_BLOCK_FLAG_EXTENSION:
 				{
 					BYTE bNextExtFlag = 0;
-					f.read( (char*)&bNextExtFlag, 1);
+					f.read ((char*)&bNextExtFlag, 1);
 
-					switch(bNextExtFlag)
+					switch (bNextExtFlag)
 					{
 					case GIF_EXT_FLAG_PLAIN:
 						{
@@ -630,7 +630,7 @@ bool GifImage::Load(TCHAR* szPath)
 						nImageDataSize = 0;
 					}
 
-#ifdef _DEBUG__
+#ifdef _DEBUG // <-- 将每一帧保存为一个文件
 					static int n = 0;
 					TCHAR szPath[MAX_PATH] = _T("");
 					_stprintf(szPath, _T("C:\\one_frame\\%d.gif"),n++ );
@@ -657,9 +657,9 @@ bool GifImage::Load(TCHAR* szPath)
 					
 
 					// 设置背景透明色
-					if( pFrame->control.transparent_color_flag )
+					if (pFrame->control.transparent_color_flag)
 					{
-						this->decode_gif_image_transparent(pFrame->image, (LONG)pFrame->control.transparent_color_index);
+						this->decode_gif_image_transparent(pFrame, (LONG)pFrame->control.transparent_color_index);
 						//pFrame->image.SetTransparentColor((LONG)pFrame->control.transparent_color_index);
 					}
 
@@ -673,7 +673,7 @@ bool GifImage::Load(TCHAR* szPath)
 		} while (1);  // do
 
 PARSE_ERROR:
-		if( NULL != pFrame )  // 剩余部分没有image data了，导致还new了一次，在这里释放掉
+		if (NULL != pFrame)  // 剩余部分没有image data了，导致还new了一次，在这里释放掉
 		{
 			delete pFrame;
 			pFrame = NULL;
@@ -697,7 +697,7 @@ int GifImage::get_next_frame_index()
 
 	return nIndex;
 }
-GIF_Frame* GifImage::GetFrame( int nIndex )
+GIF_Frame* GifImage::GetFrame(int nIndex)
 {
 	if( nIndex < 0 || nIndex >= (int)m_vFrame.size() )
 		return NULL;
@@ -721,9 +721,9 @@ GIF_Frame* GifImage::GetFrame( int nIndex )
 //	Return
 //		成功返回TRUE，失败返回FALSE
 //
-BOOL GifImage::SetDrawParam( HWND hWnd, int x, int y, COLORREF colorTransparent )
+BOOL GifImage::SetDrawParam(HWND hWnd, int x, int y, COLORREF colorTransparent)
 {
-	if( m_vFrame.size() <= 0 )
+	if (m_vFrame.size() <= 0)
 		return FALSE;
 
 	this->release_resource();
@@ -781,11 +781,11 @@ void GifImage::SetDrawPos( int x, int y )
 void GifImage::Start()
 {
 	int nSize = (int)m_vFrame.size();
-	if( nSize <= 0 )
+	if (nSize <= 0)
 		return ;
 
 	m_nDrawStatus = GIF_DRAW_STATUS_START;
-	if( nSize == 1 )    // 单帧gif图片不需要使用计时器
+	if (nSize == 1)    // 单帧gif图片不需要使用计时器
 	{
 		EnterCriticalSection(&m_sect);
 		draw_frame( GIF_DISPOSAL_NULL, this->GetFrame(m_nCurFrameIndex));
@@ -801,14 +801,14 @@ void GifImage::Start()
 
 void GifImage::Pause()
 {
-	if( m_vFrame.size() <= 0 )
+	if (m_vFrame.size() <= 0)
 		return ;
 
 	m_nDrawStatus = GIF_DRAW_STATUS_PAUSE;
 }
 void GifImage::Stop()
 {
-	if( m_vFrame.size() <= 0 )
+	if (m_vFrame.size() <= 0)
 		return ;
 
 	// 刷新父窗口，这里需要注意进行同步，线程中的最后一次on_timer可能将下面的刷背景又覆盖了
@@ -827,7 +827,7 @@ void GifImage::Stop()
 //
 void GifImage::OnPaint(HDC hDC)
 {
-	if( GIF_DRAW_STATUS_STOP == m_nDrawStatus )
+	if (GIF_DRAW_STATUS_STOP == m_nDrawStatus)
 		return;
 
 	EnterCriticalSection(&m_sect);
@@ -881,8 +881,9 @@ void GifImage::draw_frame(int nPrevFrameDisposal, GIF_Frame* pFrame)
  		pFrame->descriptor.image_top_position,
 		pFrame->descriptor.image_width,
 		pFrame->descriptor.image_height,
-		pFrame->descriptor.image_left_position,
-		pFrame->descriptor.image_top_position,
+// 		pFrame->descriptor.image_left_position,
+// 		pFrame->descriptor.image_top_position,
+		0,0,
 		pFrame->descriptor.image_width,
 		pFrame->descriptor.image_height);
 }
@@ -891,13 +892,13 @@ void GifImage::draw_frame(int nPrevFrameDisposal, GIF_Frame* pFrame)
 //
 void GifImage::on_timer(Gif_TimerItem* pTimerItem)  
 {
-	if( m_nDrawStatus != GIF_DRAW_STATUS_START )  
+	if (m_nDrawStatus != GIF_DRAW_STATUS_START)  
 	{
 		pTimerItem->nRepeat = 1;  // 暂停或停止状态下，在check_timer中将自动删除
 		return;
 	}
 	EnterCriticalSection(&m_sect);
-	if( m_nDrawStatus != GIF_DRAW_STATUS_START )
+	if (m_nDrawStatus != GIF_DRAW_STATUS_START)
 	{
 		Gif_Timer_Factory::GetGifTimerEngine()->on_kill_timer((int)this);
 		return;
@@ -905,7 +906,7 @@ void GifImage::on_timer(Gif_TimerItem* pTimerItem)
 
 	int nDisposal = GIF_DISPOSAL_NULL;
 	GIF_Frame* pPrevFrame = this->GetFrame(m_nCurFrameIndex-1);
-	if( NULL != pPrevFrame )
+	if (NULL != pPrevFrame)
 	{
 		nDisposal = pPrevFrame->control.disposal_methold;
 	}
@@ -917,11 +918,11 @@ void GifImage::on_timer(Gif_TimerItem* pTimerItem)
 
 	// 为了避免频繁的更新列表，在这里每次仅更新Gif_timer_item里面的数据，而不是删除再添加一个
 	int nNextFrameIndex = get_next_frame_index();
-	if( nNextFrameIndex < (int) m_vFrame.size() )
+	if (nNextFrameIndex < (int) m_vFrame.size())
 	{
 		GIF_Frame* pFrame = m_vFrame[nNextFrameIndex];
 
-		if( NULL != pFrame )
+		if (NULL != pFrame)
 		{
 			pTimerItem->update_repeat(); 
 			pTimerItem->nWait = pFrame->nRealDelayTime;
@@ -952,42 +953,45 @@ void GifImage::on_remove_from_timer_list()
 //	由于gif的透明是通过指定调色板中的一个索引来实现，而不能通过判断和透明色相等来实现
 //	因为背景色可能和透明色为相同的颜色
 //
-bool GifImage::decode_gif_image_transparent(Image& image, int nTransparentIndex)
+//	备注:
+//		image.GetWidth和image.GetHeight并不真实。真实的数据宽和高要读取LogicalScreenDescriptor中的width/height
+//
+bool GifImage::decode_gif_image_transparent(GIF_Frame* pFrame, int nTransparentIndex)
 {
-	if( image.IsNull() )
+	if (NULL == pFrame)
 		return false;
+	//nTransparentIndex++;   // ?? 为什么要+1? 不加1的话结果就对不上，什么时候要加1 ？什么时候不需要加1 ？
+
+	int nDestRowBytes = 4*pFrame->descriptor.image_width;
+	int nDestWidth = pFrame->descriptor.image_width;
+	int nDestHeight= pFrame->descriptor.image_height;
 
 	BITMAPINFOHEADER bmih;
 	::ZeroMemory(&bmih, sizeof(BITMAPINFOHEADER));
 	bmih.biSize = sizeof(BITMAPINFOHEADER);
 	bmih.biBitCount = 32;
-	bmih.biWidth = image.GetWidth();
-	bmih.biHeight = image.GetHeight() * -1;
+	bmih.biWidth =  nDestWidth;
+	bmih.biHeight = nDestHeight * -1;
 	bmih.biCompression = BI_RGB;
 	bmih.biPlanes = 1;
 	BYTE* lpBits = NULL;
 	
 	HBITMAP hBitmap = ::CreateDIBSection(NULL,(BITMAPINFO*)&bmih, DIB_RGB_COLORS, (void**)&lpBits, NULL, 0 );
-	if(NULL == hBitmap || NULL == lpBits)
+	if (NULL == hBitmap || NULL == lpBits)
 		return false;
 
-	const BYTE* lpPaletteBits = (const BYTE*)image.GetBits();
-	int npxCount = image.GetWidth()*image.GetHeight();  // gif中的像素个数。每个像素是一个调色板的索引
-
 	RGBQUAD palettes[255];  // 取最大可能的大小
-	image.GetColorTable(0,255, palettes);
+	pFrame->image.GetColorTable(0,255, palettes);
 
-	int rowbytes = 4*image.GetWidth();
-	int height = image.GetHeight();
+	BYTE*       pDestBits = lpBits;// + (pFrame->descriptor.image_height-1)*nDestRowBytes;  // 切换到最后一行，因为DIB是由下到上的（坐标顺序）
+	const BYTE* pSrcBits  = ((const BYTE*)pFrame->image.GetBits()) + pFrame->descriptor.image_top_position*pFrame->image.GetPitch();
 
-	BYTE*       pDestBits = lpBits;
-	const BYTE* pSrcBits  = lpPaletteBits;
-	for (int row = 0; row < height; row ++ )
+	for (int row = 0; row < nDestHeight; row ++ )
 	{
-		for( int i=0,j=0; i<rowbytes; i+=4,j++)
+		for (int i=0,j=0; i<nDestRowBytes; i+=4,j++)
 		{
-			BYTE index = pSrcBits[j];  // 取出这个位置的调色板索引值
-			if(index == nTransparentIndex)
+			BYTE index = pSrcBits[j+pFrame->descriptor.image_left_position];  // 取出这个位置的调色板索引值
+			if (index == nTransparentIndex)
 			{
 				pDestBits[i] = pDestBits[i+1] = pDestBits[i+2] = pDestBits[i+3]	= 0; // 将alpha置为0，透明掉
 			}
@@ -1000,17 +1004,17 @@ bool GifImage::decode_gif_image_transparent(Image& image, int nTransparentIndex)
 				pDestBits[i+3] = 255;
 			}
 		}
-		pDestBits += rowbytes;
-		pSrcBits  += image.GetPitch();
+		pDestBits += nDestRowBytes;
+		pSrcBits  += pFrame->image.GetPitch();
 	}
 
-	image.Destroy();
-	image.Attach(hBitmap);
-	image.ForceUseAlpha();
+	pFrame->image.Destroy();
+	pFrame->image.Attach(hBitmap);
+	pFrame->image.ForceUseAlpha();
 
-#ifdef _DEBUG_
-	image.Save(_T("C:\\test.png"), Gdiplus::ImageFormatPNG);
+#ifdef _DEBUG_XX
+	pFrame->image.Save(_T("C:\\test.png"), Gdiplus::ImageFormatPNG);
 #endif
 
-	return !image.IsNull();
+	return !pFrame->image.IsNull();
 }

@@ -168,7 +168,7 @@ bool CustomWindow::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 		{
 			m_eTransparentRgnType = WINDOW_TRANSPARENT_PART_NULL;
 		}
-		mapAttrib.erase(XML_WINDOW_TRANSPARENT_PART);
+		mapAttrib.erase(iter);
 
 		// 获取设置参数
 		if( m_eTransparentRgnType == WINDOW_TRANSPARENT_PART_4_CORNER ||
@@ -180,7 +180,7 @@ bool CustomWindow::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 			{
 				String& str9Region = iter->second;
 				Util::TranslateImage9Region(str9Region, &m_TransparentRgn9Region );
-				mapAttrib.erase(XML_WINDOW_TRANSPARENT_PART_9REGION);
+				mapAttrib.erase(iter);
 			}
 			else
 			{
@@ -207,6 +207,7 @@ bool CustomWindow::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 		{
 			m_nWindowTransparentMaskType = WINDOW_TRANSPARENT_TYPE_MASKALPHA;
 		}
+		mapAttrib.erase(iter);
 
 		// 透明色
 		iter = mapAttrib.find(XML_WINDOW_TRANSPARENT_TYPE_MASKCOLOR_VALUE);
@@ -214,7 +215,7 @@ bool CustomWindow::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 		{
 			const String& strColorID =  iter->second;
 			::UI_GetColor( strColorID, &m_pColMask );
-			mapAttrib.erase(XML_WINDOW_TRANSPARENT_TYPE_MASKCOLOR_VALUE);
+			mapAttrib.erase(iter);
 
 			m_nWindowTransparentMaskType |= WINDOW_TRANSPARENT_TYPE_MASKCOLOR;
 		}
@@ -224,11 +225,10 @@ bool CustomWindow::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 		if (mapAttrib.end() != iter)
 		{
 			m_nAlphaMask = _ttoi(iter->second.c_str() );
-			mapAttrib.erase(XML_WINDOW_TRANSPARENT_TYPE_MASKALPHA_VALUE);
+			mapAttrib.erase(iter);
 
 			m_nWindowTransparentMaskType |= WINDOW_TRANSPARENT_TYPE_MASKALPHA;
 		}
-		mapAttrib.erase(XML_WINDOW_TRANSPARENT_TYPE);
 	}
 
 

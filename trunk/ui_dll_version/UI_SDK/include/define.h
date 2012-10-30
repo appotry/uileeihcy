@@ -465,31 +465,11 @@ enum STYLE_SELECTOR_TYPE{
 // Control
 
 // Label
-#define  XML_LABEL_COLOR                       _T("color")
 
-// TODO: delete below
-// #define  XML_LABEL_ALIGN                       _T("align")
-// 
-// #define XML_LABEL_ALIGN_TOP                    _T("top")
-// #define XML_LABEL_ALIGN_BOTTOM                 _T("bottom")
-// #define XML_LABEL_ALIGN_LEFT                   _T("left")
-// #define XML_LABEL_ALIGN_RIGHT                  _T("right")
-// #define XML_LABEL_ALIGN_CENTER                 _T("center")
-// #define XML_LABEL_ALIGN_VCENTER                _T("vcenter")
-
-// typedef enum  // 废弃，直接使用DT_LEFT等系统字段
-// {
-// 	LABEL_ALIGN_TOP = 0,
-// 	LABEL_ALIGN_LEFT = 0,
-// 	LABEL_ALIGN_RIGHT = 0x2,
-// 	LABEL_ALIGN_BOTTOM = 0x4,
-// 	LABEL_ALIGN_CENTER = 0x8,
-// 	LABEL_ALIGN_VCENTER = 0x10,
-// }LABEL_ALIGN;
-
-// TODO: delete below
 // Picture
-// #define  XML_PICTURE_IMAGE                     _T("image")
+
+// GifPicture
+#define  XML_GIFPICTURE_PATH   _T("path")  // TODO: 将被废弃，直接使用foregnd/bkgnd render
 
 // GroupBox
 #define  XML_GROUPBOX_BORDERIMAGE              _T("borderimage")        // 边框图片

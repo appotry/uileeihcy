@@ -353,11 +353,11 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 	//
 	//	2. 设置id属性
 	//
-	ATTRMAP::iterator iter = mapAttrib.find(XML_ID);
-	if (mapAttrib.end() != iter)
+	ATTRMAP::iterator iter = m_mapAttribute.find(XML_ID);
+	if (m_mapAttribute.end() != iter)
 	{
 		this->m_strID = iter->second;
-		this->m_mapAttribute.erase( XML_ID );
+		this->m_mapAttribute.erase(iter);
 	}
 	
 // 	if (m_strID.empty())
@@ -366,8 +366,8 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 // 	}
 
 	//  3. 设置布局相关值
-	iter = mapAttrib.find(XML_WIDTH);
-	if (mapAttrib.end() != iter)
+	iter = m_mapAttribute.find(XML_WIDTH);
+	if (m_mapAttribute.end() != iter)
 	{
 		String& str = iter->second;
 		if( XML_AUTO == str )
@@ -377,10 +377,10 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 		else
 			this->m_nConfigWidth = _ttoi( str.c_str() );
 
-		this->m_mapAttribute.erase( XML_WIDTH );
+		this->m_mapAttribute.erase( iter );
 	}
-	iter = mapAttrib.find(XML_HEIGHT);
-	if (mapAttrib.end() != iter)
+	iter = m_mapAttribute.find(XML_HEIGHT);
+	if (m_mapAttribute.end() != iter)
 	{
 		String& str = iter->second;
 		if( XML_AUTO == str )
@@ -390,7 +390,7 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 		else
 			this->m_nConfigHeight = _ttoi( str.c_str() );
 
-		this->m_mapAttribute.erase( XML_HEIGHT );
+		this->m_mapAttribute.erase(iter);
 	}
 // 	if( this->m_mapAttribute.count( XML_MINWIDTH ) )
 // 	{
@@ -417,37 +417,37 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 // 		this->m_mapAttribute.erase( XML_MAXWIDTH );
 //	}
 
-	iter = mapAttrib.find(XML_MARGIN);
-	if (mapAttrib.end() != iter)
+	iter = m_mapAttribute.find(XML_MARGIN);
+	if (m_mapAttribute.end() != iter)
 	{
 		String& str = iter->second;
 		Util::TranslateRECT(str, &this->m_rcMargin);
-		this->m_mapAttribute.erase( XML_MARGIN );
+		this->m_mapAttribute.erase(iter);
 	}
-	iter = mapAttrib.find(XML_PADDING);
-	if (mapAttrib.end() != iter)
+	iter = m_mapAttribute.find(XML_PADDING);
+	if (m_mapAttribute.end() != iter)
 	{
 		String& str = iter->second;
 		REGION4 rcPadding;
 		Util::TranslateRECT( str, &rcPadding );
-		this->m_mapAttribute.erase( XML_PADDING );
-
 		this->SetPaddingRegion((CRegion4*)&rcPadding);
+
+		this->m_mapAttribute.erase( iter );
 	}
-	iter = mapAttrib.find(XML_BORDER);
-	if (mapAttrib.end() != iter)
+	iter = m_mapAttribute.find(XML_BORDER);
+	if (m_mapAttribute.end() != iter)
 	{
 		String& str = iter->second;
 		REGION4 rcBorder;
 		Util::TranslateRECT( str, &rcBorder );
-		this->m_mapAttribute.erase( XML_BORDER );
-
 		this->SetBorderRegion((CRegion4*)&rcBorder);
+
+		this->m_mapAttribute.erase( iter );
 	}
 
 	// 设置背景渲染器
-	iter = mapAttrib.find(XML_BACKGND_RENDER_PREFIX XML_RENDER_TYPE);
-	if (mapAttrib.end() != iter)
+	iter = m_mapAttribute.find(XML_BACKGND_RENDER_PREFIX XML_RENDER_TYPE);
+	if (m_mapAttribute.end() != iter)
 	{
 		SAFE_DELETE(m_pBkgndRender);
 
@@ -464,11 +464,11 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 				UI_LOG_WARN( _T("%s Invalid %s=\"%s\""), FUNC_NAME, XML_BACKGND_RENDER_PREFIX XML_RENDER_TYPE, strBkgndRenderType.c_str() );
 			}
 		}
-		this->m_mapAttribute.erase(XML_BACKGND_RENDER_PREFIX XML_RENDER_TYPE);
+		this->m_mapAttribute.erase(iter);
 	}
 	// 设置前景绘制
-	iter = mapAttrib.find(XML_FOREGND_RENDER_PREFIX XML_RENDER_TYPE);
-	if (mapAttrib.end() != iter)
+	iter = m_mapAttribute.find(XML_FOREGND_RENDER_PREFIX XML_RENDER_TYPE);
+	if (m_mapAttribute.end() != iter)
 	{
 		SAFE_DELETE(m_pForegndRender);
 
@@ -482,18 +482,19 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 		{
 			UI_LOG_WARN( _T("Object::SetAttribute, Invalid%s=\"%s\""), XML_FOREGND_RENDER_PREFIX XML_RENDER_TYPE, strForegndRenderType.c_str() );
 		}
-		this->m_mapAttribute.erase(XML_FOREGND_RENDER_PREFIX XML_RENDER_TYPE);
+		this->m_mapAttribute.erase(iter);
 	}
 
 	// 字体
-	iter = mapAttrib.find(XML_TEXTRENDER_TYPE);
-	if (mapAttrib.end() != iter)
+	iter = m_mapAttribute.find(XML_TEXTRENDER_TYPE);
+	if (m_mapAttribute.end() != iter)
 	{
 		SAFE_DELETE(m_pTextRender);
 		const String& strTextRenderType = iter->second;
 		m_pTextRender = TextRenderFactory::GetTextRender(strTextRenderType, this);
-		this->m_mapAttribute.erase(XML_TEXTRENDER_TYPE);
 		m_pTextRender->SetAttribute(_T(""),m_mapAttribute);
+
+		this->m_mapAttribute.erase(iter);
 	}
 	else if( NULL == m_pTextRender )
 	{
@@ -503,8 +504,8 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 	
 
 	// 刷新属性
-	iter = mapAttrib.find(XML_BACKGND_IS_TRANSPARENT);
-	if (mapAttrib.end() != iter)
+	iter = m_mapAttribute.find(XML_BACKGND_IS_TRANSPARENT);
+	if (m_mapAttribute.end() != iter)
 	{
 		if( _T("1")==iter->second ||
 		    _T("true") == iter->second)
@@ -515,21 +516,21 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 		{
 			this->ModifyStyle(0,OBJECT_STYLE_TRANSPARENT);
 		}
-		this->m_mapAttribute.erase( XML_BACKGND_IS_TRANSPARENT );
+		this->m_mapAttribute.erase(iter);
 	}
 	
 	// 鼠标样式
-	iter = mapAttrib.find(XML_CURSOR);
-	if (mapAttrib.end() != iter)
+	iter = m_mapAttribute.find(XML_CURSOR);
+	if (m_mapAttribute.end() != iter)
 	{
 		String& str = iter->second;
 		::UI_GetCursor( str, &m_pCursor );
-		this->m_mapAttribute.erase( XML_CURSOR );
+		this->m_mapAttribute.erase(iter);
 	}
 
 	// 控件样式
-	iter = mapAttrib.find(XML_CONTROL_STYLE_TABABLE);
-	if (mapAttrib.end() != iter)
+	iter = m_mapAttribute.find(XML_CONTROL_STYLE_TABABLE);
+	if (m_mapAttribute.end() != iter)
 	{
 		String& str = iter->second;
 		if(_T("1") == str || _T("true") == str)
@@ -540,10 +541,11 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 		{
 			m_nStyle &= ~CONTROL_STYLE_TABSTOP;
 		}
+		m_mapAttribute.erase(iter);
 	}
 
-	iter = mapAttrib.find(XML_CONTROL_STYLE_GROUP);
-	if (mapAttrib.end() != iter)
+	iter = m_mapAttribute.find(XML_CONTROL_STYLE_GROUP);
+	if (m_mapAttribute.end() != iter)
 	{
 		String& str = iter->second;
 		if(_T("1") == str || _T("true") == str)
@@ -554,6 +556,7 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 		{
 			m_nStyle &= ~CONTROL_STYLE_GROUP;
 		}
+		m_mapAttribute.erase(iter);
 	}
 
 	return true;

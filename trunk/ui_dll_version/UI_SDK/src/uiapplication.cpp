@@ -399,4 +399,5 @@ void UIApplication::RegisterDefaultUIObject()
 	REGISTER_UI_OBJECT( Combobox );
 	REGISTER_UI_OBJECT( RichEdit );
 	REGISTER_UI_OBJECT( LEDCtrl );
+	REGISTER_UI_OBJECT( GifPicture );
 }

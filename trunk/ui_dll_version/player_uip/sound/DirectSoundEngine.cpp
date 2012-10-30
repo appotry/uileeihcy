@@ -562,7 +562,7 @@ void CDirectSoundEngine::EventThreadProc()
 			{
 				::PostMessage(m_hMessageOnlyWnd, EVENTEX_NOTIFY_MSG, 0, (LPARAM)this);
 				// this->Stop();
-				// m_pMgr->Fire_on_mp3_stop(); 该函数不支持多线程
+				// m_pMgr->Fire_on_mp3_stop(); 该函数不支持多线程，所以改向主线程postmessage来实现停止当前文件
 			}
 			else
 			{

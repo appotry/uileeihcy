@@ -164,6 +164,7 @@
 
           <ProgressCtrl direction="lefttoright" layout.left="10" layout.top="100" width="200" height="20"/>
           <SliderCtrl direction="lefttoright" thumbarrow="right" layout.left="10" layout.top="140" width="200"  height="22"  bkgnd.render.type="" trackbtn.bkgnd.render.type=""/>
+          <GifPicture id="gifpic_test" layout.left="10" layout.top="180" path="c:\\aa2.gif"/>
         </Panel>
       </GroupBox>
     </Window>

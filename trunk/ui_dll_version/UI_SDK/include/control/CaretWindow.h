@@ -63,7 +63,7 @@ class CCaret
 {
 public:
 	CCaret(){ m_bLayered = false; m_hWnd = NULL; }
-	void   SetLayered(bool b){ m_bLayered = b; }
+	void   SetLayered(bool b);
 
 	void   CreateCaret(HWND hWndParent, HBITMAP hbmp, int nWidth, int nHeight);
 	void   DestroyCaret();

@@ -54,14 +54,14 @@ void HwndHost::OnUnsubclassWindow()
 
 bool HwndHost::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 {
-	bool bRet = Object::SetAttribute(mapAttrib, bReload);
+	bool bRet = __super::SetAttribute(mapAttrib, bReload);
 	if( false == bRet )
 		return false;
 	
 
 	HWND hParentWnd = this->GetHWND();
-	ATTRMAP::iterator iter = mapAttrib.find(XML_HWNDHOST_CONTROL_ID);
-	if (mapAttrib.end() != iter)
+	ATTRMAP::iterator iter = m_mapAttribute.find(XML_HWNDHOST_CONTROL_ID);
+	if (m_mapAttribute.end() != iter)
 	{
 		int nValue = _ttoi( iter->second.c_str() );
 		m_hWnd = ::GetDlgItem(hParentWnd, nValue);
@@ -72,7 +72,7 @@ bool HwndHost::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 		}
 		
 		this->SubclassWindow();
-		m_mapAttribute.erase(XML_HWNDHOST_CONTROL_ID);
+		m_mapAttribute.erase(iter);
 	}
 
 	return true;

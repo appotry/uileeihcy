@@ -52,13 +52,5 @@ SIZE Control::GetDesiredSize( HRDC hRDC )
 	return size;
 }
 
-bool Control::SetAttribute( map<String,String>& mapAttrib, bool bReload )
-{
-	bool bRet = __super::SetAttribute(mapAttrib,bReload);
-	if( false == bRet )
-		return false;
-
-	return true;
-}
 
 
