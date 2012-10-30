@@ -343,7 +343,7 @@ bool ColorRender::SetAttribute( const String& strPrefix, map<String,String>& map
 	{
 		const String& strColID = iter->second;
 		::UI_GetColor( strColID, &m_pBkColor );
-		mapAttrib.erase(strAttrib);
+		mapAttrib.erase(iter);
 	}
 
 	strAttrib = strPrefix + XML_RENDER_BORDERCOLOR;
@@ -352,7 +352,7 @@ bool ColorRender::SetAttribute( const String& strPrefix, map<String,String>& map
 	{
 		const String& strColID = iter->second;
 		::UI_GetColor( strColID, &m_pBorderColor );
-		mapAttrib.erase(strAttrib);
+		mapAttrib.erase(iter);
 	}
 
 	return true;
@@ -431,7 +431,7 @@ bool GradientRender::SetAttribute( const String& strPrefix, ATTRMAP& mapAttrib )
 	{
 		const String& strColID = iter->second;
 		::UI_GetColor( strColID, &m_pColorFrom );
-		mapAttrib.erase(strAttrib);
+		mapAttrib.erase(iter);
 	}
 
 	strAttrib = strPrefix + XML_RENDER_COLORTO;
@@ -440,7 +440,7 @@ bool GradientRender::SetAttribute( const String& strPrefix, ATTRMAP& mapAttrib )
 	{
 		const String& strColID = iter->second;
 		::UI_GetColor( strColID, &m_pColorTo );
-		mapAttrib.erase(strAttrib);
+		mapAttrib.erase(iter);
 	}
 
 	strAttrib = strPrefix + XML_RENDER_BORDERCOLOR;
@@ -449,7 +449,7 @@ bool GradientRender::SetAttribute( const String& strPrefix, ATTRMAP& mapAttrib )
 	{
 		const String& strColID = iter->second;
 		::UI_GetColor( strColID, &m_pBorderColor );
-		mapAttrib.erase(strAttrib);
+		mapAttrib.erase(iter);
 	}
 	return true;
 } 
@@ -507,7 +507,7 @@ bool ImageRender::SetAttribute( const String& strPrefix, map<String,String>& map
 	{
 		const String& strImageID = iter->second;
 		m_pBitmap = ::UI_GetBitmap( strImageID, ::GetGraphicsRenderType(m_pObject) );
-		mapAttrib.erase(strAttrib);
+		mapAttrib.erase(iter);
 	}
 
 	strAttrib = strPrefix + XML_RENDER_COLOR;
@@ -516,7 +516,7 @@ bool ImageRender::SetAttribute( const String& strPrefix, map<String,String>& map
 	{
 		const String& strColID = iter->second;
 		::UI_GetColor( strColID, &m_pColorBk );
-		mapAttrib.erase(strAttrib);
+		mapAttrib.erase(iter);
 	}
 
 	strAttrib = strPrefix + XML_RENDER_IMAGE9REGION;
@@ -528,7 +528,7 @@ bool ImageRender::SetAttribute( const String& strPrefix, map<String,String>& map
 
 		const String& str9Region = iter->second;
 		Util::TranslateImage9Region( str9Region, (void*)m_pRegion );
-		mapAttrib.erase(strAttrib);
+		mapAttrib.erase(iter);
 	}
 
 	strAttrib = strPrefix + XML_RENDER_IMAGE_DRAWTYPE;
@@ -546,6 +546,8 @@ bool ImageRender::SetAttribute( const String& strPrefix, map<String,String>& map
 			this->SetImageDrawType(DRAW_BITMAP_ADAPT);
 		else if (XML_RENDER_IMAGE_DRAWTYPE_CENTER == strType)
 			this->SetImageDrawType(DRAW_BITMAP_CENTER);
+
+		mapAttrib.erase(iter);
 	}
 	return true;
 } 
@@ -804,7 +806,7 @@ bool ColorListRender::SetAttribute( const String& strPrefix, map<String,String>&
 			m_vBorderColor.push_back((UIColor*)NULL);
 		}
 
-		mapAttrib.erase(strAttrib);
+		mapAttrib.erase(iter);
 	}
 
 	if ( 0 == m_nCount )
@@ -828,7 +830,7 @@ bool ColorListRender::SetAttribute( const String& strPrefix, map<String,String>&
 			}
 		}
 
-		mapAttrib.erase(strAttrib);
+		mapAttrib.erase(iter);
 	}
 
 	strAttrib = strPrefix + XML_RENDER_BORDERCOLOR;
@@ -849,7 +851,7 @@ bool ColorListRender::SetAttribute( const String& strPrefix, map<String,String>&
 			}
 		}
 
-		mapAttrib.erase(strAttrib);
+		mapAttrib.erase(iter);
 	}
 
 	return true;
@@ -910,6 +912,8 @@ bool ListRenderBase::SetAttribute(const String& strPrefix, ATTRMAP& mapAttrib)
 			int nIndex = _ttoi(vecStateIndex[1].c_str());
 			m_mapState2Index[nState] = nIndex;
 		}
+
+		mapAttrib.erase(iter);
 	}
 	return true;
 }
@@ -950,7 +954,7 @@ bool ImageListRender::SetAttribute( const String& strPrefix, map<String,String>&
 	if (mapAttrib.end() != iter)
 	{
 		m_nCount = _ttoi(iter->second.c_str());
-		mapAttrib.erase(strAttrib);
+		mapAttrib.erase(iter);
 	}
 
 	if ( 0 == m_nCount )
@@ -967,7 +971,7 @@ bool ImageListRender::SetAttribute( const String& strPrefix, map<String,String>&
 		}
 		m_hBitmap = ::UI_GetBitmap( iter->second, ::GetGraphicsRenderType(m_pObject->GetHWND()) );
 
-		mapAttrib.erase(strAttrib);
+		mapAttrib.erase(iter);
 	}
 	if( NULL == m_hBitmap )
 		return true;
@@ -989,7 +993,7 @@ bool ImageListRender::SetAttribute( const String& strPrefix, map<String,String>&
 		{
 			UI_LOG_WARN(_T("%s  \"%s\" is invalid: %s"), _T(__FUNCTION__), strAttrib.c_str(), str.c_str() );
 		}
-		mapAttrib.erase(strAttrib);
+		mapAttrib.erase(iter);
 	}
 
 	// 计算单张图片的大小
@@ -1016,7 +1020,7 @@ bool ImageListRender::SetAttribute( const String& strPrefix, map<String,String>&
 
 		const String& str9Region = iter->second;
 		Util::TranslateImage9Region( str9Region, (void*)m_p9Region );
-		mapAttrib.erase(strAttrib);
+		mapAttrib.erase(iter);
 	}
 
 	strAttrib = strPrefix + XML_RENDER_IMAGE_DRAWTYPE;
@@ -1034,6 +1038,8 @@ bool ImageListRender::SetAttribute( const String& strPrefix, map<String,String>&
 			this->SetImageDrawType(DRAW_BITMAP_ADAPT);
 		else if (XML_RENDER_IMAGE_DRAWTYPE_CENTER == strType)
 			this->SetImageDrawType(DRAW_BITMAP_CENTER);
+
+		mapAttrib.erase(iter);
 	}
 
 	return true;
@@ -3948,7 +3954,7 @@ bool TextRenderBase::SetAttribute( const String& strPrefix, ATTRMAP& mapAttrib )
 			}
 		}
 		
-		mapAttrib.erase(strAttr);
+		mapAttrib.erase(iter);
 	}
 
 	strAttr = strPrefix + XML_TEXTRENDER_PADDING;
@@ -4059,7 +4065,7 @@ bool TextRender::SetAttribute( const String& strPrefix, ATTRMAP& mapAttrib )
 	if (mapAttrib.end() != iter)
 	{
 		UI_GetColor( iter->second, &this->m_pColorText );
-		mapAttrib.erase(strAttrib);
+		mapAttrib.erase(iter);
 	}
 
 	strAttrib = strPrefix + XML_TEXTRENDER_FONT;
@@ -4067,7 +4073,7 @@ bool TextRender::SetAttribute( const String& strPrefix, ATTRMAP& mapAttrib )
 	if (mapAttrib.end() != iter)
 	{
 		m_hFont = UI_GetFont(iter->second, ::GetGraphicsRenderType(m_pObject) );
-		mapAttrib.erase(strAttrib);
+		mapAttrib.erase(iter);
 	}
 	if( NULL == m_hFont )
 	{
@@ -4150,7 +4156,7 @@ bool ColorListTextRender::SetAttribute( const String& strPrefix, map<String,Stri
 	if (mapAttrib.end() != iter)
 	{
 		this->SetCount( _ttoi(iter->second.c_str()) );
-		mapAttrib.erase(strAttrib);
+		mapAttrib.erase(iter);
 	}
 
 	if ( 0 == m_nCount )
@@ -4174,7 +4180,7 @@ bool ColorListTextRender::SetAttribute( const String& strPrefix, map<String,Stri
 				::UI_GetColor(vColors[i], &m_vTextColor[i]);
 			}
 		}
-		mapAttrib.erase(strAttrib);
+		mapAttrib.erase(iter);
 	}
 
 	strAttrib = strPrefix + XML_TEXTRENDER_FONT;
@@ -4184,7 +4190,7 @@ bool ColorListTextRender::SetAttribute( const String& strPrefix, map<String,Stri
 		String strFont = iter->second;
 
 		m_hFont = UI_GetFont(strFont, ::GetGraphicsRenderType(m_pObject->GetHWND()) );
-		mapAttrib.erase(strAttrib);
+		mapAttrib.erase(iter);
 	}
 
 	if( NULL == m_hFont )
@@ -4299,7 +4305,7 @@ bool FontColorListTextRender::SetAttribute( const String& strPrefix, map<String,
 	if (mapAttrib.end() != iter)
 	{
 		this->SetCount( _ttoi(iter->second.c_str()) );
-		mapAttrib.erase(strAttrib);
+		mapAttrib.erase(iter);
 	}
 
 	if ( 0 == m_nCount )
@@ -4322,7 +4328,7 @@ bool FontColorListTextRender::SetAttribute( const String& strPrefix, map<String,
 				::UI_GetColor(vColors[i], &m_vTextColor[i]);
 			}
 		}
-		mapAttrib.erase(strAttrib);
+		mapAttrib.erase(iter);
 	}
 
 	strAttrib = strPrefix + XML_TEXTRENDER_FONT;
@@ -4342,7 +4348,7 @@ bool FontColorListTextRender::SetAttribute( const String& strPrefix, map<String,
 				m_vTextFont[i] = UI_GetFont(vFont[i], ::GetGraphicsRenderType(m_pObject->GetHWND()) );
 			}
 		}
-		mapAttrib.erase(strAttrib);
+		mapAttrib.erase(iter);
 	}
 
 	for(int i = 0; i < m_nCount; i++ )

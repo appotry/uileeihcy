@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "control\WindowlessRichEdit.h"
+#include "control\gifoleobject.h"
 
 // 备注：在CreateTextSerives之后，调用QueryInterface获取ITextServices接口时，总是返回E_NOINTERFACE
 //       问题原来是从riched20.lib联系在一起的IID_ITextServices，是错误的。
@@ -38,6 +39,14 @@ WindowlessRichEdit::~WindowlessRichEdit(void)
 		m_spTextServices.Release();
 		m_spTextServices = NULL;
 	}
+
+	for (int i = 0; i < (int)m_vecpUnkOleObject.size(); i++)
+	{
+		IUnknown* pUnk = m_vecpUnkOleObject[i];
+		pUnk->Release();
+	}
+	m_vecpUnkOleObject.clear();
+
 //	this->ReleaseRichEidtDll();
 }
 
@@ -107,9 +116,9 @@ bool WindowlessRichEdit::Create(HWND hWndParent)
 		m_spOle = pOle;
 	}
 
-	hr = m_spTextServices->TxSendMessage(EM_SETOLECALLBACK, 0, (LPARAM)this, &lr);
+	// 注：这里千万不要直接传递this进去，否则会导致txservice调用texthost时，指针错误。
+	hr = m_spTextServices->TxSendMessage(EM_SETOLECALLBACK, 0, (LPARAM)static_cast<IRichEditOleCallback*>(this), &lr);
 	
-	this->InsertGif(_T("C:\\richedit.gir"));
 	return true;
 }
 
@@ -262,6 +271,16 @@ bool WindowlessRichEdit::HitTest(POINT pt)
 
 LRESULT WindowlessRichEdit::OnChar(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+#ifdef _DEBUG
+	IGifOleObject* pGifOleObject = NULL;
+	m_vecpUnkOleObject[0]->QueryInterface(IID_IGifOleObject, (void**)&pGifOleObject);
+	if (NULL != pGifOleObject)
+	{
+		pGifOleObject->Refresh();
+	}
+	return 0;
+#endif
+
 	LRESULT lr = 0;
 
 	HRESULT hr = m_spTextServices->TxSendMessage(uMsg, wParam, lParam, &lr);
@@ -420,10 +439,14 @@ HRESULT STDMETHODCALLTYPE WindowlessRichEdit::QueryInterface(REFIID riid,void **
 	{
 		*ppvObject = static_cast<ITextHost*>(this);
 	}
-	else
+	else if (::IsEqualIID(riid, IID_IRichEditOleCallback))
 	{
-		return E_NOINTERFACE;
+		*ppvObject = static_cast<IRichEditOleCallback*>(this);
 	}
+	else
+		return E_NOINTERFACE;
+	
+	this->AddRef();
 	return S_OK;
 }
 ULONG STDMETHODCALLTYPE WindowlessRichEdit::AddRef(void)
@@ -1051,10 +1074,11 @@ bool ITextHostImpl::SetText(const TCHAR* szText)
 		}
 		return true;
 	}
+
 	return false; 
 }
 
-bool ITextHostImpl::InsertGif(const TCHAR* szGifPath)
+bool WindowlessRichEdit::InsertGif(const TCHAR* szGifPath)
 {
 	if (NULL == m_spOle)
 		return false;
@@ -1062,9 +1086,9 @@ bool ITextHostImpl::InsertGif(const TCHAR* szGifPath)
 	bool    bRet = false;
 	HRESULT hr = E_FAIL;
 	LPOLECLIENTSITE pClientSite = NULL;
-	GifObject*      pGifObject = NULL;
 	IStorage*       pStorage = NULL;
 	ILockBytes*     pLockbytes = NULL;
+	IGifOleObject*  pGifOleObject = NULL;
 
 	do 
 	{
@@ -1077,21 +1101,23 @@ bool ITextHostImpl::InsertGif(const TCHAR* szGifPath)
 		if (FAILED(hr))
 			break;
 
-		pGifObject = new GifObject;
+		hr = CGifOleObject::CreateInstance(IID_IGifOleObject, (void**)&pGifOleObject);
+		if FAILED(hr)
+			break;
 
 		hr = m_spOle->GetClientSite(&pClientSite);
 		if (FAILED(hr))
 			break;
 
-		hr = pGifObject->SetClientSite(pClientSite);
-// 		if (FAILED(hr))
-// 			break;
+		hr = pGifOleObject->SetClientSite(pClientSite);
+		if (FAILED(hr))
+			break;
 
-		hr = pGifObject->LoadGif(szGifPath);
-// 		if (FAILED(hr))
-// 			break;
+		hr = pGifOleObject->LoadGif(szGifPath);
+		if (FAILED(hr))
+			break;
 
-		hr = OleSetContainedObject(static_cast<IOleObject*>(pGifObject), TRUE);
+		hr = OleSetContainedObject(static_cast<IOleObject*>(pGifOleObject), TRUE);
 		if (FAILED(hr))
 			break;
 
@@ -1099,17 +1125,21 @@ bool ITextHostImpl::InsertGif(const TCHAR* szGifPath)
 		ZeroMemory(&reObj, sizeof(REOBJECT));
 		reObj.cbStruct = sizeof(REOBJECT);
 		//reObj.clsid = __uuidof(...);
-		reObj.poleobj = pGifObject;
+		reObj.poleobj = static_cast<IOleObject*>(pGifOleObject);
 		reObj.polesite = pClientSite;
 		reObj.dvaspect = DVASPECT_CONTENT;
 		reObj.dwFlags = REO_BELOWBASELINE;
 		reObj.pstg = pStorage;
 		reObj.dwUser = 0;
+		reObj.cp = REO_CP_SELECTION;
 
 		SIZEL  sizel = {0,0};
 		reObj.sizel.cx = 0;
 		reObj.sizel.cy = 0;
 
+		// The rich edit control automatically increments the reference count for the interfaces 
+		// if it holds onto them, so the caller can safely release the interfaces if they are not 
+		// needed. 
 		hr = m_spOle->InsertObject(&reObj);
 		if (FAILED(hr))
 			break;
@@ -1121,134 +1151,19 @@ bool ITextHostImpl::InsertGif(const TCHAR* szGifPath)
 	} 
 	while (0);
 
+	SAFE_RELEASE(pClientSite);
+
 	if (false == bRet)
 	{
-		SAFE_RELEASE(pClientSite);
 		SAFE_RELEASE(pLockbytes);
 		SAFE_RELEASE(pStorage);
 	}
-
-	return false;
-}
-
-
-/************************************************************************/
-/*                                                                      */
-/************************************************************************/
-
-// *** IRichEditOleCallback methods ***
-
-// This method must be implemented to allow cut, copy, paste, drag, 
-// and drop operations of Component Object Model (COM) objects.
-// 例如向richedit中随便拖入一个桌面上的图标，就会调用该函数
-HRESULT IRichEditOleCallbackImpl::GetNewStorage(LPSTORAGE FAR * lplpstg)
-{
-	if (NULL == lplpstg)
+	else
 	{
-		return E_INVALIDARG;
+		m_vecpUnkOleObject.push_back(static_cast<IUnknown*>(pGifOleObject));
 	}
-	LPLOCKBYTES lpLockBytes = NULL;
-	SCODE sc = ::CreateILockBytesOnHGlobal(NULL, TRUE, &lpLockBytes);
-	if (sc != S_OK)
-	{
-		return E_OUTOFMEMORY;
-	}
+	SAFE_RELEASE(pGifOleObject);  // 因为insertobject成功的话也会addref一次，因此无论成功失败这里都release一次。
 
-	sc = ::StgCreateDocfileOnILockBytes(lpLockBytes,
-		STGM_SHARE_EXCLUSIVE|STGM_CREATE|STGM_READWRITE, 0, lplpstg);
-	if (sc != S_OK)
-	{
-		return E_OUTOFMEMORY;
-	}
-
-	return S_OK;
+	return bRet;
 }
-HRESULT IRichEditOleCallbackImpl::GetInPlaceContext(LPOLEINPLACEFRAME FAR * lplpFrame,
-													LPOLEINPLACEUIWINDOW FAR * lplpDoc,
-													LPOLEINPLACEFRAMEINFO lpFrameInfo)
-{
-	return E_NOTIMPL;
-}
-HRESULT IRichEditOleCallbackImpl::ShowContainerUI(BOOL fShow)
-{
-	return E_NOTIMPL;
-}
-// 在从外部拖入一个文件到richedit时，先响应了GetNewStorage成功后，就会再调到这个接口函数
-// 当返回S_OK时，这个对象将被插入，返回FALSE时，对象将不会被插入
-HRESULT IRichEditOleCallbackImpl::QueryInsertObject(LPCLSID lpclsid, LPSTORAGE lpstg,
-													LONG cp)
-{
-	return S_OK;
-}
-// 例如将richedit中的一人COM对象删除，则会调用一次该接口函数
-// 例如将richedit中的一个COM对象用鼠标拖拽到另一个位置，则会调用一次该接口函数
-// 该函数仅是一个通知，告诉我们有一个对象要被deleted from rich edit control;
-HRESULT IRichEditOleCallbackImpl::DeleteObject(LPOLEOBJECT lpoleobj)
-{
-	return S_OK;
-}
-
-// 在richedit中使用 CTRL+V时被调用
-HRESULT IRichEditOleCallbackImpl::QueryAcceptData(LPDATAOBJECT lpdataobj,
-												  CLIPFORMAT FAR * lpcfFormat, DWORD reco,
-												  BOOL fReally, HGLOBAL hMetaPict)
-{
-	return E_NOTIMPL;
-}
-HRESULT IRichEditOleCallbackImpl::ContextSensitiveHelp(BOOL fEnterMode)
-{
-	return E_NOTIMPL;
-}
-// 在richedit中使用 CTRL+C 时被调用
-HRESULT IRichEditOleCallbackImpl::GetClipboardData(CHARRANGE FAR * lpchrg, DWORD reco,
-												   LPDATAOBJECT FAR * lplpdataobj)
-{
-	return E_NOTIMPL;
-}
-
-// 在richedit中使用鼠标拖拽时被调用
-HRESULT IRichEditOleCallbackImpl::GetDragDropEffect(BOOL fDrag, DWORD grfKeyState,
-													LPDWORD pdwEffect)
-{
-	if (!fDrag) // allowable dest effects
-	{
-		DWORD dwEffect;
-		// check for force link
-		if ((grfKeyState & (MK_CONTROL|MK_SHIFT)) == (MK_CONTROL|MK_SHIFT))
-			dwEffect = DROPEFFECT_LINK;
-		// check for force copy
-		else if ((grfKeyState & MK_CONTROL) == MK_CONTROL)
-			dwEffect = DROPEFFECT_COPY;
-		// check for force move
-		else if ((grfKeyState & MK_ALT) == MK_ALT)
-			dwEffect = DROPEFFECT_MOVE;
-		// default -- recommended action is move
-		else
-			dwEffect = DROPEFFECT_MOVE;
-		if (dwEffect & *pdwEffect) // make sure allowed type
-			*pdwEffect = dwEffect;
-	}
-	return S_OK;
-}
-
-// 右击RichEdit时被调用，根据鼠标右键时，鼠标下面的对象的不同，得到的参数也不同，
-// 例如在空白处右击，seltype=0, lpoleobj=NULL
-// 例如在一个COM对象处右击，可能seltype=2, lpoleobj = xxx;
-HRESULT IRichEditOleCallbackImpl::GetContextMenu(WORD seltype, LPOLEOBJECT lpoleobj,
-												 CHARRANGE FAR * lpchrg,
-												 HMENU FAR * lphmenu)
-{
-#ifdef _DEBUG
-	HMENU& hMenu = *lphmenu;
-	TCHAR szInfo[128] = _T("");
-	_stprintf(szInfo, _T("GetContextMenu Args: seltype=%d, lpoleobj=%08x, lpchrg=%d,%d"),
-		seltype, lpoleobj, lpchrg->cpMin, lpchrg->cpMax);
-
-	hMenu = CreatePopupMenu();
-	BOOL bRet = ::AppendMenu(hMenu, MF_STRING, 10001, szInfo);
-#endif
-	return S_OK;
-}
-
-
 

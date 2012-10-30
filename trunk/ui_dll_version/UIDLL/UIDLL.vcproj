@@ -375,6 +375,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\UI_SDK\include\control\gifoleobject.h"
+						>
+					</File>
+					<File
 						RelativePath="..\UI_SDK\include\control\HwndHost.h"
 						>
 					</File>
@@ -488,6 +492,14 @@
 					</File>
 					<File
 						RelativePath="..\UI_SDK\include\panel\scrollpanel.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="util"
+					>
+					<File
+						RelativePath="..\UI_SDK\include\util\GifImage.h"
 						>
 					</File>
 				</Filter>
@@ -667,6 +679,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\UI_SDK\src\control\gifoleobject.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\UI_SDK\src\control\HwndHost.cpp"
 						>
 					</File>
@@ -744,6 +760,14 @@
 					</File>
 					<File
 						RelativePath="..\UI_SDK\src\panel\scrollpanel.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="util"
+					>
+					<File
+						RelativePath="..\UI_SDK\src\util\GifImage.cpp"
 						>
 					</File>
 				</Filter>

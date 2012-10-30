@@ -84,8 +84,8 @@ bool Panel::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 	if( false == bRet )	return false;
 
 	// 布局类型
-	ATTRMAP::iterator iter = mapAttrib.find(XML_LAYOUT);
-	if (mapAttrib.end() != iter)
+	ATTRMAP::iterator iter = m_mapAttribute.find(XML_LAYOUT);
+	if (m_mapAttribute.end() != iter)
 	{
 		SAFE_DELETE(m_pLayout);
 
@@ -99,7 +99,7 @@ bool Panel::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 		{
 			this->m_pLayout->SetAttribute( mapAttrib,bReload );
 		}
-		this->m_mapAttribute.erase( XML_LAYOUT );
+		this->m_mapAttribute.erase(iter);
 	}
 	else if(NULL == m_pLayout)
 	{

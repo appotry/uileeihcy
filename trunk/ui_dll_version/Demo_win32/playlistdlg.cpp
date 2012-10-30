@@ -76,13 +76,14 @@ bool TTPlayerPlaylistCtrl::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 		return false;
 	
 #define GET_COLOR(xml, p) \
-	if (mapAttrib.count(xml)) \
+	iter = m_mapAttribute.find(xml); \
+	if (m_mapAttribute.end()!=iter) \
 	{ \
-		const String& str = mapAttrib[xml]; \
+		const String& str = iter->second; \
 		UI_GetColor(str, &p); \
-		this->EraseAttribute(xml); \
+		m_mapAttribute.erase(iter); \
 	}
-
+	ATTRMAP::iterator iter;
 	GET_COLOR(XML_TTPLAYER_PLAYLIST_BKCOLOR1, m_pBkColor1);
 	GET_COLOR(XML_TTPLAYER_PLAYLIST_BKCOLOR2, m_pBkColor2);
 	GET_COLOR(XML_TTPLAYER_PLAYLIST_INDEX_TEXT_COLOR, m_pIndexTextColor);

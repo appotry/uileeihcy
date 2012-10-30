@@ -273,6 +273,7 @@ namespace UI
 
 // control ,在添加include的时候，别忘了去LayoutXmlParse::mapXmlToClass
 #include "control\button.h"
+#include "util\GifImage.h"
 #include "control\label.h"
 #include "control\progress.h"
 #include "control\sliderctrl.h"

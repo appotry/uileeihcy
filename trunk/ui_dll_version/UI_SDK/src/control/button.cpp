@@ -36,8 +36,8 @@ bool ButtonBase::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 	if( false == Control::SetAttribute(mapAttrib, bReload) )
 		return false;
 
-	ATTRMAP::iterator iter = mapAttrib.find(XML_BUTTON_RENDER_AUTOSIZE_TYPE);
-	if (mapAttrib.end() != iter)
+	ATTRMAP::iterator iter = m_mapAttribute.find(XML_BUTTON_RENDER_AUTOSIZE_TYPE);
+	if (m_mapAttribute.end() != iter)
 	{
 		String& strType = iter->second;
 		if( strType == XML_BUTTON_RENDER_AUTOSIZE_TYPE_BKIMAGE )
@@ -56,7 +56,7 @@ bool ButtonBase::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 		{
 			m_nAutoSizeType = BUTTON_RENDER_AUTOSIZE_TYPE_CONTENT;
 		}
-		this->EraseAttribute(XML_BUTTON_RENDER_AUTOSIZE_TYPE);
+		m_mapAttribute.erase(iter);
 	}
 
 	if (NULL == m_pBkgndRender && this->GetButtonStyle() == BUTTON_STYLE_PUSHBUTTON)
@@ -65,17 +65,17 @@ bool ButtonBase::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 		this->ModifyStyle(OBJECT_STYLE_TRANSPARENT,0);
 	}
 
-	iter = mapAttrib.find(XML_BUTTON_TEXT);
-	if (false == bReload && mapAttrib.end() != iter)
+	iter = m_mapAttribute.find(XML_BUTTON_TEXT);
+	if (false == bReload && m_mapAttribute.end() != iter)
 	{
 		m_strText = iter->second;
-		this->EraseAttribute(XML_BUTTON_TEXT);
+		m_mapAttribute.erase(iter);
 	}
-	iter = mapAttrib.find(XML_BUTTON_RENDER_DRAW_FOCUS_FLAG);
-	if (mapAttrib.end() != iter)
+	iter = m_mapAttribute.find(XML_BUTTON_RENDER_DRAW_FOCUS_FLAG);
+	if (m_mapAttribute.end() != iter)
 	{
 		m_nDrawFocusType = _ttoi( iter->second.c_str() );
-		this->EraseAttribute(XML_BUTTON_RENDER_DRAW_FOCUS_FLAG);
+		m_mapAttribute.erase(iter);
 	}
 
 	return true;
@@ -713,7 +713,7 @@ HyperLink::HyperLink()
 	this->ModifyStyle(BUTTON_STYLE_HYPERLINK);
 	::SetRect( &m_rcPadding, 0,0,0,0 );
 }
-bool HyperLink::SetAttribute( map<String,String>& mapAttrib, bool bReload )
+bool HyperLink::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 {
 	if (0 == mapAttrib.count( XML_TEXTRENDER_TYPE))
 	{

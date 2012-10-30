@@ -34,7 +34,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include "image.h"
+//#include "image.h"
 using namespace UI;
 #include <fstream>
 #include <math.h>
@@ -203,7 +203,7 @@ struct GIF_LogicalScreenDescriptor        // 逻辑屏幕描述块
 		pixel_aspect_ratio = 0;
 	}
 
-	unsigned short logical_screen_width;  // 逻辑屏幕宽度
+	unsigned short logical_screen_width;  // 逻辑屏幕宽度，WARNING:这个不是真实的最终的宽和高。例如一张34*33的gif图片，这两个值的结果是36*36
 	unsigned short logical_screen_height; // 逻辑屏幕高度
 
 	// 包装域
@@ -300,7 +300,7 @@ protected:
 
 	void   release_resource();
 	void   draw_frame(int nPrevFrameDisposal, GIF_Frame* pFrame);
-	bool   decode_gif_image_transparent(Image& image, int nTransparentIndex);
+	bool   decode_gif_image_transparent(GIF_Frame* pFrame, int nTransparentIndex);
 
 public:  // Gif绘制线程调用函数
 	void   on_add_to_timer_list();
@@ -308,7 +308,7 @@ public:  // Gif绘制线程调用函数
 	void   on_timer(Gif_TimerItem* pTimerItem);   
 
 public:  // 外部接口
-	bool   Load(TCHAR* szPath);
+	bool   Load(const TCHAR* szPath);
 	bool   Destroy();
 	BOOL   SetDrawParam( HWND hWnd, int x, int y, COLORREF colTransparent );
 	void   SetDrawPos( int x, int y );

@@ -22,20 +22,20 @@ bool  LEDCtrlBase::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 		m_pImagelist = dynamic_cast<ImageListRender*>(m_pForegndRender);
 	}
 
-	ATTRMAP::iterator iter = mapAttrib.find(XML_LEDCTRL_INDEXMAP);
-	if (mapAttrib.end() != iter)
+	ATTRMAP::iterator iter = m_mapAttribute.find(XML_LEDCTRL_INDEXMAP);
+	if (m_mapAttribute.end() != iter)
 	{
 		this->SetIndexMap(iter->second);
-		m_mapAttribute.erase(XML_LEDCTRL_INDEXMAP);
+		m_mapAttribute.erase(iter);
 	}
 
 	if (false == bReload)
 	{
-		iter = mapAttrib.find(XML_TEXT);
-		if (mapAttrib.end() != iter)
+		iter = m_mapAttribute.find(XML_TEXT);
+		if (m_mapAttribute.end() != iter)
 		{
 			this->SetText(iter->second, false);
-			m_mapAttribute.erase(XML_TEXT);
+			m_mapAttribute.erase(iter);
 		}
 	}
 

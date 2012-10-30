@@ -751,8 +751,8 @@ bool ScrollBarBase::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 
 	// 滚动条类别
 	SCROLLBAR_TYPE eType = SCROLLBAR_TYPE_SYSTEM;
-	ATTRMAP::iterator iter = mapAttrib.find(XML_HSCROLLBAR_PRIFIX XML_SCROLLBAR_TYPE);
-	if (mapAttrib.end() != iter)
+	ATTRMAP::iterator iter = m_mapAttribute.find(XML_HSCROLLBAR_PRIFIX XML_SCROLLBAR_TYPE);
+	if (m_mapAttribute.end() != iter)
 	{
 		String& strAttr = iter->second;
 		if (XML_SCROLLBAR_TYPE_SLIDER == strAttr)
@@ -763,6 +763,7 @@ bool ScrollBarBase::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 		{
 			eType = SCROLLBAR_TYPE_LOGIC;
 		}
+		m_mapAttribute.erase(iter);
 		m_pScrollBarMgr->GetBindObject()->EraseAttribute(XML_HSCROLLBAR_PRIFIX XML_SCROLLBAR_TYPE);
 	}
 	m_pScrollBarRender = CreateScrollBarRenderInstance(this, eType, m_eScrollDirection);

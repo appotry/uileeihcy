@@ -13,7 +13,7 @@ void ScrollPanel::ResetAttribute()
 	__super::ResetAttribute();
 	m_MgrScrollBar.ResetAttribute();
 }
-bool ScrollPanel::SetAttribute(map<String,String>& mapAttrib, bool bReload)
+bool ScrollPanel::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 {
 	bool bRet = __super::SetAttribute(mapAttrib, bReload);
 	if (false == bRet)

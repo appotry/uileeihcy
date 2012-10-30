@@ -233,6 +233,14 @@ void CCaretWindow::OnControlMove()
 }
 
 //////////////////////////////////////////////////////////////////////////
+void CCaret::SetLayered(bool b)
+{ 
+	m_bLayered = b; 
+	if (m_bLayered)
+	{
+		int a = 0;
+	}
+}
 
 void CCaret::CreateCaret(HWND hWndParent, HBITMAP hbmp, int nWidth, int nHeight)
 {

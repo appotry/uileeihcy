@@ -38,26 +38,26 @@ bool GroupBox::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 	if( false == bRet )	return bRet;
 
 	// ÄÚÈÝ
-	ATTRMAP::iterator iter = mapAttrib.find(XML_TEXT);
-	if (mapAttrib.end() != iter)
+	ATTRMAP::iterator iter = m_mapAttribute.find(XML_TEXT);
+	if (m_mapAttribute.end() != iter)
 	{
 		this->m_strText = iter->second;
-		m_mapAttribute.erase( XML_TEXT );
+		m_mapAttribute.erase(iter);
 	}
 
 	// ±ß¿ò
-	iter = mapAttrib.find(XML_GROUPBOX_BORDERIMAGE);
-	if (mapAttrib.end() != iter)
+	iter = m_mapAttribute.find(XML_GROUPBOX_BORDERIMAGE);
+	if (m_mapAttribute.end() != iter)
 	{
 		m_pBorderBitmap = UI_GetBitmap(iter->second, GetGraphicsRenderType(GetHWND()) );
-		m_mapAttribute.erase( XML_GROUPBOX_BORDERIMAGE );
+		m_mapAttribute.erase(iter);
 	}
 
-	iter = mapAttrib.find(XML_GOURPBOX_BORDERIMAGE_9REGION);
-	if (mapAttrib.end() != iter)
+	iter = m_mapAttribute.find(XML_GOURPBOX_BORDERIMAGE_9REGION);
+	if (m_mapAttribute.end() != iter)
 	{
 		Util::TranslateImage9Region(iter->second, (void*)&m_9RegionBorderBitmap );
-		m_mapAttribute.erase( XML_GOURPBOX_BORDERIMAGE_9REGION );
+		m_mapAttribute.erase(iter);
 	}
 
 	if( NULL == m_pBkgndRender )

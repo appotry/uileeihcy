@@ -51,15 +51,15 @@ void Label::ResetAttribute()
 }
 bool Label::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 {
-	bool bRet = Control::SetAttribute( mapAttrib,bReload );
+	bool bRet = __super::SetAttribute( mapAttrib,bReload );
 	if( false == bRet )	return bRet;
 
 	// ÄÚÈÝ
-	ATTRMAP::iterator iter = mapAttrib.find(XML_TEXT);
-	if (false==bReload && mapAttrib.end() != iter)
+	ATTRMAP::iterator iter = m_mapAttribute.find(XML_TEXT);
+	if (false==bReload && m_mapAttribute.end() != iter)
 	{
 		this->m_strText = iter->second;
-		__super::m_mapAttribute.erase( XML_TEXT );
+		m_mapAttribute.erase(iter);
 	}
 
 	return bRet;
@@ -92,7 +92,11 @@ Picture::~Picture()
 SIZE Picture::GetAutoSize( HRDC hDC )
 {
 	SIZE sz = {0,0};
-	if( NULL != m_pForegndRender )
+	if (NULL != m_pBkgndRender)
+	{
+		return m_pBkgndRender->GetDesiredSize();
+	}
+	if (NULL != m_pForegndRender)
 	{
 		return m_pForegndRender->GetDesiredSize();
 	}
@@ -111,12 +115,72 @@ void Picture::OnPaint( HRDC hRDC )
 	}
 }
 
-bool Picture::SetAttribute( map<String,String>& mapAttrib, bool bReload )
+
+//////////////////////////////////////////////////////////////////////////
+
+GifPicture::GifPicture()
 {
-	if( false == Control::SetAttribute(mapAttrib,bReload) )
+	m_pGifImage = NULL;
+}
+GifPicture::~GifPicture()
+{
+	SAFE_DELETE(m_pGifImage);
+}
+
+SIZE GifPicture::GetAutoSize( HRDC hDC )
+{
+	SIZE s = {0, 0};
+	if (NULL != m_pGifImage)
+	{
+		s.cx = m_pGifImage->GetWidth();
+		s.cy = m_pGifImage->GetHeight();
+	}
+	return s;
+}
+
+bool GifPicture::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
+{
+	bool bRet = __super::SetAttribute(mapAttrib, bReload);
+	if (false == bRet)
 		return false;
+
+	ATTRMAP::iterator iter = m_mapAttribute.find(XML_GIFPICTURE_PATH);
+	if (iter != m_mapAttribute.end())
+	{
+		String& strPath = iter->second;
+
+		if (NULL == m_pGifImage)
+		{
+			m_pGifImage = new GifImage;
+		}
+		m_pGifImage->Destroy();
+		bool bRet = m_pGifImage->Load(strPath.c_str());
+		if (false == bRet)
+		{
+			UI_LOG_WARN(_T("%s load gif image failed. path=%s"), FUNC_NAME, strPath.c_str());
+		}
+		m_mapAttribute.erase(iter);
+	}
 
 	return true;
 }
 
- 
+void GifPicture::OnPaint( HRDC hRDC )
+{
+	static bool b = true;
+	if (NULL != m_pGifImage)
+	{
+		if (b)
+		{
+			CRect rc;
+			this->GetWindowRect(&rc);
+			m_pGifImage->SetDrawParam(GetHWND(),rc.left, rc.top, RGB(255,255,255));
+			m_pGifImage->Start();
+
+			b = false;
+		}
+		HDC hDC = GetHDC(hRDC);
+		m_pGifImage->OnPaint(hDC);
+		ReleaseHDC(hRDC, hDC);
+	}
+}

@@ -124,8 +124,6 @@ public:
 	void    RegisterDragDrop(void);
 	bool    SetText(const TCHAR* szText);
 	
-	bool    InsertGif(const TCHAR* szGifPath);
-
 protected:
 
 	// unknown attribute
@@ -162,6 +160,7 @@ interface ITextEditControl
 };
 
 
+template<class T>
 class UIAPI IRichEditOleCallbackImpl : public IRichEditOleCallback
 {
 public:
@@ -173,16 +172,133 @@ public:
 // 	virtual ULONG   __stdcall Release(){ return 0; }
 
 	// *** IRichEditOleCallback methods ***
-	virtual HRESULT __stdcall GetNewStorage(LPSTORAGE FAR * lplpstg);
-	virtual HRESULT __stdcall GetInPlaceContext(LPOLEINPLACEFRAME FAR * lplpFrame, LPOLEINPLACEUIWINDOW FAR * lplpDoc, LPOLEINPLACEFRAMEINFO lpFrameInfo) ;
-	virtual HRESULT __stdcall ShowContainerUI(BOOL fShow) ;
-	virtual HRESULT __stdcall QueryInsertObject(LPCLSID lpclsid, LPSTORAGE lpstg, LONG cp) ;
-	virtual HRESULT __stdcall DeleteObject(LPOLEOBJECT lpoleobj) ;
-	virtual HRESULT __stdcall QueryAcceptData(LPDATAOBJECT lpdataobj, CLIPFORMAT FAR * lpcfFormat, DWORD reco, BOOL fReally, HGLOBAL hMetaPict) ;
-	virtual HRESULT __stdcall ContextSensitiveHelp(BOOL fEnterMode) ;
-	virtual HRESULT __stdcall GetClipboardData(CHARRANGE FAR * lpchrg, DWORD reco, LPDATAOBJECT FAR * lplpdataobj) ;
-	virtual HRESULT __stdcall GetDragDropEffect(BOOL fDrag, DWORD grfKeyState, LPDWORD pdwEffect) ;
-	virtual HRESULT __stdcall GetContextMenu(WORD seltype, LPOLEOBJECT lpoleobj, CHARRANGE FAR * lpchrg, HMENU FAR * lphmenu) ;
+// 	virtual HRESULT __stdcall GetNewStorage(LPSTORAGE FAR * lplpstg);
+// 	virtual HRESULT __stdcall GetInPlaceContext(LPOLEINPLACEFRAME FAR * lplpFrame, LPOLEINPLACEUIWINDOW FAR * lplpDoc, LPOLEINPLACEFRAMEINFO lpFrameInfo) ;
+// 	virtual HRESULT __stdcall ShowContainerUI(BOOL fShow) ;
+// 	virtual HRESULT __stdcall QueryInsertObject(LPCLSID lpclsid, LPSTORAGE lpstg, LONG cp) ;
+// 	virtual HRESULT __stdcall DeleteObject(LPOLEOBJECT lpoleobj) ;
+// 	virtual HRESULT __stdcall QueryAcceptData(LPDATAOBJECT lpdataobj, CLIPFORMAT FAR * lpcfFormat, DWORD reco, BOOL fReally, HGLOBAL hMetaPict) ;
+// 	virtual HRESULT __stdcall ContextSensitiveHelp(BOOL fEnterMode) ;
+// 	virtual HRESULT __stdcall GetClipboardData(CHARRANGE FAR * lpchrg, DWORD reco, LPDATAOBJECT FAR * lplpdataobj) ;
+// 	virtual HRESULT __stdcall GetDragDropEffect(BOOL fDrag, DWORD grfKeyState, LPDWORD pdwEffect) ;
+// 	virtual HRESULT __stdcall GetContextMenu(WORD seltype, LPOLEOBJECT lpoleobj, CHARRANGE FAR * lpchrg, HMENU FAR * lphmenu) ;
+
+	// This method must be implemented to allow cut, copy, paste, drag, 
+	// and drop operations of Component Object Model (COM) objects.
+	// 例如向richedit中随便拖入一个桌面上的图标，就会调用该函数
+	HRESULT __stdcall GetNewStorage(LPSTORAGE FAR * lplpstg)
+	{
+		if (NULL == lplpstg)
+		{
+			return E_INVALIDARG;
+		}
+		LPLOCKBYTES lpLockBytes = NULL;
+		SCODE sc = ::CreateILockBytesOnHGlobal(NULL, TRUE, &lpLockBytes);
+		if (sc != S_OK)
+		{
+			return E_OUTOFMEMORY;
+		}
+
+		sc = ::StgCreateDocfileOnILockBytes(lpLockBytes,
+			STGM_SHARE_EXCLUSIVE|STGM_CREATE|STGM_READWRITE, 0, lplpstg);
+		if (sc != S_OK)
+		{
+			return E_OUTOFMEMORY;
+		}
+
+		return S_OK;
+	}
+	HRESULT __stdcall GetInPlaceContext(LPOLEINPLACEFRAME FAR * lplpFrame,
+		LPOLEINPLACEUIWINDOW FAR * lplpDoc,
+		LPOLEINPLACEFRAMEINFO lpFrameInfo)
+	{
+		return E_NOTIMPL;
+	}
+	HRESULT __stdcall ShowContainerUI(BOOL fShow)
+	{
+		return E_NOTIMPL;
+	}
+	// 在从外部拖入一个文件到richedit时，先响应了GetNewStorage成功后，就会再调到这个接口函数
+	// 当返回S_OK时，这个对象将被插入，返回FALSE时，对象将不会被插入
+	HRESULT __stdcall QueryInsertObject(LPCLSID lpclsid, LPSTORAGE lpstg,
+		LONG cp)
+	{
+		return S_OK;
+	}
+	// 例如将richedit中的一人COM对象删除，则会调用一次该接口函数
+	// 例如将richedit中的一个COM对象用鼠标拖拽到另一个位置，则会调用一次该接口函数
+	// 该函数仅是一个通知，告诉我们有一个对象要被deleted from rich edit control;
+	HRESULT __stdcall DeleteObject(LPOLEOBJECT lpoleobj)
+	{
+		return S_OK;
+	}
+
+	// 在richedit中使用 CTRL+V时被调用
+	HRESULT __stdcall QueryAcceptData(LPDATAOBJECT lpdataobj,
+		CLIPFORMAT FAR * lpcfFormat, DWORD reco,
+		BOOL fReally, HGLOBAL hMetaPict)
+	{
+		return E_NOTIMPL;
+	}
+	HRESULT __stdcall ContextSensitiveHelp(BOOL fEnterMode)
+	{
+		return E_NOTIMPL;
+	}
+	// 在richedit中使用 CTRL+C 时被调用
+	HRESULT __stdcall GetClipboardData(CHARRANGE FAR * lpchrg, DWORD reco,
+		LPDATAOBJECT FAR * lplpdataobj)
+	{
+		return E_NOTIMPL;
+	}
+
+	// 在richedit中使用鼠标拖拽时被调用
+	HRESULT __stdcall GetDragDropEffect(BOOL fDrag, DWORD grfKeyState,
+		LPDWORD pdwEffect)
+	{
+		if (!fDrag) // allowable dest effects
+		{
+			DWORD dwEffect;
+			// check for force link
+			if ((grfKeyState & (MK_CONTROL|MK_SHIFT)) == (MK_CONTROL|MK_SHIFT))
+				dwEffect = DROPEFFECT_LINK;
+			// check for force copy
+			else if ((grfKeyState & MK_CONTROL) == MK_CONTROL)
+				dwEffect = DROPEFFECT_COPY;
+			// check for force move
+			else if ((grfKeyState & MK_ALT) == MK_ALT)
+				dwEffect = DROPEFFECT_MOVE;
+			// default -- recommended action is move
+			else
+				dwEffect = DROPEFFECT_MOVE;
+			if (dwEffect & *pdwEffect) // make sure allowed type
+				*pdwEffect = dwEffect;
+		}
+		return S_OK;
+	}
+
+	// 右击RichEdit时被调用，根据鼠标右键时，鼠标下面的对象的不同，得到的参数也不同，
+	// 例如在空白处右击，seltype=0, lpoleobj=NULL
+	// 例如在一个COM对象处右击，可能seltype=2, lpoleobj = xxx;
+	HRESULT __stdcall GetContextMenu(WORD seltype, LPOLEOBJECT lpoleobj,
+		CHARRANGE FAR * lpchrg,
+		HMENU FAR * lphmenu)
+	{
+#ifdef _DEBUG
+		T* pThis = dynamic_cast<T*>(this);
+		return pThis->InsertGif(_T("C:\\richedit.gir"));
+#endif
+#ifdef _DEBUG
+		HMENU& hMenu = *lphmenu;
+		TCHAR szInfo[128] = _T("");
+		_stprintf(szInfo, _T("GetContextMenu Args: seltype=%d, lpoleobj=%08x, lpchrg=%d,%d"),
+			seltype, lpoleobj, lpchrg->cpMin, lpchrg->cpMax);
+
+		hMenu = CreatePopupMenu();
+		BOOL bRet = ::AppendMenu(hMenu, MF_STRING, 10001, szInfo);
+#endif
+		return S_OK;
+	}
+
 
 	HWND  GetRichEidtHWND(){ return m_hRichEditWnd; }
 	void  SetRichEditHWND(HWND hWnd){ m_hRichEditWnd = hWnd; }
@@ -210,8 +326,9 @@ private:
 			return TRUE; \
 	}
 
-class UIAPI WindowlessRichEdit : public ITextHostImpl, public ITextEditControl,
-	                             public IRichEditOleCallbackImpl
+class UIAPI WindowlessRichEdit : public ITextHostImpl, 
+	                             public ITextEditControl
+	                           , public IRichEditOleCallbackImpl<WindowlessRichEdit>
 {
 public:
 	WindowlessRichEdit(RichEditBase*);
@@ -251,6 +368,9 @@ public:
 	void    Draw(HDC);
 	bool    HitTest(POINT pt);
 
+	// 
+	bool    InsertGif(const TCHAR* szGifPath);
+
 public:
 	// IUnknown  Interface
 	virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid,void **ppvObject);
@@ -270,6 +390,8 @@ public:
 
 protected:
 	RichEditBase*   m_pRichEditBase;
+
+	vector<IUnknown*>  m_vecpUnkOleObject;
 
 protected:
 	// 非windowless richedit要调用的初始化函数
@@ -331,403 +453,12 @@ protected:
 // 环境生存的意义也不大，更有甚者我没必要让使其成为标准（也没可能），仅仅是为了在
 // 一个系统中的richedit中更好地展示。实现的接口越少，引入的麻烦越少，这样才能使精力
 // 集中在主要问题上。
-class GifObject : public IOleObject, public IViewObject2
+
+// {2EAE75F5-D78F-43ca-811D-8F8B01CCE05B}
+static const GUID IID_IGifOleObject = { 0x2eae75f5, 0xd78f, 0x43ca, { 0x81, 0x1d, 0x8f, 0x8b, 0x1, 0xcc, 0xe0, 0x5b } };
+class IGifOleObject : public IOleObject
 {
 public:
-	//////////////////////////////////////////////////////////////////////////
-
-	virtual HRESULT STDMETHODCALLTYPE QueryInterface( 
-		/* [in] */ REFIID riid,
-		/* [iid_is][out] */ __RPC__deref_out void __RPC_FAR *__RPC_FAR *ppvObject)
-	{
-		if (::IsEqualIID(riid, IID_IUnknown) || ::IsEqualIID(riid, IID_IOleObject))
-		{
-			*ppvObject = this;
-		}
-		else if (::IsEqualIID(riid, IID_IViewObject))
-		{
-			*ppvObject = static_cast<IViewObject*>(this);
-		}
-		else if (::IsEqualIID(riid, IID_IViewObject2))
-		{
-			*ppvObject = static_cast<IViewObject2*>(this);
-		}
-		else
-		{
-			return E_NOINTERFACE;
-		}
-
-		this->AddRef();
-		return S_OK;
-	}
-
-	virtual ULONG STDMETHODCALLTYPE AddRef( void) 
-	{
-		return 1;
-	}
-
-	virtual ULONG STDMETHODCALLTYPE Release( void) 
-	{
-		return 0;
-	}
-
-	//////////////////////////////////////////////////////////////////////////
-#pragma region // ole object 
-	virtual HRESULT STDMETHODCALLTYPE SetClientSite( 
-		/* [unique][in] */ __RPC__in_opt IOleClientSite *pClientSite)
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE GetClientSite( 
-		/* [out] */ __RPC__deref_out_opt IOleClientSite **ppClientSite) 
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE SetHostNames( 
-		/* [in] */ __RPC__in LPCOLESTR szContainerApp,
-		/* [unique][in] */ __RPC__in_opt LPCOLESTR szContainerObj) 
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE Close( 
-		/* [in] */ DWORD dwSaveOption) 
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE SetMoniker( 
-		/* [in] */ DWORD dwWhichMoniker,
-		/* [unique][in] */ __RPC__in_opt IMoniker *pmk)
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE GetMoniker( 
-		/* [in] */ DWORD dwAssign,
-		/* [in] */ DWORD dwWhichMoniker,
-		/* [out] */ __RPC__deref_out_opt IMoniker **ppmk) 
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE InitFromData( 
-		/* [unique][in] */ __RPC__in_opt IDataObject *pDataObject,
-		/* [in] */ BOOL fCreation,
-		/* [in] */ DWORD dwReserved)
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE GetClipboardData( 
-		/* [in] */ DWORD dwReserved,
-		/* [out] */ __RPC__deref_out_opt IDataObject **ppDataObject)
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE DoVerb( 
-		/* [in] */ LONG iVerb,
-		/* [unique][in] */ __RPC__in_opt LPMSG lpmsg,
-		/* [unique][in] */ __RPC__in_opt IOleClientSite *pActiveSite,
-		/* [in] */ LONG lindex,
-		/* [in] */ __RPC__in HWND hwndParent,
-		/* [unique][in] */ __RPC__in_opt LPCRECT lprcPosRect) 
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE EnumVerbs( 
-		/* [out] */ __RPC__deref_out_opt IEnumOLEVERB **ppEnumOleVerb) 
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE Update( void) 
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE IsUpToDate( void) 
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE GetUserClassID( 
-		/* [out] */ __RPC__out CLSID *pClsid) 
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE GetUserType( 
-		/* [in] */ DWORD dwFormOfType,
-		/* [out] */ __RPC__deref_out_opt LPOLESTR *pszUserType) 
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE SetExtent( 
-		/* [in] */ DWORD dwDrawAspect,
-		/* [in] */ __RPC__in SIZEL *psizel) 
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE GetExtent( 
-		/* [in] */ DWORD dwDrawAspect,
-		/* [out] */ __RPC__out SIZEL *psizel) 
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE Advise( 
-		/* [unique][in] */ __RPC__in_opt IAdviseSink *pAdvSink,
-		/* [out] */ __RPC__out DWORD *pdwConnection) 
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE Unadvise( 
-		/* [in] */ DWORD dwConnection) 
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE EnumAdvise( 
-		/* [out] */ __RPC__deref_out_opt IEnumSTATDATA **ppenumAdvise) 
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE GetMiscStatus( 
-		/* [in] */ DWORD dwAspect,
-		/* [out] */ __RPC__out DWORD *pdwStatus) 
-	{
-		return E_NOTIMPL;
-	}
-	virtual HRESULT STDMETHODCALLTYPE SetColorScheme( 
-		/* [in] */ __RPC__in LOGPALETTE *pLogpal)
-	{
-		return E_NOTIMPL;
-	}
-#pragma  endregion
-	//////////////////////////////////////////////////////////////////////////
-
-#pragma region // iviewobject
-
-	virtual /* [local] */ HRESULT STDMETHODCALLTYPE Draw( 
-		/* [in] */ DWORD dwDrawAspect,
-		/* [in] */ LONG lindex,
-		/* [unique][in] */ void *pvAspect,
-		/* [unique][in] */ DVTARGETDEVICE *ptd,
-		/* [in] */ HDC hdcTargetDev,
-		/* [in] */ HDC hdcDraw,
-		/* [in] */ LPCRECTL lprcBounds,
-		/* [unique][in] */ LPCRECTL lprcWBounds,
-		/* [in] */ BOOL ( STDMETHODCALLTYPE *pfnContinue )( 
-		ULONG_PTR dwContinue),
-		/* [in] */ ULONG_PTR dwContinue) 
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual /* [local] */ HRESULT STDMETHODCALLTYPE GetColorSet( 
-		/* [in] */ DWORD dwDrawAspect,
-		/* [in] */ LONG lindex,
-		/* [unique][in] */ void *pvAspect,
-		/* [unique][in] */ DVTARGETDEVICE *ptd,
-		/* [in] */ HDC hicTargetDev,
-		/* [out] */ LOGPALETTE **ppColorSet) 
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual /* [local] */ HRESULT STDMETHODCALLTYPE Freeze( 
-		/* [in] */ DWORD dwDrawAspect,
-		/* [in] */ LONG lindex,
-		/* [unique][in] */ void *pvAspect,
-		/* [out] */ DWORD *pdwFreeze) 
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE Unfreeze( 
-		/* [in] */ DWORD dwFreeze) 
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE SetAdvise( 
-		/* [in] */ DWORD aspects,
-		/* [in] */ DWORD advf,
-		/* [unique][in] */ __RPC__in_opt IAdviseSink *pAdvSink) 
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual /* [local] */ HRESULT STDMETHODCALLTYPE GetAdvise( 
-		/* [unique][out] */ DWORD *pAspects,
-		/* [unique][out] */ DWORD *pAdvf,
-		/* [out] */ IAdviseSink **ppAdvSink)
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE GetExtent( 
-		/* [in] */ DWORD dwDrawAspect,
-		/* [in] */ LONG lindex,
-		/* [unique][in] */ __RPC__in_opt DVTARGETDEVICE *ptd,
-		/* [out] */ __RPC__out LPSIZEL lpsizel) 
-	{
-		lpsizel->cx = lpsizel->cy = 20;
-		return S_OK;
-//		return E_NOTIMPL;
-	}
-#pragma endregion
-	HRESULT LoadGif(const TCHAR*  szPath)
-	{
-		return E_NOTIMPL;
-	}
+	virtual HRESULT __stdcall LoadGif(const TCHAR* szPath) = 0;
+	virtual HRESULT __stdcall Refresh() = 0;
 };
-
-/*
-LPLOCKBYTES lpLockBytes = NULL;
-SCODE sc;
-HRESULT hr;
-//print to RichEdit' s IClientSite
-LPOLECLIENTSITE m_lpClientSite;
-//A smart point to IAnimator
-IGifAnimatorPtr    m_lpAnimator;
-//ptr 2 storage    
-LPSTORAGE m_lpStorage;
-//the object 2 b insert 2
-LPOLEOBJECT    m_lpObject;
-
-//Create lockbytes
-sc = ::CreateILockBytesOnHGlobal(NULL, TRUE, &lpLockBytes);
-if (sc != S_OK)
-AfxThrowOleException(sc);
-ASSERT(lpLockBytes != NULL);
-
-//use lockbytes to create storage
-sc = ::StgCreateDocfileOnILockBytes(lpLockBytes,
-									STGM_SHARE_EXCLUSIVE|STGM_CREATE|STGM_READWRITE, 0, &m_lpStorage);
-if (sc != S_OK)
-{
-	VERIFY(lpLockBytes->Release() == 0);
-	lpLockBytes = NULL;
-	AfxThrowOleException(sc);
-}
-ASSERT(m_lpStorage != NULL);
-
-//get the ClientSite of the very RichEditCtrl
-GetIRichEditOle()->GetClientSite(&m_lpClientSite);
-ASSERT(m_lpClientSite != NULL);
-
-try
-{
-	//Initlize COM interface
-	hr = ::CoInitializeEx( NULL, COINIT_APARTMENTTHREADED );
-	if( FAILED(hr) )
-		_com_issue_error(hr);
-
-	//Get GifAnimator object
-	//here, I used a smart point, so I do not need to free it
-	hr = m_lpAnimator.CreateInstance(CLSID_GifAnimator);    
-	if( FAILED(hr) )
-		_com_issue_error(hr);
-	//COM operation need BSTR, so get a BSTR
-	BSTR path = strPicPath.AllocSysString();
-
-	//Load the gif
-	hr = m_lpAnimator->LoadFromFile(path);
-	if( FAILED(hr) )
-		_com_issue_error(hr);
-
-	TRACE0( m_lpAnimator->GetFilePath() );
-
-	//get the IOleObject
-	hr = m_lpAnimator.QueryInterface(IID_IOleObject, (void**)&m_lpObject);
-	if( FAILED(hr) )
-		_com_issue_error(hr);
-
-	//Set it 2 b inserted
-	OleSetContainedObject(m_lpObject, TRUE);
-
-	//2 insert in 2 richedit, you need a struct of REOBJECT
-	REOBJECT reobject;
-	ZeroMemory(&reobject, sizeof(REOBJECT));
-
-	reobject.cbStruct = sizeof(REOBJECT);    
-	CLSID clsid;
-	sc = m_lpObject->GetUserClassID(&clsid);
-	if (sc != S_OK)
-		AfxThrowOleException(sc);
-	//set clsid
-	reobject.clsid = clsid;
-	//can be selected
-	reobject.cp = REO_CP_SELECTION;
-	//content, but not static
-	reobject.dvaspect = DVASPECT_CONTENT;
-	//goes in the same line of text line
-	reobject.dwFlags = REO_BELOWBASELINE; //REO_RESIZABLE |
-	reobject.dwUser = 0;
-	//the very object
-	reobject.poleobj = m_lpObject;
-	//client site contain the object
-	reobject.polesite = m_lpClientSite;
-	//the storage 
-	reobject.pstg = m_lpStorage;
-
-	SIZEL sizel;
-	sizel.cx = sizel.cy = 0;
-	reobject.sizel = sizel;
-	HWND hWndRT = this->m_hWnd;
-
-	//Sel all text
-	//        ::SendMessage(hWndRT, EM_SETSEL, 0, -1);
-	//        DWORD dwStart, dwEnd;
-	//        ::SendMessage(hWndRT, EM_GETSEL, (WPARAM)&dwStart, (LPARAM)&dwEnd);
-	//        ::SendMessage(hWndRT, EM_SETSEL, dwEnd+1, dwEnd+1);
-
-	//Insert after the line of text
-	GetIRichEditOle()->InsertObject(&reobject);
-	::SendMessage(hWndRT, EM_SCROLLCARET, (WPARAM)0, (LPARAM)0);
-	VARIANT_BOOL ret;
-	//do frame changing
-	ret = m_lpAnimator->TriggerFrameChange();
-	//show it
-	m_lpObject->DoVerb(OLEIVERB_UIACTIVATE, NULL, m_lpClientSite, 0, 
-		m_hWnd, NULL);
-	m_lpObject->DoVerb(OLEIVERB_SHOW, NULL, m_lpClientSite, 0, m_hWnd, 
-		NULL);
-
-	//redraw the window to show animation
-	RedrawWindow();
-
-	if (m_lpClientSite)
-	{
-		m_lpClientSite->Release();
-		m_lpClientSite = NULL;
-	}
-	if (m_lpObject)
-	{
-		m_lpObject->Release();
-		m_lpObject = NULL;
-	}
-	if (m_lpStorage)
-	{
-		m_lpStorage->Release();
-		m_lpStorage = NULL;
-	}
-
-	SysFreeString(path);
-}
-catch( _com_error e )
-{
-	AfxMessageBox(e.ErrorMessage());
-	::CoUninitialize();    
-}
-*/

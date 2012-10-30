@@ -30,7 +30,7 @@ public:
 		return TRUE;
 	}
 
-	virtual bool SetAttribute( map<String,String>& mapAttrib, bool bReload)
+	virtual bool SetAttribute( ATTRMAP& mapAttrib, bool bReload)
 	{
 		bool bRet = __super::SetAttribute(mapAttrib, bReload);
 		if (false == bRet)

@@ -896,29 +896,29 @@ bool MenuBase::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 	if (false == bRet)
 		return false;
 
-	iter = mapAttrib.find(XML_MENU_ICONGUTTERWIDTH);
-	if (mapAttrib.end() != iter)
+	iter = m_mapAttribute.find(XML_MENU_ICONGUTTERWIDTH);
+	if (m_mapAttribute.end() != iter)
 	{
 		m_nIconGutterWidth = _ttoi(iter->second.c_str());
-		m_mapAttribute.erase(XML_MENU_ICONGUTTERWIDTH);
+		m_mapAttribute.erase(iter);
 	}
 
-	iter = mapAttrib.find(XML_MENU_POPUPTRIANGLEWIDTH);
-	if (mapAttrib.end() != iter)
+	iter = m_mapAttribute.find(XML_MENU_POPUPTRIANGLEWIDTH);
+	if (m_mapAttribute.end() != iter)
 	{
 		m_nPopupTriangleWidth = _ttoi(iter->second.c_str());
-		m_mapAttribute.erase(XML_MENU_POPUPTRIANGLEWIDTH);
+		m_mapAttribute.erase(iter);
 	}
 
-	iter = mapAttrib.find(XML_MENU_SEPARATORHEIGHT);
-	if (mapAttrib.end() != iter)
+	iter = m_mapAttribute.find(XML_MENU_SEPARATORHEIGHT);
+	if (m_mapAttribute.end() != iter)
 	{
 		m_nSeperatorHeight = _ttoi(iter->second.c_str());
-		m_mapAttribute.erase(XML_MENU_SEPARATORHEIGHT);
+		m_mapAttribute.erase(iter);
 	}
 
-	iter = mapAttrib.find(XML_MENU_RADIO_ICON_RENDER_PREFIX XML_RENDER_TYPE);
-	if (mapAttrib.end() != iter)
+	iter = m_mapAttribute.find(XML_MENU_RADIO_ICON_RENDER_PREFIX XML_RENDER_TYPE);
+	if (m_mapAttribute.end() != iter)
 	{
 		SAFE_DELETE(m_pRadioIconRender);
 		const String& strRenderType = iter->second;
@@ -931,11 +931,11 @@ bool MenuBase::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 		{
 			UI_LOG_WARN( _T("%s Invalid %s=\"%s\""), FUNC_NAME, XML_MENU_RADIO_ICON_RENDER_PREFIX XML_RENDER_TYPE, strRenderType.c_str() );
 		}
-		this->m_mapAttribute.erase(XML_MENU_RADIO_ICON_RENDER_PREFIX XML_RENDER_TYPE);
+		this->m_mapAttribute.erase(iter);
 	}
 
-	iter = mapAttrib.find(XML_MENU_CHECK_ICON_RENDER_PREFIX XML_RENDER_TYPE);
-	if (mapAttrib.end() != iter)
+	iter = m_mapAttribute.find(XML_MENU_CHECK_ICON_RENDER_PREFIX XML_RENDER_TYPE);
+	if (m_mapAttribute.end() != iter)
 	{
 		SAFE_DELETE(m_pCheckIconRender);
 		const String& strRenderType = iter->second;
@@ -948,11 +948,11 @@ bool MenuBase::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 		{
 			UI_LOG_WARN( _T("%s Invalid %s=\"%s\""), FUNC_NAME, XML_MENU_CHECK_ICON_RENDER_PREFIX XML_RENDER_TYPE, strRenderType.c_str() );
 		}
-		this->m_mapAttribute.erase(XML_MENU_CHECK_ICON_RENDER_PREFIX XML_RENDER_TYPE);
+		this->m_mapAttribute.erase(iter);
 	}
 
-	iter = mapAttrib.find(XML_MENU_RADIOCHECK_ICONBK_RENDER_PREFIX XML_RENDER_TYPE);
-	if (mapAttrib.end() != iter)
+	iter = m_mapAttribute.find(XML_MENU_RADIOCHECK_ICONBK_RENDER_PREFIX XML_RENDER_TYPE);
+	if (m_mapAttribute.end() != iter)
 	{
 		SAFE_DELETE(m_pRadioCheckIconBkRender);
 		const String& strRenderType = iter->second;
@@ -965,7 +965,7 @@ bool MenuBase::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 		{
 			UI_LOG_WARN( _T("%s Invalid %s=\"%s\""), FUNC_NAME, XML_MENU_RADIOCHECK_ICONBK_RENDER_PREFIX XML_RENDER_TYPE, strRenderType.c_str() );
 		}
-		this->m_mapAttribute.erase(XML_MENU_RADIOCHECK_ICONBK_RENDER_PREFIX XML_RENDER_TYPE);
+		this->m_mapAttribute.erase(iter);
 	}
 
 	if (NULL == m_pBkgndRender)

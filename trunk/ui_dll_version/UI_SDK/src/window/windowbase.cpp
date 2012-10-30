@@ -47,11 +47,11 @@ bool WindowBase::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 		return false;
 
 	// 字体样式 
-	ATTRMAP::iterator iter = mapAttrib.find(XML_FONT);
-	if (mapAttrib.end() != iter)
+	ATTRMAP::iterator iter = m_mapAttribute.find(XML_FONT);
+	if (m_mapAttribute.end() != iter)
 	{
 		m_hFont = ::UI_GetFont(iter->second, GetGraphicsRenderType(GetHWND()));
-		m_mapAttribute.erase(XML_FONT);
+		m_mapAttribute.erase(iter);
 	}
 
 	// 创建默认字体
@@ -74,29 +74,29 @@ bool WindowBase::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 	}
 
 
-	iter = mapAttrib.find(XML_WINDOW_MAX_WIDTH);
-	if (mapAttrib.end() != iter)
+	iter = m_mapAttribute.find(XML_WINDOW_MAX_WIDTH);
+	if (m_mapAttribute.end() != iter)
 	{
 		m_nMaxWidth = _ttoi(iter->second.c_str());
-		m_mapAttribute.erase(XML_WINDOW_MAX_WIDTH);
+		m_mapAttribute.erase(iter);
 	}
-	iter = mapAttrib.find(XML_WINDOW_MAX_HEIGHT);
-	if (mapAttrib.end() != iter)
+	iter = m_mapAttribute.find(XML_WINDOW_MAX_HEIGHT);
+	if (m_mapAttribute.end() != iter)
 	{
 		m_nMaxHeight = _ttoi(iter->second.c_str());
-		m_mapAttribute.erase(XML_WINDOW_MAX_HEIGHT);
+		m_mapAttribute.erase(iter);
 	}
-	iter = mapAttrib.find(XML_WINDOW_MIN_WIDHT);
-	if (mapAttrib.end() != iter)
+	iter = m_mapAttribute.find(XML_WINDOW_MIN_WIDHT);
+	if (m_mapAttribute.end() != iter)
 	{
 		m_nMinWidth = _ttoi(iter->second.c_str());
-		m_mapAttribute.erase(XML_WINDOW_MIN_WIDHT);
+		m_mapAttribute.erase(iter);
 	}
-	iter = mapAttrib.find(XML_WINDOW_MIN_HEIGHT);
-	if (mapAttrib.end() != iter)
+	iter = m_mapAttribute.find(XML_WINDOW_MIN_HEIGHT);
+	if (m_mapAttribute.end() != iter)
 	{
 		m_nMinHeight = _ttoi(iter->second.c_str());
-		m_mapAttribute.erase(XML_WINDOW_MIN_HEIGHT);
+		m_mapAttribute.erase(iter);
 	}
 
 	return true;

@@ -730,37 +730,37 @@ void EditBase::ResetAttribute()
 }
 bool EditBase::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 {
-	bool bRet = Control::SetAttribute( mapAttrib,bReload );
+	bool bRet = __super::SetAttribute( mapAttrib,bReload );
 	if( false == bRet )	return bRet;
 
 	// 颜色
-	ATTRMAP::iterator iter = mapAttrib.find(XML_EDIT_COLOR);
-	if (mapAttrib.end() != iter)
+	ATTRMAP::iterator iter = m_mapAttribute.find(XML_EDIT_COLOR);
+	if (m_mapAttribute.end() != iter)
 	{
 		UI_GetColor(iter->second, &this->m_pColor );
-		__super::m_mapAttribute.erase(XML_EDIT_COLOR);
+		m_mapAttribute.erase(iter);
 	}
 
-	iter = mapAttrib.find(XML_EDIT_SELECT_COLOR);
-	if (mapAttrib.end() != iter)
+	iter = m_mapAttribute.find(XML_EDIT_SELECT_COLOR);
+	if (m_mapAttribute.end() != iter)
 	{
 		UI_GetColor( iter->second, &this->m_pColorSelect );
-		__super::m_mapAttribute.erase(XML_EDIT_SELECT_COLOR);
+		m_mapAttribute.erase(iter);
 	}
 
-	iter = mapAttrib.find(XML_EDIT_SELECT_BK_COLOR);
-	if ( mapAttrib.end() != iter )
+	iter = m_mapAttribute.find(XML_EDIT_SELECT_BK_COLOR);
+	if ( m_mapAttribute.end() != iter )
 	{
 		UI_GetColor( iter->second, &this->m_pColorSelectBk );
-		__super::m_mapAttribute.erase(XML_EDIT_SELECT_BK_COLOR);
+		m_mapAttribute.erase(iter);
 	}
 
 	// 最大值
-	iter = mapAttrib.find(XML_EDIT_MAX_LENGTH);
-	if( mapAttrib.end() != iter)
+	iter = m_mapAttribute.find(XML_EDIT_MAX_LENGTH);
+	if( m_mapAttribute.end() != iter)
 	{
 		this->m_EditData.SetMaxChar( _ttoi( iter->second.c_str() ) );
-		__super::m_mapAttribute.erase( XML_EDIT_MAX_LENGTH );
+		__super::m_mapAttribute.erase( iter );
 	}
 
 	// 背景绘制 

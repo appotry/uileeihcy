@@ -60,10 +60,35 @@ public:
 
 	// virtual 函数
 	SIZE   GetAutoSize( HRDC hDC );
-	bool   SetAttribute( map<String,String>& mapAttrib, bool bReload=false );
+	void   OnPaint( HRDC hRDC );
+
+private:
+};
+
+//
+//	动画图片
+//
+//	TODO: 增加PNG序列动画类型
+//
+class UIAPI GifPicture : public Control
+{
+public:
+	GifPicture();
+	~GifPicture();
+
+	UI_DECLARE_OBJECT( GifPicture, OBJ_CONTROL )
+
+	UI_BEGIN_MSG_MAP
+		UIMSG_WM_PAINT(OnPaint)
+	UI_END_MSG_MAP_CHAIN_PARENT(Control)
+
+	// virtual 函数
+	SIZE   GetAutoSize( HRDC hDC );
+	bool   SetAttribute( ATTRMAP& mapAttrib, bool bReload=false );
 
 	void   OnPaint( HRDC hRDC );
 
 private:
+	GifImage*   m_pGifImage;
 };
 }
