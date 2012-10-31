@@ -410,18 +410,28 @@ void GifImage::release_resource()
 //
 // 跳过gif文件中的数据部分
 //
-void GifImage::skip_data_block(fstream& f)
+int GifImage::skip_data_block(fstream& f, byte* pBits)
 {
-	unsigned char cNextBlockLen = 0;
+	int nDataLength = 0;              // 统计数据的总大小
+	unsigned char cNextBlockLen = 0;  // 读取下一段的数据大小
 	do 
 	{
 		f.read((char*)&cNextBlockLen, 1 );  // 本段数据长度 最大为FF，如果为0表示数据段结束
 		if( 0 == cNextBlockLen )
 			break;
 
-		f.seekg(cNextBlockLen, ios_base::cur);
+		if (NULL != pBits)
+		{
+			f.read(((char*)pBits+nDataLength), cNextBlockLen);
+		}
+		else
+		{
+			f.seekg(cNextBlockLen, ios_base::cur);
+		}
+		nDataLength += cNextBlockLen;
 	} 
 	while (1);
+	return nDataLength;
 }
 
 //
@@ -462,7 +472,8 @@ void GifImage::build_one_frame_data(
 	memcpy(one_frame_data+pos, pImageData, nImageDataSize);
 	pos += nImageDataSize;
 
-	memset(one_frame_data+pos, GIF_BLOCK_FLAG_TRAILER, 1 );
+	byte byteTrailer = GIF_BLOCK_FLAG_TRAILER;
+	memcpy(one_frame_data+pos, &byteTrailer, 1 );
 	pos += 1;
 
 	assert(pos == nTotalSize);
@@ -499,7 +510,7 @@ bool GifImage::Load(const TCHAR* szPath)
 		this->m_nImageHeight = logicScreenDesc.logical_screen_height;
 
 		// 全局颜色表
-		void* pGlobalColorTable = NULL;
+		byte* pGlobalColorTable = NULL;
 		int   nGlobalColorTableSize = 0;
 
 		if (logicScreenDesc.global_color_table_flag)
@@ -507,7 +518,7 @@ bool GifImage::Load(const TCHAR* szPath)
 
 		if (0 != nGlobalColorTableSize)
 		{
-			pGlobalColorTable = (void*)new char[nGlobalColorTableSize];
+			pGlobalColorTable = new byte[nGlobalColorTableSize];
 			f.read((char*)pGlobalColorTable, nGlobalColorTableSize);
 		}
 
@@ -594,8 +605,49 @@ bool GifImage::Load(const TCHAR* szPath)
 					}
 
 					BYTE bUnknown = 0;
-					f.read((char*)&bUnknown,1);   // TODO: 这个值是干什么的？
+					f.read((char*)&bUnknown,1);   // TODO: 这个值是干什么的？  <-- 貌似是LZW算法的初始长度LZW code size 
 
+#if 1
+					int nDataBeginPos = f.tellg();
+					int nDataLength = skip_data_block(f);
+					int nFrameEndPos = f.tellg();
+					byte* pData = new byte[nDataLength];
+					f.seekg(nDataBeginPos);
+					skip_data_block(f, pData);
+ 
+					UIASSERT(pFrame->descriptor.interlace_flag == 0);  // 目前不支持交叉的数据
+					
+					int nInputDataSize = pFrame->descriptor.image_width*pFrame->descriptor.image_height;
+					byte* pBitDecode = new byte[nInputDataSize];
+					memset(pBitDecode, 0, nInputDataSize);
+					GifLZWDecoder decoder(bUnknown, pBitDecode, nInputDataSize);
+					int nOutputDataSize = decoder.Decode(pData, nDataLength);
+
+					pFrame->image.Create(pFrame->descriptor.image_width,pFrame->descriptor.image_height, 32, Image::createAlphaChannel);
+					BYTE* pBits = (BYTE*)pFrame->image.GetBits();
+					int   bytesperline   = 4*pFrame->descriptor.image_width;  
+
+					int npxIndex = 0;
+					for (int row = 0; row < pFrame->descriptor.image_height; row ++ )
+					{
+						for( int i = 0; i < bytesperline; i += 4 )
+						{
+							int nColorTableIndex = pBitDecode[npxIndex++];
+							pBits[i]   = pGlobalColorTable[nColorTableIndex*3+2];
+							pBits[i+1] = pGlobalColorTable[nColorTableIndex*3+1];
+							pBits[i+2] = pGlobalColorTable[nColorTableIndex*3];
+  							if (pFrame->control.transparent_color_flag && nColorTableIndex == pFrame->control.transparent_color_index)
+  								pBits[i+3] = 0;
+  							else
+								pBits[i+3] = 255;
+						}
+
+						pBits += pFrame->image.GetPitch();
+					}
+
+					pFrame->image.Save(_T("c:\\aaaa.png"), Gdiplus::ImageFormatPNG);
+int a = 0;
+#else
 					skip_data_block(f);
 					int nFrameEndPos = f.tellg();
 
@@ -612,6 +664,7 @@ bool GifImage::Load(const TCHAR* szPath)
 					void* one_frame_gif_file_data = NULL;
 					int   one_frame_gif_file_data_size = 0;
 
+					// TODO: 真的有必要吗？Gdiplus内部应该会判断选哪个颜色表吧
 					if( NULL == pLocalColorTable )
 						this->build_one_frame_data(&header, &logicScreenDesc, pGlobalColorTable, nGlobalColorTableSize, pImageData, nImageDataSize, &one_frame_gif_file_data, &one_frame_gif_file_data_size );
 					else
@@ -662,7 +715,7 @@ bool GifImage::Load(const TCHAR* szPath)
 						this->decode_gif_image_transparent(pFrame, (LONG)pFrame->control.transparent_color_index);
 						//pFrame->image.SetTransparentColor((LONG)pFrame->control.transparent_color_index);
 					}
-
+#endif
 					m_vFrame.push_back(pFrame);
 					pFrame = NULL;
 				}
@@ -912,6 +965,14 @@ void GifImage::on_timer(Gif_TimerItem* pTimerItem)
 	}
 
 	GIF_Frame* pFrame = this->GetFrame(m_nCurFrameIndex);
+
+	// 遇到一个gif图，共14帧，前面所有帧的disposal都是2，最后一帧是1，导致循环结束时时最后一帧的图像和第一帧的
+	// 图像一起显示了。这是不是意味着当画完所有帧时，要清空背景？
+	if (0 == m_nCurFrameIndex)
+	{
+		RECT rcBack = {0,0, this->GetWidth(),this->GetHeight()};
+		::FillRect( m_hMemCanvasDC,&rcBack,m_hBrushTransparent);
+	}
 	draw_frame( nDisposal, pFrame );
 	::BitBlt(m_hDC,this->GetDrawX(),this->GetDrawY(), this->GetWidth(), this->GetHeight(),m_hMemCanvasDC,0,0,SRCCOPY);
 
@@ -960,6 +1021,13 @@ bool GifImage::decode_gif_image_transparent(GIF_Frame* pFrame, int nTransparentI
 {
 	if (NULL == pFrame)
 		return false;
+
+#ifdef _DEBUG // <-- 将每一帧保存为一个文件
+	static int n = 0;
+	TCHAR szPath[MAX_PATH] = _T("");
+	_stprintf(szPath, _T("C:\\one_frame2\\%d.png"),n );
+	pFrame->image.Save(szPath, Gdiplus::ImageFormatPNG);
+#endif
 	//nTransparentIndex++;   // ?? 为什么要+1? 不加1的话结果就对不上，什么时候要加1 ？什么时候不需要加1 ？
 
 	int nDestRowBytes = 4*pFrame->descriptor.image_width;
@@ -991,7 +1059,7 @@ bool GifImage::decode_gif_image_transparent(GIF_Frame* pFrame, int nTransparentI
 		for (int i=0,j=0; i<nDestRowBytes; i+=4,j++)
 		{
 			BYTE index = pSrcBits[j+pFrame->descriptor.image_left_position];  // 取出这个位置的调色板索引值
-			if (index == nTransparentIndex)
+			if (index >= nTransparentIndex)
 			{
 				pDestBits[i] = pDestBits[i+1] = pDestBits[i+2] = pDestBits[i+3]	= 0; // 将alpha置为0，透明掉
 			}
@@ -1011,10 +1079,162 @@ bool GifImage::decode_gif_image_transparent(GIF_Frame* pFrame, int nTransparentI
 	pFrame->image.Destroy();
 	pFrame->image.Attach(hBitmap);
 	pFrame->image.ForceUseAlpha();
-
-#ifdef _DEBUG_XX
-	pFrame->image.Save(_T("C:\\test.png"), Gdiplus::ImageFormatPNG);
+	
+#ifdef _DEBUG
+	_stprintf(szPath, _T("C:\\one_frame2\\%d_decode.png"),n++ );
+	pFrame->image.Save(szPath, Gdiplus::ImageFormatPNG);
 #endif
 
 	return !pFrame->image.IsNull();
 }
+
+//////////////////////////////////////////////////////////////////////////
+//
+//  LZW 解码 GIF 数据
+//
+//////////////////////////////////////////////////////////////////////////
+
+GifLZWDecoder::GifLZWDecoder(byte nInitBitLength, byte* pDecodeResultData, int nDecodeResultSize)
+{
+	memset(m_dict, 0, sizeof(DictItem)*4096);
+	m_nInitBitLength   = nInitBitLength; 
+	m_nCurBitLength    =  m_nInitBitLength+1;
+
+	GIF_LZW_CLEAN_TAG = 1 << m_nInitBitLength;
+	GIF_LZW_END_TAG   = GIF_LZW_CLEAN_TAG+1;
+
+	m_pResultData = pDecodeResultData;
+	m_nResultDataSize = nDecodeResultSize;
+}
+
+
+
+
+#define GET_NEXT_VALUE(w) \
+	(w>>nReadBitPosInByte) & ((1<<m_nCurBitLength)-1); \
+	nReadBitPosInByte += m_nCurBitLength;              \
+	pDataCur += nReadBitPosInByte>>3;                  \
+	nReadBitPosInByte %= 8;
+
+int  GifLZWDecoder::Decode(const byte* pSrcData, int nSrcDataSize)
+{
+	int nRetSize = 0;
+
+	// 注意：LZW是按位读取的数据，并不是按字节读取的
+	const byte*  pDataEnd = pSrcData+nSrcDataSize;
+	const byte*  pDataCur = pSrcData;
+	byte  nReadBitPosInByte = 0;      // 当前读取pData字节的哪一位了
+
+	WORD  wPrefix = 0, wSuffix = 0;
+
+	wPrefix = (WORD)*pDataCur;
+	wPrefix = GET_NEXT_VALUE(wPrefix);
+	do 
+	{
+		if (wPrefix == GIF_LZW_END_TAG)   // 结束
+			break;
+
+		// 在实际的解码中, 第一个数据往往就是CLEAN标志, 这是为了算法而优化的设计,这样我们能直接进入解码循环,而不必在循环外部初始化.
+		// : 的确，对于一个7位长的LZW，读取到的第一个数据真的是0x80 = 128
+		if (wPrefix == GIF_LZW_CLEAN_TAG) // 重新初始化，这也是数据的第一个字节
+		{
+			memset(m_dict, 0, sizeof(DictItem)*4096);
+			m_nDictLower      = (1<<m_nInitBitLength)+2;
+			m_nDictUpper      =  m_nDictLower;
+			m_nCurBitLength   =  m_nInitBitLength+1;
+			m_nCurBitLengthEx = (1<<m_nCurBitLength)-1;
+
+			wPrefix = (WORD)*pDataCur;
+			wPrefix = GET_NEXT_VALUE(wPrefix);
+			continue;
+		}
+
+		wSuffix = (WORD)*pDataCur;
+		wSuffix = GET_NEXT_VALUE(wSuffix);
+
+		// 为什么在这里要先定入一个前缀？这是为了解决如当第一个要push字典项为 dict[82] = {7F,82}时，
+		// 82这个字典项根本就不存在，不能用自己来定义自己。 因此先写入 dict[82]={7F, }; suffix先不写入。
+		// 这个时候能够获取到dict[82].prefix了。
+		m_dict[m_nDictUpper].prefix = wPrefix;
+
+		// 后缀必须是一个单独的字符
+		WORD wSingleSuffix = wSuffix;
+		while(wSingleSuffix > GIF_LZW_CLEAN_TAG)
+			wSingleSuffix = m_dict[wSingleSuffix].prefix;
+		
+		Output(wPrefix);
+
+		if (CheckExist(wPrefix,wSingleSuffix))
+		{
+			
+		}
+		else
+		{
+			PushDict(wPrefix, wSingleSuffix);
+		}
+		wPrefix = wSuffix;
+
+	} while (pDataEnd>pDataCur);
+
+//	UIASSERT(m_nResultDataSize==0);
+	return 0;
+}
+
+// 检查prefix suffix是否在字典中存在
+inline bool GifLZWDecoder::CheckExist(WORD wValue1, WORD wValue2)
+{
+	for (int i = m_nDictLower; i < m_nDictUpper; i++)
+	{
+		if (m_dict[i].prefix == wValue1 && m_dict[i].suffix == wValue2)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+// 输出一个有效结果。如果w值仍然是一个字典项，继续搜索。
+// TODO: 将递归调用优化成循环调用
+inline void GifLZWDecoder::Output(WORD w)
+{
+	if(w > GIF_LZW_CLEAN_TAG)
+	{
+		Output(m_dict[w].prefix);
+		Output(m_dict[w].suffix);
+	}
+	else
+	{
+		*m_pResultData = (byte)w;
+		m_pResultData++;
+		m_nResultDataSize--;
+	}
+
+// 	TCHAR szInfo[8];
+// 	_stprintf(szInfo, _T("%02X "), w);
+// 	::OutputDebugString(szInfo);
+
+	
+}
+
+// 向字典中添加一项
+inline void GifLZWDecoder::PushDict(WORD wPrefix, WORD wSuffix)
+{
+	m_dict[m_nDictUpper].suffix = wSuffix;
+
+	// GIF规范规定的是12位，超过12位的表达范围就推倒重来，并且GIF为了提高压缩率，采用的是变长的字长。
+	// 比如说原始数据是8位，那么一开始，先加上一位再说，开始的字长就成了9位，然后开始加标号，当标号加到512时，
+	// 也就是超过9为所能表达的最大数据时，也就意味着后面的标号要用10位字长才能表示了，那么从这里开始，
+	// 后面的字长就是10位了。依此类推，到了2^12也就是4096时，在这里插一个清除标志，从后面开始，从9位再来。
+
+	if (m_nDictUpper >= m_nCurBitLengthEx)
+	{
+		m_nCurBitLength++;
+		if (m_nCurBitLength>12)
+			m_nCurBitLength = 12;
+		else
+			m_nCurBitLengthEx = (1<<m_nCurBitLength)-1;
+	}
+
+	m_nDictUpper++;
+}
+
