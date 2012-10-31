@@ -299,14 +299,15 @@ public:
 
 protected:
 	int    skip_data_block(fstream& f, byte* pBits=NULL);
-	void   build_one_frame_data(GIF_FileMark*, GIF_LogicalScreenDescriptor*, 
-								void* pColorTable, int nColorTableSize, void* pImageData, int nImageDataSize,
-								void** ppOut, int* pOutSize  );
 	int    get_next_frame_index();
 
 	void   release_resource();
 	void   draw_frame(int nPrevFrameDisposal, GIF_Frame* pFrame);
+
+	bool   decode_by_lzw(fstream& f, GIF_Frame* pFrame, int byte_LZW_code_size, byte* pColorTable, int nColorTableSize);
+	bool   decode_by_gdiplus(fstream& f, GIF_Frame* pFrame, int  nFrameStartPos, GIF_FileMark& header, GIF_LogicalScreenDescriptor& logicScreenDesc, byte* pColorTable, int nColorTableSize);
 	bool   decode_gif_image_transparent(GIF_Frame* pFrame, int nTransparentIndex);
+	void   build_one_frame_data(GIF_FileMark*, GIF_LogicalScreenDescriptor*, void* pColorTable, int nColorTableSize, void* pImageData, int nImageDataSize, void** ppOut, int* pOutSize  );
 
 public:  // Gif绘制线程调用函数
 	void   on_add_to_timer_list();
@@ -323,6 +324,7 @@ public:  // 外部接口
 	void   Pause();
 	void   Stop();
 	void   OnPaint(HDC hDC);
+	void   OnPaint(HDC hDC, int x, int y);
 
 	int    GetWidth()  { return m_nImageWidth; }
 	int    GetHeight() { return m_nImageHeight; }
@@ -379,7 +381,7 @@ class GifLZWDecoder
 public:
 	GifLZWDecoder(byte nInitBitLength, byte* pDecodeResultData, int nDecodeResultSize);
 
-	int  Decode(const byte* pSrcData, int nSrcDataSize);
+	void  Decode(const byte* pSrcData, int nSrcDataSize);
 
 	// 检查prefix suffix是否在字典中存在
 	inline bool  CheckExist(WORD wValue1, WORD wValue2);

@@ -435,14 +435,13 @@ int GifImage::skip_data_block(fstream& f, byte* pBits)
 }
 
 //
-//	组建一帧gif数据
+//	组建一帧gif数据文件
 //
 void GifImage::build_one_frame_data(
 			GIF_FileMark* pFileMark,                  // 
 			GIF_LogicalScreenDescriptor* pDesc,       // 
 			void* pColorTable, int nColorTableSize,   // 色彩表数据，当存在local color table时，使用local color table数据
 			void* pImageData,  int nImageDataSize,    // 单帧数据
-
 			void** ppOut, int* pOutSize               // 返回值,ppOut需要delete[]进行释放
 		)
 {
@@ -591,8 +590,10 @@ bool GifImage::Load(const TCHAR* szPath)
 				{
 					f.read((char*)&pFrame->descriptor, sizeof(GIF_ImageDescriptor));
 
+					//////////////////////////////////////////////////////////////////////////
 					// 本地色彩表
-					void* pLocalColorTable = NULL;
+
+					byte* pLocalColorTable = NULL;
 					int   nLocalColorTableSize = 0;
 
 					if( pFrame->descriptor.local_color_table_flag )
@@ -600,75 +601,31 @@ bool GifImage::Load(const TCHAR* szPath)
 
 					if( 0 != nLocalColorTableSize )
 					{
-						pLocalColorTable = (void*)new char[nLocalColorTableSize];
+						pLocalColorTable = new byte[nLocalColorTableSize];
 						f.read((char*)pLocalColorTable, nLocalColorTableSize);
 					}
 
-					BYTE bUnknown = 0;
-					f.read((char*)&bUnknown,1);   // TODO: 这个值是干什么的？  <-- 貌似是LZW算法的初始长度LZW code size 
+					//////////////////////////////////////////////////////////////////////////
+					// 解码
 
-#if 1
-					int nDataBeginPos = f.tellg();
-					int nDataLength = skip_data_block(f);
-					int nFrameEndPos = f.tellg();
-					byte* pData = new byte[nDataLength];
-					f.seekg(nDataBeginPos);
-					skip_data_block(f, pData);
- 
-					UIASSERT(pFrame->descriptor.interlace_flag == 0);  // 目前不支持交叉的数据
-					
-					int nInputDataSize = pFrame->descriptor.image_width*pFrame->descriptor.image_height;
-					byte* pBitDecode = new byte[nInputDataSize];
-					memset(pBitDecode, 0, nInputDataSize);
-					GifLZWDecoder decoder(bUnknown, pBitDecode, nInputDataSize);
-					int nOutputDataSize = decoder.Decode(pData, nDataLength);
+					byte* pColorTableForThisFrame     = pLocalColorTable==NULL? pGlobalColorTable:pLocalColorTable;
+					int   nColorTableSizeForThisFrame = pLocalColorTable==NULL? nGlobalColorTableSize:nLocalColorTableSize;
 
-					pFrame->image.Create(pFrame->descriptor.image_width,pFrame->descriptor.image_height, 32, Image::createAlphaChannel);
-					BYTE* pBits = (BYTE*)pFrame->image.GetBits();
-					int   bytesperline   = 4*pFrame->descriptor.image_width;  
+					BYTE byte_LZW_code_size = 0;
+					f.read((char*)&byte_LZW_code_size,1);   // 这个值是干什么的？  <-- 是LZW算法的初始长度LZW code size 
 
-					int npxIndex = 0;
-					for (int row = 0; row < pFrame->descriptor.image_height; row ++ )
+					UIASSERT(pFrame->descriptor.interlace_flag == 0);  // 目前自己的解码还不支持交叉的数据
+			//      有一张狗屎的照片是这种类型的
+
+					bool bDecodeRet = true;
+					if (0 == pFrame->descriptor.interlace_flag)        // 使用自己的解码算法
 					{
-						for( int i = 0; i < bytesperline; i += 4 )
-						{
-							int nColorTableIndex = pBitDecode[npxIndex++];
-							pBits[i]   = pGlobalColorTable[nColorTableIndex*3+2];
-							pBits[i+1] = pGlobalColorTable[nColorTableIndex*3+1];
-							pBits[i+2] = pGlobalColorTable[nColorTableIndex*3];
-  							if (pFrame->control.transparent_color_flag && nColorTableIndex == pFrame->control.transparent_color_index)
-  								pBits[i+3] = 0;
-  							else
-								pBits[i+3] = 255;
-						}
-
-						pBits += pFrame->image.GetPitch();
+						bDecodeRet = this->decode_by_lzw(f, pFrame, byte_LZW_code_size, pColorTableForThisFrame, nColorTableSizeForThisFrame);
 					}
-
-					pFrame->image.Save(_T("c:\\aaaa.png"), Gdiplus::ImageFormatPNG);
-int a = 0;
-#else
-					skip_data_block(f);
-					int nFrameEndPos = f.tellg();
-
-					// 单帧图像数据
-					int   nImageDataSize = nFrameEndPos-nFrameStartPos;
-					void* pImageData = (void*)new char[nImageDataSize];
-
-					f.seekg(nFrameStartPos, ios_base::beg);
-					f.read((char*)pImageData, nImageDataSize);
-
-					//
-					// 组装
-					//
-					void* one_frame_gif_file_data = NULL;
-					int   one_frame_gif_file_data_size = 0;
-
-					// TODO: 真的有必要吗？Gdiplus内部应该会判断选哪个颜色表吧
-					if( NULL == pLocalColorTable )
-						this->build_one_frame_data(&header, &logicScreenDesc, pGlobalColorTable, nGlobalColorTableSize, pImageData, nImageDataSize, &one_frame_gif_file_data, &one_frame_gif_file_data_size );
-					else
-						this->build_one_frame_data(&header, &logicScreenDesc, pLocalColorTable, nLocalColorTableSize, pImageData, nImageDataSize, &one_frame_gif_file_data, &one_frame_gif_file_data_size );
+					else                                               // 使用GDIPLUS方法解码
+					{
+						bDecodeRet = this->decode_by_gdiplus(f, pFrame, nFrameStartPos, header, logicScreenDesc, pColorTableForThisFrame, nColorTableSizeForThisFrame);
+					}
 
 					if( NULL != pLocalColorTable )
 					{
@@ -676,46 +633,14 @@ int a = 0;
 						pLocalColorTable = NULL;
 						nLocalColorTableSize = 0;
 					}
-					if ( NULL != pImageData )
-					{
-						delete[] pImageData;
-						pImageData = NULL;
-						nImageDataSize = 0;
-					}
 
-#ifdef _DEBUG // <-- 将每一帧保存为一个文件
-					static int n = 0;
-					TCHAR szPath[MAX_PATH] = _T("");
-					_stprintf(szPath, _T("C:\\one_frame\\%d.gif"),n++ );
-					fstream temp;
-					temp.open(szPath,ios_base::out|ios_base::binary);
-					if( temp.good() )
+					if (false == bDecodeRet)
 					{
-						temp.write((const char*)one_frame_gif_file_data, one_frame_gif_file_data_size);
-						temp.close();
-					}
-#endif
-					// 加载图片
-					if( false == pFrame->image.LoadFromData(one_frame_gif_file_data, one_frame_gif_file_data_size) )
-					{
-						delete [] one_frame_gif_file_data;
-						one_frame_gif_file_data = NULL;
-
 						this->Destroy();
 						goto PARSE_ERROR;
-						break;
 					}
-					delete [] one_frame_gif_file_data;
-					one_frame_gif_file_data = NULL;
-					
 
-					// 设置背景透明色
-					if (pFrame->control.transparent_color_flag)
-					{
-						this->decode_gif_image_transparent(pFrame, (LONG)pFrame->control.transparent_color_index);
-						//pFrame->image.SetTransparentColor((LONG)pFrame->control.transparent_color_index);
-					}
-#endif
+					// 保存帧
 					m_vFrame.push_back(pFrame);
 					pFrame = NULL;
 				}
@@ -739,6 +664,145 @@ PARSE_ERROR:
 
 	f.close();
 	return bRet;
+}
+
+bool GifImage::decode_by_lzw(fstream& f, GIF_Frame* pFrame, int byte_LZW_code_size, byte* pColorTable, int nColorTableSize)
+{
+	byte*   pGifFrameImageData = NULL;
+	byte*   pOutputData = NULL;
+	int     nOutputDataSize = pFrame->descriptor.image_width*pFrame->descriptor.image_height; 
+
+	//////////////////////////////////////////////////////////////////////////
+	// 读取图像数据用于解码（先读取数据大小）
+
+	int nDataBeginPos = f.tellg();
+	int nDataLength = skip_data_block(f);
+	f.seekg(nDataBeginPos);
+
+	pGifFrameImageData = new byte[nDataLength];
+	skip_data_block(f, pGifFrameImageData);
+
+	//////////////////////////////////////////////////////////////////////////
+	// LZW解码
+
+	pOutputData = new byte[nOutputDataSize];
+	memset(pOutputData, 0, nOutputDataSize);
+
+	GifLZWDecoder decoder(byte_LZW_code_size, pOutputData, nOutputDataSize);
+	decoder.Decode(pGifFrameImageData, nDataLength);
+
+	//////////////////////////////////////////////////////////////////////////
+	// 解析调色板和透明索引
+
+	pFrame->image.Create(pFrame->descriptor.image_width,pFrame->descriptor.image_height, 32, Image::createAlphaChannel);
+
+	BYTE*   pBits = (BYTE*)pFrame->image.GetBits();
+	int     bytesperline = 4*pFrame->descriptor.image_width;  
+	int     npxIndex = 0;
+
+	for (int row = 0; row < pFrame->descriptor.image_height; row ++ )
+	{
+		for( int i = 0; i < bytesperline; i += 4 )
+		{
+			int nColorTableIndex = pOutputData[npxIndex++];    // 该像素对应的调色板的值
+			int nColorTableIndexAddr = 3*nColorTableIndex;
+
+			pBits[i]   = pColorTable[nColorTableIndexAddr+2]; // B
+			pBits[i+1] = pColorTable[nColorTableIndexAddr+1]; // G
+			pBits[i+2] = pColorTable[nColorTableIndexAddr];   // R
+
+			if (pFrame->control.transparent_color_flag && 
+				pFrame->control.transparent_color_index == nColorTableIndex)
+			{
+				pBits[i+3] = 0;          // 该像素透明
+			}
+			else
+			{
+				pBits[i+3] = 255;
+			}
+		}
+
+		pBits += pFrame->image.GetPitch();
+	}
+#ifdef _DEBUG
+	pFrame->image.Save(_T("c:\\aaaddd.png"), Gdiplus::ImageFormatPNG);
+#endif
+	SAFE_DELETE(pGifFrameImageData);
+	SAFE_DELETE(pOutputData);
+	return true;
+}
+
+bool GifImage::decode_by_gdiplus(fstream& f, 
+								 GIF_Frame* pFrame, 
+								 int  nFrameStartPos,
+								 GIF_FileMark& header, 
+								 GIF_LogicalScreenDescriptor& logicScreenDesc,
+								 byte* pColorTable, 
+								 int nColorTableSize )
+{
+	skip_data_block(f);
+	int nFrameEndPos = f.tellg();
+
+	// 单帧图像数据
+	int   nImageDataSize = nFrameEndPos-nFrameStartPos;
+	void* pImageData = (void*)new char[nImageDataSize];
+
+	f.seekg(nFrameStartPos, ios_base::beg);
+	f.read((char*)pImageData, nImageDataSize);
+
+	// 组装
+	void* one_frame_gif_file_data = NULL;
+	int   one_frame_gif_file_data_size = 0;
+
+	// TODO: 真的有必要吗？Gdiplus内部应该会判断选哪个颜色表吧
+// 	if( NULL == pLocalColorTable )
+// 		this->build_one_frame_data(&header, &logicScreenDesc, pGlobalColorTable, nGlobalColorTableSize, pImageData, nImageDataSize, &one_frame_gif_file_data, &one_frame_gif_file_data_size );
+// 	else
+// 		this->build_one_frame_data(&header, &logicScreenDesc, pLocalColorTable, nLocalColorTableSize, pImageData, nImageDataSize, &one_frame_gif_file_data, &one_frame_gif_file_data_size );
+
+	this->build_one_frame_data(&header, &logicScreenDesc, pColorTable, nColorTableSize, pImageData, nImageDataSize, &one_frame_gif_file_data, &one_frame_gif_file_data_size);
+
+	if ( NULL != pImageData )
+	{
+		delete[] pImageData;
+		pImageData = NULL;
+		nImageDataSize = 0;
+	}
+
+#ifdef _DEBUG // <-- 将每一帧保存为一个文件
+	static int n = 0;
+	TCHAR szPath[MAX_PATH] = _T("");
+	_stprintf(szPath, _T("C:\\one_frame\\%d.gif"),n++ );
+	fstream temp;
+	temp.open(szPath,ios_base::out|ios_base::binary);
+	if( temp.good() )
+	{
+		temp.write((const char*)one_frame_gif_file_data, one_frame_gif_file_data_size);
+		temp.close();
+	}
+#endif
+
+	// 加载图片
+	if (false == pFrame->image.LoadFromData(one_frame_gif_file_data, one_frame_gif_file_data_size))
+	{
+		delete [] one_frame_gif_file_data;
+		one_frame_gif_file_data = NULL;
+
+		return false;
+	}
+	delete [] one_frame_gif_file_data;
+	one_frame_gif_file_data = NULL;
+
+
+	// 设置背景透明色
+	if (pFrame->control.transparent_color_flag)
+	{
+		if (false == this->decode_gif_image_transparent(pFrame, (LONG)pFrame->control.transparent_color_index))
+			return false;
+
+		//pFrame->image.SetTransparentColor((LONG)pFrame->control.transparent_color_index);
+	}
+	return true;
 }
 
 int GifImage::get_next_frame_index()
@@ -884,7 +948,20 @@ void GifImage::OnPaint(HDC hDC)
 		return;
 
 	EnterCriticalSection(&m_sect);
-	::BitBlt(hDC,this->GetDrawX(),this->GetDrawY(), this->GetWidth(), this->GetHeight(),m_hMemCanvasDC,0,0,SRCCOPY);
+	::BitBlt(hDC, 0,0/*this->GetDrawX(),this->GetDrawY()*/, this->GetWidth(), this->GetHeight(), m_hMemCanvasDC,0,0,SRCCOPY);
+	LeaveCriticalSection(&m_sect);
+}
+
+//
+//	UI控件调用，x,y为控件内部坐标，如(0,0)
+//
+void GifImage::OnPaint(HDC hDC, int x, int y)
+{
+	if (GIF_DRAW_STATUS_STOP == m_nDrawStatus)
+		return;
+
+	EnterCriticalSection(&m_sect);
+	::BitBlt(hDC, x, y, this->GetWidth(), this->GetHeight(), m_hMemCanvasDC,0,0,SRCCOPY);
 	LeaveCriticalSection(&m_sect);
 }
 
@@ -1008,6 +1085,7 @@ void GifImage::on_remove_from_timer_list()
 	::SetEvent(m_hEvent_not_in_timer_list);
 }
 
+// <<--- 由于gdiplus加载单帧GIF出现透明色的值被改变的问题，现在已改用自己的LZW算法来解码
 //
 //	解析gif image中的透明信息
 //
@@ -1088,6 +1166,7 @@ bool GifImage::decode_gif_image_transparent(GIF_Frame* pFrame, int nTransparentI
 	return !pFrame->image.IsNull();
 }
 
+
 //////////////////////////////////////////////////////////////////////////
 //
 //  LZW 解码 GIF 数据
@@ -1108,15 +1187,27 @@ GifLZWDecoder::GifLZWDecoder(byte nInitBitLength, byte* pDecodeResultData, int n
 }
 
 
-
-
-#define GET_NEXT_VALUE(w) \
-	(w>>nReadBitPosInByte) & ((1<<m_nCurBitLength)-1); \
+//
+// 从当前数据流中读取下一个要进行运行的数字。
+//
+// 备注：
+//	1. LZW是基于位的，不是基于字节的
+//  2. LZW的位是变长的，不固定，由 lzw code size ~ 12，每当字典中的项上一个数量级时，取的位数加1，加到12后返回lzw code size
+//  3. 例如  58         C1         05         D3         ， 当前nReadBitPosInByte=3，即01011,000这里，m_nCurBitLength=11
+//          01011000   11000001   00000101   11010011
+//
+//     则下一个取的数为 58中的前5位加上C1中的后6位，000001 01011 ->43, nReadBitPosInByte=6
+//     然后下一个取的数为 C1的前2两加上整个8位的05，还要加上D3的最低位， 1 00000101 11 -> 1047，整个跨度了3个字节才取到了需要的数字
+//     因此下面代码中的 (*((int*)pDataCur) 就是先取出四个字节来进行移位/与操作。这里不能使用 byte或者WORD来代替
+//
+#define GET_NEXT_VALUE() \
+	((*((int*)pDataCur))>>nReadBitPosInByte) & ((1<<m_nCurBitLength)-1); \
 	nReadBitPosInByte += m_nCurBitLength;              \
 	pDataCur += nReadBitPosInByte>>3;                  \
 	nReadBitPosInByte %= 8;
 
-int  GifLZWDecoder::Decode(const byte* pSrcData, int nSrcDataSize)
+// LZW算法解码
+void  GifLZWDecoder::Decode(const byte* pSrcData, int nSrcDataSize)
 {
 	int nRetSize = 0;
 
@@ -1127,8 +1218,7 @@ int  GifLZWDecoder::Decode(const byte* pSrcData, int nSrcDataSize)
 
 	WORD  wPrefix = 0, wSuffix = 0;
 
-	wPrefix = (WORD)*pDataCur;
-	wPrefix = GET_NEXT_VALUE(wPrefix);
+	wPrefix = GET_NEXT_VALUE();
 	do 
 	{
 		if (wPrefix == GIF_LZW_END_TAG)   // 结束
@@ -1144,13 +1234,11 @@ int  GifLZWDecoder::Decode(const byte* pSrcData, int nSrcDataSize)
 			m_nCurBitLength   =  m_nInitBitLength+1;
 			m_nCurBitLengthEx = (1<<m_nCurBitLength)-1;
 
-			wPrefix = (WORD)*pDataCur;
-			wPrefix = GET_NEXT_VALUE(wPrefix);
+			wPrefix = GET_NEXT_VALUE();
 			continue;
 		}
 
-		wSuffix = (WORD)*pDataCur;
-		wSuffix = GET_NEXT_VALUE(wSuffix);
+		wSuffix = GET_NEXT_VALUE();
 
 		// 为什么在这里要先定入一个前缀？这是为了解决如当第一个要push字典项为 dict[82] = {7F,82}时，
 		// 82这个字典项根本就不存在，不能用自己来定义自己。 因此先写入 dict[82]={7F, }; suffix先不写入。
@@ -1176,8 +1264,7 @@ int  GifLZWDecoder::Decode(const byte* pSrcData, int nSrcDataSize)
 
 	} while (pDataEnd>pDataCur);
 
-//	UIASSERT(m_nResultDataSize==0);
-	return 0;
+	UIASSERT(m_nResultDataSize==0);   // 保证将压缩的LZW数据解压缩为图片大小
 }
 
 // 检查prefix suffix是否在字典中存在
@@ -1207,11 +1294,15 @@ inline void GifLZWDecoder::Output(WORD w)
 		*m_pResultData = (byte)w;
 		m_pResultData++;
 		m_nResultDataSize--;
+
+#ifdef _DEBUG_x
+		 	TCHAR szInfo[16];
+		 	_stprintf(szInfo, _T("%d(%02X) "),w,w);
+		 	::OutputDebugString(szInfo);
+#endif
 	}
 
-// 	TCHAR szInfo[8];
-// 	_stprintf(szInfo, _T("%02X "), w);
-// 	::OutputDebugString(szInfo);
+
 
 	
 }

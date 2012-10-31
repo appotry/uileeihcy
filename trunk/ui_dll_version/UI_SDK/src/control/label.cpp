@@ -180,7 +180,7 @@ void GifPicture::OnPaint( HRDC hRDC )
 			b = false;
 		}
 		HDC hDC = GetHDC(hRDC);
-		m_pGifImage->OnPaint(hDC);
+		m_pGifImage->OnPaint(hDC, 0,0);  // 因为HDC是已经带偏移量的，因此直接绘制在0,0即可
 		ReleaseHDC(hRDC, hDC);
 	}
 }
