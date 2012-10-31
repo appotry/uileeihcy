@@ -30,6 +30,12 @@
 //		4. 结构的域中，不要使用 char，要使用unsigned char，否则会出错
 //		5. GIF的透明色可能和背景色都是白色，但两者的索引是不一样的。因此在处理GIF透明的时候
 //		   需要重新去解析索引值，将索引值==透明的特殊处理
+//		6. 遇到一个gif图，共14帧，前面所有帧的disposal都是2，最后一帧是1，导致循环结束时时最后一帧的图像和第一帧的
+//		   图像一起显示了。这是不是意味着当画完所有帧时，要清空背景？
+//
+//		7. 使用Gdiplus加载分拆出来的单帧GIF图时，会出现图片数据中，本来是透明位置的那个点的值的调色板索引值，居然
+//		   和当前GIF的transparent index不一致，导致图片解析失败，背景色显示错误。
+//         因此逐渐决定放弃Gdiplus，开始尝试自己解码
 //
 //////////////////////////////////////////////////////////////////////////
 
@@ -292,7 +298,7 @@ public:
 	~GifImage();
 
 protected:
-	void   skip_data_block(fstream& f);
+	int    skip_data_block(fstream& f, byte* pBits=NULL);
 	void   build_one_frame_data(GIF_FileMark*, GIF_LogicalScreenDescriptor*, 
 								void* pColorTable, int nColorTableSize, void* pImageData, int nImageDataSize,
 								void** ppOut, int* pOutSize  );
@@ -347,4 +353,55 @@ private:
 	HDC                 m_hMemPrevSaveDC;     // 保存上一帧图片的兼容DC, disposal=3的情况
 	HBITMAP             m_hMemPrevSaveBitmap; // 保存上一帧图片, disposal=3的情况
 	HBRUSH              m_hBrushTransparent;  // 用于实现透明的画刷
+};
+
+
+
+
+//////////////////////////////////////////////////////////////////////////
+//
+//  LZW 解码 GIF 数据
+//
+//  参考资料:
+//		http://www.w3.org/Graphics/GIF/spec-gif89a.txt
+//		http://blog.csdn.net/norsd/article/details/2823159
+//		http://blog.csdn.net/whycadi/article/details/760576
+//
+//////////////////////////////////////////////////////////////////////////
+struct DictItem
+{
+	WORD  prefix;
+	WORD  suffix;
+};
+
+class GifLZWDecoder 
+{
+public:
+	GifLZWDecoder(byte nInitBitLength, byte* pDecodeResultData, int nDecodeResultSize);
+
+	int  Decode(const byte* pSrcData, int nSrcDataSize);
+
+	// 检查prefix suffix是否在字典中存在
+	inline bool  CheckExist(WORD wValue1, WORD wValue2);
+
+	// 输出一个有效结果。如果w值仍然是一个字典项，继续搜索。
+	inline void  Output(WORD w);
+
+	// 向字典中添加一项
+	inline void  PushDict(WORD wPrefix, WORD wSuffix);
+			    
+private:
+	DictItem  m_dict[4096];   // 字典数组. GIF规范建议的 2^12 大小，其中2^8其实是不需要的，为原始数据（0-255）
+	int    m_nDictLower;         // 当前字典中的第一个有效索引
+	int    m_nDictUpper;         // 当前字典中的最大索引
+
+	int    m_nInitBitLength;     // 数据流的第一个字节 LZW code size
+	int    m_nCurBitLength;      // 当前要从数据流中读取的位数
+	int    m_nCurBitLengthEx;    // 用于比较，避免重复计算
+
+	byte*  m_pResultData;
+	int    m_nResultDataSize;
+
+	WORD   GIF_LZW_CLEAN_TAG;
+	WORD   GIF_LZW_END_TAG;
 };
