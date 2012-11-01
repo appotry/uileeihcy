@@ -90,5 +90,6 @@ public:
 
 private:
 	GifImage*   m_pGifImage;
+	bool b;
 };
 }

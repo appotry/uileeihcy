@@ -19,9 +19,10 @@
 //	[TODO]
 //		1. 优化
 //		2. 缩略图模式
-//		3. Delay Time 到底是哪一帧的时间<--应该是这一帧显示完后保留多长时间再显示下一帧
 //		4. 一些图片在WIN7上加载出来的数据有问题，导致显示错误，如（res\\椭圆规.gif）
 //		5. 需要支持从资源中加载图片
+//		6. 交叉型的GIF图片解码
+//		
 //
 //	[Remark]
 //		1. 在xp上面使用image加载gif会提示出异常
@@ -32,10 +33,10 @@
 //		   需要重新去解析索引值，将索引值==透明的特殊处理
 //		6. 遇到一个gif图，共14帧，前面所有帧的disposal都是2，最后一帧是1，导致循环结束时时最后一帧的图像和第一帧的
 //		   图像一起显示了。这是不是意味着当画完所有帧时，要清空背景？
-//
 //		7. 使用Gdiplus加载分拆出来的单帧GIF图时，会出现图片数据中，本来是透明位置的那个点的值的调色板索引值，居然
 //		   和当前GIF的transparent index不一致，导致图片解析失败，背景色显示错误。
 //         因此逐渐决定放弃Gdiplus，开始尝试自己解码
+//		8. Delay Time 到底是哪一帧的时间<--应该是这一帧显示完后保留多长时间再显示下一帧
 //
 //////////////////////////////////////////////////////////////////////////
 
@@ -85,8 +86,8 @@ public:
 	// 获取剩余时间
 	inline int  get_remain(){ return nWait - (::GetTickCount() - nStart); }
 	// 更新下一次显示时间
-//	inline void update_repeat() { nStart += nWait; };          // TODO: 使用该方法可保证准确性，但会导致在受到阻塞恢复时，gif会快进播放
-    inline void update_repeat() { nStart = ::GetTickCount(); } // TODO: 使用该该当可保证平滑度，但不能保证响应的精度
+	inline void update_repeat() { nStart += nWait; };          // TODO: 使用该方法可保证准确性，但会导致在受到阻塞恢复时，gif会快进播放
+//  inline void update_repeat() { nStart = ::GetTickCount(); } // TODO: 使用该该当可保证平滑度，但不能保证响应的精度
 };
 
 // 线程消息
@@ -302,7 +303,8 @@ protected:
 	int    get_next_frame_index();
 
 	void   release_resource();
-	void   draw_frame(int nPrevFrameDisposal, GIF_Frame* pFrame);
+	void   draw_frame(GIF_Frame* pFrame);
+	void   handle_disposal(GIF_Frame* pFrame);
 
 	bool   decode_by_lzw(fstream& f, GIF_Frame* pFrame, int byte_LZW_code_size, byte* pColorTable, int nColorTableSize);
 	bool   decode_by_gdiplus(fstream& f, GIF_Frame* pFrame, int  nFrameStartPos, GIF_FileMark& header, GIF_LogicalScreenDescriptor& logicScreenDesc, byte* pColorTable, int nColorTableSize);
@@ -317,7 +319,7 @@ public:  // Gif绘制线程调用函数
 public:  // 外部接口
 	bool   Load(const TCHAR* szPath);
 	bool   Destroy();
-	BOOL   SetDrawParam( HWND hWnd, int x, int y, COLORREF colTransparent );
+	BOOL   SetDrawParam( HWND hWnd, int x, int y, COLORREF colTransparent=GetSysColor(COLOR_BTNFACE));
 	void   SetDrawPos( int x, int y );
 
 	void   Start();
@@ -354,7 +356,21 @@ private:
 	HBITMAP             m_hMemCanvasBitmap;   // 双缓冲
 	HDC                 m_hMemPrevSaveDC;     // 保存上一帧图片的兼容DC, disposal=3的情况
 	HBITMAP             m_hMemPrevSaveBitmap; // 保存上一帧图片, disposal=3的情况
+
+	//////////////////////////////////////////////////////////////////////////
+	//
+	// 1. Gif中的背景画刷是可以自己定义的。
+	//     a. 可以采用GIF中的background_color_index字段来获取其内部的背景色
+	//     b. 可以采用windows的系统窗口颜色作为背景色
+	//	   c. 可以自己定义一个颜色作为背景色
+	//
+	// 2. background_color_index引用的是全局颜色表中的值，如果没有全局颜色表就没有该背景画刷
+	//
+	// 3. 每一帧中的disposal==2 restore to background是表示还原该帧范围内的背景，而不是还原整幅图片的背景
+	//
+	//////////////////////////////////////////////////////////////////////////
 	HBRUSH              m_hBrushTransparent;  // 用于实现透明的画刷
+
 };
 
 
@@ -393,17 +409,17 @@ public:
 	inline void  PushDict(WORD wPrefix, WORD wSuffix);
 			    
 private:
-	DictItem  m_dict[4096];   // 字典数组. GIF规范建议的 2^12 大小，其中2^8其实是不需要的，为原始数据（0-255）
-	int    m_nDictLower;         // 当前字典中的第一个有效索引
-	int    m_nDictUpper;         // 当前字典中的最大索引
+	DictItem  m_dict[4096];      // 字典数组. GIF规范建议的 2^12 大小，其中前2^8其实是不需要管的，为原始数据（0-255）的索引
+	int    m_nDictLower;         // 当前字典中的第一个有效索引，初始为 255+2
+	int    m_nDictUpper;         // 当前字典中的最大索引，初始为255+2
 
-	int    m_nInitBitLength;     // 数据流的第一个字节 LZW code size
-	int    m_nCurBitLength;      // 当前要从数据流中读取的位数
+	int    m_nInitBitLength;     // 图片帧数据流的第一个数据，LZW code size，表示m_nCurBitLength的初始值
+	int    m_nCurBitLength;      // 当前要从数据流中读取的位数（不是字节数）
 	int    m_nCurBitLengthEx;    // 用于比较，避免重复计算
 
-	byte*  m_pResultData;
-	int    m_nResultDataSize;
+	byte*  m_pResultData;        // 解码后输出的数据
+	int    m_nResultDataSize;    // m_pResultData的数据大小。解码完后，m_pResultData应该等于0
 
-	WORD   GIF_LZW_CLEAN_TAG;
-	WORD   GIF_LZW_END_TAG;
+	WORD   GIF_LZW_CLEAN_TAG;    // CLEAR标记的值
+	WORD   GIF_LZW_END_TAG;      // END标记的值
 };

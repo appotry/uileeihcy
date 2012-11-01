@@ -375,32 +375,32 @@ bool GifImage::Destroy()
 }
 void GifImage::release_resource()
 {
-	if( NULL != m_hMemCanvasBitmap )
+	if (NULL != m_hMemCanvasBitmap)
 	{
 		DeleteObject(m_hMemCanvasBitmap);
 		m_hMemCanvasBitmap = NULL;
 	}
-	if( NULL != m_hMemCanvasDC )
+	if (NULL != m_hMemCanvasDC)
 	{
 		::ReleaseDC(m_hWnd,m_hMemCanvasDC);
 		m_hMemCanvasDC = NULL;
 	}
-	if( NULL != m_hMemPrevSaveDC )
+	if (NULL != m_hMemPrevSaveDC)
 	{
 		::ReleaseDC(m_hWnd,m_hMemPrevSaveDC);
 		m_hMemPrevSaveDC = NULL;
 	}
-	if( NULL != m_hMemPrevSaveBitmap )
+	if (NULL != m_hMemPrevSaveBitmap)
 	{
 		::DeleteObject(m_hMemPrevSaveBitmap);
 		m_hMemPrevSaveBitmap = NULL;
 	}
-	if( NULL != m_hDC )
+	if (NULL != m_hDC)
 	{
 		::ReleaseDC(m_hWnd, m_hDC);
 		m_hDC = NULL;
 	}
-	if( NULL != m_hBrushTransparent )
+	if (NULL != m_hBrushTransparent)
 	{
 		::DeleteObject(m_hBrushTransparent);
 		m_hBrushTransparent = NULL;
@@ -486,6 +486,8 @@ void GifImage::build_one_frame_data(
 //
 bool GifImage::Load(const TCHAR* szPath)
 {
+	UIASSERT(0 == m_vFrame.size());
+
 	fstream f;
 	f.open(szPath, ios_base::in|ios_base::binary);
 	if( f.fail() )
@@ -519,6 +521,12 @@ bool GifImage::Load(const TCHAR* szPath)
 		{
 			pGlobalColorTable = new byte[nGlobalColorTableSize];
 			f.read((char*)pGlobalColorTable, nGlobalColorTableSize);
+
+			// 获取背景画刷
+// 			int R = pGlobalColorTable[logicScreenDesc.background_color_index*3];
+// 			int G = pGlobalColorTable[logicScreenDesc.background_color_index*3+1];
+// 			int B = pGlobalColorTable[logicScreenDesc.background_color_index*3+2];
+//			m_hBrushTransparent = CreateSolidBrush(RGB(R,G,B));
 		}
 
 		// 循环读取每一帧的数据，重组成一幅幅单帧的gif文件，让image加载。
@@ -612,18 +620,13 @@ bool GifImage::Load(const TCHAR* szPath)
 					int   nColorTableSizeForThisFrame = pLocalColorTable==NULL? nGlobalColorTableSize:nLocalColorTableSize;
 
 					BYTE byte_LZW_code_size = 0;
-					f.read((char*)&byte_LZW_code_size,1);   // 这个值是干什么的？  <-- 是LZW算法的初始长度LZW code size 
+					f.read((char*)&byte_LZW_code_size,1);   // 这个值是干什么的？  <-- 是LZW算法的初始位长度LZW code size 
 
-					UIASSERT(pFrame->descriptor.interlace_flag == 0);  // 目前自己的解码还不支持交叉的数据
-			//      有一张狗屎的照片是这种类型的
-
-					bool bDecodeRet = true;
-					if (0 == pFrame->descriptor.interlace_flag)        // 使用自己的解码算法
+					// 先尝试使用自己的解码算法
+					bool bDecodeRet = this->decode_by_lzw(f, pFrame, byte_LZW_code_size, pColorTableForThisFrame, nColorTableSizeForThisFrame);
+					if (false == bDecodeRet)
 					{
-						bDecodeRet = this->decode_by_lzw(f, pFrame, byte_LZW_code_size, pColorTableForThisFrame, nColorTableSizeForThisFrame);
-					}
-					else                                               // 使用GDIPLUS方法解码
-					{
+						// 失败了再尝试用gdiplus的方法解码
 						bDecodeRet = this->decode_by_gdiplus(f, pFrame, nFrameStartPos, header, logicScreenDesc, pColorTableForThisFrame, nColorTableSizeForThisFrame);
 					}
 
@@ -692,6 +695,51 @@ bool GifImage::decode_by_lzw(fstream& f, GIF_Frame* pFrame, int byte_LZW_code_si
 	decoder.Decode(pGifFrameImageData, nDataLength);
 
 	//////////////////////////////////////////////////////////////////////////
+	// 解析交叉GIF类型的数据
+	
+	if (pFrame->descriptor.interlace_flag)
+	{
+		byte*   pInterlaceData = new byte[nOutputDataSize];
+		int     nWriteCursor = 0;
+		int     nReadCursor = 0;
+		int     nRowDataSize = pFrame->descriptor.image_width;
+
+		// Group 1，每隔8行取一次，从第0行开始写回
+		for (int row = 0; row < pFrame->descriptor.image_height; row+=8)
+		{
+			nWriteCursor = row*nRowDataSize;
+			memcpy(pInterlaceData+nWriteCursor, pOutputData+nReadCursor, nRowDataSize);
+			nReadCursor += nRowDataSize;
+		}
+
+		// Group 2，每隔8行取一次，从第4行开始写回
+		for (int row = 4; row < pFrame->descriptor.image_height; row+=8)
+		{
+			nWriteCursor = row*nRowDataSize;
+			memcpy(pInterlaceData+nWriteCursor, pOutputData+nReadCursor, nRowDataSize);
+			nReadCursor += nRowDataSize;
+		}
+
+		// Group 3，每隔4行取一次，从第2行开始写回
+		for (int row = 2; row < pFrame->descriptor.image_height; row+=4)
+		{
+			nWriteCursor = row*nRowDataSize;
+			memcpy(pInterlaceData+nWriteCursor, pOutputData+nReadCursor, nRowDataSize);
+			nReadCursor += nRowDataSize;
+		}
+
+		// Group 4，每隔2行取一次，从第1行开始写回
+		for (int row = 1; row < pFrame->descriptor.image_height; row+=2)
+		{
+			nWriteCursor = row*nRowDataSize;
+			memcpy(pInterlaceData+nWriteCursor, pOutputData+nReadCursor, nRowDataSize);
+			nReadCursor += nRowDataSize;
+		}
+		SAFE_ARRAY_DELETE(pOutputData);
+		pOutputData = pInterlaceData;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
 	// 解析调色板和透明索引
 
 	pFrame->image.Create(pFrame->descriptor.image_width,pFrame->descriptor.image_height, 32, Image::createAlphaChannel);
@@ -724,11 +772,12 @@ bool GifImage::decode_by_lzw(fstream& f, GIF_Frame* pFrame, int byte_LZW_code_si
 
 		pBits += pFrame->image.GetPitch();
 	}
-#ifdef _DEBUG
-	pFrame->image.Save(_T("c:\\aaaddd.png"), Gdiplus::ImageFormatPNG);
+
+#ifdef _DEBUG_x
+	pFrame->image.Save(_T("c:\\aaaiidi.png"),Gdiplus::ImageFormatPNG);
 #endif
-	SAFE_DELETE(pGifFrameImageData);
-	SAFE_DELETE(pOutputData);
+	SAFE_ARRAY_DELETE(pGifFrameImageData);
+	SAFE_ARRAY_DELETE(pOutputData);
 	return true;
 }
 
@@ -769,7 +818,7 @@ bool GifImage::decode_by_gdiplus(fstream& f,
 		nImageDataSize = 0;
 	}
 
-#ifdef _DEBUG // <-- 将每一帧保存为一个文件
+#ifdef _DEBUG_x // <-- 将每一帧保存为一个文件
 	static int n = 0;
 	TCHAR szPath[MAX_PATH] = _T("");
 	_stprintf(szPath, _T("C:\\one_frame\\%d.gif"),n++ );
@@ -905,7 +954,8 @@ void GifImage::Start()
 	if (nSize == 1)    // 单帧gif图片不需要使用计时器
 	{
 		EnterCriticalSection(&m_sect);
-		draw_frame( GIF_DISPOSAL_NULL, this->GetFrame(m_nCurFrameIndex));
+		handle_disposal(NULL);                           // 刷背景
+		draw_frame( this->GetFrame(m_nCurFrameIndex));   // 绘制第一帧到m_hMemCanvasDC中
 		::BitBlt(m_hDC,this->GetDrawX(),this->GetDrawY(), this->GetWidth(), this->GetHeight(),m_hMemCanvasDC,0,0,SRCCOPY);
 		LeaveCriticalSection(&m_sect);
 	}
@@ -933,7 +983,7 @@ void GifImage::Stop()
 	m_nCurFrameIndex = 0;
 	m_nDrawStatus = GIF_DRAW_STATUS_STOP;
 
-	draw_frame( GIF_DISPOSAL_RESTORE_BACKGROUND, NULL);
+	handle_disposal(NULL);  // 刷背景
 	::BitBlt(m_hDC,this->GetDrawX(),this->GetDrawY(), this->GetWidth(), this->GetHeight(),m_hMemCanvasDC,0,0,SRCCOPY);
 
 	LeaveCriticalSection(&m_sect);
@@ -966,18 +1016,25 @@ void GifImage::OnPaint(HDC hDC, int x, int y)
 }
 
 //
-//	绘制一帧图像
+//	当一帧绘制完成后，并到达delay时间，将要绘制下一帧时，处理它的disposal
 //
-//	[parameter]
-//		nPrevFrameDisposal
-//			[in]	上一帧的dispose方法
-//
-//		pFrame
-//			[in]	要绘制的当前帧
-//
-void GifImage::draw_frame(int nPrevFrameDisposal, GIF_Frame* pFrame)
+void GifImage::handle_disposal(GIF_Frame* pFrame)
 {
-	switch (nPrevFrameDisposal)
+	// 当pFrame为空时，默认就刷新整个图片的背景
+	int  nDisposal = GIF_DISPOSAL_RESTORE_BACKGROUND;
+	RECT rcBack = {0,0, this->GetWidth(),this->GetHeight()};
+
+	if (NULL != pFrame)
+	{
+		nDisposal = pFrame->control.disposal_methold;
+		::SetRect(&rcBack, 
+			pFrame->descriptor.image_left_position,
+			pFrame->descriptor.image_top_position,
+			pFrame->descriptor.image_left_position+pFrame->descriptor.image_width,
+			pFrame->descriptor.image_top_position+pFrame->descriptor.image_height);
+	}
+
+	switch (nDisposal)
 	{
 	case GIF_DISPOSAL_NULL:
 	case GIF_DISPOSAL_LEFT:
@@ -985,7 +1042,6 @@ void GifImage::draw_frame(int nPrevFrameDisposal, GIF_Frame* pFrame)
 
 	case GIF_DISPOSAL_RESTORE_BACKGROUND:
 		{
-			RECT rcBack = {0,0, this->GetWidth(),this->GetHeight()};
 			::FillRect( m_hMemCanvasDC,&rcBack,m_hBrushTransparent);
 		}
 		break;
@@ -996,8 +1052,17 @@ void GifImage::draw_frame(int nPrevFrameDisposal, GIF_Frame* pFrame)
 		}
 		break;
 	}
-
-	if (NULL == pFrame)   // 放在后面去判断，这样可以支持绘制透明背景刷新界面
+}
+//
+//	绘制一帧图像
+//
+//	[parameter]
+//		pFrame
+//			[in]	要绘制的当前帧
+//
+void GifImage::draw_frame(GIF_Frame* pFrame)
+{
+	if (NULL == pFrame)
 		return;
 
 	if( pFrame->control.disposal_methold == GIF_DISPOSAL_RESTORE_PREVIOUS )
@@ -1034,25 +1099,27 @@ void GifImage::on_timer(Gif_TimerItem* pTimerItem)
 		return;
 	}
 
-	int nDisposal = GIF_DISPOSAL_NULL;
-	GIF_Frame* pPrevFrame = this->GetFrame(m_nCurFrameIndex-1);
-	if (NULL != pPrevFrame)
-	{
-		nDisposal = pPrevFrame->control.disposal_methold;
-	}
+// 	if (0 == m_nCurFrameIndex)
+// 	{
+// 		// 遇到一个gif图，共14帧，前面所有帧的disposal都是2，最后一帧是1，导致循环结束时时最后一帧的图像和第一帧的
+// 		// 图像一起显示了。这是不是意味着当画完所有帧时，要清空背景？
+// 		if (0 == m_nCurFrameIndex)
+// 		{
+// 			this->handle_disposal(NULL);
+// 		}
+// 	}
+// 	else
+// 	{
+		GIF_Frame* pPrevFrame = this->GetFrame(m_nCurFrameIndex-1);  // 当0 == m_nCurFrameIndex时将返回NULL，这时调用handle_disposal即可刷新整个背景
+// 		if (NULL != pPrevFrame)
+// 		{
+			this->handle_disposal(pPrevFrame);
+// 		}
+// 	}
 
 	GIF_Frame* pFrame = this->GetFrame(m_nCurFrameIndex);
-
-	// 遇到一个gif图，共14帧，前面所有帧的disposal都是2，最后一帧是1，导致循环结束时时最后一帧的图像和第一帧的
-	// 图像一起显示了。这是不是意味着当画完所有帧时，要清空背景？
-	if (0 == m_nCurFrameIndex)
-	{
-		RECT rcBack = {0,0, this->GetWidth(),this->GetHeight()};
-		::FillRect( m_hMemCanvasDC,&rcBack,m_hBrushTransparent);
-	}
-	draw_frame( nDisposal, pFrame );
+	draw_frame(pFrame);
 	::BitBlt(m_hDC,this->GetDrawX(),this->GetDrawY(), this->GetWidth(), this->GetHeight(),m_hMemCanvasDC,0,0,SRCCOPY);
-
 
 	// 为了避免频繁的更新列表，在这里每次仅更新Gif_timer_item里面的数据，而不是删除再添加一个
 	int nNextFrameIndex = get_next_frame_index();
@@ -1100,7 +1167,7 @@ bool GifImage::decode_gif_image_transparent(GIF_Frame* pFrame, int nTransparentI
 	if (NULL == pFrame)
 		return false;
 
-#ifdef _DEBUG // <-- 将每一帧保存为一个文件
+#ifdef _DEBUG_x // <-- 将每一帧保存为一个文件
 	static int n = 0;
 	TCHAR szPath[MAX_PATH] = _T("");
 	_stprintf(szPath, _T("C:\\one_frame2\\%d.png"),n );
@@ -1158,11 +1225,6 @@ bool GifImage::decode_gif_image_transparent(GIF_Frame* pFrame, int nTransparentI
 	pFrame->image.Attach(hBitmap);
 	pFrame->image.ForceUseAlpha();
 	
-#ifdef _DEBUG
-	_stprintf(szPath, _T("C:\\one_frame2\\%d_decode.png"),n++ );
-	pFrame->image.Save(szPath, Gdiplus::ImageFormatPNG);
-#endif
-
 	return !pFrame->image.IsNull();
 }
 
@@ -1240,25 +1302,22 @@ void  GifLZWDecoder::Decode(const byte* pSrcData, int nSrcDataSize)
 
 		wSuffix = GET_NEXT_VALUE();
 
-		// 为什么在这里要先定入一个前缀？这是为了解决如当第一个要push字典项为 dict[82] = {7F,82}时，
+		// 为什么在这里要先存入一个前缀？这是为了解决如当第一个要push字典项为 dict[82] = {7F,82}时，
 		// 82这个字典项根本就不存在，不能用自己来定义自己。 因此先写入 dict[82]={7F, }; suffix先不写入。
 		// 这个时候能够获取到dict[82].prefix了。
 		m_dict[m_nDictUpper].prefix = wPrefix;
 
 		// 后缀必须是一个单独的字符
 		WORD wSingleSuffix = wSuffix;
-		while(wSingleSuffix > GIF_LZW_CLEAN_TAG)
+		while (wSingleSuffix > GIF_LZW_CLEAN_TAG)
 			wSingleSuffix = m_dict[wSingleSuffix].prefix;
 		
 		Output(wPrefix);
 
-		if (CheckExist(wPrefix,wSingleSuffix))
+		if (m_nDictUpper == wSuffix ||          // <--这是什么意思？当出现dict[82]={7F,82}这种自己定义自己时，必须直接将这项放入字典，而不是再检查一下CheckExist{7F,7F}是否存在。如果不存在则侥幸过关，如果存在，则82这一项则被丢掉了，导致下一次循环时dict[82].prefix=82, output(82)将死循环。
+			false==CheckExist(wPrefix,wSingleSuffix))
 		{
-			
-		}
-		else
-		{
-			PushDict(wPrefix, wSingleSuffix);
+			PushDict(wPrefix, wSingleSuffix);   // 存入字典
 		}
 		wPrefix = wSuffix;
 
@@ -1280,7 +1339,7 @@ inline bool GifLZWDecoder::CheckExist(WORD wValue1, WORD wValue2)
 	return false;
 }
 
-// 输出一个有效结果。如果w值仍然是一个字典项，继续搜索。
+// 输出一个有效结果。如果w值仍然是一个字典项，继续搜索字典。
 // TODO: 将递归调用优化成循环调用
 inline void GifLZWDecoder::Output(WORD w)
 {
@@ -1295,16 +1354,12 @@ inline void GifLZWDecoder::Output(WORD w)
 		m_pResultData++;
 		m_nResultDataSize--;
 
-#ifdef _DEBUG_x
-		 	TCHAR szInfo[16];
-		 	_stprintf(szInfo, _T("%d(%02X) "),w,w);
-		 	::OutputDebugString(szInfo);
+#ifdef _DEBUG
+// 		 	TCHAR szInfo[16];
+// 		 	_stprintf(szInfo, _T("%d(%02X) "),w,w);
+// 		 	::OutputDebugString(szInfo);
 #endif
 	}
-
-
-
-	
 }
 
 // 向字典中添加一项

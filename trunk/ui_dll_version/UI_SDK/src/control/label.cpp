@@ -121,6 +121,7 @@ void Picture::OnPaint( HRDC hRDC )
 GifPicture::GifPicture()
 {
 	m_pGifImage = NULL;
+	b = true;
 }
 GifPicture::~GifPicture()
 {
@@ -167,14 +168,13 @@ bool GifPicture::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 
 void GifPicture::OnPaint( HRDC hRDC )
 {
-	static bool b = true;
 	if (NULL != m_pGifImage)
 	{
 		if (b)
 		{
 			CRect rc;
 			this->GetWindowRect(&rc);
-			m_pGifImage->SetDrawParam(GetHWND(),rc.left, rc.top, RGB(255,255,255));
+			m_pGifImage->SetDrawParam(GetHWND(),rc.left, rc.top);
 			m_pGifImage->Start();
 
 			b = false;
