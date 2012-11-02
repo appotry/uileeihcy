@@ -755,17 +755,22 @@ bool GifImage::decode_by_lzw(fstream& f, GIF_Frame* pFrame, int byte_LZW_code_si
 			int nColorTableIndex = pOutputData[npxIndex++];    // 该像素对应的调色板的值
 			int nColorTableIndexAddr = 3*nColorTableIndex;
 
-			pBits[i]   = pColorTable[nColorTableIndexAddr+2]; // B
-			pBits[i+1] = pColorTable[nColorTableIndexAddr+1]; // G
-			pBits[i+2] = pColorTable[nColorTableIndexAddr];   // R
-
 			if (pFrame->control.transparent_color_flag && 
 				pFrame->control.transparent_color_index == nColorTableIndex)
 			{
+
+				pBits[i]   = 0;          // 注：这里必须用0，相当于alpha通道的预乘，否则image.draw将变成白底，而不是透明
+				pBits[i+1] = 0;
+				pBits[i+2] = 0;
+
 				pBits[i+3] = 0;          // 该像素透明
 			}
 			else
 			{
+				pBits[i]   = pColorTable[nColorTableIndexAddr+2]; // B
+				pBits[i+1] = pColorTable[nColorTableIndexAddr+1]; // G
+				pBits[i+2] = pColorTable[nColorTableIndexAddr];   // R
+
 				pBits[i+3] = 255;
 			}
 		}
