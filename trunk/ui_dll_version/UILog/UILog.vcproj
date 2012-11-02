@@ -111,10 +111,11 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\UI_SDK\bin\"
+			OutputDirectory="..\UI_SDK\bin_release\"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			UseOfATL="2"
+			UseOfMFC="0"
+			UseOfATL="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="1"
 			>
@@ -148,7 +149,7 @@
 				Optimization="2"
 				AdditionalIncludeDirectories="..\Common;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_USRDLL"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="3"
@@ -173,7 +174,7 @@
 				AdditionalLibraryDirectories="..\UI_SDK\lib\"
 				ModuleDefinitionFile=".\UILog.def"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\ui_sdk\bin\pdb\$(TargetName).pdb"
+				ProgramDatabaseFile="$(OutDir)\pdb\$(TargetName).pdb"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"

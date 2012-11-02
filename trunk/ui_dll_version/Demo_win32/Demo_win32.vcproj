@@ -18,7 +18,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\ui_sdk\bin"
+			OutputDirectory="..\ui_sdk\bin\"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			UseOfMFC="0"
@@ -63,7 +63,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\ui_sdk\bin\$(ProjectName).exe"
+				OutputFile="..\$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\UI_SDK\lib"
 				GenerateDebugInformation="true"
@@ -98,7 +98,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\ui_sdk\bin"
+			OutputDirectory="..\ui_sdk\bin_release\"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			UseOfMFC="0"
@@ -141,11 +141,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\ui_sdk\bin\$(ProjectName).exe"
+				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\UI_SDK\lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\ui_sdk\bin\pdb\$(TargetName).pdb"
+				ProgramDatabaseFile="$(OutDir)\pdb\$(TargetName).pdb"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
