@@ -5,8 +5,8 @@ Gif_Timer::Gif_Timer()
 {
 	m_nBestWaitTime = INFINITE;
 	m_bQuitThread = false;
-	m_hEvent_set_timer = ::CreateEvent(NULL,TRUE,FALSE,NULL);
-	m_hEvent_post_message = ::CreateEvent(NULL,TRUE,FALSE, NULL);
+	m_hEvent_set_timer = ::CreateEvent(NULL,FALSE,FALSE,NULL);
+	m_hEvent_post_message = ::CreateEvent(NULL,FALSE,FALSE, NULL);
 	m_hMsgQueueEvent = ::CreateEvent(NULL,TRUE,FALSE,NULL);
 	m_hThread = ::CreateThread( NULL, 0, Gif_Timer::ThreadProc, this, 0, &m_dwThreadID );
 }
@@ -245,8 +245,6 @@ void Gif_Timer::on_timer(Gif_TimerItem* pItem)
 	{
 		HANDLE arrHandles[2] = { pThis->m_hEvent_post_message, pThis->m_hEvent_set_timer };
 		DWORD dwRet = ::WaitForMultipleObjects(2, arrHandles, FALSE, pThis->m_nBestWaitTime );   // 保持该event一直没有信息，去阻塞这个线程
-		::ResetEvent(pThis->m_hEvent_set_timer);        // 阻塞线程满负荷运行
-		::ResetEvent(pThis->m_hEvent_post_message);     // 同上
 
 		if( dwRet == WAIT_OBJECT_0 )
 		{
@@ -692,7 +690,14 @@ bool GifImage::decode_by_lzw(fstream& f, GIF_Frame* pFrame, int byte_LZW_code_si
 	memset(pOutputData, 0, nOutputDataSize);
 
 	GifLZWDecoder decoder(byte_LZW_code_size, pOutputData, nOutputDataSize);
-	decoder.Decode(pGifFrameImageData, nDataLength);
+	if (false == decoder.Decode(pGifFrameImageData, nDataLength))
+	{
+		SAFE_ARRAY_DELETE(pGifFrameImageData);
+		SAFE_ARRAY_DELETE(pOutputData);
+
+		f.seekg(nDataBeginPos);   // 重新让gdiplus解码的位置
+		return false;
+	}
 
 	//////////////////////////////////////////////////////////////////////////
 	// 解析交叉GIF类型的数据
@@ -778,9 +783,13 @@ bool GifImage::decode_by_lzw(fstream& f, GIF_Frame* pFrame, int byte_LZW_code_si
 		pBits += pFrame->image.GetPitch();
 	}
 
-#ifdef _DEBUG_x
-	pFrame->image.Save(_T("c:\\aaaiidi.png"),Gdiplus::ImageFormatPNG);
+#ifdef _DEBUG // <-- 将每一帧保存为一个文件
+	static int n = 0;
+	TCHAR szPath[MAX_PATH] = _T("");
+	_stprintf(szPath, _T("C:\\one_frame\\%d.png"),n );
+	pFrame->image.Save(szPath, Gdiplus::ImageFormatPNG);
 #endif
+
 	SAFE_ARRAY_DELETE(pGifFrameImageData);
 	SAFE_ARRAY_DELETE(pOutputData);
 	return true;
@@ -966,7 +975,7 @@ void GifImage::Start()
 	}
 	else
 	{
-		Gif_TimerItem timer_item = { (int)this, ::GetTickCount(), m_vFrame[m_nCurFrameIndex]->nRealDelayTime, -1, this };  // -1无限循环
+		Gif_TimerItem timer_item = { (int)this, ::GetTickCount(), 0/*m_vFrame[m_nCurFrameIndex]->nRealDelayTime*/, -1, this };  // -1无限循环
 		Gif_Timer_Factory::CreateGifTimerEngine()->set_timer(timer_item);
 	}
 }
@@ -1172,14 +1181,6 @@ bool GifImage::decode_gif_image_transparent(GIF_Frame* pFrame, int nTransparentI
 	if (NULL == pFrame)
 		return false;
 
-#ifdef _DEBUG_x // <-- 将每一帧保存为一个文件
-	static int n = 0;
-	TCHAR szPath[MAX_PATH] = _T("");
-	_stprintf(szPath, _T("C:\\one_frame2\\%d.png"),n );
-	pFrame->image.Save(szPath, Gdiplus::ImageFormatPNG);
-#endif
-	//nTransparentIndex++;   // ?? 为什么要+1? 不加1的话结果就对不上，什么时候要加1 ？什么时候不需要加1 ？
-
 	int nDestRowBytes = 4*pFrame->descriptor.image_width;
 	int nDestWidth = pFrame->descriptor.image_width;
 	int nDestHeight= pFrame->descriptor.image_height;
@@ -1274,7 +1275,7 @@ GifLZWDecoder::GifLZWDecoder(byte nInitBitLength, byte* pDecodeResultData, int n
 	nReadBitPosInByte %= 8;
 
 // LZW算法解码
-void  GifLZWDecoder::Decode(const byte* pSrcData, int nSrcDataSize)
+bool  GifLZWDecoder::Decode(const byte* pSrcData, int nSrcDataSize)
 {
 	int nRetSize = 0;
 
@@ -1307,6 +1308,12 @@ void  GifLZWDecoder::Decode(const byte* pSrcData, int nSrcDataSize)
 
 		wSuffix = GET_NEXT_VALUE();
 
+		if (wSuffix>m_nDictUpper)
+		{
+			UI_LOG_ERROR(_T("%s decode failed. wSuffix=%d, m_nDictUpper=%d"), FUNC_NAME, wSuffix, m_nDictUpper);
+			return false;
+		}
+
 		// 为什么在这里要先存入一个前缀？这是为了解决如当第一个要push字典项为 dict[82] = {7F,82}时，
 		// 82这个字典项根本就不存在，不能用自己来定义自己。 因此先写入 dict[82]={7F, }; suffix先不写入。
 		// 这个时候能够获取到dict[82].prefix了。
@@ -1329,6 +1336,7 @@ void  GifLZWDecoder::Decode(const byte* pSrcData, int nSrcDataSize)
 	} while (pDataEnd>pDataCur);
 
 	UIASSERT(m_nResultDataSize==0);   // 保证将压缩的LZW数据解压缩为图片大小
+	return m_nResultDataSize == 0;
 }
 
 // 检查prefix suffix是否在字典中存在

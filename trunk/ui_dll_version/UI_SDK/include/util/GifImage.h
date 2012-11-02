@@ -86,8 +86,8 @@ public:
 	// 获取剩余时间
 	inline int  get_remain(){ return nWait - (::GetTickCount() - nStart); }
 	// 更新下一次显示时间
-	inline void update_repeat() { nStart += nWait; };          // TODO: 使用该方法可保证准确性，但会导致在受到阻塞恢复时，gif会快进播放
-//  inline void update_repeat() { nStart = ::GetTickCount(); } // TODO: 使用该该当可保证平滑度，但不能保证响应的精度
+//	inline void update_repeat() { nStart += nWait; };          // TODO: 使用该方法可保证准确性，但会导致在受到阻塞恢复时，gif会快进播放
+    inline void update_repeat() { nStart = ::GetTickCount(); } // TODO: 使用该该当可保证平滑度，但不能保证响应的精度
 };
 
 // 线程消息
@@ -385,6 +385,10 @@ private:
 //		http://blog.csdn.net/norsd/article/details/2823159
 //		http://blog.csdn.net/whycadi/article/details/760576
 //
+//	TODO:
+//		有一张图片解码失败。(wSuffix>m_nDictUpper)，而不是刚好相等... 后来用
+//      gdiplus解码成功了。到底是哪错了呢？
+//
 //////////////////////////////////////////////////////////////////////////
 struct DictItem
 {
@@ -397,7 +401,7 @@ class GifLZWDecoder
 public:
 	GifLZWDecoder(byte nInitBitLength, byte* pDecodeResultData, int nDecodeResultSize);
 
-	void  Decode(const byte* pSrcData, int nSrcDataSize);
+	bool  Decode(const byte* pSrcData, int nSrcDataSize);
 
 	// 检查prefix suffix是否在字典中存在
 	inline bool  CheckExist(WORD wValue1, WORD wValue2);
