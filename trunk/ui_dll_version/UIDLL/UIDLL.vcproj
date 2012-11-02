@@ -99,7 +99,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\UI_SDK\bin\"
+			OutputDirectory="..\UI_SDK\bin_release\"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			UseOfMFC="0"
@@ -146,7 +146,7 @@
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\UI_SDK\lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\ui_sdk\bin\pdb\$(TargetName).pdb"
+				ProgramDatabaseFile="$(OutDir)\pdb\$(TargetName).pdb"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
