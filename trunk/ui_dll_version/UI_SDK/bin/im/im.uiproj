@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ui>
+<project projectname="ttplayer" select="mediaplayer">
+<skin name="2012" path=".\2012\ui.xml"/>
+</project>
+<log switch="on">
+    <item name="ui" switch="on" path="log\ui.log" level="debug" flag="0x3"  fileflag="0x1"/>
+</log>
+</ui>
