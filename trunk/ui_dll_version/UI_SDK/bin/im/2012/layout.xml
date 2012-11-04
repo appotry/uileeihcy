@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<ui>
+  <layout>
+    <CustomWindow id="logindlg" width="390" height="290"
+                  bkgnd.render.type="image"
+                  bkgnd.render.image="loginbkgnd.png"
+                  bkgnd.render.image.drawtype="stretch"
+                  bkgnd.render.9region="0,254,0,178">
+      <Button id="sys_close" layout.right="0" layout.top="0" autosize="bkimage" drawfocus="0" istransparent="1"
+                  bkgnd.render.type="imagelist"
+                  bkgnd.render.image="icon_close.png"
+                  bkgnd.render.imagelist.count="3"
+                  bkgnd.render.imagelist.layout="v"></Button>
+      <Button id="sys_minimize" layout.right="39" layout.top="0" autosize="bkimage" drawfocus="0" istransparent="1"
+                  bkgnd.render.type="imagelist"
+                  bkgnd.render.image="icon_min.png"
+                  bkgnd.render.imagelist.count="3"
+                  bkgnd.render.imagelist.layout="v"></Button>
+    </CustomWindow>
+
+    <CustomWindow id="chatdlg" width="553" height="520" minwidht="407" minheight="258"
+                  bkgnd.render.type="image"
+                  bkgnd.render.image="loginbkgnd.png"
+                  bkgnd.render.image.drawtype="stretch"
+                  bkgnd.render.9region="0,254,0,178">
+      <Panel layout="stack" layout.right="0" layout.top="0" layout.direction="righttoleft">
+        <Button id="sys_close" layout.right="0" layout.top="0" autosize="bkimage" drawfocus="0" istransparent="1"
+                    bkgnd.render.type="imagelist"
+                    bkgnd.render.image="icon_close.png"
+                    bkgnd.render.imagelist.count="3"
+                    bkgnd.render.imagelist.layout="v"></Button>
+        <Button id="sys_maximize" layout.right="39" layout.top="0" autosize="bkimage" drawfocus="0" istransparent="1"
+                    bkgnd.render.type="imagelist"
+                    bkgnd.render.image="icon_max.png"
+                    bkgnd.render.imagelist.count="3"
+                    bkgnd.render.imagelist.layout="v"></Button>
+        <!--Button id="sys_restore" layout.right="39" layout.top="0" autosize="bkimage" drawfocus="0" istransparent="1"
+                    bkgnd.render.type="imagelist"
+                    bkgnd.render.image="icon_restore.png"
+                    bkgnd.render.imagelist.count="3"
+                    bkgnd.render.imagelist.layout="v"></Button-->
+        <Button id="sys_minimize" layout.right="39" layout.top="0" autosize="bkimage" drawfocus="0" istransparent="1"
+                    bkgnd.render.type="imagelist"
+                    bkgnd.render.image="icon_min.png"
+                    bkgnd.render.imagelist.count="3"
+                    bkgnd.render.imagelist.layout="v"></Button>  
+      </Panel>
+      
+    </CustomWindow>
+  </layout>
+
+  <image>
+    <item id="loginbkgnd.png" path="LoginPanel\Background\loginbkgnd.png"/>
+    <item id="icon_close.png" path="icon_close.png"/>
+    <item id="icon_min.png" path="icon_min.png"/>
+    <item id="icon_restore.png" path="icon_restore.png"/>
+    <item id="icon_max.png" path="icon_max.png"/>
+  </image>
+  <font/>
+  <color/>
+  <style/>
+</ui>
