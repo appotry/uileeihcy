@@ -272,13 +272,13 @@ bool WindowlessRichEdit::HitTest(POINT pt)
 LRESULT WindowlessRichEdit::OnChar(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 #ifdef _DEBUG
-	IGifOleObject* pGifOleObject = NULL;
-	m_vecpUnkOleObject[0]->QueryInterface(IID_IGifOleObject, (void**)&pGifOleObject);
-	if (NULL != pGifOleObject)
-	{
-		pGifOleObject->Refresh();
-	}
-	return 0;
+// 	IGifOleObject* pGifOleObject = NULL;
+// 	m_vecpUnkOleObject[0]->QueryInterface(IID_IGifOleObject, (void**)&pGifOleObject);
+// 	if (NULL != pGifOleObject)
+// 	{
+// 		pGifOleObject->Refresh();
+// 	}
+// 	return 0;
 #endif
 
 	LRESULT lr = 0;
@@ -1157,12 +1157,12 @@ bool WindowlessRichEdit::InsertGif(const TCHAR* szGifPath)
 	{
 		SAFE_RELEASE(pLockbytes);
 		SAFE_RELEASE(pStorage);
+		SAFE_RELEASE(pGifOleObject);
 	}
 	else
 	{
 		m_vecpUnkOleObject.push_back(static_cast<IUnknown*>(pGifOleObject));
 	}
-	SAFE_RELEASE(pGifOleObject);  // 因为insertobject成功的话也会addref一次，因此无论成功失败这里都release一次。
 
 	return bRet;
 }

@@ -6,11 +6,13 @@ CGifOleObject::CGifOleObject()
 	m_pViewAdviseSink = NULL;
 	m_pClientSite = NULL;
 	m_dwRef = 0;
+	m_pGif = NULL;
 }
 CGifOleObject::~CGifOleObject()
 {
 	SAFE_RELEASE(m_pViewAdviseSink);
 	SAFE_RELEASE(m_pClientSite);
+	SAFE_DELETE(m_pGif);
 }
 
 HRESULT CGifOleObject::CreateInstance(REFIID riid, void** ppv)

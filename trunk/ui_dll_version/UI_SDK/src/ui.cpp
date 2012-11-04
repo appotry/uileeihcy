@@ -21,8 +21,8 @@ namespace UI
 //		LogManager::Debug
 //
 
-#define UI_LOG_LEVEL(l,c)     LOG_LEVEL( g_pUIApplication->m_pLog, _T("ui"),l,c )
-#define MOUSE_LOG_LEVEL(l,c)  LOG_LEVEL( g_pUIApplication->m_pLog, _T("mouse"),l,c )
+#define UI_LOG_LEVEL(l,c)     if (NULL == g_pUIApplication) return ; LOG_LEVEL( g_pUIApplication->m_pLog, _T("ui"),l,c )
+#define MOUSE_LOG_LEVEL(l,c)  if (NULL == g_pUIApplication) return ; LOG_LEVEL( g_pUIApplication->m_pLog, _T("mouse"),l,c )
 
 void UI_LOG_DEBUG( TCHAR* szContent, ... )
 {

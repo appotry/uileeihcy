@@ -95,7 +95,7 @@ bool ProjectManager::OpenProject( const String& strProjFilePath, bool bOnlyLoadA
 	// 1. 加载皮肤列表
 	if (false == m_pProjectParse->Load(&m_pojoProject))
 	{
-		UI_LOG_ERROR(_T("ProjectManager::OpenProject failed. project file path=%s."), strProjFilePath.c_str() );
+		UI_LOG_ERROR(_T("%s failed. project file path=%s."), FUNC_NAME, strProjFilePath.c_str() );
 		m_pProjectParse->Release();
 		m_pProjectParse = NULL;
 		return false;
@@ -103,38 +103,43 @@ bool ProjectManager::OpenProject( const String& strProjFilePath, bool bOnlyLoadA
 
 	// 2. 加载皮肤资源
 	int nSkinCount = m_pojoProject.GetSkinItemCount();
-	int nActiveIndex = m_pojoProject.GetActiveSkinItemIndex();
-	for (int i = 0; i < nSkinCount; i++)
+	if (0 == nSkinCount)
 	{
-		if( bOnlyLoadActiveSkin && nActiveIndex != i )
-			continue;
+		m_pProjectParse->Release();
+		m_pProjectParse = NULL;
+		UI_LOG_ERROR(_T("%s skin count is 0"), FUNC_NAME);
+		return false;
+	}
 
-		SkinManager* pSkinMgr = this->LoadSkin(m_pojoProject.GetSkinItem(i));
-		if( NULL == pSkinMgr )
+	int nActiveIndex = m_pojoProject.GetActiveSkinItemIndex();
+	if (bOnlyLoadActiveSkin)
+	{
+		if (-1 == nActiveIndex)
+			nActiveIndex = 0;
+
+		m_pCurActiveSkinMgr = this->LoadSkin(m_pojoProject.GetSkinItem(0));
+		if( NULL == m_pCurActiveSkinMgr )
 		{
-			UI_LOG_ERROR(_T("ProjectManager::OpenProject LoadSkin failed. index=%d"), i );
-			continue;
+			UI_LOG_ERROR(_T("ProjectManager::OpenProject LoadSkin failed."));
 		}
+	}
+	else
+	{
+		for (int i = 0; i < nSkinCount; i++)
+		{
+			SkinManager* pSkinMgr = this->LoadSkin(m_pojoProject.GetSkinItem(i));
+			if( NULL == pSkinMgr )
+			{
+				UI_LOG_ERROR(_T("ProjectManager::OpenProject LoadSkin failed. index=%d"), i );
+				continue;
+			}
 
-		if (nActiveIndex == i)
-			m_pCurActiveSkinMgr = pSkinMgr;
+			if (nActiveIndex == i)
+				m_pCurActiveSkinMgr = pSkinMgr;
+		}
 	}
 
 	return true;
-
-// 	CPojo_ProjectSkinItem*  pSkinItem = m_pojoProject.GetActiveSkinItem();
-// 	SkinManager* pSkinMgr = this->LoadSkin( pSkinItem );
-// 	if( NULL != pSkinMgr )
-// 	{
-// 		m_pCurActiveSkinMgr = pSkinMgr;
-// 		return true;
-// 	}
-// 	else
-// 	{
-// 		m_pProjectParse->Release();
-// 		m_pProjectParse = NULL;
-// 		return false;
-// 	}
 }
 
 

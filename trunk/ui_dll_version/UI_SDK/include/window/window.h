@@ -21,6 +21,8 @@ public:
 
 	// 内部方法
 protected:
+	virtual  void OnInitWindow();
+
 	// 模拟系统标题栏按钮
 	void              OnSysClose();
 	void              OnSysMinimize();

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "atlimage.h"
-#include "atlcrack.h"
+//#include "atlcrack.h"
 
 template<class T>   // T为CLayeredWindow的子类
 class CLayeredWindow

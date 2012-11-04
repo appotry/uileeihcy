@@ -35,34 +35,6 @@ typedef HRESULT (*s_UICreateInstancePtr)(void** pOut);
 
 #define MAX_STRING_LEN    256                  // 定义一些字符串的最大长度，例如皮肤名称，ID等等
 
-
-/*  附表（HSL/V/B在各种环境下的取值范围）：
-Applications       Space       H Range      S Range      L/V/B Range
-
-Paint Shop Pro     HSL         0 - 255      0 - 255      L  0 - 255
-Gimp               HSV         0 - 360°     0 - 100      V  0 - 100
-Photoshop          HSV         0 - 360°     0 - 100%     B  0 - 100%
-Windows            HSL         0 - 240      0 - 240      L  0 - 240
-Linux / KDE        HSV         0 - 360°     0 - 255      V  0 - 255
-GTK                HSV         0 - 360°     0 - 1.0      V  0 - 1.0
-Java (awt.Color)   HSV         0 - 1.0      0 - 1.0      B  0 - 1.0
-Apple              HSV         0 - 360°     0 - 100%     L  0 - 100%
-*/
-#define MIN_HUE_VALUE           0              // 色调  HLS范围定义
-#define MAX_HUE_VALUE           240
-#define MIN_LUMINANCE_VALUE     0              // 亮度
-#define MAX_LUMINANCE_VALUE     240            
-#define MIN_SATURATION_VALUE    0              // 饱和度
-#define MAX_SATURATION_VALUE    240            
-
-
-
-#define CHANGE_SKIN_HLS_FLAG_H             1
-#define CHANGE_SKIN_HLS_FLAG_L             2
-#define CHANGE_SKIN_HLS_FLAG_S             4
-#define CHANGE_SKIN_HLS_FLAG_HLS           (CHANGE_SKIN_HLS_FLAG_H|CHANGE_SKIN_HLS_FLAG_L|CHANGE_SKIN_HLS_FLAG_S)
-#define CHANGE_SKIN_HLS_FALG_REPLACE_MODE  8 // 着色模式
-
 //////////////////////////////////////////////////////////////////////////
 // enum
 
@@ -91,7 +63,7 @@ UI_RESOURCE_TYPE;
 
 // 日志输出，使用方法参见ui.cpp
 #define LOG_LEVEL(pLog,module,level,content)         \
-	if( NULL == pLog )                               \
+	if (NULL == pLog)                                \
 		return;                                      \
 	long lRet = 0;                                   \
 	pLog->TestCanLog(module,level, &lRet);           \
@@ -129,7 +101,7 @@ UI_RESOURCE_TYPE;
 #define XML_UI               _T("ui")            //root
 #define XML_XML              _T("xml")
 #define XML_LOG              _T("log")
-#define XML_IMG              _T("img")
+#define XML_IMG              _T("image")
 #define XML_FONT             _T("font")
 #define XML_COLOR            _T("color")
 #define XML_LAYOUT           _T("layout")
@@ -141,6 +113,7 @@ UI_RESOURCE_TYPE;
 #define XML_ID               _T("id")
 #define XML_TEXT             _T("text")
 #define XML_TOOLTIP          _T("tooltip")
+#define XML_PATH             _T("path")
 
 #define XML_FONT_FACENAME    _T("facename")
 #define XML_FONT_HEIGHT      _T("size")

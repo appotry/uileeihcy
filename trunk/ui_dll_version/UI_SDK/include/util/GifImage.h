@@ -21,8 +21,7 @@
 //		2. 缩略图模式
 //		4. 一些图片在WIN7上加载出来的数据有问题，导致显示错误，如（res\\椭圆规.gif）
 //		5. 需要支持从资源中加载图片
-//		6. 交叉型的GIF图片解码
-//		
+//		7. 有一张图片的第三帧解码失败了
 //
 //	[Remark]
 //		1. 在xp上面使用image加载gif会提示出异常
@@ -413,7 +412,7 @@ public:
 	inline void  PushDict(WORD wPrefix, WORD wSuffix);
 			    
 private:
-	DictItem  m_dict[4096];      // 字典数组. GIF规范建议的 2^12 大小，其中前2^8其实是不需要管的，为原始数据（0-255）的索引
+	DictItem  m_dict[4097];      // 字典数组. GIF规范建议的 2^12 大小，其中前2^8其实是不需要管的，为原始数据（0-255）的索引
 	int    m_nDictLower;         // 当前字典中的第一个有效索引，初始为 255+2
 	int    m_nDictUpper;         // 当前字典中的最大索引，初始为255+2
 

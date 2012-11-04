@@ -1070,6 +1070,10 @@ bool  CXmlImageParse::load_from_file( CMarkup* pXml, const String& strDataSource
 			}
 
 			String  strPath = pXml->GetData();
+			if (strPath.empty())
+			{
+				strPath = pXml->GetAttrib(XML_PATH);   // 如果没有配置在内容中，就检查一下是否是配置成属性了
+			}
 			String  strFullPath;
 			if( Util::IsFullPath(strPath.c_str()) )
 			{

@@ -36,10 +36,9 @@ using namespace std;
 #define __ATLSTDTHUNK_H__  // 使用自己的ATLSTDTHUNK.H
 
 #include <atlbase.h>
-#include <atlapp.h>
+#include "3rd\wtl80\include\atlapp.h"
 #include <atlwin.h>
-
-#include <atlcrack.h>      // TODO: WTL的头文件，可以考虑移植
+#include "3rd\wtl80\include\atlcrack.h"      // TODO: WTL的头文件，可以考虑移植
 
 
 // 前置声明
