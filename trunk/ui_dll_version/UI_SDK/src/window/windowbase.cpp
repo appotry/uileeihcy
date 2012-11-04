@@ -20,7 +20,7 @@ WindowBase::WindowBase()
 }
 WindowBase::~WindowBase()
 {
-	if( NULL != m_hFont )
+	if (NULL != m_hFont)
 	{
 		::UI_ReleaseFont(m_hFont);
 		m_hFont = NULL;
@@ -576,11 +576,14 @@ HWND WindowBase::DoModeless( const String& ID, HWND hWndParent )
 	UI_AddCreateWndData(&m_thunk.cd, this);
 	m_strID = ID;
 
-	m_hWnd = CreateDialogIndirect(g_pUIApplication->GetModuleInstance(), 
-		(LPDLGTEMPLATE)hgbl, 
-		hWndParent, 
-		(DLGPROC)WindowBase::StartDialogProc); 
-
+	if (NULL != g_pUIApplication)
+	{
+		m_hWnd = CreateDialogIndirect(
+					g_pUIApplication->GetModuleInstance(), 
+					(LPDLGTEMPLATE)hgbl, 
+					hWndParent, 
+					(DLGPROC)WindowBase::StartDialogProc); 
+	}
 	GlobalFree(hgbl); 
 	return m_hWnd;
 }

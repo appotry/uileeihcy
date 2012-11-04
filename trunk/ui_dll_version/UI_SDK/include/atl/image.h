@@ -179,6 +179,10 @@ namespace UI
 		HDC m_ahDCs[CIMAGE_DC_CACHE_SIZE];
 	};
 
+#ifndef UIAPI
+#define UIAPI
+#endif
+
 	class UIAPI Image
 	{
 	private:
@@ -2196,6 +2200,32 @@ namespace UI
 	//    
 	//    L的取值范围为 -100 ~ +100
 	//	
+
+	/*  附表（HSL/V/B在各种环境下的取值范围）：
+		Applications       Space       H Range      S Range      L/V/B Range
+
+		Paint Shop Pro     HSL         0 - 255      0 - 255      L  0 - 255
+		Gimp               HSV         0 - 360°     0 - 100      V  0 - 100
+		Photoshop          HSV         0 - 360°     0 - 100%     B  0 - 100%
+		Windows            HSL         0 - 240      0 - 240      L  0 - 240
+		Linux / KDE        HSV         0 - 360°     0 - 255      V  0 - 255
+		GTK                HSV         0 - 360°     0 - 1.0      V  0 - 1.0
+		Java (awt.Color)   HSV         0 - 1.0      0 - 1.0      B  0 - 1.0
+		Apple              HSV         0 - 360°     0 - 100%     L  0 - 100%
+	*/
+#define MIN_HUE_VALUE           0              // 色调  HLS范围定义
+#define MAX_HUE_VALUE           240
+#define MIN_LUMINANCE_VALUE     0              // 亮度
+#define MAX_LUMINANCE_VALUE     240            
+#define MIN_SATURATION_VALUE    0              // 饱和度
+#define MAX_SATURATION_VALUE    240            
+
+#define CHANGE_SKIN_HLS_FLAG_H             1
+#define CHANGE_SKIN_HLS_FLAG_L             2
+#define CHANGE_SKIN_HLS_FLAG_S             4
+#define CHANGE_SKIN_HLS_FLAG_HLS           (CHANGE_SKIN_HLS_FLAG_H|CHANGE_SKIN_HLS_FLAG_L|CHANGE_SKIN_HLS_FLAG_S)
+#define CHANGE_SKIN_HLS_FALG_REPLACE_MODE  8 // 着色模式
+
 	inline bool ChangeColorHue(BYTE& R, BYTE& G, BYTE& B, short h, bool bOffsetOrReplace)
 	{
 		if( R==G && G==B )  // 灰色系不能改变它的色调，永远为160

@@ -147,10 +147,18 @@ bool UIApplication::Initialize( const String& strUIProjXmlPath )
 	// 初始化Gdiplus
 	Image::InitGDIPlus();
 
+
+	bool bRet = m_ProjectMgr.Initialize( strUIProjXmlPath );
+	if (false == bRet)
+	{
+		Image::ReleaseGDIPlus();
+		SAFE_RELEASE2(m_pLog);
+		return false;
+	}
+
 	// 创建一个用于转发消息的窗口，实现post ui message
 	m_WndForwardPostMsg.Create(HWND_MESSAGE);
-
-	return m_ProjectMgr.Initialize( strUIProjXmlPath );
+	return true;
 }
 
 //
@@ -233,8 +241,11 @@ bool UIApplication::InitLog( const String& logXmlPath )
 	CComBSTR bstr(logXmlPath.c_str());
 	long lRet = 0;
 	hr = m_pLog->Load( bstr, &lRet );
-	if( FAILED(hr) || 0 == lRet )
+	if (FAILED(hr) || 0 == lRet)
+	{
+		SAFE_RELEASE2(m_pLog);
 		return false;
+	}
 
 	return true;
 }

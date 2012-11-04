@@ -364,7 +364,7 @@
              icon.render.image="playmode_imagelist.png" 
              icon.render.image.drawtype="adapt"/>
   </style>
-  <img>
+  <image>
     <item id="player_skin.png">player_skin.png</item>
     <item id="minimize.bmp">minimize.bmp</item>
     <item id="minimode.bmp">minimode.bmp</item>
@@ -420,7 +420,7 @@
     <item id="visualization_band.bmp">visualization_band.bmp</item>
     <item id="eqfactor_full.bmp">eqfactor_full.bmp</item>
     <item id="eqfactor_full2.bmp">eqfactor_full2.bmp</item>
-</img>
+</image>
   <font>
     <item id="normal" facename="宋体" size="9" />
     <item id="option_title" facename="宋体" size="11"/>

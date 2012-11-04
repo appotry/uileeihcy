@@ -81,7 +81,8 @@ bool TTPlayerPlaylistCtrl::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 	{ \
 		const String& str = iter->second; \
 		UI_GetColor(str, &p); \
-		m_mapAttribute.erase(iter); \
+		/*m_mapAttribute.erase(iter); 在player_ui.exe中释放uidll.dll中的string会导致崩溃*/  \
+		this->EraseAttribute(xml);   \
 	}
 	ATTRMAP::iterator iter;
 	GET_COLOR(XML_TTPLAYER_PLAYLIST_BKCOLOR1, m_pBkColor1);

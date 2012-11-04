@@ -27,6 +27,13 @@ Object::Object(void)
  // 注意：不要在构造或者析构函数中调用虚函数
 Object::~Object(void)
 {
+// #ifdef _DEBUG
+// 	if (0 != m_mapAttribute.size())
+// 	{
+// 		int a = 0;
+// 	}
+// #endif
+	m_mapAttribute.clear();
 }
 
 void Object::InitialRelease()
@@ -392,30 +399,6 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 
 		this->m_mapAttribute.erase(iter);
 	}
-// 	if( this->m_mapAttribute.count( XML_MINWIDTH ) )
-// 	{
-// 		String str = this->m_mapAttribute[ XML_MINWIDTH ];
-// 		this->minwidth = _ttoi( str.c_str() );
-// 		this->m_mapAttribute.erase( XML_MINWIDTH );
-// 	}
-// 	if( this->m_mapAttribute.count( XML_MINHEIGHT ) )
-// 	{
-// 		String str = this->m_mapAttribute[ XML_MINHEIGHT ];
-// 		this->minheight = _ttoi( str.c_str() );
-// 		this->m_mapAttribute.erase( XML_MINHEIGHT );
-// 	}
-// 	if( this->m_mapAttribute.count( XML_MAXWIDTH ) )
-// 	{
-// 		String str = this->m_mapAttribute[ XML_MAXWIDTH ];
-// 		this->maxwidth = _ttoi( str.c_str() );
-// 		this->m_mapAttribute.erase( XML_MAXWIDTH );
-// 	}
-// 	if( this->m_mapAttribute.count( XML_MAXWIDTH ) )
-// 	{
-// 		String str = this->m_mapAttribute[ XML_MAXWIDTH ];
-// 		this->maxwidth = _ttoi( str.c_str() );
-// 		this->m_mapAttribute.erase( XML_MAXWIDTH );
-//	}
 
 	iter = m_mapAttribute.find(XML_MARGIN);
 	if (m_mapAttribute.end() != iter)
@@ -843,7 +826,7 @@ void Object::GetWindowRect(CRect* lprc)
 
 BOOL Object::OnEraseBkgnd( HRDC hRDC )
 {
-	if( NULL == m_pBkgndRender )
+	if (NULL == m_pBkgndRender)
 	{
 		return FALSE;
 	}
