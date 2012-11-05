@@ -1026,7 +1026,7 @@ void ITextHostImpl::RegisterDragDrop(void)
 	{
 		HRESULT hr = ::RegisterDragDrop(m_hParentWnd, pdt);
 
-		if(hr == NOERROR)
+		if(hr == NOERROR || hr == 0x80040101)
 		{	
 			m_fRegisteredForDrop = true;
 		}
