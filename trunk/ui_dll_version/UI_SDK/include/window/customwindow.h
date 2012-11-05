@@ -175,6 +175,7 @@ public:
 	void      OnWindowPosChanged(LPWINDOWPOS lpWndPos);
 	void      InvalidateObject( Object* pInvalidateObj, bool bUpdateNow );
 	HRDC      BeginDrawObject( Object* pInvalidateObj);
+	void      EndDrawObject(CRect* prcWindow, bool bFinish);
 
 	void      OnLButtonDown(UINT nHitTest);
 	void      OnLButtonUp();
@@ -202,8 +203,6 @@ protected:
 	POINT     m_ptWindowOld;       // 开始拉伸时的窗口坐标，用于和偏移一起计算新位置
 	SIZE      m_sizeWindowOld;     // 开始拉伸时的窗口大小，用于和偏移一起计算新大小
 
-	
-	
 };
 
 }

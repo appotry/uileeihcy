@@ -360,6 +360,12 @@ enum WINDOW_TRANSPARENT_PART_TYPE
 // #define  XML_WINDOW_BK_TYPE_COLOR_BRUSH        _T("bkbrushcol") // bktype=color，窗口背景色
 // #define  XML_WINDOW_BK_TYPE_FRAME_9REGION      _T("bk9region")  // bktype=frame，窗口切割范围
 
+// 系统按钮ID
+#define XML_SYS_BTN_RESTORE       _T("sys_restore")   // 系统还原按钮ID
+#define XML_SYS_BTN_MAXIMIZE      _T("sys_maximize")  // 系统最大化按钮ID
+#define XML_SYS_BTN_MINIMIZE      _T("sys_minimize")  // 系统最小化按钮ID
+#define XML_SYS_BTN_CLOSE         _T("sys_close")     // 系统关闭按钮ID
+
 
 // hwnd host
 #define XML_HWNDHOST_CONTROL_ID   _T("controlid")     // 控件ID数值，整形

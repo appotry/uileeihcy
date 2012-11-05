@@ -183,6 +183,7 @@ public:
 	virtual void     ResizeRenderTarget( int nWidth, int nHeight ) = 0;
 	virtual BYTE*    LockBits() = 0;
 	virtual void     UnlockBits() = 0;
+	virtual void     Clear() = 0;
 	virtual void     Save( const String& strPath ) = 0;
 	virtual HBITMAP  CopyRect(RECT *prc) = 0;
 

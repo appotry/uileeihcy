@@ -207,6 +207,7 @@ public:
 	virtual void     ResizeRenderTarget( int nWidth, int nHeight ){}
 	virtual BYTE*    LockBits() {return NULL;};
 	virtual void     UnlockBits(){};
+	virtual void     Clear(){};
 	virtual void     Save( const String& strPath ){};
 	virtual HBITMAP  CopyRect(RECT *prc) {return NULL;}
 
@@ -246,6 +247,7 @@ public:
 	virtual void     ResizeRenderTarget( int nWidth, int nHeight );
 	virtual BYTE*    LockBits();
 	virtual void     UnlockBits();
+	virtual void     Clear(){}  // 仅gdiplus中实现了。用于窗口透明背景时避免本次背景贴在上一次的背景上造成alpha叠加
 	virtual void     Save( const String& strPath );
 	virtual HBITMAP  CopyRect(RECT *prc);
 

@@ -56,7 +56,7 @@ SIZE Panel::GetDesiredSize( HRDC hRDC )
 	{
 		// 获取子对象所需要的空间
 	 	if( this->m_pLayout != NULL )
-	 		size = this->m_pLayout->Measure( hRDC );
+	 		size = this->m_pLayout->Measure();
 
 		// 如果有指定width、height的其中一个，那么忽略在上一步中得到的值
 		if( this->m_nConfigWidth != AUTO )

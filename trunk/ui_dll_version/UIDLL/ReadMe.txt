@@ -132,6 +132,9 @@
 145.频谱图的FFT结果放大系统究竟该怎么调才对？
 146.使用ThemeTooltip后，再换肤。退出时font release崩溃了。应该是没有reset attr的原因吧。到时候查一下。
 147.WMA的停止后再播放有问题。SetRange (0)之后，再pushbuffer(0,xxx)，结果WMAFile GetNextSample得到的值并不是0.是因为异步READER导致的吗？	
+
+148.窗口最大化后，覆盖任务栏的问题，应该是GETMINMAXINFO没有去年任务栏高度的问题
+    另外，window类中处理的系统按钮命令是不是应该移到custom window当中？
 	
 ==================================疑问==================================
 1. Message类是否需要一个 m_pCurMsg成员变量？

@@ -237,7 +237,6 @@ bool UIApplication::InitLog( const String& logXmlPath )
 			return false;
 	}
 	
-	//_bstr_t bstr = logXmlPath.c_str();
 	CComBSTR bstr(logXmlPath.c_str());
 	long lRet = 0;
 	hr = m_pLog->Load( bstr, &lRet );
