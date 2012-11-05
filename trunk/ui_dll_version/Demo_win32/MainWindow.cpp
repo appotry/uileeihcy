@@ -452,6 +452,12 @@ void MainWindow::OnContextMenu( HWND wnd, POINT point )
 	if( this->GetHoverObject() != NULL )
 		return;
 
+#ifdef _DEBUG
+	 	COptionWindow win;
+	 	win.DoModal(g_hInstance, COptionWindow::IDD, _T("OptionWindow"),m_hWnd);
+		return;
+#endif
+
 #if 0 // 手动创建菜单 
 	int nMenuID = 100;
 

@@ -19,43 +19,48 @@
                   bkgnd.render.imagelist.layout="v"></Button>
     </CustomWindow>
 
-    <CustomWindow id="chatdlg" width="553" height="520" minwidht="407" minheight="258"
+    <CustomWindow id="chatdlg" width="553" height="520" minwidth="450" minheight="500" border="6,6,6,6"
+                  transparent.type="layered" istransparent="1"
                   bkgnd.render.type="image"
-                  bkgnd.render.image="loginbkgnd.png"
+                  bkgnd.render.image="chatframe.png"
                   bkgnd.render.image.drawtype="stretch"
-                  bkgnd.render.9region="0,254,0,178">
-      <Panel layout="stack" layout.right="0" layout.top="0" layout.direction="righttoleft">
-        <Button id="sys_close" layout.right="0" layout.top="0" autosize="bkimage" drawfocus="0" istransparent="1"
+                  bkgnd.render.9region="12,101,12,12"
+                  foregnd.render.type="image"
+                  foregnd.render.image="chatframe_surface.png"
+                  foregnd.render.image.drawtype="tile">
+      <Panel layout="stack" layout.right="2" layout.top="2" layout.direction="righttoleft">
+        <Button id="sys_close" autosize="bkimage" drawfocus="0" istransparent="1"
                     bkgnd.render.type="imagelist"
                     bkgnd.render.image="icon_close.png"
                     bkgnd.render.imagelist.count="3"
-                    bkgnd.render.imagelist.layout="v"></Button>
-        <Button id="sys_maximize" layout.right="39" layout.top="0" autosize="bkimage" drawfocus="0" istransparent="1"
+                    bkgnd.render.imagelist.layout="h"></Button>
+        <Button id="sys_maximize" autosize="bkimage" drawfocus="0" istransparent="1"
                     bkgnd.render.type="imagelist"
                     bkgnd.render.image="icon_max.png"
                     bkgnd.render.imagelist.count="3"
-                    bkgnd.render.imagelist.layout="v"></Button>
-        <!--Button id="sys_restore" layout.right="39" layout.top="0" autosize="bkimage" drawfocus="0" istransparent="1"
+                    bkgnd.render.imagelist.layout="h"></Button>
+        <Button id="sys_restore" autosize="bkimage" drawfocus="0" istransparent="1"
                     bkgnd.render.type="imagelist"
                     bkgnd.render.image="icon_restore.png"
                     bkgnd.render.imagelist.count="3"
-                    bkgnd.render.imagelist.layout="v"></Button-->
-        <Button id="sys_minimize" layout.right="39" layout.top="0" autosize="bkimage" drawfocus="0" istransparent="1"
+                    bkgnd.render.imagelist.layout="h"></Button>
+        <Button id="sys_minimize" autosize="bkimage" drawfocus="0" istransparent="1"
                     bkgnd.render.type="imagelist"
                     bkgnd.render.image="icon_min.png"
                     bkgnd.render.imagelist.count="3"
-                    bkgnd.render.imagelist.layout="v"></Button>  
+                    bkgnd.render.imagelist.layout="h"></Button>  
       </Panel>
       
     </CustomWindow>
   </layout>
 
   <image>
-    <item id="loginbkgnd.png" path="LoginPanel\Background\loginbkgnd.png"/>
+    <item id="chatframe.png" path="chatframe.png"/>
     <item id="icon_close.png" path="icon_close.png"/>
     <item id="icon_min.png" path="icon_min.png"/>
     <item id="icon_restore.png" path="icon_restore.png"/>
     <item id="icon_max.png" path="icon_max.png"/>
+    <item id="chatframe_surface.png" path="chatframe_surface.png"/>
   </image>
   <font/>
   <color/>

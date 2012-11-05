@@ -1004,7 +1004,6 @@ void GdiplusRenderDC::ImageList_Draw( HRBITMAP hBitmap, int x, int y, int col, i
 	if( NULL == pBitmap )
 		return;
 
-
 	int xSrc = col * cx;
 	int ySrc = row * cy;
 
@@ -1053,8 +1052,10 @@ void GdiplusRenderDC::DrawBitmap( HRBITMAP hBitmap, DRAWBITMAPPARAM* pParam )
 
 	if (pParam->nFlag & DRAW_BITMAP_BITBLT)
 	{
-		Gdiplus::RectF destRect((Gdiplus::REAL)pParam->xDest, (Gdiplus::REAL)pParam->yDest, (Gdiplus::REAL)pParam->wSrc, (Gdiplus::REAL)pParam->hSrc);
-		m_pGraphics->DrawImage(pBitmap, destRect, (Gdiplus::REAL)pParam->xSrc, (Gdiplus::REAL)pParam->ySrc, (Gdiplus::REAL)pParam->wSrc, (Gdiplus::REAL)pParam->hSrc, Gdiplus::UnitPixel, pImageAttribute, NULL, NULL);
+		Gdiplus::REAL nW = (Gdiplus::REAL)min(pParam->wSrc,pParam->wDest);
+		Gdiplus::REAL nH = (Gdiplus::REAL)min(pParam->hSrc,pParam->hDest);
+		Gdiplus::RectF destRect((Gdiplus::REAL)pParam->xDest, (Gdiplus::REAL)pParam->yDest, nW, nH);
+		m_pGraphics->DrawImage(pBitmap, destRect, (Gdiplus::REAL)pParam->xSrc, (Gdiplus::REAL)pParam->ySrc, nW, nH, Gdiplus::UnitPixel, pImageAttribute, NULL, NULL);
 	}
 	else if (pParam->nFlag & DRAW_BITMAP_STRETCH)
 	{
@@ -1307,6 +1308,19 @@ int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
 	free(pImageCodecInfo);
 	return -1;  // Failure
 }
+
+//
+// 用于窗口透明背景时避免本次背景贴在上一次的背景上造成alpha叠加
+//
+void GdiplusMemRenderDC::Clear()
+{
+	if (NULL == m_pMemBitmap)
+		return;
+
+	//m_pMemBitmap->Clear();
+	m_pGraphics->Clear(Gdiplus::Color::MakeARGB(0,0,0,0));
+}
+
 void GdiplusMemRenderDC::Save( const String& strPath )
 {
 	CLSID pngClsid;

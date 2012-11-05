@@ -43,7 +43,7 @@ Layout* LayoutManagerFactory::GetLayout( String strType, Panel* pPanel )
 **	目的：如果m_pPanel的widht、height都已被指定，那么直接返回该大小，否则
 **		  将调用LayoutManager子类的MeasureChildObject来获取自己说需要的大小
 */
-SIZE Layout::Measure( HRDC hRDC )
+SIZE Layout::Measure()
 {
 	SIZE size = {0,0};
 	// 已指定了大小的窗体
@@ -55,7 +55,7 @@ SIZE Layout::Measure( HRDC hRDC )
 	else
 	{
 		// 获取子对象所需要的空间
-		size = this->MeasureChildObject( hRDC );
+		size = this->MeasureChildObject(NULL);
 
 		// 计算padding 的大小
 		size.cx += m_pPanel->GetPaddingW();
@@ -80,9 +80,9 @@ SIZE Layout::Measure( HRDC hRDC )
 
 	return size;
 }
-void Layout::Arrange( HRDC hRDC )
+void Layout::Arrange(Object* pObjToArrage, bool bReDraw)
 {
-	this->ArrangeChildObject( hRDC );
+	this->ArrangeChildObject(NULL, pObjToArrage, bReDraw);
 	
 	// 递归
 	Object*  pChild = NULL;
@@ -92,7 +92,7 @@ void Layout::Arrange( HRDC hRDC )
 		if( pChild->GetObjectType() == OBJ_PANEL ||
 			pChild->GetObjectType() == OBJ_WINDOW )
 		{
-			((Panel*)pChild)->GetLayout()->Arrange( hRDC );
+			((Panel*)pChild)->GetLayout()->Arrange(NULL, bReDraw);
 		}
 	}
 }
@@ -1260,9 +1260,9 @@ DesktopLayout::DesktopLayout()
 {
 	this->left = this->top = this->right = this->bottom = NDEF;
 }
- void  DesktopLayout::Arrange( HRDC hRDC )
+ void  DesktopLayout::Arrange()
 {
-	SIZE s = this->m_pWindow->GetDesiredSize( hRDC );  // 获得的SIZE包括了MARGIN的大小 s.cx=margin.left+width+margin.right
+	SIZE s = this->m_pWindow->GetDesiredSize(NULL);  // 获得的SIZE包括了MARGIN的大小 s.cx=margin.left+width+margin.right
 
 	// 读取其他属性值来设置rectW
 	int  x = 0, y = 0;                                 // 最终在屏幕中的坐标
@@ -1341,5 +1341,5 @@ DesktopLayout::DesktopLayout()
 	m_pWindow->SetObjectPos(x, y, s.cx, s.cy, SWP_NOREDRAW);
 
 	// 递归
-	this->m_pWindow->GetLayout()->Arrange( hRDC );
+	this->m_pWindow->GetLayout()->Arrange(NULL);
 }

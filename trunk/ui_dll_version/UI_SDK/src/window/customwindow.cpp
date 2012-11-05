@@ -252,17 +252,19 @@ LRESULT CustomWindow::_OnNcPaint( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 
 void CustomWindow::OnEraseBkgnd(HRDC hRDC)
 {
-	if( NULL != m_pBkgndRender )
+	if (NULL != m_pBkgndRender)
 	{
 		CRect rc(0,0, GetWidth(), GetHeight());
-		if( this->IsActive() )
+
+		int nState = this->IsActive()?WINDOW_BKGND_RENDER_STATE_ACTIVE:WINDOW_BKGND_RENDER_STATE_INACTIVE;
+
+		if (NULL != m_pForegndRender)
 		{
-			m_pBkgndRender->DrawState(hRDC, &rc, WINDOW_BKGND_RENDER_STATE_ACTIVE );
+			CRect rcSurface = rc;
+			Util::DeflatRect(&rcSurface, &m_rcBorder);
+			m_pForegndRender->DrawState(hRDC, &rcSurface, nState);
 		}
-		else
-		{
-			m_pBkgndRender->DrawState(hRDC, &rc, WINDOW_BKGND_RENDER_STATE_INACTIVE );
-		}
+		m_pBkgndRender->DrawState(hRDC, &rc, nState);
 	}
 	else
 	{
@@ -633,12 +635,16 @@ HRDC CustomWindow::BeginDrawObject( Object* pInvalidateObj )
 }
 void CustomWindow::EndDrawObject( CRect* prcWindow, bool bFinish)
 {
-	__super::EndDrawObject(prcWindow, bFinish);
-
-	if (bFinish && NULL != m_pLayeredWindowWrap)
+	if( NULL == m_pLayeredWindowWrap )
 	{
-		m_pLayeredWindowWrap->Commit2LayeredWindow();
+		__super::EndDrawObject(prcWindow, bFinish);
 	}
+	else
+	{
+		m_pLayeredWindowWrap->EndDrawObject(prcWindow, bFinish);
+	}
+
+	
 }
 
 //
@@ -652,7 +658,7 @@ UINT CustomWindow::OnHitTest( POINT* pt )
 	}
 	else if (m_nResizeBit == WRSB_CAPTION)
 	{
-		if( NULL == GetHoverObject() && NULL == GetPressObject())
+		if( NULL == GetHoverObject() && NULL == GetPressObject()  && !IsZoomed(m_hWnd))
 			return HTCAPTION;
 	}
 
@@ -695,7 +701,7 @@ UINT CustomWindow::OnHitTest( POINT* pt )
 	}
 	else
 	{
-		if (m_nResizeBit & WRSB_CAPTION && NULL == GetHoverObject() && NULL == GetPressObject())
+		if (m_nResizeBit & WRSB_CAPTION && NULL == GetHoverObject() && NULL == GetPressObject() && !IsZoomed(m_hWnd))
 		{
 			nHitTest = HTCAPTION;
 		}
@@ -820,7 +826,9 @@ void CustomWindow::OnLButtonDown(UINT nFlags, POINT pt)
 		break;
 
 	case HTCAPTION:
-		::PostMessage( m_hWnd, WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(pt.x,pt.y) );
+		{
+			::PostMessage( m_hWnd, WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(pt.x,pt.y) );
+		}
 		break;
 	}
 }
@@ -832,11 +840,14 @@ void CustomWindow::OnLButtonUp(UINT nFlags, POINT point)
 	{
 		m_pLayeredWindowWrap->OnLButtonUp();
 	}
+
+	
 }
 
 void CustomWindow::OnMouseMove(UINT nFlags, POINT point)
 {
 	SetMsgHandled(FALSE);
+
 	if (NULL != m_pLayeredWindowWrap)
 	{
 		m_pLayeredWindowWrap->OnMouseMove();
@@ -1211,9 +1222,14 @@ HRDC LayeredWindowWrap::BeginDrawObject( Object* pInvalidateObj)
 {
 	if( NULL == pInvalidateObj )
 		return NULL;
-
+	
 	if (false == BeginDraw(m_pWindow->m_hRenderTarget, m_hLayeredMemDC))
 		return NULL;
+	
+	if (m_pWindow->IsTransparent())
+	{
+		m_pWindow->m_hRenderTarget->Clear();
+	}
 
 	RenderOffsetClipHelper roc(m_pWindow);
 	pInvalidateObj->DrawObjectTransparentBkgnd(m_pWindow->m_hRenderTarget, roc, true);
@@ -1226,6 +1242,20 @@ HRDC LayeredWindowWrap::BeginDrawObject( Object* pInvalidateObj)
 	roc.Update(m_pWindow->m_hRenderTarget);
 
 	return m_pWindow->m_hRenderTarget;
+}
+
+void LayeredWindowWrap::EndDrawObject(CRect* prcWindow, bool bFinish)
+{
+	if (m_pWindow->IsTransparent())
+	{
+		::FillRect(m_hLayeredMemDC, prcWindow, (HBRUSH)::GetStockObject(BLACK_BRUSH));
+	}
+
+	((WindowBase*)m_pWindow)->EndDrawObject(prcWindow, bFinish);
+	if (bFinish)
+	{
+		this->Commit2LayeredWindow();
+	}
 }
 
 // 模拟拖拽窗口拉伸过程

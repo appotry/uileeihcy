@@ -270,6 +270,11 @@ void WindowBase::_InvalidateObject(Object* pInvalidateObj, HDC hDestDC)
 	if (false ==BeginDraw(m_hRenderTarget, hDestDC))
 		return;
 
+	if (this->IsTransparent())
+	{
+		m_hRenderTarget->Clear();
+	}
+
 	RenderOffsetClipHelper roc(this);
 	pInvalidateObj->DrawObjectTransparentBkgnd(m_hRenderTarget, roc, pInvalidateObj->IsTransparent());
 	
@@ -284,6 +289,12 @@ void WindowBase::_InvalidateObject(Object* pInvalidateObj, HDC hDestDC)
 	int nY = roc.m_rcClip.top  + roc.m_ptOffset.y;
 	int nW = roc.m_rcClip.Width();
 	int nH = roc.m_rcClip.Height();
+
+	if (this->IsTransparent())
+	{
+		RECT rc = {nX, nY, nX+nW, nY+nH};
+		::FillRect(hDestDC, &rc, (HBRUSH)::GetStockObject(BLACK_BRUSH));
+	}
 	EndDraw(m_hRenderTarget, nX, nY, nW, nH, nX, nY, true);
 }
 
@@ -866,12 +877,19 @@ LRESULT WindowBase::_OnPaint( UINT uMsg, WPARAM wParam,LPARAM lParam, BOOL& bHan
 			UI_LOG_ERROR(_T("WindowBase::WndProc CreateRenderTarget Failed."));
 	}
 
-	if (BeginDraw(m_hRenderTarget, hDC))
+	
+	if (m_hRenderTarget->BeginDraw(hDC))
 	{
+		if (this->IsTransparent())
+		{
+			m_hRenderTarget->Clear();
+			::FillRect(hDC, &rect, (HBRUSH)::GetStockObject(BLACK_BRUSH));
+		}
+
 		RenderOffsetClipHelper roc(this);
 		this->DrawObject(m_hRenderTarget, roc);
 		roc.Reset(m_hRenderTarget);
-		EndDraw(m_hRenderTarget);
+		m_hRenderTarget->EndDraw();
 	}
 
 	if( NULL == wParam )
@@ -1020,26 +1038,36 @@ LRESULT WindowBase::_OnThemeChange( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 LRESULT WindowBase::_OnGetMinMaxInfo( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
 {
-	 MINMAXINFO* pInfo = (MINMAXINFO*)lParam;
-	 if (NDEF != m_nMaxWidth)
-	 {
-		 pInfo->ptMaxSize.x = m_nMaxWidth;
-		 pInfo->ptMaxTrackSize.x = m_nMaxWidth;
-	 }
-	 if (NDEF != m_nMaxHeight)
-	 {
-		 pInfo->ptMaxSize.y = m_nMaxHeight;
-		 pInfo->ptMaxTrackSize.y = m_nMaxHeight;
-	 }
-	 if (NDEF != m_nMinWidth)
-	 {
-		 pInfo->ptMinTrackSize.x = m_nMinWidth;
-	 }
-	 if (NDEF != m_nMinHeight)
-	 {
-		 pInfo->ptMinTrackSize.y = m_nMinHeight;
-	 }
-	 return 0;
+	bHandled = FALSE;
+	MINMAXINFO* pInfo = (MINMAXINFO*)lParam;
+
+	pInfo->ptMaxPosition.x = -m_rcBorder.left;
+	pInfo->ptMaxPosition.y = -m_rcBorder.top;
+
+	CRect  rcWorkArea;
+	::SystemParametersInfo(SPI_GETWORKAREA, NULL, &rcWorkArea, NULL);
+
+	if (NDEF != m_nMaxWidth)
+		pInfo->ptMaxSize.x = pInfo->ptMaxTrackSize.x = m_nMaxWidth;
+	else
+		pInfo->ptMaxSize.x = pInfo->ptMaxTrackSize.x = rcWorkArea.Width() +m_rcBorder.left+m_rcBorder.right;
+
+	if (NDEF != m_nMaxHeight)
+		pInfo->ptMaxSize.y = pInfo->ptMaxTrackSize.y = m_nMaxHeight;
+	else
+		pInfo->ptMaxSize.y = pInfo->ptMaxTrackSize.y = rcWorkArea.Height() +m_rcBorder.top+m_rcBorder.bottom;
+
+	
+
+	if (NDEF != m_nMinWidth)
+	{
+		pInfo->ptMinTrackSize.x = m_nMinWidth;
+	}
+	if (NDEF != m_nMinHeight)
+	{
+		pInfo->ptMinTrackSize.y = m_nMinHeight;
+	}
+	return 0;
 }
 
 LRESULT WindowBase::_OnWindowPosChanging( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )

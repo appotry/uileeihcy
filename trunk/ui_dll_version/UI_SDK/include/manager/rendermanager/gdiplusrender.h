@@ -37,7 +37,7 @@ public:
 		SAFE_DELETE(m_pBitmap);
 		m_pBitmap = Gdiplus::Bitmap::FromFile(strPath.c_str());
 
-		if( NULL == m_pBitmap )
+		if (NULL == m_pBitmap)
 			return false;
 		else
 			return true;
@@ -49,7 +49,7 @@ public:
 		// The default value is PixelFormat32bppARGB
 		m_pBitmap = new Gdiplus::Bitmap(nWidth, nHeight);
 
-		if( NULL == m_pBitmap )
+		if (NULL == m_pBitmap)
 			return false;
 		else
 			return true;
@@ -57,14 +57,14 @@ public:
 
 	virtual int   GetWidth()
 	{
-		if( NULL == m_pBitmap )
+		if (NULL == m_pBitmap)
 			return 0;
 
 		return m_pBitmap->GetWidth();
 	}
 	virtual int   GetHeight()
 	{
-		if( NULL == m_pBitmap )
+		if (NULL == m_pBitmap)
 			return 0;
 
 		return m_pBitmap->GetHeight();
@@ -105,6 +105,26 @@ public:
 			m_pBitmapData = NULL;
 		}
 	}
+
+	
+	// 将图片数据清0。用于带透明的图片重绘前先刷新上一次的数据，避免alpha叠加
+	// 废弃，有直接的Graphic->Clear方法
+// 	void    Clear()
+// 	{
+// 		Gdiplus::BitmapData data;;
+// 		Gdiplus::Rect rect(0,0, m_pBitmap->GetWidth(), m_pBitmap->GetHeight());
+// 		m_pBitmap->LockBits(&rect, Gdiplus::ImageLockModeWrite, PixelFormat32bppARGB, &data);
+// 		
+// 		byte* pTemp = (byte*)data.Scan0;
+// 		int   bytesperline = abs(data.Stride);
+// 		for (int row = 0; row < (int)data.Height; row ++ )
+// 		{
+// 			memset(pTemp, 0, bytesperline);
+// 			pTemp += data.Stride;
+// 		}
+// 		
+// 		m_pBitmap->UnlockBits(&data);
+// 	}
 
 	virtual bool  SaveBits( ImageData* pImageData )
 	{
@@ -255,7 +275,7 @@ public:
 		return true;
 	}
 
-	HBITMAP  CopyRect(RECT* prc)
+	HBITMAP CopyRect(RECT* prc)
 	{
 		if (NULL == prc)
 			return NULL;
@@ -387,6 +407,7 @@ public:
 	virtual void     ResizeRenderTarget( int nWidth, int nHeight ){}; 
 	virtual BYTE*    LockBits() {return NULL;};
 	virtual void     UnlockBits(){};
+	virtual void     Clear(){}
 	virtual void     Save( const String& strPath ){};
 	virtual HBITMAP  CopyRect(RECT *prc){return NULL;}
 
@@ -436,6 +457,7 @@ public:
 	virtual void     ResizeRenderTarget( int nWidth, int nHeight );
 	virtual BYTE*    LockBits();
 	virtual void     UnlockBits();
+	virtual void     Clear();
 	virtual void     Save( const String& strPath );
 	virtual HBITMAP  CopyRect(RECT *prc);
 

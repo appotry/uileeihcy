@@ -744,15 +744,7 @@ void  UI_UpdateTopWindowLayout( WindowBase* pWindow )
 
 	DesktopLayout   dl;
 	dl.m_pWindow = pWindow;
-	
-	// 创建一个临时的DC用于在布局过程中测量字符串的大小
-	HDC hDC = UI_GetCacheDC();
-
-	HRDC hRDC = GetHRDC(hDC,pWindow->m_hWnd);
-	dl.Arrange(hRDC);
-	ReleaseHRDC(hRDC);
-
-	::UI_ReleaseCacheDC(hDC);
+	dl.Arrange();
 }
 
 //
@@ -763,17 +755,17 @@ void UI_UpdateLayout( WindowBase* pObj, BOOL bRedraw )
 	if( NULL == pObj )
 		return;
 
-	HDC hDC = UI_GetCacheDC();
-	HRDC hRDC = GetHRDC(hDC, pObj->m_hWnd);
+//	HDC hDC = UI_GetCacheDC();
+//	HRDC hRDC = GetHRDC(hDC, pObj->m_hWnd);
 //	pObj->PrepareDC(hRDC);   // 由于不用求WindowBase* pObj的大小，导致它没有去设置DC属性，因此需要在这里设置一下
 	
 	if( NULL != pObj->GetLayout() )
 	{
-		pObj->GetLayout()->Arrange(hRDC);
+		pObj->GetLayout()->Arrange(NULL);
 	}
 
-	ReleaseHRDC(hRDC);
-	UI_ReleaseCacheDC(hDC);
+//	ReleaseHRDC(hRDC);
+//	UI_ReleaseCacheDC(hDC);
 
 	if( bRedraw )
 		pObj->UpdateObject();

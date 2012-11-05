@@ -127,22 +127,36 @@ void Object::UpdateObjectBkgnd( bool bUpdateNow )
 void Object::UpdateLayout( bool bUpdate )
 {
 	Object* pParent = this->GetParentObject();
-	if( NULL == pParent || OBJ_CONTROL == pParent->GetObjectType() )
-	{
-		return;
-	}
-	
-	if( NULL == ((Panel*)pParent)->GetLayout() )
-		return;
+	Object* pObjectToUpdate = this;
 
-	HRDC hRDC = GetHRDC( this->GetHWND() );
-	((Panel*)pParent)->GetLayout()->ArrangeChildObject(hRDC, this, bUpdate);
-	ReleaseHRDC(hRDC);
-
-	if( pParent->GetParentObject() != NULL )
+	while(1)
 	{
-		pParent->UpdateLayout(bUpdate);
+		if (NULL == pParent || OBJ_CONTROL == pParent->GetObjectType())
+			return;
+
+		Layout* pLayout = ((Panel*)pParent)->GetLayout();
+		if (NULL == ((Panel*)pParent)->GetLayout())
+			return;
+
+		SIZE sizeOld = {pParent->GetWidth(), pParent->GetHeight()};
+		SIZE size = pLayout->Measure();
+
+		// pParent的大小发生了变化，继续往上
+		if (sizeOld.cx != size.cx || sizeOld.cy != size.cy)
+		{
+			pObjectToUpdate = pParent;
+			pParent = pParent->GetParentObject();
+			continue;
+		}
+		pLayout->Arrange(pObjectToUpdate, bUpdate);
+
+		break;
 	}
+
+// 		if( pParent->GetParentObject() != NULL )
+// 		{
+// 			pParent->UpdateLayout(bUpdate);
+// 		}
 }
 
 //
@@ -1149,8 +1163,8 @@ void Object::SetVisible( bool b, bool bUpdateNow )
 
 	if( b != bOld )
 	{
-		this->UpdateLayout(bUpdateNow);	   // 如果对象可见的话，则UpdateLayout会负责更新
-		if(bUpdateNow )
+		this->UpdateLayout(false);
+		if(bUpdateNow)
 		{
 			if (b)
 				this->UpdateObject(bUpdateNow); 

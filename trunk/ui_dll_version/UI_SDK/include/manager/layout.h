@@ -9,8 +9,8 @@ public:
 	virtual ~Layout(void){};
 
 public:
-	SIZE  Measure( HRDC hRDC ) ;                       // 返回 m_pPanel 所需要的大小；内部调用MeasureChildObject
-	void  Arrange( HRDC hRDC ) ;                       // 安排 m_pPanel 的子控件的位置和大小；内部调用ArrangeChildObject
+	SIZE  Measure();                                               // 返回 m_pPanel 所需要的大小；内部调用MeasureChildObject
+	void  Arrange(Object* pObjToArrage=NULL, bool bReDraw=false);  // 安排 m_pPanel 的子控件的位置和大小；内部调用ArrangeChildObject
 
 
 	virtual bool  SetAttribute( map<String,String>& mapAttrib, bool bReload=false ){ return true; };
@@ -118,11 +118,11 @@ class DesktopLayout
 public:
 	DesktopLayout();
 
-	virtual void  Arrange( HRDC hRDC );
+	virtual void  Arrange();
 public:
 	WindowBase*  m_pWindow; // 于LayoutManager::m_pPanel性质不一样，m_pPanel的layout布局管理器就是LayoutManager
-                          // 而这里，m_pWindow的layout布局管理器就不是DesktopLayout
-	                      // 所以DesktopLayout类不需要Measure函数，因为m_pWindow的Measure由m_pWindow->m_pLayout来获取
+                            // 而这里，m_pWindow的layout布局管理器就不是DesktopLayout
+	                        // 所以DesktopLayout类不需要Measure函数，因为m_pWindow的Measure由m_pWindow->m_pLayout来获取
 
 	// 坐标值。如未指定表示居中
 	int        left;

@@ -2,6 +2,8 @@
 
 Window::Window(void)
 {
+	m_pBtnSystemMaximize = NULL;
+	m_pBtnSystemRestore  = NULL;
 }
 
 Window::~Window(void)
@@ -12,11 +14,34 @@ void Window::OnInitWindow()
 {	
 	__super::OnInitWindow();
 
+	m_pBtnSystemRestore = this->FindChildObject(XML_SYS_BTN_RESTORE);
+	m_pBtnSystemMaximize = this->FindChildObject(XML_SYS_BTN_MAXIMIZE);
+
 	// 默认显示最大化按钮，隐藏还原按钮
-	Button* pButton = (Button*)this->FindChildObject(_T("sys_restore"));
-	if (NULL != pButton)
-		pButton->SetVisible(false, false);
+	if (NULL != m_pBtnSystemRestore)
+		m_pBtnSystemRestore->SetVisible(false, false);
 }
+
+void Window::_OnSkinChanged()
+{
+	SetMsgHandled(FALSE);
+	m_pBtnSystemRestore = this->FindChildObject(XML_SYS_BTN_RESTORE);
+	m_pBtnSystemMaximize = this->FindChildObject(XML_SYS_BTN_MAXIMIZE);
+}
+
+void Window::_OnLButtonDblClk(UINT nFlags, POINT point)
+{
+	SetMsgHandled(FALSE);
+	if (::IsZoomed(m_hWnd))
+	{
+		OnSysRestore();
+	}
+	else
+	{
+		OnSysMaximize();
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //
 //                               公共方法                               //
@@ -48,25 +73,21 @@ void Window::OnSysMaximize()
 	::PostMessage(m_hWnd, WM_SYSCOMMAND,SC_MAXIMIZE, 0 );
 
 	// 隐藏显示最大化按钮，显示还原按钮
-	Button* pBtnRestore = (Button*)this->FindChildObject(_T("sys_restore"));
-	if (NULL != pBtnRestore)
-		pBtnRestore->SetVisible(true, false);
+	if (NULL != m_pBtnSystemRestore)
+		m_pBtnSystemRestore->SetVisible(true, false);
 
-	Button* pButtonMax = (Button*)this->FindChildObject(_T("sys_maximize"));
-	if (NULL != pButtonMax)
-		pButtonMax->SetVisible(false, true);
+	if (NULL != m_pBtnSystemMaximize)
+		m_pBtnSystemMaximize->SetVisible(false, true);
 }
 void Window::OnSysRestore()
 {
 	::PostMessage(m_hWnd, WM_SYSCOMMAND,SC_RESTORE, 0 );
 
 	// 隐藏显示还原按钮，显示最大化按钮
-	Button* pButtonMax = (Button*)this->FindChildObject(_T("sys_maximize"));
-	if (NULL != pButtonMax)
-		pButtonMax->SetVisible(true, false);
+	if (NULL != m_pBtnSystemMaximize)
+		m_pBtnSystemMaximize->SetVisible(true, false);
 
-	Button* pBtnRestore = (Button*)this->FindChildObject(_T("sys_restore"));
-	if (NULL != pBtnRestore)
-		pBtnRestore->SetVisible(false, true);
+	if (NULL != m_pBtnSystemRestore)
+		m_pBtnSystemRestore->SetVisible(false, true);
 }
 
