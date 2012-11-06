@@ -267,7 +267,7 @@ void WindowBase::InvalidateObjectBkgnd( Object* pInvalidateObj, RECT* prc, bool 
 
 void WindowBase::_InvalidateObject(Object* pInvalidateObj, HDC hDestDC)
 {
-	if (false ==BeginDraw(m_hRenderTarget, hDestDC))
+	if (false == BeginDraw(m_hRenderTarget, hDestDC))
 		return;
 
 	if (this->IsTransparent())
@@ -321,7 +321,7 @@ void WindowBase::_InvalidateObjectBkgnd(Object* pInvalidateObj, HDC hDestDC)
 // 获取一个控件在窗口上的图像
 HBITMAP WindowBase::PaintObject(Object* pObj)
 {
-	if (NULL == pObj)
+	if (NULL == pObj || NULL == m_hRenderTarget)
 		return NULL;
 
 	pObj->UpdateObject(true);
@@ -892,6 +892,9 @@ LRESULT WindowBase::_OnPaint( UINT uMsg, WPARAM wParam,LPARAM lParam, BOOL& bHan
 		m_hRenderTarget->EndDraw();
 	}
 
+// 	ReleaseHRDC(m_hRenderTarget);
+// 	m_hRenderTarget = NULL;
+
 	if( NULL == wParam )
 		EndPaint(m_hWnd,&ps);
 
@@ -1209,9 +1212,7 @@ void WindowBase::ReCreateRenderTarget()
 	}
 }
 
-//
-//	[static] Window类型窗口的第一个窗口消息调用的窗口过程
-//
+
 //
 //	如果已知一个窗口的client区域大小，求这个窗口的window区域大小
 //
