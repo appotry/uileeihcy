@@ -59,6 +59,26 @@ bool ButtonBase::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 		m_mapAttribute.erase(iter);
 	}
 
+	int nButtonStyle = GetButtonStyle();
+	if (nButtonStyle >= BUTTON_STYLE_HAVE_TEXT_FIRST && nButtonStyle <= BUTTON_STYLE_HAVE_TEXT_LAST)
+	{
+		iter = m_mapAttribute.find(XML_TEXTRENDER_TYPE);
+		if (m_mapAttribute.end() != iter)
+		{
+			SAFE_DELETE(m_pTextRender);
+			const String& strTextRenderType = iter->second;
+			m_pTextRender = TextRenderFactory::GetTextRender(strTextRenderType, this);
+			m_pTextRender->SetAttribute(_T(""),m_mapAttribute);
+
+			this->m_mapAttribute.erase(iter);
+		}
+		else if( NULL == m_pTextRender )
+		{
+			m_pTextRender = TextRenderFactory::GetTextRender(TEXTRENDER_TYPE_NORMAL, this);
+			m_pTextRender->SetAttribute(_T(""),m_mapAttribute);
+		}
+	}
+
 	if (NULL == m_pBkgndRender && this->GetButtonStyle() == BUTTON_STYLE_PUSHBUTTON)
 	{
 		m_pBkgndRender = RenderFactory::GetRender( RENDER_TYPE_THEME, this);
@@ -314,44 +334,44 @@ void ButtonBase::OnPaint(HRDC hRDC)
 
 	if( bDisable )
 	{
-		if ( NULL != m_pForegndRender )
+		if (NULL != m_pForegndRender)
 		{
 			m_pForegndRender->DrawState( hRDC, &rcIcon, bChecked?BUTTON_ICON_RENDER_STATE_SELECTED_DISABLE:BUTTON_ICON_RENDER_STATE_DISABLE );
 		}
-		if( NULL != m_pTextRender )
+		if (NULL != m_pTextRender)
 		{
 			m_pTextRender->DrawState( hRDC, &rcText, BUTTON_BKGND_RENDER_STATE_DISABLE, m_strText, DT_VCENTER|DT_CENTER|DT_SINGLELINE|DT_END_ELLIPSIS );
 		}
 	}
-	else if( bForePress || (bPress && bHover) )
+	else if (bForePress || (bPress && bHover))
 	{
-		if ( NULL != m_pForegndRender )
+		if (NULL != m_pForegndRender)
 		{
 			m_pForegndRender->DrawState( hRDC, &rcIcon, bChecked?BUTTON_ICON_RENDER_STATE_SELECTED_PRESS:BUTTON_ICON_RENDER_STATE_PRESS );
 		}
-		if( NULL != m_pTextRender )
+		if (NULL != m_pTextRender)
 		{
 			m_pTextRender->DrawState( hRDC, &rcText, BUTTON_BKGND_RENDER_STATE_PRESS, m_strText, DT_VCENTER|DT_CENTER|DT_SINGLELINE|DT_END_ELLIPSIS );
 		}
 	}
 	else if( bHover || bPress )
 	{
-		if ( NULL != m_pForegndRender )
+		if (NULL != m_pForegndRender)
 		{
 			m_pForegndRender->DrawState( hRDC, &rcIcon, bChecked?BUTTON_ICON_RENDER_STATE_SELECTED_HOVER:BUTTON_ICON_RENDER_STATE_HOVER );
 		}
-		if( NULL != m_pTextRender )
+		if (NULL != m_pTextRender)
 		{
 			m_pTextRender->DrawState( hRDC, &rcText, BUTTON_BKGND_RENDER_STATE_HOVER, m_strText, DT_VCENTER|DT_CENTER|DT_SINGLELINE|DT_END_ELLIPSIS );
 		}
 	}
 	else 
 	{
-		if ( NULL != m_pForegndRender )
+		if (NULL != m_pForegndRender)
 		{
 			m_pForegndRender->DrawState( hRDC, &rcIcon, bChecked?BUTTON_ICON_RENDER_STATE_SELECTED_NORMAL:BUTTON_ICON_RENDER_STATE_NORMAL );
 		}
-		if( NULL != m_pTextRender )
+		if (NULL != m_pTextRender)
 		{
 			m_pTextRender->DrawState( hRDC, &rcText, BUTTON_BKGND_RENDER_STATE_NORMAL, m_strText, DT_VCENTER|DT_CENTER|DT_SINGLELINE|DT_END_ELLIPSIS );
 		}

@@ -40,12 +40,12 @@ WindowlessRichEdit::~WindowlessRichEdit(void)
 		m_spTextServices = NULL;
 	}
 
-	for (int i = 0; i < (int)m_vecpUnkOleObject.size(); i++)
-	{
-		IUnknown* pUnk = m_vecpUnkOleObject[i];
-		pUnk->Release();
-	}
-	m_vecpUnkOleObject.clear();
+// 	for (int i = 0; i < (int)m_vecpUnkOleObject.size(); i++)
+// 	{
+// 		IUnknown* pUnk = m_vecpUnkOleObject[i];
+// 		pUnk->Release();
+// 	}
+//	m_vecpUnkOleObject.clear();
 
 //	this->ReleaseRichEidtDll();
 }
@@ -1161,7 +1161,7 @@ bool WindowlessRichEdit::InsertGif(const TCHAR* szGifPath)
 	}
 	else
 	{
-		m_vecpUnkOleObject.push_back(static_cast<IUnknown*>(pGifOleObject));
+//		m_vecpUnkOleObject.push_back(static_cast<IUnknown*>(pGifOleObject));
 	}
 
 	return bRet;

@@ -4,6 +4,7 @@ Window::Window(void)
 {
 	m_pBtnSystemMaximize = NULL;
 	m_pBtnSystemRestore  = NULL;
+	m_pBtnSystemMinimize = NULL;
 }
 
 Window::~Window(void)
@@ -14,8 +15,7 @@ void Window::OnInitWindow()
 {	
 	__super::OnInitWindow();
 
-	m_pBtnSystemRestore = this->FindChildObject(XML_SYS_BTN_RESTORE);
-	m_pBtnSystemMaximize = this->FindChildObject(XML_SYS_BTN_MAXIMIZE);
+	this->HandleSysBtnStyle();
 
 	// 默认显示最大化按钮，隐藏还原按钮
 	if (NULL != m_pBtnSystemRestore)
@@ -25,10 +25,41 @@ void Window::OnInitWindow()
 void Window::_OnSkinChanged()
 {
 	SetMsgHandled(FALSE);
-	m_pBtnSystemRestore = this->FindChildObject(XML_SYS_BTN_RESTORE);
-	m_pBtnSystemMaximize = this->FindChildObject(XML_SYS_BTN_MAXIMIZE);
+	this->HandleSysBtnStyle();
 }
 
+void Window::HandleSysBtnStyle()
+{
+	m_pBtnSystemMinimize = this->FindChildObject(XML_SYS_BTN_MINIMIZE);
+	m_pBtnSystemRestore = this->FindChildObject(XML_SYS_BTN_RESTORE);
+	m_pBtnSystemMaximize = this->FindChildObject(XML_SYS_BTN_MAXIMIZE);
+
+	UINT nAdd = 0, nRemove = 0;
+
+	if (NULL != m_pBtnSystemMinimize)
+	{
+		nAdd |= WS_MINIMIZEBOX;
+	}
+	else
+	{
+		nRemove |= WS_MINIMIZEBOX;
+	}
+
+	if (NULL != m_pBtnSystemMaximize)
+	{
+		nAdd |= WS_MAXIMIZEBOX;
+	}
+	else
+	{
+		nRemove |= WS_MAXIMIZEBOX;
+	}
+
+	long lStyle = GetWindowLong(m_hWnd, GWL_STYLE);
+	lStyle |= nAdd;
+	lStyle &= ~nRemove;
+	SetWindowLong(m_hWnd, GWL_STYLE, lStyle);
+//	SetWindowPos(m_hWnd, 0,0,0,0,0,SWP_NOZORDER|SWP_NOMOVE|SWP_NOSIZE|SWP_FRAMECHANGED);
+}
 void Window::_OnLButtonDblClk(UINT nFlags, POINT point)
 {
 	SetMsgHandled(FALSE);

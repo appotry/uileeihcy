@@ -82,7 +82,6 @@
 92. playlistdlg resize的时候， listctrl 变化不正常，会变黑
 93. WINDOW 的两个消息链有点混乱，能不能想办法都合入到processwindowmessage中，ui_begin_msg_map只由外部去处理
 95. 逐步将句柄调用方式修改为接口调用方法
-96. 点击任务栏上面的按钮不能最小化窗口
 102.tooltip高级控件
 106.layout.xxx 属性是否是以进行统一规划？
 107.ccaret的分层窗口光标在第一行/最后一行显示不下的时候，位置不正确
@@ -135,6 +134,8 @@
 
 148.窗口最大化后，覆盖任务栏的问题，应该是GETMINMAXINFO没有去年任务栏高度的问题
     另外，window类中处理的系统按钮命令是不是应该移到custom window当中？
+	
+149.换肤时，paintobject中的updateobject，由于现在只绘制clip区域的内容，而当时的m_bSetWindowRgn为true，导致窗口被截断了
 	
 ==================================疑问==================================
 1. Message类是否需要一个 m_pCurMsg成员变量？
@@ -231,6 +232,9 @@
     
  1. Min max width/height 限制
     --> 20121029. 为windowbase增加maxwidth maxheight minwidht minheight属性，同时设置分层窗口的窗口拉伸函数
+    
+96. 点击任务栏上面的按钮不能最小化窗口
+    --> 根据是否有sys_min/sys_max按钮增加WS_MINIMIZEBOX/WS_MAXIMIAZEBOX属性
      	
 备注：
 1. Q: 怎么解决用VS2008编译生成的程序对vc运行库的依赖？

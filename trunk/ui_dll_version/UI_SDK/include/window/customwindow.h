@@ -175,7 +175,8 @@ public:
 	void      OnWindowPosChanged(LPWINDOWPOS lpWndPos);
 	void      InvalidateObject( Object* pInvalidateObj, bool bUpdateNow );
 	HRDC      BeginDrawObject( Object* pInvalidateObj);
-	void      EndDrawObject(CRect* prcWindow, bool bFinish);
+	void      PreEndDrawObject(CRect* prcWindow, bool bFinish);
+	void      PostEndDrawObject(CRect* prcWindow, bool bFinish);
 
 	void      OnLButtonDown(UINT nHitTest);
 	void      OnLButtonUp();

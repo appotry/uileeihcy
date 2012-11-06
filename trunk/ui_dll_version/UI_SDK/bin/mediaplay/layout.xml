@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ui>
 <layout>
-    <CustomWindow id="mainwindow" layout.right="-100" layout.bottom="-100" width="270" height="168"
+    <CustomWindow id="mainwindow" layout.left="300" layout.top="300" width="270" height="168"
                   bkgnd.render.type="image" bkgnd.render.image="player_skin.png"
                   transparent.type="maskalpha" transparent.maskalpha="1" transparent.typex="layered" transparent.maskalphax="240">
       <Picture id="icon"  foregnd.render.image="ttplayer.ico" layout.left="5" layout.top="6"/>

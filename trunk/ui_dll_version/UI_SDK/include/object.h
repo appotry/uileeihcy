@@ -89,11 +89,13 @@ enum OBJ_TYPE
 // button style
 #define BUTTON_STYLE_MASK               0x000F    // 按钮类型使用的位
 #define BUTTON_STYLE_PUSHBUTTON         0x0000    // 普通按钮
+#define BUTTON_STYLE_HAVE_TEXT_FIRST    BUTTON_STYLE_PUSHBUTTON  // 标志有内容的按钮。这些按钮才需要创建字体textrender
 #define BUTTON_STYLE_RADIOBUTTON        0x0001    // 单选按钮
 #define BUTTON_STYLE_CHECKBUTTON        0x0002    // 复选按钮
 #define BUTTON_STYLE_HYPERLINK          0x0003    // 超链接按钮
 #define BUTTON_STYLE_MENUBUTTON         0x0004    // 菜单按钮
 #define BUTTON_STYLE_SPLITMENUBUTTON    0x0005    // 按钮+菜单
+#define BUTTON_STYLE_HAVE_TEXT_LAST    BUTTON_STYLE_SPLITMENUBUTTON
 #define BUTTON_STYLE_COMBOBOX           0x0006    // 组合框中的按钮
 #define BUTTON_STYLE_SCROLLLINEUP       0x0007    // 滚动条按钮
 #define BUTTON_STYLE_SCROLLLINEDOWN     0x0008

@@ -303,6 +303,13 @@ void MainWindow::SetEqualizerDlgHandle(HWND hWnd)
 		data.m_rcAnchorData.Width = data.m_rcAnchorData.Height = -1;
 		this->AddAnchorItem(data);
 	}
+
+	// TEST. TODO:
+	if (NULL != m_pBtnLyric)
+	{
+		m_pBtnLyric->SetChecked();
+		OnBnClickLyric();
+	}
 }
 
 void MainWindow::OnBnClickLyric()
@@ -320,7 +327,7 @@ void MainWindow::OnBnClickLyric()
 
 		SyncWindowData data;
 		data.m_hWnd = m_pLyricDlg->m_hWnd;
-		data.m_nAnchorType = ANCHOR_OUT_RIGHT;
+		data.m_nAnchorType = ANCHOR_OUT_RIGHT|ANCHOR_TOP;
 		data.m_rcAnchorData.Width = data.m_rcAnchorData.Height = -1;
 		this->AddAnchorItem(data);
 	}
@@ -452,11 +459,11 @@ void MainWindow::OnContextMenu( HWND wnd, POINT point )
 	if( this->GetHoverObject() != NULL )
 		return;
 
-#ifdef _DEBUG
-	 	COptionWindow win;
-	 	win.DoModal(g_hInstance, COptionWindow::IDD, _T("OptionWindow"),m_hWnd);
-		return;
-#endif
+// #ifdef _DEBUG
+// 	 	COptionWindow win;
+// 	 	win.DoModal(g_hInstance, COptionWindow::IDD, _T("OptionWindow"),m_hWnd);
+// 		return;
+// #endif
 
 #if 0 // 手动创建菜单 
 	int nMenuID = 100;

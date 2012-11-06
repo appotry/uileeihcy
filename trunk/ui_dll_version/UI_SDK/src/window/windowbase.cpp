@@ -20,11 +20,6 @@ WindowBase::WindowBase()
 }
 WindowBase::~WindowBase()
 {
-	if (NULL != m_hFont)
-	{
-		::UI_ReleaseFont(m_hFont);
-		m_hFont = NULL;
-	}
 }
 
 void WindowBase::ResetAttribute()
@@ -39,6 +34,7 @@ void WindowBase::ResetAttribute()
 
 	m_nMinWidth = m_nMinHeight = NDEF;
 	m_nMaxWidth = m_nMaxHeight = NDEF;
+	this->ModifyStyle(0, OBJECT_STYLE_TRANSPARENT);  // 取消Panel基本中的透明属性
 }
 bool WindowBase::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 {
@@ -164,6 +160,11 @@ void WindowBase::DestroyUI()
 	{
 		ReleaseHRDC(m_hRenderTarget);
 		m_hRenderTarget = NULL;
+	}
+	if (NULL != m_hFont)
+	{
+		::UI_ReleaseFont(m_hFont);
+		m_hFont = NULL;
 	}
 }
 
@@ -596,7 +597,7 @@ HWND WindowBase::DoModeless( const String& ID, HWND hWndParent )
 	*lpw++ = 0;             // Predefined dialog box class (by default)
 
 	LPWSTR lpwsz = (LPWSTR)lpw;
-	int nchar = 1 + MultiByteToWideChar(CP_ACP, 0, "", -1, lpwsz, 50);  // 窗口的标题名称
+	int nchar = 1 + MultiByteToWideChar(CP_ACP, 0, "d", -1, lpwsz, 50);  // 窗口的标题名称
 	lpw += nchar;
 	GlobalUnlock(hgbl); 
 
@@ -610,6 +611,12 @@ HWND WindowBase::DoModeless( const String& ID, HWND hWndParent )
 					(LPDLGTEMPLATE)hgbl, 
 					hWndParent, 
 					(DLGPROC)WindowBase::StartDialogProc); 
+	}
+	if (NULL != m_hWnd)
+	{
+		// fix默认的#32770窗口过程在大小改变时不刷新的问题
+		// TODO:?? 为什么带THICKFRAME的窗口就能自己刷新
+		SetClassLong(m_hWnd, GCL_STYLE, CS_HREDRAW | CS_VREDRAW |CS_DBLCLKS);
 	}
 	GlobalFree(hgbl); 
 	return m_hWnd;

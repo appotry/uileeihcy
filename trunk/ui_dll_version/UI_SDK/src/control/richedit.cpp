@@ -16,6 +16,22 @@ bool RichEditBase::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 	if (false == bRet)
 		return false;
 
+	ATTRMAP::iterator iter = m_mapAttribute.find(XML_TEXTRENDER_TYPE);
+	if (m_mapAttribute.end() != iter)
+	{
+		SAFE_DELETE(m_pTextRender);
+		const String& strTextRenderType = iter->second;
+		m_pTextRender = TextRenderFactory::GetTextRender(strTextRenderType, this);
+		m_pTextRender->SetAttribute(_T(""),m_mapAttribute);
+
+		this->m_mapAttribute.erase(iter);
+	}
+	else if( NULL == m_pTextRender )
+	{
+		m_pTextRender = TextRenderFactory::GetTextRender(TEXTRENDER_TYPE_NORMAL, this);
+		m_pTextRender->SetAttribute(_T(""),m_mapAttribute);
+	}
+
 	if (NULL == m_pBkgndRender)
 	{
 		m_pBkgndRender = RenderFactory::GetRender(RENDER_TYPE_COLOR, this);

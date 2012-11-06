@@ -19,15 +19,17 @@
                   bkgnd.render.imagelist.layout="v"></Button>
     </CustomWindow>
 
-    <CustomWindow id="chatdlg" width="553" height="520" minwidth="450" minheight="500" border="6,6,6,6"
-                  transparent.type="layered" istransparent="1"
+    <CustomWindow id="chatdlg" width="1553" height="820" minwidth="450" minheight="500" border="6,6,6,6"
+                  transparent.typex="layered" istransparent="1"
                   bkgnd.render.type="image"
                   bkgnd.render.image="chatframe.png"
                   bkgnd.render.image.drawtype="stretch"
                   bkgnd.render.9region="12,101,12,12"
                   foregnd.render.type="image"
                   foregnd.render.image="chatframe_surface.png"
-                  foregnd.render.image.drawtype="tile">
+                  foregnd.render.image.drawtype="tile"
+                  textrender.font="normal">
+      <Label text="sfasdfasdf;lkj另草根轩" layout.left="10" layout.top="10"/>
       <Panel layout="stack" layout.right="2" layout.top="2" layout.direction="righttoleft">
         <Button id="sys_close" autosize="bkimage" drawfocus="0" istransparent="1"
                     bkgnd.render.type="imagelist"
@@ -50,7 +52,11 @@
                     bkgnd.render.imagelist.count="3"
                     bkgnd.render.imagelist.layout="h"></Button>  
       </Panel>
-      
+      <RichEdit id="outputedit" layout.left="0" layout.right="0" layout.top="95" layout.bottom="100"
+                istransparent="1"
+        ></RichEdit>
+      <RichEdit id="inputedit" layout.left="0" layout.right="0" layout.bottom="5" height="90"
+        ></RichEdit>
     </CustomWindow>
   </layout>
 
@@ -62,7 +68,9 @@
     <item id="icon_max.png" path="icon_max.png"/>
     <item id="chatframe_surface.png" path="chatframe_surface.png"/>
   </image>
-  <font/>
+  <font>
+    <item id="normal" facename="宋体" size="9"/>
+  </font>
   <color/>
   <style/>
 </ui>
