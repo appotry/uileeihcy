@@ -599,7 +599,9 @@ void GDIRenderDC::DrawBitmap( HRBITMAP hBitmap, DRAWBITMAPPARAM* pParam )
 
 	if (pParam->nFlag & DRAW_BITMAP_BITBLT)
 	{
-		pImage->Draw(m_hDC, pParam->xDest, pParam->yDest, pParam->wSrc, pParam->hSrc, pParam->xSrc, pParam->ySrc, pParam->wSrc, pParam->hSrc);
+		int nW = min(pParam->wDest, pParam->wSrc);
+		int nH = min(pParam->hDest, pParam->hSrc);
+		pImage->Draw(m_hDC, pParam->xDest, pParam->yDest, nW, nH, pParam->xSrc, pParam->ySrc, nW, nH);
 	}
 	else if (pParam->nFlag & DRAW_BITMAP_STRETCH)
 	{
@@ -607,10 +609,32 @@ void GDIRenderDC::DrawBitmap( HRBITMAP hBitmap, DRAWBITMAPPARAM* pParam )
 	}
 	else if (pParam->nFlag & DRAW_BITMAP_TILE)
 	{
-		RECT rc = {pParam->xDest, pParam->yDest, pParam->xDest+pParam->wDest, pParam->yDest+pParam->hDest};
-		HBRUSH hBrush = ::CreatePatternBrush(pImage->operator HBITMAP());
-		::FillRect(m_hDC, &rc, hBrush);
-		::DeleteObject(hBrush);
+			if( NULL == hBitmap )
+				return;
+
+			RECT rc = {pParam->xDest, pParam->yDest, pParam->xDest+pParam->wDest, pParam->yDest+pParam->hDest};
+			HBRUSH hBrush = ::CreatePatternBrush(pImage->operator HBITMAP());
+			::FillRect(m_hDC, &rc, hBrush);
+			::DeleteObject(hBrush);
+
+// 			int yDest2 = (pParam->hDest+pParam->yDest);
+// 			int xDest2 = (pParam->wDest+pParam->xDest);
+// 			for (int y = pParam->yDest; y < yDest2; y += pImage->GetHeight())
+// 			{
+// 				int nH = yDest2-y;
+// 				if (nH > pParam->hSrc)
+// 					nH = pParam->hSrc;
+// 
+// 				for (int x = pParam->xDest; x < xDest2; x +=pImage->GetWidth())
+// 				{
+// 					int nW = xDest2-x;
+// 					if (nW > pParam->wSrc)
+// 						nW = pParam->wSrc;
+// 
+// 					pImage->Draw(m_hDC, x, y, nW, nH, pParam->xSrc, pParam->ySrc, nW, nH);
+// 				}
+// 			}
+		
 	}
 	else if (pParam->nFlag & DRAW_BITMAP_CENTER)
 	{

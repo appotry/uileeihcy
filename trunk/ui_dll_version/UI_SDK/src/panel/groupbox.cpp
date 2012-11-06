@@ -37,8 +37,24 @@ bool GroupBox::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 	bool bRet = Panel::SetAttribute( mapAttrib,bReload );
 	if( false == bRet )	return bRet;
 
+	ATTRMAP::iterator iter = m_mapAttribute.find(XML_TEXTRENDER_TYPE);
+	if (m_mapAttribute.end() != iter)
+	{
+		SAFE_DELETE(m_pTextRender);
+		const String& strTextRenderType = iter->second;
+		m_pTextRender = TextRenderFactory::GetTextRender(strTextRenderType, this);
+		m_pTextRender->SetAttribute(_T(""),m_mapAttribute);
+
+		this->m_mapAttribute.erase(iter);
+	}
+	else if( NULL == m_pTextRender )
+	{
+		m_pTextRender = TextRenderFactory::GetTextRender(TEXTRENDER_TYPE_NORMAL, this);
+		m_pTextRender->SetAttribute(_T(""),m_mapAttribute);
+	}
+
 	// ÄÚÈÝ
-	ATTRMAP::iterator iter = m_mapAttribute.find(XML_TEXT);
+	iter = m_mapAttribute.find(XML_TEXT);
 	if (m_mapAttribute.end() != iter)
 	{
 		this->m_strText = iter->second;

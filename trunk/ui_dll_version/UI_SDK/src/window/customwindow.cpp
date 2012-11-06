@@ -635,16 +635,16 @@ HRDC CustomWindow::BeginDrawObject( Object* pInvalidateObj )
 }
 void CustomWindow::EndDrawObject( CRect* prcWindow, bool bFinish)
 {
-	if( NULL == m_pLayeredWindowWrap )
+	if (NULL == m_pLayeredWindowWrap)
 	{
 		__super::EndDrawObject(prcWindow, bFinish);
 	}
 	else
 	{
-		m_pLayeredWindowWrap->EndDrawObject(prcWindow, bFinish);
+		m_pLayeredWindowWrap->PreEndDrawObject(prcWindow, bFinish);
+		__super::EndDrawObject(prcWindow, bFinish);
+		m_pLayeredWindowWrap->PostEndDrawObject(prcWindow, bFinish);
 	}
-
-	
 }
 
 //
@@ -1244,14 +1244,15 @@ HRDC LayeredWindowWrap::BeginDrawObject( Object* pInvalidateObj)
 	return m_pWindow->m_hRenderTarget;
 }
 
-void LayeredWindowWrap::EndDrawObject(CRect* prcWindow, bool bFinish)
+void LayeredWindowWrap::PreEndDrawObject(CRect* prcWindow, bool bFinish)
 {
 	if (m_pWindow->IsTransparent())
 	{
 		::FillRect(m_hLayeredMemDC, prcWindow, (HBRUSH)::GetStockObject(BLACK_BRUSH));
 	}
-
-	((WindowBase*)m_pWindow)->EndDrawObject(prcWindow, bFinish);
+}
+void LayeredWindowWrap::PostEndDrawObject(CRect* prcWindow, bool bFinish)
+{
 	if (bFinish)
 	{
 		this->Commit2LayeredWindow();

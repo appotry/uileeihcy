@@ -29,14 +29,16 @@ protected:
 	void     _OnLButtonDblClk(UINT nFlags, POINT point);
 
 	// 模拟系统标题栏按钮
-	void              OnSysClose();
-	void              OnSysMinimize();
-	void              OnSysMaximize();
-	void              OnSysRestore();
+	void      OnSysClose();
+	void      OnSysMinimize();
+	void      OnSysMaximize();
+	void      OnSysRestore();
+	void      HandleSysBtnStyle();
 
 protected:
 	Object*   m_pBtnSystemMaximize;
 	Object*   m_pBtnSystemRestore;
+	Object*   m_pBtnSystemMinimize;
 };
 
 

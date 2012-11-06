@@ -482,22 +482,22 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 		this->m_mapAttribute.erase(iter);
 	}
 
-	// 字体
-	iter = m_mapAttribute.find(XML_TEXTRENDER_TYPE);
-	if (m_mapAttribute.end() != iter)
-	{
-		SAFE_DELETE(m_pTextRender);
-		const String& strTextRenderType = iter->second;
-		m_pTextRender = TextRenderFactory::GetTextRender(strTextRenderType, this);
-		m_pTextRender->SetAttribute(_T(""),m_mapAttribute);
-
-		this->m_mapAttribute.erase(iter);
-	}
-	else if( NULL == m_pTextRender )
-	{
-		m_pTextRender = TextRenderFactory::GetTextRender(TEXTRENDER_TYPE_NORMAL, this);
-		m_pTextRender->SetAttribute(_T(""),m_mapAttribute);
-	}
+// 	// 字体  -- 将字体属性移出。谁需要字体属性谁自己负责解析。不是所有的对象都需要字体
+// 	iter = m_mapAttribute.find(XML_TEXTRENDER_TYPE);
+// 	if (m_mapAttribute.end() != iter)
+// 	{
+// 		SAFE_DELETE(m_pTextRender);
+// 		const String& strTextRenderType = iter->second;
+// 		m_pTextRender = TextRenderFactory::GetTextRender(strTextRenderType, this);
+// 		m_pTextRender->SetAttribute(_T(""),m_mapAttribute);
+// 
+// 		this->m_mapAttribute.erase(iter);
+// 	}
+// 	else if( NULL == m_pTextRender )
+// 	{
+// 		m_pTextRender = TextRenderFactory::GetTextRender(TEXTRENDER_TYPE_NORMAL, this);
+// 		m_pTextRender->SetAttribute(_T(""),m_mapAttribute);
+// 	}
 	
 
 	// 刷新属性
