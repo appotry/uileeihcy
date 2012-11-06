@@ -197,7 +197,7 @@ protected:
 class RenderOffsetClipHelper
 {
 public:
-	RenderOffsetClipHelper(Object* pObject);
+	RenderOffsetClipHelper(Object* pObject, bool bSetClip=true);
 
 	// 返回false时，表示这个对象已完全超出当前剪裁区域了，不需要再绘制
 	bool  DrawChild(Object* pChild, HRDC hRDC);
@@ -207,6 +207,7 @@ public:
 	void  Reset(HRDC hRDC);
 
 public:
+	bool      m_bSetClip;  // 是否需要维护CLIP参数
 	CRect     m_rcClip;    // 不是设备坐标，而是相对于要绘制的对象的左上角，它的剪裁区域
 	POINT     m_ptOffset;  // 当前要绘制的对象偏移量，其实就是设备坐标
 };

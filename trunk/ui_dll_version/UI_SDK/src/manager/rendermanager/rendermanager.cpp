@@ -1,28 +1,41 @@
 #include "stdafx.h"
 
 
-RenderOffsetClipHelper::RenderOffsetClipHelper(Object* pObject)
+RenderOffsetClipHelper::RenderOffsetClipHelper(Object* pObject, bool bSetClip)
 {
-	pObject->GetParentRect(&m_rcClip);
-	m_ptOffset.x = m_rcClip.left;
-	m_ptOffset.y = m_rcClip.top;
-	::OffsetRect(&m_rcClip, -m_ptOffset.x, -m_ptOffset.y);
+	m_bSetClip = bSetClip;
+
+	CRect rc ;
+	pObject->GetParentRect(&rc);
+	m_ptOffset.x = rc.left;
+	m_ptOffset.y = rc.top;
+	if (m_bSetClip)
+	{
+		m_rcClip = rc;
+		::OffsetRect(&m_rcClip, -m_ptOffset.x, -m_ptOffset.y);
+	}
 }
 void RenderOffsetClipHelper::Reset(HRDC hRDC)
 {
-	SelectClipRgn(hRDC, NULL);
+	if (m_bSetClip)
+	{
+		SelectClipRgn(hRDC, NULL);
+	}
 	SetViewportOrgEx(hRDC,0,0,NULL);
 }
 void RenderOffsetClipHelper::Update(HRDC hRDC)
 {
 	SetViewportOrgEx(hRDC, m_ptOffset.x, m_ptOffset.y, NULL);
 
-	CRect rcDevice = m_rcClip;
-	rcDevice.OffsetRect(m_ptOffset.x, m_ptOffset.y); // 转换为设备坐标参数传递给CreateRectRgnIndirect
+	if (m_bSetClip)
+	{
+		CRect rcDevice = m_rcClip;
+		rcDevice.OffsetRect(m_ptOffset.x, m_ptOffset.y); // 转换为设备坐标参数传递给CreateRectRgnIndirect
 
-	HRGN hRgn = CreateRectRgnIndirect(&rcDevice);
-	SelectClipRgn(hRDC, hRgn);
-	SAFE_DELETE_GDIOBJECT(hRgn);
+		HRGN hRgn = CreateRectRgnIndirect(&rcDevice);
+		SelectClipRgn(hRDC, hRgn);
+		SAFE_DELETE_GDIOBJECT(hRgn);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -35,12 +48,15 @@ bool RenderOffsetClipHelper::DrawChild(Object* pChild, HRDC hRDC)
 	CRect rcParent;
 	pChild->GetParentRect(&rcParent);
 
-	CRect rcIntersect;
-	if (!rcIntersect.IntersectRect(&m_rcClip, &rcParent) )
-		return false;
+	if (m_bSetClip)
+	{
+		CRect rcIntersect;
+		if (!rcIntersect.IntersectRect(&m_rcClip, &rcParent) )
+			return false;
 
-	m_rcClip = rcIntersect;
-	m_rcClip.OffsetRect(-rcParent.left, -rcParent.top);
+		m_rcClip = rcIntersect;
+		m_rcClip.OffsetRect(-rcParent.left, -rcParent.top);
+	}
 
 	m_ptOffset.x += rcParent.left;
 	m_ptOffset.y += rcParent.top;
@@ -60,7 +76,11 @@ void RenderOffsetClipHelper::Scroll(HRDC hRDC, Object* pObjScroll, bool bUpdate)
 	{
 		m_ptOffset.x -= xOffset;
 		m_ptOffset.y -= yOffset;
-		OffsetRect(&m_rcClip, xOffset, yOffset);
+
+		if (m_bSetClip)
+		{
+			OffsetRect(&m_rcClip, xOffset, yOffset);
+		}
 
 		if (bUpdate)
 			this->Update(hRDC);
@@ -75,13 +95,15 @@ void RenderOffsetClipHelper::DrawClient(HRDC hRDC, Object* pObject, bool bUpdate
 	m_ptOffset.x += pObject->GetNonClientL();
 	m_ptOffset.y += pObject->GetNonClientT();
 
-	m_rcClip.right -= pObject->GetNonClientW();
-	m_rcClip.bottom -= pObject->GetNonClientH();
+	if (m_bSetClip)
+	{
+		m_rcClip.right -= pObject->GetNonClientW();
+		m_rcClip.bottom -= pObject->GetNonClientH();
+	}
 
 	if (bUpdate)
 		this->Update(hRDC);
 }
-
 
 //////////////////////////////////////////////////////////////////////////
 

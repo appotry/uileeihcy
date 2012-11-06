@@ -275,18 +275,34 @@ void WindowBase::_InvalidateObject(Object* pInvalidateObj, HDC hDestDC)
 		m_hRenderTarget->Clear();
 	}
 
+#if 0
 	RenderOffsetClipHelper roc(this);
-	pInvalidateObj->DrawObjectTransparentBkgnd(m_hRenderTarget, roc, pInvalidateObj->IsTransparent());
+#else
+	RenderOffsetClipHelper roc(this, false);
+
+	pInvalidateObj->GetWindowRect(&roc.m_rcClip);
+	HRGN hRgn = ::CreateRectRgn(roc.m_rcClip.left, roc.m_rcClip.top, roc.m_rcClip.right, roc.m_rcClip.bottom);
+	m_hRenderTarget->SelectClipRgn(hRgn);
+	SAFE_DELETE_GDIOBJECT(hRgn);
+#endif
 	
+	pInvalidateObj->DrawObjectTransparentBkgnd(m_hRenderTarget, roc, pInvalidateObj->IsTransparent());
 	pInvalidateObj->DrawObject(m_hRenderTarget, roc);
+	
 	roc.Reset(m_hRenderTarget);
+	m_hRenderTarget->SelectClipRgn(NULL);
+	
 	
 	//////////////////////////////////////////////////////////////////////////
 	//
 	//  Ã·Ωªœ‘ æ
-
+#if 0
 	int nX = roc.m_rcClip.left + roc.m_ptOffset.x;
 	int nY = roc.m_rcClip.top  + roc.m_ptOffset.y;
+#else
+	int nX = roc.m_rcClip.left ;
+	int nY = roc.m_rcClip.top  ;
+#endif
 	int nW = roc.m_rcClip.Width();
 	int nH = roc.m_rcClip.Height();
 
