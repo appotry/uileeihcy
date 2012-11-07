@@ -239,7 +239,7 @@ IRenderDC::IRenderDC(HWND hWnd)
 
 GRAPHICS_RENDER_TYPE GetGraphicsRenderType(HWND hWnd)
 {
-#ifdef _DEBUGx
+#ifdef _DEBUG
 	return GRAPHICS_RENDER_TYPE_DIRECT2D;
 #endif
 
@@ -271,7 +271,7 @@ GRAPHICS_RENDER_TYPE GetGraphicsRenderType(HWND hWnd)
 
 GRAPHICS_RENDER_TYPE GetGraphicsRenderType(Object* pObj)
 {
-#ifdef _DEBUGx
+#ifdef _DEBUG
 	return GRAPHICS_RENDER_TYPE_DIRECT2D;
 #endif
 

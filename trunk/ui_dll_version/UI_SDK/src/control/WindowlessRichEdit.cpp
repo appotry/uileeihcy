@@ -152,7 +152,7 @@ void WindowlessRichEdit::ReleaseRichEidtDll()
 
 void WindowlessRichEdit::Draw(HDC hDC)
 {
-	if(NULL == m_spTextServices)
+	if(NULL == m_spTextServices || NULL == hDC)  // Remark:如果传递NULL hdc给txdraw，居然会造成内存泄露...
 		return;
 
 // 	HBRUSH hBrush = ::CreateSolidBrush(RGB(240,240,240));
