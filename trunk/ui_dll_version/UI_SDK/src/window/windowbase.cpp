@@ -36,7 +36,7 @@ void WindowBase::ResetAttribute()
 	m_nMaxWidth = m_nMaxHeight = NDEF;
 	this->ModifyStyle(0, OBJECT_STYLE_TRANSPARENT);  // 取消Panel基本中的透明属性
 }
-bool WindowBase::SetAttribute( map<String,String>& mapAttrib, bool bReload )
+bool WindowBase::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 {
 	bool bRet = Panel::SetAttribute( mapAttrib, bReload );
 	if( false == bRet )
@@ -533,7 +533,7 @@ long WindowBase::ModalLoop(HWND hWndParent)
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
-		if( FALSE == UI_IsDialogMessage(&msg) )
+		if (FALSE == UI_IsDialogMessage(&msg))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
@@ -597,7 +597,7 @@ HWND WindowBase::DoModeless( const String& ID, HWND hWndParent )
 	*lpw++ = 0;             // Predefined dialog box class (by default)
 
 	LPWSTR lpwsz = (LPWSTR)lpw;
-	int nchar = 1 + MultiByteToWideChar(CP_ACP, 0, "d", -1, lpwsz, 50);  // 窗口的标题名称
+	int nchar = 1 + MultiByteToWideChar(CP_ACP, 0, "", -1, lpwsz, 50);  // 窗口的标题名称
 	lpw += nchar;
 	GlobalUnlock(hgbl); 
 
@@ -895,13 +895,12 @@ LRESULT WindowBase::_OnPaint( UINT uMsg, WPARAM wParam,LPARAM lParam, BOOL& bHan
 
 	if (NULL == m_hRenderTarget)
 	{
-		m_hRenderTarget = CreateRenderTarget(m_hWnd, nWidth, nHeight );
+		m_hRenderTarget = CreateRenderTarget(m_hWnd, nWidth, nHeight);
 		if( NULL == m_hRenderTarget )
 			UI_LOG_ERROR(_T("WindowBase::WndProc CreateRenderTarget Failed."));
 	}
 
-	
-	if (m_hRenderTarget->BeginDraw(hDC))
+	if (NULL != m_hRenderTarget && m_hRenderTarget->BeginDraw(hDC))
 	{
 		if (this->IsTransparent())
 		{
@@ -1014,6 +1013,9 @@ LRESULT WindowBase::_OnHandleMouseMessage( UINT uMsg, WPARAM wParam, LPARAM lPar
 LRESULT WindowBase::_OnHandleKeyboardMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
 {
 	bHandled = FALSE;
+	if (uMsg == WM_SYSKEYDOWN && wParam == VK_F4) // 控件不处理该消息，直接关闭窗口
+		return 0;
+
 	LRESULT bRet = this->m_MgrKeyboard.HandleMessage( uMsg, wParam, lParam );
 	if (bRet)
 	{

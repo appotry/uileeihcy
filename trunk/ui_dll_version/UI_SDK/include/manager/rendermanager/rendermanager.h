@@ -136,19 +136,14 @@ public:
 	virtual ~IRenderDC() =0 {};
 	virtual GRAPHICS_RENDER_TYPE GetRenderType() = 0;
 
-	virtual HRDC     CreateCompatibleHRDC( int nWidth, int nHeight ) = 0;
 	virtual HDC      GetHDC() = 0;
 	virtual void     ReleaseHDC( HDC hDC ) = 0;
 
-// 	virtual HRFONT   SelectFont( HRFONT hFont ) = 0;
-// 	virtual HRFONT   GetFont() = 0;
 	virtual HRGN     GetClipRgn() = 0;
 	virtual int      SelectClipRgn( HRGN hRgn, int nMode = RGN_COPY ) = 0;
 	virtual BOOL     GetViewportOrgEx( LPPOINT lpPoint ) = 0;
 	virtual BOOL     SetViewportOrgEx( int x, int y, LPPOINT lpPoint = NULL ) = 0;
 	virtual BOOL     OffsetViewportOrgEx( int x, int y, LPPOINT lpPoint = NULL ) = 0;
-// 	virtual COLORREF SetTextColor( COLORREF color, byte Alpha = 255 ) = 0;
-// 	virtual COLORREF GetTextColor( ) = 0;
 	
 	virtual int      DrawString( const TCHAR* szText, const CRect* lpRect, UINT nFormat, HRFONT hRFont, COLORREF col ) = 0;
 	virtual void     FillRgn( HRGN hRgn, COLORREF col ) = 0;
@@ -229,15 +224,11 @@ UIAPI void     ResizeRenderTarget( HRDC hRDC, int nWidth, int nHeight );
 UIAPI HDC      GetHDC(HRDC hRDC);
 UIAPI void     ReleaseHDC( HRDC hRDC, HDC hDC );
 
-// UIAPI HRFONT   SelectFont( HRDC hRDC, HRFONT hFont );
-// UIAPI HRFONT   GetFont( HRDC hRDC );
 UIAPI HRGN     GetClipRgn( HRDC hRDC );
 UIAPI int      SelectClipRgn( HRDC hRDC, HRGN hRgn, int nMode = RGN_COPY );
 UIAPI BOOL     GetViewportOrgEx( HRDC hRDC, LPPOINT lpPoint );
 UIAPI BOOL     SetViewportOrgEx( HRDC hRDC, int x, int y, LPPOINT lpPoint );
 UIAPI BOOL     OffsetViewportOrgEx( HRDC hRDC, int x, int y, LPPOINT lpPoint );
-// UIAPI COLORREF SetTextColor( HRDC hRDC, COLORREF color, byte Alpha=255 );
-// UIAPI COLORREF GetTextColor( HRDC hRDC );
 UIAPI UINT     GetTextMetricsHeight( HRFONT hRFont );
 UIAPI SIZE     MeasureString( HRFONT hRFont, const TCHAR* szText, int nLimitWidth = -1 );
 UIAPI BYTE*    LockBits( HRDC hRDC );

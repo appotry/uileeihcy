@@ -535,7 +535,7 @@ protected:
 // 		if(IsMsgHandled()) return TRUE;            \
 // 	}
 
-// void OnSysCommand(UINT nID, LPARAM lParam)
+// void OnSysCommand(UINT nID, CPoint point)
 #define UIMSG_WM_SYSCOMMAND  MSG_WM_SYSCOMMAND
 
 // void OnEraseBkgnd( HRDC hRDC )

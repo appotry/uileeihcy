@@ -644,6 +644,15 @@ void UI_AttachFont(HRFONT* pOut, HFONT hFont, GRAPHICS_RENDER_TYPE eRenderType )
 		}
 		break;
 
+	case GRAPHICS_RENDER_TYPE_DIRECT2D:
+		{
+			Direct2DRenderFont::CreateInstance(pOut);
+			IRenderFont* pRenderFont = (HRFONT)*pOut;
+			pRenderFont->Attach(hFont);
+			pRenderFont->AddRef();
+		}
+		break;
+
 	default: 
 		return ;
 	}

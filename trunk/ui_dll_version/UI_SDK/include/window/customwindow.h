@@ -38,6 +38,7 @@ public:
 	END_MSG_MAP()
 
 	UI_BEGIN_MSG_MAP
+		UIMSG_WM_PAINT(OnPaint)
 		UIMSG_WM_SETCURSOR( OnSetCursor )
 		UIMSG_WM_ERASEBKGND( OnEraseBkgnd )
 		UIMSG_WM_LBUTTONDOWN( OnLButtonDown )
@@ -97,7 +98,8 @@ protected:
 	LRESULT  _OnWindowPosChanging( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
 	LRESULT  _OnWindowPosChanged( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
 	LRESULT  _OnCancelMode( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
-	
+
+	void     OnPaint(HRDC hRDC);
 	void     OnEraseBkgnd(HRDC hDC);
 	void     OnSize(UINT nType, int cx, int cy);
 	BOOL     OnSetCursor(HWND hWnd, UINT nHitTest, UINT message);

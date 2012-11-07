@@ -19,6 +19,7 @@ public:
 		UIMSG_BN_CLICKED2(m_pBtnSystemRestore,  OnSysRestore )
 		UIMSG_WM_SKINCHANGED(_OnSkinChanged)
 		UIMSG_WM_LBUTTONDBLCLK(_OnLButtonDblClk)
+		UIMSG_WM_SYSCOMMAND(OnSysCommand)
 	UI_END_MSG_MAP_CHAIN_PARENT(WindowBase)
 
 	// 内部方法
@@ -34,6 +35,7 @@ protected:
 	void      OnSysMaximize();
 	void      OnSysRestore();
 	void      HandleSysBtnStyle();
+	void      OnSysCommand(UINT nID, CPoint point);
 
 protected:
 	Object*   m_pBtnSystemMaximize;

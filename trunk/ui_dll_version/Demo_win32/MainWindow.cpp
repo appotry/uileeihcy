@@ -112,6 +112,8 @@ void MainWindow::OnInitWindow()
 
 void MainWindow::OnPaint(HRDC hRDC)
 {
+	CustomWindow::OnPaint(hRDC);
+
 	CRect rcClient;
 	m_pVisuallzationPic->GetClientRectInWindow(&rcClient);
 
@@ -124,7 +126,6 @@ void MainWindow::OnPaint(HRDC hRDC)
 		image.BitBlt(hDC, rcClient.left, rcClient.top, rcClient.Width(), rcClient.Height(), 0,0);
 		image.Detach();
 		ReleaseHDC(hRDC, hDC);
-		::OutputDebugString(_T("aaa\n"));
 	}
 	else
 	{

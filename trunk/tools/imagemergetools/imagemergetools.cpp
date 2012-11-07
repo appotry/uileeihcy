@@ -14,9 +14,17 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 {
 	_Module.Init(NULL, hInstance);
 
+// 	CMessageLoop theLoop;
+// 	_Module.AddMessageLoop(&theLoop);
+
 	CMainDlg dlg; 
 	dlg.DoModal();
 
+// 	dlg.Create(NULL);
+// 	dlg.ShowWindow(SW_SHOW);
+// 
+// 	theLoop.Run();
+// 	_Module.RemoveMessageLoop();
 	_Module.Term();
 	return 0;
 }

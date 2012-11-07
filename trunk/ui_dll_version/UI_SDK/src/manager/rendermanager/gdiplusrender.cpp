@@ -14,6 +14,7 @@ int GetEncoderClsid(const WCHAR* format, CLSID* pClsid);
 //		A: (从网上抄的，不一定正确)  alpha值会由于Red值的进位导致255变成0
 //
 
+#pragma  region // Gdiplus bitmap 
 GdiplusRenderBitmap::GdiplusRenderBitmap(IRenderBitmap** ppOutRef) : GdiplusRenderBitmapImpl<IRenderBitmap>(ppOutRef)
 {
 }
@@ -190,8 +191,9 @@ bool GdiplusIconRenderBitmap::LoadFromFile( const String& strPath )
 	m_hBitmapToFixIcon = image.Detach();    // Bitmap不负责保存bits数据，因此image.m_hBitmap不能提前释放，需要增加一个成员变量保存该句柄
 	return true;
 }
-//////////////////////////////////////////////////////////////////////////
+#pragma  endregion
 
+#pragma  region // Gdiplus Font 
 GdiplusRenderFont::GdiplusRenderFont(IRenderFont** ppOutRef) : IRenderFont((IRenderResource**)ppOutRef)
 {
 	m_pFont = NULL;
@@ -354,8 +356,9 @@ bool GdiplusRenderFont::GetLogFont(LOGFONT* plf)
 	return true;
 }
 
-//////////////////////////////////////////////////////////////////////////
+#pragma  endregion
 
+#pragma  region // Gdiplus DC
 //////////////////////////////////////////////////////////////////////////
 //
 //		GdiplusRenderDC
@@ -607,19 +610,22 @@ int GdiplusRenderDC::DrawString( const TCHAR* szText, const CRect* lpRect, UINT 
 
 	if( NULL == hRFont )
 	{
-		UI_LOG_WARN(_T("GdiplusRenderDC::DrawString hRFont == NULL"));
+		UI_LOG_WARN(_T("%s hRFont == NULL"), FUNC_NAME);
 		return -1;
 	}
 
 	if( ((IRenderFont*)hRFont)->GetRenderType() != GRAPHICS_RENDER_TYPE_GDIPLUS )
 	{
-		UI_LOG_WARN(_T("GdiplusRenderDC::DrawString hRFont render type != GRAPHICS_RENDER_TYPE_GDIPLUS"));
+		UI_LOG_WARN(_T("%s hRFont render type != GRAPHICS_RENDER_TYPE_GDIPLUS"), FUNC_NAME);
 		return -1;
 	}
 
 	Gdiplus::Font* pFont = ((GdiplusRenderFont*)hRFont)->GetFont();
 	if( NULL == pFont )
+	{
+		UI_LOG_WARN(_T("%s NULL == pFont"), FUNC_NAME);
 		return -1;
+	}
 
 	Gdiplus::RectF region(
 		(Gdiplus::REAL)(lpRect->left),
@@ -1122,10 +1128,10 @@ void GdiplusRenderDC::DrawBitmap( HRBITMAP hBitmap, DRAWBITMAPPARAM* pParam )
 		}
 	}
 }
-//////////////////////////////////////////////////////////////////////////
-//
 
+#pragma endregion
 
+#pragma region // Gdiplus mem dc
 GdiplusMemRenderDC::GdiplusMemRenderDC(int nWidth, int nHeight)
 {
 	GdiplusRenderBitmap::CreateInstance((IRenderBitmap**)&m_pMemBitmap);
@@ -1339,3 +1345,4 @@ HBITMAP GdiplusMemRenderDC::CopyRect(RECT *prc)
 
 	return m_pMemBitmap->CopyRect(prc);
 }
+#pragma endregion

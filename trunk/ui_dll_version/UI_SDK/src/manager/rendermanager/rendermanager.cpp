@@ -204,13 +204,16 @@ void RenderBitmapFactory::CreateInstance(IRenderBitmap** ppOut, GRAPHICS_RENDER_
 		break;
 
 	case GRAPHICS_RENDER_TYPE_DIRECT2D:
+		{
+			Direct2DRenderBitmap::CreateInstance(ppOut);
+		}
 		break;
 	}
 
 	if (NULL != *ppOut)
 	{
 		(*ppOut)->SetAttribute(mapAttrib);
-	}
+	} 
 }
  
 
@@ -236,6 +239,10 @@ IRenderDC::IRenderDC(HWND hWnd)
 
 GRAPHICS_RENDER_TYPE GetGraphicsRenderType(HWND hWnd)
 {
+#ifdef _DEBUGx
+	return GRAPHICS_RENDER_TYPE_DIRECT2D;
+#endif
+
 	if( NULL == hWnd )
 		return GRAPHICS_RENDER_TYPE_GDI;
 
@@ -244,7 +251,14 @@ GRAPHICS_RENDER_TYPE GetGraphicsRenderType(HWND hWnd)
 	{
 		if( WS_EX_LAYERED & ::GetWindowLong(hWnd, GWL_EXSTYLE) )
 		{
-			e = GRAPHICS_RENDER_TYPE_GDIPLUS;
+			if (UI_IsUnderXpOS())
+			{
+				e = GRAPHICS_RENDER_TYPE_GDIPLUS;
+			}
+			else
+			{
+				e = GRAPHICS_RENDER_TYPE_DIRECT2D;
+			}
 		}
 		else
 		{
@@ -257,6 +271,10 @@ GRAPHICS_RENDER_TYPE GetGraphicsRenderType(HWND hWnd)
 
 GRAPHICS_RENDER_TYPE GetGraphicsRenderType(Object* pObj)
 {
+#ifdef _DEBUGx
+	return GRAPHICS_RENDER_TYPE_DIRECT2D;
+#endif
+
 	if( NULL == pObj ) 
 		return GRAPHICS_RENDER_TYPE_GDI;
 
@@ -277,7 +295,10 @@ GRAPHICS_RENDER_TYPE GetGraphicsRenderType(Object* pObj)
 	{
 		if( WS_EX_LAYERED & ::GetWindowLong(pWindow->m_hWnd, GWL_EXSTYLE) )
 		{
-			e = GRAPHICS_RENDER_TYPE_GDIPLUS;
+			if (UI_IsUnderXpOS())
+				e = GRAPHICS_RENDER_TYPE_GDIPLUS;
+			else
+				e = GRAPHICS_RENDER_TYPE_DIRECT2D;
 		}
 		else
 		{
@@ -353,6 +374,13 @@ HRDC CreateRenderTarget( HWND hWnd, int nWidth, int nHeight )
 		{
 			GdiplusMemRenderDC*  pMemDC = new GdiplusMemRenderDC(hWnd, nWidth, nHeight);
 			return (HRDC)pMemDC;
+		}
+		break;
+		
+	case GRAPHICS_RENDER_TYPE_DIRECT2D:
+		{
+			Direct2DRenderDC* pMemDC = new Direct2DRenderDC(hWnd, nWidth, nHeight);
+			return (IRenderDC*)pMemDC;
 		}
 		break;
 	}

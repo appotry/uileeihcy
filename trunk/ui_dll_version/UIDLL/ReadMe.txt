@@ -9,7 +9,6 @@
  10.可否考虑将ID类型都映射为一个整数，而不是用字符串去匹配？
  11.xml文件可否考虑分开，而不是全放在一个文件中？
  12.把所有的xmldao都用find_elem_in_xml/find_elem_under_style来实现
- 13.load xml时，没有都转换成小写的
  17.CMainFrame::OnMenuSave只实现了保存所有的文件，没有实现保存当前文件
  18.使用快捷键资源来实现快捷键 ctrl+s save 
  19.style 编辑器不应该可以编辑继续得到的属性，也无法保存继续得到的属性问题
@@ -22,6 +21,10 @@
     20121020， 仍然存在崩溃。
     
  30.提供一个方法：DoVerb( "action", xxx ); "press" "click" "unpress" "hover" "unhover"
+    模拟IAccessible/MSAA，实现自动化TEST。可参考Window7 SDK的sample代码：
+    C:\Program Files\Microsoft SDKs\Windows\v7.1\Samples\winui\msaa\CPP
+    C:\Program Files\Microsoft SDKs\Windows\v7.1\Samples\winui\uiautomation\simpleuiaprovider
+    
  32.Direct3D + GDI 
     1). 在Render当中的 EndScene前添加：
 		IDirect3DSurface9*  pSurface = NULL;
@@ -55,11 +58,10 @@
 46. 考虑当对象隐藏时，模拟一个 MSG_WM_SHOWWINDOW的消息
 47. 修改了GetHDC的字体选择，会对theme绘制造成什么影响？
 51. FONTCOLORLISTTEXTRENDER <-- xml属性测试
-52. 需要增加一下变量，保存当前皮肤的hue值，后面加载的图片都要进行转换 （同时将active skin功能也做一下）
-56. LOG 支持__FUNCTION__ 参数！
+56. LOG 支持__FUNCTION__ 参数
 57. 考虑支持缩放效果
 58. icon在系统16位色下面显示全白
-59. 去掉ResetAttribute方法
+59. 去掉ResetAttribute方法？？
 60. 将BkRender, ForeRender移到IObjectRender当中，子类controlRender可继承
 64. 关于DrawThemexxx的Gdiplus，可以考虑先画在一个HDC的BITMAP上面，然后转成Gdiplus::Bitmap
 65. TextRender可以考虑增加一个文字阴影效果，仿XP STYLE
@@ -76,7 +78,6 @@
 73. 点击打开一个系统COMBOOX的下拉列表，然后将鼠标放在一个UI控件上面，点击一下，下拉列表消失，再继续点击UI控件，无反应。
     因为没有人去触发一个WM_MOUSEMOVE来set hover对象
 78. 将layout.xml增加一个<#include>标签，允许将一些资源抽取出来 
-83. 音乐频谱功能 
 84. 实现新的一类换肤功能：背景主题图片	
 89. 普通窗口拉伸优化！不平滑
 92. playlistdlg resize的时候， listctrl 变化不正常，会变黑
@@ -90,11 +91,6 @@
 110.scrollbar 的 sizebox 绘制，theme都有现成的API，由哪一层来负责绘制？
 112.回车换行时，richedit的滚动条没有正确更新
 118.复合列表框
-119.放置一个控件用于显示频谱
-120.如何得到换肤消息
-121.换肤后自动设置属性、位置等等
-122.透明背景频谱
-123.设置频谱参数的线程同步
 123.mwa,wav文件的directsound支持
     已基本支持，但是WAVE文件非PCM格式的问题  5.1声道 C:\Program Files\Microsoft DirectX SDK (March 2009)\Samples\Media\Wavs\MusicSurround.wav
     
@@ -111,17 +107,6 @@
 
 132.使用GDI+绘制option dialog，效率非常的低。什么原因？
     
-134.换肤时，如果解决频谱图的另一个线程刷新问题？
-    // 最后还是添加了一个cs来解决这个问题，再继续观察一下。
-
-137.重新架构direct sound,sa的线程模型。现在的结构已经应付不了了。很多的崩溃。
-    不能完全将所有的消息都放在buffer thread来做。因为主线程中要根据directsoundengin::renderfile结果来判断是否使用该engine
-    但如果只将部分控制通知放在buffer thread中的话，又可能造成空指针崩溃。即一个线程释放了，但另一个线程还没收到通知。
-    
-    // 将原来的给线程postmessage的方法全改成了cs锁。但理论上仍然会存在其它问题。例如：
-       关于文件结束前的一瞬间，我又播放了其它文件。那么上一个文件的on_mp3_stop消息有可能会将新文件的播放停止掉。
-       继续观察吧。
-
 138.listctrl 的 ctrl+a, delete快捷键
 139.richedit 的 gif 图片插入
     
@@ -135,10 +120,14 @@
 148.窗口最大化后，覆盖任务栏的问题，应该是GETMINMAXINFO没有去年任务栏高度的问题
     另外，window类中处理的系统按钮命令是不是应该移到custom window当中？
 	
-149.换肤时，paintobject中的updateobject，由于现在只绘制clip区域的内容，而当时的m_bSetWindowRgn为true，导致窗口被截断了
+150.在任务栏上右击，选择”关闭“ 无反应
+    1. 在_OnHandleKeyboardMessage，不要让控件处理 SYSKEYDOWN+VK_F4消息
+    2. 将EndDialog放在SYSCOMMAND消息中，而不是OnSysClose中
+    
+151.
 	
 ==================================疑问==================================
-1. Message类是否需要一个 m_pCurMsg成员变量？
+
  
 ==================================当前正在进行的任务==================================
 95. 逐步将句柄调用方式修改为接口调用方法
@@ -235,7 +224,31 @@
     
 96. 点击任务栏上面的按钮不能最小化窗口
     --> 根据是否有sys_min/sys_max按钮增加WS_MINIMIZEBOX/WS_MAXIMIAZEBOX属性
-     	
+
+149.换肤时，paintobject中的updateobject，由于现在只绘制clip区域的内容，而当时的m_bSetWindowRgn为true，导致窗口被截断了
+	--> 由于现在控件刷新时进行了裁剪，导致在控件刷新时刷父背景，发现m_bSetWindowRgn=true，就去设置
+	    窗口形状，导致窗口被截断了。
+	    现在将窗口异形的截取放在了onpaint中处理
+119.放置一个控件用于显示频谱
+120.如何得到换肤消息
+121.换肤后自动设置属性、位置等等
+122.透明背景频谱
+123.设置频谱参数的线程同步
+83. 音乐频谱功能 
+134.换肤时，如果解决频谱图的另一个线程刷新问题？
+    // 最后还是添加了一个cs来解决这个问题，再继续观察一下。
+
+137.重新架构direct sound,sa的线程模型。现在的结构已经应付不了了。很多的崩溃。
+    不能完全将所有的消息都放在buffer thread来做。因为主线程中要根据directsoundengin::renderfile结果来判断是否使用该engine
+    但如果只将部分控制通知放在buffer thread中的话，又可能造成空指针崩溃。即一个线程释放了，但另一个线程还没收到通知。
+    
+    // 将原来的给线程postmessage的方法全改成了cs锁。但理论上仍然会存在其它问题。例如：
+       关于文件结束前的一瞬间，我又播放了其它文件。那么上一个文件的on_mp3_stop消息有可能会将新文件的播放停止掉。
+       继续观察吧。
+52. 需要增加一下变量，保存当前皮肤的hue值，后面加载的图片都要进行转换 （同时将active skin功能也做一下）
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+       	         	
 备注：
 1. Q: 怎么解决用VS2008编译生成的程序对vc运行库的依赖？
    A: 造成这种现象即“使用标准Windows库”的工程要依赖于msvcr90.dll，是因为这个项目是由VC2008创建，自动有这个依赖关系。
