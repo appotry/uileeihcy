@@ -9,6 +9,7 @@
 
 // msdn url:
 // http://msdn.microsoft.com/zh-cn/library/dd370994(v=vs.85).aspx
+// http://technet.microsoft.com/zh-tw/library/dd370971.aspx
 
 namespace UI
 {
@@ -43,6 +44,7 @@ protected:
 	{
 		g_D2DGlobalData.AddRef();
 
+		m_nWidth = m_nHeight = 0;
 		m_pConverter = NULL;
 	}
 
@@ -152,6 +154,7 @@ public:
 // 				);
 // 		}
 
+		pSource->GetSize(&m_nWidth, &m_nHeight);
 		SAFE_RELEASE(pDecoder);
 		SAFE_RELEASE(pSource);
 //		SAFE_RELEASE(pConverter);
@@ -160,8 +163,14 @@ public:
 			return true;
 		return false;
 	}
-	virtual int   GetWidth(){ return 0; }
-	virtual int   GetHeight(){ return 0;}
+	virtual int   GetWidth()
+	{
+		return m_nWidth;
+	}
+	virtual int   GetHeight()
+	{
+		return m_nHeight;
+	}
 
 	virtual BYTE* LockBits() {return NULL;}
 	virtual void  UnlockBits() {return;}
@@ -196,6 +205,8 @@ public:
 	}
 private:
 	IWICFormatConverter*    m_pConverter;
+	UINT   m_nWidth;
+	UINT   m_nHeight;
 	map<ID2D1RenderTarget*, ID2D1Bitmap*>  m_mapBitmap;  // bitmap是一个设备依赖的资源...fuck!
 };
 
@@ -255,7 +266,7 @@ public:
 
 	virtual bool     BeginDraw(HDC hDC);
 	virtual void     EndDraw();
-	virtual void     EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish ){}
+	virtual void     EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish );
 	virtual void     ResizeRenderTarget( int nWidth, int nHeight ){}
 	virtual BYTE*    LockBits() {return NULL;};
 	virtual void     UnlockBits(){};
@@ -284,7 +295,7 @@ public:
 
 protected:
 	HWND     m_hWnd;
-	ID2D1HwndRenderTarget*  m_pRenderTarget;
+	ID2D1DCRenderTarget*  m_pRenderTarget;
 };
 
 // class Direct2DMemRenderDC : public Direct2DRenderDC

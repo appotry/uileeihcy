@@ -19,7 +19,7 @@
                   bkgnd.render.imagelist.layout="v"></Button>
     </CustomWindow>
 
-    <CustomWindow id="chatdlg" width="1553" height="820" minwidth="450" minheight="500" border="6,6,6,6"
+    <CustomWindow id="chatdlg" width="553" height="520" minwidth="450" minheight="500" border="6,6,6,6"
                   transparent.typex="layered" istransparent="1"
                   bkgnd.render.type="image"
                   bkgnd.render.image="chatframe.png"

@@ -295,21 +295,6 @@ Direct2DRenderDC::Direct2DRenderDC(HWND hWnd, int nWidth, int nHeight)
 
 	m_pRenderTarget = NULL;
 	m_hWnd = hWnd;
-
-	if (NULL == g_D2DGlobalData.m_pD2DFactory)
-		g_D2DGlobalData.CreateD2D();
-	if (NULL != g_D2DGlobalData.m_pD2DFactory)
-	{
-		D2D1_SIZE_U size = D2D1::SizeU(nWidth, nHeight);
-
-		// Create a Direct2D render target.
-		HRESULT hr = g_D2DGlobalData.m_pD2DFactory->CreateHwndRenderTarget(
-				D2D1::RenderTargetProperties(),
-				D2D1::HwndRenderTargetProperties(m_hWnd, size),
-				&m_pRenderTarget
-			);
-		UIASSERT(SUCCEEDED(hr));
-	}
 }
 Direct2DRenderDC::~Direct2DRenderDC()
 {
@@ -321,8 +306,36 @@ Direct2DRenderDC::~Direct2DRenderDC()
 
 bool Direct2DRenderDC::BeginDraw(HDC hDC)
 {
-	if (NULL == m_pRenderTarget)
+	if (NULL != m_pRenderTarget)
+	{
 		return false;
+	}
+
+	if (NULL == g_D2DGlobalData.m_pD2DFactory)
+		g_D2DGlobalData.CreateD2D();
+	if (NULL == g_D2DGlobalData.m_pD2DFactory)
+		return false;
+
+	// Create a DC render target.
+	D2D1_RENDER_TARGET_PROPERTIES props = D2D1::RenderTargetProperties(
+		D2D1_RENDER_TARGET_TYPE_DEFAULT,
+		D2D1::PixelFormat(
+		DXGI_FORMAT_B8G8R8A8_UNORM,
+		D2D1_ALPHA_MODE_PREMULTIPLIED),  // 使用预乘模式，启用alpha channel
+		0,
+		0,
+		D2D1_RENDER_TARGET_USAGE_NONE,
+		D2D1_FEATURE_LEVEL_DEFAULT
+		);
+
+	HRESULT hr = g_D2DGlobalData.m_pD2DFactory->CreateDCRenderTarget(&props,&m_pRenderTarget);
+	UIASSERT(SUCCEEDED(hr));
+	if (FAILED(hr))
+		return false;
+
+	RECT rc;
+	::GetClientRect(m_hWnd, &rc);
+	m_pRenderTarget->BindDC(hDC, &rc);
 
 	m_pRenderTarget->BeginDraw();
 	return true;
@@ -330,8 +343,18 @@ bool Direct2DRenderDC::BeginDraw(HDC hDC)
 void Direct2DRenderDC::EndDraw()
 {
 	m_pRenderTarget->EndDraw();
+	SAFE_RELEASE(m_pRenderTarget);
 }
 
+void Direct2DRenderDC::EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish )
+{
+
+	if (!bFinish)
+		return;
+
+	m_pRenderTarget->EndDraw();
+	SAFE_RELEASE(m_pRenderTarget);
+}
 int Direct2DRenderDC::DrawString(const TCHAR* szText, const CRect* lpRect, UINT nFormat, IRenderFont* pFont, COLORREF col )
 {
 	if (NULL == m_pRenderTarget)
