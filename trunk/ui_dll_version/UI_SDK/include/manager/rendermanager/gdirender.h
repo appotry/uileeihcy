@@ -111,7 +111,7 @@ class GDIRenderBitmap : public GDIRenderBitmapImpl<IRenderBitmap>
 protected:
 	GDIRenderBitmap(IRenderBitmap** ppOutRef);
 public:
-	static  void CreateInstance( IRenderBitmap** pOutRef );
+	static  void CreateInstance( IRenderBitmap** ppOutRef );
 
 };
 class GDIIconRenderBitmap : public GDIRenderBitmap

@@ -207,6 +207,7 @@ CPojo_ImageItem::CPojo_ImageItem()
 {
 	m_pGdiBitmap = NULL;
 	m_pGdiplusBitmap = NULL;
+	m_pDirect2DBitmap = NULL;
 	m_pOriginImageData = NULL;
 
 	m_bUseSkinHLS = true;
@@ -217,7 +218,9 @@ CPojo_ImageItem::~CPojo_ImageItem()
 {
 	SAFE_DELETE(m_pGdiBitmap);
 	SAFE_DELETE(m_pGdiplusBitmap);
+	SAFE_DELETE(m_pDirect2DBitmap);
 	SAFE_DELETE(m_pOriginImageData);
+	
 }
 
 HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType, bool* pbFirstTimeCreate )
@@ -236,8 +239,7 @@ HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType, bool* pbFi
 				if( NULL != m_pGdiBitmap )
 				{
 					m_pGdiBitmap->LoadFromFile(m_strPath);
-					UI_LOG_DEBUG(_T("CPojo_ImageItem::GetImage gdi bitmap create: %s \tPtr=0x%08X"),
-						m_strID.c_str(), m_pGdiBitmap);
+					UI_LOG_DEBUG(_T("%s gdi bitmap create: %s \tPtr=0x%08X"),FUNC_NAME, m_strID.c_str(), m_pGdiBitmap);
 				}
 			}
 
@@ -261,8 +263,7 @@ HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType, bool* pbFi
 				if( NULL != m_pGdiplusBitmap )
 				{
 					m_pGdiplusBitmap->LoadFromFile(m_strPath);
-					UI_LOG_DEBUG(_T("CPojo_ImageItem::GetImage gdiplus bitmap create: %s \tPtr=0x%08X"),
-						m_strID.c_str(), m_pGdiplusBitmap );
+					UI_LOG_DEBUG(_T("%s gdiplus bitmap create: %s \tPtr=0x%08X"), FUNC_NAME, m_strID.c_str(), m_pGdiplusBitmap );
 				}
 			}
 			if( NULL != m_pGdiplusBitmap )
@@ -274,6 +275,27 @@ HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType, bool* pbFi
 		break;
 
 	case GRAPHICS_RENDER_TYPE_DIRECT2D:
+		{
+			if (NULL == m_pDirect2DBitmap)
+			{
+				if (NULL != pbFirstTimeCreate)
+					*pbFirstTimeCreate = true;
+
+				RenderBitmapFactory::CreateInstance((IRenderBitmap**)&m_pDirect2DBitmap, eRenderType, m_mapAttribute, m_strPath);
+				if (NULL != m_pDirect2DBitmap)
+				{
+					m_pDirect2DBitmap->LoadFromFile(m_strPath);
+					UI_LOG_DEBUG(_T("%s direct2d bitmap create: %s \tPtr=0x%08X"), FUNC_NAME, m_strID.c_str(), m_pDirect2DBitmap );
+				}
+			}
+			if (NULL != m_pDirect2DBitmap)
+			{
+				m_pDirect2DBitmap->AddRef();
+			}
+			return (HRBITMAP)m_pDirect2DBitmap;
+		}
+		break;
+
 	default:
 		return NULL;
 	}
@@ -287,6 +309,9 @@ bool CPojo_ImageItem::ModifyHLS(short h, short l, short s, int nFlag)
 
 	ModifyHLS(m_pGdiBitmap, h,l,s,nFlag);
 	ModifyHLS(m_pGdiplusBitmap, h,l,s,nFlag);
+
+	UIASSERT(0);
+	ModifyHLS(m_pDirect2DBitmap, h,l,s,nFlag);
 
 // 	if( NULL != m_pGdiBitmap )
 // 	{
@@ -433,20 +458,6 @@ CPojo_ImageItem* CPojo_Image::GetImageItem( const String& strID )
 	}
 	return NULL;
 }
-//
-//	过期，使用HRBITMAP代替
-// 
-// bool  CPojo_Image::GetImage( const String& strID, UIImage** ppImage )
-// {
-// 	CPojo_ImageItem* pItem = this->GetImageItem(strID);
-// 	if( NULL != pItem )
-// 		return pItem->GetImage( ppImage );
-// 
-// 	UI_LOG_ERROR( _T("CPojo_Image::GetImage失败，没有找到：%s"), strID.c_str() );
-// 
-// 	*ppImage = NULL;
-// 	return false;
-// }
 
 bool CPojo_Image::InsertImage( const String& strID, const String& strPath, CPojo_ImageItem** pRet )
 {
@@ -531,7 +542,7 @@ HRBITMAP CPojo_Image::GetImage( const String& strID, GRAPHICS_RENDER_TYPE eRende
 	CPojo_ImageItem* pItem = this->GetImageItem(strID);
 	if( NULL == pItem )
 	{
-		UI_LOG_ERROR( _T("%s，GetImageItem：%s failed"), FUNC_NAME, strID.c_str() );
+		UI_LOG_ERROR( _T("%s，GetImageItem：%s failed 1"), FUNC_NAME, strID.c_str() );
 		return NULL;
 	}
 
@@ -539,7 +550,7 @@ HRBITMAP CPojo_Image::GetImage( const String& strID, GRAPHICS_RENDER_TYPE eRende
 	IRenderBitmap* pBitmap = pItem->GetImage( eRenderType, &bFirstTimeCreate );
 	if (NULL == pBitmap)
 	{
-		UI_LOG_ERROR( _T("%s，GetImage：%s failed"), FUNC_NAME, strID.c_str() );
+		UI_LOG_ERROR( _T("%s，GetImage：%s failed 2"), FUNC_NAME, strID.c_str() );
 		return NULL;
 	}
 
@@ -1299,6 +1310,7 @@ CPojo_FontItem::CPojo_FontItem()
 { 
 	m_pGdiFont = NULL;
 	m_pGdiplusFont = NULL;
+	m_pD2DFont = NULL;
 	m_wParam = 0;
 	m_lParam = 0;
 }
@@ -1306,6 +1318,7 @@ CPojo_FontItem::~CPojo_FontItem()
 { 
 	SAFE_DELETE(m_pGdiFont);
 	SAFE_DELETE(m_pGdiplusFont);
+	SAFE_DELETE(m_pD2DFont);
 }
 
 //
@@ -1333,6 +1346,10 @@ void CPojo_FontItem::ModifyFont( LOGFONT* pLogFont )
 	{
 		m_pGdiplusFont->ModifyFont(pLogFont);
 	}
+	if (NULL != m_pD2DFont)
+	{
+		m_pD2DFont->ModifyFont(pLogFont);
+	}
 }
 
 HRFONT CPojo_FontItem::GetFont( GRAPHICS_RENDER_TYPE eRenderType )
@@ -1347,8 +1364,7 @@ HRFONT CPojo_FontItem::GetFont( GRAPHICS_RENDER_TYPE eRenderType )
 				if( NULL != m_pGdiFont )
 				{
 					m_pGdiFont->Load(&m_lf);
-					UI_LOG_DEBUG(_T("CPojo_FontItem::GetFont gdi font create: %s \tPtr=0x%08X"), 
-						 m_strID.c_str(), m_pGdiFont );
+					UI_LOG_DEBUG(_T("%s gdi font create: %s \tPtr=0x%08X"), FUNC_NAME, m_strID.c_str(), m_pGdiFont );
 				}
 			}
 			if( NULL != m_pGdiFont )
@@ -1361,23 +1377,41 @@ HRFONT CPojo_FontItem::GetFont( GRAPHICS_RENDER_TYPE eRenderType )
 
 	case GRAPHICS_RENDER_TYPE_GDIPLUS:
 		{
-			if( NULL == m_pGdiplusFont )
+			if (NULL == m_pGdiplusFont)
 			{
 				GdiplusRenderFont::CreateInstance((IRenderFont**)&m_pGdiplusFont);
 				if( NULL != m_pGdiplusFont )
 				{
 					m_pGdiplusFont->Load(&m_lf);
-					UI_LOG_DEBUG(_T("CPojo_FontItem::GetFont gdiplus font create: %s \tPtr=0x%08X"), 
-						m_strID.c_str(), m_pGdiplusFont );
+					UI_LOG_DEBUG(_T("%s gdiplus font create: %s \tPtr=0x%08X"), FUNC_NAME, m_strID.c_str(), m_pGdiplusFont );
 				}
 			}
-			if( NULL != m_pGdiplusFont )
+			if (NULL != m_pGdiplusFont)
 			{
 				m_pGdiplusFont->AddRef();
 			}
 			return (HRFONT)m_pGdiplusFont;
 		}
 		break;
+
+	case GRAPHICS_RENDER_TYPE_DIRECT2D:
+		{
+			if (NULL == m_pD2DFont)
+			{
+				Direct2DRenderFont::CreateInstance((IRenderFont**)&m_pD2DFont);
+				if( NULL != m_pD2DFont )
+				{
+					m_pD2DFont->Load(&m_lf);
+					UI_LOG_DEBUG(_T("%s direct2d font create: %s \tPtr=0x%08X"), FUNC_NAME, m_strID.c_str(), m_pGdiplusFont );
+				}
+			}
+			if (NULL != m_pD2DFont)
+			{
+				m_pD2DFont->AddRef();
+			}
+			return (HRFONT)m_pD2DFont;
+		}
+		break;;
 
 	default:
 		return NULL;

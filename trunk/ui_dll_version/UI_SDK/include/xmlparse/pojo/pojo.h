@@ -155,16 +155,11 @@ namespace UI
 
 		bool      m_bUseSkinHLS;         // 该图片是否参与皮肤色调改变 
 		ATTRMAP   m_mapAttribute;        // 为该图片配置的属性，例如imagelist的count，icon的width height
-// 		IMAGE_ITEM_TYPE  m_eImageItemType;
-// 		int       m_nIconWidth;
-// 		int       m_nIconHeight;
-// 		int       m_nImageListCount;
-// 		IMAGELIST_LAYOUT_TYPE m_eImageListLayoutType;
-// 		int       m_nImageListGifFrameDelay;  //.. 可能是一系列数组，需要定义每一帧的延时
 
 		ImageData*            m_pOriginImageData;    // 该图片的原始数据（改变图片色调时使用）
 		GDIRenderBitmap*      m_pGdiBitmap;          // 外部引用
 		GdiplusRenderBitmap*  m_pGdiplusBitmap;      // 外部引用
+		Direct2DRenderBitmap* m_pDirect2DBitmap;     // 
 
 	public:
 		DECLARE_STRING_SETGET( ID );
@@ -455,8 +450,9 @@ namespace UI
 		WPARAM   m_wParam;  
 		LPARAM   m_lParam;  
 
-		GDIRenderFont*     m_pGdiFont;
-		GdiplusRenderFont* m_pGdiplusFont;
+		GDIRenderFont*       m_pGdiFont;
+		GdiplusRenderFont*   m_pGdiplusFont;
+		Direct2DRenderFont*  m_pD2DFont;
 	};
 
 	//

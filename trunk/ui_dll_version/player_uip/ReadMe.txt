@@ -1,4 +1,16 @@
-﻿Windows Media Format SDK
+﻿TODO>
+
+1. midi 的读取到时候可以参考
+   C:\Program Files\Microsoft SDKs\Windows\v7.1\Samples\multimedia\audio\midiplyr
+   
+2. DirectShow的正规用法，可以参考
+   C:\Program Files\Microsoft SDKs\Windows\v7.1\Samples\multimedia\audio\DuckingMediaPlayer   
+
+
+////////////////////////////////////////////////////////////////////////////////////
+
+
+Windows Media Format SDK
 
 116.mp3 wma文件时长读取
 	下载   Windows   Media   Format   9.0   SDK   看看 

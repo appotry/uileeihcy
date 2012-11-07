@@ -205,7 +205,7 @@ bool GDIRenderFont::Load( LOGFONT* plogfont )
 {
 	if( NULL == plogfont )
 	{
-		UI_LOG_WARN(_T("GDIRenderFont::Load plogfont == NULL"));
+		UI_LOG_WARN(_T("%s plogfont == NULL"), FUNC_NAME);
 		return false;
 	}
 
@@ -213,7 +213,7 @@ bool GDIRenderFont::Load( LOGFONT* plogfont )
 	m_hFont = ::CreateFontIndirect(plogfont);
 	if( NULL == m_hFont )
 	{
-		UI_LOG_WARN(_T("GDIRenderFont::Load CreateFontIndirect failed, facename=%s"), plogfont->lfFaceName );
+		UI_LOG_WARN(_T("%s CreateFontIndirect failed, facename=%s"), FUNC_NAME, plogfont->lfFaceName );
 		return false;
 	}
 	m_bCreateOrAttach = true;
@@ -224,7 +224,7 @@ bool GDIRenderFont::ModifyFont(LOGFONT* plogfont)
 	bool bRet = this->Load(plogfont);
 	if( false == bRet )
 	{
-		UI_LOG_WARN(_T("GDIRenderFont::ModifyFont Load failed."));
+		UI_LOG_WARN(_T("%s Load failed."), FUNC_NAME);
 	}
 	return bRet;
 }

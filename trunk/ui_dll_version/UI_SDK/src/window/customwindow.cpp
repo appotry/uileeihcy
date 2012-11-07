@@ -270,8 +270,14 @@ void CustomWindow::OnEraseBkgnd(HRDC hRDC)
 	{
 		__super::OnEraseBkgnd(hRDC);
 	}
+}
 
-	// 重新设置窗口透明形状
+void CustomWindow::OnPaint(HRDC hRDC)
+{
+	SetMsgHandled(FALSE);
+
+	// 重新设置窗口透明形状 ( 注：不将该段代码放在OnErasebkgnd中的原因是，刷新一个按钮时也会走到
+	// OnEraseBkgnd中，导致这时的背景图片中被剪裁只剩下一个控件，update window rgn错误。
 	if( m_bNeedToSetWindowRgn )
 	{
 		this->UpdateWindowRgn(m_hRenderTarget);

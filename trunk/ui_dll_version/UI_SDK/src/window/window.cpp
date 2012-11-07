@@ -89,11 +89,7 @@ void Window::_OnLButtonDblClk(UINT nFlags, POINT point)
 
 void  Window::OnSysClose()
 {
-	if (m_bDoModal)
-		EndDialog(IDCANCEL);
-	else
-		::PostMessage(m_hWnd, WM_SYSCOMMAND,SC_CLOSE, 0 );
-	
+	::PostMessage(m_hWnd, WM_SYSCOMMAND,SC_CLOSE, 0 );
 }
 void  Window::OnSysMinimize()
 {
@@ -102,23 +98,36 @@ void  Window::OnSysMinimize()
 void Window::OnSysMaximize()
 {
 	::PostMessage(m_hWnd, WM_SYSCOMMAND,SC_MAXIMIZE, 0 );
-
-	// 隐藏显示最大化按钮，显示还原按钮
-	if (NULL != m_pBtnSystemRestore)
-		m_pBtnSystemRestore->SetVisible(true, false);
-
-	if (NULL != m_pBtnSystemMaximize)
-		m_pBtnSystemMaximize->SetVisible(false, true);
 }
 void Window::OnSysRestore()
 {
 	::PostMessage(m_hWnd, WM_SYSCOMMAND,SC_RESTORE, 0 );
-
-	// 隐藏显示还原按钮，显示最大化按钮
-	if (NULL != m_pBtnSystemMaximize)
-		m_pBtnSystemMaximize->SetVisible(true, false);
-
-	if (NULL != m_pBtnSystemRestore)
-		m_pBtnSystemRestore->SetVisible(false, true);
 }
 
+void Window::OnSysCommand(UINT nID, CPoint point)
+{
+	SetMsgHandled(FALSE);
+	if (SC_MAXIMIZE == nID)
+	{
+		// 隐藏显示最大化按钮，显示还原按钮
+		if (NULL != m_pBtnSystemRestore)
+			m_pBtnSystemRestore->SetVisible(true, false);
+
+		if (NULL != m_pBtnSystemMaximize)
+			m_pBtnSystemMaximize->SetVisible(false, true);
+	}
+	else if(SC_RESTORE == nID)
+	{
+		// 隐藏显示还原按钮，显示最大化按钮
+		if (NULL != m_pBtnSystemMaximize)
+			m_pBtnSystemMaximize->SetVisible(true, false);
+
+		if (NULL != m_pBtnSystemRestore)
+			m_pBtnSystemRestore->SetVisible(false, true);
+	}
+	else if(SC_CLOSE == nID)
+	{
+		if (m_bDoModal)
+			EndDialog(IDCANCEL);
+	}
+}
