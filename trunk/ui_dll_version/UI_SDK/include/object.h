@@ -310,7 +310,7 @@ public:
 	HRGN         GetClipRgnInWindow();
 	void         SetReDraw( bool bReDraw );
 
-private:
+protected:
 	Object*      _findChildObjectItem( const String& objId );
 	void         _drawChildObject(HRDC hRDC, RenderOffsetClipHelper& roc);
 	void         _drawNcChildObject(HRDC hRDC, RenderOffsetClipHelper& roc);

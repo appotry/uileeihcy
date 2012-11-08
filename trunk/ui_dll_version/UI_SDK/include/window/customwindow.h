@@ -38,7 +38,6 @@ public:
 	END_MSG_MAP()
 
 	UI_BEGIN_MSG_MAP
-		UIMSG_WM_PAINT(OnPaint)
 		UIMSG_WM_SETCURSOR( OnSetCursor )
 		UIMSG_WM_ERASEBKGND( OnEraseBkgnd )
 		UIMSG_WM_LBUTTONDOWN( OnLButtonDown )
@@ -47,7 +46,6 @@ public:
 		UIMSG_WM_SIZE( OnSize )
 		UIMSG_WM_HITTEST( OnHitTest )
 		
-
 //		UIMSG_WM_NCHITTEST( OnNcHitTest )
 // 		UIMSG_WM_NCMOUSEMOVE    ( OnNcMouseMove )
 // 		UIMSG_WM_NCMOUSEHOVER   ( OnNcMouseHover )
@@ -82,12 +80,14 @@ protected:
 	virtual   void RedrawObject( Object* pInvalidateObj, RECT* prc, bool bUpdateNow );
 	virtual   HRDC BeginDrawObject( Object* pInvalidateObj );
 	virtual   void EndDrawObject( CRect* prcWindow, bool bFinish );
+	virtual   void CommitDoubleBuffet2Window(HDC hDCWnd, RECT* prcCommit);
+	virtual   void OnEndErasebkgnd();
 
 public:
 	// object 虚函数
 	virtual   void ResetAttribute();
 	virtual   bool SetAttribute( map<String,String>& mapAttrib, bool bReload=false );
-
+	
 	// 18105
 	// 消息响应
 protected:
@@ -99,7 +99,6 @@ protected:
 	LRESULT  _OnWindowPosChanged( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
 	LRESULT  _OnCancelMode( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
 
-	void     OnPaint(HRDC hRDC);
 	void     OnEraseBkgnd(HRDC hDC);
 	void     OnSize(UINT nType, int cx, int cy);
 	BOOL     OnSetCursor(HWND hWnd, UINT nHitTest, UINT message);
@@ -124,8 +123,8 @@ protected:
 // 	void OnNcMButtonDblClk( UINT nHitTest, POINT point );
 
 protected:
-	void    UpdateWindowRgn( HRDC hRDC );
-	void    UpdateWindowRgn( BYTE* pBits );
+	void    UpdateWindowRgn();
+	void    UpdateWindowRgn(BYTE* pBits);
 	HRGN    GetExcludeRgn( BYTE* pBits, const RECT& rc, bool bOffsetToOrigin );
 	bool    TestResizeBit( int nBit );
 
@@ -194,8 +193,8 @@ protected:
 	friend    class CustomWindow;
 	CustomWindow*   m_pWindow;     // 对应的窗口指针
 
-	HDC       m_hLayeredMemDC;     // 分层窗口需要自己维护一份图片,UpdateLayeredWindow的第二个HDC
-	HBITMAP   m_hLayeredBitmap;    // 分层窗口需要自己维护一份图片
+// 	HDC       m_hLayeredMemDC;     // 分层窗口需要自己维护一份图片,UpdateLayeredWindow的第二个HDC
+// 	HBITMAP   m_hLayeredBitmap;    // 分层窗口需要自己维护一份图片
 
 	POINT     m_ptWindow;          // 分层窗口的坐标
 	SIZE      m_sizeWindow;        // 分层窗口的大小

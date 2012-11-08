@@ -361,35 +361,33 @@ bool GdiplusRenderFont::GetLogFont(LOGFONT* plf)
 #pragma  region // Gdiplus DC
 //////////////////////////////////////////////////////////////////////////
 //
-//		GdiplusRenderDC
+//		GdiplusRenderTarget
 //
-GdiplusRenderDC::GdiplusRenderDC()
+GdiplusRenderTarget::GdiplusRenderTarget()
 {
 	m_pGraphics = NULL;
+	m_hDC = NULL;
 	this->Init();
 }
 
-// GdiplusRenderDC::GdiplusRenderDC(HDC hDC):IRenderTarget(hDC)
+// GdiplusRenderTarget::GdiplusRenderTarget(HDC hDC):IRenderTarget(hDC)
 // {
 // 	m_pGraphics = Gdiplus::Graphics::FromHDC(hDC);
 // 	UIASSERT(NULL != m_pGraphics);
 // 
 // 	this->Init();
 // }
-// GdiplusRenderDC::GdiplusRenderDC(HWND hWnd):IRenderTarget(hWnd)
+// GdiplusRenderTarget::GdiplusRenderTarget(HWND hWnd):IRenderTarget(hWnd)
 // {
 // 	m_pGraphics = Gdiplus::Graphics::FromHWND(hWnd);
 // 	UIASSERT(NULL != m_pGraphics);
 // 
 // 	this->Init();
 // }
-GdiplusRenderDC::~GdiplusRenderDC()
+GdiplusRenderTarget::~GdiplusRenderTarget()
 {
-	if( NULL != m_pGraphics )
-	{
-		delete m_pGraphics;
-		m_pGraphics = NULL;
-	}
+	SAFE_DELETE(m_pGraphics);
+	m_hDC = NULL;
 //	m_pFont = NULL;
 // 	if( NULL != m_hFont_GetHDC )
 // 	{
@@ -399,7 +397,7 @@ GdiplusRenderDC::~GdiplusRenderDC()
 }
 
 
-void GdiplusRenderDC::Init()
+void GdiplusRenderTarget::Init()
 {
 //	m_colorText.SetValue(Gdiplus::Color::MakeARGB(254,0,0,0));
 
@@ -407,10 +405,10 @@ void GdiplusRenderDC::Init()
 //	m_hFont_GetHDC = NULL;
 }
 
-HRDC GdiplusRenderDC::CreateCompatibleHRDC( int nWidth, int nHeight )
-{
-	return (HRDC)new GdiplusMemRenderDC( nWidth, nHeight );
-}
+// HRDC GdiplusRenderTarget::CreateCompatibleHRDC( int nWidth, int nHeight )
+// {
+// 	return (HRDC)new GdiplusMemRenderDC( nWidth, nHeight );
+// }
 
 //
 //	Remark
@@ -421,8 +419,9 @@ HRDC GdiplusRenderDC::CreateCompatibleHRDC( int nWidth, int nHeight )
 //			Any state changes you make to the device context between GetHDC and ReleaseHDC will 
 //			be ignored by GDI+ and will not be reflected in rendering done by GDI+.
 //
-HDC GdiplusRenderDC::GetHDC()
+HDC GdiplusRenderTarget::GetHDC()
 {
+#if 0
 	if( NULL == m_pGraphics )
 		return NULL;
 
@@ -464,42 +463,32 @@ HDC GdiplusRenderDC::GetHDC()
 //		}
 //	}
 	return hDC;
+#else
+	return m_hDC;
+#endif
 }
-void GdiplusRenderDC::ReleaseHDC( HDC hDC )
+void GdiplusRenderTarget::ReleaseHDC( HDC hDC )
 {
+#if 0
 	m_pGraphics->ReleaseHDC(hDC);
 // 	if( NULL != m_hFont_GetHDC )
 // 	{
 // 		::DeleteObject(m_hFont_GetHDC);
 // 		m_hFont_GetHDC = NULL;
 // 	}
+#else
+	// ...Nothing
+#endif
 }
-// HRFONT GdiplusRenderDC::SelectFont( HRFONT hRFont ) 
-// {
-// 	if( NULL != hRFont )
-// 	{
-// 		if( ((IRenderFont*)hRFont)->GetRenderType() != GRAPHICS_RENDER_TYPE_GDIPLUS )
-// 		{
-// 			hRFont = NULL;
-// 		}
-// 	}
-// 
-// 	HRFONT hOldFont = m_pFont;
-// 	m_pFont = (GdiplusRenderFont*)hRFont;
-// 	return hOldFont;
-// }
-// HRFONT GdiplusRenderDC::GetFont()
-// {
-// 	return m_pFont;
-// }
-HRGN GdiplusRenderDC::GetClipRgn()
+
+HRGN GdiplusRenderTarget::GetClipRgn()
 {
 	Gdiplus::Region region;
 	m_pGraphics->GetClip(&region);
 
 	return region.GetHRGN(m_pGraphics);
 }
-int GdiplusRenderDC::SelectClipRgn( HRGN hRgn, int nMode )
+int GdiplusRenderTarget::SelectClipRgn( HRGN hRgn, int nMode )
 {
 	if( NULL == hRgn )
 	{
@@ -543,7 +532,7 @@ int GdiplusRenderDC::SelectClipRgn( HRGN hRgn, int nMode )
 
 	return (int)s;
 }
-BOOL GdiplusRenderDC::GetViewportOrgEx( LPPOINT lpPoint )
+BOOL GdiplusRenderTarget::GetViewportOrgEx( LPPOINT lpPoint )
 {
 	if( NULL == lpPoint )
 	{
@@ -558,7 +547,7 @@ BOOL GdiplusRenderDC::GetViewportOrgEx( LPPOINT lpPoint )
 
 	return TRUE;
 }
-BOOL GdiplusRenderDC::OffsetViewportOrgEx( int xOffset, int yOffset, LPPOINT lpPoint ) 
+BOOL GdiplusRenderTarget::OffsetViewportOrgEx( int xOffset, int yOffset, LPPOINT lpPoint ) 
 {
 	if( NULL != lpPoint )
 	{
@@ -573,7 +562,7 @@ BOOL GdiplusRenderDC::OffsetViewportOrgEx( int xOffset, int yOffset, LPPOINT lpP
 	else
 		return FALSE;
 }
-BOOL GdiplusRenderDC::SetViewportOrgEx( int x, int y, LPPOINT lpPoint )
+BOOL GdiplusRenderTarget::SetViewportOrgEx( int x, int y, LPPOINT lpPoint )
 {
 	if( NULL != lpPoint )
 	{
@@ -590,20 +579,49 @@ BOOL GdiplusRenderDC::SetViewportOrgEx( int x, int y, LPPOINT lpPoint )
 		return FALSE;
 }
 
+bool GdiplusRenderTarget::BeginDraw(HDC hDC, RECT* prc)
+{
+	if (NULL != m_hDC)
+		return false;
 
-// COLORREF GdiplusRenderDC::SetTextColor( COLORREF color, byte Alpha )
-// {
-// 	Gdiplus::Color old = m_colorText;
-// 	m_colorText.SetValue(Gdiplus::Color::MakeARGB(Alpha,GetRValue(color),GetGValue(color),GetBValue(color))) ;
-// 	return old.ToCOLORREF();
-// }
-// COLORREF GdiplusRenderDC::GetTextColor( )
-// {
-// 	return m_colorText.ToCOLORREF();
-// }
+	if (NULL == hDC)
+		return false;
 
+	m_hDC = hDC;
+	m_pGraphics = Gdiplus::Graphics::FromHDC(hDC);
+	if (NULL != prc)
+	{
+		HRGN hRgn = CreateRectRgnIndirect(prc);
+		this->SelectClipRgn(hRgn, RGN_COPY);
+		SAFE_DELETE_GDIOBJECT(hRgn);
+	}
+	return true;
+}
+void GdiplusRenderTarget::EndDraw( )
+{
+	m_hDC = NULL;
+	SAFE_DELETE(m_pGraphics);
+}
 
-int GdiplusRenderDC::DrawString( const TCHAR* szText, const CRect* lpRect, UINT nFormat, HRFONT hRFont, COLORREF col )
+BYTE* GdiplusRenderTarget::LockBits()
+{
+	if (NULL == m_hDC)
+		return NULL;
+
+	HBITMAP hBitmap = (HBITMAP)::GetCurrentObject(m_hDC, OBJ_BITMAP);
+	if (NULL == hBitmap)
+		return NULL;
+
+	DIBSECTION dib;
+	::GetObject(hBitmap, sizeof(DIBSECTION), &dib);
+	return (BYTE*)dib.dsBm.bmBits;
+}
+void GdiplusRenderTarget::UnlockBits()
+{
+	
+}
+
+int GdiplusRenderTarget::DrawString( const TCHAR* szText, const CRect* lpRect, UINT nFormat, HRFONT hRFont, COLORREF col )
 {
 	if( NULL == m_pGraphics )
 		return 0;
@@ -668,7 +686,7 @@ int GdiplusRenderDC::DrawString( const TCHAR* szText, const CRect* lpRect, UINT 
 	return 0;
 }
 
-void GdiplusRenderDC::FillRgn( HRGN hRgn, COLORREF col )
+void GdiplusRenderTarget::FillRgn( HRGN hRgn, COLORREF col )
 {
 	if( NULL == hRgn )
 		return;
@@ -687,7 +705,7 @@ void GdiplusRenderDC::FillRgn( HRGN hRgn, COLORREF col )
 	pRegion = NULL;
 }
 
-void GdiplusRenderDC::FillRect(const CRect* lprc, COLORREF col)
+void GdiplusRenderTarget::FillRect(const CRect* lprc, COLORREF col)
 {
 	if( NULL == lprc )
 		return;
@@ -699,7 +717,7 @@ void GdiplusRenderDC::FillRect(const CRect* lprc, COLORREF col)
 	m_pGraphics->FillRectangle(&brush, lprc->left, lprc->top, lprc->Width(), lprc->Height() );
 }
 
-void GdiplusRenderDC::TileRect( const CRect* lprc, HRBITMAP hBitmap )
+void GdiplusRenderTarget::TileRect( const CRect* lprc, HRBITMAP hBitmap )
 {
 	if( NULL == hBitmap )
 		return;
@@ -720,7 +738,7 @@ void GdiplusRenderDC::TileRect( const CRect* lprc, HRBITMAP hBitmap )
 	m_pGraphics->FillRectangle(&brush, lprc->left, lprc->top, lprc->Width(), lprc->Height() );
 }
 
-void GdiplusRenderDC::Rectangle( const CRect* lprc, COLORREF colBorder, COLORREF colBack, int nBorder, bool bNullBack )
+void GdiplusRenderTarget::Rectangle( const CRect* lprc, COLORREF colBorder, COLORREF colBack, int nBorder, bool bNullBack )
 {
 	if( NULL == m_pGraphics )
 		return;
@@ -745,7 +763,7 @@ void GdiplusRenderDC::Rectangle( const CRect* lprc, COLORREF colBorder, COLORREF
 		);  
 }
 
-void GdiplusRenderDC::DrawFocusRect( const CRect* lprc )
+void GdiplusRenderTarget::DrawFocusRect( const CRect* lprc )
 {
 	if( NULL == m_pGraphics )
 		return;
@@ -758,7 +776,7 @@ void GdiplusRenderDC::DrawFocusRect( const CRect* lprc )
 		);  
 }
 
-void GdiplusRenderDC::GradientFillH( const CRect* lprc, COLORREF colFrom, COLORREF colTo )
+void GdiplusRenderTarget::GradientFillH( const CRect* lprc, COLORREF colFrom, COLORREF colTo )
 {
 	Gdiplus::Color colorFrom, colorTo;
 	colorFrom.SetValue(Gdiplus::Color::MakeARGB(254,GetRValue(colFrom),GetGValue(colFrom),GetBValue(colFrom))) ;
@@ -770,7 +788,7 @@ void GdiplusRenderDC::GradientFillH( const CRect* lprc, COLORREF colFrom, COLORR
 	m_pGraphics->FillRectangle(&brush, lprc->left, lprc->top, lprc->Width(), lprc->Height() );
 }
 
-void GdiplusRenderDC::GradientFillV( const CRect* lprc, COLORREF colFrom, COLORREF colTo )
+void GdiplusRenderTarget::GradientFillV( const CRect* lprc, COLORREF colFrom, COLORREF colTo )
 {
 	Gdiplus::Color colorFrom, colorTo;
 	colorFrom.SetValue(Gdiplus::Color::MakeARGB(254,GetRValue(colFrom),GetGValue(colFrom),GetBValue(colFrom))) ;
@@ -782,7 +800,7 @@ void GdiplusRenderDC::GradientFillV( const CRect* lprc, COLORREF colFrom, COLORR
 	m_pGraphics->FillRectangle(&brush, lprc->left, lprc->top, lprc->Width(), lprc->Height() );
 }
 
-void GdiplusRenderDC::BitBlt( int xDest, int yDest, int wDest, int hDest, IRenderTarget* pSrcHDC, int xSrc, int ySrc, DWORD dwRop )
+void GdiplusRenderTarget::BitBlt( int xDest, int yDest, int wDest, int hDest, IRenderTarget* pSrcHDC, int xSrc, int ySrc, DWORD dwRop )
 {
 	if( NULL == pSrcHDC )
 		return;
@@ -793,7 +811,7 @@ void GdiplusRenderDC::BitBlt( int xDest, int yDest, int wDest, int hDest, IRende
 	m_pGraphics->DrawImage(pMemRDC->GetMemBitmap(), xDest,yDest,xSrc,ySrc, wDest,hDest, Gdiplus::UnitPixel );
 }
 
-void GdiplusRenderDC::DrawBitmap( HRBITMAP hBitmap, int x, int y)
+void GdiplusRenderTarget::DrawBitmap( HRBITMAP hBitmap, int x, int y)
 {
 	if( NULL == hBitmap )
 		return;
@@ -813,7 +831,7 @@ void GdiplusRenderDC::DrawBitmap( HRBITMAP hBitmap, int x, int y)
 	m_pGraphics->DrawImage( pBitmap,x, y, pBitmap->GetWidth(), pBitmap->GetHeight() );
 }
 
-void GdiplusRenderDC::DrawBitmap(IRenderBitmap* pBitmap, int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc)
+void GdiplusRenderTarget::DrawBitmap(IRenderBitmap* pBitmap, int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc)
 {
 	if( NULL == pBitmap )
 		return;
@@ -830,7 +848,7 @@ void GdiplusRenderDC::DrawBitmap(IRenderBitmap* pBitmap, int xDest, int yDest, i
 	m_pGraphics->DrawImage( p, xDest, yDest, xSrc, ySrc, pBitmap->GetWidth(), pBitmap->GetHeight(), Gdiplus::UnitPixel );
 }
 
-void GdiplusRenderDC::DrawBitmap( HRBITMAP hBitmap, int xDest, int yDest, int nDestWidth, 
+void GdiplusRenderTarget::DrawBitmap( HRBITMAP hBitmap, int xDest, int yDest, int nDestWidth, 
 								int nDestHeight, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight )
 {
 	if( NULL == hBitmap )
@@ -852,7 +870,7 @@ void GdiplusRenderDC::DrawBitmap( HRBITMAP hBitmap, int xDest, int yDest, int nD
 	m_pGraphics->DrawImage( pBitmap, rcDst, (Gdiplus::REAL)xSrc, (Gdiplus::REAL)ySrc, (Gdiplus::REAL)nSrcWidth, (Gdiplus::REAL)nSrcHeight, Gdiplus::UnitPixel );
 }
 
-void GdiplusRenderDC::DrawBitmap( HRBITMAP hBitmap, int xDest, int yDest, int nDestWidth, 
+void GdiplusRenderTarget::DrawBitmap( HRBITMAP hBitmap, int xDest, int yDest, int nDestWidth, 
 					int nDestHeight, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight,
 					Image9Region* pImage9Region )
 {
@@ -993,7 +1011,7 @@ void GdiplusRenderDC::DrawBitmap( HRBITMAP hBitmap, int xDest, int yDest, int nD
 		Gdiplus::UnitPixel
 		);
 }
-void GdiplusRenderDC::ImageList_Draw( HRBITMAP hBitmap, int x, int y, int col, int row, int cx, int cy )
+void GdiplusRenderTarget::ImageList_Draw( HRBITMAP hBitmap, int x, int y, int col, int row, int cx, int cy )
 {
 	if( NULL == hBitmap )
 		return;
@@ -1025,7 +1043,7 @@ void GdiplusRenderDC::ImageList_Draw( HRBITMAP hBitmap, int x, int y, int col, i
 }
 
 
-void GdiplusRenderDC::DrawBitmap( HRBITMAP hBitmap, DRAWBITMAPPARAM* pParam )
+void GdiplusRenderTarget::DrawBitmap( HRBITMAP hBitmap, DRAWBITMAPPARAM* pParam )
 {
 	if (NULL == hBitmap || NULL == pParam)
 		return;
@@ -1221,20 +1239,20 @@ void GdiplusMemRenderDC::EndDraw( )
 	m_pWndGraphics = NULL;
 }
 
-void GdiplusMemRenderDC::EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish )
-{
-	if( NULL == m_pMemBitmap )
-		return;
-
-	m_pWndGraphics->DrawImage(m_pMemBitmap->GetBitmap(),xDest,yDest,xSrc,ySrc,wDest,hDest,Gdiplus::UnitPixel );
-	if (!bFinish)
-		return;
-
-	delete m_pWndGraphics;
-	delete m_pGraphics;
-	m_pGraphics = NULL;
-	m_pWndGraphics = NULL;
-}
+// void GdiplusMemRenderDC::EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish )
+// {
+// 	if( NULL == m_pMemBitmap )
+// 		return;
+// 
+// 	m_pWndGraphics->DrawImage(m_pMemBitmap->GetBitmap(),xDest,yDest,xSrc,ySrc,wDest,hDest,Gdiplus::UnitPixel );
+// 	if (!bFinish)
+// 		return;
+// 
+// 	delete m_pWndGraphics;
+// 	delete m_pGraphics;
+// 	m_pGraphics = NULL;
+// 	m_pWndGraphics = NULL;
+// }
 void GdiplusMemRenderDC::ResizeRenderTarget( int nWidth, int nHeight )
 {
 	if( m_nWidth == nWidth && m_nHeight == nHeight )

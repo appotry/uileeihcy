@@ -377,36 +377,32 @@ private:
 	HFONT    m_hFontForGDI;
 };
 
-class GdiplusRenderDC : public IRenderTarget
+class GdiplusRenderTarget : public IRenderTarget
 {
 public:
-	GdiplusRenderDC();
-// 	GdiplusRenderDC(HDC hDC);
-// 	GdiplusRenderDC(HWND hWnd);
-	virtual ~GdiplusRenderDC();
+	GdiplusRenderTarget();
+// 	GdiplusRenderTarget(HDC hDC);
+// 	GdiplusRenderTarget(HWND hWnd);
+	virtual ~GdiplusRenderTarget();
 	virtual GRAPHICS_RENDER_TYPE GetRenderType() { return GRAPHICS_RENDER_TYPE_GDIPLUS; }
 
-	virtual HRDC     CreateCompatibleHRDC( int nWidth, int nHeight );
+//	virtual HRDC     CreateCompatibleHRDC( int nWidth, int nHeight );
 	virtual HDC      GetHDC();
 	virtual void     ReleaseHDC( HDC hDC );
 
-// 	virtual HRFONT   SelectFont( HRFONT hFont );
-// 	virtual HRFONT   GetFont();
 	virtual HRGN     GetClipRgn() ;
 	virtual int      SelectClipRgn( HRGN hRgn, int nMode = RGN_COPY );
 	virtual BOOL     GetViewportOrgEx( LPPOINT lpPoint );
 	virtual BOOL     SetViewportOrgEx( int x, int y, LPPOINT lpPoint = NULL ) ;
 	virtual BOOL     OffsetViewportOrgEx( int x, int y, LPPOINT lpPoint = NULL );
-// 	virtual COLORREF SetTextColor( COLORREF color, byte Alpha = 254 ) ;
-// 	virtual COLORREF GetTextColor() ;
 
 	// 只有GdiplusMemRenderDC才支持
-	virtual bool     BeginDraw( HDC hDC ) {return false;}  
-	virtual void     EndDraw( ){};
-	virtual void     EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish ){};
+	virtual bool     BeginDraw(HDC hDC, RECT* prc);
+	virtual void     EndDraw();
+//	virtual void     EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish ){};
 	virtual void     ResizeRenderTarget( int nWidth, int nHeight ){}; 
-	virtual BYTE*    LockBits() {return NULL;};
-	virtual void     UnlockBits(){};
+	virtual BYTE*    LockBits();
+	virtual void     UnlockBits();
 	virtual void     Clear(){}
 	virtual void     Save( const String& strPath ){};
 	virtual HBITMAP  CopyRect(RECT *prc){return NULL;}
@@ -434,6 +430,7 @@ protected:
 	void   Init();
 
 protected:
+	HDC      m_hDC;
 	Gdiplus::Graphics*  m_pGraphics;
 //	Gdiplus::Color      m_colorText;    // 当前字体颜色
 //	GdiplusRenderFont*  m_pFont;        // 当前字体
@@ -441,7 +438,7 @@ protected:
 
 };
 
-class GdiplusMemRenderDC : public GdiplusRenderDC
+class GdiplusMemRenderDC : public GdiplusRenderTarget
 {
 public:
 	GdiplusMemRenderDC(int nWidth, int nHeight);
@@ -453,7 +450,7 @@ public:
 
 	virtual bool     BeginDraw( HDC hDC );
 	virtual void     EndDraw( );
-	virtual void     EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish );
+//	virtual void     EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish );
 	virtual void     ResizeRenderTarget( int nWidth, int nHeight );
 	virtual BYTE*    LockBits();
 	virtual void     UnlockBits();

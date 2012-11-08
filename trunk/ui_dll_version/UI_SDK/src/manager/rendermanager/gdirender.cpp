@@ -418,14 +418,14 @@ bool GdiRenderTarget::BeginDraw(HDC hDC, RECT* prc)
 	if (NULL == hDC)
 		return false;
 
+	m_hDC = hDC;
 	if (NULL != prc)
 	{
 		HRGN hRgn = CreateRectRgnIndirect(prc);
 		this->SelectClipRgn(hRgn, RGN_COPY);
 		SAFE_DELETE_GDIOBJECT(hRgn);
 	}
-
-	m_hDC = hDC;
+	
 	return true;
 }
 void GdiRenderTarget::EndDraw()
@@ -817,29 +817,29 @@ void GDIMemRenderDC::EndDraw( )
 	m_hOldWndDC = NULL;
 	m_hDC = NULL;
 }
-void GDIMemRenderDC::EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish )
-{
-	if (NULL == m_hDC)
-		return;
-
-	::BitBlt(m_hWndDC, xDest, yDest, wDest, hDest, m_hDC, xSrc,ySrc, SRCCOPY );
-	if (!bFinish)
-		return;
-
-	if (NULL != m_hOldBitmap)
-	{
-		::SelectObject(m_hDC, m_hOldBitmap);
-		m_hOldBitmap = NULL;
-	}
-	::DeleteDC(m_hDC);
-	if( NULL == m_hOldWndDC )
-	{
-		::ReleaseDC(m_hWnd, m_hWndDC);
-	}
-	m_hWndDC = NULL;
-	m_hOldWndDC = NULL;
-	m_hDC = NULL;
-}
+// void GDIMemRenderDC::EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish )
+// {
+// 	if (NULL == m_hDC)
+// 		return;
+// 
+// 	::BitBlt(m_hWndDC, xDest, yDest, wDest, hDest, m_hDC, xSrc,ySrc, SRCCOPY );
+// 	if (!bFinish)
+// 		return;
+// 
+// 	if (NULL != m_hOldBitmap)
+// 	{
+// 		::SelectObject(m_hDC, m_hOldBitmap);
+// 		m_hOldBitmap = NULL;
+// 	}
+// 	::DeleteDC(m_hDC);
+// 	if( NULL == m_hOldWndDC )
+// 	{
+// 		::ReleaseDC(m_hWnd, m_hWndDC);
+// 	}
+// 	m_hWndDC = NULL;
+// 	m_hOldWndDC = NULL;
+// 	m_hDC = NULL;
+// }
 
 void GDIMemRenderDC::ResizeRenderTarget( int nWidth, int nHeight )
 {

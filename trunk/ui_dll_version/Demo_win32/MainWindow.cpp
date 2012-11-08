@@ -112,8 +112,6 @@ void MainWindow::OnInitWindow()
 
 void MainWindow::OnPaint(HRDC hRDC)
 {
-	CustomWindow::OnPaint(hRDC);
-
 	CRect rcClient;
 	m_pVisuallzationPic->GetClientRectInWindow(&rcClient);
 

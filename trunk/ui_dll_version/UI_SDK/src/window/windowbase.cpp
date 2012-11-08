@@ -8,6 +8,7 @@ WindowBase::WindowBase()
 	this->m_hFont         = NULL;
 	this->m_hMemDC        = NULL;
 	this->m_hMemBitmap    = NULL;
+	this->m_hOldBitmap    = NULL;
 
 	this->m_bDoModal       = false;
 	this->m_bEndModal      = false;
@@ -221,30 +222,28 @@ WindowBase::operator HWND() const
 //	See Also
 //		LayeredWindow::UpdateObject
 //
-void WindowBase::RedrawObject( Object* pInvalidateObj, RECT* prc, bool bUpdateNow )
+void WindowBase::RedrawObject( Object* pRedrawObj, RECT* prc, bool bUpdateNow )
 {
-#if 0 // TODO: RenderEngine Modify
-	if( NULL == pInvalidateObj || NULL == m_hRenderTarget )
+	if (NULL == pRedrawObj)
 		return;
  
-	if( OBJ_HWNDHOST == pInvalidateObj->GetObjectType() )
+	if (OBJ_HWNDHOST == pRedrawObj->GetObjectType())
 	{
 		// 系统控件的刷新由它自己本身负责
 	}
-	else if( OBJ_WINDOW == pInvalidateObj->GetObjectType() )
+	else if (OBJ_WINDOW == pRedrawObj->GetObjectType())
 	{
-		WindowBase* pWindow = (WindowBase*)pInvalidateObj;
+		WindowBase* pWindow = (WindowBase*)pRedrawObj;
 		::InvalidateRect(pWindow->m_hWnd, prc, TRUE);
-		if( bUpdateNow )
+		if (bUpdateNow)
 		{
 			UpdateWindow(pWindow->m_hWnd);
 		}
 	}
 	else
 	{
-		this->_InvalidateObject(pInvalidateObj, NULL);
+		this->_InnerRedrawObject(pRedrawObj, NULL);
 	}
-#endif
 }
 
 void WindowBase::RedrawObjectBkgnd( Object* pInvalidateObj, RECT* prc, bool bUpdateNow )
@@ -273,58 +272,33 @@ void WindowBase::RedrawObjectBkgnd( Object* pInvalidateObj, RECT* prc, bool bUpd
 #endif
 }
 
-void WindowBase::_InvalidateObject(Object* pInvalidateObj, HDC hDestDC)
+void WindowBase::_InnerRedrawObject(Object* pInvalidateObj, HDC hDestDC)
 {
-#if 0 // TODO: RenderEngine Modify
-	if (false == BeginDraw(m_hRenderTarget, hDestDC))
-		return;
+	IRenderTarget*  pRenderTarget = CreateRenderTarget(m_hWnd);
 
-	if (this->IsTransparent())
-	{
-		m_hRenderTarget->Clear();
-	}
-
-#if 0
-	RenderOffsetClipHelper roc(this);
-#else
 	RenderOffsetClipHelper roc(this, false);
-
 	pInvalidateObj->GetWindowRect(&roc.m_rcClip);
-	HRGN hRgn = ::CreateRectRgn(roc.m_rcClip.left, roc.m_rcClip.top, roc.m_rcClip.right, roc.m_rcClip.bottom);
-	m_hRenderTarget->SelectClipRgn(hRgn);
-	SAFE_DELETE_GDIOBJECT(hRgn);
-#endif
-	
-	pInvalidateObj->DrawObjectTransparentBkgnd(m_hRenderTarget, roc, pInvalidateObj->IsTransparent());
-	pInvalidateObj->DrawObject(m_hRenderTarget, roc);
-	
-	roc.Reset(m_hRenderTarget);
-	m_hRenderTarget->SelectClipRgn(NULL);
-	
-	
-	//////////////////////////////////////////////////////////////////////////
-	//
-	//  提交显示
-#if 0
-	int nX = roc.m_rcClip.left + roc.m_ptOffset.x;
-	int nY = roc.m_rcClip.top  + roc.m_ptOffset.y;
-#else
-	int nX = roc.m_rcClip.left ;
-	int nY = roc.m_rcClip.top  ;
-#endif
-	int nW = roc.m_rcClip.Width();
-	int nH = roc.m_rcClip.Height();
 
-	if (this->IsTransparent())
+	if (pRenderTarget->BeginDraw(m_hMemDC, roc.m_rcClip))
 	{
-		RECT rc = {nX, nY, nX+nW, nY+nH};
-		::FillRect(hDestDC, &rc, (HBRUSH)::GetStockObject(BLACK_BRUSH));
+		if (this->IsTransparent())
+		{
+			pRenderTarget->Clear();
+		}
+
+		pInvalidateObj->DrawObjectTransparentBkgnd(pRenderTarget, roc, pInvalidateObj->IsTransparent());
+		pInvalidateObj->DrawObject(pRenderTarget, roc);
+	
+		roc.Reset(pRenderTarget);
+		pRenderTarget->SelectClipRgn(NULL);
+	
+		pRenderTarget->EndDraw();
+		this->CommitDoubleBuffet2Window(NULL, &roc.m_rcClip);
 	}
-	EndDraw(m_hRenderTarget, nX, nY, nW, nH, nX, nY, true);
-#endif
+	SAFE_RELEASE(pRenderTarget);
 }
 
-void WindowBase::_InvalidateObjectBkgnd(Object* pInvalidateObj, HDC hDestDC)
+void WindowBase::_InnerRedrawObjectBkgnd(Object* pInvalidateObj, HDC hDestDC)
 {
 #if 0 // TODO: RenderEngine Modify
 	if (false == BeginDraw(m_hRenderTarget, hDestDC))
@@ -349,18 +323,21 @@ void WindowBase::_InvalidateObjectBkgnd(Object* pInvalidateObj, HDC hDestDC)
 // 获取一个控件在窗口上的图像
 HBITMAP WindowBase::PaintObject(Object* pObj)
 {
-#if 0 // TODO: RenderEngine Modify
-	if (NULL == pObj || NULL == m_hRenderTarget)
+	if (NULL == pObj || NULL == m_hMemDC)
 		return NULL;
 
 	pObj->UpdateObject(true);
 
 	CRect rcWindow;
 	pObj->GetClientRectInWindow(&rcWindow);
-	HBITMAP hBitmap = m_hRenderTarget->CopyRect(&rcWindow);
+	
+	::SelectObject(m_hMemDC, m_hOldBitmap);
+	Image image;
+	image.Attach(m_hMemBitmap);
+	HBITMAP hBitmap = image.CopyRect(&rcWindow);
+	m_hOldBitmap = (HBITMAP)::SelectObject(m_hMemDC, image.Detach());
+
 	return hBitmap;
-#endif
-	return NULL;
 }
 
 //
@@ -896,83 +873,63 @@ LRESULT WindowBase::_OnEraseBkgnd( UINT uMsg, WPARAM wParam,LPARAM lParam, BOOL&
 }
 LRESULT WindowBase::_OnPaint( UINT uMsg, WPARAM wParam,LPARAM lParam, BOOL& bHandled )
 {
-	bHandled = TRUE;
-
 	PAINTSTRUCT ps;
-	HDC         hDC = NULL;
-	HFONT       hOldFont = NULL;
-	CRect       rect;
+	HDC  hDC = NULL;
 
 	if (NULL == wParam)
 		hDC = ::BeginPaint(this->m_hWnd ,&ps);
-// 	else
-// 		hDC = (HDC)wParam;
 
-// 	::GetClientRect( this->m_hWnd, &rect );
-// 	int nWidth  = rect.Width();
-// 	int nHeight = rect.Height();
-
-#if 0 // TODO: RenderEngine Modify
-	if (NULL == m_hRenderTarget)
-	{
-		m_hRenderTarget = CreateRenderTarget(m_hWnd, nWidth, nHeight);
-		if( NULL == m_hRenderTarget )
-			UI_LOG_ERROR(_T("WindowBase::WndProc CreateRenderTarget Failed."));
-	}
-
-	if (NULL != m_hRenderTarget && m_hRenderTarget->BeginDraw(hDC))
-	{
-		if (this->IsTransparent())
-		{
-			m_hRenderTarget->Clear();
-			::FillRect(hDC, &rect, (HBRUSH)::GetStockObject(BLACK_BRUSH));
-		}
-
-		RenderOffsetClipHelper roc(this);
-		this->DrawObject(m_hRenderTarget, roc);
-		roc.Reset(m_hRenderTarget);
-		m_hRenderTarget->EndDraw();
-	}
-#else
 	IRenderTarget*  pRenderTarget = CreateRenderTarget(m_hWnd);
-	UIASSERT(NULL != pRenderTarget);
 
 	if (pRenderTarget->BeginDraw(m_hMemDC, NULL))
 	{
-		RenderOffsetClipHelper roc(this);
-		this->DrawObject(pRenderTarget, roc);
-		roc.Reset(pRenderTarget);
-
+		this->OnDrawWindow(pRenderTarget);
 		pRenderTarget->EndDraw();
 	}
 
 	pRenderTarget->Release();
-
 	this->CommitDoubleBuffet2Window(hDC, NULL);
-
-#endif
-// 	ReleaseHRDC(m_hRenderTarget);
-// 	m_hRenderTarget = NULL;
 
 	if( NULL == wParam )
 		EndPaint(m_hWnd,&ps);
+	
+	return 0;
+}
 
-	return TRUE;
+//
+// 由于DrawObject不能定制OnEndErasebkgnd，因此将DrawObject重写一个为OnDrawWindow
+// 另外由于一些情况下隐藏时也可能需要绘制（如分层窗口...)
+// TODO:  该函数的必要性
+//
+void WindowBase::OnDrawWindow(IRenderTarget* pRenderTarget)
+{
+	RenderOffsetClipHelper roc(this);
+
+	if (this->IsVisible())
+	{
+		::UISendMessage(this, WM_ERASEBKGND, (WPARAM)pRenderTarget, (LPARAM)1 );  // 将lparam置为1，与原始消息进行区分
+		this->OnEndErasebkgnd();       // 主要是用于CustomWindow中设置窗口异形
+
+		this->_drawNcChildObject(pRenderTarget, roc);
+
+		roc.DrawClient(pRenderTarget, this, false);
+		roc.Scroll(pRenderTarget, this, false);
+		roc.Update(pRenderTarget);
+
+		::UISendMessage(this, WM_PAINT, (WPARAM)pRenderTarget, (LPARAM)1 );       // 将lparam置为1，与原始消息进行区分
+		this->_drawChildObject(pRenderTarget, roc);
+	}
+
+	roc.Reset(pRenderTarget);
 }
 
 LRESULT WindowBase::_OnSize( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
 {
 	bHandled = FALSE;
-#if 0 // TODO: RenderEngine Modify
-	if( SIZE_MINIMIZED != wParam && NULL != m_hRenderTarget )
-	{
-		//	修改缓冲背景图片大小
-		ResizeRenderTarget(m_hRenderTarget, LOWORD(lParam), HIWORD(lParam));
-#else
 	if (SIZE_MINIMIZED != wParam)
 	{
 		this->CreateDoubleBuffer(LOWORD(lParam), HIWORD(lParam));
-#endif
+
 		//
 		// (只有是用户显式修改窗口大小（拖拽、最大化）时，才能将width/height 从auto修改为现有值cx/cy
 		// 避免了因为 第一次显示窗口时发出的WM_SIZE 而造成错误。)  <-- 作废！因为没法处理 nType==0 RESTORE 的情况
@@ -1054,8 +1011,8 @@ LRESULT WindowBase::_OnHandleMouseMessage( UINT uMsg, WPARAM wParam, LPARAM lPar
 LRESULT WindowBase::_OnHandleKeyboardMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
 {
 	bHandled = FALSE;
-	if (uMsg == WM_SYSKEYDOWN && wParam == VK_F4) // 控件不处理该消息，直接关闭窗口
-		return 0;
+// 	if (uMsg == WM_SYSKEYDOWN && wParam == VK_F4) // 控件不处理该消息，直接关闭窗口
+// 		return 0;
 
 	LRESULT bRet = this->m_MgrKeyboard.HandleMessage( uMsg, wParam, lParam );
 	if (bRet)
@@ -1293,7 +1250,7 @@ void WindowBase::CreateDoubleBuffer(int nWidth, int nHeight)
 	Image image;
 	image.Create( nWidth, nHeight, 32, Image::createAlphaChannel );
 	m_hMemBitmap = image.Detach();
-	::SelectObject(m_hMemDC, m_hMemBitmap);
+	m_hOldBitmap = (HBITMAP)::SelectObject(m_hMemDC, m_hMemBitmap);
 }
 //
 //	释放双缓冲数据
@@ -1302,6 +1259,7 @@ void WindowBase::DestroyDoubleBuffer()
 {
 	if( NULL != m_hMemDC )
 	{
+		::SelectObject(m_hMemDC, m_hOldBitmap);
 		::DeleteDC(m_hMemDC);
 		m_hMemDC = NULL;
 	}
@@ -1314,8 +1272,11 @@ void WindowBase::DestroyDoubleBuffer()
 //
 void WindowBase::CommitDoubleBuffet2Window(HDC hDCWnd, RECT* prcCommit)
 {
-	if (NULL == hDCWnd)
-		return;
+	HDC hDC = hDCWnd;
+	if (NULL == hDC)
+	{
+		hDC = GetDC(m_hWnd);
+	}
 
 	CRect rcCommit;
 	if (NULL == prcCommit)
@@ -1323,8 +1284,13 @@ void WindowBase::CommitDoubleBuffet2Window(HDC hDCWnd, RECT* prcCommit)
 	else
 		rcCommit.CopyRect(prcCommit);
 
-	::BitBlt(hDCWnd, rcCommit.left, rcCommit.top, rcCommit.Width(), rcCommit.Height(),
+	::BitBlt(hDC, rcCommit.left, rcCommit.top, rcCommit.Width(), rcCommit.Height(),
 			 m_hMemDC, rcCommit.left, rcCommit.top, SRCCOPY);
+
+	if (NULL == hDCWnd)
+	{
+		ReleaseDC(m_hWnd, hDC);
+	}
 }
 
 //
