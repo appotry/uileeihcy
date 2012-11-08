@@ -176,8 +176,7 @@ public:
 	// 仅memdc才有用的
 	virtual bool     BeginDraw(HDC hDC) { UIASSERT(0); return false; }  // 已废弃，改调用BeginDraw(HDC,RECT*);
 	virtual bool     BeginDraw(HDC hDC, RECT* prc){ return false; } // TODO: 作成纯虚函数
-	virtual void     EndDraw( ) = 0;
-	virtual void     EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish ) = 0;
+	virtual void     EndDraw() = 0;
 	virtual void     ResizeRenderTarget( int nWidth, int nHeight ) = 0;
 	virtual BYTE*    LockBits() = 0;
 	virtual void     UnlockBits() = 0;
@@ -217,7 +216,7 @@ UIAPI void     ReleaseHRDC(HRDC hRDC);
 UIAPI HRDC     CreateRenderTarget( HWND hWnd, int nWidth, int nHeight );
 UIAPI bool     BeginDraw(HRDC hRDC, HDC hDC);
 UIAPI void     EndDraw( HRDC hRDC );
-UIAPI void     EndDraw( HRDC hRDC, int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish );
+//UIAPI void     EndDraw( HRDC hRDC, int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish );
 UIAPI void     ResizeRenderTarget( HRDC hRDC, int nWidth, int nHeight );
 
 // 获取HRDC对应的一个HDC用于Image绘制，GetHDC必须与ReleaseHDC配套使用

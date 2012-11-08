@@ -243,6 +243,7 @@ bool CustomWindow::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
+
 // 屏蔽WM_PAINT消息，不需要绘制Nc (否则在拉伸CustomExWindow的时候会出现thickframe )
 LRESULT CustomWindow::_OnNcPaint( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
 {
@@ -272,22 +273,21 @@ void CustomWindow::OnEraseBkgnd(HRDC hRDC)
 	}
 }
 
-void CustomWindow::OnPaint(HRDC hRDC)
+void CustomWindow::OnEndErasebkgnd()
 {
-	SetMsgHandled(FALSE);
-
 	// 重新设置窗口透明形状 ( 注：不将该段代码放在OnErasebkgnd中的原因是，刷新一个按钮时也会走到
 	// OnEraseBkgnd中，导致这时的背景图片中被剪裁只剩下一个控件，update window rgn错误。
-	if( m_bNeedToSetWindowRgn )
+	if (m_bNeedToSetWindowRgn)
 	{
-//		this->UpdateWindowRgn(m_hRenderTarget);
+		this->UpdateWindowRgn();
 	}
 }
 
-void CustomWindow::UpdateWindowRgn( HRDC hRDC )
+void CustomWindow::UpdateWindowRgn()
 {
 	this->m_bNeedToSetWindowRgn = false;
 
+#if 0
 	BYTE* pBits = LockBits(hRDC);
 	if( NULL == pBits )
 		return;
@@ -295,8 +295,16 @@ void CustomWindow::UpdateWindowRgn( HRDC hRDC )
 	this->UpdateWindowRgn(pBits);
 
 	UnlockBits(hRDC);
+#else
+
+	DIBSECTION  dibsection;
+	::GetObject(this->m_hMemBitmap, sizeof(DIBSECTION), &dibsection);
+	this->UpdateWindowRgn((BYTE*)dibsection.dsBm.bmBits);
+
+#endif
 }
-void CustomWindow::UpdateWindowRgn( BYTE* pBits )
+
+void CustomWindow::UpdateWindowRgn(BYTE* pBits)
 {
 	this->m_bNeedToSetWindowRgn = false;
 	if( NULL == pBits )
@@ -562,7 +570,7 @@ HRGN CustomWindow::GetExcludeRgn( BYTE* pBits, const RECT& rc, bool bOffsetToOri
 		p = pBits + nWindowW*4*i + rc.left*4;
 		for (LONG j = rc.left; j < rc.right; j++)      
 		{
-			POINT pt = { j, i };
+			POINT pt = { j, nWindowH-i-1 };   // 创建的m_hMemBitmap是反向的
 
 			BYTE b = *p++;
 			BYTE g = *p++;
@@ -650,6 +658,17 @@ void CustomWindow::EndDrawObject( CRect* prcWindow, bool bFinish)
 		m_pLayeredWindowWrap->PreEndDrawObject(prcWindow, bFinish);
 		__super::EndDrawObject(prcWindow, bFinish);
 		m_pLayeredWindowWrap->PostEndDrawObject(prcWindow, bFinish);
+	}
+}
+void CustomWindow::CommitDoubleBuffet2Window(HDC hDCWnd, RECT* prcCommit)
+{
+	if (NULL == m_pLayeredWindowWrap)
+	{
+		__super::CommitDoubleBuffet2Window(hDCWnd, prcCommit);
+	}
+	else
+	{
+		m_pLayeredWindowWrap->Commit2LayeredWindow();
 	}
 }
 
@@ -944,9 +963,7 @@ void CustomWindow::SetWindowLayered(bool b)
 		//     同时为了解决画到窗口上的内容有rgn以外的部分，在去除分层属性之前，先计算
 		//     窗口的形状
 		
-		DIBSECTION  dibsection;
-		::GetObject( this->m_pLayeredWindowWrap->m_hLayeredBitmap, sizeof(DIBSECTION), &dibsection );
-		this->UpdateWindowRgn( (BYTE*)dibsection.dsBm.bmBits );
+		this->UpdateWindowRgn();
 
 		// Remove WS_EX_LAYERED from this window styles
 		SetWindowLong(m_hWnd, 
@@ -954,7 +971,7 @@ void CustomWindow::SetWindowLayered(bool b)
 			GetWindowLong(m_hWnd, GWL_EXSTYLE) & ~WS_EX_LAYERED);
 
 		HDC hDC = ::GetDC(m_hWnd);
-		::BitBlt(hDC,0,0, GetWidth(), GetHeight(), this->m_pLayeredWindowWrap->m_hLayeredMemDC, 0,0, SRCCOPY);
+		::BitBlt(hDC,0,0, GetWidth(), GetHeight(), this->m_hMemDC, 0,0, SRCCOPY);
 		ReleaseDC(m_hWnd, hDC);
 
 		m_pLayeredWindowWrap->ReleaseLayeredWindow();
@@ -1091,8 +1108,8 @@ LayeredWindowWrap::LayeredWindowWrap(CustomWindow* pWindow)
 {
 	m_pWindow = pWindow;
 
-	m_hLayeredMemDC = NULL;
-	m_hLayeredBitmap = NULL;
+// 	m_hLayeredMemDC = NULL;
+// 	m_hLayeredBitmap = NULL;
 
 	m_nHitTestFlag = 0;
 	m_ptStartSizeMove.x = 0;
@@ -1123,12 +1140,12 @@ void LayeredWindowWrap::InitLayeredWindow()
 	CRect rc;
 	::GetWindowRect( m_pWindow->m_hWnd, &rc );
 
-	m_hLayeredMemDC = ::CreateCompatibleDC(NULL/*m_hScreenDC*/);
-
-	Image image;
-	image.Create( rc.Width(), -rc.Height(), 32, Image::createAlphaChannel );
-	m_hLayeredBitmap = image.Detach();
-	::SelectObject(m_hLayeredMemDC, m_hLayeredBitmap);
+// 	m_hLayeredMemDC = ::CreateCompatibleDC(NULL/*m_hScreenDC*/);
+// 
+// 	Image image;
+// 	image.Create( rc.Width(), -rc.Height(), 32, Image::createAlphaChannel );
+// 	m_hLayeredBitmap = image.Detach();
+// 	::SelectObject(m_hLayeredMemDC, m_hLayeredBitmap);
 
 	// 避免因为在SetLayerWindowd(true)之前错过了带在设置SIZE的WindowPosChanged消息，
 	// 在这里检测一次
@@ -1146,31 +1163,30 @@ void LayeredWindowWrap::InitLayeredWindow()
 }
 void LayeredWindowWrap::ReleaseLayeredWindow()
 {
-	if( NULL != m_hLayeredMemDC )
-	{
-		::DeleteDC(m_hLayeredMemDC);
-		m_hLayeredMemDC = NULL;
-	}
-
-	SAFE_DELETE_GDIOBJECT(m_hLayeredBitmap);
+// 	if( NULL != m_hLayeredMemDC )
+// 	{
+// 		::DeleteDC(m_hLayeredMemDC);
+// 		m_hLayeredMemDC = NULL;
+// 	}
+// 
+// 	SAFE_DELETE_GDIOBJECT(m_hLayeredBitmap);
 }
 void LayeredWindowWrap::OnSize( UINT nType, int cx, int cy )
 {
-	if( NULL == m_hLayeredMemDC )
-		return;
-
-	SAFE_DELETE_GDIOBJECT(m_hLayeredBitmap);
-
-	Image image;
-	image.Create(cx, -cy, 32, Image::createAlphaChannel);
-	m_hLayeredBitmap = image.Detach();
-	::SelectObject(m_hLayeredMemDC, m_hLayeredBitmap);
+// 	if( NULL == m_hLayeredMemDC )
+// 		return;
+// 
+// 	SAFE_DELETE_GDIOBJECT(m_hLayeredBitmap);
+// 
+// 	Image image;
+// 	image.Create(cx, -cy, 32, Image::createAlphaChannel);
+// 	m_hLayeredBitmap = image.Detach();
+// 	::SelectObject(m_hLayeredMemDC, m_hLayeredBitmap);
 
 // 	const RECT rClear = {0,0,cx,cy};
 // 	FillRect(m_hLayeredMemDC,&rClear, (HBRUSH)::GetStockObject(_BRUSH));
 // 	image.Attach(m_hLayeredBitmap);
 	
-
 	this->InvalidateObject(m_pWindow, TRUE);
 }
 
@@ -1209,7 +1225,7 @@ void LayeredWindowWrap::InvalidateObject( Object* pInvalidateObj, bool bUpdateNo
 		if (!IsWindowVisible(m_pWindow->m_hWnd))  // 避免第一次绘制时窗口不可见时，仍然Commit2LayeredWindow，导致窗口全黑
 			return;
 
-		::SendMessage(m_pWindow->m_hWnd, WM_PAINT, (WPARAM)m_hLayeredMemDC, 0);  // 通过发送原始WM_PAINT消息，使分层窗口也能和普通窗口一样响应WM_PAINT
+		::SendMessage(m_pWindow->m_hWnd, WM_PAINT, 0, 0);  // 通过发送原始WM_PAINT消息，使分层窗口也能和普通窗口一样响应WM_PAINT
 
 		// 备注：测试证明，通过RedrawWindow也能够使得分层窗口收到WM_PAINT消息，太神奇了，但BeginPaint得到的HDC
 		//       在分层窗口上面也没法用吧。另外发现第一次调用的时候收不到该消息，难道是因为窗口还没有显示？
@@ -1218,10 +1234,10 @@ void LayeredWindowWrap::InvalidateObject( Object* pInvalidateObj, bool bUpdateNo
 	}
 	else
 	{
-		m_pWindow->_InvalidateObject(pInvalidateObj, m_hLayeredMemDC);  // <-- 这里的第二个参数与WindowBase::InvalidateObject不一致
+		m_pWindow->_InnerRedrawObject(pInvalidateObj, NULL);  // <-- 这里的第二个参数与WindowBase::InvalidateObject不一致
 	}
 
-	this->Commit2LayeredWindow();
+//	this->Commit2LayeredWindow();
 }
 
 HRDC LayeredWindowWrap::BeginDrawObject( Object* pInvalidateObj)
@@ -1255,17 +1271,21 @@ HRDC LayeredWindowWrap::BeginDrawObject( Object* pInvalidateObj)
 
 void LayeredWindowWrap::PreEndDrawObject(CRect* prcWindow, bool bFinish)
 {
+#if 0  // TODO: RenderEngine Modify
 	if (m_pWindow->IsTransparent())
 	{
 		::FillRect(m_hLayeredMemDC, prcWindow, (HBRUSH)::GetStockObject(BLACK_BRUSH));
 	}
+#endif
 }
 void LayeredWindowWrap::PostEndDrawObject(CRect* prcWindow, bool bFinish)
 {
+#if 0  // TODO: RenderEngine Modify
 	if (bFinish)
 	{
 		this->Commit2LayeredWindow();
 	}
+#endif
 }
 
 // 模拟拖拽窗口拉伸过程
@@ -1409,9 +1429,7 @@ void LayeredWindowWrap::OnMouseMove()
 		return;
 	}
 
-#if 0 // TODO: RenderEngine Modify
-	ResizeRenderTarget(m_pWindow->m_hRenderTarget, m_sizeWindow.cx,m_sizeWindow.cy);
-#endif
+	m_pWindow->CreateDoubleBuffer(m_sizeWindow.cx, m_sizeWindow.cy);
 
 	// 注意：m_rcParent的更新千万不能使用GetWindowRect。因为窗口的大小现在就没有变
 	//       所以这里也就没有采用SendMessage(WM_SIZE)的方法
@@ -1483,8 +1501,9 @@ void LayeredWindowWrap::Commit2LayeredWindow()
 		}
 	}
 
-	BOOL bRet = ::UpdateLayeredWindow( m_pWindow->m_hWnd, NULL, &m_ptWindow, &m_sizeWindow, m_hLayeredMemDC, &ptMemDC, dwColorMask, &bf, nFlag ); 
+	BOOL bRet = ::UpdateLayeredWindow( m_pWindow->m_hWnd, NULL, &m_ptWindow, &m_sizeWindow, m_pWindow->m_hMemDC, &ptMemDC, dwColorMask, &bf, nFlag ); 
 	if (FALSE == bRet)
+	{
 		UI_LOG_ERROR(_T("%s UpdateLayeredWindow Failed."), FUNC_NAME);
-	
+	}
 }

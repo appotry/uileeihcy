@@ -245,7 +245,7 @@ void IRenderTarget::Release()
 GRAPHICS_RENDER_TYPE GetGraphicsRenderType(HWND hWnd)
 {
 #ifdef _DEBUGx
-	return GRAPHICS_RENDER_TYPE_DIRECT2D;
+	return GRAPHICS_RENDER_TYPE_GDIPLUS;
 #endif
 
 	if( NULL == hWnd )
@@ -273,7 +273,7 @@ GRAPHICS_RENDER_TYPE GetGraphicsRenderType(HWND hWnd)
 GRAPHICS_RENDER_TYPE GetGraphicsRenderType(Object* pObj)
 {
 #ifdef _DEBUGx
-	return GRAPHICS_RENDER_TYPE_DIRECT2D;
+	return GRAPHICS_RENDER_TYPE_GDIPLUS;
 #endif
 
 	if( NULL == pObj ) 
@@ -405,6 +405,11 @@ IRenderTarget* CreateRenderTarget(HWND hWnd)
 			pRenderTarget = new GdiRenderTarget();
 		}
 		break;
+	case GRAPHICS_RENDER_TYPE_GDIPLUS:
+		{
+			pRenderTarget = new GdiplusRenderTarget();
+		}
+		break;
 	default:
 		UIASSERT(0);
 		break;
@@ -434,14 +439,14 @@ void EndDraw(HRDC hRDC)
 	}
 	return ((IRenderTarget*)hRDC)->EndDraw();
 }
-void EndDraw( HRDC hRDC, int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish )
-{
-	if( NULL == hRDC )
-	{
-		return;
-	}
-	return ((IRenderTarget*)hRDC)->EndDraw(xDest,yDest,wDest,hDest,xSrc,ySrc,bFinish);
-}
+// void EndDraw( HRDC hRDC, int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish )
+// {
+// 	if( NULL == hRDC )
+// 	{
+// 		return;
+// 	}
+// 	return ((IRenderTarget*)hRDC)->EndDraw(xDest,yDest,wDest,hDest,xSrc,ySrc,bFinish);
+// }
 void ResizeRenderTarget( HRDC hRDC, int nWidth, int nHeight )
 {
 	if( NULL == hRDC )

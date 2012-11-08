@@ -44,44 +44,47 @@ public:
 	virtual           HRDC BeginDrawObject( Object* pInvalidateObj);
 	virtual           void EndDrawObject( CRect* prcWindow, bool bFinish);
 protected:
-	void              _InvalidateObject(Object* pInvalidateObj, HDC hDestDC);
-	void              _InvalidateObjectBkgnd(Object* pInvalidateObj, HDC hDestDC);
+	void              _InnerRedrawObject(Object* pInvalidateObj, HDC hDestDC);
+	void              _InnerRedrawObjectBkgnd(Object* pInvalidateObj, HDC hDestDC);
 	
 public:
 	// 一些公共方法
-	void			  CalcWindowSizeByClientSize( SIZE sizeClient, SIZE* pSizeWindow );
-	void              CalcClientRectByWindowRect( RECT* rcWindow, RECT* rcClient );
-	BOOL              IsChildWindow();
-	void              ShowWindow();
-	void              HideWindow();
+	void	   CalcWindowSizeByClientSize( SIZE sizeClient, SIZE* pSizeWindow );
+	void       CalcClientRectByWindowRect( RECT* rcWindow, RECT* rcClient );
+	BOOL       IsChildWindow();
+	void       ShowWindow();
+	void       HideWindow();
 
 	operator          HWND() const;
 	MouseManager&     GetMouseMgr();
 	KeyboardManager&  GetKeyboardMgr();
-	Object*           GetHoverObject();
-	Object*           GetPressObject();
-	HRFONT            GetHRFONT();    // 获取字体流程：先获取自己的m_pTextRender，如果没有则调用自己的m_pWindow的GetHRFONT
-	HBITMAP           PaintObject(Object* pObj);
+	Object*    GetHoverObject();
+	Object*    GetPressObject();
+	HRFONT     GetHRFONT();    // 获取字体流程：先获取自己的m_pTextRender，如果没有则调用自己的m_pWindow的GetHRFONT
+	HBITMAP    PaintObject(Object* pObj);
 
-	void              Control_NotifyMe( const String&  idPath, int nNotifyMapID );
-	void              Control_NotifyMe( Object*  pObj, int nNotifyMapID );
+	void       Control_NotifyMe( const String&  idPath, int nNotifyMapID );
+	void       Control_NotifyMe( Object*  pObj, int nNotifyMapID );
 
 protected:
 	// object 虚函数
-	virtual           void ResetAttribute();
-	virtual           bool SetAttribute( map<String,String>& mapAttrib, bool bReload=false );
+	virtual   void ResetAttribute();
+	virtual   bool SetAttribute( map<String,String>& mapAttrib, bool bReload=false );
 
 	// 自己的虚函数
-	virtual           BOOL PreCreateWindow( CREATESTRUCT& cs );
+	virtual   BOOL PreCreateWindow( CREATESTRUCT& cs );
 
 	// 在加载完自己的控件和布局之后被调用，子类调用时先调用父类的该方法
-	virtual           void OnInitWindow();
-	virtual           void OnFinalMessage();
+	virtual   void OnInitWindow();
+	virtual   void OnFinalMessage();
 
-	void              ReCreateRenderTarget();
-	void              CreateDoubleBuffer(int nWidth, int nHeight);
-	void              DestroyDoubleBuffer();
-	void              CommitDoubleBuffet2Window(HDC hDCWnd, RECT* prcCommit);
+	void      ReCreateRenderTarget();
+	void      CreateDoubleBuffer(int nWidth, int nHeight);
+	void      DestroyDoubleBuffer();
+
+	virtual   void CommitDoubleBuffet2Window(HDC hDCWnd, RECT* prcCommit);
+	virtual   void OnDrawWindow(IRenderTarget* p);
+	virtual   void OnEndErasebkgnd(){}   // 用于CustomWindow设置窗口异形
 
 public:
 	// WndProc的原始消息处理
@@ -105,8 +108,8 @@ public:
 		MESSAGE_HANDLER( WM_CHAR,          _OnHandleKeyboardMessage )
 		MESSAGE_HANDLER( WM_KEYDOWN,       _OnHandleKeyboardMessage )
 		MESSAGE_HANDLER( WM_KEYUP,         _OnHandleKeyboardMessage )
-		MESSAGE_HANDLER( WM_SYSKEYDOWN,    _OnHandleKeyboardMessage )
-		MESSAGE_HANDLER( WM_SYSKEYUP,      _OnHandleKeyboardMessage )
+// 		MESSAGE_HANDLER( WM_SYSKEYDOWN,    _OnHandleKeyboardMessage )
+// 		MESSAGE_HANDLER( WM_SYSKEYUP,      _OnHandleKeyboardMessage )
 		MESSAGE_HANDLER( WM_MOUSEWHEEL,    _OnHandleKeyboardMessage )
 		MESSAGE_HANDLER( WM_SETFOCUS,      _OnSetFocus )
 		MESSAGE_HANDLER( WM_KILLFOCUS,     _OnKillFocus )
@@ -151,6 +154,7 @@ public:
 //	HRDC              m_hRenderTarget;       // 双缓冲DC
 	HDC               m_hMemDC;              // 双缓冲
 	HBITMAP           m_hMemBitmap;          // 双缓冲
+	HBITMAP           m_hOldBitmap;
 	
 
 	int               m_nMinWidth;
