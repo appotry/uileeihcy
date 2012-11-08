@@ -155,7 +155,7 @@ bool ProgressCtrl::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 	return true;
 }
 
-void ProgressCtrl::OnPaint(IRenderDC* pDC)
+void ProgressCtrl::OnPaint(IRenderTarget* pDC)
 {
 	if (m_nMax == m_nMin)
 		return ;

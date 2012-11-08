@@ -304,6 +304,7 @@ Direct2DRenderDC::~Direct2DRenderDC()
 	g_D2DGlobalData.Release();
 }
 
+#include <comdef.h>
 bool Direct2DRenderDC::BeginDraw(HDC hDC)
 {
 	if (NULL != m_pRenderTarget)
@@ -321,10 +322,10 @@ bool Direct2DRenderDC::BeginDraw(HDC hDC)
 		D2D1_RENDER_TARGET_TYPE_DEFAULT,
 		D2D1::PixelFormat(
 		DXGI_FORMAT_B8G8R8A8_UNORM,
-		D2D1_ALPHA_MODE_PREMULTIPLIED),  // 使用预乘模式，启用alpha channel
+		D2D1_ALPHA_MODE_IGNORE/*D2D1_ALPHA_MODE_PREMULTIPLIED*/),  // 使用预乘模式，启用alpha channel
 		0,
 		0,
-		D2D1_RENDER_TARGET_USAGE_NONE,
+		D2D1_RENDER_TARGET_USAGE_GDI_COMPATIBLE,
 		D2D1_FEATURE_LEVEL_DEFAULT
 		);
 
@@ -348,7 +349,6 @@ void Direct2DRenderDC::EndDraw()
 
 void Direct2DRenderDC::EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish )
 {
-
 	if (!bFinish)
 		return;
 
@@ -436,14 +436,52 @@ void Direct2DRenderDC::DrawBitmap(IRenderBitmap* pBitmap, DRAWBITMAPPARAM* pPara
 		return;
 	}
 
-	m_pRenderTarget->DrawBitmap(
-		pD2DBitmap,
-		D2D1::RectF(
-			(FLOAT)pParam->xDest,
-			(FLOAT)pParam->yDest,
-			(FLOAT)pParam->xDest+pParam->wDest,
-			(FLOAT)pParam->yDest+pParam->hDest)
-		);
+	if (pParam->nFlag & DRAW_BITMAP_DISABLE)
+	{
+		UIASSERT(0);
+	}
+
+	if (pParam->nFlag & DRAW_BITMAP_BITBLT)
+	{
+		m_pRenderTarget->DrawBitmap(
+			pD2DBitmap,
+			D2D1::RectF(
+				(FLOAT)pParam->xDest,
+				(FLOAT)pParam->yDest,
+				(FLOAT)pParam->xDest+pParam->wDest,
+				(FLOAT)pParam->yDest+pParam->hDest)
+			);
+	}
+	else if (pParam->nFlag & DRAW_BITMAP_STRETCH)
+	{
+		m_pRenderTarget->DrawBitmap(
+			pD2DBitmap,
+			D2D1::RectF(
+				(FLOAT)pParam->xDest,
+				(FLOAT)pParam->yDest,
+				(FLOAT)(pParam->xDest+pParam->wDest),
+				(FLOAT)(pParam->yDest+pParam->hDest)),
+			1.0f, D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,
+			D2D1::RectF(
+				(FLOAT)pParam->xSrc,
+				(FLOAT)pParam->ySrc,
+				(FLOAT)(pParam->xSrc+pParam->wSrc),
+				(FLOAT)(pParam->ySrc+pParam->hSrc)));
+
+//		UIASSERT(NULL == pParam->pRegion);
+	}
+	else if (pParam->nFlag & DRAW_BITMAP_TILE)
+	{
+		UIASSERT(0);
+	}
+	else if (pParam->nFlag & DRAW_BITMAP_CENTER)
+	{
+		UIASSERT(0);
+	}
+	else if (pParam->nFlag & DRAW_BITMAP_ADAPT)
+	{
+		UIASSERT(0);
+	}
 }
 #pragma  endregion
 

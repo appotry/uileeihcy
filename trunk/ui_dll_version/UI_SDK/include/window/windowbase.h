@@ -38,8 +38,8 @@ protected:
 	virtual BOOL      PreTranslateMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT* pRet);
 
 public:
-	virtual           void InvalidateObject( Object* pObj, RECT* prc, bool bUpdateNow );
-	virtual           void InvalidateObjectBkgnd( Object* pObj, RECT* prc, bool bUpdateNow );
+	virtual           void RedrawObject( Object* pObj, RECT* prc, bool bUpdateNow );
+	virtual           void RedrawObjectBkgnd( Object* pObj, RECT* prc, bool bUpdateNow );
 	
 	virtual           HRDC BeginDrawObject( Object* pInvalidateObj);
 	virtual           void EndDrawObject( CRect* prcWindow, bool bFinish);
@@ -79,6 +79,9 @@ protected:
 	virtual           void OnFinalMessage();
 
 	void              ReCreateRenderTarget();
+	void              CreateDoubleBuffer(int nWidth, int nHeight);
+	void              DestroyDoubleBuffer();
+	void              CommitDoubleBuffet2Window(HDC hDCWnd, RECT* prcCommit);
 
 public:
 	// WndProc的原始消息处理
@@ -144,8 +147,11 @@ protected:
 
 public:
 	HWND              m_hWnd;                // 窗口句柄
-	HRDC              m_hRenderTarget;       // 双缓冲DC
-	HRFONT            m_hFont;               // 当xml中配置了字体时，m_hFont为xml中的字体。当没有字体时，使用窗口字体。窗口字体也没时，则使用default font.
+	IRenderFont*      m_hFont;               // 当xml中配置了字体时，m_hFont为xml中的字体。当没有字体时，使用窗口字体。窗口字体也没时，则使用default font.
+//	HRDC              m_hRenderTarget;       // 双缓冲DC
+	HDC               m_hMemDC;              // 双缓冲
+	HBITMAP           m_hMemBitmap;          // 双缓冲
+	
 
 	int               m_nMinWidth;
 	int               m_nMinHeight;

@@ -552,7 +552,7 @@ bool ImageRender::SetAttribute( const String& strPrefix, map<String,String>& map
 	return true;
 } 
 
-void ImageRender::DrawState(IRenderDC* pRDC, const CRect* prc, int nState)
+void ImageRender::DrawState(IRenderTarget* pRDC, const CRect* prc, int nState)
 {
 	if (NULL != m_pColorBk)
 	{

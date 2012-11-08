@@ -79,7 +79,7 @@ void Object::UpdateObject( bool bUpdateNow )
 	WindowBase* pWindow = this->GetWindowObject();
 	if (NULL != pWindow)
 	{
-		pWindow->InvalidateObject(this, NULL, bUpdateNow);
+		pWindow->RedrawObject(this, NULL, bUpdateNow);
 	}
 }
 
@@ -92,7 +92,7 @@ void Object::UpdateObjectBkgnd( bool bUpdateNow )
 	WindowBase* pWindow = this->GetWindowObject();
 	if (NULL != pWindow)
 	{
-		pWindow->InvalidateObjectBkgnd(this, NULL, bUpdateNow);
+		pWindow->RedrawObjectBkgnd(this, NULL, bUpdateNow);
 	}
 }
 
@@ -115,7 +115,7 @@ void Object::UpdateObjectBkgnd( bool bUpdateNow )
 // 	WindowBase* pWindow = this->GetWindowObject();
 //	WindowBase* pWindow = this->GetWindowObject();
 //	if (NULL != pWindow)
-// 		pWindow->InvalidateObject( pWindow, prc, bUpdateNow );
+// 		pWindow->UpdateObject( pWindow, prc, bUpdateNow );
 // }
 
 //

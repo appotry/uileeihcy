@@ -280,7 +280,7 @@ void CustomWindow::OnPaint(HRDC hRDC)
 	// OnEraseBkgnd中，导致这时的背景图片中被剪裁只剩下一个控件，update window rgn错误。
 	if( m_bNeedToSetWindowRgn )
 	{
-		this->UpdateWindowRgn(m_hRenderTarget);
+//		this->UpdateWindowRgn(m_hRenderTarget);
 	}
 }
 
@@ -615,11 +615,11 @@ HRGN CustomWindow::GetExcludeRgn( BYTE* pBits, const RECT& rc, bool bOffsetToOri
 	return hRgn;
 }
 
-void CustomWindow::InvalidateObject( Object* pInvalidateObj, RECT* prc, bool bUpdateNow )
+void CustomWindow::RedrawObject( Object* pInvalidateObj, RECT* prc, bool bUpdateNow )
 {
 	if( NULL == m_pLayeredWindowWrap )
 	{
-		__super::InvalidateObject(pInvalidateObj, prc, bUpdateNow);
+		__super::RedrawObject(pInvalidateObj, prc, bUpdateNow);
 		return;
 	}
 	else
@@ -1226,6 +1226,7 @@ void LayeredWindowWrap::InvalidateObject( Object* pInvalidateObj, bool bUpdateNo
 
 HRDC LayeredWindowWrap::BeginDrawObject( Object* pInvalidateObj)
 {
+#if 0  // TODO: RenderEngine Modify
 	if( NULL == pInvalidateObj )
 		return NULL;
 	
@@ -1248,6 +1249,8 @@ HRDC LayeredWindowWrap::BeginDrawObject( Object* pInvalidateObj)
 	roc.Update(m_pWindow->m_hRenderTarget);
 
 	return m_pWindow->m_hRenderTarget;
+#endif
+	return NULL;
 }
 
 void LayeredWindowWrap::PreEndDrawObject(CRect* prcWindow, bool bFinish)
@@ -1406,7 +1409,9 @@ void LayeredWindowWrap::OnMouseMove()
 		return;
 	}
 
+#if 0 // TODO: RenderEngine Modify
 	ResizeRenderTarget(m_pWindow->m_hRenderTarget, m_sizeWindow.cx,m_sizeWindow.cy);
+#endif
 
 	// 注意：m_rcParent的更新千万不能使用GetWindowRect。因为窗口的大小现在就没有变
 	//       所以这里也就没有采用SendMessage(WM_SIZE)的方法

@@ -377,12 +377,12 @@ private:
 	HFONT    m_hFontForGDI;
 };
 
-class GdiplusRenderDC : public IRenderDC
+class GdiplusRenderDC : public IRenderTarget
 {
 public:
 	GdiplusRenderDC();
-	GdiplusRenderDC(HDC hDC);
-	GdiplusRenderDC(HWND hWnd);
+// 	GdiplusRenderDC(HDC hDC);
+// 	GdiplusRenderDC(HWND hWnd);
 	virtual ~GdiplusRenderDC();
 	virtual GRAPHICS_RENDER_TYPE GetRenderType() { return GRAPHICS_RENDER_TYPE_GDIPLUS; }
 
@@ -419,7 +419,7 @@ public:
 	virtual void     DrawFocusRect( const CRect* lprc );
 	virtual void     GradientFillH( const CRect* lprc, COLORREF colFrom, COLORREF colTo );
 	virtual void     GradientFillV( const CRect* lprc, COLORREF colFrom, COLORREF colTo );
-	virtual void     BitBlt( int xDest, int yDest, int wDest, int hDest, IRenderDC* pSrcHDC, int xSrc, int ySrc, DWORD dwRop );
+	virtual void     BitBlt( int xDest, int yDest, int wDest, int hDest, IRenderTarget* pSrcHDC, int xSrc, int ySrc, DWORD dwRop );
 	virtual void     DrawBitmap( HRBITMAP hBitmap, int x, int y );
 	virtual void     DrawBitmap( IRenderBitmap* pBitmap, int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc);
 	virtual void     DrawBitmap( HRBITMAP hBitmap, int xDest, int yDest, int nDestWidth, 

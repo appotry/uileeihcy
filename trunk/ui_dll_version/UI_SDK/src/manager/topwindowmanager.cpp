@@ -162,7 +162,7 @@ bool TopWindowManager::InvalidateWindow(  )
 	for( iter = m_lTopWindowObject.begin(); iter!=iterEnd; iter++ )
 	{
 		WindowBase* pWindow = *iter;
-		pWindow->InvalidateObject(pWindow,NULL,true);
+		pWindow->RedrawObject(pWindow,NULL,true);
 	}
 	return true;
 }
@@ -214,7 +214,7 @@ void TopWindowManager::OnSkinHLSChanged()
 			continue;
 
 		UISendMessage(pWindow, UI_WM_SKINHLSCHANGED);
-		pWindow->InvalidateObject(pWindow,NULL,true);
+		pWindow->RedrawObject(pWindow,NULL,true);
 	}
 	return;
 }

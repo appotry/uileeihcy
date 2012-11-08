@@ -219,17 +219,22 @@ void RenderBitmapFactory::CreateInstance(IRenderBitmap** ppOut, GRAPHICS_RENDER_
 
 //////////////////////////////////////////////////////////////////////////
 
-IRenderDC::IRenderDC()
+IRenderTarget::IRenderTarget()
 {
 	m_hWnd = NULL;
 }
-IRenderDC::IRenderDC(HDC hDC)
+// IRenderTarget::IRenderTarget(HDC hDC)
+// {
+// 	m_hWnd = NULL;
+// }	
+// IRenderTarget::IRenderTarget(HWND hWnd)
+// {
+// 	m_hWnd = hWnd;
+// }
+
+void IRenderTarget::Release()
 {
-	m_hWnd = NULL;
-}	
-IRenderDC::IRenderDC(HWND hWnd)
-{
-	m_hWnd = hWnd;
+	delete this;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -239,7 +244,7 @@ IRenderDC::IRenderDC(HWND hWnd)
 
 GRAPHICS_RENDER_TYPE GetGraphicsRenderType(HWND hWnd)
 {
-#ifdef _DEBUG
+#ifdef _DEBUGx
 	return GRAPHICS_RENDER_TYPE_DIRECT2D;
 #endif
 
@@ -251,14 +256,10 @@ GRAPHICS_RENDER_TYPE GetGraphicsRenderType(HWND hWnd)
 	{
 		if( WS_EX_LAYERED & ::GetWindowLong(hWnd, GWL_EXSTYLE) )
 		{
-			if (UI_IsUnderXpOS())
-			{
+		//	if (UI_IsUnderXpOS())
 				e = GRAPHICS_RENDER_TYPE_GDIPLUS;
-			}
-			else
-			{
-				e = GRAPHICS_RENDER_TYPE_DIRECT2D;
-			}
+// 			else
+// 				e = GRAPHICS_RENDER_TYPE_DIRECT2D;
 		}
 		else
 		{
@@ -271,7 +272,7 @@ GRAPHICS_RENDER_TYPE GetGraphicsRenderType(HWND hWnd)
 
 GRAPHICS_RENDER_TYPE GetGraphicsRenderType(Object* pObj)
 {
-#ifdef _DEBUG
+#ifdef _DEBUGx
 	return GRAPHICS_RENDER_TYPE_DIRECT2D;
 #endif
 
@@ -295,10 +296,10 @@ GRAPHICS_RENDER_TYPE GetGraphicsRenderType(Object* pObj)
 	{
 		if( WS_EX_LAYERED & ::GetWindowLong(pWindow->m_hWnd, GWL_EXSTYLE) )
 		{
-			if (UI_IsUnderXpOS())
+		//	if (UI_IsUnderXpOS())
 				e = GRAPHICS_RENDER_TYPE_GDIPLUS;
-			else
-				e = GRAPHICS_RENDER_TYPE_DIRECT2D;
+// 			else
+// 				e = GRAPHICS_RENDER_TYPE_DIRECT2D;
 		}
 		else
 		{
@@ -320,35 +321,41 @@ GRAPHICS_RENDER_TYPE GetGraphicsRenderType(Object* pObj)
 //
 HRDC GetHRDC(HDC hDC, HWND hWnd)
 {
+	UIASSERT(0);  // TODO: 还有人用吗
+#if 0
 	UIASSERT(NULL!=hWnd);
 	switch(GetGraphicsRenderType(hWnd))
 	{
 	case GRAPHICS_RENDER_TYPE_GDI:
-		return (HRDC)new GDIRenderDC(hDC);
+		return (HRDC)new GdiRenderTarget(hDC);
 
 	case GRAPHICS_RENDER_TYPE_GDIPLUS:
 		return (HRDC)new GdiplusRenderDC(hDC);
 	}
+#endif
 	return NULL;
 }
 HRDC GetHRDC(HWND hWnd)
 {
+	UIASSERT(0);  // TODO: 还有人用吗
+#if 0
 	switch(GetGraphicsRenderType(hWnd))
 	{
 	case GRAPHICS_RENDER_TYPE_GDI:
-		return (HRDC)new GDIRenderDC(hWnd);
+		return (HRDC)new GdiRenderTarget(hWnd);
 
 	case GRAPHICS_RENDER_TYPE_GDIPLUS:
 		return (HRDC)new GdiplusRenderDC(hWnd);
 
 	}
+#endif
 	return NULL;
 }
 void ReleaseHRDC(HRDC hRDC)
 {
 	if( NULL != hRDC )
 	{
-		delete (IRenderDC*)hRDC;
+		delete (IRenderTarget*)hRDC;
 	}
 }
 
@@ -380,11 +387,29 @@ HRDC CreateRenderTarget( HWND hWnd, int nWidth, int nHeight )
 	case GRAPHICS_RENDER_TYPE_DIRECT2D:
 		{
 			Direct2DRenderDC* pMemDC = new Direct2DRenderDC(hWnd, nWidth, nHeight);
-			return (IRenderDC*)pMemDC;
+			return (IRenderTarget*)pMemDC;
 		}
 		break;
 	}
 	return NULL;
+}
+
+IRenderTarget* CreateRenderTarget(HWND hWnd)
+{
+	IRenderTarget*   pRenderTarget = NULL;
+
+	switch (GetGraphicsRenderType(hWnd))
+	{
+	case GRAPHICS_RENDER_TYPE_GDI:
+		{
+			pRenderTarget = new GdiRenderTarget();
+		}
+		break;
+	default:
+		UIASSERT(0);
+		break;
+	}
+	return pRenderTarget;
 }
 
 //
@@ -398,7 +423,7 @@ bool BeginDraw(HRDC hRDC, HDC hDC)
 	{
 		return false;
 	}
-	return ((IRenderDC*)hRDC)->BeginDraw(hDC);
+	return ((IRenderTarget*)hRDC)->BeginDraw(hDC);
 }
 
 void EndDraw(HRDC hRDC)
@@ -407,7 +432,7 @@ void EndDraw(HRDC hRDC)
 	{
 		return;
 	}
-	return ((IRenderDC*)hRDC)->EndDraw();
+	return ((IRenderTarget*)hRDC)->EndDraw();
 }
 void EndDraw( HRDC hRDC, int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish )
 {
@@ -415,7 +440,7 @@ void EndDraw( HRDC hRDC, int xDest, int yDest, int wDest, int hDest, int xSrc, i
 	{
 		return;
 	}
-	return ((IRenderDC*)hRDC)->EndDraw(xDest,yDest,wDest,hDest,xSrc,ySrc,bFinish);
+	return ((IRenderTarget*)hRDC)->EndDraw(xDest,yDest,wDest,hDest,xSrc,ySrc,bFinish);
 }
 void ResizeRenderTarget( HRDC hRDC, int nWidth, int nHeight )
 {
@@ -423,7 +448,7 @@ void ResizeRenderTarget( HRDC hRDC, int nWidth, int nHeight )
 	{
 		return;
 	}
-	return ((IRenderDC*)hRDC)->ResizeRenderTarget( nWidth, nHeight );
+	return ((IRenderTarget*)hRDC)->ResizeRenderTarget( nWidth, nHeight );
 }
 
 HDC GetHDC(HRDC hRDC)
@@ -432,7 +457,7 @@ HDC GetHDC(HRDC hRDC)
 	{
 		return NULL;
 	}
-	return ((IRenderDC*)hRDC)->GetHDC();
+	return ((IRenderTarget*)hRDC)->GetHDC();
 }
 void ReleaseHDC( HRDC hRDC, HDC hDC )
 {
@@ -440,7 +465,7 @@ void ReleaseHDC( HRDC hRDC, HDC hDC )
 	{
 		return;
 	}
-	return ((IRenderDC*)hRDC)->ReleaseHDC(hDC);
+	return ((IRenderTarget*)hRDC)->ReleaseHDC(hDC);
 }
 
 
@@ -466,7 +491,7 @@ HRGN GetClipRgn( HRDC hRDC )
 	{
 		return NULL;
 	}
-	return ((IRenderDC*)hRDC)->GetClipRgn();
+	return ((IRenderTarget*)hRDC)->GetClipRgn();
 }
 int SelectClipRgn( HRDC hRDC, HRGN hRgn, int nMode )
 {
@@ -474,7 +499,7 @@ int SelectClipRgn( HRDC hRDC, HRGN hRgn, int nMode )
 	{
 		return NULLREGION;
 	}
-	return ((IRenderDC*)hRDC)->SelectClipRgn(hRgn, nMode);
+	return ((IRenderTarget*)hRDC)->SelectClipRgn(hRgn, nMode);
 }
 BOOL GetViewportOrgEx( HRDC hRDC, LPPOINT lpPoint )
 {
@@ -482,7 +507,7 @@ BOOL GetViewportOrgEx( HRDC hRDC, LPPOINT lpPoint )
 	{
 		return FALSE;
 	}
-	return ((IRenderDC*)hRDC)->GetViewportOrgEx(lpPoint);
+	return ((IRenderTarget*)hRDC)->GetViewportOrgEx(lpPoint);
 }
 BOOL SetViewportOrgEx( HRDC hRDC, int x, int y, LPPOINT lpPoint )
 {
@@ -490,7 +515,7 @@ BOOL SetViewportOrgEx( HRDC hRDC, int x, int y, LPPOINT lpPoint )
 	{
 		return FALSE;
 	}
-	return ((IRenderDC*)hRDC)->SetViewportOrgEx(x, y, lpPoint);
+	return ((IRenderTarget*)hRDC)->SetViewportOrgEx(x, y, lpPoint);
 }
 BOOL OffsetViewportOrgEx( HRDC hRDC, int x, int y, LPPOINT lpPoint )
 {
@@ -498,7 +523,7 @@ BOOL OffsetViewportOrgEx( HRDC hRDC, int x, int y, LPPOINT lpPoint )
 	{
 		return FALSE;
 	}
-	return ((IRenderDC*)hRDC)->OffsetViewportOrgEx(x, y, lpPoint);
+	return ((IRenderTarget*)hRDC)->OffsetViewportOrgEx(x, y, lpPoint);
 }
 
 // COLORREF SetTextColor( HRDC hRDC, COLORREF color, byte Alpha)
@@ -546,7 +571,7 @@ BYTE* LockBits( HRDC hRDC )
 	{
 		return NULL;
 	}
-	return ((IRenderDC*)hRDC)->LockBits();
+	return ((IRenderTarget*)hRDC)->LockBits();
 }
 void  UnlockBits( HRDC hRDC )
 {
@@ -554,7 +579,7 @@ void  UnlockBits( HRDC hRDC )
 	{
 		return;
 	}
-	return ((IRenderDC*)hRDC)->UnlockBits();
+	return ((IRenderTarget*)hRDC)->UnlockBits();
 }
 
 void Save( HRDC hRDC, const String& strPath )
@@ -563,7 +588,7 @@ void Save( HRDC hRDC, const String& strPath )
 	{
 		return;
 	}
-	return ((IRenderDC*)hRDC)->Save(strPath);
+	return ((IRenderTarget*)hRDC)->Save(strPath);
 }
 
 int  DrawString( HRDC hRDC, const TCHAR* szText, const CRect* lpRect, UINT nFormat, HRFONT hRFont, COLORREF col )
@@ -572,7 +597,7 @@ int  DrawString( HRDC hRDC, const TCHAR* szText, const CRect* lpRect, UINT nForm
 	{
 		return 0;
 	}
-	return ((IRenderDC*)hRDC)->DrawString( szText, lpRect, nFormat, hRFont, col );
+	return ((IRenderTarget*)hRDC)->DrawString( szText, lpRect, nFormat, hRFont, col );
 }
 
 void  FillRgn( HRDC hRDC, HRGN hRgn, COLORREF col )
@@ -581,7 +606,7 @@ void  FillRgn( HRDC hRDC, HRGN hRgn, COLORREF col )
 	{
 		return;
 	}
-	((IRenderDC*)hRDC)->FillRgn( hRgn, col );
+	((IRenderTarget*)hRDC)->FillRgn( hRgn, col );
 }
 
 void FillRect( HRDC hRDC, const CRect* lprc, COLORREF col)
@@ -590,7 +615,7 @@ void FillRect( HRDC hRDC, const CRect* lprc, COLORREF col)
 	{
 		return;
 	}
-	((IRenderDC*)hRDC)->FillRect( lprc, col );
+	((IRenderTarget*)hRDC)->FillRect( lprc, col );
 }
 void TileRect( HRDC hRDC, const CRect* lprc, HRBITMAP hBitmap )
 {
@@ -598,7 +623,7 @@ void TileRect( HRDC hRDC, const CRect* lprc, HRBITMAP hBitmap )
 	{
 		return;
 	}
-	((IRenderDC*)hRDC)->TileRect( lprc, hBitmap );
+	((IRenderTarget*)hRDC)->TileRect( lprc, hBitmap );
 }
 void   Rectangle( HRDC hRDC, const CRect* lprc, COLORREF colBorder, COLORREF colBack, int nBorder, bool bNullBack )
 {
@@ -606,7 +631,7 @@ void   Rectangle( HRDC hRDC, const CRect* lprc, COLORREF colBorder, COLORREF col
 	{
 		return;
 	}
-	((IRenderDC*)hRDC)->Rectangle( lprc, colBorder, colBack, nBorder, bNullBack );
+	((IRenderTarget*)hRDC)->Rectangle( lprc, colBorder, colBack, nBorder, bNullBack );
 }
 void   DrawFocusRect( HRDC hRDC, const CRect* lprc )
 {
@@ -614,7 +639,7 @@ void   DrawFocusRect( HRDC hRDC, const CRect* lprc )
 	{
 		return;
 	}
-	((IRenderDC*)hRDC)->DrawFocusRect( lprc );
+	((IRenderTarget*)hRDC)->DrawFocusRect( lprc );
 }
 
 void   GradientFillH( HRDC hRDC, const CRect* lprc, COLORREF colFrom, COLORREF colTo )
@@ -623,7 +648,7 @@ void   GradientFillH( HRDC hRDC, const CRect* lprc, COLORREF colFrom, COLORREF c
 	{
 		return;
 	}
-	((IRenderDC*)hRDC)->GradientFillH( lprc, colFrom, colTo );
+	((IRenderTarget*)hRDC)->GradientFillH( lprc, colFrom, colTo );
 }
 void   GradientFillV( HRDC hRDC, const CRect* lprc, COLORREF colFrom, COLORREF colTo )
 {
@@ -631,7 +656,7 @@ void   GradientFillV( HRDC hRDC, const CRect* lprc, COLORREF colFrom, COLORREF c
 	{
 		return;
 	}
-	((IRenderDC*)hRDC)->GradientFillV( lprc, colFrom, colTo );
+	((IRenderTarget*)hRDC)->GradientFillV( lprc, colFrom, colTo );
 }
 void BitBlt( HRDC hRDC, int xDest, int yDest, int wDest, int hDest, HRDC hrdcSrc, int xSrc, int ySrc, DWORD dwRop )
 {
@@ -639,8 +664,8 @@ void BitBlt( HRDC hRDC, int xDest, int yDest, int wDest, int hDest, HRDC hrdcSrc
 	{
 		return;
 	}
-	IRenderDC* pDestRenderDC = (IRenderDC*)hRDC;
-	IRenderDC* pSrcRenderDC = (IRenderDC*)hrdcSrc;
+	IRenderTarget* pDestRenderDC = (IRenderTarget*)hRDC;
+	IRenderTarget* pSrcRenderDC = (IRenderTarget*)hrdcSrc;
 	if( pDestRenderDC->GetRenderType() != pSrcRenderDC->GetRenderType() )
 		return;
 
@@ -652,7 +677,7 @@ void DrawBitmap( HRDC hRDC, HRBITMAP hBitmap, int x, int y )
 	{
 		return;
 	}
-	((IRenderDC*)hRDC)->DrawBitmap( hBitmap, x, y );
+	((IRenderTarget*)hRDC)->DrawBitmap( hBitmap, x, y );
 }
 void DrawBitmap( HRDC hRDC, HRBITMAP hBitmap, int xDest, int yDest, int nDestWidth, 
 						 int nDestHeight, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight )
@@ -661,7 +686,7 @@ void DrawBitmap( HRDC hRDC, HRBITMAP hBitmap, int xDest, int yDest, int nDestWid
 	{
 		return;
 	}
-	((IRenderDC*)hRDC)->DrawBitmap( hBitmap, xDest, yDest, nDestWidth, nDestHeight, xSrc, ySrc, nSrcWidth, nSrcHeight );
+	((IRenderTarget*)hRDC)->DrawBitmap( hBitmap, xDest, yDest, nDestWidth, nDestHeight, xSrc, ySrc, nSrcWidth, nSrcHeight );
 }
 
 
@@ -673,7 +698,7 @@ void DrawBitmap( HRDC hRDC, HRBITMAP hBitmap, int xDest, int yDest, int nDestWid
 	{
 		return;
 	}
-	((IRenderDC*)hRDC)->DrawBitmap( hBitmap, xDest, yDest, nDestWidth, nDestHeight, xSrc, ySrc, nSrcWidth, nSrcHeight, p9Region );
+	((IRenderTarget*)hRDC)->DrawBitmap( hBitmap, xDest, yDest, nDestWidth, nDestHeight, xSrc, ySrc, nSrcWidth, nSrcHeight, p9Region );
 }
 void ImageList_Draw(HRDC hRDC, HRBITMAP hBitmap, int x, int y, int col, int row, int cx, int cy )
 {
@@ -681,5 +706,5 @@ void ImageList_Draw(HRDC hRDC, HRBITMAP hBitmap, int x, int y, int col, int row,
 	{
 		return;
 	}
-	((IRenderDC*)hRDC)->ImageList_Draw( hBitmap, x,y,col,row,cx,cy );
+	((IRenderTarget*)hRDC)->ImageList_Draw( hBitmap, x,y,col,row,cx,cy );
 }

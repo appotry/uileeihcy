@@ -5,7 +5,7 @@ namespace UI
 
 
 // HRDC 将是所有绘制函数携带的第一个参数
-#define HRDC     IRenderDC*  
+#define HRDC     IRenderTarget*  
 #define HRBITMAP IRenderBitmap*
 #define HRFONT   IRenderFont*
 #define HRIMAGELISTBITMAP  IImageListRenderBitmap*
@@ -127,13 +127,15 @@ public:
 };
 
 
-class IRenderDC
+class IRenderTarget
 {
 public:
-	IRenderDC();
-	IRenderDC(HDC hDC);
-	IRenderDC(HWND hWnd);
-	virtual ~IRenderDC() =0 {};
+	IRenderTarget();
+//	IRenderTarget(HDC hDC);
+//	IRenderTarget(HWND hWnd);
+	virtual ~IRenderTarget() =0 {};
+	virtual void     Release();
+
 	virtual GRAPHICS_RENDER_TYPE GetRenderType() = 0;
 
 	virtual HDC      GetHDC() = 0;
@@ -153,7 +155,7 @@ public:
 	virtual void     DrawFocusRect( const CRect* lprc ) = 0;
 	virtual void     GradientFillH( const CRect* lprc, COLORREF colFrom, COLORREF colTo ) = 0;
 	virtual void     GradientFillV( const CRect* lprc, COLORREF colFrom, COLORREF colTo ) = 0;
-	virtual void     BitBlt( int xDest, int yDest, int wDest, int hDest, IRenderDC* pSrcHDC, int xSrc, int ySrc, DWORD dwRop ) = 0;
+	virtual void     BitBlt( int xDest, int yDest, int wDest, int hDest, IRenderTarget* pSrcHDC, int xSrc, int ySrc, DWORD dwRop ) = 0;
 	virtual void     DrawBitmap( HRBITMAP hBitmap, int x, int y) = 0;
 	virtual void     DrawBitmap( IRenderBitmap* pBitmap, int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc)=0;
 	virtual void     DrawBitmap( HRBITMAP hBitmap, int xDest, int yDest, int nDestWidth, 
@@ -172,7 +174,8 @@ public:
 	virtual bool     LoadBitmapFromZip() {return false;};
 
 	// 仅memdc才有用的
-	virtual bool     BeginDraw( HDC hDC ) = 0;
+	virtual bool     BeginDraw(HDC hDC) { UIASSERT(0); return false; }  // 已废弃，改调用BeginDraw(HDC,RECT*);
+	virtual bool     BeginDraw(HDC hDC, RECT* prc){ return false; } // TODO: 作成纯虚函数
 	virtual void     EndDraw( ) = 0;
 	virtual void     EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish ) = 0;
 	virtual void     ResizeRenderTarget( int nWidth, int nHeight ) = 0;
@@ -208,9 +211,6 @@ public:
 };
 
 }
-UIAPI GRAPHICS_RENDER_TYPE GetGraphicsRenderType(Object* pObj);
-UIAPI GRAPHICS_RENDER_TYPE GetGraphicsRenderType(HWND hWnd);
-
 UIAPI HRDC     GetHRDC(HDC hDC, HWND hWnd);
 UIAPI HRDC     GetHRDC(HWND hWnd);
 UIAPI void     ReleaseHRDC(HRDC hRDC);
@@ -251,3 +251,10 @@ UIAPI void     DrawBitmap( HRDC hRDC, HRBITMAP hBitmap, int xDest, int yDest, in
 						  int nDestHeight, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight,
 						  Image9Region* p9Region );
 UIAPI void     ImageList_Draw(HRDC hRDC, HRBITMAP hBitmap, int x, int y, int col, int row, int cx, int cy );
+
+//////////////////////////////////////////////////////////////////////////
+
+UIAPI GRAPHICS_RENDER_TYPE GetGraphicsRenderType(Object* pObj);
+UIAPI GRAPHICS_RENDER_TYPE GetGraphicsRenderType(HWND hWnd);
+
+UIAPI IRenderTarget*   CreateRenderTarget(HWND hWnd);

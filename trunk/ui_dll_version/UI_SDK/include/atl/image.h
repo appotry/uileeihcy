@@ -349,7 +349,7 @@ namespace UI
 		void   ForceUseAlpha(){m_bHasAlphaChannel = true ;}   // libo add 20110710 在调用Create时，我需要创建一个带通道的位图，但没有提供给我接口，因此增加一个
 		bool   HasAlphaChannel() const { return m_bHasAlphaChannel; }
 		bool   ChangeDIB2DDB(HDC hMemDC);                     // libo add 20120318 TransparentBlt只能适应于DDB，因此提供一个接口将DIB转换成DDB
-		bool   CloneGrayImage( const Image* pImage );         // libo add 20120321 去色
+		bool   CopyGrayImageFrom( const Image* pImage );         // libo add 20120321 去色
 		bool   DrawGray(HDC hDC, int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc);  // libo add 20120927
 		bool   ChangeHLS( const ImageData* pOriginImageData, short h, short l , short s, int nFlag );
 		bool   SaveBits( ImageData* pImageData );
@@ -2079,7 +2079,7 @@ namespace UI
 	//	参考:http://blog.csdn.net/housisong/article/details/3884368 图形图像处理－之－彩色转化到灰度的速度优化. 
 	//	HouSisong@GMail.com  2009.02.08
 	// 
-	inline bool Image::CloneGrayImage( const Image* pImage )
+	inline bool Image::CopyGrayImageFrom( const Image* pImage )
 	{
 		if( NULL == pImage || (pImage->GetBPP()!= 32 && pImage->GetBPP()!= 24))  // 暂时不支持其它格式的图片，不了解其格式
 			return false;
@@ -2129,7 +2129,7 @@ namespace UI
 	inline bool Image::DrawGray(HDC hDC, int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc)
 	{
 		Image  grayImage;
-		if (false == this->CloneGrayImage(&grayImage))
+		if (false == this->CopyGrayImageFrom(&grayImage))
 			return false;
 
 		BOOL bRet = grayImage.Draw(hDC, xDest, yDest, wDest, hDest, xSrc, ySrc, wDest, hDest);
