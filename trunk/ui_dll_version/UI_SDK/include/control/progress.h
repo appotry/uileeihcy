@@ -58,7 +58,7 @@ public:
 public:
 	virtual  bool  SetAttribute(ATTRMAP& mapAttrib, bool bReload=false);
 public:
-	void     OnPaint(IRenderDC* pDC);
+	void     OnPaint(IRenderTarget* pDC);
 private:
 
 

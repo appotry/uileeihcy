@@ -245,7 +245,7 @@ protected:
 	bool    m_bCreateOrAttach;
 };
 
-class Direct2DRenderDC : public IRenderDC
+class Direct2DRenderDC : public IRenderTarget
 {
 public:
 	Direct2DRenderDC();
@@ -282,7 +282,7 @@ public:
 	virtual void     DrawFocusRect( const CRect* lprc ){}
 	virtual void     GradientFillH( const CRect* lprc, COLORREF colFrom, COLORREF colTo ){}
 	virtual void     GradientFillV( const CRect* lprc, COLORREF colFrom, COLORREF colTo ){}
-	virtual void     BitBlt( int xDest, int yDest, int wDest, int hDest, IRenderDC* pSrcHDC, int xSrc, int ySrc, DWORD dwRop ){}
+	virtual void     BitBlt( int xDest, int yDest, int wDest, int hDest, IRenderTarget* pSrcHDC, int xSrc, int ySrc, DWORD dwRop ){}
 	virtual void     DrawBitmap(IRenderBitmap* pBitmap, int x, int y){}
 	virtual void     DrawBitmap(IRenderBitmap* pBitmap, int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc){}
 	virtual void     DrawBitmap(IRenderBitmap* pBitmap, int xDest, int yDest, int nDestWidth, 

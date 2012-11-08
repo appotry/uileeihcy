@@ -119,12 +119,8 @@
 
 148.窗口最大化后，覆盖任务栏的问题，应该是GETMINMAXINFO没有去年任务栏高度的问题
     另外，window类中处理的系统按钮命令是不是应该移到custom window当中？
-	
-150.在任务栏上右击，选择”关闭“ 无反应
-    1. 在_OnHandleKeyboardMessage，不要让控件处理 SYSKEYDOWN+VK_F4消息
-    2. 将EndDialog放在SYSCOMMAND消息中，而不是OnSysClose中
     
-151.
+151.d2d bitmap drawbitmap 的disable处理
 	
 ==================================疑问==================================
 
@@ -247,6 +243,11 @@
        继续观察吧。
 52. 需要增加一下变量，保存当前皮肤的hue值，后面加载的图片都要进行转换 （同时将active skin功能也做一下）
 
+	
+150.在任务栏上右击，选择”关闭“ 无反应
+    1. 在_OnHandleKeyboardMessage，不要让控件处理 SYSKEYDOWN+VK_F4消息
+    2. 将EndDialog放在SYSCOMMAND消息中，而不是OnSysClose中
+    
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
        	         	
 备注：

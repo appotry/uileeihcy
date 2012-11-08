@@ -300,43 +300,47 @@ bool GDIRenderFont::GetLogFont(LOGFONT* plf)
 //
 //
 
-GDIRenderDC::GDIRenderDC()
+GdiRenderTarget::GdiRenderTarget()
 {
 	m_hDC = NULL;
 }
-GDIRenderDC::GDIRenderDC(HDC hDC):IRenderDC(hDC)
+// GdiRenderTarget::GdiRenderTarget(HDC hDC):IRenderTarget(hDC)
+// {
+// 	UIASSERT(0);  // 废弃，使用空构造函数
+// 	m_hDC = hDC;
+// }
+// GdiRenderTarget::GdiRenderTarget(HWND hWnd):IRenderTarget(hWnd)
+// {
+// 	UIASSERT(0);  // 废弃，使用空构造函数
+// 
+// 	m_hDC = ::GetDC(hWnd);
+// 	::SetBkMode(m_hDC, TRANSPARENT);   // 不去支持带背景的文字，如果需要就使用背景填充
+// }
+GdiRenderTarget::~GdiRenderTarget()
 {
-	m_hDC = hDC;
-}
-GDIRenderDC::GDIRenderDC(HWND hWnd):IRenderDC(hWnd)
-{
-	m_hDC = ::GetDC(hWnd);
-	::SetBkMode(m_hDC, TRANSPARENT);   // 不去支持带背景的文字，如果需要就使用背景填充
-}
-GDIRenderDC::~GDIRenderDC()
-{
-	if( NULL != m_hWnd && NULL != m_hDC)
-	{
-		::ReleaseDC(m_hWnd,m_hDC);
-	}
-	m_hDC = NULL;
+// 	if( NULL != m_hWnd && NULL != m_hDC)
+// 	{
+// 		::ReleaseDC(m_hWnd,m_hDC);
+// 	}
+ 	m_hDC = NULL;
 }
 
-HRDC GDIRenderDC::CreateCompatibleHRDC( int nWidth, int nHeight )
+HRDC GdiRenderTarget::CreateCompatibleHRDC( int nWidth, int nHeight )
 {
+	UIASSERT(0);  // TODO: 该函数有用吗
 	return (HRDC)new GDIMemRenderDC(m_hDC, nWidth, nHeight);
 }
 
-HDC GDIRenderDC::GetHDC()
+HDC GdiRenderTarget::GetHDC()
 {
 	return m_hDC;
 }
-void GDIRenderDC::ReleaseHDC( HDC hDC )
+void GdiRenderTarget::ReleaseHDC( HDC hDC )
 {
 	return ;
 }
 
-// HRFONT GDIRenderDC::SelectFont( HRFONT hRFont ) 
+// HRFONT GdiRenderTarget::SelectFont( HRFONT hRFont ) 
 // {
 // 	if( NULL != hRFont )
 // 	{
@@ -358,12 +362,12 @@ void GDIRenderDC::ReleaseHDC( HDC hDC )
 // 
 // 	return hSave;
 // }
-// HRFONT GDIRenderDC::GetFont()
+// HRFONT GdiRenderTarget::GetFont()
 // {
 // 	return m_hRFont;
 // }
 
-HRGN GDIRenderDC::GetClipRgn()
+HRGN GdiRenderTarget::GetClipRgn()
 {
 	HRGN hRgn = ::CreateRectRgn(0,0,0,0);
 	if( 1 != ::GetClipRgn(m_hDC,hRgn) )  // 空或者失败
@@ -373,12 +377,12 @@ HRGN GDIRenderDC::GetClipRgn()
 	}
 	return hRgn;
 }
-int GDIRenderDC::SelectClipRgn( HRGN hRgn, int nMode )
+int GdiRenderTarget::SelectClipRgn( HRGN hRgn, int nMode )
 {
 	return ExtSelectClipRgn(m_hDC, hRgn, nMode);
 }
 
-BOOL GDIRenderDC::GetViewportOrgEx( LPPOINT lpPoint )
+BOOL GdiRenderTarget::GetViewportOrgEx( LPPOINT lpPoint )
 {
 	if( NULL == lpPoint )
 	{
@@ -388,36 +392,58 @@ BOOL GDIRenderDC::GetViewportOrgEx( LPPOINT lpPoint )
 	::GetViewportOrgEx(m_hDC, lpPoint );
 	return TRUE;
 }
-BOOL GDIRenderDC::SetViewportOrgEx( int x, int y, LPPOINT lpPoint ) 
+BOOL GdiRenderTarget::SetViewportOrgEx( int x, int y, LPPOINT lpPoint ) 
 {
 	return ::SetViewportOrgEx( m_hDC, x, y, lpPoint);
 }
-BOOL GDIRenderDC::OffsetViewportOrgEx( int x, int y, LPPOINT lpPoint )
+BOOL GdiRenderTarget::OffsetViewportOrgEx( int x, int y, LPPOINT lpPoint )
 {
 	return ::OffsetViewportOrgEx( m_hDC, x, y, lpPoint );
 }
 
-// COLORREF GDIRenderDC::SetTextColor( COLORREF color, byte Alpha )
+// COLORREF GdiRenderTarget::SetTextColor( COLORREF color, byte Alpha )
 // {
 // 	return ::SetTextColor(m_hDC, color);
 // }
-// COLORREF GDIRenderDC::GetTextColor( )
+// COLORREF GdiRenderTarget::GetTextColor( )
 // {
 // 	return ::GetTextColor(m_hDC);
 // }
 
+bool GdiRenderTarget::BeginDraw(HDC hDC, RECT* prc)
+{
+	if (NULL != m_hDC)
+		return false;
 
-int GDIRenderDC::DrawString( const TCHAR* szText, const CRect* lpRect, UINT nFormat, HRFONT hRFont, COLORREF col )
+	if (NULL == hDC)
+		return false;
+
+	if (NULL != prc)
+	{
+		HRGN hRgn = CreateRectRgnIndirect(prc);
+		this->SelectClipRgn(hRgn, RGN_COPY);
+		SAFE_DELETE_GDIOBJECT(hRgn);
+	}
+
+	m_hDC = hDC;
+	return true;
+}
+void GdiRenderTarget::EndDraw()
+{
+	m_hDC = NULL;
+}
+
+int GdiRenderTarget::DrawString( const TCHAR* szText, const CRect* lpRect, UINT nFormat, HRFONT hRFont, COLORREF col )
 {
 	if( NULL == hRFont )
 	{
-		UI_LOG_WARN(_T("GDIRenderDC::DrawString hRFont == NULL"));
+		UI_LOG_WARN(_T("GdiRenderTarget::DrawString hRFont == NULL"));
 		return -1;
 	}
 
 	if( ((IRenderFont*)hRFont)->GetRenderType() != GRAPHICS_RENDER_TYPE_GDI )
 	{
-		UI_LOG_WARN(_T("GDIRenderDC::DrawString hRFont render type != GRAPHICS_RENDER_TYPE_GDI"));
+		UI_LOG_WARN(_T("GdiRenderTarget::DrawString hRFont render type != GRAPHICS_RENDER_TYPE_GDI"));
 		return -1;
 	}
 
@@ -433,21 +459,21 @@ int GDIRenderDC::DrawString( const TCHAR* szText, const CRect* lpRect, UINT nFor
 }
 
 
-void GDIRenderDC::FillRgn( HRGN hRgn, COLORREF col )
+void GdiRenderTarget::FillRgn( HRGN hRgn, COLORREF col )
 {
 	HBRUSH hBrush = ::CreateSolidBrush(col);
 	::FillRgn( m_hDC, hRgn, hBrush );
 	::DeleteObject(hBrush);
 }
 
-void GDIRenderDC::FillRect( const CRect* lprc, COLORREF col )
+void GdiRenderTarget::FillRect( const CRect* lprc, COLORREF col )
 {
 	HBRUSH hBrush = ::CreateSolidBrush(col);
 	::FillRect( m_hDC, lprc, hBrush );
 	::DeleteObject(hBrush);
 }
 
-void GDIRenderDC::TileRect( const CRect* lprc, HRBITMAP hBitmap )
+void GdiRenderTarget::TileRect( const CRect* lprc, HRBITMAP hBitmap )
 {
 	if( NULL == hBitmap )
 		return;
@@ -466,7 +492,7 @@ void GDIRenderDC::TileRect( const CRect* lprc, HRBITMAP hBitmap )
 // 注：由于控件绘制时已经被裁剪了区域，这将导致使用pen绘制边框时，有一部分绘制出来的
 //     边框位于控件外面而被剪裁。
 //
-void GDIRenderDC::Rectangle( const CRect* lprc, COLORREF colBorder, COLORREF colBack, int nBorder, bool bNullBack )
+void GdiRenderTarget::Rectangle( const CRect* lprc, COLORREF colBorder, COLORREF colBack, int nBorder, bool bNullBack )
 {
 	HPEN hPen = ::CreatePen(PS_SOLID, nBorder, colBorder );
 	HBRUSH hBrush = NULL;
@@ -490,21 +516,21 @@ void GDIRenderDC::Rectangle( const CRect* lprc, COLORREF colBorder, COLORREF col
 	::DeleteObject(hBrush);
 }
 
-void GDIRenderDC::DrawFocusRect( const CRect* lprc )
+void GdiRenderTarget::DrawFocusRect( const CRect* lprc )
 {
 	::DrawFocusRect( m_hDC, lprc );
 }
 
-void GDIRenderDC::GradientFillH( const CRect* lprc, COLORREF colFrom, COLORREF colTo )
+void GdiRenderTarget::GradientFillH( const CRect* lprc, COLORREF colFrom, COLORREF colTo )
 {
 	Util::GradientFillH(m_hDC, lprc, colFrom, colTo );
 }
-void GDIRenderDC::GradientFillV( const CRect* lprc, COLORREF colFrom, COLORREF colTo )
+void GdiRenderTarget::GradientFillV( const CRect* lprc, COLORREF colFrom, COLORREF colTo )
 {
 	Util::GradientFillV(m_hDC, lprc, colFrom, colTo );
 }
 
-void GDIRenderDC::BitBlt( int xDest, int yDest, int wDest, int hDest, IRenderDC* pSrcHDC, int xSrc, int ySrc, DWORD dwRop )
+void GdiRenderTarget::BitBlt( int xDest, int yDest, int wDest, int hDest, IRenderTarget* pSrcHDC, int xSrc, int ySrc, DWORD dwRop )
 {
 	if( NULL == pSrcHDC )
 		return;
@@ -513,7 +539,7 @@ void GDIRenderDC::BitBlt( int xDest, int yDest, int wDest, int hDest, IRenderDC*
 
 	::BitBlt(m_hDC, xDest,yDest,wDest,hDest, pSrcHDC->GetHDC(),xSrc,ySrc,dwRop );
 }
-void GDIRenderDC::DrawBitmap( HRBITMAP hBitmap, int x, int y)
+void GdiRenderTarget::DrawBitmap( HRBITMAP hBitmap, int x, int y)
 {
 	if( NULL == hBitmap )
 		return;
@@ -525,7 +551,7 @@ void GDIRenderDC::DrawBitmap( HRBITMAP hBitmap, int x, int y)
 	GDIRenderBitmap* pBitmap = (GDIRenderBitmap*)p;
 	pBitmap->GetBitmap()->Draw(m_hDC,x,y);
 }
-void GDIRenderDC::DrawBitmap(IRenderBitmap* pBitmap, int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc)
+void GdiRenderTarget::DrawBitmap(IRenderBitmap* pBitmap, int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc)
 {
 	if( NULL == pBitmap )
 		return;
@@ -536,7 +562,7 @@ void GDIRenderDC::DrawBitmap(IRenderBitmap* pBitmap, int xDest, int yDest, int w
 	GDIRenderBitmap* pRenderBitmap = static_cast<GDIRenderBitmap*>(pBitmap);
 	pRenderBitmap->GetBitmap()->Draw(m_hDC, xDest,yDest, wDest,hDest, xSrc, ySrc, wDest, hDest);
 }
-void GDIRenderDC::DrawBitmap( HRBITMAP hBitmap, int xDest, int yDest, int nDestWidth, 
+void GdiRenderTarget::DrawBitmap( HRBITMAP hBitmap, int xDest, int yDest, int nDestWidth, 
 							int nDestHeight, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight )
 {
 	if( NULL == hBitmap )
@@ -550,7 +576,7 @@ void GDIRenderDC::DrawBitmap( HRBITMAP hBitmap, int xDest, int yDest, int nDestW
 	pBitmap->GetBitmap()->Draw( m_hDC, xDest, yDest, nDestWidth, nDestHeight, xSrc, ySrc, nSrcWidth, nSrcHeight );
 }
 
-void GDIRenderDC::DrawBitmap( HRBITMAP hBitmap, int xDest, int yDest, int nDestWidth, 
+void GdiRenderTarget::DrawBitmap( HRBITMAP hBitmap, int xDest, int yDest, int nDestWidth, 
 					int nDestHeight, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight,
 					Image9Region* p9Region )
 {
@@ -568,7 +594,7 @@ void GDIRenderDC::DrawBitmap( HRBITMAP hBitmap, int xDest, int yDest, int nDestW
 	pBitmap->GetBitmap()->Draw( m_hDC, xDest, yDest, nDestWidth, nDestHeight, xSrc, ySrc, nSrcWidth, nSrcHeight, p9Region );
 }
 
-void GDIRenderDC::ImageList_Draw( HRBITMAP hBitmap, int x, int y, int col, int row, int cx, int cy )
+void GdiRenderTarget::ImageList_Draw( HRBITMAP hBitmap, int x, int y, int col, int row, int cx, int cy )
 {
 	if( NULL == hBitmap )
 		return;
@@ -580,7 +606,7 @@ void GDIRenderDC::ImageList_Draw( HRBITMAP hBitmap, int x, int y, int col, int r
 	GDIRenderBitmap* pBitmap = (GDIRenderBitmap*)p;
 	pBitmap->GetBitmap()->ImageList_Draw(m_hDC, x,y,col,row,cx,cy);
 }
-void GDIRenderDC::DrawBitmap( HRBITMAP hBitmap, DRAWBITMAPPARAM* pParam )
+void GdiRenderTarget::DrawBitmap( HRBITMAP hBitmap, DRAWBITMAPPARAM* pParam )
 {
 	if (NULL == hBitmap || NULL == pParam)
 		return;
@@ -593,7 +619,7 @@ void GDIRenderDC::DrawBitmap( HRBITMAP hBitmap, DRAWBITMAPPARAM* pParam )
 	Image  imageDisable;
 	if (pParam->nFlag & DRAW_BITMAP_DISABLE)
 	{
-		imageDisable.CloneGrayImage(pImage);
+		imageDisable.CopyGrayImageFrom(pImage);
 		pImage = &imageDisable;
 	}
 

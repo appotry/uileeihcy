@@ -20,14 +20,14 @@
     </CustomWindow>
 
     <CustomWindow id="chatdlg" width="553" height="520" minwidth="450" minheight="500" border="6,6,6,6"
-                  transparent.typex="layered" istransparent="1"
+                  transparent.typex="layered" istransparenxt="1"
                   bkgnd.render.type="image"
                   bkgnd.render.image="chatframe.png"
                   bkgnd.render.image.drawtype="stretch"
                   bkgnd.render.9region="12,101,12,12"
                   foregnd.render.type="image"
                   foregnd.render.image="chatframe_surface.png"
-                  foregnd.render.image.drawtype="tile"
+                  foregnd.render.image.drawtype="simple"
                   textrender.font="normal">
       <Label text="sfasdfasdf;lkj另草根轩" layout.left="10" layout.top="10"/>
       <Panel layout="stack" layout.right="2" layout.top="2" layout.direction="righttoleft">
@@ -52,11 +52,11 @@
                     bkgnd.render.imagelist.count="3"
                     bkgnd.render.imagelist.layout="h"></Button>  
       </Panel>
-      <RichEdit id="outputedit" layout.left="0" layout.right="0" layout.top="95" layout.bottom="100"
+      <!--RichEdit id="outputedit" layout.left="0" layout.right="0" layout.top="95" layout.bottom="100"
                 istransparent="1"
         ></RichEdit>
       <RichEdit id="inputedit" layout.left="0" layout.right="0" layout.bottom="5" height="90"
-        ></RichEdit>
+        ></RichEdit-->
     </CustomWindow>
   </layout>
 

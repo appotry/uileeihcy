@@ -369,20 +369,20 @@ GdiplusRenderDC::GdiplusRenderDC()
 	this->Init();
 }
 
-GdiplusRenderDC::GdiplusRenderDC(HDC hDC):IRenderDC(hDC)
-{
-	m_pGraphics = Gdiplus::Graphics::FromHDC(hDC);
-	UIASSERT(NULL != m_pGraphics);
-
-	this->Init();
-}
-GdiplusRenderDC::GdiplusRenderDC(HWND hWnd):IRenderDC(hWnd)
-{
-	m_pGraphics = Gdiplus::Graphics::FromHWND(hWnd);
-	UIASSERT(NULL != m_pGraphics);
-
-	this->Init();
-}
+// GdiplusRenderDC::GdiplusRenderDC(HDC hDC):IRenderTarget(hDC)
+// {
+// 	m_pGraphics = Gdiplus::Graphics::FromHDC(hDC);
+// 	UIASSERT(NULL != m_pGraphics);
+// 
+// 	this->Init();
+// }
+// GdiplusRenderDC::GdiplusRenderDC(HWND hWnd):IRenderTarget(hWnd)
+// {
+// 	m_pGraphics = Gdiplus::Graphics::FromHWND(hWnd);
+// 	UIASSERT(NULL != m_pGraphics);
+// 
+// 	this->Init();
+// }
 GdiplusRenderDC::~GdiplusRenderDC()
 {
 	if( NULL != m_pGraphics )
@@ -782,7 +782,7 @@ void GdiplusRenderDC::GradientFillV( const CRect* lprc, COLORREF colFrom, COLORR
 	m_pGraphics->FillRectangle(&brush, lprc->left, lprc->top, lprc->Width(), lprc->Height() );
 }
 
-void GdiplusRenderDC::BitBlt( int xDest, int yDest, int wDest, int hDest, IRenderDC* pSrcHDC, int xSrc, int ySrc, DWORD dwRop )
+void GdiplusRenderDC::BitBlt( int xDest, int yDest, int wDest, int hDest, IRenderTarget* pSrcHDC, int xSrc, int ySrc, DWORD dwRop )
 {
 	if( NULL == pSrcHDC )
 		return;

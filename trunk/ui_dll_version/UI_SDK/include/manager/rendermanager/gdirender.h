@@ -177,32 +177,27 @@ private:
 	bool    m_bCreateOrAttach;  // 标明该m_hFont的来源，用于区分如何释放
 };
 
-class GDIRenderDC : public IRenderDC
+class GdiRenderTarget : public IRenderTarget
 {
 public:
-	GDIRenderDC();
-	GDIRenderDC(HDC hDC);
-	GDIRenderDC(HWND hWnd);
-	virtual ~GDIRenderDC();
+	GdiRenderTarget();
+// 	GdiRenderTarget(HDC hDC);
+// 	GdiRenderTarget(HWND hWnd);
+	virtual ~GdiRenderTarget();
 	virtual GRAPHICS_RENDER_TYPE GetRenderType() { return GRAPHICS_RENDER_TYPE_GDI; }
 
 	virtual HRDC     CreateCompatibleHRDC( int nWidth, int nHeight );
 	virtual HDC      GetHDC();
 	virtual void     ReleaseHDC( HDC hDC );
 
-// 	virtual HRFONT   SelectFont( HRFONT hRFont );
-// 	virtual HRFONT   GetFont();
 	virtual HRGN     GetClipRgn();
 	virtual int      SelectClipRgn( HRGN hRgn, int nMode = RGN_COPY );
 	virtual BOOL     GetViewportOrgEx( LPPOINT lpPoint );
 	virtual BOOL     SetViewportOrgEx( int x, int y, LPPOINT lpPoint = NULL ) ;
 	virtual BOOL     OffsetViewportOrgEx( int x, int y, LPPOINT lpPoint = NULL );
-// 	virtual COLORREF SetTextColor( COLORREF color, byte Alpha = 255 ) ;
-// 	virtual COLORREF GetTextColor() ;
 
-	// 只有GdiMemRenderDC才支持 DoNothing
-	virtual bool     BeginDraw( HDC hDC ) {return false;}
-	virtual void     EndDraw( ) {}
+	virtual bool     BeginDraw(HDC hDC, RECT* prc);
+	virtual void     EndDraw( );
 	virtual void     EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish ){}
 	virtual void     ResizeRenderTarget( int nWidth, int nHeight ){}
 	virtual BYTE*    LockBits() {return NULL;};
@@ -219,7 +214,7 @@ public:
 	virtual void     DrawFocusRect( const CRect* lprc );
 	virtual void     GradientFillH( const CRect* lprc, COLORREF colFrom, COLORREF colTo );
 	virtual void     GradientFillV( const CRect* lprc, COLORREF colFrom, COLORREF colTo );
-	virtual void     BitBlt( int xDest, int yDest, int wDest, int hDest, IRenderDC* pSrcHDC, int xSrc, int ySrc, DWORD dwRop );
+	virtual void     BitBlt( int xDest, int yDest, int wDest, int hDest, IRenderTarget* pSrcHDC, int xSrc, int ySrc, DWORD dwRop );
 	virtual void     DrawBitmap( HRBITMAP hBitmap, int x, int y);
 	virtual void     DrawBitmap( IRenderBitmap* pBitmap, int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc);
 	virtual void     DrawBitmap( HRBITMAP hBitmap, int xDest, int yDest, int nDestWidth, 
@@ -234,7 +229,7 @@ protected:
 	HDC       m_hDC;
 };
 
-class GDIMemRenderDC : public GDIRenderDC
+class GDIMemRenderDC : public GdiRenderTarget
 {
 public:
 	GDIMemRenderDC(HDC hDC, int nWidth, int nHeight);

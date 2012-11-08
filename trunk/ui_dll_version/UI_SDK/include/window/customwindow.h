@@ -79,7 +79,7 @@ public:
 protected:
 	virtual   BOOL PreCreateWindow( CREATESTRUCT& cs );
 	virtual   void OnInitWindow( );
-	virtual   void InvalidateObject( Object* pInvalidateObj, RECT* prc, bool bUpdateNow );
+	virtual   void RedrawObject( Object* pInvalidateObj, RECT* prc, bool bUpdateNow );
 	virtual   HRDC BeginDrawObject( Object* pInvalidateObj );
 	virtual   void EndDrawObject( CRect* prcWindow, bool bFinish );
 
