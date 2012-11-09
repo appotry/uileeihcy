@@ -662,27 +662,33 @@ void ListCtrlBase::ReDrawItem(ListItemBase* pItem1, ListItemBase* pItem2)
 		return;
 	}
 
+	CRect rcWindow1, rcWindow2;
+	RECT* prcWindow1 = NULL, *prcWindow2 = NULL;
+	if (NULL != pItem1)
+	{
+		this->ItemRect2WindowRect(&(pItem1->GetParentRect()), &rcWindow1);
+		prcWindow1 = &rcWindow1;
+	}
+	if (NULL != pItem2)
+	{
+		this->ItemRect2WindowRect(&(pItem2->GetParentRect()), &rcWindow2);
+		prcWindow2 = &rcWindow2;	
+	}
+
 	HRGN hClipRgn = NULL;
-	HRDC hRDC = pWindow->BeginDrawObject(this);
-	if (NULL == hRDC)
+	IRenderTarget* pRenderTarget = pWindow->BeginRedrawObjectPart(this, prcWindow1, prcWindow2);
+	if (NULL == pRenderTarget)
 		return;
 
 	if (NULL != pItem1)
-		this->OnDrawItem(hRDC, pItem1);	
+		this->OnDrawItem(pRenderTarget, pItem1);	
 	if (NULL != pItem2)
-		this->OnDrawItem(hRDC, pItem2);	
+		this->OnDrawItem(pRenderTarget, pItem2);	
 
-	CRect rcWindow;
 	if (NULL != pItem1)
-	{
-		this->ItemRect2WindowRect(&(pItem1->GetParentRect()), &rcWindow);
-		pWindow->EndDrawObject(&rcWindow, pItem2==NULL?true:false);
-	}
+		pWindow->EndRedrawObjectPart(pRenderTarget, &rcWindow1, pItem2==NULL?true:false);
 	if (NULL != pItem2)
-	{
-		this->ItemRect2WindowRect(&(pItem2->GetParentRect()), &rcWindow);
-		pWindow->EndDrawObject(&rcWindow, true);
-	}
+		pWindow->EndRedrawObjectPart(pRenderTarget, &rcWindow2, true);
 }
 
 

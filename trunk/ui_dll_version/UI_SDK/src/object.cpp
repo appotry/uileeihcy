@@ -101,22 +101,21 @@ void Object::UpdateObjectBkgnd( bool bUpdateNow )
 //
 //	prc 一般为 &m_rcWindow
 //
-// void Object::UpdateObject( RECT* prc, bool bUpdateNow ) 
-// {
-// //	由于调用该函数的地方该对象可能已经隐藏了，所以这里不对是否可见进行判断
-// // 	if( !this->IsVisible() )
-// // 	{
-// // 		return;
-// // 	}
-// 
-// 	if( this->testStateBit( CSB_PREVENTREDRAW) )
-// 		return ;
-// 
-// 	WindowBase* pWindow = this->GetWindowObject();
-//	WindowBase* pWindow = this->GetWindowObject();
-//	if (NULL != pWindow)
-// 		pWindow->UpdateObject( pWindow, prc, bUpdateNow );
-// }
+void Object::UpdateObject( RECT* prc, bool bUpdateNow ) 
+{
+//	由于调用该函数的地方该对象可能已经隐藏了，所以这里不对是否可见进行判断
+// 	if( !this->IsVisible() )
+// 	{
+// 		return;
+// 	}
+
+	if( this->testStateBit( CSB_PREVENTREDRAW) )
+		return ;
+
+	WindowBase* pWindow = this->GetWindowObject();
+	if (NULL != pWindow)
+		pWindow->RedrawObject( pWindow, prc, bUpdateNow );
+}
 
 //
 //	当对象显示/隐藏，或者大小发生改变时，重新刷新自己所在layout的布局
@@ -483,6 +482,7 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 	}
 
 // 	// 字体  -- 将字体属性移出。谁需要字体属性谁自己负责解析。不是所有的对象都需要字体
+	//          另window的font属性在windowbase::setattribute中将解析"font"属性得到
 // 	iter = m_mapAttribute.find(XML_TEXTRENDER_TYPE);
 // 	if (m_mapAttribute.end() != iter)
 // 	{
@@ -1105,7 +1105,7 @@ bool Object::IsVisible()
 	{
 		if( OBJ_WINDOW == m_pParent->GetObjectType() )
 		{ 
-			return true;           // 注：在这里不对最外层的窗口进行判断的原因是：在类型于窗口初始化的函数里面，虽然窗口暂时是不可见的，但里面的对象的IsVisible应该是返回true才好处理
+			return true;           // 注：在这里不对最外层的窗口进行判断的原因是：在类似于窗口初始化的函数里面，虽然窗口暂时是不可见的，但里面的对象的IsVisible应该是返回true才好处理
 		}
 		else
 		{
@@ -1390,16 +1390,18 @@ void Object::SetObjectPos( int x, int y, int cx, int cy, int nFlag )
 		return;  // DONOTHING
 	}
 
-// 	if( bMove || bSize )  // TODO: 恢复，重写
-// 	{
-// 		// 刷新移动前的区域位置
-// 		if( !(nFlag & SWP_NOREDRAW) )
-// 		{
-// 			this->UpdateObject(&m_rcWindow, false);
-// 		}
-// 	}
+	if (bMove || bSize) 
+	{
+		// 刷新移动前的区域位置
+		if (!(nFlag & SWP_NOREDRAW))
+		{
+			CRect rcWindow;
+			this->GetWindowRect(&rcWindow);
+			this->UpdateObject(&rcWindow, false);
+		}
+	}
 
-	if( this->GetObjectType() == OBJ_WINDOW )
+	if (this->GetObjectType() == OBJ_WINDOW)
 	{
 		// 对于窗口来说，这里设置的是非客户区的大小
 		WindowBase* pThis = (WindowBase*)this;
@@ -1419,14 +1421,17 @@ void Object::SetObjectPos( int x, int y, int cx, int cy, int nFlag )
 		::SetRect(&m_rcParent, x,y,x+cx,y+cy);
 	}
 
-// 	if( bMove || bSize )  // TODO: 重写，恢复
-// 	{
-// 		// 刷新移动后的区域位置
-// 		if( !(nFlag & SWP_NOREDRAW) )
-// 		{
-// 			this->UpdateObject(&m_rcWindow, true);
-// 		}
-// 	}
+	if (bMove || bSize)
+	{
+		// 刷新移动后的区域位置
+		if( !(nFlag & SWP_NOREDRAW) )
+		{
+			CRect rcWindow;
+			this->GetWindowRect(&rcWindow);
+			this->UpdateObject(&rcWindow, true);
+		}
+	}
+
 	// MSDN: MoveWindow sends the WM_WINDOWPOSCHANGING, WM_WINDOWPOSCHANGED, WM_MOVE, WM_SIZE, and WM_NCCALCSIZE messages to the window. 
 	// 在这里我们暂时只先发送WM_MOVE/WM_SIZE消息
 	if (bMove)

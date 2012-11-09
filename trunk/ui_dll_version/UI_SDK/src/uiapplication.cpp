@@ -116,7 +116,6 @@ UIApplication::~UIApplication(void)
 		SAFE_DELETE(pData);
 	}
 	m_vecUICreateData.clear();
-
 	if (m_WndForwardPostMsg.IsWindow())
 	{
 		m_WndForwardPostMsg.DestroyWindow();

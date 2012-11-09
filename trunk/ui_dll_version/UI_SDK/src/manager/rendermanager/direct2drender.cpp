@@ -268,35 +268,33 @@ bool Direct2DRenderFont::GetLogFont(LOGFONT* plf)
 
 #pragma region // D2D DC
 //////////////////////////////////////////////////////////////////////////
-Direct2DRenderDC::Direct2DRenderDC()
+// Direct2DRenderTarget::Direct2DRenderTarget()
+// {
+// 	g_D2DGlobalData.AddRef();
+// 	m_hWnd = NULL;
+// 	m_pRenderTarget = NULL;
+// 	UIASSERT(0);
+// }
+// Direct2DRenderTarget::Direct2DRenderTarget(HDC hDC)
+// {
+// 	g_D2DGlobalData.AddRef();
+// 	m_hWnd = NULL;
+// 	m_pRenderTarget = NULL;
+// 	UIASSERT(0);
+// }
+Direct2DRenderTarget::Direct2DRenderTarget(HWND hWnd):IRenderTarget(hWnd)
 {
 	g_D2DGlobalData.AddRef();
-	m_hWnd = NULL;
 	m_pRenderTarget = NULL;
-	UIASSERT(0);
 }
-Direct2DRenderDC::Direct2DRenderDC(HDC hDC)
-{
-	g_D2DGlobalData.AddRef();
-	m_hWnd = NULL;
-	m_pRenderTarget = NULL;
-	UIASSERT(0);
-}
-Direct2DRenderDC::Direct2DRenderDC(HWND hWnd)
-{
-	g_D2DGlobalData.AddRef();
-	m_hWnd = hWnd;
-	m_pRenderTarget = NULL;
-	UIASSERT(0);
-}
-Direct2DRenderDC::Direct2DRenderDC(HWND hWnd, int nWidth, int nHeight)
-{
-	g_D2DGlobalData.AddRef();
-
-	m_pRenderTarget = NULL;
-	m_hWnd = hWnd;
-}
-Direct2DRenderDC::~Direct2DRenderDC()
+// Direct2DRenderTarget::Direct2DRenderTarget(HWND hWnd, int nWidth, int nHeight)
+// {
+// 	g_D2DGlobalData.AddRef();
+// 
+// 	m_pRenderTarget = NULL;
+// 	m_hWnd = hWnd;
+// }
+Direct2DRenderTarget::~Direct2DRenderTarget()
 {
 	SAFE_RELEASE(m_pRenderTarget);
 	m_hWnd = NULL;
@@ -305,7 +303,7 @@ Direct2DRenderDC::~Direct2DRenderDC()
 }
 
 #include <comdef.h>
-bool Direct2DRenderDC::BeginDraw(HDC hDC)
+bool Direct2DRenderTarget::BeginDraw(HDC hDC)
 {
 	if (NULL != m_pRenderTarget)
 	{
@@ -341,13 +339,13 @@ bool Direct2DRenderDC::BeginDraw(HDC hDC)
 	m_pRenderTarget->BeginDraw();
 	return true;
 }
-void Direct2DRenderDC::EndDraw()
+void Direct2DRenderTarget::EndDraw()
 {
 	m_pRenderTarget->EndDraw();
 	SAFE_RELEASE(m_pRenderTarget);
 }
 
-void Direct2DRenderDC::EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish )
+void Direct2DRenderTarget::EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish )
 {
 	if (!bFinish)
 		return;
@@ -355,7 +353,7 @@ void Direct2DRenderDC::EndDraw( int xDest, int yDest, int wDest, int hDest, int 
 	m_pRenderTarget->EndDraw();
 	SAFE_RELEASE(m_pRenderTarget);
 }
-int Direct2DRenderDC::DrawString(const TCHAR* szText, const CRect* lpRect, UINT nFormat, IRenderFont* pFont, COLORREF col )
+int Direct2DRenderTarget::DrawString(const TCHAR* szText, const CRect* lpRect, UINT nFormat, IRenderFont* pFont, COLORREF col )
 {
 	if (NULL == m_pRenderTarget)
 		return 0;
@@ -421,7 +419,7 @@ int Direct2DRenderDC::DrawString(const TCHAR* szText, const CRect* lpRect, UINT 
 
 	return 0;
 }
-void Direct2DRenderDC::DrawBitmap(IRenderBitmap* pBitmap, DRAWBITMAPPARAM* pParam)
+void Direct2DRenderTarget::DrawBitmap(IRenderBitmap* pBitmap, DRAWBITMAPPARAM* pParam)
 {
 	if (NULL == pBitmap || NULL == pParam)
 		return;

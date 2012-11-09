@@ -117,7 +117,7 @@ bool ProjectManager::OpenProject( const String& strProjFilePath, bool bOnlyLoadA
 		if (-1 == nActiveIndex)
 			nActiveIndex = 0;
 
-		m_pCurActiveSkinMgr = this->LoadSkin(m_pojoProject.GetSkinItem(0));
+		m_pCurActiveSkinMgr = this->LoadSkin(m_pojoProject.GetSkinItem(nActiveIndex));
 		if( NULL == m_pCurActiveSkinMgr )
 		{
 			UI_LOG_ERROR(_T("ProjectManager::OpenProject LoadSkin failed."));

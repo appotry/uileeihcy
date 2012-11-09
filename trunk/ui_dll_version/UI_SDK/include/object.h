@@ -198,7 +198,7 @@ public:
 //	void         UpdateRect();
 	void         UpdateObject( bool bUpdateNow = true);
 	void         UpdateObjectBkgnd( bool bUpdateNow = true );
-//	void         UpdateObject( RECT* prc, bool bUpdateNow = true);
+	void         UpdateObject( RECT* prc, bool bUpdateNow = true);
 	void         UpdateLayout( bool bUpdate );
 //	int          GetParentList( vector<Object*>& vParents );  -- 用不上，直接使用EnumParentObject即可
 

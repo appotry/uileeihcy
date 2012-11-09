@@ -56,7 +56,7 @@ void MOUSE_LOG_DEBUG( TCHAR* szContent, ...)
 //
 bool UI_Initialize( const String& strUIProjXmlPath )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 	{
 		g_pUIApplication = new UIApplication;
 	}
@@ -67,10 +67,13 @@ bool UI_Initialize( const String& strUIProjXmlPath )
 //
 bool UI_Release()
 {
-	if( NULL != g_pUIApplication )
+	// 销毁提示条窗口
+	UI_GetToolTipMgr()->Release();
+
+	if (NULL != g_pUIApplication)
 	{
 		int nCount = g_pUIApplication->m_TopWindowMgr.GetTopWindowCount();
-		if( 0 != nCount )   // <-- 该方法有可能还是不准，有可能窗口被销毁了，但窗口对象还没有析构
+		if (0 != nCount)   // <-- 该方法有可能还是不准，有可能窗口被销毁了，但窗口对象还没有析构
 		{
 			UI_LOG_WARN(_T("UI_Exit TopWindowCount=%d"),nCount);
 			UIASSERT(0);
@@ -81,9 +84,9 @@ bool UI_Release()
 	return true;
 }
 
-bool UI_ChangeSkin( const String& strSkinName )
+bool UI_ChangeSkin(const String& strSkinName)
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 	{
 		return false;
 	}
@@ -91,9 +94,9 @@ bool UI_ChangeSkin( const String& strSkinName )
 	return g_pUIApplication->m_ProjectMgr.ChangeSkin( strSkinName );
 }
 
-bool UI_ChangeSkin( int nIndex )
+bool UI_ChangeSkin(int nIndex)
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 	{
 		return false;
 	}
@@ -106,7 +109,7 @@ bool UI_ChangeSkin( int nIndex )
 // s: -100 ~ 100
 bool UI_ChangeSkinHLS( short h, short l, short s, int nFlag )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 	{
 		return false;
 	}
@@ -120,7 +123,7 @@ bool UI_ChangeSkinHLS( short h, short l, short s, int nFlag )
 //
 void UI_SetDesignMode( bool bDesignMode )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 	{
 		g_pUIApplication = new UIApplication;
 	}
@@ -132,7 +135,7 @@ void UI_SetDesignMode( bool bDesignMode )
 //
 bool UI_RegisterUIObjectCreateData( const TCHAR* szXmlName, s_UICreateInstancePtr pFunPtr)
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 	{
 		g_pUIApplication = new UIApplication;
 	}
@@ -151,7 +154,7 @@ bool UI_RegisterUIObjectCreateData( const TCHAR* szXmlName, s_UICreateInstancePt
 //
 bool UI_CreateProject  ( const String&   strProjDir, const String& strProjName )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 	{
 		g_pUIApplication = new UIApplication;
 	}
@@ -163,7 +166,7 @@ bool UI_CreateProject  ( const String&   strProjDir, const String& strProjName )
 //
 bool UI_OpenProject( const String& strProjFilePath )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 	{
 		g_pUIApplication = new UIApplication;
 	}
@@ -188,7 +191,7 @@ HSKIN UI_CreateSkin     ( const String& strSkinName, const String& strImageXmlPa
 						  const String& strColorXmlPath, const String& strFontXmlPath,
 						  const String& strLayoutXmlPath,const String& strStyleXmlPath )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return NULL;
 
 	return g_pUIApplication->m_ProjectMgr.CreateSkin( strSkinName, strImageXmlPath, strColorXmlPath, strFontXmlPath, strLayoutXmlPath, strStyleXmlPath );
@@ -203,7 +206,7 @@ HSKIN UI_CreateSkin     ( const String& strSkinName, const String& strImageXmlPa
 // 从临时文件中重新加载资源数据
 bool UI_ReloadResource( HSKIN hSkin, UI_RESOURCE_TYPE eResType )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.ReloadResource( hSkin, eResType );
@@ -211,14 +214,14 @@ bool UI_ReloadResource( HSKIN hSkin, UI_RESOURCE_TYPE eResType )
 
 bool UI_InsertImageItem( HSKIN    hSkin, const String& strID, const String& strPath )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.InsertImageItem(hSkin, strID, strPath );
 }
 bool UI_InsertColorItem( HSKIN hSkin, const String& strID, const String& strColor )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.InsertColorItem(hSkin, strID, strColor );
@@ -229,84 +232,84 @@ bool UI_InsertFontItem ( HSKIN hSkin, const String& strID, LOGFONT* pLogfont )
 }
 bool UI_InsertStyleItem( HSKIN hSkin, STYLE_SELECTOR_TYPE  type, const String& strID, const String& strInherit )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.InsertStyleItem( hSkin, type, strID, strInherit );
 }
 bool UI_InsertStyleAttribute( HSKIN hSkin, STYLE_SELECTOR_TYPE type, const String& strID, const String& strKey, const String& strValue )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.InsertStyleAttribute( hSkin, type, strID, strKey, strValue );
 }
 bool UI_ModifyImageItem( HSKIN hSkin, const String& strID, const String& strPath )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.ModifyImageItem(hSkin, strID, strPath );
 }
 bool UI_ModifyFontItem ( HSKIN hSkin, const String& strID, LOGFONT* pLogfont )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.ModifyFontItem(hSkin, strID, pLogfont);
 }
 bool UI_ModifyColorItem( HSKIN hSkin, const String& strID, const String& strColor )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.ModifyColorItem(hSkin, strID, strColor);
 }
 bool UI_ModifyStyleItem( HSKIN hSkin, STYLE_SELECTOR_TYPE  type, const String& strID, const String& strInherit )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.ModifyStyleItem(hSkin, type, strID, strInherit);
 }
 bool UI_ModifyStyleAttribute( HSKIN hSkin, STYLE_SELECTOR_TYPE  type, const String& strID, const String& strKey, const String& strValue )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.ModifyStyleAttribute( hSkin, type, strID, strKey, strValue );
 }
 bool UI_RemoveImageItem( HSKIN hSkin, const String& strID )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.RemoveImageItem( hSkin, strID );
 }
 bool UI_RemoveFontItem( HSKIN hSkin, const String& strID )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.RemoveFontItem(hSkin, strID);
 }
 bool UI_RemoveColorItem( HSKIN hSkin, const String& strID )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.RemoveColorItem(hSkin,strID);
 }
 bool UI_RemoveStyleItem( HSKIN hSkin, STYLE_SELECTOR_TYPE  type, const String& strID )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.RemoveStyleItem(hSkin, type, strID);
 }
 bool UI_RemoveStyleAttribute( HSKIN hSkin, STYLE_SELECTOR_TYPE  type, const String& strID, const String& strKey )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.RemoveStyleAttribute(hSkin, type, strID, strKey );
@@ -327,7 +330,7 @@ bool UI_RemoveStyleAttribute( HSKIN hSkin, STYLE_SELECTOR_TYPE  type, const Stri
 //
 int UI_GetResourceDataSourcePath( HSKIN hSkin, UI_RESOURCE_TYPE eResType, TCHAR* szRet, int nSize )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return 0;
 
 	String str;
@@ -350,28 +353,28 @@ int UI_GetResourceDataSourcePath( HSKIN hSkin, UI_RESOURCE_TYPE eResType, TCHAR*
  
 bool UI_GetProjectName( TCHAR* szRet, int* pnSize )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.GetProjectName(szRet,pnSize);
 }
 void UI_Save(HSKIN hSkin/*=NULL*/, UI_RESOURCE_TYPE eResType/*=UI_RESOURCE_NULL*/)
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return;
 
 	g_pUIApplication->Save(hSkin,eResType);
 }
 bool UI_GetProjectPath( TCHAR* szRet )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.GetProjectPath(szRet);
 }
 bool UI_GetProjectDirectory( TCHAR* szRet )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.GetProjectDirectory(szRet);
@@ -391,7 +394,7 @@ bool UI_GetProjectDirectory( TCHAR* szRet )
 //
 int UI_GetSkinName( HSKIN hSkin, TCHAR* szRet, int nSize )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return 0;
 
 	String str;
@@ -412,7 +415,7 @@ int UI_GetSkinName( HSKIN hSkin, TCHAR* szRet, int nSize )
 
 int UI_GetSkinName( int nIndex, TCHAR* szRet, int nSize )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return 0;
 
 	String str;
@@ -433,14 +436,14 @@ int UI_GetSkinName( int nIndex, TCHAR* szRet, int nSize )
 
 int UI_GetSkinCount( )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return 0;
 
 	return g_pUIApplication->m_ProjectMgr.GetSkinCount();
 }
 HSKIN UI_GetSkinHandle( int nIndex )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return NULL;
 
 	return g_pUIApplication->m_ProjectMgr.GetSkinHandle(nIndex);
@@ -448,28 +451,28 @@ HSKIN UI_GetSkinHandle( int nIndex )
 
 int UI_GetSkinImageCount( HSKIN hSkin )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return 0;
 
 	return g_pUIApplication->m_ProjectMgr.GetSkinImageCount(hSkin);
 }
 bool UI_GetSkinImageItemInfo( HSKIN hSkin, int nIndex, IImageItemInfo** ppImageItemInfo )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.GetSkinImageItemInfo( hSkin, nIndex, ppImageItemInfo );
 }
 int UI_GetSkinColorCount( HSKIN h )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return 0;
 
 	return g_pUIApplication->m_ProjectMgr.GetSkinColorCount(h);
 }
 bool UI_GetSkinColorItemInfo( HSKIN h, int nIndex, IColorItemInfo** ppColorItemInfo )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.GetSkinColorItemInfo( h, nIndex, ppColorItemInfo );
@@ -477,14 +480,14 @@ bool UI_GetSkinColorItemInfo( HSKIN h, int nIndex, IColorItemInfo** ppColorItemI
 
 int UI_GetSkinFontCount( HSKIN h )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return 0;
 
 	return g_pUIApplication->m_ProjectMgr.GetSkinFontCount(h);
 }
 bool UI_GetSkinFontItemInfo( HSKIN h, int nIndex, IFontItemInfo** ppFontItemInfo )
 {	
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.GetSkinFontItemInfo(h,nIndex,ppFontItemInfo);
@@ -492,14 +495,14 @@ bool UI_GetSkinFontItemInfo( HSKIN h, int nIndex, IFontItemInfo** ppFontItemInfo
 
 int UI_GetSkinStyleCount( HSKIN h)
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return 0;
 
 	return g_pUIApplication->m_ProjectMgr.GetSkinStyleCount(h);
 }
 bool UI_GetSkinStyleItemInfo( HSKIN h, int nIndex, IStyleItemInfo** ppStyleItemInfo )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.GetSkinStyleItemInfo(h, nIndex, ppStyleItemInfo);
@@ -507,7 +510,7 @@ bool UI_GetSkinStyleItemInfo( HSKIN h, int nIndex, IStyleItemInfo** ppStyleItemI
 
 bool UI_SetActiveSkin( HSKIN hSkin )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.SetActiveSkin(hSkin);
@@ -515,7 +518,7 @@ bool UI_SetActiveSkin( HSKIN hSkin )
 
 int UI_GetActiveSkinIndex()
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.GetActiveSkinIndex();
@@ -523,14 +526,14 @@ int UI_GetActiveSkinIndex()
 
 int   UI_GetProjectSkinCount()
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return 0;
 
 	return g_pUIApplication->m_ProjectMgr.GetSkinCount();
 }
 bool  UI_GetProjectSkinItemInfo( int nIndex, IProjectSkinItemInfo** pSkinItem )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.GetSkinItemInfo(nIndex, pSkinItem);
@@ -538,7 +541,7 @@ bool  UI_GetProjectSkinItemInfo( int nIndex, IProjectSkinItemInfo** pSkinItem )
 
 bool  UI_GetProjectSkinItemInfo( HSKIN pSkin, IProjectSkinItemInfo** ppSkinItem )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.GetSkinItemInfo(pSkin, ppSkinItem);
@@ -550,7 +553,7 @@ bool  UI_GetProjectSkinItemInfo( HSKIN pSkin, IProjectSkinItemInfo** ppSkinItem 
 //
 // bool UI_GetImage( const String& strImageID, UIImage** ppImage, HSKIN hSkin/* = NULL*/ )
 // {
-// 	if( NULL == g_pUIApplication )
+// 	if (NULL == g_pUIApplication)
 // 		return false;
 // 
 // 	return g_pUIApplication->m_ProjectMgr.GetImage( strImageID, ppImage, hSkin );
@@ -558,7 +561,7 @@ bool  UI_GetProjectSkinItemInfo( HSKIN pSkin, IProjectSkinItemInfo** ppSkinItem 
 
  bool UI_GetColor( const String& strColorID, UIColor** pColor, HSKIN hSkin/* = NULL*/  )
  {
-	 if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		 return false;
 
 	 return g_pUIApplication->m_ProjectMgr.GetColor( strColorID, pColor, hSkin );
@@ -566,7 +569,7 @@ bool  UI_GetProjectSkinItemInfo( HSKIN pSkin, IProjectSkinItemInfo** ppSkinItem 
 
 // bool UI_GetFont( const String& strFontID, UIFont** ppFont, HSKIN hSkin /*= NULL*/  )
 // {
-// 	if( NULL == g_pUIApplication )
+// 	if (NULL == g_pUIApplication)
 // 		return false;
 // 
 // 	return g_pUIApplication->m_ProjectMgr.GetFont( strFontID, ppFont, hSkin );
@@ -574,7 +577,7 @@ bool  UI_GetProjectSkinItemInfo( HSKIN pSkin, IProjectSkinItemInfo** ppSkinItem 
 
 bool UI_GetCursor( const String& strCursorID, UICursor** ppCursor, HSKIN hSkin /*= NULL*/ )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.GetCursor( strCursorID, ppCursor, hSkin );
@@ -582,21 +585,21 @@ bool UI_GetCursor( const String& strCursorID, UICursor** ppCursor, HSKIN hSkin /
 
 HRFONT   UI_GetFontEx( HRFONT hRFont, WPARAM w, LPARAM l, GRAPHICS_RENDER_TYPE eRenderType, HSKIN hSkin )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return NULL;
 
 	return g_pUIApplication->m_ProjectMgr.GetFontEx( hRFont, w, l, eRenderType, hSkin );
 }
 HRFONT   UI_GetFont( const String& strFontID, GRAPHICS_RENDER_TYPE eRenderType, HSKIN hSkin )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return NULL;
 
 	return g_pUIApplication->m_ProjectMgr.GetFont( strFontID, eRenderType, hSkin );
 }
 HRFONT   UI_GetDefaultFont( GRAPHICS_RENDER_TYPE eRenderType, HSKIN hSkin )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return NULL;
 
 	return g_pUIApplication->m_ProjectMgr.GetDefaultFont( eRenderType, hSkin );
@@ -680,7 +683,7 @@ HFONT  UI_GetFontHFONT(HRFONT hRFont)
 
 HRBITMAP UI_GetBitmap( const String& strImageID, GRAPHICS_RENDER_TYPE eRenderType, HSKIN hSkin )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return NULL;
 
 	return g_pUIApplication->m_ProjectMgr.GetImage( strImageID, eRenderType, hSkin );
@@ -716,7 +719,7 @@ int  UI_GetBitmapHeight( HRBITMAP hBitmap )
 */
 bool  UI_LoadLayout( Object* pRootObj )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.LoadLayout( pRootObj );
@@ -737,7 +740,7 @@ bool  UI_LoadLayout( Object* pRootObj )
 //
 bool UI_LoadStyle( const String& strTagName, const String& strStyleClass, const String& strID, map<String,String>& mapStyle )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return false;
 
 	return g_pUIApplication->m_ProjectMgr.LoadStyle( strTagName, strStyleClass, strID, mapStyle );
@@ -782,7 +785,7 @@ void UI_UpdateLayout( WindowBase* pObj, BOOL bRedraw )
 
 Menu* UI_LoadMenu( const String& strMenuID )
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return NULL;
 
 	return g_pUIApplication->m_ProjectMgr.LoadMenu( strMenuID );
@@ -841,14 +844,14 @@ void  UI_Split( const String& str, TCHAR szSep, vector<String>& vRet )
 //
 HDC   UI_GetCacheDC()
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return NULL;
 
 	return g_pUIApplication->m_dcCache.GetDC();
 }
 void  UI_ReleaseCacheDC(HDC hDC)
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return;
 
 	g_pUIApplication->m_dcCache.ReleaseDC(hDC);
@@ -860,14 +863,14 @@ void  UI_ReleaseCacheDC(HDC hDC)
 //
 void   UI_AddCreateWndData(_AtlCreateWndData* pData, void* pThis)
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return;
 
 	return g_pUIApplication->m_create_wnd_data.AddCreateWndData(pData, pThis);
 }
 void*  UI_ExtractCreateWndData()
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return NULL;
 
 	return g_pUIApplication->m_create_wnd_data.ExtractCreateWndData();
@@ -875,7 +878,7 @@ void*  UI_ExtractCreateWndData()
 
 HWND UI_GetForwardPostMessageWnd()
 {
-	if( NULL == g_pUIApplication )
+	if (NULL == g_pUIApplication)
 		return NULL;
 
 	return g_pUIApplication->m_WndForwardPostMsg.m_hWnd;

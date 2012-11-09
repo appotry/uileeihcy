@@ -50,6 +50,7 @@ public:
 	~ToolTipManager();
 
 	void   Init();
+	void   Release();
 	bool   Hide();
 	bool   Show(TOOLTIPITEM* pItemInfo);
 	static VOID CALLBACK ToolTipManagerTimerProc( HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime );

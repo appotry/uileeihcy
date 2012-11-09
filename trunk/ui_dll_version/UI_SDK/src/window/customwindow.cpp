@@ -253,7 +253,7 @@ LRESULT CustomWindow::_OnNcPaint( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 
 void CustomWindow::OnEraseBkgnd(HRDC hRDC)
 {
-	if (NULL != m_pBkgndRender)
+	if (NULL != m_pBkgndRender || NULL != m_pForegndRender)
 	{
 		CRect rc(0,0, GetWidth(), GetHeight());
 
@@ -265,7 +265,10 @@ void CustomWindow::OnEraseBkgnd(HRDC hRDC)
 			Util::DeflatRect(&rcSurface, &m_rcBorder);
 			m_pForegndRender->DrawState(hRDC, &rcSurface, nState);
 		}
-		m_pBkgndRender->DrawState(hRDC, &rc, nState);
+		if (NULL != m_pBkgndRender)
+		{
+			m_pBkgndRender->DrawState(hRDC, &rc, nState);
+		}
 	}
 	else
 	{
@@ -280,6 +283,36 @@ void CustomWindow::OnEndErasebkgnd()
 	if (m_bNeedToSetWindowRgn)
 	{
 		this->UpdateWindowRgn();
+	}
+}
+
+void CustomWindow::OnDrawWindow(IRenderTarget* pRenderTarget)
+{
+	if (NULL != m_pLayeredWindowWrap)
+	{
+//		 m_pLayeredWindowWrap->OnDrawWindow(pRenderTarget);
+		RenderOffsetClipHelper roc(this);
+
+// 		if (this->IsVisible())    // 由于分层窗口在下次显示时不能先更新再显示，导致隐藏时作的刷新都没处理。因此将这里的隐藏去掉
+// 		{
+			::UISendMessage(this, WM_ERASEBKGND, (WPARAM)pRenderTarget, (LPARAM)1 );  // 将lparam置为1，与原始消息进行区分
+			this->OnEndErasebkgnd();       // 主要是用于CustomWindow中设置窗口异形
+
+			this->_drawNcChildObject(pRenderTarget, roc);
+
+			roc.DrawClient(pRenderTarget, this, false);
+			roc.Scroll(pRenderTarget, this, false);
+			roc.Update(pRenderTarget);
+
+			::UISendMessage(this, WM_PAINT, (WPARAM)pRenderTarget, (LPARAM)1 );       // 将lparam置为1，与原始消息进行区分
+			this->_drawChildObject(pRenderTarget, roc);
+//		}
+
+		roc.Reset(pRenderTarget);
+	}
+	else
+	{
+		__super::OnDrawWindow(pRenderTarget);
 	}
 }
 
@@ -632,31 +665,31 @@ void CustomWindow::RedrawObject( Object* pInvalidateObj, RECT* prc, bool bUpdate
 	}
 	else
 	{
-		m_pLayeredWindowWrap->InvalidateObject(pInvalidateObj, bUpdateNow);
+		m_pLayeredWindowWrap->RedrawObject(pInvalidateObj, bUpdateNow);
 	}
 }
 
-HRDC CustomWindow::BeginDrawObject( Object* pInvalidateObj )
+HRDC CustomWindow::BeginRedrawObjectPart(Object* pRedrawObj, RECT* prc1, RECT* prc2)
 {
-	if( NULL == m_pLayeredWindowWrap )
-	{
-		return __super::BeginDrawObject(pInvalidateObj);
-	}
-	else
-	{
-		return m_pLayeredWindowWrap->BeginDrawObject(pInvalidateObj);
-	}
+// 	if (NULL == m_pLayeredWindowWrap)
+// 	{
+		return __super::BeginRedrawObjectPart(pRedrawObj, prc1, prc2);
+// 	}
+// 	else
+// 	{
+// 		return m_pLayeredWindowWrap->BeginRedrawObjectPart(pRedrawObj, prc1, prc2);
+// 	}
 }
-void CustomWindow::EndDrawObject( CRect* prcWindow, bool bFinish)
+void CustomWindow::EndRedrawObjectPart(IRenderTarget* pRenderTarget, CRect* prcWindow, bool bFinish)
 {
 	if (NULL == m_pLayeredWindowWrap)
 	{
-		__super::EndDrawObject(prcWindow, bFinish);
+		__super::EndRedrawObjectPart(pRenderTarget, prcWindow, bFinish);
 	}
 	else
 	{
 		m_pLayeredWindowWrap->PreEndDrawObject(prcWindow, bFinish);
-		__super::EndDrawObject(prcWindow, bFinish);
+		__super::EndRedrawObjectPart(pRenderTarget, prcWindow, bFinish);
 		m_pLayeredWindowWrap->PostEndDrawObject(prcWindow, bFinish);
 	}
 }
@@ -1159,7 +1192,7 @@ void LayeredWindowWrap::InitLayeredWindow()
 		m_ptWindow.x = rc.left;
 		m_ptWindow.y = rc.top;
 	}
-	this->InvalidateObject(m_pWindow,TRUE);
+	this->RedrawObject(m_pWindow,TRUE);
 }
 void LayeredWindowWrap::ReleaseLayeredWindow()
 {
@@ -1187,14 +1220,14 @@ void LayeredWindowWrap::OnSize( UINT nType, int cx, int cy )
 // 	FillRect(m_hLayeredMemDC,&rClear, (HBRUSH)::GetStockObject(_BRUSH));
 // 	image.Attach(m_hLayeredBitmap);
 	
-	this->InvalidateObject(m_pWindow, TRUE);
+	this->RedrawObject(m_pWindow, TRUE);
 }
 
 void LayeredWindowWrap::OnWindowPosChanging(LPWINDOWPOS lpWndPos)
 {
 // 	if (lpWndPos->flags & SWP_SHOWWINDOW)  // 窗口显示（窗口隐藏时，DrawObject会失败）
 // 	{
-// 		this->InvalidateObject(m_pWindow, TRUE);
+// 		this->RedrawObject(m_pWindow, TRUE);
 // 	}
 }
 void LayeredWindowWrap::OnWindowPosChanged(LPWINDOWPOS lpWndPos)
@@ -1211,19 +1244,19 @@ void LayeredWindowWrap::OnWindowPosChanged(LPWINDOWPOS lpWndPos)
 	}
 	if (lpWndPos->flags & SWP_SHOWWINDOW)  // 窗口显示（窗口隐藏时，DrawObject会失败）
 	{
-		this->InvalidateObject(m_pWindow, TRUE);
+		this->RedrawObject(m_pWindow, TRUE);
 	}
 }
 
-void LayeredWindowWrap::InvalidateObject( Object* pInvalidateObj, bool bUpdateNow )
+void LayeredWindowWrap::RedrawObject( Object* pInvalidateObj, bool bUpdateNow )
 {
 	if (NULL == pInvalidateObj)
 		return;
 
 	if (OBJ_WINDOW == pInvalidateObj->GetObjectType())
 	{
-		if (!IsWindowVisible(m_pWindow->m_hWnd))  // 避免第一次绘制时窗口不可见时，仍然Commit2LayeredWindow，导致窗口全黑
-			return;
+// 		if (!IsWindowVisible(m_pWindow->m_hWnd))  // 避免第一次绘制时窗口不可见时，仍然Commit2LayeredWindow，导致窗口全黑
+// 			return;
 
 		::SendMessage(m_pWindow->m_hWnd, WM_PAINT, 0, 0);  // 通过发送原始WM_PAINT消息，使分层窗口也能和普通窗口一样响应WM_PAINT
 
@@ -1234,13 +1267,13 @@ void LayeredWindowWrap::InvalidateObject( Object* pInvalidateObj, bool bUpdateNo
 	}
 	else
 	{
-		m_pWindow->_InnerRedrawObject(pInvalidateObj, NULL);  // <-- 这里的第二个参数与WindowBase::InvalidateObject不一致
+		m_pWindow->_InnerRedrawObject(pInvalidateObj, NULL);
 	}
 
 //	this->Commit2LayeredWindow();
 }
 
-HRDC LayeredWindowWrap::BeginDrawObject( Object* pInvalidateObj)
+HRDC LayeredWindowWrap::BeginRedrawObjectPart(Object* pRedrawObj, RECT* prc1, RECT* prc2)
 {
 #if 0  // TODO: RenderEngine Modify
 	if( NULL == pInvalidateObj )

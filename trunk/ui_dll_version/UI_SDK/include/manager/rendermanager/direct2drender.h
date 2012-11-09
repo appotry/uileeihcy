@@ -245,14 +245,14 @@ protected:
 	bool    m_bCreateOrAttach;
 };
 
-class Direct2DRenderDC : public IRenderTarget
+class Direct2DRenderTarget : public IRenderTarget
 {
 public:
-	Direct2DRenderDC();
-	Direct2DRenderDC(HDC hDC);
-	Direct2DRenderDC(HWND hWnd);
-	Direct2DRenderDC(HWND hWnd, int nWidth, int nHeight);
-	virtual ~Direct2DRenderDC();
+//	Direct2DRenderTarget();
+//	Direct2DRenderTarget(HDC hDC);
+	Direct2DRenderTarget(HWND hWnd);
+//	Direct2DRenderTarget(HWND hWnd, int nWidth, int nHeight);
+	virtual ~Direct2DRenderTarget();
 	virtual GRAPHICS_RENDER_TYPE GetRenderType() { return GRAPHICS_RENDER_TYPE_DIRECT2D; }
 
 	virtual HRDC     CreateCompatibleHRDC( int nWidth, int nHeight ){return NULL;}
@@ -298,7 +298,7 @@ protected:
 	ID2D1DCRenderTarget*  m_pRenderTarget;
 };
 
-// class Direct2DMemRenderDC : public Direct2DRenderDC
+// class Direct2DMemRenderDC : public Direct2DRenderTarget
 // {
 // public:
 // 	Direct2DMemRenderDC(HWND hWnd, int nWidth, int nHeight);

@@ -52,6 +52,7 @@
                     bkgnd.render.imagelist.count="3"
                     bkgnd.render.imagelist.layout="h"></Button>  
       </Panel>
+      <Button text="线程 'Win32 线程" layout.left="10" layout.top="40"/>
       <!--RichEdit id="outputedit" layout.left="0" layout.right="0" layout.top="95" layout.bottom="100"
                 istransparent="1"
         ></RichEdit>

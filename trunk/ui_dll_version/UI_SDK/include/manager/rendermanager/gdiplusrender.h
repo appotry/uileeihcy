@@ -380,9 +380,9 @@ private:
 class GdiplusRenderTarget : public IRenderTarget
 {
 public:
-	GdiplusRenderTarget();
+//	GdiplusRenderTarget();
 // 	GdiplusRenderTarget(HDC hDC);
-// 	GdiplusRenderTarget(HWND hWnd);
+ 	GdiplusRenderTarget(HWND hWnd);
 	virtual ~GdiplusRenderTarget();
 	virtual GRAPHICS_RENDER_TYPE GetRenderType() { return GRAPHICS_RENDER_TYPE_GDIPLUS; }
 
@@ -432,6 +432,9 @@ protected:
 protected:
 	HDC      m_hDC;
 	Gdiplus::Graphics*  m_pGraphics;
+	Gdiplus::Bitmap*    m_pGdiMemBitmap;
+	HBITMAP  m_hMemBitmap;
+	HBITMAP  m_hOldBitmap;
 //	Gdiplus::Color      m_colorText;    // 当前字体颜色
 //	GdiplusRenderFont*  m_pFont;        // 当前字体
 //	HFONT               m_hFont_GetHDC; // 当需要使用HDC时，同时需要select一个HFONT类型字体，但Font对象只能通过GetLogFont来新建一个字体
