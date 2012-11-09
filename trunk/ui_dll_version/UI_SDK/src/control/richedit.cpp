@@ -68,15 +68,15 @@ void RichEditBase::OnObjectLoaded()
 
 	m_wrapRichEidt.Create(GetHWND());
 }
-void RichEditBase::OnEraseBkgnd( HRDC hRDC )
+void RichEditBase::OnEraseBkgnd(IRenderTarget*  pRendrTarget)
 {
 	SetMsgHandled(FALSE);
 }
-void RichEditBase::OnPaint( HRDC hRDC )
+void RichEditBase::OnPaint(IRenderTarget*  pRendrTarget)
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRendrTarget->GetHDC(false);  // TODO: 如果取false的话，透明的一些ole图片该如何实现透明？
 	m_wrapRichEidt.Draw(hDC);
-	ReleaseHDC(hRDC, hDC);
+	pRendrTarget->ReleaseHDC(hDC);
 }
 // LRESULT RichEditBase::OnMouseRangeMsg(UINT uMsg, WPARAM wParam, LPARAM lParam)
 // {

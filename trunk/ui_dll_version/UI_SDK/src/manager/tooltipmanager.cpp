@@ -22,7 +22,7 @@ public:
 		UIMSG_WM_PAINT(OnPaint)
 	UI_END_MSG_MAP_CHAIN_PARENT(CustomWindow)
 
-	virtual BOOL PreCreateWindow( CREATESTRUCT& cs )
+	virtual BOOL PreCreateWindow(CREATESTRUCT& cs)
 	{
 		CustomWindow::PreCreateWindow(cs);
 		cs.lpszClass = WND_POPUP_CONTROL_SHADOW_NAME;  // ´øÒõ°µ
@@ -30,7 +30,7 @@ public:
 		return TRUE;
 	}
 
-	virtual bool SetAttribute( ATTRMAP& mapAttrib, bool bReload)
+	virtual bool SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 	{
 		bool bRet = __super::SetAttribute(mapAttrib, bReload);
 		if (false == bRet)
@@ -44,11 +44,12 @@ public:
 		return true;
 	}
 
-	void  OnPaint(HRDC hRDC)
+	void    OnPaint(IRenderTarget* pRenderTarget)
 	{
 		CRect rc;
 		this->GetClientRectAsWin32(&rc);
-		m_pTextRender->DrawState(hRDC, &rc, 0, m_strText);
+		
+		pRenderTarget->DrawString(m_strText.c_str(), &rc, 0, m_pFont, GetSysColor(COLOR_INFOTEXT));
 	}
 	virtual bool  Create()
 	{
@@ -368,13 +369,22 @@ ToolTipManager::ToolTipManager()
 }
 ToolTipManager::~ToolTipManager()
 {
-	SAFE_DELETE(m_pToolTipUI);
+	this->Release();
 }
 
 void ToolTipManager::Init()
 {
-	m_pToolTipUI = new CSystemTooltip;
-//	m_pToolTipUI = new ThemeTooltip;
+//	m_pToolTipUI = new CSystemTooltip;
+	m_pToolTipUI = new ThemeTooltip;
+}
+
+void ToolTipManager::Release()
+{
+	if (NULL != m_pToolTipUI)
+	{
+		m_pToolTipUI->Destroy();
+		SAFE_DELETE(m_pToolTipUI);
+	}
 }
 
 bool ToolTipManager::Show(TOOLTIPITEM* pItemInfo)

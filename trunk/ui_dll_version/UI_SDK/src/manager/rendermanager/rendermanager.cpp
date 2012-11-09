@@ -219,18 +219,18 @@ void RenderBitmapFactory::CreateInstance(IRenderBitmap** ppOut, GRAPHICS_RENDER_
 
 //////////////////////////////////////////////////////////////////////////
 
-IRenderTarget::IRenderTarget()
-{
-	m_hWnd = NULL;
-}
+// IRenderTarget::IRenderTarget()
+// {
+// 	m_hWnd = NULL;
+// }
 // IRenderTarget::IRenderTarget(HDC hDC)
 // {
 // 	m_hWnd = NULL;
 // }	
-// IRenderTarget::IRenderTarget(HWND hWnd)
-// {
-// 	m_hWnd = hWnd;
-// }
+IRenderTarget::IRenderTarget(HWND hWnd)
+{
+	m_hWnd = hWnd;
+}
 
 void IRenderTarget::Release()
 {
@@ -244,17 +244,17 @@ void IRenderTarget::Release()
 
 GRAPHICS_RENDER_TYPE GetGraphicsRenderType(HWND hWnd)
 {
-#ifdef _DEBUGx
-	return GRAPHICS_RENDER_TYPE_GDIPLUS;
+#ifdef _DEBUG
+	return GRAPHICS_RENDER_TYPE_GDI;
 #endif
 
-	if( NULL == hWnd )
+	if (NULL == hWnd)
 		return GRAPHICS_RENDER_TYPE_GDI;
 
-	GRAPHICS_RENDER_TYPE e = (GRAPHICS_RENDER_TYPE)::SendMessage( hWnd, UI_WM_GETRENDERTYPE, 0, 0 );
-	if( GRAPHICS_RENDER_TYPE_AUTO == e )
+	GRAPHICS_RENDER_TYPE e = (GRAPHICS_RENDER_TYPE)::SendMessage(hWnd, UI_WM_GETRENDERTYPE, 0, 0);
+	if (GRAPHICS_RENDER_TYPE_AUTO == e)
 	{
-		if( WS_EX_LAYERED & ::GetWindowLong(hWnd, GWL_EXSTYLE) )
+		if (WS_EX_LAYERED & ::GetWindowLong(hWnd, GWL_EXSTYLE))
 		{
 		//	if (UI_IsUnderXpOS())
 				e = GRAPHICS_RENDER_TYPE_GDIPLUS;
@@ -272,15 +272,15 @@ GRAPHICS_RENDER_TYPE GetGraphicsRenderType(HWND hWnd)
 
 GRAPHICS_RENDER_TYPE GetGraphicsRenderType(Object* pObj)
 {
-#ifdef _DEBUGx
-	return GRAPHICS_RENDER_TYPE_GDIPLUS;
+#ifdef _DEBUG
+	return GRAPHICS_RENDER_TYPE_GDI;
 #endif
 
-	if( NULL == pObj ) 
+	if (NULL == pObj) 
 		return GRAPHICS_RENDER_TYPE_GDI;
 
 	WindowBase* pWindow = pObj->GetWindowObject();
-	if( NULL == pWindow )
+	if (NULL == pWindow)
 	{
 		// 针对menu,listbox popup类型一开始没有窗口的控件，向控件本身发消息进行获取
 		GRAPHICS_RENDER_TYPE e = (GRAPHICS_RENDER_TYPE)UISendMessage( pObj, UI_WM_GETRENDERTYPE );
@@ -292,9 +292,9 @@ GRAPHICS_RENDER_TYPE GetGraphicsRenderType(Object* pObj)
 	}
 	
 	GRAPHICS_RENDER_TYPE e = (GRAPHICS_RENDER_TYPE)UISendMessage( pWindow, UI_WM_GETRENDERTYPE );
-	if( GRAPHICS_RENDER_TYPE_AUTO == e )
+	if (GRAPHICS_RENDER_TYPE_AUTO == e)
 	{
-		if( WS_EX_LAYERED & ::GetWindowLong(pWindow->m_hWnd, GWL_EXSTYLE) )
+		if (WS_EX_LAYERED & ::GetWindowLong(pWindow->m_hWnd, GWL_EXSTYLE))
 		{
 		//	if (UI_IsUnderXpOS())
 				e = GRAPHICS_RENDER_TYPE_GDIPLUS;
@@ -366,33 +366,33 @@ void ReleaseHRDC(HRDC hRDC)
 //	对于GDI/GDIPLUS，仅先创建BITMAP，在BeginDrag的时候再创建DC/Graphics
 //	对于Direct2d，创建RenderTarget
 //
-HRDC CreateRenderTarget( HWND hWnd, int nWidth, int nHeight )
-{
-	switch(GetGraphicsRenderType(hWnd))
-	{
-	case GRAPHICS_RENDER_TYPE_GDI:
-		{
-			GDIMemRenderDC*  pMemDC = new GDIMemRenderDC(hWnd, nWidth, nHeight);
-			return (HRDC)pMemDC;
-		}
-		break;
-
-	case GRAPHICS_RENDER_TYPE_GDIPLUS:
-		{
-			GdiplusMemRenderDC*  pMemDC = new GdiplusMemRenderDC(hWnd, nWidth, nHeight);
-			return (HRDC)pMemDC;
-		}
-		break;
-		
-	case GRAPHICS_RENDER_TYPE_DIRECT2D:
-		{
-			Direct2DRenderDC* pMemDC = new Direct2DRenderDC(hWnd, nWidth, nHeight);
-			return (IRenderTarget*)pMemDC;
-		}
-		break;
-	}
-	return NULL;
-}
+// HRDC CreateRenderTarget( HWND hWnd, int nWidth, int nHeight )
+// {
+// 	switch(GetGraphicsRenderType(hWnd))
+// 	{
+// 	case GRAPHICS_RENDER_TYPE_GDI:
+// 		{
+// 			GDIMemRenderDC*  pMemDC = new GDIMemRenderDC(hWnd, nWidth, nHeight);
+// 			return (HRDC)pMemDC;
+// 		}
+// 		break;
+// 
+// 	case GRAPHICS_RENDER_TYPE_GDIPLUS:
+// 		{
+// 			GdiplusMemRenderDC*  pMemDC = new GdiplusMemRenderDC(hWnd, nWidth, nHeight);
+// 			return (HRDC)pMemDC;
+// 		}
+// 		break;
+// 		
+// 	case GRAPHICS_RENDER_TYPE_DIRECT2D:
+// 		{
+// 			Direct2DRenderTarget* pMemDC = new Direct2DRenderTarget(hWnd, nWidth, nHeight);
+// 			return (IRenderTarget*)pMemDC;
+// 		}
+// 		break;
+// 	}
+// 	return NULL;
+// }
 
 IRenderTarget* CreateRenderTarget(HWND hWnd)
 {
@@ -402,12 +402,12 @@ IRenderTarget* CreateRenderTarget(HWND hWnd)
 	{
 	case GRAPHICS_RENDER_TYPE_GDI:
 		{
-			pRenderTarget = new GdiRenderTarget();
+			pRenderTarget = new GdiRenderTarget(hWnd);
 		}
 		break;
 	case GRAPHICS_RENDER_TYPE_GDIPLUS:
 		{
-			pRenderTarget = new GdiplusRenderTarget();
+			pRenderTarget = new GdiplusRenderTarget(hWnd);
 		}
 		break;
 	default:

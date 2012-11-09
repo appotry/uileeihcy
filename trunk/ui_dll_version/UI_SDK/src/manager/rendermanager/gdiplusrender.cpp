@@ -363,12 +363,12 @@ bool GdiplusRenderFont::GetLogFont(LOGFONT* plf)
 //
 //		GdiplusRenderTarget
 //
-GdiplusRenderTarget::GdiplusRenderTarget()
-{
-	m_pGraphics = NULL;
-	m_hDC = NULL;
-	this->Init();
-}
+// GdiplusRenderTarget::GdiplusRenderTarget()
+// {
+// 	m_pGraphics = NULL;
+// 	m_hDC = NULL;
+// 	this->Init();
+// }
 
 // GdiplusRenderTarget::GdiplusRenderTarget(HDC hDC):IRenderTarget(hDC)
 // {
@@ -377,13 +377,16 @@ GdiplusRenderTarget::GdiplusRenderTarget()
 // 
 // 	this->Init();
 // }
-// GdiplusRenderTarget::GdiplusRenderTarget(HWND hWnd):IRenderTarget(hWnd)
-// {
-// 	m_pGraphics = Gdiplus::Graphics::FromHWND(hWnd);
-// 	UIASSERT(NULL != m_pGraphics);
-// 
-// 	this->Init();
-// }
+GdiplusRenderTarget::GdiplusRenderTarget(HWND hWnd):IRenderTarget(hWnd)
+{
+//	m_pGraphics = Gdiplus::Graphics::FromHWND(hWnd);
+//	UIASSERT(NULL != m_pGraphics);
+
+	m_pGraphics = NULL;
+	m_hDC = NULL;
+
+	this->Init();
+}
 GdiplusRenderTarget::~GdiplusRenderTarget()
 {
 	SAFE_DELETE(m_pGraphics);
@@ -412,8 +415,8 @@ void GdiplusRenderTarget::Init()
 
 //
 //	Remark
-//		调用Graphics的GetHDC，获取到的HDC不会继续Graphics的任何属性，因此需要我们自己再设置一次属性
-//		由于FONT、text color属性移到DrawString中当场设置，因此这两个属性没有设置上
+//		调用Graphics的GetHDC，获取到的HDC不会继承Graphics的任何属性，因此需要我们自己再设置一次属性
+//		由于FONT、text color属性移到DrawString中当场设置，因此这两个属性没有设置
 //
 //		MSDN:
 //			Any state changes you make to the device context between GetHDC and ReleaseHDC will 
@@ -421,7 +424,7 @@ void GdiplusRenderTarget::Init()
 //
 HDC GdiplusRenderTarget::GetHDC()
 {
-#if 0
+#if 1
 	if( NULL == m_pGraphics )
 		return NULL;
 
@@ -434,10 +437,10 @@ HDC GdiplusRenderTarget::GetHDC()
 
 	HDC hDC = m_pGraphics->GetHDC();
 
-	::SetViewportOrgEx( hDC, p.x, p.y, NULL );
-	::SelectClipRgn(hDC, hRgn );
-	::DeleteObject(hRgn);
-	::SetBkMode(hDC, TRANSPARENT);
+// 	::SetViewportOrgEx(hDC, p.x, p.y, NULL);
+// 	::SelectClipRgn(hDC, hRgn);
+// 	::DeleteObject(hRgn);
+// 	::SetBkMode(hDC, TRANSPARENT);
 
 //	::SetTextColor( hDC, m_colorText.ToCOLORREF() );
 //
@@ -464,12 +467,27 @@ HDC GdiplusRenderTarget::GetHDC()
 //	}
 	return hDC;
 #else
+
+// 	if( NULL == m_pGraphics )
+// 		return NULL;
+// 
+// 	POINT  p = {0,0};
+// 	this->GetViewportOrgEx(&p);
+// 
+// 	Gdiplus::Region r;
+// 	m_pGraphics->GetClip(&r);
+// 	HRGN hRgn = r.GetHRGN(m_pGraphics);  // 必须在GetHDC前面获取，否则graphics将处于busy状态
+// 
+// 	::SetViewportOrgEx(m_hDC, p.x, p.y, NULL);
+// 	::SelectClipRgn(m_hDC, hRgn );
+// 	::DeleteObject(hRgn);
+
 	return m_hDC;
 #endif
 }
 void GdiplusRenderTarget::ReleaseHDC( HDC hDC )
 {
-#if 0
+#if 1
 	m_pGraphics->ReleaseHDC(hDC);
 // 	if( NULL != m_hFont_GetHDC )
 // 	{
@@ -478,6 +496,7 @@ void GdiplusRenderTarget::ReleaseHDC( HDC hDC )
 // 	}
 #else
 	// ...Nothing
+	//::SetViewportOrgEx(m_hDC, 0,0, NULL);
 #endif
 }
 
@@ -588,7 +607,23 @@ bool GdiplusRenderTarget::BeginDraw(HDC hDC, RECT* prc)
 		return false;
 
 	m_hDC = hDC;
-	m_pGraphics = Gdiplus::Graphics::FromHDC(hDC);
+
+	m_hOldBitmap = CreateCompatibleBitmap(hDC, 1,1);
+	m_hMemBitmap = (HBITMAP) SelectObject(m_hDC, m_hOldBitmap );
+
+//	m_pGdiMemBitmap = new Gdiplus::Bitmap(m_hMemBitmap,NULL);  // 这种方式由于是重新创建一张位图，会大量消耗内存。
+
+	DIBSECTION  dibSection;
+	GetObject(m_hMemBitmap, sizeof(DIBSECTION), &dibSection);
+
+	BYTE* pBits = (BYTE*)dibSection.dsBm.bmBits;
+	pBits += (dibSection.dsBm.bmHeight-1)*dibSection.dsBm.bmWidthBytes;  // 将指针移到第一行数据位置
+	m_pGdiMemBitmap = new Gdiplus::Bitmap(dibSection.dsBm.bmWidth, dibSection.dsBm.bmHeight, -dibSection.dsBm.bmWidthBytes, PixelFormat32bppARGB, (BYTE*)pBits);
+
+
+//	m_pGraphics = Gdiplus::Graphics::FromHDC(hDC);   // 采用这种方式创建出来的graphics，再调用gethdc，返回的就是原始的hDC，无法使用alpha通道
+	m_pGraphics = new Gdiplus::Graphics(m_pGdiMemBitmap);  // 使用内存图片创建出来的graphics，再调用gethdc，就能让HDC使用alpha通道
+
 	if (NULL != prc)
 	{
 		HRGN hRgn = CreateRectRgnIndirect(prc);
@@ -599,6 +634,12 @@ bool GdiplusRenderTarget::BeginDraw(HDC hDC, RECT* prc)
 }
 void GdiplusRenderTarget::EndDraw( )
 {
+	::SelectObject(m_hDC, m_hMemBitmap);
+	DeleteObject(m_hOldBitmap);
+// 	Gdiplus::Graphics g(m_hDC);
+// 	g.DrawImage(m_pGdiMemBitmap,0,0,m_pGdiMemBitmap->GetWidth(),m_pGdiMemBitmap->GetHeight());
+	delete m_pGdiMemBitmap;
+
 	m_hDC = NULL;
 	SAFE_DELETE(m_pGraphics);
 }
@@ -1150,15 +1191,14 @@ void GdiplusRenderTarget::DrawBitmap( HRBITMAP hBitmap, DRAWBITMAPPARAM* pParam 
 #pragma endregion
 
 #pragma region // Gdiplus mem dc
-GdiplusMemRenderDC::GdiplusMemRenderDC(int nWidth, int nHeight)
+GdiplusMemRenderDC::GdiplusMemRenderDC(int nWidth, int nHeight):GdiplusRenderTarget(NULL)
 {
 	GdiplusRenderBitmap::CreateInstance((IRenderBitmap**)&m_pMemBitmap);
 	m_pMemBitmap->Create(nWidth, nHeight);
 	m_pGraphics = new Gdiplus::Graphics(m_pMemBitmap->GetBitmap());
 }
-GdiplusMemRenderDC::GdiplusMemRenderDC(HWND hWnd, int nWidth, int nHeight)
+GdiplusMemRenderDC::GdiplusMemRenderDC(HWND hWnd, int nWidth, int nHeight):GdiplusRenderTarget(hWnd)
 {
-	m_hWnd = hWnd;
 	m_nWidth = nWidth;
 	m_nHeight = nHeight;
 

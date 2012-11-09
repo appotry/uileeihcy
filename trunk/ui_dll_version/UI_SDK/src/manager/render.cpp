@@ -358,11 +358,11 @@ bool ColorRender::SetAttribute( const String& strPrefix, map<String,String>& map
 	return true;
 } 
 
-void ColorRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void ColorRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
 	if( NULL != m_pBkColor )
 	{
-		FillRect(hRDC, prc, m_pBkColor->GetColor());
+		FillRect(pRenderTarget, prc, m_pBkColor->GetColor());
 	}
 	
 	// 绘制边框，由于直接调用Rectangle创建指定宽度的PEN后进行绘制，会导致PEN的
@@ -377,25 +377,25 @@ void ColorRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 	{
 		CRect rcLeft = *prc;
 		rcLeft.right = rBorder.left;
-		FillRect(hRDC, &rcLeft, m_pBorderColor->GetColor());
+		FillRect(pRenderTarget, &rcLeft, m_pBorderColor->GetColor());
 	}
 	if (0 != rBorder.top)
 	{
 		CRect rcTop = *prc;
 		rcTop.bottom = rBorder.top;
-		FillRect(hRDC, &rcTop, m_pBorderColor->GetColor());
+		FillRect(pRenderTarget, &rcTop, m_pBorderColor->GetColor());
 	}
 	if (0 != rBorder.right)
 	{
 		CRect rcRight = *prc;
 		rcRight.left = rcRight.right-rBorder.right;
-		FillRect(hRDC, &rcRight, m_pBorderColor->GetColor());
+		FillRect(pRenderTarget, &rcRight, m_pBorderColor->GetColor());
 	}
 	if (0 != rBorder.bottom)
 	{
 		CRect rcBottom = *prc;
 		rcBottom.top = rcBottom.bottom - rBorder.bottom;
-		FillRect(hRDC, &rcBottom, m_pBorderColor->GetColor());
+		FillRect(pRenderTarget, &rcBottom, m_pBorderColor->GetColor());
 	}
 
 }
@@ -454,7 +454,7 @@ bool GradientRender::SetAttribute( const String& strPrefix, ATTRMAP& mapAttrib )
 	return true;
 } 
 
-void GradientRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void GradientRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
 	if( NULL == m_pColorFrom || NULL == m_pColorTo)
 		return;
@@ -462,16 +462,16 @@ void GradientRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 	CRect rc(0,0, this->m_pObject->GetWidth(), this->m_pObject->GetHeight());
 	if( m_nRenderType == RENDER_TYPE_GRADIENTH )
 	{
-		GradientFillH( hRDC, &rc, m_pColorFrom->GetColor(), m_pColorTo->GetColor() );
+		GradientFillH( pRenderTarget, &rc, m_pColorFrom->GetColor(), m_pColorTo->GetColor() );
 	}
 	else if( m_nRenderType == RENDER_TYPE_GRADIENTV )
 	{
-		GradientFillV( hRDC, &rc, m_pColorFrom->GetColor(), m_pColorTo->GetColor() );
+		GradientFillV( pRenderTarget, &rc, m_pColorFrom->GetColor(), m_pColorTo->GetColor() );
 	}
 
 	if( NULL != m_pBorderColor )
 	{
-		Rectangle( hRDC, prc, m_pBorderColor->GetColor(), 0,1,true );
+		Rectangle( pRenderTarget, prc, m_pBorderColor->GetColor(), 0,1,true );
 	}
 
 }
@@ -714,7 +714,7 @@ SIZE ImageListItemRender::GetDesiredSize()
 	return s;
 }
 
-void ImageListItemRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void ImageListItemRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
 	if (DRAW_BITMAP_TILE == m_nImageDrawType)
 	{
@@ -723,7 +723,7 @@ void ImageListItemRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 		return;
 	}
 
-	__super::DrawState(hRDC, prc, nState);
+	__super::DrawState(pRenderTarget, prc, nState);
 }
 
 POINT ImageListItemRender::GetBitmapSrcDrawPos()
@@ -856,7 +856,7 @@ bool ColorListRender::SetAttribute( const String& strPrefix, map<String,String>&
 
 	return true;
 }
-void ColorListRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void ColorListRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
 	nState = LOWORD(nState);
 	int nRealState = nState;
@@ -872,15 +872,15 @@ void ColorListRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 	{
 		if( NULL != m_vBkColor[nRealState] )
 		{
-			FillRect(hRDC, prc, m_vBkColor[nRealState]->GetColor());
+			FillRect(pRenderTarget, prc, m_vBkColor[nRealState]->GetColor());
 		}
 	}
 	else                           // 绘制边框
 	{
 		if( NULL != m_vBkColor[nRealState] )
-			Rectangle( hRDC, prc, m_vBorderColor[nRealState]->GetColor(), m_vBkColor[nRealState]->GetColor() );
+			Rectangle( pRenderTarget, prc, m_vBorderColor[nRealState]->GetColor(), m_vBkColor[nRealState]->GetColor() );
 		else
-			Rectangle( hRDC, prc, m_vBorderColor[nRealState]->GetColor(), 0,1,true );
+			Rectangle( pRenderTarget, prc, m_vBorderColor[nRealState]->GetColor(), 0,1,true );
 	}
 }
 
@@ -1044,7 +1044,7 @@ bool ImageListRender::SetAttribute( const String& strPrefix, map<String,String>&
 
 	return true;
 }
-void ImageListRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void ImageListRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
 	nState = LOWORD(nState);
 	int nRealState = nState;
@@ -1078,7 +1078,7 @@ void ImageListRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 			param.xSrc = 0;
 			param.ySrc = nRealState*m_nItemHeight;
 		}
-		hRDC->DrawBitmap(m_hBitmap, &param);
+		pRenderTarget->DrawBitmap(m_hBitmap, &param);
 
 // 		switch (m_eImageDrawType)
 // 		{
@@ -1086,11 +1086,11 @@ void ImageListRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 // 			{
 // 				if( m_eImageLayout == IMAGELIST_LAYOUT_TYPE_H )
 // 				{
-// 					DrawBitmap(hRDC, m_hBitmap, prc->left,prc->top,m_nItemWidth,m_nItemHeight, nRealState*m_nItemWidth,0,m_nItemWidth,m_nItemHeight );
+// 					DrawBitmap(pRenderTarget, m_hBitmap, prc->left,prc->top,m_nItemWidth,m_nItemHeight, nRealState*m_nItemWidth,0,m_nItemWidth,m_nItemHeight );
 // 				}
 // 				else
 // 				{
-// 					DrawBitmap(hRDC, m_hBitmap, prc->left,prc->top,m_nItemWidth,m_nItemHeight, 0, nRealState*m_nItemHeight,m_nItemWidth,m_nItemHeight );
+// 					DrawBitmap(pRenderTarget, m_hBitmap, prc->left,prc->top,m_nItemWidth,m_nItemHeight, 0, nRealState*m_nItemHeight,m_nItemWidth,m_nItemHeight );
 // 				}
 // 			}
 // 			break;
@@ -1099,13 +1099,13 @@ void ImageListRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
 // 			{
 // 				if( m_eImageLayout == IMAGELIST_LAYOUT_TYPE_H )
 // 				{
-// 					DrawBitmap(hRDC, m_hBitmap, prc->left,prc->top,prc->Width(),prc->Height(), 
+// 					DrawBitmap(pRenderTarget, m_hBitmap, prc->left,prc->top,prc->Width(),prc->Height(), 
 // 						nRealState*m_nItemWidth,0,m_nItemWidth,m_nItemHeight,
 // 						m_p9Region);
 // 				}
 // 				else
 // 				{
-// 					DrawBitmap(hRDC, m_hBitmap, prc->left,prc->top,prc->Width(),prc->Height(), 
+// 					DrawBitmap(pRenderTarget, m_hBitmap, prc->left,prc->top,prc->Width(),prc->Height(), 
 // 						0, nRealState*m_nItemHeight,m_nItemWidth,m_nItemHeight,
 // 						m_p9Region);
 // 				}
@@ -1186,31 +1186,31 @@ void ThemeRenderBase::CreateTheme()
 	m_hTheme = ::OpenThemeData(NULL, this->GetThemeName());
 }
 
-void ButtonBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void ButtonBkThemeRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
 	switch(nState)
 	{
 	case BUTTON_BKGND_RENDER_STATE_DISABLE:
-		this->DrawDisable(hRDC, prc);
+		this->DrawDisable(pRenderTarget, prc);
 		break;
 
 	case BUTTON_BKGND_RENDER_STATE_PRESS:
-		this->DrawPress(hRDC, prc);
+		this->DrawPress(pRenderTarget, prc);
 		break;
 
 	case BUTTON_BKGND_RENDER_STATE_HOVER:
-		this->DrawHover(hRDC, prc);
+		this->DrawHover(pRenderTarget, prc);
 		break;;
 
 	default:
-		this->DrawNormal(hRDC, prc);
+		this->DrawNormal(pRenderTarget, prc);
 		break;
 	}
 }
 
-void ButtonBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc  )
+void ButtonBkThemeRender::DrawDisable(IRenderTarget* pRenderTarget, const CRect* prc  )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, BP_PUSHBUTTON, PBS_DISABLED, prc, 0);
@@ -1223,11 +1223,11 @@ void ButtonBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc  )
 	{
 		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_INACTIVE );
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
-void ButtonBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc  )
+void ButtonBkThemeRender::DrawNormal(IRenderTarget* pRenderTarget, const CRect* prc  )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, BP_PUSHBUTTON, ((ButtonBase*)m_pObject)->IsDefault()?PBS_DEFAULTED:PBS_NORMAL, prc, 0);
@@ -1240,12 +1240,12 @@ void ButtonBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc  )
 	{
 		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, DFCS_BUTTONPUSH );
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
-void ButtonBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc  )
+void ButtonBkThemeRender::DrawHover(IRenderTarget* pRenderTarget, const CRect* prc  )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, BP_PUSHBUTTON, PBS_HOT, prc, 0);
@@ -1258,11 +1258,11 @@ void ButtonBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc  )
 	{
 		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_HOT );
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
-void ButtonBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc  )
+void ButtonBkThemeRender::DrawPress(IRenderTarget* pRenderTarget, const CRect* prc  )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, BP_PUSHBUTTON, PBS_PRESSED, prc, 0);
@@ -1275,7 +1275,7 @@ void ButtonBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc  )
 	{
 		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_PUSHED );
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
 
@@ -1294,40 +1294,40 @@ SIZE RadioButtonThemeRender::GetDesiredSize( )
 
 	return s;
 }
-void RadioButtonThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void RadioButtonThemeRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
 	switch(nState)
 	{
 	case BUTTON_ICON_RENDER_STATE_NORMAL:
-		this->DrawNormal(hRDC, prc);
+		this->DrawNormal(pRenderTarget, prc);
 		break;
 	case BUTTON_ICON_RENDER_STATE_HOVER:
-		this->DrawHover(hRDC, prc);
+		this->DrawHover(pRenderTarget, prc);
 		break;
 	case BUTTON_ICON_RENDER_STATE_PRESS:
-		this->DrawPress(hRDC, prc);
+		this->DrawPress(pRenderTarget, prc);
 		break;
 	case BUTTON_ICON_RENDER_STATE_DISABLE:
-		this->DrawDisable(hRDC, prc);
+		this->DrawDisable(pRenderTarget, prc);
 		break;
 	case BUTTON_ICON_RENDER_STATE_SELECTED_NORMAL:
-		this->DrawCheckNormal(hRDC, prc);
+		this->DrawCheckNormal(pRenderTarget, prc);
 		break;
 	case BUTTON_ICON_RENDER_STATE_SELECTED_HOVER:
-		this->DrawCheckHover(hRDC, prc);
+		this->DrawCheckHover(pRenderTarget, prc);
 		break;
 	case BUTTON_ICON_RENDER_STATE_SELECTED_PRESS:
-		this->DrawCheckPress(hRDC, prc);
+		this->DrawCheckPress(pRenderTarget, prc);
 		break;
 	case BUTTON_ICON_RENDER_STATE_SELECTED_DISABLE:
-		this->DrawCheckDisable(hRDC, prc);
+		this->DrawCheckDisable(pRenderTarget, prc);
 		break;
 	}
 }
 
-void RadioButtonThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
+void RadioButtonThemeRender::DrawDisable( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		RECT rc ;
@@ -1345,11 +1345,11 @@ void RadioButtonThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
 		UINT nFlag = DFCS_BUTTONRADIO|DFCS_INACTIVE;
 		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, nFlag );
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
-void RadioButtonThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
+void RadioButtonThemeRender::DrawNormal( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		RECT rc ;
@@ -1367,11 +1367,11 @@ void RadioButtonThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 		UINT nFlag = DFCS_BUTTONRADIO;
 		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, nFlag );
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
-void RadioButtonThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
+void RadioButtonThemeRender::DrawHover( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		RECT rc ;
@@ -1389,11 +1389,11 @@ void RadioButtonThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
 		UINT nFlag = DFCS_BUTTONRADIO|DFCS_HOT;
 		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, nFlag );
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
-void RadioButtonThemeRender::DrawPress( HRDC hRDC, const CRect* prc )
+void RadioButtonThemeRender::DrawPress( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		RECT rc ;
@@ -1411,12 +1411,12 @@ void RadioButtonThemeRender::DrawPress( HRDC hRDC, const CRect* prc )
 		UINT nFlag = DFCS_BUTTONRADIO|DFCS_PUSHED;
 		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, nFlag );
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
-void RadioButtonThemeRender::DrawCheckDisable( HRDC hRDC, const CRect* prc )
+void RadioButtonThemeRender::DrawCheckDisable( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		CRect rc ;
@@ -1434,11 +1434,11 @@ void RadioButtonThemeRender::DrawCheckDisable( HRDC hRDC, const CRect* prc )
 		UINT nFlag = DFCS_BUTTONRADIO|DFCS_INACTIVE|DFCS_CHECKED;
 		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, nFlag );
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
-void RadioButtonThemeRender::DrawCheckNormal( HRDC hRDC, const CRect* prc )
+void RadioButtonThemeRender::DrawCheckNormal( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		RECT rc ;
@@ -1456,11 +1456,11 @@ void RadioButtonThemeRender::DrawCheckNormal( HRDC hRDC, const CRect* prc )
 		UINT nFlag = DFCS_BUTTONRADIO|DFCS_CHECKED;;
 		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, nFlag );
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
-void RadioButtonThemeRender::DrawCheckHover( HRDC hRDC, const CRect* prc )
+void RadioButtonThemeRender::DrawCheckHover( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		RECT rc ;
@@ -1478,11 +1478,11 @@ void RadioButtonThemeRender::DrawCheckHover( HRDC hRDC, const CRect* prc )
 		UINT nFlag = DFCS_BUTTONRADIO|DFCS_HOT|DFCS_CHECKED;
 		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, nFlag );
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
-void RadioButtonThemeRender::DrawCheckPress( HRDC hRDC, const CRect* prc )
+void RadioButtonThemeRender::DrawCheckPress( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		RECT rc ;
@@ -1500,7 +1500,7 @@ void RadioButtonThemeRender::DrawCheckPress( HRDC hRDC, const CRect* prc )
 		UINT nFlag = DFCS_BUTTONRADIO|DFCS_PUSHED|DFCS_CHECKED;
 		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, nFlag );
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1519,40 +1519,40 @@ SIZE  CheckButtonThemeRender::GetDesiredSize( )
 	return s;
 }
 
-void CheckButtonThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void CheckButtonThemeRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
 	switch(nState)
 	{
 	case BUTTON_ICON_RENDER_STATE_NORMAL:
-		this->DrawNormal(hRDC, prc);
+		this->DrawNormal(pRenderTarget, prc);
 		break;
 	case BUTTON_ICON_RENDER_STATE_HOVER:
-		this->DrawHover(hRDC, prc);
+		this->DrawHover(pRenderTarget, prc);
 		break;
 	case BUTTON_ICON_RENDER_STATE_PRESS:
-		this->DrawPress(hRDC, prc);
+		this->DrawPress(pRenderTarget, prc);
 		break;
 	case BUTTON_ICON_RENDER_STATE_DISABLE:
-		this->DrawDisable(hRDC, prc);
+		this->DrawDisable(pRenderTarget, prc);
 		break;
 	case BUTTON_ICON_RENDER_STATE_SELECTED_NORMAL:
-		this->DrawCheckNormal(hRDC, prc);
+		this->DrawCheckNormal(pRenderTarget, prc);
 		break;
 	case BUTTON_ICON_RENDER_STATE_SELECTED_HOVER:
-		this->DrawCheckHover(hRDC, prc);
+		this->DrawCheckHover(pRenderTarget, prc);
 		break;
 	case BUTTON_ICON_RENDER_STATE_SELECTED_PRESS:
-		this->DrawCheckPress(hRDC, prc);
+		this->DrawCheckPress(pRenderTarget, prc);
 		break;
 	case BUTTON_ICON_RENDER_STATE_SELECTED_DISABLE:
-		this->DrawCheckDisable(hRDC, prc);
+		this->DrawCheckDisable(pRenderTarget, prc);
 		break;
 	}
 }
 
-void CheckButtonThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
+void CheckButtonThemeRender::DrawDisable( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		RECT rc;
@@ -1570,11 +1570,11 @@ void CheckButtonThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
 		UINT nFlag = DFCS_BUTTONCHECK|DFCS_INACTIVE;
 		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, nFlag );
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
-void CheckButtonThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
+void CheckButtonThemeRender::DrawNormal( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		RECT rc;
@@ -1592,11 +1592,11 @@ void CheckButtonThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 		UINT nFlag = DFCS_BUTTONCHECK;
 		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, nFlag );
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
-void CheckButtonThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
+void CheckButtonThemeRender::DrawHover( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		RECT rc;
@@ -1614,11 +1614,11 @@ void CheckButtonThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
 		UINT nFlag = DFCS_BUTTONCHECK|DFCS_HOT;
 		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, nFlag );
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
-void CheckButtonThemeRender::DrawPress( HRDC hRDC, const CRect* prc )
+void CheckButtonThemeRender::DrawPress( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		RECT rc;
@@ -1636,14 +1636,14 @@ void CheckButtonThemeRender::DrawPress( HRDC hRDC, const CRect* prc )
 		UINT nFlag = DFCS_BUTTONCHECK|DFCS_PUSHED;
 		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, nFlag );
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
 
 
-void CheckButtonThemeRender::DrawCheckDisable( HRDC hRDC, const CRect* prc )
+void CheckButtonThemeRender::DrawCheckDisable( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		RECT rc;
@@ -1661,11 +1661,11 @@ void CheckButtonThemeRender::DrawCheckDisable( HRDC hRDC, const CRect* prc )
 		UINT nFlag = DFCS_BUTTONCHECK|DFCS_INACTIVE|DFCS_CHECKED;
 		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, nFlag );
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
-void CheckButtonThemeRender::DrawCheckNormal( HRDC hRDC, const CRect* prc )
+void CheckButtonThemeRender::DrawCheckNormal( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		RECT rc;
@@ -1683,11 +1683,11 @@ void CheckButtonThemeRender::DrawCheckNormal( HRDC hRDC, const CRect* prc )
 		UINT nFlag = DFCS_BUTTONCHECK|DFCS_CHECKED;
 		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, nFlag );
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
-void CheckButtonThemeRender::DrawCheckHover( HRDC hRDC, const CRect* prc )
+void CheckButtonThemeRender::DrawCheckHover( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		RECT rc;
@@ -1705,11 +1705,11 @@ void CheckButtonThemeRender::DrawCheckHover( HRDC hRDC, const CRect* prc )
 		UINT nFlag = DFCS_BUTTONCHECK|DFCS_HOT|DFCS_CHECKED;
 		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, nFlag );
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
-void CheckButtonThemeRender::DrawCheckPress( HRDC hRDC, const CRect* prc )
+void CheckButtonThemeRender::DrawCheckPress( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		RECT rc;
@@ -1727,35 +1727,35 @@ void CheckButtonThemeRender::DrawCheckPress( HRDC hRDC, const CRect* prc )
 		UINT nFlag = DFCS_BUTTONCHECK|DFCS_PUSHED|DFCS_CHECKED;
 		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, nFlag );
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 //////////////////////////////////////////////////////////////////////////
 
-void EditBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void EditBkThemeRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
 	switch(nState)
 	{
 	case EDIT_BKGND_RENDER_STATE_DISABLE:
-		this->DrawDisable(hRDC, prc);
+		this->DrawDisable(pRenderTarget, prc);
 		break;
 
 	case EDIT_BKGND_RENDER_STATE_PRESS:
-		this->DrawPress(hRDC, prc);
+		this->DrawPress(pRenderTarget, prc);
 		break;
 
 	case EDIT_BKGND_RENDER_STATE_HOVER:
-		this->DrawHover(hRDC, prc);
+		this->DrawHover(pRenderTarget, prc);
 		break;;
 
 	default:
-		this->DrawNormal(hRDC, prc);
+		this->DrawNormal(pRenderTarget, prc);
 		break;
 	}
 }
 
-void EditBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
+void EditBkThemeRender::DrawDisable( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, EP_EDITBORDER_NOSCROLL, ETS_DISABLED, (RECT*)prc, 0);
@@ -1768,11 +1768,11 @@ void EditBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
 	{
 		DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT|BF_MIDDLE);
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
-void EditBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
+void EditBkThemeRender::DrawNormal( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, EP_EDITBORDER_NOSCROLL, ETS_CUEBANNER, (RECT*)prc, 0);
@@ -1793,12 +1793,12 @@ void EditBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT);
 		}
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
-void EditBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
+void EditBkThemeRender::DrawHover( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, EP_EDITBORDER_NOSCROLL, ETS_HOT, (RECT*)prc, 0);
@@ -1819,11 +1819,11 @@ void EditBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
 			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT);
 		}
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
-void EditBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc )
+void EditBkThemeRender::DrawPress( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, EP_EDITBORDER_NOSCROLL, ETS_SELECTED, (RECT*)prc, 0);
@@ -1844,32 +1844,32 @@ void EditBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc )
 			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT);
 		}
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
 
 
 //////////////////////////////////////////////////////////////////////////
 
-void GroupBoxBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void GroupBoxBkThemeRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
 	switch(nState)
 	{
 	case GROUPBOX_BKGND_RENDER_STATE_DISABLE:
-		this->DrawDisable(hRDC, prc);
+		this->DrawDisable(pRenderTarget, prc);
 		break;
 	default:
-		this->DrawNormal(hRDC, prc);
+		this->DrawNormal(pRenderTarget, prc);
 		break;
 	}
 }
 
-void GroupBoxBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
+void GroupBoxBkThemeRender::DrawDisable( IRenderTarget* pRenderTarget, const CRect* prc )
 {
 	RECT rc;
 	((GroupBox*)m_pObject)->GetBorderRect(&rc);
 
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, BP_GROUPBOX, GBS_DISABLED, &rc, 0);
@@ -1885,14 +1885,14 @@ void GroupBoxBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
 		else
 			DrawEdge(hDC, &rc, EDGE_ETCHED, BF_RECT);
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
-void GroupBoxBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
+void GroupBoxBkThemeRender::DrawNormal( IRenderTarget* pRenderTarget, const CRect* prc )
 {
 	RECT rc;
 	((GroupBox*)m_pObject)->GetBorderRect(&rc);
 
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, BP_GROUPBOX, GBS_NORMAL, &rc, 0);
@@ -1908,21 +1908,21 @@ void GroupBoxBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 		else
 			DrawEdge(hDC, &rc, EDGE_ETCHED, BF_RECT);
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
 
-void GroupBoxBkNoThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void GroupBoxBkNoThemeRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
 	RECT rc;
 	((GroupBox*)m_pObject)->GetBorderRect(&rc);
 
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if (prc->Height()<=2)
 		DrawEdge(hDC, &rc, EDGE_ETCHED, BF_TOP);   // 分隔线类型
 	else
 		DrawEdge(hDC, &rc, EDGE_ETCHED, BF_RECT);
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
 
@@ -1943,31 +1943,31 @@ SIZE ComboboxButtonBkThemeRender::GetDesiredSize()
 	return s;
 }
 
-void ComboboxButtonBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void ComboboxButtonBkThemeRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
 	switch(nState)
 	{
 	case BUTTON_BKGND_RENDER_STATE_DISABLE:
-			this->DrawDisable(hRDC, (CRect*)prc);
+			this->DrawDisable(pRenderTarget, (CRect*)prc);
 		break;
 
 	case BUTTON_BKGND_RENDER_STATE_PRESS:
-			this->DrawPress(hRDC, (CRect*)prc);
+			this->DrawPress(pRenderTarget, (CRect*)prc);
 		break;
 
 	case BUTTON_BKGND_RENDER_STATE_HOVER:
-			this->DrawHover(hRDC, (CRect*)prc);
+			this->DrawHover(pRenderTarget, (CRect*)prc);
 		break;;
 
 	default:
-			this->DrawNormal(hRDC, (CRect*)prc);
+			this->DrawNormal(pRenderTarget, (CRect*)prc);
 		break;
 	}
 }
 
-void ComboboxButtonBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc  )
+void ComboboxButtonBkThemeRender::DrawDisable( IRenderTarget* pRenderTarget, const CRect* prc  )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	CRect rc = *prc;
 	if( m_hTheme )
 	{
@@ -1985,13 +1985,13 @@ void ComboboxButtonBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc  )
 		//DrawGlyph(hDC, &rc);
 		::DrawFrameControl(hDC, (RECT*)&rc, DFC_SCROLL, DFCS_SCROLLCOMBOBOX|DFCS_INACTIVE);
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
  
 
-void ComboboxButtonBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc  )
+void ComboboxButtonBkThemeRender::DrawNormal( IRenderTarget* pRenderTarget, const CRect* prc  )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	CRect rc = *prc;
 	if( m_hTheme )
 	{
@@ -2009,12 +2009,12 @@ void ComboboxButtonBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc  )
 // 		DrawGlyph(hDC, &rc);
 		::DrawFrameControl(hDC, (RECT*)&rc, DFC_SCROLL, DFCS_SCROLLCOMBOBOX);
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
-void ComboboxButtonBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc  )
+void ComboboxButtonBkThemeRender::DrawHover( IRenderTarget* pRenderTarget, const CRect* prc  )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 
 	CRect rc = *prc;
 	if( m_hTheme )
@@ -2033,12 +2033,12 @@ void ComboboxButtonBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc  )
 		//DrawGlyph(hDC, &rc);
 		::DrawFrameControl(hDC, (RECT*)&rc, DFC_SCROLL, DFCS_SCROLLCOMBOBOX|DFCS_HOT);
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
  
-void ComboboxButtonBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc  )
+void ComboboxButtonBkThemeRender::DrawPress( IRenderTarget* pRenderTarget, const CRect* prc  )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	CRect rc = *prc;
 	if( m_hTheme )
 	{
@@ -2056,7 +2056,7 @@ void ComboboxButtonBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc  )
 		//DrawGlyph(hDC, &rc, true);
 		::DrawFrameControl(hDC, (RECT*)&rc, DFC_SCROLL, DFCS_SCROLLCOMBOBOX|DFCS_PUSHED|DFCS_FLAT);
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
 // 绘制按钮上的箭头 -- 可直接使用DFC_SCROLL + DFCS_SCROLLCOMBOBOX实现COMBOBOX的按钮绘制
@@ -2092,47 +2092,47 @@ void ComboboxButtonBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc  )
 //////////////////////////////////////////////////////////////////////////
 
 
-void ComboboxBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void ComboboxBkThemeRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
 	switch(nState)
 	{
 	case COMBOBOX_BKGND_RENDER_STATE_DISABLE:
-		this->DrawDisable(hRDC, prc);
+		this->DrawDisable(pRenderTarget, prc);
 		break;
 
 	case COMBOBOX_BKGND_RENDER_STATE_PRESS:
-		this->DrawPress(hRDC, prc);
+		this->DrawPress(pRenderTarget, prc);
 		break;
 
 	case COMBOBOX_BKGND_RENDER_STATE_HOVER:
-		this->DrawHover(hRDC, prc);
+		this->DrawHover(pRenderTarget, prc);
 		break;;
 
 	case COMBOBOX_BKGND_RENDER_STATE_READONLY_NORMAL:
-		this->DrawReadonlyNormal(hRDC, prc);
+		this->DrawReadonlyNormal(pRenderTarget, prc);
 		break;
 
 	case COMBOBOX_BKGND_RENDER_STATE_READONLY_HOVER:
-		this->DrawReadonlyHover(hRDC, prc);
+		this->DrawReadonlyHover(pRenderTarget, prc);
 		break;
 
 	case COMBOBOX_BKGND_RENDER_STATE_READONLY_PRESS:
-		this->DrawReadonlyPress(hRDC, prc);
+		this->DrawReadonlyPress(pRenderTarget, prc);
 		break;
 
 	case COMBOBOX_BKGND_RENDER_STATE_READONLY_DISABLE:
-		this->DrawReadonlyDisable(hRDC, prc);
+		this->DrawReadonlyDisable(pRenderTarget, prc);
 		break;
 
 	default:
-		this->DrawNormal(hRDC, prc);
+		this->DrawNormal(pRenderTarget, prc);
 		break;
 	}
 }
 
-void ComboboxBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
+void ComboboxBkThemeRender::DrawDisable( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_BORDER, CBXS_DISABLED, (RECT*)prc, 0);
@@ -2145,11 +2145,11 @@ void ComboboxBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
 	{
 		DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT|BF_MIDDLE);
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
-void ComboboxBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
+void ComboboxBkThemeRender::DrawNormal( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_BORDER, CBXS_NORMAL, (RECT*)prc, 0);
@@ -2170,12 +2170,12 @@ void ComboboxBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT);
 		}
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
-void ComboboxBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
+void ComboboxBkThemeRender::DrawHover( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_BORDER, CBXS_HOT, (RECT*)prc, 0);
@@ -2196,11 +2196,11 @@ void ComboboxBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
 			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT);
 		}
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
-void ComboboxBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc )
+void ComboboxBkThemeRender::DrawPress( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_BORDER, CBXS_PRESSED, (RECT*)prc, 0);
@@ -2221,15 +2221,15 @@ void ComboboxBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc )
 			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT);
 		}
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
 
 
 
-void ComboboxBkThemeRender::DrawReadonlyDisable( HRDC hRDC, const CRect* prc )
+void ComboboxBkThemeRender::DrawReadonlyDisable( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_READONLY, CBXS_DISABLED, (RECT*)prc, 0);
@@ -2256,11 +2256,11 @@ void ComboboxBkThemeRender::DrawReadonlyDisable( HRDC hRDC, const CRect* prc )
 		rc.left = rc.right - 16;
 		::DrawFrameControl(hDC, (RECT*)&rc, DFC_SCROLL, DFCS_SCROLLCOMBOBOX|DFCS_INACTIVE);
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
-void ComboboxBkThemeRender::DrawReadonlyNormal( HRDC hRDC, const CRect* prc )
+void ComboboxBkThemeRender::DrawReadonlyNormal( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_READONLY, CBXS_NORMAL, (RECT*)prc, 0);
@@ -2289,12 +2289,12 @@ void ComboboxBkThemeRender::DrawReadonlyNormal( HRDC hRDC, const CRect* prc )
 		rc.left = rc.right - 16;
 		::DrawFrameControl(hDC, (RECT*)&rc, DFC_SCROLL, DFCS_SCROLLCOMBOBOX);
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
-void ComboboxBkThemeRender::DrawReadonlyHover( HRDC hRDC, const CRect* prc )
+void ComboboxBkThemeRender::DrawReadonlyHover( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_READONLY, CBXS_HOT, (RECT*)prc, 0);
@@ -2334,11 +2334,11 @@ void ComboboxBkThemeRender::DrawReadonlyHover( HRDC hRDC, const CRect* prc )
 		rc.left = rc.right - 16;
 		::DrawFrameControl(hDC, (RECT*)&rc, DFC_SCROLL, DFCS_SCROLLCOMBOBOX|DFCS_HOT);
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
-void ComboboxBkThemeRender::DrawReadonlyPress( HRDC hRDC, const CRect* prc )
+void ComboboxBkThemeRender::DrawReadonlyPress( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, CP_READONLY, CBXS_PRESSED, (RECT*)prc, 0);
@@ -2378,29 +2378,29 @@ void ComboboxBkThemeRender::DrawReadonlyPress( HRDC hRDC, const CRect* prc )
 		rc.left = rc.right - 16;
 		::DrawFrameControl(hDC, (RECT*)&rc, DFC_SCROLL, DFCS_SCROLLCOMBOBOX|DFCS_PUSHED|DFCS_FLAT);
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void ScrollLineButtonBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void ScrollLineButtonBkThemeRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
 	switch(nState)
 	{
 	case BUTTON_BKGND_RENDER_STATE_DISABLE:
-		this->DrawDisable(hRDC, (CRect*)prc);
+		this->DrawDisable(pRenderTarget, (CRect*)prc);
 		break;
 
 	case BUTTON_BKGND_RENDER_STATE_PRESS:
-		this->DrawPress(hRDC, (CRect*)prc);
+		this->DrawPress(pRenderTarget, (CRect*)prc);
 		break;
 
 	case BUTTON_BKGND_RENDER_STATE_HOVER:
-		this->DrawHover(hRDC, (CRect*)prc);
+		this->DrawHover(pRenderTarget, (CRect*)prc);
 		break;;
 
 	default:
-		this->DrawNormal(hRDC, (CRect*)prc);
+		this->DrawNormal(pRenderTarget, (CRect*)prc);
 		break;
 	}
 }
@@ -2411,9 +2411,9 @@ SIZE ScrollLineButtonBkThemeRender::GetDesiredSize()
 	return s;
 }
 
-void ScrollLineButtonBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
+void ScrollLineButtonBkThemeRender::DrawDisable( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, SBP_ARROWBTN, GetThemeStateDisable(), prc, 0);
@@ -2426,11 +2426,11 @@ void ScrollLineButtonBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
 	{
 		DrawFrameControl(hDC, (RECT*)prc, DFC_SCROLL, GetNoThemeState()|DFCS_INACTIVE );
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
-void ScrollLineButtonBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
+void ScrollLineButtonBkThemeRender::DrawNormal( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, SBP_ARROWBTN, GetThemeStateNormal(), prc, 0);
@@ -2443,11 +2443,11 @@ void ScrollLineButtonBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 	{
 		DrawFrameControl(hDC, (RECT*)prc, DFC_SCROLL, GetNoThemeState() );
 	}
-	ReleaseHDC(hRDC, hDC);	
+	pRenderTarget->ReleaseHDC(hDC);	
 }
-void ScrollLineButtonBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
+void ScrollLineButtonBkThemeRender::DrawHover( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, SBP_ARROWBTN, GetThemeStateHover(), prc, 0);
@@ -2460,11 +2460,11 @@ void ScrollLineButtonBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
 	{
 		DrawFrameControl(hDC, (RECT*)prc, DFC_SCROLL, GetNoThemeState() );
 	}
-	ReleaseHDC(hRDC, hDC);	
+	pRenderTarget->ReleaseHDC(hDC);	
 }
-void ScrollLineButtonBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc )
+void ScrollLineButtonBkThemeRender::DrawPress( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, SBP_ARROWBTN, GetThemeStatePress(), prc, 0);
@@ -2477,30 +2477,30 @@ void ScrollLineButtonBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc )
 	{
 		DrawFrameControl(hDC, (RECT*)prc, DFC_SCROLL, DFCS_FLAT|DFCS_PUSHED|GetNoThemeState() );
 	}
-	ReleaseHDC(hRDC, hDC);	
+	pRenderTarget->ReleaseHDC(hDC);	
 }
 
 
 //////////////////////////////////////////////////////////////////////////
 
-void ScrollThumbButtonThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void ScrollThumbButtonThemeRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
 	switch(nState)
 	{
 	case BUTTON_BKGND_RENDER_STATE_DISABLE:
-		this->DrawDisable(hRDC, (CRect*)prc);
+		this->DrawDisable(pRenderTarget, (CRect*)prc);
 		break;
 
 	case BUTTON_BKGND_RENDER_STATE_PRESS:
-		this->DrawPress(hRDC, (CRect*)prc);
+		this->DrawPress(pRenderTarget, (CRect*)prc);
 		break;
 
 	case BUTTON_BKGND_RENDER_STATE_HOVER:
-		this->DrawHover(hRDC, (CRect*)prc);
+		this->DrawHover(pRenderTarget, (CRect*)prc);
 		break;;
 
 	default:
-		this->DrawNormal(hRDC, (CRect*)prc);
+		this->DrawNormal(pRenderTarget, (CRect*)prc);
 		break;
 	}
 }
@@ -2511,9 +2511,9 @@ SIZE ScrollThumbButtonThemeRender::GetDesiredSize()
 	return s;
 }
 
-void ScrollThumbButtonThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
+void ScrollThumbButtonThemeRender::DrawDisable( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, GetThumbBtmType(), SCRBS_DISABLED, prc, 0);
@@ -2531,11 +2531,11 @@ void ScrollThumbButtonThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
 	{
 		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_INACTIVE );
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
-void ScrollThumbButtonThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
+void ScrollThumbButtonThemeRender::DrawNormal( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, GetThumbBtmType(), SCRBS_NORMAL, prc, 0);
@@ -2553,11 +2553,11 @@ void ScrollThumbButtonThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 	{
 		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, DFCS_BUTTONPUSH);
 	}
-	ReleaseHDC(hRDC, hDC);	
+	pRenderTarget->ReleaseHDC(hDC);	
 }
-void ScrollThumbButtonThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
+void ScrollThumbButtonThemeRender::DrawHover( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, GetThumbBtmType(), SCRBS_HOT, prc, 0);
@@ -2575,11 +2575,11 @@ void ScrollThumbButtonThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
 	{
 		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, DFCS_BUTTONPUSH|DFCS_HOT );
 	}
-	ReleaseHDC(hRDC, hDC);	
+	pRenderTarget->ReleaseHDC(hDC);	
 }
-void ScrollThumbButtonThemeRender::DrawPress( HRDC hRDC, const CRect* prc )
+void ScrollThumbButtonThemeRender::DrawPress( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, GetThumbBtmType(), SCRBS_PRESSED, prc, 0);
@@ -2597,14 +2597,14 @@ void ScrollThumbButtonThemeRender::DrawPress( HRDC hRDC, const CRect* prc )
 	{
 		DrawFrameControl(hDC, (RECT*)prc, DFC_BUTTON, DFCS_BUTTONPUSH );
 	}
-	ReleaseHDC(hRDC, hDC);	
+	pRenderTarget->ReleaseHDC(hDC);	
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void ScrollBarBkgndThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void ScrollBarBkgndThemeRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
-	HDC hDC = GetHDC(hRDC);		
+	HDC hDC = pRenderTarget->GetHDC(false);		
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, GetThemeType(), SCRBS_NORMAL, prc, 0);
@@ -2638,7 +2638,7 @@ void ScrollBarBkgndThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nStat
 		SelectObject(hDC, hOldPen);
 		DeleteObject(hPen);
 	}
-	ReleaseHDC(hRDC, hDC);	
+	pRenderTarget->ReleaseHDC(hDC);	
 }
 SIZE ScrollBarBkgndThemeRender::GetDesiredSize()
 {
@@ -2654,9 +2654,9 @@ SIZE ScrollBarSizeBoxThemeRender::GetDesiredSize()
 	return s;
 }
 
-void ScrollBarSizeBoxThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void ScrollBarSizeBoxThemeRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
-	HDC hDC = GetHDC(hRDC);		
+	HDC hDC = pRenderTarget->GetHDC(false);		
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, SBP_SIZEBOX, SCRBS_NORMAL, prc, 0);
@@ -2670,36 +2670,36 @@ void ScrollBarSizeBoxThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nSt
 		::DrawFrameControl(hDC, (RECT*)prc, DFC_SCROLL, DFCS_SCROLLSIZEGRIP);
 	}
 
-	ReleaseHDC(hRDC, hDC);	
+	pRenderTarget->ReleaseHDC(hDC);	
 }
 //////////////////////////////////////////////////////////////////////////
 
 
-void ListboxBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void ListboxBkThemeRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
 	switch(nState)
 	{
 	case LISTBOX_BKGND_RENDER_STATE_DISABLE:
-		this->DrawDisable(hRDC, prc);
+		this->DrawDisable(pRenderTarget, prc);
 		break;
 
 	case LISTBOX_BKGND_RENDER_STATE_PRESS:
-		this->DrawPress(hRDC, prc);
+		this->DrawPress(pRenderTarget, prc);
 		break;
 
 	case LISTBOX_BKGND_RENDER_STATE_HOVER:
-		this->DrawHover(hRDC, prc);
+		this->DrawHover(pRenderTarget, prc);
 		break;;
 
 	default:
-		this->DrawNormal(hRDC, prc);
+		this->DrawNormal(pRenderTarget, prc);
 		break;
 	}
 }
 
-void ListboxBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
+void ListboxBkThemeRender::DrawDisable( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, LBCP_BORDER_NOSCROLL, LBPSH_DISABLED, (RECT*)prc, 0);
@@ -2712,11 +2712,11 @@ void ListboxBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
 	{
 		DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT|BF_MIDDLE);
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
-void ListboxBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
+void ListboxBkThemeRender::DrawNormal( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, LBCP_BORDER_NOSCROLL, LBPSH_NORMAL, (RECT*)prc, 0);
@@ -2737,12 +2737,12 @@ void ListboxBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT);
 		}
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
-void ListboxBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
+void ListboxBkThemeRender::DrawHover( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, LBCP_BORDER_NOSCROLL, LBPSH_HOT, (RECT*)prc, 0);
@@ -2763,11 +2763,11 @@ void ListboxBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
 			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT);
 		}
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
-void ListboxBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc )
+void ListboxBkThemeRender::DrawPress( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, LBCP_BORDER_NOSCROLL, LBPSH_FOCUSED, (RECT*)prc, 0);
@@ -2788,26 +2788,26 @@ void ListboxBkThemeRender::DrawPress( HRDC hRDC, const CRect* prc )
 			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT);
 		}
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
 
 //////////////////////////////////////////////////////////////////////////
 
 
-void MenuBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void MenuBkThemeRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
 // 	switch(nState)
 // 	{
 // 	default:
-		this->DrawNormal(hRDC, prc);
+		this->DrawNormal(pRenderTarget, prc);
 // 		break;
 // 	}
 }
 
-void MenuBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
+void MenuBkThemeRender::DrawNormal( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPBACKGROUND, 1, (RECT*)prc, 0);
@@ -2847,35 +2847,35 @@ void MenuBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 
 		DrawEdge(hDC, (RECT*)prc, EDGE_RAISED, BF_RECT);
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
 //////////////////////////////////////////////////////////////////////////
-void MenuStringItemRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void MenuStringItemRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
 	switch(nState)
 	{
 	case MENU_STRING_ITEM_RENDER_STATE_DISABLE:
-		this->DrawDisable(hRDC, prc);
+		this->DrawDisable(pRenderTarget, prc);
 		break;
 
 	case MENU_STRING_ITEM_RENDER_STATE_PRESS:
-		this->DrawPress(hRDC, prc);
+		this->DrawPress(pRenderTarget, prc);
 		break;
 
 	case MENU_STRING_ITEM_RENDER_STATE_HOVER:
-		this->DrawHover(hRDC, prc);
+		this->DrawHover(pRenderTarget, prc);
 		break;;
 
 	default:
-		this->DrawNormal(hRDC, prc);
+		this->DrawNormal(pRenderTarget, prc);
 		break;
 	}
 }
 
-void MenuStringItemRender::DrawDisable( HRDC hRDC, const CRect* prc )
+void MenuStringItemRender::DrawDisable( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPITEM, MPI_DISABLED, (RECT*)prc, 0);
@@ -2887,11 +2887,11 @@ void MenuStringItemRender::DrawDisable( HRDC hRDC, const CRect* prc )
 	else
 	{
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
-void MenuStringItemRender::DrawNormal( HRDC hRDC, const CRect* prc )
+void MenuStringItemRender::DrawNormal( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-// 	HDC hDC = GetHDC(hRDC);
+// 	HDC hDC = pRenderTarget->GetHDC(false);
 // 	if( m_hTheme )
 // 	{
 // 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPITEM, MPI_NORMAL, (RECT*)prc, 0);
@@ -2903,11 +2903,11 @@ void MenuStringItemRender::DrawNormal( HRDC hRDC, const CRect* prc )
 // 	else
 // 	{
 // 	}
-// 	ReleaseHDC(hRDC, hDC);
+// 	pRenderTarget->ReleaseHDC(hDC);
 }
-void MenuStringItemRender::DrawHover( HRDC hRDC, const CRect* prc )
+void MenuStringItemRender::DrawHover( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPITEM, MPI_HOT, (RECT*)prc, 0);
@@ -2923,23 +2923,23 @@ void MenuStringItemRender::DrawHover( HRDC hRDC, const CRect* prc )
 		::FillRect(hDC, prc, hBrush);
 		SAFE_DELETE_GDIOBJECT(hBrush);
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
-void MenuStringItemRender::DrawPress( HRDC hRDC, const CRect* prc )
+void MenuStringItemRender::DrawPress( IRenderTarget* pRenderTarget, const CRect* prc )
 {
 
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void MenuSeperatorThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void MenuSeperatorThemeRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
-	this->DrawNormal(hRDC, prc);
+	this->DrawNormal(pRenderTarget, prc);
 }
 
-void MenuSeperatorThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
+void MenuSeperatorThemeRender::DrawNormal( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPSEPARATOR, 1, (RECT*)prc, 0);
@@ -2971,31 +2971,31 @@ void MenuSeperatorThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 		SelectObject(hDC, hOldPen);
 		SAFE_DELETE_GDIOBJECT(hPen);
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
 
 //////////////////////////////////////////////////////////////////////////
 
-void MenuCheckedIconThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void MenuCheckedIconThemeRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
 	switch(nState)
 	{
 	case MENU_ITEM_ICON_RENDER_STATE_DISABLE:
-		this->DrawDisable(hRDC, prc);
+		this->DrawDisable(pRenderTarget, prc);
 		break;
 	case MENU_ITEM_ICON_RENDER_STATE_HOVER:
-		this->DrawHover(hRDC, prc);
+		this->DrawHover(pRenderTarget, prc);
 		break;
 	default:
-		this->DrawNormal(hRDC, prc);
+		this->DrawNormal(pRenderTarget, prc);
 		break;
 	}
 }
 
-void MenuCheckedIconThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
+void MenuCheckedIconThemeRender::DrawNormal( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECK, MC_CHECKMARKNORMAL, (RECT*)prc, 0);
@@ -3020,12 +3020,12 @@ void MenuCheckedIconThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 		SAFE_DELETE_GDIOBJECT(hBitmap);
 		UI_ReleaseCacheDC(hMemDC);
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
-void MenuCheckedIconThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
+void MenuCheckedIconThemeRender::DrawHover( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECK, MC_CHECKMARKNORMAL, (RECT*)prc, 0);
@@ -3048,12 +3048,12 @@ void MenuCheckedIconThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
 		SAFE_DELETE_GDIOBJECT(hBitmap);
 		UI_ReleaseCacheDC(hMemDC);
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
-void MenuCheckedIconThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
+void MenuCheckedIconThemeRender::DrawDisable( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECK, MC_CHECKMARKDISABLED, (RECT*)prc, 0);
@@ -3077,31 +3077,31 @@ void MenuCheckedIconThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
 		SAFE_DELETE_GDIOBJECT(hBitmap);
 		UI_ReleaseCacheDC(hMemDC);
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
 
 //////////////////////////////////////////////////////////////////////////
 
-void MenuRadioIconThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void MenuRadioIconThemeRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
 	switch(nState)
 	{
 	case MENU_ITEM_ICON_RENDER_STATE_DISABLE:
-		this->DrawDisable(hRDC, prc);
+		this->DrawDisable(pRenderTarget, prc);
 		break;
 	case MENU_ITEM_ICON_RENDER_STATE_HOVER:
-		this->DrawHover(hRDC, prc);
+		this->DrawHover(pRenderTarget, prc);
 		break;
 	default:
-		this->DrawNormal(hRDC, prc);
+		this->DrawNormal(pRenderTarget, prc);
 		break;
 	}
 }
 
-void MenuRadioIconThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
+void MenuRadioIconThemeRender::DrawNormal( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECK, MC_BULLETNORMAL, (RECT*)prc, 0);
@@ -3124,12 +3124,12 @@ void MenuRadioIconThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 		SAFE_DELETE_GDIOBJECT(hBitmap);
 		UI_ReleaseCacheDC(hMemDC);
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
-void MenuRadioIconThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
+void MenuRadioIconThemeRender::DrawHover( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECK, MC_BULLETNORMAL, (RECT*)prc, 0);
@@ -3152,12 +3152,12 @@ void MenuRadioIconThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
 		SAFE_DELETE_GDIOBJECT(hBitmap);
 		UI_ReleaseCacheDC(hMemDC);
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
-void MenuRadioIconThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
+void MenuRadioIconThemeRender::DrawDisable( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECK, MC_BULLETDISABLED, (RECT*)prc, 0);
@@ -3180,32 +3180,32 @@ void MenuRadioIconThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
 		SAFE_DELETE_GDIOBJECT(hBitmap);
 		UI_ReleaseCacheDC(hMemDC);
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
 
 
 //////////////////////////////////////////////////////////////////////////
 
-void MenuRadioCheckIconBkThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void MenuRadioCheckIconBkThemeRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
 	switch(nState)
 	{
 	case MENU_ITEM_ICON_RENDER_STATE_DISABLE:
-		this->DrawDisable(hRDC, prc);
+		this->DrawDisable(pRenderTarget, prc);
 		break;
 	case MENU_ITEM_ICON_RENDER_STATE_HOVER:
-		this->DrawHover(hRDC, prc);
+		this->DrawHover(pRenderTarget, prc);
 		break;
 	default:
-		this->DrawNormal(hRDC, prc);
+		this->DrawNormal(pRenderTarget, prc);
 		break;
 	}
 }
 
-void MenuRadioCheckIconBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
+void MenuRadioCheckIconBkThemeRender::DrawNormal( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECKBACKGROUND, MCB_NORMAL, (RECT*)prc, 0);
@@ -3217,12 +3217,12 @@ void MenuRadioCheckIconBkThemeRender::DrawNormal( HRDC hRDC, const CRect* prc )
 	else
 	{
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
-void MenuRadioCheckIconBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
+void MenuRadioCheckIconBkThemeRender::DrawHover( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECKBACKGROUND, MCB_NORMAL, (RECT*)prc, 0);
@@ -3234,12 +3234,12 @@ void MenuRadioCheckIconBkThemeRender::DrawHover( HRDC hRDC, const CRect* prc )
 	else
 	{
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
-void MenuRadioCheckIconBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
+void MenuRadioCheckIconBkThemeRender::DrawDisable( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPCHECKBACKGROUND, MCB_DISABLED, (RECT*)prc, 0);
@@ -3251,30 +3251,30 @@ void MenuRadioCheckIconBkThemeRender::DrawDisable( HRDC hRDC, const CRect* prc )
 	else
 	{
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void MenuPopupTriangleRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void MenuPopupTriangleRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
 	switch(nState)
 	{
 	default:
-		this->DrawNormal(hRDC, prc);
+		this->DrawNormal(pRenderTarget, prc);
 		break;
 	case MENU_POPUPTRIANGLE_RENDER_STATE_HOVER:
-		this->DrawHover(hRDC, prc);
+		this->DrawHover(pRenderTarget, prc);
 		break;
 	case MENU_POPUPTRIANGLE_RENDER_STATE_DISABLE:
-		this->DrawDisable(hRDC, prc);
+		this->DrawDisable(pRenderTarget, prc);
 		break;
 	}
 }
 
-void MenuPopupTriangleRender::DrawDisable( HRDC hRDC, const CRect* prc )
+void MenuPopupTriangleRender::DrawDisable( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPSUBMENU, MSM_DISABLED, (RECT*)prc, 0);
@@ -3287,12 +3287,12 @@ void MenuPopupTriangleRender::DrawDisable( HRDC hRDC, const CRect* prc )
 	{
 		this->DrawTriangle(hDC, prc, false);
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
-void MenuPopupTriangleRender::DrawNormal( HRDC hRDC, const CRect* prc )
+void MenuPopupTriangleRender::DrawNormal( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPSUBMENU, MSM_NORMAL, (RECT*)prc, 0);
@@ -3305,12 +3305,12 @@ void MenuPopupTriangleRender::DrawNormal( HRDC hRDC, const CRect* prc )
 	{
 		this->DrawTriangle(hDC, prc, false);
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
-void MenuPopupTriangleRender::DrawHover( HRDC hRDC, const CRect* prc )
+void MenuPopupTriangleRender::DrawHover( IRenderTarget* pRenderTarget, const CRect* prc )
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, MENU_POPUPSUBMENU, MSM_NORMAL, (RECT*)prc, 0);
@@ -3323,7 +3323,7 @@ void MenuPopupTriangleRender::DrawHover( HRDC hRDC, const CRect* prc )
 	{
 		this->DrawTriangle(hDC, prc, true);
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
 // 绘制箭头
@@ -3374,30 +3374,30 @@ void MenuPopupTriangleRender::DrawTriangle( HDC hDC, const CRect* prc, int nStat
 }
 //////////////////////////////////////////////////////////////////////////
 
-void TooltipBkgndThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void TooltipBkgndThemeRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
 	if( m_hTheme )
 	{
 // 		COLORREF colBkgnd = ::GetSysColor(COLOR_INFOBK);
 // 		COLORREF colBorder = RGB(0,0,0);
-// 		Rectangle(hRDC, prc, colBorder, colBkgnd );
+// 		Rectangle(pRenderTarget, prc, colBorder, colBkgnd );
 
 // 		CRect r(*prc);
 // 		r.top += 3;
 // 		r.left += 3;
- 		HDC hDC = GetHDC(hRDC);
+ 		HDC hDC = pRenderTarget->GetHDC(false);
  		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, TTP_STANDARD, TTSS_NORMAL, (RECT*)prc, 0);
  		if ( S_OK != hr )
  		{
  			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
  		}
- 		ReleaseHDC(hRDC, hDC);
+ 		pRenderTarget->ReleaseHDC(hDC);
 	}
 	else
 	{
 		COLORREF colBkgnd = ::GetSysColor(COLOR_INFOBK);
 		COLORREF colBorder = RGB(0,0,0);
-		Rectangle(hRDC, prc, colBorder, colBkgnd );
+		Rectangle(pRenderTarget, prc, colBorder, colBkgnd );
 	}
 	
 }
@@ -3414,9 +3414,9 @@ void ProgressCtrlBkgndThemeRender::SetObject( Object* pObject )
 	this->m_pObject = pObject; 
 	m_pProgress = dynamic_cast<ProgressCtrl*>(pObject);
 }
-void  ProgressCtrlBkgndThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void  ProgressCtrlBkgndThemeRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		int iPartId = PP_BAR;
@@ -3443,7 +3443,7 @@ void  ProgressCtrlBkgndThemeRender::DrawState(HRDC hRDC, const CRect* prc, int n
 		rc.bottom--;
 		DrawEdge(hDC, (RECT*)&rc, EDGE_SUNKEN, BF_FLAT|BF_LEFT|BF_TOP);
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
 void ProgressCtrlForegndThemeRender::SetObject( Object* pObject ) 
@@ -3451,11 +3451,11 @@ void ProgressCtrlForegndThemeRender::SetObject( Object* pObject )
 	this->m_pObject = pObject; 
 	m_pProgress = dynamic_cast<ProgressCtrl*>(pObject);
 }
-void  ProgressCtrlForegndThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void  ProgressCtrlForegndThemeRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
 	CRect rc(prc);
 
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if( m_hTheme )
 	{
 		if (UI_IsUnderXpOS())
@@ -3556,7 +3556,7 @@ void  ProgressCtrlForegndThemeRender::DrawState(HRDC hRDC, const CRect* prc, int
 		}
 		::DeleteObject(hBrush);
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -3567,7 +3567,7 @@ void SliderCtrlBkgndThemeRender::SetObject( Object* pObject )
 
 	m_pSliderCtrl = dynamic_cast<SliderCtrl*>(pObject);
 }
-void SliderCtrlBkgndThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void SliderCtrlBkgndThemeRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
 	CRect rc(prc);
 	PROGRESS_SCROLL_DIRECTION_TYPE eType = PROGRESS_SCROLL_LEFT_2_RIGHT;
@@ -3594,7 +3594,7 @@ void SliderCtrlBkgndThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nSta
 		break;
 	}
 
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 	if (m_hTheme)
 	{
 		HRESULT hr = DrawThemeBackground(m_hTheme, hDC, TKP_TRACK, TKS_NORMAL, (RECT*)&rc, 0);
@@ -3607,7 +3607,7 @@ void SliderCtrlBkgndThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nSta
 	{
 		DrawEdge(hDC, (RECT*)&rc, EDGE_SUNKEN, BF_RECT|BF_MIDDLE);
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 
 
@@ -3645,18 +3645,18 @@ SIZE SliderTrackButtonThemeRender::GetDesiredSize( )
 	SIZE s = {11,22};
 	return s;
 }
-void SliderTrackButtonThemeRender::DrawState(HRDC hRDC, const CRect* prc, int nState)
+void SliderTrackButtonThemeRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
 	if (NULL != m_hTheme)
 	{
-		this->DrawThemeState(hRDC, prc, nState);
+		this->DrawThemeState(pRenderTarget, prc, nState);
 		return;
 	}
 	else
 	{
-		HDC hDC = GetHDC(hRDC);
+		HDC hDC = pRenderTarget->GetHDC(false);
 		this->DrawNoThemeState(hDC, prc, nState);
-		ReleaseHDC(hRDC, hDC);
+		pRenderTarget->ReleaseHDC(hDC);
 	}
 }
 
@@ -3763,10 +3763,10 @@ int  SliderTrackButtonThemeRender::GetDrawThemeStateID(int iPartID, int nDrawSta
 	return 0;
 }
 
-void SliderTrackButtonThemeRender::DrawThemeState(HRDC hRDC, const CRect* prc, int nDrawState)
+void SliderTrackButtonThemeRender::DrawThemeState(IRenderTarget* pRenderTarget, const CRect* prc, int nDrawState)
 {
 	CRect rc(prc);
-	HDC hDC = GetHDC(hRDC);
+	HDC hDC = pRenderTarget->GetHDC(false);
 
 	int iPart = TKP_THUMB;
 	int iState = TKS_NORMAL;
@@ -3823,7 +3823,7 @@ void SliderTrackButtonThemeRender::DrawThemeState(HRDC hRDC, const CRect* prc, i
 			UI_LOG_WARN(_T("%s DrawThemeBackground failed."), FUNC_NAME);
 		}
 	}
-	ReleaseHDC(hRDC, hDC);
+	pRenderTarget->ReleaseHDC(hDC);
 }
 void SliderTrackButtonThemeRender::DrawNoThemeState( HDC hDC, const CRect* prc, int nDrawState)
 {
@@ -4104,7 +4104,7 @@ void TextRender::SetHRFont(HRFONT hRFont)
 	}
 }
 
-void TextRender::DrawState(HRDC hRDC, const CRect* prc, int nState, const String& strText, int nDrawTextFlag)
+void TextRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState, const String& strText, int nDrawTextFlag)
 {
 	if( NULL != m_hFont )
 	{
@@ -4118,7 +4118,7 @@ void TextRender::DrawState(HRDC hRDC, const CRect* prc, int nState, const String
 		rcText.DeflateRect(m_rPadding.left, m_rPadding.top, m_rPadding.right, m_rPadding.bottom);
 
 		int nFlag = nDrawTextFlag==-1 ? m_nDrawTextFlag:nDrawTextFlag;
-		DrawString( hRDC, strText.c_str(), &rcText, nFlag, m_hFont, col );
+		DrawString( pRenderTarget, strText.c_str(), &rcText, nFlag, m_hFont, col );
 	}
 }
 
@@ -4209,7 +4209,7 @@ bool ColorListTextRender::SetAttribute( const String& strPrefix, map<String,Stri
 
 	return true;
 }
-void ColorListTextRender::DrawState(HRDC hRDC, const CRect* prc, int nState, const String& strText, int nDrawTextFlag)
+void ColorListTextRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState, const String& strText, int nDrawTextFlag)
 {
 	nState = LOWORD(nState);
 	int nRealState = nState;
@@ -4228,7 +4228,7 @@ void ColorListTextRender::DrawState(HRDC hRDC, const CRect* prc, int nState, con
 	CRect rcText(prc);
 	rcText.DeflateRect(m_rPadding.left, m_rPadding.top, m_rPadding.right, m_rPadding.bottom);
 	int nFlag = nDrawTextFlag==-1 ? m_nDrawTextFlag:nDrawTextFlag;
-	DrawString(hRDC, strText.c_str(), &rcText, nFlag, m_hFont, col );
+	DrawString(pRenderTarget, strText.c_str(), &rcText, nFlag, m_hFont, col );
 }
 HRFONT ColorListTextRender::GetHRFONT()
 {
@@ -4361,7 +4361,7 @@ bool FontColorListTextRender::SetAttribute( const String& strPrefix, map<String,
 
 	return true;
 }
-void FontColorListTextRender::DrawState(HRDC hRDC, const CRect* prc, int nState, const String& strText, int nDrawTextFlag)
+void FontColorListTextRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState, const String& strText, int nDrawTextFlag)
 {
 	nState = LOWORD(nState);
 	int nRealState = nState;
@@ -4380,7 +4380,7 @@ void FontColorListTextRender::DrawState(HRDC hRDC, const CRect* prc, int nState,
 	HRFONT hRFont = m_vTextFont[nRealState];
 
 	int nFlag = nDrawTextFlag==-1 ? m_nDrawTextFlag:nDrawTextFlag;
-	DrawString(hRDC, strText.c_str(), prc, nFlag, hRFont, col );
+	DrawString(pRenderTarget, strText.c_str(), prc, nFlag, hRFont, col );
 }
 HRFONT FontColorListTextRender::GetHRFONT()
 {

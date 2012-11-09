@@ -307,12 +307,12 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 	{
 	public:
 		virtual const TCHAR* GetThemeName() { return _T("Button"); }
-		virtual void  DrawState(HRDC hRDC, const CRect* prc, int nState);
+		virtual void  DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState);
 
-		void DrawDisable( HRDC hRDC, const CRect* prc );
-		void DrawNormal( HRDC hRDC, const CRect* prc );
-		void DrawHover( HRDC hRDC, const CRect* prc );
-		void DrawPress( HRDC hRDC, const CRect* prc );	
+		void DrawDisable(IRenderTarget* pRenderTarget, const CRect* prc );
+		void DrawNormal(IRenderTarget* pRenderTarget, const CRect* prc );
+		void DrawHover(IRenderTarget* pRenderTarget, const CRect* prc );
+		void DrawPress(IRenderTarget* pRenderTarget, const CRect* prc );	
 	};
 
 

@@ -5,7 +5,7 @@ WindowBase::WindowBase()
 	this->m_hWnd          = NULL;
 	this->m_oldWndProc    = NULL;
 //	this->m_hRenderTarget = NULL;
-	this->m_hFont         = NULL;
+	this->m_pFont         = NULL;
 	this->m_hMemDC        = NULL;
 	this->m_hMemBitmap    = NULL;
 	this->m_hOldBitmap    = NULL;
@@ -29,10 +29,10 @@ void WindowBase::ResetAttribute()
 {
 	__super::ResetAttribute();
 
-	if( NULL != m_hFont )
+	if (NULL != m_pFont)
 	{
-		::UI_ReleaseFont(m_hFont);
-		m_hFont = NULL;
+		::UI_ReleaseFont(m_pFont);
+		m_pFont = NULL;
 	}
 
 	m_nMinWidth = m_nMinHeight = NDEF;
@@ -49,26 +49,26 @@ bool WindowBase::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 	ATTRMAP::iterator iter = m_mapAttribute.find(XML_FONT);
 	if (m_mapAttribute.end() != iter)
 	{
-		m_hFont = ::UI_GetFont(iter->second, GetGraphicsRenderType(GetHWND()));
+		m_pFont = ::UI_GetFont(iter->second, GetGraphicsRenderType(GetHWND()));
 		m_mapAttribute.erase(iter);
 	}
 
 	// 创建默认字体
-	if( NULL == m_hFont )
+	if( NULL == m_pFont )
 	{
 		HFONT hFont = (HFONT)::SendMessage( m_hWnd, WM_GETFONT, 0,0 );
 		if( NULL == hFont )
 		{
-			m_hFont = UI_GetDefaultFont(GetGraphicsRenderType(m_hWnd));
-			if (NULL == m_hFont)
+			m_pFont = UI_GetDefaultFont(GetGraphicsRenderType(m_hWnd));
+			if (NULL == m_pFont)
 			{
 				hFont = (HFONT)GetStockObject(SYSTEM_FONT);
 			}
 		}
 		
-		if (NULL == m_hFont && NULL != hFont)
+		if (NULL == m_pFont && NULL != hFont)
 		{
-			UI_AttachFont(&m_hFont, hFont, GetGraphicsRenderType(m_hWnd));
+			UI_AttachFont(&m_pFont, hFont, GetGraphicsRenderType(m_hWnd));
 		}
 	}
 
@@ -124,22 +124,24 @@ bool WindowBase::CreateUI( const String& ID, HWND hWnd )
 	this->m_hWnd = hWnd;
 	this->m_strID = ID;
 
-	//	加载子控件
-	bool bRet = ::UI_LoadLayout( this );
-	if( false == bRet )
+	if (!m_strID.empty())   // 例如themetooltip
 	{
-		UI_LOG_FATAL( _T("Window::Create, 加载窗口(ID=%s)layout失败"), this->m_strID.c_str() );
-		return false;
-	}
+		//	加载子控件
+		bool bRet = ::UI_LoadLayout( this );
+		if( false == bRet )
+		{
+			UI_LOG_FATAL( _T("Window::Create, 加载窗口(ID=%s)layout失败"), this->m_strID.c_str() );
+			return false;
+		}
 
-	if( !IsChildWindow() )
-	{
-		g_pUIApplication->m_TopWindowMgr.AddTopWindowObject( this );
-		::UI_UpdateTopWindowLayout( this );		
-	}
-	else
-	{
-		::UI_UpdateLayout(this);
+		if( !IsChildWindow() )
+		{
+			::UI_UpdateTopWindowLayout( this );		
+		}
+		else
+		{
+			::UI_UpdateLayout(this);
+		}
 	}
 
 	//
@@ -165,10 +167,10 @@ void WindowBase::DestroyUI()
 // 		m_hRenderTarget = NULL;
 // 	}
 	this->DestroyDoubleBuffer();
-	if (NULL != m_hFont)
+	if (NULL != m_pFont)
 	{
-		::UI_ReleaseFont(m_hFont);
-		m_hFont = NULL;
+		::UI_ReleaseFont(m_pFont);
+		m_pFont = NULL;
 	}
 }
 
@@ -343,43 +345,51 @@ HBITMAP WindowBase::PaintObject(Object* pObj)
 //
 //	用于如LISTBOX ReDrawItem，只刷新一部分，而不是整个object
 //
-HRDC WindowBase::BeginDrawObject( Object* pInvalidateObj )
+HRDC WindowBase::BeginRedrawObjectPart(Object* pRedrawObj, RECT* prc1, RECT* prc2)
 {
-#if 0 // TODO: RenderEngine Modify
-	if( NULL == pInvalidateObj )
+	if (NULL == pRedrawObj)
 		return NULL;
 
-	if (false ==BeginDraw(m_hRenderTarget, NULL))
-		return NULL;
+	IRenderTarget*  pRenderTarget = CreateRenderTarget(m_hWnd);
 
-	RenderOffsetClipHelper roc(this);
-	pInvalidateObj->DrawObjectTransparentBkgnd(m_hRenderTarget, roc, true);
+	RenderOffsetClipHelper roc(this, false);
+	if (pRenderTarget->BeginDraw(m_hMemDC, prc1, prc2))
+	{
+		pRedrawObj->DrawObjectTransparentBkgnd(pRenderTarget, roc, /*true*/pRedrawObj->IsTransparent());
 
-	::UISendMessage(pInvalidateObj, WM_ERASEBKGND, (WPARAM)m_hRenderTarget, (LPARAM)1 );
+		::UISendMessage(pRedrawObj, WM_ERASEBKGND, (WPARAM)pRenderTarget, (LPARAM)1 );
 
-	roc.DrawClient(m_hRenderTarget, pInvalidateObj, false);
-	roc.Scroll(m_hRenderTarget, pInvalidateObj, false);
-	roc.Update(m_hRenderTarget);
+		roc.DrawClient(pRenderTarget, pRedrawObj, false);
+		roc.Scroll(pRenderTarget, pRedrawObj, false);
+		roc.Update(pRenderTarget);
 
-	return m_hRenderTarget;
-#endif 
+		return pRenderTarget;
+	}
+
+	SAFE_DELETE(pRenderTarget);
 	return NULL;
 }
 //
 //	要提交到窗口上的区域，配合BeginDrawObject使用
 //  当需要提交多个Rect时，先将bFinish设置为false，最后一次设置为true释放资源
 //
-void WindowBase::EndDrawObject(CRect* prcWindow, bool bFinish)
+void WindowBase::EndRedrawObjectPart(IRenderTarget* pRenderTarget, CRect* prcWindow, bool bFinish)
 {
-#if 0 // TODO: RenderEngine Modify
-	SelectClipRgn(m_hRenderTarget, NULL);
-	SetViewportOrgEx(m_hRenderTarget,0,0,NULL);
+// 	SelectClipRgn(m_hRenderTarget, NULL);
+// 	SetViewportOrgEx(m_hRenderTarget,0,0,NULL);
+// 
+// 	EndDraw(m_hRenderTarget, 
+// 		prcWindow->left, prcWindow->top,
+// 		prcWindow->Width(), prcWindow->Height(),
+// 		prcWindow->left, prcWindow->top, bFinish);
 
-	EndDraw(m_hRenderTarget, 
-		prcWindow->left, prcWindow->top,
-		prcWindow->Width(), prcWindow->Height(),
-		prcWindow->left, prcWindow->top, bFinish);
-#endif
+	this->CommitDoubleBuffet2Window(NULL, prcWindow);
+	if (bFinish)
+	{
+		pRenderTarget->SelectClipRgn(NULL);
+		pRenderTarget->EndDraw();
+		SAFE_RELEASE(pRenderTarget);
+	}
 }
 
 bool WindowBase::Create( const String& ID, HWND hWndParent )
@@ -455,7 +465,7 @@ long WindowBase::DoModal( HINSTANCE hResInst, UINT nResID, const String& ID, HWN
 //
 // 创建一个空的模态对话框
 //
-long  WindowBase::DoModal(  const String& ID, HWND hWndParent )
+long WindowBase::DoModal(  const String& ID, HWND hWndParent )
 {
 
 #if 0
@@ -879,15 +889,21 @@ LRESULT WindowBase::_OnPaint( UINT uMsg, WPARAM wParam,LPARAM lParam, BOOL& bHan
 	if (NULL == wParam)
 		hDC = ::BeginPaint(this->m_hWnd ,&ps);
 
-	IRenderTarget*  pRenderTarget = CreateRenderTarget(m_hWnd);
+	if (NULL == m_hMemDC)
+	{
+		if( NULL == wParam )
+			EndPaint(m_hWnd,&ps);
+		return 0;
+	}
 
+	IRenderTarget* pRenderTarget = CreateRenderTarget(m_hWnd);
 	if (pRenderTarget->BeginDraw(m_hMemDC, NULL))
 	{
 		this->OnDrawWindow(pRenderTarget);
 		pRenderTarget->EndDraw();
 	}
-
 	pRenderTarget->Release();
+
 	this->CommitDoubleBuffet2Window(hDC, NULL);
 
 	if( NULL == wParam )
@@ -958,15 +974,19 @@ LRESULT WindowBase::_OnCreate( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bH
 {
 	bHandled = FALSE;
 
-	if (!m_strID.empty())
+	this->CreateUI(m_strID, m_hWnd);
+
+	//
+	//  有可能m_strID为空（不加载资源，例如临时的popupconotrolwindow）
+	//	因此没有将AddTopWindowObject、OnInitWindow放在CreateUI中执行
+	//
+	if (!IsChildWindow())
 	{
-		this->CreateUI(m_strID, m_hWnd);
+		g_pUIApplication->m_TopWindowMgr.AddTopWindowObject( this );
 	}
 
 	//
 	//  给子类一个初始化的机会 (virtual)
-	//  有可能m_strID为空（不加载资源，例如临时的popupconotrolwindow）
-	//	因此没有将OnInitWindow放在CreateUI中执行
 	//
 	this->OnInitWindow();
 
@@ -978,7 +998,7 @@ LRESULT WindowBase::_OnNcDestroy( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 
 	SyncWindowHelper<WindowBase>::_OnNcDestroy();
 
-	if( !IsChildWindow() )
+	if (!IsChildWindow())
 	{
 		g_pUIApplication->m_TopWindowMgr.RemoveTopWindowObject( this );
 	}
@@ -1384,5 +1404,5 @@ void WindowBase::HideWindow()
 
 HRFONT WindowBase::GetHRFONT()
 {
-	return m_hFont;
+	return m_pFont;
 }

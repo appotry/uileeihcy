@@ -1,5 +1,5 @@
 #include "stdafx.h"
-
+#undef new  // 与Gdiplus new 冲突  error C2660: 'Gdiplus::GdiplusBase::operator new' : function does not take 4 arguments
 
 GDIRenderBitmap::GDIRenderBitmap(IRenderBitmap** ppOutRef) : GDIRenderBitmapImpl<IRenderBitmap>(ppOutRef)
 {
@@ -300,22 +300,31 @@ bool GDIRenderFont::GetLogFont(LOGFONT* plf)
 //
 //
 
-GdiRenderTarget::GdiRenderTarget()
-{
-	m_hDC = NULL;
-}
+// GdiRenderTarget::GdiRenderTarget()
+// {
+// 	m_hDC = NULL;
+// }
 // GdiRenderTarget::GdiRenderTarget(HDC hDC):IRenderTarget(hDC)
 // {
-// 	UIASSERT(0);  // 废弃，使用空构造函数
+// 	UIASSERT(0);  // 废弃
 // 	m_hDC = hDC;
 // }
-// GdiRenderTarget::GdiRenderTarget(HWND hWnd):IRenderTarget(hWnd)
-// {
-// 	UIASSERT(0);  // 废弃，使用空构造函数
-// 
-// 	m_hDC = ::GetDC(hWnd);
-// 	::SetBkMode(m_hDC, TRANSPARENT);   // 不去支持带背景的文字，如果需要就使用背景填充
-// }
+GdiRenderTarget::GdiRenderTarget(HWND hWnd):IRenderTarget(hWnd)
+{
+//	m_hDC = ::GetDC(hWnd);
+//	::SetBkMode(m_hDC, TRANSPARENT);   // 不去支持带背景的文字，如果需要就使用背景填充
+
+	m_hDC = NULL;
+	m_bLayered = false;
+
+	if (GetWindowLong(hWnd, GWL_EXSTYLE) & WS_EX_LAYERED)
+	{
+		m_bLayered = true;
+		m_pGraphics = NULL;
+		m_pGdiplusMemBitmap = NULL;
+		m_hGdiplusDC = NULL;
+	}
+}
 GdiRenderTarget::~GdiRenderTarget()
 {
 // 	if( NULL != m_hWnd && NULL != m_hDC)
@@ -325,14 +334,20 @@ GdiRenderTarget::~GdiRenderTarget()
  	m_hDC = NULL;
 }
 
-HRDC GdiRenderTarget::CreateCompatibleHRDC( int nWidth, int nHeight )
-{
-	UIASSERT(0);  // TODO: 该函数有用吗
-	return (HRDC)new GDIMemRenderDC(m_hDC, nWidth, nHeight);
-}
+// HRDC GdiRenderTarget::CreateCompatibleHRDC( int nWidth, int nHeight )
+// {
+// 	UIASSERT(0);  // TODO: 该函数有用吗
+// 	return (HRDC)new GDIMemRenderDC(m_hDC, nWidth, nHeight);
+// }
 
-HDC GdiRenderTarget::GetHDC()
+HDC GdiRenderTarget::GetHDC(bool bHasAlphaChannel)
 {
+	if (bHasAlphaChannel)
+		return m_hDC;
+
+	if (m_bLayered && NULL != m_hGdiplusDC)
+		return m_hGdiplusDC;
+
 	return m_hDC;
 }
 void GdiRenderTarget::ReleaseHDC( HDC hDC )
@@ -379,7 +394,13 @@ HRGN GdiRenderTarget::GetClipRgn()
 }
 int GdiRenderTarget::SelectClipRgn( HRGN hRgn, int nMode )
 {
-	return ExtSelectClipRgn(m_hDC, hRgn, nMode);
+	int nRet = ExtSelectClipRgn(m_hDC, hRgn, nMode);
+
+	if (m_bLayered && NULL != m_hGdiplusDC)
+	{
+		::ExtSelectClipRgn(m_hGdiplusDC, hRgn, nMode);
+	}
+	return nRet;
 }
 
 BOOL GdiRenderTarget::GetViewportOrgEx( LPPOINT lpPoint )
@@ -394,11 +415,27 @@ BOOL GdiRenderTarget::GetViewportOrgEx( LPPOINT lpPoint )
 }
 BOOL GdiRenderTarget::SetViewportOrgEx( int x, int y, LPPOINT lpPoint ) 
 {
-	return ::SetViewportOrgEx( m_hDC, x, y, lpPoint);
+	BOOL bRet1 = ::SetViewportOrgEx( m_hDC, x, y, lpPoint);
+
+	BOOL bRet2 = TRUE;
+	if (m_bLayered && NULL != m_hGdiplusDC)
+	{
+		bRet2 = ::SetViewportOrgEx( m_hGdiplusDC, x, y, lpPoint );
+	}
+
+	return bRet1&&bRet2;
 }
-BOOL GdiRenderTarget::OffsetViewportOrgEx( int x, int y, LPPOINT lpPoint )
+BOOL GdiRenderTarget::OffsetViewportOrgEx(int x, int y, LPPOINT lpPoint)
 {
-	return ::OffsetViewportOrgEx( m_hDC, x, y, lpPoint );
+	BOOL bRet1 = ::OffsetViewportOrgEx( m_hDC, x, y, lpPoint );
+	
+	BOOL bRet2 = TRUE;
+	if (m_bLayered && NULL != m_hGdiplusDC)
+	{
+		bRet2 = ::OffsetViewportOrgEx( m_hGdiplusDC, x, y, lpPoint );
+	}
+
+	return bRet1&&bRet2;
 }
 
 // COLORREF GdiRenderTarget::SetTextColor( COLORREF color, byte Alpha )
@@ -410,7 +447,10 @@ BOOL GdiRenderTarget::OffsetViewportOrgEx( int x, int y, LPPOINT lpPoint )
 // 	return ::GetTextColor(m_hDC);
 // }
 
-bool GdiRenderTarget::BeginDraw(HDC hDC, RECT* prc)
+//
+// 如果需要同时绘制两个item项，则可以提供两个RECT进行裁剪
+//
+bool GdiRenderTarget::BeginDraw(HDC hDC, RECT* prc, RECT* prc2)
 {
 	if (NULL != m_hDC)
 		return false;
@@ -419,18 +459,61 @@ bool GdiRenderTarget::BeginDraw(HDC hDC, RECT* prc)
 		return false;
 
 	m_hDC = hDC;
-	if (NULL != prc)
+	
+	// 为了实现分层窗口上面alpha通道的绘制，这里借用了gdiplus的gethdc，
+	// 同时m_pGdiplusMemBitmap由原HDC的内存位图而初始化，保存了两个HDC
+	// 的绘制目标一致
+	if (m_bLayered)
+	{
+		HBITMAP hCurMemBitmap = (HBITMAP)::GetCurrentObject(m_hDC, OBJ_BITMAP);
+
+		DIBSECTION  dibSection;
+		GetObject(hCurMemBitmap, sizeof(DIBSECTION), &dibSection);
+		BYTE* pBits = (BYTE*)dibSection.dsBm.bmBits;
+		pBits += (dibSection.dsBm.bmHeight-1)*dibSection.dsBm.bmWidthBytes;  // 将指针移到第一行数据位置
+
+		m_pGdiplusMemBitmap = new Gdiplus::Bitmap(dibSection.dsBm.bmWidth, dibSection.dsBm.bmHeight, -dibSection.dsBm.bmWidthBytes, PixelFormat32bppARGB, (BYTE*)pBits);
+		m_pGraphics = new Gdiplus::Graphics(m_pGdiplusMemBitmap);  // 使用内存图片创建出来的graphics，再调用gethdc，就能让HDC使用alpha通道
+	
+		m_hGdiplusDC = m_pGraphics->GetHDC();
+		SetBkMode(m_hGdiplusDC, TRANSPARENT);
+	}
+
+	if (NULL == prc && NULL == prc2)
+	{
+	}
+	else if (NULL != prc && NULL != prc2)
 	{
 		HRGN hRgn = CreateRectRgnIndirect(prc);
+		if (NULL != prc2)
+		{
+			HRGN hRgn2 = ::CreateRectRgnIndirect(prc2);
+			::CombineRgn(hRgn, hRgn, hRgn2, RGN_OR);
+			SAFE_DELETE_GDIOBJECT(hRgn2);
+		}
 		this->SelectClipRgn(hRgn, RGN_COPY);
 		SAFE_DELETE_GDIOBJECT(hRgn);
 	}
-	
+	else
+	{
+		RECT *pNonNullRect = prc==NULL?prc2:prc;
+		HRGN hRgn = CreateRectRgnIndirect(pNonNullRect);
+		this->SelectClipRgn(hRgn, RGN_COPY);
+		SAFE_DELETE_GDIOBJECT(hRgn);
+
+	}
 	return true;
 }
 void GdiRenderTarget::EndDraw()
 {
 	m_hDC = NULL;
+
+	if (m_bLayered)
+	{
+		m_pGraphics->ReleaseHDC(m_hGdiplusDC);
+		SAFE_DELETE(m_pGdiplusMemBitmap);
+		SAFE_DELETE(m_pGraphics);
+	}
 }
 
 int GdiRenderTarget::DrawString( const TCHAR* szText, const CRect* lpRect, UINT nFormat, HRFONT hRFont, COLORREF col )
@@ -447,13 +530,19 @@ int GdiRenderTarget::DrawString( const TCHAR* szText, const CRect* lpRect, UINT 
 		return -1;
 	}
 
-	HFONT hOldFont = (HFONT)::SelectObject(m_hDC, ((GDIRenderFont*)hRFont)->GetHFONT());
-	COLORREF oldCol = ::SetTextColor(m_hDC, col);
+	HDC hDC = m_hDC;
+	if (m_bLayered && NULL != m_hGdiplusDC)
+		hDC = m_hGdiplusDC;
 
-	int nRet = ::DrawText(m_hDC, szText, _tcslen(szText), (RECT*)lpRect, nFormat);
+	HFONT hOldFont = (HFONT)::SelectObject(hDC, ((GDIRenderFont*)hRFont)->GetHFONT());
+	COLORREF oldCol = ::SetTextColor(hDC, col);
 
-	::SetTextColor(m_hDC,oldCol);
-	::SelectObject(m_hDC, hOldFont);
+	int nRet = 0;
+	
+	::DrawText(hDC, szText, _tcslen(szText), (RECT*)lpRect, nFormat);
+
+	::SetTextColor(hDC,oldCol);
+	::SelectObject(hDC, hOldFont);
 
 	return nRet;
 }
@@ -716,8 +805,9 @@ void GdiRenderTarget::DrawBitmap( HRBITMAP hBitmap, DRAWBITMAPPARAM* pParam )
 	}
 }
 
-GDIMemRenderDC::GDIMemRenderDC(HDC hDC, int nWidth, int nHeight )
+GDIMemRenderDC::GDIMemRenderDC(HDC hDC, int nWidth, int nHeight ):GdiRenderTarget(NULL)
 {
+	UIASSERT(0);  // 不再使用该类
 	::OutputDebugString(_T("TODO: GDIMemRenderDC::GDIMemRenderDC 删除该函数，不再调用。\r\n"));
 	m_hDC = ::CreateCompatibleDC(hDC);
 
@@ -729,9 +819,10 @@ GDIMemRenderDC::GDIMemRenderDC(HDC hDC, int nWidth, int nHeight )
 	::SetBkMode(m_hDC, TRANSPARENT);   // 不去支持带背景的文字，如果需要就使用背景填充
 	::SetStretchBltMode(m_hDC, COLORONCOLOR);
 }
-GDIMemRenderDC::GDIMemRenderDC(HWND hWnd, int nWidth, int nHeight )
+GDIMemRenderDC::GDIMemRenderDC(HWND hWnd, int nWidth, int nHeight ) : GdiRenderTarget(hWnd) 
 {
-	m_hWnd   = hWnd;
+	UIASSERT(0);  // 不再使用该类
+
 	m_hWndDC = NULL;
 	m_hOldWndDC = NULL;
 	m_hDC    = NULL;

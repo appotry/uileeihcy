@@ -15,76 +15,78 @@ public:
 	UI_DECLARE_OBJECT( WindowBase, OBJ_WINDOW )
 	WindowBase();
 	~WindowBase();
-	virtual  void ObjectMustCreateByUIObjCreator(){};   // TODO: 如果需要使用FinalConstruct的窗口可自己去由UIObjCreator实现
+	virtual void ObjectMustCreateByUIObjCreator(){};   // TODO: 如果需要使用FinalConstruct的窗口可自己去由UIObjCreator实现
 
 public:
-	bool              Create( const String& ID,  HWND hWndParent = NULL );
-	long              DoModal( const String& ID, HWND hWndParent );
-	long              DoModal( HINSTANCE hResInst, UINT nResID, const String& ID, HWND hWndParent );
-	HWND              DoModeless( const String& ID, HWND hWndParent );
-	HWND              DoModeless( HINSTANCE hResInst, UINT nResID, const String& ID, HWND hWndParent );
-	void              EndDialog(INT_PTR);
+	bool    Create( const String& ID,  HWND hWndParent = NULL );
+	long    DoModal( const String& ID, HWND hWndParent );
+	long    DoModal( HINSTANCE hResInst, UINT nResID, const String& ID, HWND hWndParent );
+	HWND    DoModeless( const String& ID, HWND hWndParent );
+	HWND    DoModeless( HINSTANCE hResInst, UINT nResID, const String& ID, HWND hWndParent );
+	void    EndDialog(INT_PTR);
 
-	static LRESULT    CALLBACK StartWindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
-	static LRESULT    CALLBACK StartDialogProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
-	static LRESULT    CALLBACK ThunkWndProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
-	LRESULT           StartProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, bool bWindowOrDialog );
-	LRESULT		      WndProc( UINT uMsg, WPARAM wParam, LPARAM lParam );
-	LRESULT           DefWindowProc( UINT uMsg, WPARAM wParam, LPARAM lParam );
+	static  LRESULT CALLBACK StartWindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+	static  LRESULT CALLBACK StartDialogProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+	static  LRESULT CALLBACK ThunkWndProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+	LRESULT StartProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, bool bWindowOrDialog );
+	LRESULT WndProc( UINT uMsg, WPARAM wParam, LPARAM lParam );
+	LRESULT DefWindowProc( UINT uMsg, WPARAM wParam, LPARAM lParam );
+
 protected:
-	bool              CreateUI( const String& ID, HWND hWnd );
-	virtual void      DestroyUI();
-	long              ModalLoop(HWND hWndParent);
-	virtual BOOL      PreTranslateMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT* pRet);
+	bool    CreateUI( const String& ID, HWND hWnd );
+	long    ModalLoop(HWND hWndParent);
+	virtual void DestroyUI();
+	virtual BOOL PreTranslateMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT* pRet);
 
 public:
-	virtual           void RedrawObject( Object* pObj, RECT* prc, bool bUpdateNow );
-	virtual           void RedrawObjectBkgnd( Object* pObj, RECT* prc, bool bUpdateNow );
+	virtual void RedrawObject( Object* pObj, RECT* prc, bool bUpdateNow );
+	virtual void RedrawObjectBkgnd( Object* pObj, RECT* prc, bool bUpdateNow );
 	
-	virtual           HRDC BeginDrawObject( Object* pInvalidateObj);
-	virtual           void EndDrawObject( CRect* prcWindow, bool bFinish);
+	virtual IRenderTarget* BeginRedrawObjectPart(Object* pRedrawObj, RECT* prc1, RECT* prc2=NULL);
+	virtual void EndRedrawObjectPart(IRenderTarget* pRenderTarget, CRect* prcWindow, bool bFinish);
 protected:
-	void              _InnerRedrawObject(Object* pInvalidateObj, HDC hDestDC);
-	void              _InnerRedrawObjectBkgnd(Object* pInvalidateObj, HDC hDestDC);
+	void    _InnerRedrawObject(Object* pInvalidateObj, HDC hDestDC);
+	void    _InnerRedrawObjectBkgnd(Object* pInvalidateObj, HDC hDestDC);
 	
 public:
 	// 一些公共方法
-	void	   CalcWindowSizeByClientSize( SIZE sizeClient, SIZE* pSizeWindow );
-	void       CalcClientRectByWindowRect( RECT* rcWindow, RECT* rcClient );
-	BOOL       IsChildWindow();
-	void       ShowWindow();
-	void       HideWindow();
+	void    CalcWindowSizeByClientSize( SIZE sizeClient, SIZE* pSizeWindow );
+	void    CalcClientRectByWindowRect( RECT* rcWindow, RECT* rcClient );
+	BOOL    IsChildWindow();
+	void    ShowWindow();
+	void    HideWindow();
 
-	operator          HWND() const;
-	MouseManager&     GetMouseMgr();
-	KeyboardManager&  GetKeyboardMgr();
-	Object*    GetHoverObject();
-	Object*    GetPressObject();
-	HRFONT     GetHRFONT();    // 获取字体流程：先获取自己的m_pTextRender，如果没有则调用自己的m_pWindow的GetHRFONT
-	HBITMAP    PaintObject(Object* pObj);
+	operator HWND() const;
+	MouseManager& GetMouseMgr();
+	KeyboardManager& GetKeyboardMgr();
 
-	void       Control_NotifyMe( const String&  idPath, int nNotifyMapID );
-	void       Control_NotifyMe( Object*  pObj, int nNotifyMapID );
+	Object* GetHoverObject();
+	Object* GetPressObject();
+	HRFONT  GetHRFONT();    // 获取字体流程：先获取自己的m_pTextRender，如果没有则调用自己的m_pWindow的GetHRFONT
+	HBITMAP PaintObject(Object* pObj);
+
+	void    Control_NotifyMe( const String&  idPath, int nNotifyMapID );
+	void    Control_NotifyMe( Object*  pObj, int nNotifyMapID );
 
 protected:
 	// object 虚函数
-	virtual   void ResetAttribute();
-	virtual   bool SetAttribute( map<String,String>& mapAttrib, bool bReload=false );
+	virtual void ResetAttribute();
+	virtual bool SetAttribute( map<String,String>& mapAttrib, bool bReload=false );
 
 	// 自己的虚函数
-	virtual   BOOL PreCreateWindow( CREATESTRUCT& cs );
+	virtual BOOL PreCreateWindow( CREATESTRUCT& cs );
 
 	// 在加载完自己的控件和布局之后被调用，子类调用时先调用父类的该方法
-	virtual   void OnInitWindow();
-	virtual   void OnFinalMessage();
+	virtual void OnInitWindow();
+	virtual void OnFinalMessage();
 
-	void      ReCreateRenderTarget();
-	void      CreateDoubleBuffer(int nWidth, int nHeight);
-	void      DestroyDoubleBuffer();
+	void    ReCreateRenderTarget();
+	void    CreateDoubleBuffer(int nWidth, int nHeight);
+	void    DestroyDoubleBuffer();
 
-	virtual   void CommitDoubleBuffet2Window(HDC hDCWnd, RECT* prcCommit);
-	virtual   void OnDrawWindow(IRenderTarget* p);
-	virtual   void OnEndErasebkgnd(){}   // 用于CustomWindow设置窗口异形
+	virtual void CommitDoubleBuffet2Window(HDC hDCWnd, RECT* prcCommit);
+	virtual void OnDrawWindow(IRenderTarget* p);
+	virtual void OnEndErasebkgnd(){}   // 用于CustomWindow设置窗口异形
 
 public:
 	// WndProc的原始消息处理
@@ -128,49 +130,48 @@ public:
 	UI_END_MSG_MAP_CHAIN_PARENT(Panel)
 
 protected:
-	LRESULT           _OnSetCursor( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
-	LRESULT           _OnEraseBkgnd( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
-	LRESULT           _OnPaint( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
-	LRESULT           _OnSize( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
-	LRESULT           _OnCreate( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
-	LRESULT           _OnNcDestroy( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
-	LRESULT           _OnHandleMouseMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
-	LRESULT           _OnHandleKeyboardMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
-	LRESULT           _OnSetFocus( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
-	LRESULT           _OnKillFocus( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
-	LRESULT           _OnThemeChange( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
-	LRESULT           _OnWindowPosChanging( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
-	LRESULT           _OnSyncWindow( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
-	LRESULT           _OnGetMinMaxInfo( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
-	LRESULT           _OnEnterSizeMove( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
-	LRESULT           _OnExitSizeMove( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+	LRESULT _OnSetCursor( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+	LRESULT _OnEraseBkgnd( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+	LRESULT _OnPaint( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+	LRESULT _OnSize( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+	LRESULT _OnCreate( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+	LRESULT _OnNcDestroy( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+	LRESULT _OnHandleMouseMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+	LRESULT _OnHandleKeyboardMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+	LRESULT _OnSetFocus( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+	LRESULT _OnKillFocus( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+	LRESULT _OnThemeChange( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+	LRESULT _OnWindowPosChanging( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+	LRESULT _OnSyncWindow( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+	LRESULT _OnGetMinMaxInfo( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+	LRESULT _OnEnterSizeMove( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+	LRESULT _OnExitSizeMove( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
 
-	BOOL              OnEraseBkgnd(HRDC);
-	LRESULT           OnGetGraphicsRenderType();
+	BOOL    OnEraseBkgnd(HRDC);
+	LRESULT OnGetGraphicsRenderType();
 
 public:
-	HWND              m_hWnd;                // 窗口句柄
-	IRenderFont*      m_hFont;               // 当xml中配置了字体时，m_hFont为xml中的字体。当没有字体时，使用窗口字体。窗口字体也没时，则使用default font.
-//	HRDC              m_hRenderTarget;       // 双缓冲DC
-	HDC               m_hMemDC;              // 双缓冲
-	HBITMAP           m_hMemBitmap;          // 双缓冲
-	HBITMAP           m_hOldBitmap;
-	
+	HWND    m_hWnd;                // 窗口句柄
+	IRenderFont* m_pFont;          // 当xml中配置了字体时，m_hFont为xml中的字体。当没有字体时，使用窗口字体。窗口字体也没时，则使用default font.
+//	HRDC    m_hRenderTarget;       // 双缓冲DC
+	HDC     m_hMemDC;              // 双缓冲
+	HBITMAP m_hMemBitmap;          // 双缓冲
+	HBITMAP m_hOldBitmap;
 
-	int               m_nMinWidth;
-	int               m_nMinHeight;
-	int               m_nMaxWidth;
-	int               m_nMaxHeight;
+	int     m_nMinWidth;
+	int     m_nMinHeight;
+	int     m_nMaxWidth;
+	int     m_nMaxHeight;
 protected:
-	CWndProcThunk     m_thunk;               // ATL中的THUNK，用于将一个窗口过程作成自己的成员函数
-	WNDPROC           m_oldWndProc;          // 该窗口的原始窗口过程
+	CWndProcThunk m_thunk;         // ATL中的THUNK，用于将一个窗口过程作成自己的成员函数
+	WNDPROC m_oldWndProc;          // 该窗口的原始窗口过程
 
-	MouseManager      m_MgrMouse;            // 鼠标消息处理器
-	KeyboardManager   m_MgrKeyboard;         // 键盘消息处理器
+	MouseManager m_MgrMouse;       // 鼠标消息处理器
+	KeyboardManager m_MgrKeyboard; // 键盘消息处理器
 
-	bool              m_bDoModal;
-	bool              m_bEndModal;
-	INT_PTR           m_lDoModalReturn;
+	bool    m_bDoModal;
+	bool    m_bEndModal;
+	INT_PTR m_lDoModalReturn;
 };
 
 
