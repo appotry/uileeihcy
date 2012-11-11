@@ -225,6 +225,10 @@ public:
 	virtual void     DrawBitmap( HRBITMAP hBitmap, DRAWBITMAPPARAM* pParam );
 
 protected:
+	HDC       SelectHDC();
+	HDC       SelectHDC(Image* pImage);
+
+protected:
 	HDC       m_hDC;     // 通过alphablend能够实现半透明绘制，但无法实现其它类型的绘制alpha通道，如文字、24bits位图
 
 	// for layered window

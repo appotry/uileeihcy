@@ -111,7 +111,8 @@ public:
 		::GetCursorPos(&pt);
 		this->SetObjectPos(pt.x, pt.y+22, 0,0, SWP_NOSIZE);
 
-		::ShowWindow(m_hWnd, SW_SHOWNOACTIVATE);
+		//::ShowWindow(m_hWnd, SW_SHOWNOACTIVATE);
+		::SetWindowPos(m_hWnd,HWND_TOPMOST,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE|SWP_SHOWWINDOW|SWP_NOACTIVATE);
 		return true;
 	}
 	virtual bool  Hide() 

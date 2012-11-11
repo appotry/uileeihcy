@@ -43,7 +43,7 @@ public:
 	virtual void RedrawObjectBkgnd( Object* pObj, RECT* prc, bool bUpdateNow );
 	
 	virtual IRenderTarget* BeginRedrawObjectPart(Object* pRedrawObj, RECT* prc1, RECT* prc2=NULL);
-	virtual void EndRedrawObjectPart(IRenderTarget* pRenderTarget, CRect* prcWindow, bool bFinish);
+	virtual void EndRedrawObjectPart(IRenderTarget* pRenderTarget, RECT* prc1, RECT* prc2=NULL);
 protected:
 	void    _InnerRedrawObject(Object* pInvalidateObj, HDC hDestDC);
 	void    _InnerRedrawObjectBkgnd(Object* pInvalidateObj, HDC hDestDC);

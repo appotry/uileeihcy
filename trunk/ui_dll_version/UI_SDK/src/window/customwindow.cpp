@@ -680,17 +680,21 @@ HRDC CustomWindow::BeginRedrawObjectPart(Object* pRedrawObj, RECT* prc1, RECT* p
 // 		return m_pLayeredWindowWrap->BeginRedrawObjectPart(pRedrawObj, prc1, prc2);
 // 	}
 }
-void CustomWindow::EndRedrawObjectPart(IRenderTarget* pRenderTarget, CRect* prcWindow, bool bFinish)
+void CustomWindow::EndRedrawObjectPart(IRenderTarget* pRenderTarget, RECT* prc1, RECT* prc2)
 {
 	if (NULL == m_pLayeredWindowWrap)
 	{
-		__super::EndRedrawObjectPart(pRenderTarget, prcWindow, bFinish);
+		__super::EndRedrawObjectPart(pRenderTarget, prc1, prc2);
 	}
 	else
 	{
-		m_pLayeredWindowWrap->PreEndDrawObject(prcWindow, bFinish);
-		__super::EndRedrawObjectPart(pRenderTarget, prcWindow, bFinish);
-		m_pLayeredWindowWrap->PostEndDrawObject(prcWindow, bFinish);
+		pRenderTarget->EndDraw();
+		SAFE_RELEASE(pRenderTarget);
+		m_pLayeredWindowWrap->Commit2LayeredWindow();
+
+//		m_pLayeredWindowWrap->PreEndDrawObject(prc1, prc2);
+//		__super::EndRedrawObjectPart(pRenderTarget, prc1, prc2);
+//		m_pLayeredWindowWrap->PostEndDrawObject(prcWindow, bFinish);
 	}
 }
 void CustomWindow::CommitDoubleBuffet2Window(HDC hDCWnd, RECT* prcCommit)
@@ -1173,6 +1177,11 @@ void LayeredWindowWrap::InitLayeredWindow()
 	CRect rc;
 	::GetWindowRect( m_pWindow->m_hWnd, &rc );
 
+	if (NULL == m_pWindow->m_hMemDC)
+	{
+		m_pWindow->CreateDoubleBuffer(rc.Width(), rc.Height());
+	}
+
 // 	m_hLayeredMemDC = ::CreateCompatibleDC(NULL/*m_hScreenDC*/);
 // 
 // 	Image image;
@@ -1302,7 +1311,7 @@ HRDC LayeredWindowWrap::BeginRedrawObjectPart(Object* pRedrawObj, RECT* prc1, RE
 	return NULL;
 }
 
-void LayeredWindowWrap::PreEndDrawObject(CRect* prcWindow, bool bFinish)
+void LayeredWindowWrap::PreEndDrawObject(RECT* prcWindow1, RECT* prcWindow2)
 {
 #if 0  // TODO: RenderEngine Modify
 	if (m_pWindow->IsTransparent())
@@ -1311,15 +1320,15 @@ void LayeredWindowWrap::PreEndDrawObject(CRect* prcWindow, bool bFinish)
 	}
 #endif
 }
-void LayeredWindowWrap::PostEndDrawObject(CRect* prcWindow, bool bFinish)
-{
-#if 0  // TODO: RenderEngine Modify
-	if (bFinish)
-	{
-		this->Commit2LayeredWindow();
-	}
-#endif
-}
+// void LayeredWindowWrap::PostEndDrawObject(CRect* prcWindow, bool bFinish)
+// {
+// #if 0  // TODO: RenderEngine Modify
+// 	if (bFinish)
+// 	{
+// 		this->Commit2LayeredWindow();
+// 	}
+// #endif
+// }
 
 // 模拟拖拽窗口拉伸过程
 void LayeredWindowWrap::OnLButtonDown(UINT nHitTest)
@@ -1539,4 +1548,5 @@ void LayeredWindowWrap::Commit2LayeredWindow()
 	{
 		UI_LOG_ERROR(_T("%s UpdateLayeredWindow Failed."), FUNC_NAME);
 	}
+
 }
