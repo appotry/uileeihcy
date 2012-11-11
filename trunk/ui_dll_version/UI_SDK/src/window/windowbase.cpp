@@ -1,10 +1,10 @@
 #include "stdafx.h"
+#undef  new
 
 WindowBase::WindowBase()
 {
 	this->m_hWnd          = NULL;
 	this->m_oldWndProc    = NULL;
-//	this->m_hRenderTarget = NULL;
 	this->m_pFont         = NULL;
 	this->m_hMemDC        = NULL;
 	this->m_hMemBitmap    = NULL;
@@ -291,9 +291,6 @@ void WindowBase::_InnerRedrawObject(Object* pInvalidateObj, HDC hDestDC)
 		pInvalidateObj->DrawObjectTransparentBkgnd(pRenderTarget, roc, pInvalidateObj->IsTransparent());
 		pInvalidateObj->DrawObject(pRenderTarget, roc);
 	
-		roc.Reset(pRenderTarget);
-		pRenderTarget->SelectClipRgn(NULL);
-	
 		pRenderTarget->EndDraw();
 		this->CommitDoubleBuffet2Window(NULL, &roc.m_rcClip);
 	}
@@ -357,7 +354,7 @@ HRDC WindowBase::BeginRedrawObjectPart(Object* pRedrawObj, RECT* prc1, RECT* prc
 	{
 		pRedrawObj->DrawObjectTransparentBkgnd(pRenderTarget, roc, /*true*/pRedrawObj->IsTransparent());
 
-		::UISendMessage(pRedrawObj, WM_ERASEBKGND, (WPARAM)pRenderTarget, (LPARAM)1 );
+		::UISendMessage(pRedrawObj, WM_ERASEBKGND, (WPARAM)pRenderTarget, (LPARAM)1);
 
 		roc.DrawClient(pRenderTarget, pRedrawObj, false);
 		roc.Scroll(pRenderTarget, pRedrawObj, false);
@@ -369,26 +366,23 @@ HRDC WindowBase::BeginRedrawObjectPart(Object* pRedrawObj, RECT* prc1, RECT* prc
 	SAFE_DELETE(pRenderTarget);
 	return NULL;
 }
+
 //
 //	要提交到窗口上的区域，配合BeginDrawObject使用
 //  当需要提交多个Rect时，先将bFinish设置为false，最后一次设置为true释放资源
 //
-void WindowBase::EndRedrawObjectPart(IRenderTarget* pRenderTarget, CRect* prcWindow, bool bFinish)
+void WindowBase::EndRedrawObjectPart(IRenderTarget* pRenderTarget, RECT* prc1, RECT* prc2)
 {
-// 	SelectClipRgn(m_hRenderTarget, NULL);
-// 	SetViewportOrgEx(m_hRenderTarget,0,0,NULL);
-// 
-// 	EndDraw(m_hRenderTarget, 
-// 		prcWindow->left, prcWindow->top,
-// 		prcWindow->Width(), prcWindow->Height(),
-// 		prcWindow->left, prcWindow->top, bFinish);
+	pRenderTarget->EndDraw();
+	SAFE_RELEASE(pRenderTarget);
 
-	this->CommitDoubleBuffet2Window(NULL, prcWindow);
-	if (bFinish)
+	if (NULL != prc1)
 	{
-		pRenderTarget->SelectClipRgn(NULL);
-		pRenderTarget->EndDraw();
-		SAFE_RELEASE(pRenderTarget);
+		this->CommitDoubleBuffet2Window(NULL, prc1);
+	}
+	if (NULL != prc2)
+	{
+		this->CommitDoubleBuffet2Window(NULL, prc2);
 	}
 }
 
@@ -895,7 +889,7 @@ LRESULT WindowBase::_OnPaint( UINT uMsg, WPARAM wParam,LPARAM lParam, BOOL& bHan
 			EndPaint(m_hWnd,&ps);
 		return 0;
 	}
-
+#if 0
 	IRenderTarget* pRenderTarget = CreateRenderTarget(m_hWnd);
 	if (pRenderTarget->BeginDraw(m_hMemDC, NULL))
 	{
@@ -903,7 +897,61 @@ LRESULT WindowBase::_OnPaint( UINT uMsg, WPARAM wParam,LPARAM lParam, BOOL& bHan
 		pRenderTarget->EndDraw();
 	}
 	pRenderTarget->Release();
+#else
 
+	HBITMAP hCurMemBitmap = (HBITMAP)::GetCurrentObject(m_hMemDC, OBJ_BITMAP);
+	{
+		BITMAP  bm;
+		::GetObject(m_hMemBitmap, sizeof(bm), &bm);
+		int a = 0;
+	}
+
+	DIBSECTION  dibSection;
+	GetObject(hCurMemBitmap, sizeof(DIBSECTION), &dibSection);
+	BYTE* pBits = (BYTE*)dibSection.dsBm.bmBits;
+	pBits += (dibSection.dsBm.bmHeight-1)*dibSection.dsBm.bmWidthBytes;  // 将指针移到第一行数据位置
+
+	Gdiplus::Bitmap* m_pGdiplusMemBitmap = new Gdiplus::Bitmap(dibSection.dsBm.bmWidth, dibSection.dsBm.bmHeight, -dibSection.dsBm.bmWidthBytes, PixelFormat32bppARGB, (BYTE*)pBits);
+	Gdiplus::Graphics* m_pGraphics = new Gdiplus::Graphics(m_pGdiplusMemBitmap);  // 使用内存图片创建出来的graphics，再调用gethdc，就能让HDC使用alpha通道
+
+	HDC m_hGdiplusDC = m_pGraphics->GetHDC();
+	SetBkMode(m_hGdiplusDC, TRANSPARENT);
+	{
+		HBITMAP hBitmap = (HBITMAP)::GetCurrentObject(m_hGdiplusDC, OBJ_BITMAP);
+		BITMAP  bm;
+		::GetObject(hBitmap, sizeof(bm), &bm);
+		int* p =(int* )bm.bmBits;
+		*p = 0x000D0B0D;
+		p++;
+		*p = 0;
+
+		int a = 0;
+	}
+
+// 	Image  image;
+// 	image.Load(_T("E:\\编程\\workingpath\\com.google.code\\trunk\\ui_dll_version\\UI_SDK\\bin\\mediaplay\\menu_check_bk.png"));
+// 	image.Draw(m_hGdiplusDC, 0,0 );
+
+// 	CRect rc; 
+// 	::GetClientRect(m_hWnd, &rc);
+// 	HBRUSH hBrush = ::CreateSolidBrush(0x000C0B0D);
+// 	::FillRect(m_hGdiplusDC, &rc, hBrush/*(HBRUSH)::GetStockObject(WHITE_BRUSH)*/);
+// 	::DeleteObject(hBrush);
+// 	m_pGraphics->ReleaseHDC(m_hGdiplusDC);
+// 	m_hGdiplusDC = NULL;
+// 
+// 	Image  image;
+// 	image.Load(_T("D:\\menu_check_bk.png"));
+// 	image.Draw(m_hGdiplusDC, 0,0);
+
+	TextOut(m_hGdiplusDC, 0,0, L"a", 1);
+	m_pGraphics->ReleaseHDC(m_hGdiplusDC);
+	m_hGdiplusDC = NULL;
+
+	SAFE_DELETE(m_pGdiplusMemBitmap);
+	SAFE_DELETE(m_pGraphics);
+
+#endif
 	this->CommitDoubleBuffet2Window(hDC, NULL);
 
 	if( NULL == wParam )
@@ -935,8 +983,6 @@ void WindowBase::OnDrawWindow(IRenderTarget* pRenderTarget)
 		::UISendMessage(this, WM_PAINT, (WPARAM)pRenderTarget, (LPARAM)1 );       // 将lparam置为1，与原始消息进行区分
 		this->_drawChildObject(pRenderTarget, roc);
 	}
-
-	roc.Reset(pRenderTarget);
 }
 
 LRESULT WindowBase::_OnSize( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )

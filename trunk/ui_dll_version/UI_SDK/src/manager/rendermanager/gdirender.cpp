@@ -1,6 +1,43 @@
 #include "stdafx.h"
 #undef new  // 与Gdiplus new 冲突  error C2660: 'Gdiplus::GdiplusBase::operator new' : function does not take 4 arguments
+/*
+GDI+ currently has no support to raster operations. When we use R2_XOR pen operations, we use the Graphics.GetHdc()
+method to get the handle to the device context. During the operation when your application uses the HDC, the GDI+ 
+should not draw anything on the Graphics object until the Graphics.ReleaseHdc method is called. Every GetHdc call
+must be followed by a call to ReleaseHdc on a Graphics object, as in the following snippet:
 
+	IntPtr hdc1 = g1.GetHdc();
+	//Do something with hdc1
+	g.ReleaseHdc (hdc1);
+
+	g2 = Graphics.FromImage (curBitmap);
+	IntPtr hdc1 = g1.GetHdc();
+	IntPtr hdc2 = g2.GetHdc();
+	BitBlt (hdc2, 0, 0,
+	this.ClientRectangle.Width,
+	this.ClientRectangle.Height,
+	hdcl, 0, 0, 13369376);
+	g2.DrawRectangle (Pens.Red, 40, 40, 200, 200);
+	g1.ReleaseHdc (hdcl);
+	g2.ReleaseHdc (hdc2);
+
+If we make a GDI+ call after GetHdc, the system will throw an "object busy" exception. For example, in the preceding
+code snippet we make a DrawRectangle call after GetHdc and before ReleaseHdc. As a result we will get an exception
+saying, "The object is currently in use elsewhere."
+
+Using GDI on a GDI+ Graphics Object Backed by a Bitmap
+
+After a call to GetHdc, we can simply call a Graphics object from a bitmap that returns a new HBITMAP structure. 
+This bitmap does not contain the original image, but rather a sentinel pattern, which allows GDI+ to tract changes
+to the bitmap. When ReleaseHdc is called, changes are copied back to the original image. This type of device context
+is not suitable for raster operations because the handle to device context is considered write-only, and raster 
+operations require it to be read-only. This approach may also degrade the performance because creating a new bitmap 
+and saving changes to the original bitmap operations may tie up all your resources.
+
+
+*/
+
+#pragma region // Gdi Bitmap
 GDIRenderBitmap::GDIRenderBitmap(IRenderBitmap** ppOutRef) : GDIRenderBitmapImpl<IRenderBitmap>(ppOutRef)
 {
 }
@@ -168,7 +205,9 @@ bool GDIIconRenderBitmap::LoadFromFile( const String& strPath )
 		return true;
 }
 //////////////////////////////////////////////////////////////////////////
+#pragma  endregion
 
+#pragma  region  // Gdi Font
 GDIRenderFont::GDIRenderFont(IRenderFont** ppOutRef) : IRenderFont((IRenderResource**)ppOutRef)
 {
 	m_hFont = NULL;
@@ -297,9 +336,9 @@ bool GDIRenderFont::GetLogFont(LOGFONT* plf)
 	return true;
 }
 //////////////////////////////////////////////////////////////////////////
-//
-//
+#pragma  endregion
 
+#pragma  region  // gdi rendertarget
 // GdiRenderTarget::GdiRenderTarget()
 // {
 // 	m_hDC = NULL;
@@ -320,10 +359,10 @@ GdiRenderTarget::GdiRenderTarget(HWND hWnd):IRenderTarget(hWnd)
 	if (GetWindowLong(hWnd, GWL_EXSTYLE) & WS_EX_LAYERED)
 	{
 		m_bLayered = true;
-		m_pGraphics = NULL;
-		m_pGdiplusMemBitmap = NULL;
-		m_hGdiplusDC = NULL;
 	}
+	m_pGraphics = NULL;
+	m_pGdiplusMemBitmap = NULL;
+	m_hGdiplusDC = NULL;
 }
 GdiRenderTarget::~GdiRenderTarget()
 {
@@ -463,7 +502,7 @@ bool GdiRenderTarget::BeginDraw(HDC hDC, RECT* prc, RECT* prc2)
 	// 为了实现分层窗口上面alpha通道的绘制，这里借用了gdiplus的gethdc，
 	// 同时m_pGdiplusMemBitmap由原HDC的内存位图而初始化，保存了两个HDC
 	// 的绘制目标一致
-	if (m_bLayered)
+	if (m_bLayered && NULL == m_hGdiplusDC)
 	{
 		HBITMAP hCurMemBitmap = (HBITMAP)::GetCurrentObject(m_hDC, OBJ_BITMAP);
 
@@ -506,14 +545,27 @@ bool GdiRenderTarget::BeginDraw(HDC hDC, RECT* prc, RECT* prc2)
 }
 void GdiRenderTarget::EndDraw()
 {
-	m_hDC = NULL;
+	this->SetViewportOrgEx(0,0);
+	this->SelectClipRgn(NULL);
+
+ 	m_hDC = NULL;
 
 	if (m_bLayered)
 	{
-		m_pGraphics->ReleaseHDC(m_hGdiplusDC);
 		SAFE_DELETE(m_pGdiplusMemBitmap);
+		m_pGraphics->ReleaseHDC(m_hGdiplusDC);
+		m_hGdiplusDC = NULL;
 		SAFE_DELETE(m_pGraphics);
 	}
+}
+
+HDC GdiRenderTarget::SelectHDC()
+{
+	HDC hDC = m_hDC;
+	if (m_bLayered && NULL != m_hGdiplusDC)
+		hDC = m_hGdiplusDC;
+
+	return hDC;
 }
 
 int GdiRenderTarget::DrawString( const TCHAR* szText, const CRect* lpRect, UINT nFormat, HRFONT hRFont, COLORREF col )
@@ -530,9 +582,7 @@ int GdiRenderTarget::DrawString( const TCHAR* szText, const CRect* lpRect, UINT 
 		return -1;
 	}
 
-	HDC hDC = m_hDC;
-	if (m_bLayered && NULL != m_hGdiplusDC)
-		hDC = m_hGdiplusDC;
+	HDC hDC = SelectHDC();
 
 	HFONT hOldFont = (HFONT)::SelectObject(hDC, ((GDIRenderFont*)hRFont)->GetHFONT());
 	COLORREF oldCol = ::SetTextColor(hDC, col);
@@ -551,14 +601,14 @@ int GdiRenderTarget::DrawString( const TCHAR* szText, const CRect* lpRect, UINT 
 void GdiRenderTarget::FillRgn( HRGN hRgn, COLORREF col )
 {
 	HBRUSH hBrush = ::CreateSolidBrush(col);
-	::FillRgn( m_hDC, hRgn, hBrush );
+	::FillRgn(SelectHDC(), hRgn, hBrush );
 	::DeleteObject(hBrush);
 }
 
 void GdiRenderTarget::FillRect( const CRect* lprc, COLORREF col )
 {
 	HBRUSH hBrush = ::CreateSolidBrush(col);
-	::FillRect( m_hDC, lprc, hBrush );
+	int n = ::FillRect(SelectHDC(), lprc, hBrush );
 	::DeleteObject(hBrush);
 }
 
@@ -573,7 +623,7 @@ void GdiRenderTarget::TileRect( const CRect* lprc, HRBITMAP hBitmap )
 
 	GDIRenderBitmap* pBitmap = (GDIRenderBitmap*)p;
 	HBRUSH hBrush = ::CreatePatternBrush(pBitmap->GetBitmap()->operator HBITMAP());
-	::FillRect(m_hDC, lprc, hBrush);
+	::FillRect(SelectHDC(), lprc, hBrush);
 	::DeleteObject(hBrush);
 }
 
@@ -594,62 +644,87 @@ void GdiRenderTarget::Rectangle( const CRect* lprc, COLORREF colBorder, COLORREF
 		hBrush = ::CreateSolidBrush(colBack);
 	}
 
-	HPEN hOldPen = (HPEN)::SelectObject(m_hDC, hPen);
-	HBRUSH hOldBrush = (HBRUSH)::SelectObject(m_hDC, hBrush);
+	HDC hDC = SelectHDC();
 
-	::Rectangle(m_hDC, lprc->left, lprc->top, lprc->right, lprc->bottom );
+	HPEN hOldPen = (HPEN)::SelectObject(hDC, hPen);
+	HBRUSH hOldBrush = (HBRUSH)::SelectObject(hDC, hBrush);
 
-	::SelectObject(m_hDC, hOldPen);
-	::SelectObject(m_hDC, hOldBrush);
+	::Rectangle(hDC, lprc->left, lprc->top, lprc->right, lprc->bottom );
+
+	::SelectObject(hDC, hOldPen);
+	::SelectObject(hDC, hOldBrush);
 	::DeleteObject(hPen);
 	::DeleteObject(hBrush);
 }
 
 void GdiRenderTarget::DrawFocusRect( const CRect* lprc )
 {
-	::DrawFocusRect( m_hDC, lprc );
+	::DrawFocusRect(SelectHDC(), lprc);
 }
 
 void GdiRenderTarget::GradientFillH( const CRect* lprc, COLORREF colFrom, COLORREF colTo )
 {
-	Util::GradientFillH(m_hDC, lprc, colFrom, colTo );
+	Util::GradientFillH(SelectHDC(), lprc, colFrom, colTo );
 }
 void GdiRenderTarget::GradientFillV( const CRect* lprc, COLORREF colFrom, COLORREF colTo )
 {
-	Util::GradientFillV(m_hDC, lprc, colFrom, colTo );
+	Util::GradientFillV(SelectHDC(), lprc, colFrom, colTo );
 }
 
-void GdiRenderTarget::BitBlt( int xDest, int yDest, int wDest, int hDest, IRenderTarget* pSrcHDC, int xSrc, int ySrc, DWORD dwRop )
+void GdiRenderTarget::BitBlt(int xDest, int yDest, int wDest, int hDest, IRenderTarget* pSrcHDC, int xSrc, int ySrc, DWORD dwRop)
 {
-	if( NULL == pSrcHDC )
+	if (NULL == pSrcHDC)
 		return;
-	if( pSrcHDC->GetRenderType() != GRAPHICS_RENDER_TYPE_GDI )
+	if (pSrcHDC->GetRenderType() != GRAPHICS_RENDER_TYPE_GDI)
 		return;
 
 	::BitBlt(m_hDC, xDest,yDest,wDest,hDest, pSrcHDC->GetHDC(),xSrc,ySrc,dwRop );
 }
+HDC GdiRenderTarget::SelectHDC(Image* pImage)
+{
+	HDC hDC = m_hDC;
+	if (m_bLayered && NULL != m_hGdiplusDC && !pImage->HasAlphaChannel())
+	{
+		hDC = m_hGdiplusDC;
+	}
+	return hDC;
+}
 void GdiRenderTarget::DrawBitmap( HRBITMAP hBitmap, int x, int y)
 {
-	if( NULL == hBitmap )
+	if (NULL == hBitmap)
 		return;
 
 	IRenderBitmap* p = (IRenderBitmap*)hBitmap;
-	if( p->GetRenderType() != GRAPHICS_RENDER_TYPE_GDI )
+	if (p->GetRenderType() != GRAPHICS_RENDER_TYPE_GDI)
 		return;
 
 	GDIRenderBitmap* pBitmap = (GDIRenderBitmap*)p;
-	pBitmap->GetBitmap()->Draw(m_hDC,x,y);
+	if (NULL == pBitmap)
+		return;
+
+	Image* pImage = pBitmap->GetBitmap();
+	if (NULL == pImage)
+		return;
+
+	pImage->Draw(SelectHDC(pImage), x,y);
 }
 void GdiRenderTarget::DrawBitmap(IRenderBitmap* pBitmap, int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc)
 {
-	if( NULL == pBitmap )
+	if (NULL == pBitmap)
 		return;
 
-	if( pBitmap->GetRenderType() != GRAPHICS_RENDER_TYPE_GDI )
+	if (pBitmap->GetRenderType() != GRAPHICS_RENDER_TYPE_GDI)
 		return;
 
 	GDIRenderBitmap* pRenderBitmap = static_cast<GDIRenderBitmap*>(pBitmap);
-	pRenderBitmap->GetBitmap()->Draw(m_hDC, xDest,yDest, wDest,hDest, xSrc, ySrc, wDest, hDest);
+	if (NULL == pBitmap)
+		return;
+
+	Image* pImage = pRenderBitmap->GetBitmap();
+	if (NULL == pImage)
+		return;
+
+	pImage->Draw(SelectHDC(pImage), xDest,yDest, wDest,hDest, xSrc, ySrc, wDest, hDest);
 }
 void GdiRenderTarget::DrawBitmap( HRBITMAP hBitmap, int xDest, int yDest, int nDestWidth, 
 							int nDestHeight, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight )
@@ -662,7 +737,14 @@ void GdiRenderTarget::DrawBitmap( HRBITMAP hBitmap, int xDest, int yDest, int nD
 		return;
 
 	GDIRenderBitmap* pBitmap = (GDIRenderBitmap*)p;
-	pBitmap->GetBitmap()->Draw( m_hDC, xDest, yDest, nDestWidth, nDestHeight, xSrc, ySrc, nSrcWidth, nSrcHeight );
+	if (NULL == pBitmap)
+		return;
+
+	Image* pImage = pBitmap->GetBitmap();
+	if (NULL == pImage)
+		return;
+
+	pImage->Draw(SelectHDC(pImage), xDest, yDest, nDestWidth, nDestHeight, xSrc, ySrc, nSrcWidth, nSrcHeight );
 }
 
 void GdiRenderTarget::DrawBitmap( HRBITMAP hBitmap, int xDest, int yDest, int nDestWidth, 
@@ -680,7 +762,14 @@ void GdiRenderTarget::DrawBitmap( HRBITMAP hBitmap, int xDest, int yDest, int nD
 		return;
 
 	GDIRenderBitmap* pBitmap = (GDIRenderBitmap*)p;
-	pBitmap->GetBitmap()->Draw( m_hDC, xDest, yDest, nDestWidth, nDestHeight, xSrc, ySrc, nSrcWidth, nSrcHeight, p9Region );
+	if (NULL == pBitmap)
+		return;
+
+	Image* pImage = pBitmap->GetBitmap();
+	if (NULL == pImage)
+		return;
+
+	pImage->Draw(SelectHDC(pImage), xDest, yDest, nDestWidth, nDestHeight, xSrc, ySrc, nSrcWidth, nSrcHeight, p9Region );
 }
 
 void GdiRenderTarget::ImageList_Draw( HRBITMAP hBitmap, int x, int y, int col, int row, int cx, int cy )
@@ -693,9 +782,16 @@ void GdiRenderTarget::ImageList_Draw( HRBITMAP hBitmap, int x, int y, int col, i
 		return;
 
 	GDIRenderBitmap* pBitmap = (GDIRenderBitmap*)p;
-	pBitmap->GetBitmap()->ImageList_Draw(m_hDC, x,y,col,row,cx,cy);
+	if (NULL == pBitmap)
+		return;
+
+	Image* pImage = pBitmap->GetBitmap();
+	if (NULL == pImage)
+		return;
+
+	pImage->ImageList_Draw(SelectHDC(pImage), x,y,col,row,cx,cy);
 }
-void GdiRenderTarget::DrawBitmap( HRBITMAP hBitmap, DRAWBITMAPPARAM* pParam )
+void GdiRenderTarget::DrawBitmap(HRBITMAP hBitmap, DRAWBITMAPPARAM* pParam)
 {
 	if (NULL == hBitmap || NULL == pParam)
 		return;
@@ -805,6 +901,9 @@ void GdiRenderTarget::DrawBitmap( HRBITMAP hBitmap, DRAWBITMAPPARAM* pParam )
 	}
 }
 
+#pragma  endregion
+
+#pragma  region  // Gdi mem RenderTarget
 GDIMemRenderDC::GDIMemRenderDC(HDC hDC, int nWidth, int nHeight ):GdiRenderTarget(NULL)
 {
 	UIASSERT(0);  // 不再使用该类
@@ -1018,3 +1117,4 @@ HBITMAP GDIMemRenderDC::CopyRect(RECT *prc)
 
 	return m_pMemBitmap->CopyRect(prc);
 }
+#pragma endregion

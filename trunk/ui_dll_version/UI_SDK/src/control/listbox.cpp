@@ -685,10 +685,11 @@ void ListCtrlBase::ReDrawItem(ListItemBase* pItem1, ListItemBase* pItem2)
 	if (NULL != pItem2)
 		this->OnDrawItem(pRenderTarget, pItem2);	
 
-	if (NULL != pItem1)
-		pWindow->EndRedrawObjectPart(pRenderTarget, &rcWindow1, pItem2==NULL?true:false);
-	if (NULL != pItem2)
-		pWindow->EndRedrawObjectPart(pRenderTarget, &rcWindow2, true);
+// 	if (NULL != pItem1)
+// 		pWindow->EndRedrawObjectPart(pRenderTarget, &rcWindow1, pItem2==NULL?true:false);
+// 	if (NULL != pItem2)
+// 		pWindow->EndRedrawObjectPart(pRenderTarget, &rcWindow2, true);
+	pWindow->EndRedrawObjectPart(pRenderTarget, &rcWindow1, &rcWindow2);
 }
 
 
