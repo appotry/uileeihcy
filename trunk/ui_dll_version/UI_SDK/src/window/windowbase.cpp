@@ -897,7 +897,7 @@ LRESULT WindowBase::_OnPaint( UINT uMsg, WPARAM wParam,LPARAM lParam, BOOL& bHan
 		pRenderTarget->EndDraw();
 	}
 	pRenderTarget->Release();
-#else
+#elif 1
 
 	HBITMAP hCurMemBitmap = (HBITMAP)::GetCurrentObject(m_hMemDC, OBJ_BITMAP);
 	{
@@ -950,7 +950,58 @@ LRESULT WindowBase::_OnPaint( UINT uMsg, WPARAM wParam,LPARAM lParam, BOOL& bHan
 
 	SAFE_DELETE(m_pGdiplusMemBitmap);
 	SAFE_DELETE(m_pGraphics);
+#else
 
+	if (NULL == g_D2DGlobalData.m_pD2DFactory)
+	{
+		g_D2DGlobalData.CreateD2D();
+	}
+	{
+		BITMAP  bm;
+		::GetObject(m_hMemBitmap, sizeof(bm), &bm);
+		int a = 0;
+	}
+
+
+	D2D1_RENDER_TARGET_PROPERTIES props = D2D1::RenderTargetProperties(
+		D2D1_RENDER_TARGET_TYPE_DEFAULT,
+		D2D1::PixelFormat(
+		DXGI_FORMAT_B8G8R8A8_UNORM,
+		D2D1_ALPHA_MODE_IGNORE/*D2D1_ALPHA_MODE_PREMULTIPLIED*/),  // 使用预乘模式，启用alpha channel
+		0,
+		0,
+		D2D1_RENDER_TARGET_USAGE_GDI_COMPATIBLE,
+		D2D1_FEATURE_LEVEL_DEFAULT
+		);
+
+	ID2D1DCRenderTarget*  m_pRenderTarget = NULL;
+	HRESULT hr = g_D2DGlobalData.m_pD2DFactory->CreateDCRenderTarget(&props,&m_pRenderTarget);
+	if (FAILED(hr))
+		return false;
+
+	ID2D1SolidColorBrush* pTextBrush = NULL;
+	hr = m_pRenderTarget->CreateSolidColorBrush(
+		D2D1::ColorF(255,255,0,1.0f),
+		&pTextBrush
+		);
+
+	RECT rc;
+	::GetClientRect(m_hWnd, &rc);
+	hr = m_pRenderTarget->BindDC(m_hMemDC, &rc);
+	m_pRenderTarget->BeginDraw();
+	m_pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
+	m_pRenderTarget->Clear(D2D1::ColorF(255,255,0,1.0f));
+	m_pRenderTarget->DrawRectangle(
+		D2D1::RectF(0,0,20,20),
+		pTextBrush);
+
+
+	hr = m_pRenderTarget->EndDraw();
+	hr = pTextBrush->Release();
+	SAFE_RELEASE(m_pRenderTarget);
+
+	g_D2DGlobalData.AddRef();
+	g_D2DGlobalData.Release();
 #endif
 	this->CommitDoubleBuffet2Window(hDC, NULL);
 

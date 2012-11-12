@@ -10,6 +10,7 @@
 // msdn url:
 // http://msdn.microsoft.com/zh-cn/library/dd370994(v=vs.85).aspx
 // http://technet.microsoft.com/zh-tw/library/dd370971.aspx
+// http://msdn.microsoft.com/en-us/magazine/ee819134.aspx
 
 namespace UI
 {
@@ -26,7 +27,7 @@ public:
 	HRESULT  CreateD2D();
 
 public:
-	ID2D1Factory*        m_pD2DFactory;
+	ID2D1Factory*        m_pD2DFactory;    // 貌似如果不释放它，将一直占用很大内存
 	IDWriteFactory*      m_pDWriteFactory;
 	IWICImagingFactory*  m_pWICFactory;
 
