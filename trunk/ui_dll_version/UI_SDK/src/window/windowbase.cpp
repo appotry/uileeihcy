@@ -889,15 +889,22 @@ LRESULT WindowBase::_OnPaint( UINT uMsg, WPARAM wParam,LPARAM lParam, BOOL& bHan
 			EndPaint(m_hWnd,&ps);
 		return 0;
 	}
-#if 0
+#if 1
+	if (NULL == m_hMemDC)
+	{
+		CRect rc;
+		::GetWindowRect(m_hWnd, &rc );
+		CreateDoubleBuffer(rc.Width(), rc.Height());
+	}
+
 	IRenderTarget* pRenderTarget = CreateRenderTarget(m_hWnd);
 	if (pRenderTarget->BeginDraw(m_hMemDC, NULL))
 	{
 		this->OnDrawWindow(pRenderTarget);
 		pRenderTarget->EndDraw();
 	}
-	pRenderTarget->Release();
-#elif 1
+	SAFE_RELEASE(pRenderTarget);
+#elif 0
 
 	HBITMAP hCurMemBitmap = (HBITMAP)::GetCurrentObject(m_hMemDC, OBJ_BITMAP);
 	{
@@ -914,23 +921,23 @@ LRESULT WindowBase::_OnPaint( UINT uMsg, WPARAM wParam,LPARAM lParam, BOOL& bHan
 	Gdiplus::Bitmap* m_pGdiplusMemBitmap = new Gdiplus::Bitmap(dibSection.dsBm.bmWidth, dibSection.dsBm.bmHeight, -dibSection.dsBm.bmWidthBytes, PixelFormat32bppARGB, (BYTE*)pBits);
 	Gdiplus::Graphics* m_pGraphics = new Gdiplus::Graphics(m_pGdiplusMemBitmap);  // 使用内存图片创建出来的graphics，再调用gethdc，就能让HDC使用alpha通道
 
-	HDC m_hGdiplusDC = m_pGraphics->GetHDC();
-	SetBkMode(m_hGdiplusDC, TRANSPARENT);
-	{
-		HBITMAP hBitmap = (HBITMAP)::GetCurrentObject(m_hGdiplusDC, OBJ_BITMAP);
-		BITMAP  bm;
-		::GetObject(hBitmap, sizeof(bm), &bm);
-		int* p =(int* )bm.bmBits;
-		*p = 0x000D0B0D;
-		p++;
-		*p = 0;
+// 	HDC m_hGdiplusDC = m_pGraphics->GetHDC();
+// 	SetBkMode(m_hGdiplusDC, TRANSPARENT);
+// 	{
+// 		HBITMAP hBitmap = (HBITMAP)::GetCurrentObject(m_hGdiplusDC, OBJ_BITMAP);
+// 		BITMAP  bm;
+// 		::GetObject(hBitmap, sizeof(bm), &bm);
+// 		int* p =(int* )bm.bmBits;
+// 		*p = 0x000D0B0D;
+// 		p++;
+// 		*p = 0;
+// 
+// 		int a = 0;
+// 	}
 
-		int a = 0;
-	}
-
-// 	Image  image;
-// 	image.Load(_T("E:\\编程\\workingpath\\com.google.code\\trunk\\ui_dll_version\\UI_SDK\\bin\\mediaplay\\menu_check_bk.png"));
-// 	image.Draw(m_hGdiplusDC, 0,0 );
+	Image  image;
+	image.Load(_T("E:\\编程\\workingpath\\com.google.code\\trunk\\ui_dll_version\\UI_SDK\\bin\\mediaplay\\menu_check_bk.png"));
+	image.Draw(m_hMemDC, 0,0 );
 
 // 	CRect rc; 
 // 	::GetClientRect(m_hWnd, &rc);
@@ -944,9 +951,9 @@ LRESULT WindowBase::_OnPaint( UINT uMsg, WPARAM wParam,LPARAM lParam, BOOL& bHan
 // 	image.Load(_T("D:\\menu_check_bk.png"));
 // 	image.Draw(m_hGdiplusDC, 0,0);
 
-	TextOut(m_hGdiplusDC, 0,0, L"a", 1);
-	m_pGraphics->ReleaseHDC(m_hGdiplusDC);
-	m_hGdiplusDC = NULL;
+// 	TextOut(m_hGdiplusDC, 0,0, L"a", 1);
+// 	m_pGraphics->ReleaseHDC(m_hGdiplusDC);
+// 	m_hGdiplusDC = NULL;
 
 	SAFE_DELETE(m_pGdiplusMemBitmap);
 	SAFE_DELETE(m_pGraphics);

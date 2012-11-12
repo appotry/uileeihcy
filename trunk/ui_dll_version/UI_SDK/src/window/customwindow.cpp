@@ -1175,12 +1175,7 @@ BOOL LayeredWindowWrap::PreCreateWindow( CREATESTRUCT& cs )
 void LayeredWindowWrap::InitLayeredWindow()
 {
 	CRect rc;
-	::GetWindowRect( m_pWindow->m_hWnd, &rc );
-
-	if (NULL == m_pWindow->m_hMemDC)
-	{
-		m_pWindow->CreateDoubleBuffer(rc.Width(), rc.Height());
-	}
+	::GetWindowRect(m_pWindow->m_hWnd, &rc );
 
 // 	m_hLayeredMemDC = ::CreateCompatibleDC(NULL/*m_hScreenDC*/);
 // 

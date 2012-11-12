@@ -187,7 +187,7 @@ public:
 	virtual GRAPHICS_RENDER_TYPE GetRenderType() { return GRAPHICS_RENDER_TYPE_GDI; }
 
 //	virtual HRDC     CreateCompatibleHRDC( int nWidth, int nHeight );
-	virtual HDC      GetHDC(bool bHasAlphaChannel);
+	virtual HDC      GetHDC();
 	virtual void     ReleaseHDC( HDC hDC );
 
 	virtual HRGN     GetClipRgn();
@@ -198,7 +198,7 @@ public:
 
 	virtual bool     BeginDraw(HDC hDC, RECT* prc, RECT* prc2=NULL);
 	virtual void     EndDraw( );
-	virtual void     ResizeRenderTarget( int nWidth, int nHeight ){}
+	virtual void     ResizeRenderTarget( int nWidth, int nHeight ){};
 	virtual BYTE*    LockBits() {return NULL;};
 	virtual void     UnlockBits(){};
 	virtual void     Clear(){};
@@ -224,22 +224,12 @@ public:
 	virtual void     ImageList_Draw( HRBITMAP hBitmap, int x, int y, int col, int row, int cx, int cy );
 	virtual void     DrawBitmap( HRBITMAP hBitmap, DRAWBITMAPPARAM* pParam );
 
-protected:
-	HDC       SelectHDC();
-	HDC       SelectHDC(Image* pImage);
-
+	static  void     DrawBitmapEx(HDC hDC, HRBITMAP hBitmap, DRAWBITMAPPARAM* pParam );
 protected:
 	HDC       m_hDC;     // 通过alphablend能够实现半透明绘制，但无法实现其它类型的绘制alpha通道，如文字、24bits位图
-
-	// for layered window
-	bool      m_bLayered;
-
-	Gdiplus::Graphics*   m_pGraphics;
-	Gdiplus::Bitmap*     m_pGdiplusMemBitmap;
-	HDC       m_hGdiplusDC;   // 只能实现 0和255的alpha通道值，不能实现半透明。不知道这算什么原理...
-
 };
 
+#if 0
 class GDIMemRenderDC : public GdiRenderTarget
 {
 public:
@@ -268,4 +258,5 @@ protected:
 	int       m_nWidth;
 	int       m_nHeight;
 };
+#endif
 }

@@ -74,7 +74,7 @@ void RichEditBase::OnEraseBkgnd(IRenderTarget*  pRendrTarget)
 }
 void RichEditBase::OnPaint(IRenderTarget*  pRendrTarget)
 {
-	HDC hDC = pRendrTarget->GetHDC(false);  // TODO: 如果取false的话，透明的一些ole图片该如何实现透明？
+	HDC hDC = pRendrTarget->GetHDC();
 	m_wrapRichEidt.Draw(hDC);
 	pRendrTarget->ReleaseHDC(hDC);
 }

@@ -229,7 +229,7 @@ HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType, bool* pbFi
 	{
 	case GRAPHICS_RENDER_TYPE_GDI:
 		{
-			if ( NULL == m_pGdiBitmap )
+			if (NULL == m_pGdiBitmap)
 			{
 				if (NULL != pbFirstTimeCreate)
 					*pbFirstTimeCreate = true;
@@ -253,7 +253,7 @@ HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType, bool* pbFi
 
 	case GRAPHICS_RENDER_TYPE_GDIPLUS:
 		{
-			if ( NULL == m_pGdiplusBitmap )
+			if (NULL == m_pGdiplusBitmap)
 			{
 				if (NULL != pbFirstTimeCreate)
 					*pbFirstTimeCreate = true;
@@ -264,6 +264,36 @@ HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType, bool* pbFi
 				{
 					m_pGdiplusBitmap->LoadFromFile(m_strPath);
 					UI_LOG_DEBUG(_T("%s gdiplus bitmap create: %s \tPtr=0x%08X"), FUNC_NAME, m_strID.c_str(), m_pGdiplusBitmap );
+
+#if 0  // 转化为Gdi类型  <-- 但最后发现其实Gdiplus的DrawImage效率也不低呀.
+					Gdiplus::Bitmap* pBitmap = m_pGdiplusBitmap->GetBitmap();
+					Gdiplus::PixelFormat eSrcPixelFormat = pBitmap->GetPixelFormat();
+					if (Gdiplus::IsAlphaPixelFormat(eSrcPixelFormat))
+					{
+						if (NULL == m_pGdiBitmap)
+						{
+							if (NULL != pbFirstTimeCreate)
+								*pbFirstTimeCreate = true;
+							else
+								*pbFirstTimeCreate = false;
+
+							RenderBitmapFactory::CreateInstance((IRenderBitmap**)&m_pGdiBitmap, GRAPHICS_RENDER_TYPE_GDI, m_mapAttribute, m_strPath);
+							if (NULL != m_pGdiBitmap)
+							{
+								m_pGdiBitmap->GetBitmap()->CreateFromGdiplusBitmap(*pBitmap);
+								UI_LOG_DEBUG(_T("%s change to gdi bitmap: %s \tPtr=0x%08X"),FUNC_NAME, m_strID.c_str(), m_pGdiBitmap);
+							}
+						}
+						
+
+						if( NULL != m_pGdiBitmap )
+						{
+							m_pGdiBitmap->AddRef();
+						}
+						SAFE_DELETE(m_pGdiplusBitmap); 
+						return (HRBITMAP)m_pGdiBitmap;
+					}
+#endif
 				}
 			}
 			if( NULL != m_pGdiplusBitmap )

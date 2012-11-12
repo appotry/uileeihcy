@@ -138,8 +138,7 @@ public:
 
 	virtual GRAPHICS_RENDER_TYPE GetRenderType() = 0;
 
-	virtual HDC      GetHDC() {/*UIASSERT(0);*/ return NULL;}
-	virtual HDC      GetHDC(bool bHasAlphaChannel){ return NULL; }
+	virtual HDC      GetHDC() = 0;
 	virtual void     ReleaseHDC( HDC hDC ) = 0;
 
 	virtual HRGN     GetClipRgn() = 0;

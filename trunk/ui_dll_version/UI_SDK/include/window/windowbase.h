@@ -153,7 +153,6 @@ protected:
 public:
 	HWND    m_hWnd;                // 窗口句柄
 	IRenderFont* m_pFont;          // 当xml中配置了字体时，m_hFont为xml中的字体。当没有字体时，使用窗口字体。窗口字体也没时，则使用default font.
-//	HRDC    m_hRenderTarget;       // 双缓冲DC
 	HDC     m_hMemDC;              // 双缓冲
 	HBITMAP m_hMemBitmap;          // 双缓冲
 	HBITMAP m_hOldBitmap;
