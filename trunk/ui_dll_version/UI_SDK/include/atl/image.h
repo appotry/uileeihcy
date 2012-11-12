@@ -299,6 +299,8 @@ namespace UI
 		void LoadFromResource( HINSTANCE hInstance, UINT nIDResource, TCHAR* szResourceType );
 		bool LoadFromData( void* pImageData, int nSize );
 		/* ADD END> */
+		HRESULT CreateFromGdiplusBitmap( Gdiplus::Bitmap& bmSrc ) throw();
+
 		BOOL MaskBlt( HDC hDestDC, int xDest, int yDest, int nDestWidth, 
 			int nDestHeight, int xSrc, int ySrc, HBITMAP hbmMask, int xMask, 
 			int yMask, DWORD dwROP = SRCCOPY ) const throw();
@@ -390,7 +392,6 @@ namespace UI
 			String& strFilter, vector< GUID >& aguidFileTypes, LPCTSTR pszAllFilesDescription, DWORD dwExclude, TCHAR chSeparator );
 		static bool ShouldExcludeFormat( REFGUID guidFileType, DWORD dwExclude ) throw();
 		void UpdateBitmapInfo( DIBOrientation eOrientation );
-		HRESULT CreateFromGdiplusBitmap( Gdiplus::Bitmap& bmSrc ) throw();
 
 
 		static int ComputePitch( int nWidth, int nBPP )
