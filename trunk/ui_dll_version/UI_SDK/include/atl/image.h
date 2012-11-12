@@ -684,6 +684,9 @@ namespace UI
 			dwROP ) );
 	}
 
+	// Remarks:
+	//	如果nHeight为负值，表示要创建一个bottom-up类型的DIB，否则为一个top-down类型的
+	// 
 	inline BOOL Image::Create( int nWidth, int nHeight, int nBPP, DWORD dwFlags ) throw()
 	{
 		return( CreateEx( nWidth, nHeight, nBPP, BI_RGB, NULL, dwFlags ) );
@@ -1404,7 +1407,18 @@ namespace UI
 	
 			for( int y = 0; y < GetHeight(); y++ )
 			{
-				// 修正这里的bug,将通道值写入
+				//////////////////////////////////////////////////////////////////////////
+				//
+				//                         实现预乘。
+				//
+				// First you need to create a pre-multiplied 32-bits-per-pixel (bpp) bitmap using a
+				// blue-green-red-alpha (BGRA) color channel byte order. Pre-multiplied just means
+				// that the color channel values have already been multiplied by the alpha value.
+				// This tends to provide better performance for alpha blending images, but it means
+				// you need to reverse the process by dividing the color values by the alpha value
+				// to get their true color values.
+				//
+				//////////////////////////////////////////////////////////////////////////
 				if( m_bHasAlphaChannel )
 				{
 					for( int i = 0; i < (int)nBytesPerRow; i+=4 )
