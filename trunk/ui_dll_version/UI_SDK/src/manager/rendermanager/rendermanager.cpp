@@ -244,9 +244,9 @@ void IRenderTarget::Release()
 
 GRAPHICS_RENDER_TYPE GetGraphicsRenderType(HWND hWnd)
 {
-#ifdef _DEBUG
-	return GRAPHICS_RENDER_TYPE_GDIPLUS;
-#endif
+// #ifdef _DEBUG
+// 	return GRAPHICS_RENDER_TYPE_GDIPLUS;
+// #endif
 
 	if (NULL == hWnd)
 		return GRAPHICS_RENDER_TYPE_GDI;
@@ -272,9 +272,9 @@ GRAPHICS_RENDER_TYPE GetGraphicsRenderType(HWND hWnd)
 
 GRAPHICS_RENDER_TYPE GetGraphicsRenderType(Object* pObj)
 {
-#ifdef _DEBUG
-	return GRAPHICS_RENDER_TYPE_GDIPLUS;
-#endif
+// #ifdef _DEBUG
+// 	return GRAPHICS_RENDER_TYPE_GDIPLUS;
+// #endif
 
 	if (NULL == pObj) 
 		return GRAPHICS_RENDER_TYPE_GDI;

@@ -265,7 +265,7 @@ HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType, bool* pbFi
 					m_pGdiplusBitmap->LoadFromFile(m_strPath);
 					UI_LOG_DEBUG(_T("%s gdiplus bitmap create: %s \tPtr=0x%08X"), FUNC_NAME, m_strID.c_str(), m_pGdiplusBitmap );
 
-#if 0  // 转化为Gdi类型  <-- 但最后发现其实Gdiplus的DrawImage效率也不低呀.
+#if 1  // 转化为Gdi类型  <-- 但最后发现其实两者最后的绘制内存占用率也差不多....为什么呢？按理gdiplus应该比gdi慢N倍的
 					Gdiplus::Bitmap* pBitmap = m_pGdiplusBitmap->GetBitmap();
 					Gdiplus::PixelFormat eSrcPixelFormat = pBitmap->GetPixelFormat();
 					if (Gdiplus::IsAlphaPixelFormat(eSrcPixelFormat))

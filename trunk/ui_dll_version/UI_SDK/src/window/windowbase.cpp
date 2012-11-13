@@ -904,6 +904,33 @@ LRESULT WindowBase::_OnPaint( UINT uMsg, WPARAM wParam,LPARAM lParam, BOOL& bHan
 		pRenderTarget->EndDraw();
 	}
 	SAFE_RELEASE(pRenderTarget);
+#elif 1
+	// 不带alpha的图片，gdiplus比gdi慢20倍
+	// 还alpha的图片，gdiplus比gdi慢近9位
+	Image  image;
+	image.Load(_T("E:\\A.png"));
+
+	Gdiplus::Bitmap* pBitmap = Gdiplus::Bitmap::FromFile(_T("E:\\A.png"));
+	Gdiplus::Graphics g(m_hMemDC);
+
+	int a = GetTickCount();
+	for (int i = 0; i < 1000; i++)
+	{
+		image.Draw(m_hMemDC,0,0,1600,900,0,0,image.GetWidth(),image.GetHeight());
+	}
+	int b = GetTickCount();
+	int c = b-a;
+
+	a = GetTickCount();
+	Gdiplus::RectF rcf(0,0,1600,800);
+	for (int i = 0; i < 1000; i++)
+	{
+		g.DrawImage(pBitmap,rcf,0,0,pBitmap->GetWidth(),pBitmap->GetWidth(),Gdiplus::UnitPixel);
+	}
+	b = GetTickCount();
+	c = b - a;
+	int d = 0;
+
 #elif 0
 
 	HBITMAP hCurMemBitmap = (HBITMAP)::GetCurrentObject(m_hMemDC, OBJ_BITMAP);
@@ -1048,7 +1075,10 @@ LRESULT WindowBase::_OnSize( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHan
 	bHandled = FALSE;
 	if (SIZE_MINIMIZED != wParam)
 	{
-		this->CreateDoubleBuffer(LOWORD(lParam), HIWORD(lParam));
+		if (NULL != m_hMemDC)   // 首先由OnPaint负责创建以缓冲，避免在分层窗口刚创建的OnSize中去RedrawObject，此时还没有响应OnInitWindow
+		{
+			this->CreateDoubleBuffer(LOWORD(lParam), HIWORD(lParam));
+		}
 
 		//
 		// (只有是用户显式修改窗口大小（拖拽、最大化）时，才能将width/height 从auto修改为现有值cx/cy
