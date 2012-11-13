@@ -1210,8 +1210,6 @@ void LayeredWindowWrap::ReleaseLayeredWindow()
 }
 void LayeredWindowWrap::OnSize( UINT nType, int cx, int cy )
 {
-// 	if( NULL == m_hLayeredMemDC )
-// 		return;
 // 
 // 	SAFE_DELETE_GDIOBJECT(m_hLayeredBitmap);
 // 

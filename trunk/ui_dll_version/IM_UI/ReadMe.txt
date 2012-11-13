@@ -74,3 +74,6 @@ and saving changes to the original bitmap operations may tie up all your resourc
 因这这个还是得借助于Graphics::GetHDC/ReleaseHDC来完成，但这个的效率太低了...
 而且为了如果一个GDI HDC绘制在两个 GDI+ HDC中间，会导致ReleaseHDC时，将GDI
 绘制的全部覆盖了.
+
+不带alpha的图片，gdiplus比gdi慢20倍
+还alpha的图片，gdiplus比gdi慢近9位
