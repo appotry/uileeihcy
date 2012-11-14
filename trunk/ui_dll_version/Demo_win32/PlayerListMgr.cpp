@@ -34,13 +34,12 @@ CPlayerListMgr::~CPlayerListMgr(void)
 
 bool CPlayerListMgr::Initialize()
 {
-	ToggleShowPlayerListDlg(GetMainMgr()->GetMainWnd());
-
 	srand( (unsigned)time( NULL ) );
 
 	m_data.Load();  // 从配置文件中读取历史记录
 	m_ePlayMode = (PLAY_MODE) GetMainMgr()->GetConfigData()->player.m_bytePlayMode;
 
+	ToggleShowPlayerListDlg(GetMainMgr()->GetMainWnd());
 	return true;
 }
 bool CPlayerListMgr::Release()

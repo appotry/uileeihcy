@@ -40,6 +40,8 @@ public:
 	bool     SetCurSel(int nIndex);
 	ListBox* GetListBox() { return m_listbox; }
 	Edit*    GetEdit()    { return m_edit; }
+	void     SetComboboxStyleType(int n);
+
 protected:
 	void     OnStateChanged(int nOld, int nNew);
 	void     OnEraseBkgnd(HRDC hRDC);

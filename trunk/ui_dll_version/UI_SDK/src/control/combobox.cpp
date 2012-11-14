@@ -49,6 +49,22 @@ bool ComboboxBase::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 	this->SetChildObjectAttribute(m_button,  XML_COMBOBOX_BUTTON_PRIFIX,  m_mapAttribute, bReload);
 	this->SetChildObjectAttribute(m_listbox, XML_COMBOBOX_LISTBOX_PRIFIX, m_mapAttribute, bReload);
 
+	ATTRMAP::iterator iter = m_mapAttribute.find(XML_TEXTRENDER_TYPE);
+	if (m_mapAttribute.end() != iter)
+	{
+		SAFE_DELETE(m_pTextRender);
+		const String& strTextRenderType = iter->second;
+		m_pTextRender = TextRenderFactory::GetTextRender(strTextRenderType, this);
+		m_pTextRender->SetAttribute(_T(""),m_mapAttribute);
+
+		this->m_mapAttribute.erase(iter);
+	}
+	else if( NULL == m_pTextRender )
+	{
+		m_pTextRender = TextRenderFactory::GetTextRender(TEXTRENDER_TYPE_NORMAL, this);
+		m_pTextRender->SetAttribute(_T(""),m_mapAttribute);
+	}
+
 	// 背景绘制 
 	if (NULL == m_pBkgndRender)
 	{
@@ -85,10 +101,10 @@ void ComboboxBase::ResetAttribute()
 	m_button->SetDrawFocusType(BUTTON_RENDER_DRAW_FOCUS_TYPE_NONE);
 	m_button->SetAutoSizeType(BUTTON_RENDER_AUTOSIZE_TYPE_BKIMAGE);
 }
-SIZE ComboboxBase::GetAutoSize( HRDC hRDC )
+SIZE ComboboxBase::GetAutoSize(HRDC)
 {
-	SIZE s1 = m_edit->GetAutoSize(hRDC);
-	SIZE s2 = m_button->GetAutoSize(hRDC);
+	SIZE s1 = m_edit->GetAutoSize();
+	SIZE s2 = m_button->GetAutoSize();
 
 	SIZE s = {s1.cx+s2.cx, max(s1.cy,s2.cy)};
 	return s;
@@ -266,4 +282,19 @@ ListBoxItem* ComboboxBase::AddStringEx(const String& strText, bool bUpdate)
 bool ComboboxBase::SetCurSel(int nIndex)
 {
 	return m_listbox->SetSel(nIndex);
+}
+
+//  设置COMBOBOX类型
+void ComboboxBase::SetComboboxStyleType(int n)
+{
+	switch(n)
+	{
+	case COMBOBOX_STYLE_DROPDOWN:
+		this->ModifyStyle(COMBOBOX_STYLE_DROPDOWN, COMBOBOX_STYLE_DROPDOWNLIST);
+		break;
+
+	case COMBOBOX_STYLE_DROPDOWNLIST:
+		this->ModifyStyle(COMBOBOX_STYLE_DROPDOWNLIST, COMBOBOX_STYLE_DROPDOWN);
+		break;
+	}
 }

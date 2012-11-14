@@ -64,10 +64,10 @@ bool Label::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 
 		this->m_mapAttribute.erase(iter);
 	}
-	else if( NULL == m_pTextRender )
+	else if (NULL == m_pTextRender)
 	{
 		m_pTextRender = TextRenderFactory::GetTextRender(TEXTRENDER_TYPE_NORMAL, this);
-		m_pTextRender->SetAttribute(_T(""),m_mapAttribute);
+		m_pTextRender->SetAttribute(_T(""), m_mapAttribute);
 	}
 
 	// ÄÚÈİ

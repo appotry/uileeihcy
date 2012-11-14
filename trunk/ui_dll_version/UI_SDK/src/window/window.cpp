@@ -67,7 +67,7 @@ void Window::_OnLButtonDblClk(UINT nFlags, POINT point)
 	{
 		OnSysRestore();
 	}
-	else
+	else if (NULL != m_pBtnSystemMaximize)
 	{
 		OnSysMaximize();
 	}

@@ -95,7 +95,7 @@ L"    一个集播放、音效、转换、歌词等多种功能于一身的专业音频播放软件。\r\n\
 			m_pComboboxVisualType->AddStringEx(_T("示波显示"))->SetData((void*)VISUALIZATION_WAVE);
 			m_pComboboxVisualType->AddStringEx(_T("专辑封面"))->SetData((void*)VISUALIZATION_NONE);
 
-			m_pComboboxVisualType->ModifyStyle(COMBOBOX_STYLE_DROPDOWNLIST);
+			m_pComboboxVisualType->SetComboboxStyleType(COMBOBOX_STYLE_DROPDOWNLIST);
 
 			switch(pConfigData->visual.m_nType)
 			{
