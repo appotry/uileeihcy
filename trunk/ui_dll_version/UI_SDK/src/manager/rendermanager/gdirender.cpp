@@ -352,6 +352,11 @@ HRGN GdiRenderTarget::GetClipRgn()
 }
 int GdiRenderTarget::SelectClipRgn( HRGN hRgn, int nMode )
 {
+	if (RGN_COPY == nMode && NULL != hRgn)
+	{
+		return ::SelectClipRgn(m_hDC, hRgn);
+	}
+
 	int nRet = ExtSelectClipRgn(m_hDC, hRgn, nMode);
 	return nRet;
 }
@@ -380,7 +385,9 @@ BOOL GdiRenderTarget::OffsetViewportOrgEx(int x, int y, LPPOINT lpPoint)
 //
 // 如果需要同时绘制两个item项，则可以提供两个RECT进行裁剪
 //
-bool GdiRenderTarget::BeginDraw(HDC hDC, RECT* prc, RECT* prc2)
+// bClear主要是用于分层窗口中的透明背景，目前没有发现GDI有需要重刷背景的地方
+//
+bool GdiRenderTarget::BeginDraw(HDC hDC, RECT* prc, RECT* prc2, bool bClear)
 {
 
 	if (NULL != m_hDC)

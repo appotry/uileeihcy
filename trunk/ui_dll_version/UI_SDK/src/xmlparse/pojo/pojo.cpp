@@ -211,6 +211,7 @@ CPojo_ImageItem::CPojo_ImageItem()
 	m_pOriginImageData = NULL;
 
 	m_bUseSkinHLS = true;
+	m_bHasAlphaChannel = false;
 //	u.icon.m_nWidth = u.icon.m_nHeight = 0;
 
 }
@@ -225,7 +226,7 @@ CPojo_ImageItem::~CPojo_ImageItem()
 
 HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType, bool* pbFirstTimeCreate )
 {	
-	switch( eRenderType )
+	switch (eRenderType)
 	{
 	case GRAPHICS_RENDER_TYPE_GDI:
 		{
@@ -241,6 +242,10 @@ HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType, bool* pbFi
 					m_pGdiBitmap->LoadFromFile(m_strPath);
 					UI_LOG_DEBUG(_T("%s gdi bitmap create: %s \tPtr=0x%08X"),FUNC_NAME, m_strID.c_str(), m_pGdiBitmap);
 				}
+				if (m_pGdiBitmap->GetBitmap()->HasAlphaChannel())
+				{
+					m_bHasAlphaChannel = true;
+				}
 			}
 
 			if( NULL != m_pGdiBitmap )
@@ -253,6 +258,12 @@ HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType, bool* pbFi
 
 	case GRAPHICS_RENDER_TYPE_GDIPLUS:
 		{
+			if (m_bHasAlphaChannel && NULL != m_pGdiBitmap)
+			{
+				m_pGdiBitmap->AddRef();
+				return (HRBITMAP)m_pGdiBitmap;
+			}
+
 			if (NULL == m_pGdiplusBitmap)
 			{
 				if (NULL != pbFirstTimeCreate)
@@ -270,6 +281,8 @@ HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType, bool* pbFi
 					Gdiplus::PixelFormat eSrcPixelFormat = pBitmap->GetPixelFormat();
 					if (Gdiplus::IsAlphaPixelFormat(eSrcPixelFormat))
 					{
+						m_bHasAlphaChannel = true;
+
 						if (NULL == m_pGdiBitmap)
 						{
 							if (NULL != pbFirstTimeCreate)
@@ -340,8 +353,8 @@ bool CPojo_ImageItem::ModifyHLS(short h, short l, short s, int nFlag)
 	ModifyHLS(m_pGdiBitmap, h,l,s,nFlag);
 	ModifyHLS(m_pGdiplusBitmap, h,l,s,nFlag);
 
-	UIASSERT(0);
-	ModifyHLS(m_pDirect2DBitmap, h,l,s,nFlag);
+// 	UIASSERT(0);
+// 	ModifyHLS(m_pDirect2DBitmap, h,l,s,nFlag);
 
 // 	if( NULL != m_pGdiBitmap )
 // 	{

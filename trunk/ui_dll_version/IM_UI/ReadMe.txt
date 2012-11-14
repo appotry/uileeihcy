@@ -1,4 +1,11 @@
-﻿flash的脏矩形渲染流程 + 
+﻿
+？？？为什么使用GDI方式绘制的窗口透明背景，不绘产生alpha叠加变黑的问题？使用GDIPLUS的图片绘制就会出现这个问题？
+
+/////////////////////////////////////////////////////////////////
+知识点:
+
+
+flash的脏矩形渲染流程 + 
 quake3的多线程渲染管道流水线 + 
 redui的2\3d混合机制 + 
 pureMVC的松耦合架构 + 
@@ -74,6 +81,8 @@ and saving changes to the original bitmap operations may tie up all your resourc
 因这这个还是得借助于Graphics::GetHDC/ReleaseHDC来完成，但这个的效率太低了...
 而且为了如果一个GDI HDC绘制在两个 GDI+ HDC中间，会导致ReleaseHDC时，将GDI
 绘制的全部覆盖了.
+
+因此在分层窗口中，不要去使用会调用GetHDC的操作，例如theme绘制
 
 不带alpha的图片，gdiplus比gdi慢20倍
 还alpha的图片，gdiplus比gdi慢近9位

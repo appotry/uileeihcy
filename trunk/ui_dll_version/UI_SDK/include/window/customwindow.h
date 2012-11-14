@@ -77,7 +77,7 @@ public:
 protected:
 	virtual   BOOL PreCreateWindow( CREATESTRUCT& cs );
 	virtual   void OnInitWindow( );
-	virtual   void RedrawObject( Object* pInvalidateObj, RECT* prc, bool bUpdateNow );
+	virtual   void RedrawObject( Object* pInvalidateObj, RECT* prc, bool bUpdateNow, bool bOnlyRedrawBkgnd=false );
 	virtual   HRDC BeginRedrawObjectPart(Object* pRedrawObj, RECT* prc1, RECT* prc2=NULL);
 	virtual   void EndRedrawObjectPart(IRenderTarget* pRenderTarget, RECT* prc1, RECT* prc2);
 	virtual   void CommitDoubleBuffet2Window(HDC hDCWnd, RECT* prcCommit);
@@ -175,7 +175,7 @@ public:
 	void      OnSize( UINT nType, int cx, int cy );
 	void      OnWindowPosChanging(LPWINDOWPOS lpWndPos);
 	void      OnWindowPosChanged(LPWINDOWPOS lpWndPos);
-	void      RedrawObject(Object* pInvalidateObj, bool bUpdateNow);
+	void      RedrawObject(Object* pInvalidateObj, bool bUpdateNow, bool bOnlyRedrawBkgnd=false);
 	HRDC      BeginRedrawObjectPart(Object* pRedrawObj, RECT* prc1, RECT* prc2);
 	void      PreEndDrawObject(RECT* prcWindow1, RECT* prcWindow2);
 //	void      PostEndDrawObject(CRect* prcWindow, bool bFinish);

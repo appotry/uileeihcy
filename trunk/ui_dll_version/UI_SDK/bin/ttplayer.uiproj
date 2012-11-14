@@ -2,7 +2,7 @@
 <ui>
 <project projectname="ttplayer" select="mediaplayer">
 <skin name="let&apos;s seven" path=".\let&apos;s seven\ui.xml"/>
-<skin name="mediaplayer" path=".\mediaplay\ui.xml"/>
+<skin name="mediaplayer" path=".\mediaplay\ui.xml" hls="5,0,0"/>
 </project>
 <log switch="on">
     <item name="ui" switch="on" path="log\ui.log" level="debug" flag="0x3"   fileflag="0x1"/>

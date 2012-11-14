@@ -432,13 +432,19 @@ HRGN GdiplusRenderTarget::GetClipRgn()
 }
 int GdiplusRenderTarget::SelectClipRgn( HRGN hRgn, int nMode )
 {
-	if( NULL == hRgn )
+	if (RGN_COPY == nMode && NULL != hRgn)
+		::SelectClipRgn(m_hDC, hRgn);
+	else
+		::ExtSelectClipRgn(m_hDC, hRgn, nMode);  // 为gdi类型带alpha通道的位图绘制准备的
+
+	if (NULL == m_pGraphics)
+		return 0;
+
+	if(NULL == hRgn)
 	{
 		Gdiplus::Status s = m_pGraphics->ResetClip();
 		return (int)s;
 	}
-
-	::ExtSelectClipRgn(m_hDC, hRgn, nMode);  // 为gdi类型带alpha通道的位图绘制准备的
 
 // 	Gdiplus::Region* pRegion = Gdiplus::Region::FromHRGN(hRgn);   // 注意：在这里千万不要使用Region对象进行setclip，否则会导致当前的clip跟随vieworg而偏移
 // 	if( NULL == pRegion )
@@ -521,6 +527,9 @@ BOOL GdiplusRenderTarget::SetViewportOrgEx( int x, int y, LPPOINT lpPoint )
 
 	::SetViewportOrgEx(m_hDC, x, y, lpPoint);  // 为gdi类型带alpha通道的位图绘制准备的
 
+	if (NULL == m_pGraphics)
+		return TRUE;
+	
 	m_pGraphics->ResetTransform();
 	if( Gdiplus::Ok == m_pGraphics->TranslateTransform((Gdiplus::REAL)x,(Gdiplus::REAL)y) )
 		return TRUE;
@@ -528,7 +537,7 @@ BOOL GdiplusRenderTarget::SetViewportOrgEx( int x, int y, LPPOINT lpPoint )
 		return FALSE;
 }
 
-bool GdiplusRenderTarget::BeginDraw(HDC hDC, RECT* prc, RECT* prc2)
+bool GdiplusRenderTarget::BeginDraw(HDC hDC, RECT* prc, RECT* prc2, bool bClear)
 {
 	if (NULL != m_hDC)
 		return false;
@@ -573,19 +582,31 @@ bool GdiplusRenderTarget::BeginDraw(HDC hDC, RECT* prc, RECT* prc2)
 		this->SelectClipRgn(hRgn, RGN_COPY);
 		SAFE_DELETE_GDIOBJECT(hRgn);
 	}
+
+	if (bClear)
+	{
+		HBRUSH hBrush = (HBRUSH)GetStockObject(BLACK_BRUSH);
+		if (NULL != prc)
+			::FillRect(m_hDC, prc, hBrush);
+		if (NULL != prc2)
+			::FillRect(m_hDC, prc2, hBrush);
+	}
 	return true;
 }
 void GdiplusRenderTarget::EndDraw( )
 {
+	delete m_pGdiMemBitmap;
+	SAFE_DELETE(m_pGraphics);
+
+
 	this->SetViewportOrgEx(0,0);
 	this->SelectClipRgn(NULL);
 
 // 	Gdiplus::Graphics g(m_hDC);
 // 	g.DrawImage(m_pGdiMemBitmap,0,0,m_pGdiMemBitmap->GetWidth(),m_pGdiMemBitmap->GetHeight());
-	delete m_pGdiMemBitmap;
+
 
 	m_hDC = NULL;
-	SAFE_DELETE(m_pGraphics);
 }
 
 BYTE* GdiplusRenderTarget::LockBits()

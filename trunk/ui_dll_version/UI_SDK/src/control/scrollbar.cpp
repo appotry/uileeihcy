@@ -302,10 +302,10 @@ BOOL ScrollBarMgr::ProcessMessage(UIMSG* pMsg, int nMsgMapID)
 				this->m_pVScrollBar->FireScrollMessage(SB_THUMBPOSITION, m_pVScrollBar->GetScrollPos()-m_pVScrollBar->GetScrollWheelLine());
 			}
 
-			if (nOldPos != GetVScrollPos())
-			{
-				this->GetBindObject()->UpdateObject();
-			}
+// 			if (nOldPos != GetVScrollPos())
+// 			{
+// 				this->GetBindObject()->UpdateObject();  FireScrollMessage最终会刷新
+// 			}
 		}
 		else if (NULL != m_pHScrollBar)
 		{
@@ -327,10 +327,10 @@ BOOL ScrollBarMgr::ProcessMessage(UIMSG* pMsg, int nMsgMapID)
 				this->m_pHScrollBar->SetScrollPos(m_pHScrollBar->GetScrollPos()-m_pHScrollBar->GetScrollWheelLine());
 			}
 
-			if (nOldPos != GetHScrollPos())
-			{
-				this->GetBindObject()->UpdateObject();
-			}
+// 			if (nOldPos != GetHScrollPos())
+// 			{
+// 				this->GetBindObject()->UpdateObject();
+// 			}
 		}
 
 		// 重新发送一个MOUSEMOVE消息给obj，用于定位滚动后的hover对象

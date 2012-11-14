@@ -196,7 +196,7 @@ public:
 	virtual BOOL     SetViewportOrgEx( int x, int y, LPPOINT lpPoint = NULL ) ;
 	virtual BOOL     OffsetViewportOrgEx( int x, int y, LPPOINT lpPoint = NULL );
 
-	virtual bool     BeginDraw(HDC hDC, RECT* prc, RECT* prc2=NULL);
+	virtual bool     BeginDraw(HDC hDC, RECT* prc, RECT* prc2=NULL, bool bClear=false);
 	virtual void     EndDraw( );
 	virtual void     ResizeRenderTarget( int nWidth, int nHeight ){};
 	virtual BYTE*    LockBits() {return NULL;};

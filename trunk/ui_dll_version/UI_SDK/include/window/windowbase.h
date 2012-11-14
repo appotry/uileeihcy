@@ -8,8 +8,8 @@
 
 namespace UI
 {
-	class UIAPI WindowBase : public Panel,
-							 public SyncWindowHelper<WindowBase>
+class UIAPI WindowBase : public Panel,
+						 public SyncWindowHelper<WindowBase>
 {
 public:
 	UI_DECLARE_OBJECT( WindowBase, OBJ_WINDOW )
@@ -39,14 +39,11 @@ protected:
 	virtual BOOL PreTranslateMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT* pRet);
 
 public:
-	virtual void RedrawObject( Object* pObj, RECT* prc, bool bUpdateNow );
-	virtual void RedrawObjectBkgnd( Object* pObj, RECT* prc, bool bUpdateNow );
-	
+	virtual void RedrawObject( Object* pObj, RECT* prc, bool bUpdateNow, bool bOnlyRedrawBkgnd=false);
 	virtual IRenderTarget* BeginRedrawObjectPart(Object* pRedrawObj, RECT* prc1, RECT* prc2=NULL);
 	virtual void EndRedrawObjectPart(IRenderTarget* pRenderTarget, RECT* prc1, RECT* prc2=NULL);
 protected:
-	void    _InnerRedrawObject(Object* pInvalidateObj, HDC hDestDC);
-	void    _InnerRedrawObjectBkgnd(Object* pInvalidateObj, HDC hDestDC);
+	void    _InnerRedrawObject(Object* pInvalidateObj, bool bOnlyRedrawBkgnd=false);
 	
 public:
 	// 一些公共方法
@@ -88,6 +85,7 @@ protected:
 	virtual void OnDrawWindow(IRenderTarget* p);
 	virtual void OnEndErasebkgnd(){}   // 用于CustomWindow设置窗口异形
 
+	void    SaveMemBitmap(TCHAR* szFile);
 public:
 	// WndProc的原始消息处理
 	BEGIN_MSG_MAP(WindowBase)  // 经过virtual扩展了

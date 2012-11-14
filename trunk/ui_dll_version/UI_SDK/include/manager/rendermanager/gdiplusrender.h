@@ -396,7 +396,7 @@ public:
 	virtual BOOL     OffsetViewportOrgEx( int x, int y, LPPOINT lpPoint = NULL );
 
 	// 只有GdiplusMemRenderDC才支持
-	virtual bool     BeginDraw(HDC hDC, RECT* prc, RECT* prc2);
+	virtual bool     BeginDraw(HDC hDC, RECT* prc, RECT* prc2=NULL, bool bClear=false);
 	virtual void     EndDraw();
 //	virtual void     EndDraw( int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish ){};
 	virtual void     ResizeRenderTarget( int nWidth, int nHeight ){}; 

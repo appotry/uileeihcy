@@ -163,8 +163,11 @@ void WindowlessRichEdit::Draw(HDC hDC)
 
 	::OffsetRect(&rcClient, -rcClient.left, -rcClient.top);
 
+// 	SaveDC(hDC);
+// 	::SetViewportOrgEx(hDC, 0,0,NULL);
 	m_spTextServices->TxDraw(DVASPECT_CONTENT, 0, NULL, NULL, hDC,
 							NULL, (RECTL *)&rcClient, NULL, NULL, NULL, NULL, TXTVIEW_ACTIVE);
+//	::RestoreDC(hDC,-1);
 }
 
 // handled表示richedit不处理这个消息

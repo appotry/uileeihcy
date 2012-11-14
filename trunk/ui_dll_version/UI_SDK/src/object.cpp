@@ -84,15 +84,15 @@ void Object::UpdateObject( bool bUpdateNow )
 }
 
 // 当对象隐藏/移动的时候，刷新背景
-void Object::UpdateObjectBkgnd( bool bUpdateNow )
+void Object::UpdateObjectBkgnd(bool bUpdateNow)
 {
-	if( this->testStateBit(CSB_PREVENTREDRAW))
+	if (this->testStateBit(CSB_PREVENTREDRAW))
 		return ;
 
 	WindowBase* pWindow = this->GetWindowObject();
 	if (NULL != pWindow)
 	{
-		pWindow->RedrawObjectBkgnd(this, NULL, bUpdateNow);
+		pWindow->RedrawObject(this, NULL, bUpdateNow, true);
 	}
 }
 
@@ -1390,16 +1390,16 @@ void Object::SetObjectPos( int x, int y, int cx, int cy, int nFlag )
 		return;  // DONOTHING
 	}
 
-	if (bMove || bSize) 
-	{
-		// 刷新移动前的区域位置
-		if (!(nFlag & SWP_NOREDRAW))
-		{
-			CRect rcWindow;
-			this->GetWindowRect(&rcWindow);
-			this->UpdateObject(&rcWindow, false);
-		}
-	}
+// 	if (bMove || bSize)   // 注，千万先别放在，会导致滚动条刷新狂慢
+// 	{
+// 		// 刷新移动前的区域位置
+// 		if (!(nFlag & SWP_NOREDRAW))
+// 		{
+// 			CRect rcWindow;
+// 			this->GetWindowRect(&rcWindow);
+// 			this->UpdateObject(&rcWindow, false);
+// 		}
+// 	}
 
 	if (this->GetObjectType() == OBJ_WINDOW)
 	{
@@ -1421,16 +1421,16 @@ void Object::SetObjectPos( int x, int y, int cx, int cy, int nFlag )
 		::SetRect(&m_rcParent, x,y,x+cx,y+cy);
 	}
 
-	if (bMove || bSize)
-	{
-		// 刷新移动后的区域位置
-		if( !(nFlag & SWP_NOREDRAW) )
-		{
-			CRect rcWindow;
-			this->GetWindowRect(&rcWindow);
-			this->UpdateObject(&rcWindow, true);
-		}
-	}
+// 	if (bMove || bSize)
+// 	{
+// 		// 刷新移动后的区域位置
+// 		if( !(nFlag & SWP_NOREDRAW) )
+// 		{
+// 			CRect rcWindow;
+// 			this->GetWindowRect(&rcWindow);
+// 			this->UpdateObject(&rcWindow, true);
+// 		}
+// 	}
 
 	// MSDN: MoveWindow sends the WM_WINDOWPOSCHANGING, WM_WINDOWPOSCHANGED, WM_MOVE, WM_SIZE, and WM_NCCALCSIZE messages to the window. 
 	// 在这里我们暂时只先发送WM_MOVE/WM_SIZE消息
