@@ -422,23 +422,23 @@ IRenderTarget* CreateRenderTarget(HWND hWnd)
 //	GDIPLUS，创建Graphics::FromBitmap,创建Graphic for draw
 //	Direct2d，不需要参数
 //
-bool BeginDraw(HRDC hRDC, HDC hDC)
-{
-	if( NULL == hRDC )
-	{
-		return false;
-	}
-	return ((IRenderTarget*)hRDC)->BeginDraw(hDC);
-}
+// bool BeginDraw(HRDC hRDC, HDC hDC)
+// {
+// 	if( NULL == hRDC )
+// 	{
+// 		return false;
+// 	}
+// 	return ((IRenderTarget*)hRDC)->BeginDraw(hDC);
+// }
 
-void EndDraw(HRDC hRDC)
-{
-	if( NULL == hRDC )
-	{
-		return;
-	}
-	return ((IRenderTarget*)hRDC)->EndDraw();
-}
+// void EndDraw(HRDC hRDC)
+// {
+// 	if( NULL == hRDC )
+// 	{
+// 		return;
+// 	}
+// 	return ((IRenderTarget*)hRDC)->EndDraw();
+// }
 // void EndDraw( HRDC hRDC, int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc, bool bFinish )
 // {
 // 	if( NULL == hRDC )
@@ -618,9 +618,9 @@ void FillRect( HRDC hRDC, const CRect* lprc, COLORREF col)
 {
 	if( NULL == hRDC )
 	{
-		return;
+		return; 
 	}
-	((IRenderTarget*)hRDC)->FillRect( lprc, col );
+ 	((IRenderTarget*)hRDC)->FillRect( lprc, col );
 }
 void TileRect( HRDC hRDC, const CRect* lprc, HRBITMAP hBitmap )
 {

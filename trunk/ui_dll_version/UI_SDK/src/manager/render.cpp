@@ -552,11 +552,11 @@ bool ImageRender::SetAttribute( const String& strPrefix, map<String,String>& map
 	return true;
 } 
 
-void ImageRender::DrawState(IRenderTarget* pRDC, const CRect* prc, int nState)
+void ImageRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {
 	if (NULL != m_pColorBk)
 	{
-		pRDC->FillRect(prc, m_pColorBk->GetColor() );
+		pRenderTarget->FillRect(prc, m_pColorBk->GetColor() );
 	}
 
 	POINT ptSrc = this->GetBitmapSrcDrawPos();
@@ -580,7 +580,7 @@ void ImageRender::DrawState(IRenderTarget* pRDC, const CRect* prc, int nState)
 		{
 			param.nFlag |= DRAW_BITMAP_DISABLE;
 		}
-		pRDC->DrawBitmap(m_pBitmap, &param);
+		pRenderTarget->DrawBitmap(m_pBitmap, &param);
 
 // 		switch (m_eImageDrawType)
 // 		{

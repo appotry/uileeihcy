@@ -303,7 +303,7 @@ Direct2DRenderTarget::~Direct2DRenderTarget()
 }
 
 #include <comdef.h>
-bool Direct2DRenderTarget::BeginDraw(HDC hDC)
+bool Direct2DRenderTarget::BeginDraw(HDC hDC, RECT* prc, RECT* prc2, bool bClear)
 {
 	if (NULL != m_pRenderTarget)
 	{
@@ -337,6 +337,11 @@ bool Direct2DRenderTarget::BeginDraw(HDC hDC)
 	m_pRenderTarget->BindDC(hDC, &rc);
 
 	m_pRenderTarget->BeginDraw();
+	if (bClear)
+	{
+		D2D1_COLOR_F color = {0};
+		m_pRenderTarget->Clear(color);
+	}
 	return true;
 }
 void Direct2DRenderTarget::EndDraw()

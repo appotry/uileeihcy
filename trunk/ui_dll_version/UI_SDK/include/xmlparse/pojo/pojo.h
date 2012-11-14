@@ -154,6 +154,7 @@ namespace UI
 		String    m_strPath;    // image path
 
 		bool      m_bUseSkinHLS;         // 该图片是否参与皮肤色调改变 
+		bool      m_bHasAlphaChannel;    // 该图片是否拥有alpha channel。有alpha channel的图片一率采用gdi创建，采用alphablend绘制
 		ATTRMAP   m_mapAttribute;        // 为该图片配置的属性，例如imagelist的count，icon的width height
 
 		ImageData*            m_pOriginImageData;    // 该图片的原始数据（改变图片色调时使用）

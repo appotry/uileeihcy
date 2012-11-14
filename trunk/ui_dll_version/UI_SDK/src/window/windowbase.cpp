@@ -224,7 +224,7 @@ WindowBase::operator HWND() const
 //	See Also
 //		LayeredWindow::UpdateObject
 //
-void WindowBase::RedrawObject( Object* pRedrawObj, RECT* prc, bool bUpdateNow )
+void WindowBase::RedrawObject(Object* pRedrawObj, RECT* prc, bool bUpdateNow, bool bOnlyRedrawBkgnd)
 {
 	if (NULL == pRedrawObj)
 		return;
@@ -244,79 +244,29 @@ void WindowBase::RedrawObject( Object* pRedrawObj, RECT* prc, bool bUpdateNow )
 	}
 	else
 	{
-		this->_InnerRedrawObject(pRedrawObj, NULL);
+		this->_InnerRedrawObject(pRedrawObj, bOnlyRedrawBkgnd);
 	}
 }
 
-void WindowBase::RedrawObjectBkgnd( Object* pInvalidateObj, RECT* prc, bool bUpdateNow )
-{
-#if 0 // TODO: RenderEngine Modify
-	if( NULL == pInvalidateObj || NULL == m_hRenderTarget )
-		return;
-
-	if( OBJ_HWNDHOST == pInvalidateObj->GetObjectType() )
-	{
-		// 系统控件的刷新由它自己本身负责
-	}
-	else if( OBJ_WINDOW == pInvalidateObj->GetObjectType() )
-	{
-		WindowBase* pWindow = (WindowBase*)pInvalidateObj;
-		::InvalidateRect(pWindow->m_hWnd, prc, TRUE);
-		if( bUpdateNow )
-		{
-			UpdateWindow(pWindow->m_hWnd);
-		}
-	}
-	else
-	{
-		this->_InvalidateObjectBkgnd(pInvalidateObj, NULL);
-	}
-#endif
-}
-
-void WindowBase::_InnerRedrawObject(Object* pInvalidateObj, HDC hDestDC)
+void WindowBase::_InnerRedrawObject(Object* pInvalidateObj, bool bOnlyRedrawBkgnd)
 {
 	IRenderTarget*  pRenderTarget = CreateRenderTarget(m_hWnd);
 
 	RenderOffsetClipHelper roc(this, false);
 	pInvalidateObj->GetWindowRect(&roc.m_rcClip);
 
-	if (pRenderTarget->BeginDraw(m_hMemDC, roc.m_rcClip))
+	bool bNeedClear = this->IsTransparent() && pInvalidateObj->IsTransparent();  // 防止分层窗口的alpha重叠变黑
+	if (pRenderTarget->BeginDraw(m_hMemDC, roc.m_rcClip, NULL, bNeedClear))
 	{
-		if (this->IsTransparent())
-		{
-			pRenderTarget->Clear();
-		}
-
-		pInvalidateObj->DrawObjectTransparentBkgnd(pRenderTarget, roc, pInvalidateObj->IsTransparent());
-		pInvalidateObj->DrawObject(pRenderTarget, roc);
-	
-		pRenderTarget->EndDraw();
-		this->CommitDoubleBuffet2Window(NULL, &roc.m_rcClip);
-	}
+ 		pInvalidateObj->DrawObjectTransparentBkgnd(pRenderTarget, roc, pInvalidateObj->IsTransparent());
+		
+		if (!bOnlyRedrawBkgnd)
+ 			pInvalidateObj->DrawObject(pRenderTarget, roc);
+ 	
+  		pRenderTarget->EndDraw();
+  		this->CommitDoubleBuffet2Window(NULL, &roc.m_rcClip);
+ 	}
 	SAFE_RELEASE(pRenderTarget);
-}
-
-void WindowBase::_InnerRedrawObjectBkgnd(Object* pInvalidateObj, HDC hDestDC)
-{
-#if 0 // TODO: RenderEngine Modify
-	if (false == BeginDraw(m_hRenderTarget, hDestDC))
-		return;
-
-	RenderOffsetClipHelper roc(this);
-	pInvalidateObj->DrawObjectTransparentBkgnd(m_hRenderTarget, roc, true);
-	roc.Reset(m_hRenderTarget);
-
-	//////////////////////////////////////////////////////////////////////////
-	//
-	//  提交显示
-
-	int nX = roc.m_rcClip.left + roc.m_ptOffset.x;
-	int nY = roc.m_rcClip.top  + roc.m_ptOffset.y;
-	int nW = roc.m_rcClip.Width();
-	int nH = roc.m_rcClip.Height();
-	EndDraw(m_hRenderTarget, nX, nY, nW, nH, nX, nY, true);
-#endif
 }
 
 // 获取一个控件在窗口上的图像
@@ -524,7 +474,7 @@ long WindowBase::ModalLoop(HWND hWndParent)
 
 	this->m_bDoModal = true;
 	bool bEnableWindow = false;
-	if( NULL != hWndParent && GetDesktopWindow() != hWndParent )
+	if (NULL != hWndParent && GetDesktopWindow() != hWndParent)
 	{
 		::EnableWindow( hWndParent, FALSE );
 		bEnableWindow = true;
@@ -539,14 +489,14 @@ long WindowBase::ModalLoop(HWND hWndParent)
 			DispatchMessage(&msg);
 		}
 
-		if( this->m_bEndModal )
+		if (this->m_bEndModal)
 		{
 			this->m_bEndModal = false;
 			break;
 		}
 	}
 
-	if( bEnableWindow )
+	if (bEnableWindow)
 	{
 		::EnableWindow( hWndParent, TRUE );
 	}
@@ -554,7 +504,7 @@ long WindowBase::ModalLoop(HWND hWndParent)
 	{
 		::SetActiveWindow(hWndParent);  // 如果不调用该函数，将导致父窗口跑到屏幕Z次序的后面去了
 	}
-	::DestroyWindow( this->m_hWnd );    // 销毁窗口
+	::DestroyWindow(this->m_hWnd);    // 销毁窗口
 
 	this->m_bDoModal = false;
 	return this->m_lDoModalReturn;
@@ -644,7 +594,7 @@ LRESULT CALLBACK WindowBase::StartWindowProc( HWND hwnd, UINT uMsg, WPARAM wPara
 	WindowBase* pThis = (WindowBase*)UI_ExtractCreateWndData();
 	UIASSERT(NULL != pThis);
 	
-	if( NULL == pThis )
+	if (NULL == pThis)
 		return 0;
 
 	return pThis->StartProc(hwnd,uMsg,wParam,lParam, true);
@@ -675,7 +625,7 @@ LRESULT WindowBase::StartProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 	this->m_thunk.Init( &Window::ThunkWndProc, this );
 	WNDPROC pProc = this->m_thunk.GetWNDPROC();
 
-	if( bWindowOrDialog )
+	if (bWindowOrDialog)
 	{
 		this->m_oldWndProc = ::DefWindowProc;
 		::SetWindowLong( m_hWnd, GWLP_WNDPROC, (LONG)(LONG_PTR)pProc);
@@ -739,7 +689,7 @@ LRESULT	WindowBase::WndProc( UINT uMsg, WPARAM wParam, LPARAM lParam )
 	LRESULT lRes;
 	UIMSG*  pOldMsg = m_pCurMsg;
 	BOOL bRet = this->ProcessWindowMessage( m_hWnd, uMsg, wParam, lParam, lRes, 0 );  // 调用BEGIN_MSG_MAP消息映射列表
-	if( bRet )
+	if (bRet)
 	{
 		return lRes;
 	}
@@ -752,14 +702,14 @@ LRESULT	WindowBase::WndProc( UINT uMsg, WPARAM wParam, LPARAM lParam )
 		msg.lParam  = lParam;
 
 		// 如果这个消息被处理过了，直接返回，不用再调用旧的窗口过程了
-		if( this->ProcessMessage( &msg ) )
+		if (this->ProcessMessage( &msg ))
 		{
-			if( NULL == m_oldWndProc )
+			if (NULL == m_oldWndProc)
 			{
 				switch(msg.message)
 				{
 				case WM_INITDIALOG: 
-					if( NULL != GetKeyboardMgr().GetFocusObject() )
+					if (NULL != GetKeyboardMgr().GetFocusObject())
 						lRes = FALSE;  // 不使用其焦点设置
 					else
 						lRes = msg.lRet;
@@ -880,20 +830,17 @@ LRESULT WindowBase::_OnPaint( UINT uMsg, WPARAM wParam,LPARAM lParam, BOOL& bHan
 	PAINTSTRUCT ps;
 	HDC  hDC = NULL;
 
+// 		RECT rcTemp;
+// 		BOOL bRet = GetUpdateRect(m_hWnd, &rcTemp, FALSE);
+
 	if (NULL == wParam)
 		hDC = ::BeginPaint(this->m_hWnd ,&ps);
 
-	if (NULL == m_hMemDC)
-	{
-		if( NULL == wParam )
-			EndPaint(m_hWnd,&ps);
-		return 0;
-	}
 #if 1
 	if (NULL == m_hMemDC)
 	{
 		CRect rc;
-		::GetWindowRect(m_hWnd, &rc );
+		::GetClientRect(m_hWnd, &rc );
 		CreateDoubleBuffer(rc.Width(), rc.Height());
 	}
 
@@ -1042,7 +989,7 @@ LRESULT WindowBase::_OnPaint( UINT uMsg, WPARAM wParam,LPARAM lParam, BOOL& bHan
 	if( NULL == wParam )
 		EndPaint(m_hWnd,&ps);
 	
-	return 0;
+	return 1;  //  在_OnPaint中返回0，会导致dialog类型的窗口，被其它窗口覆盖后移出来刷新异常!!!
 }
 
 //
@@ -1318,22 +1265,22 @@ LRESULT WindowBase::_OnExitSizeMove( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 	return 0;
 }	
 
-BOOL WindowBase::OnEraseBkgnd(HRDC hRDC)
+BOOL WindowBase::OnEraseBkgnd(IRenderTarget* pRenderTarget)
 {
-	BOOL bRet = __super::OnEraseBkgnd(hRDC);  // 如果m_pEraseBkgndRender没有处理，在这里调用系统过程
-	if( FALSE == bRet )
+	BOOL bRet = __super::OnEraseBkgnd(pRenderTarget);  // 如果m_pBkgndRender没有处理，在这里调用系统过程
+	if (FALSE == bRet)
 	{
-		if( NULL == m_oldWndProc )   // Dialog类型，直接填充系统背景色
+		if (NULL == m_oldWndProc)   // Dialog类型，直接填充系统背景色
 		{
 			CRect rc;
 			::GetClientRect(m_hWnd,&rc);
-			FillRect( hRDC, &rc, ::GetSysColor(COLOR_BTNFACE) );
+			FillRect(pRenderTarget, &rc, ::GetSysColor(COLOR_BTNFACE) );
 		}
 		else                         // Window类型，直接调用系统过程
 		{
-			HDC hDC = GetHDC(hRDC);
+			HDC hDC = pRenderTarget->GetHDC();
 			bRet = (BOOL)/*this->*/DefWindowProc(WM_ERASEBKGND, (WPARAM)hDC, 1 );  // 与原始消息进行区分
-			ReleaseHDC(hRDC,hDC);
+			pRenderTarget->ReleaseHDC(hDC);
 		}
 	}	
 
@@ -1402,7 +1349,7 @@ void WindowBase::CreateDoubleBuffer(int nWidth, int nHeight)
 	::SetBkMode(m_hMemDC, TRANSPARENT);
 
 	Image image;
-	image.Create( nWidth, nHeight, 32, Image::createAlphaChannel );
+	image.Create(nWidth, nHeight, 32, Image::createAlphaChannel);
 	m_hMemBitmap = image.Detach();
 	m_hOldBitmap = (HBITMAP)::SelectObject(m_hMemDC, m_hMemBitmap);
 }
@@ -1539,4 +1486,17 @@ void WindowBase::HideWindow()
 HRFONT WindowBase::GetHRFONT()
 {
 	return m_pFont;
+}
+
+void WindowBase::SaveMemBitmap(TCHAR* szFile)
+{
+#ifdef _DEBUG
+	::SelectObject(m_hMemDC, m_hOldBitmap);
+	Image image;
+	image.Attach(m_hMemBitmap);
+//	image.ForceUseAlpha();
+	image.Save(szFile, Gdiplus::ImageFormatBMP);
+	image.Detach();
+	::SelectObject(m_hMemDC, m_hMemBitmap);
+#endif
 }

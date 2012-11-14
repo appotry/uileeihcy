@@ -214,7 +214,7 @@ void TopWindowManager::OnSkinHLSChanged()
 			continue;
 
 		UISendMessage(pWindow, UI_WM_SKINHLSCHANGED);
-		pWindow->RedrawObject(pWindow,NULL,true);
+		pWindow->UpdateObject(); 
 	}
 	return;
 }

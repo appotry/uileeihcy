@@ -251,7 +251,7 @@ LRESULT CustomWindow::_OnNcPaint( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 	return 0;
 }
 
-void CustomWindow::OnEraseBkgnd(HRDC hRDC)
+void CustomWindow::OnEraseBkgnd(IRenderTarget* pRenderTarget)
 {
 	if (NULL != m_pBkgndRender || NULL != m_pForegndRender)
 	{
@@ -263,16 +263,16 @@ void CustomWindow::OnEraseBkgnd(HRDC hRDC)
 		{
 			CRect rcSurface = rc;
 			Util::DeflatRect(&rcSurface, &m_rcBorder);
-			m_pForegndRender->DrawState(hRDC, &rcSurface, nState);
+			m_pForegndRender->DrawState(pRenderTarget, &rcSurface, nState);
 		}
 		if (NULL != m_pBkgndRender)
 		{
-			m_pBkgndRender->DrawState(hRDC, &rc, nState);
+			m_pBkgndRender->DrawState(pRenderTarget, &rc, nState);
 		}
 	}
 	else
 	{
-		__super::OnEraseBkgnd(hRDC);
+		__super::OnEraseBkgnd(pRenderTarget);
 	}
 }
 
@@ -656,16 +656,16 @@ HRGN CustomWindow::GetExcludeRgn( BYTE* pBits, const RECT& rc, bool bOffsetToOri
 	return hRgn;
 }
 
-void CustomWindow::RedrawObject( Object* pInvalidateObj, RECT* prc, bool bUpdateNow )
+void CustomWindow::RedrawObject( Object* pInvalidateObj, RECT* prc, bool bUpdateNow, bool bOnlyRedrawBkgnd)
 {
 	if( NULL == m_pLayeredWindowWrap )
 	{
-		__super::RedrawObject(pInvalidateObj, prc, bUpdateNow);
+		__super::RedrawObject(pInvalidateObj, prc, bUpdateNow, bOnlyRedrawBkgnd);
 		return;
 	}
 	else
 	{
-		m_pLayeredWindowWrap->RedrawObject(pInvalidateObj, bUpdateNow);
+		m_pLayeredWindowWrap->RedrawObject(pInvalidateObj, bUpdateNow, bOnlyRedrawBkgnd);
 	}
 }
 
@@ -923,7 +923,7 @@ void CustomWindow::OnSize( UINT nType, int cx, int cy )
 	if (SIZE_MINIMIZED == nType || (SIZE_RESTORED==nType && ::IsIconic(m_hWnd)))
 		return;
 
-	if (NULL != m_pLayeredWindowWrap)
+	if (NULL != m_pLayeredWindowWrap && NULL != m_hMemDC)
 	{
 		m_pLayeredWindowWrap->OnSize(nType, cx, cy);
 	}
@@ -967,12 +967,12 @@ bool CustomWindow::IsWindowLayered()
 //
 void CustomWindow::SetWindowLayered(bool b)
 {
-	if( b && NULL != m_pLayeredWindowWrap )
+	if (b && NULL != m_pLayeredWindowWrap)
 		return;
-	if( !b && NULL == m_pLayeredWindowWrap )
+	if (!b && NULL == m_pLayeredWindowWrap)
 		return;
 
-	if( b )
+	if (b)
 	{
 		m_pLayeredWindowWrap = new LayeredWindowWrap(this);
 		m_nWindowTransparentMaskType |= WINDOW_TRANSPARENT_TYPE_LAYERED;
@@ -1196,7 +1196,6 @@ void LayeredWindowWrap::InitLayeredWindow()
 		m_ptWindow.x = rc.left;
 		m_ptWindow.y = rc.top;
 	}
-	this->RedrawObject(m_pWindow,TRUE);
 }
 void LayeredWindowWrap::ReleaseLayeredWindow()
 {
@@ -1250,7 +1249,7 @@ void LayeredWindowWrap::OnWindowPosChanged(LPWINDOWPOS lpWndPos)
 	}
 }
 
-void LayeredWindowWrap::RedrawObject( Object* pInvalidateObj, bool bUpdateNow )
+void LayeredWindowWrap::RedrawObject( Object* pInvalidateObj, bool bUpdateNow, bool bOnlyRedrawBkgnd )
 {
 	if (NULL == pInvalidateObj)
 		return;
@@ -1269,7 +1268,7 @@ void LayeredWindowWrap::RedrawObject( Object* pInvalidateObj, bool bUpdateNow )
 	}
 	else
 	{
-		m_pWindow->_InnerRedrawObject(pInvalidateObj, NULL);
+		m_pWindow->_InnerRedrawObject(pInvalidateObj, bOnlyRedrawBkgnd);
 	}
 
 //	this->Commit2LayeredWindow();
