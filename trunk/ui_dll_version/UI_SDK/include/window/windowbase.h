@@ -65,6 +65,7 @@ public:
 	void    Control_NotifyMe( const String&  idPath, int nNotifyMapID );
 	void    Control_NotifyMe( Object*  pObj, int nNotifyMapID );
 
+	void    SaveMemBitmap(TCHAR* szFile);
 protected:
 	// object 虚函数
 	virtual void ResetAttribute();
@@ -85,7 +86,6 @@ protected:
 	virtual void OnDrawWindow(IRenderTarget* p);
 	virtual void OnEndErasebkgnd(){}   // 用于CustomWindow设置窗口异形
 
-	void    SaveMemBitmap(TCHAR* szFile);
 public:
 	// WndProc的原始消息处理
 	BEGIN_MSG_MAP(WindowBase)  // 经过virtual扩展了

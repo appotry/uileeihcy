@@ -55,7 +55,7 @@ public:
 	// object virtual function
 	virtual void    ResetAttribute();
 	virtual bool    SetAttribute( map<String,String>& mapAttrib, bool bReload=false );
-	virtual SIZE    GetAutoSize(HRDC hRDC);
+	virtual SIZE    GetAutoSize(HRDC hRDC=NULL);
 
 	// my virtual function
 	virtual void OnClicked(){};         // 自己被点击了（可在子类中用于设置当前check状态）

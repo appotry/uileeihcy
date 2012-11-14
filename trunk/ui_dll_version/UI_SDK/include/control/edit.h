@@ -162,7 +162,7 @@ public:
 	virtual      bool        SetAttribute( ATTRMAP& mapAttrib, bool bReload=false );
 
 	// 从Control继承过来的虚函数
-	virtual      SIZE        GetAutoSize( HRDC hDC ); 
+	virtual      SIZE        GetAutoSize( HRDC hDC=NULL ); 
 
 	// 自己定义的虚函数
 	virtual      bool        FilterInputChar( UINT nChar );

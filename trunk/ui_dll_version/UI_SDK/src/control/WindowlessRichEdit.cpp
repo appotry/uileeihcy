@@ -161,13 +161,15 @@ void WindowlessRichEdit::Draw(HDC hDC)
 // 	::FillRect(hDC, &rcClient, hBrush);
 // 	::DeleteObject(hBrush);
 
-	::OffsetRect(&rcClient, -rcClient.left, -rcClient.top);
+//	::OffsetRect(&rcClient, -rcClient.left, -rcClient.top);
 
-// 	SaveDC(hDC);
-// 	::SetViewportOrgEx(hDC, 0,0,NULL);
+	// TODO: 这里为什么要这么做？？
+	// 如果不这么做，第一次绘制时，TxDraw TNND居然会无视hDC的偏移，直接画在了0，0位置
+	SaveDC(hDC);
+	::SetViewportOrgEx(hDC, 0,0,NULL);
 	m_spTextServices->TxDraw(DVASPECT_CONTENT, 0, NULL, NULL, hDC,
 							NULL, (RECTL *)&rcClient, NULL, NULL, NULL, NULL, TXTVIEW_ACTIVE);
-//	::RestoreDC(hDC,-1);
+	::RestoreDC(hDC,-1);
 }
 
 // handled表示richedit不处理这个消息
