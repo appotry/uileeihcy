@@ -9,6 +9,7 @@ WindowBase::WindowBase()
 	this->m_hMemDC        = NULL;
 	this->m_hMemBitmap    = NULL;
 	this->m_hOldBitmap    = NULL;
+	this->m_nMemoryRecycleTimerID = 0;
 
 	this->m_bDoModal       = false;
 	this->m_bEndModal      = false;
@@ -850,10 +851,14 @@ LRESULT WindowBase::_OnPaint( UINT uMsg, WPARAM wParam,LPARAM lParam, BOOL& bHan
 	IRenderTarget* pRenderTarget = CreateRenderTarget(m_hWnd);
 	if (pRenderTarget->BeginDraw(m_hMemDC, NULL))
 	{
+		if (this->IsTransparent())
+			pRenderTarget->Clear();
+
 		this->OnDrawWindow(pRenderTarget);
 		pRenderTarget->EndDraw();
 	}
 	SAFE_RELEASE(pRenderTarget);
+
 #elif 1
 	// 不带alpha的图片，gdiplus比gdi慢20倍
 	// 还alpha的图片，gdiplus比gdi慢近9位
@@ -1346,6 +1351,28 @@ void WindowBase::ReCreateRenderTarget()
 //
 void WindowBase::CreateDoubleBuffer(int nWidth, int nHeight)
 {
+	// 增加个优化项：过一段时间，空闲时再将内存收回。
+	if (0 != m_nMemoryRecycleTimerID)
+	{
+		TimerHelper::GetInstance()->KillTimer(m_nMemoryRecycleTimerID);
+	}
+	if (NULL != m_hMemBitmap)
+	{
+		BITMAP bm;
+		GetObject(m_hMemBitmap, sizeof(bm), &bm);
+		if (bm.bmWidth >= nWidth && bm.bmHeight >= nHeight)
+		{
+			TimerItem item;
+			item.nRepeatCount = 1;
+			item.pNotify = this;
+			item.wParam = 0;
+			item.lParam = 0;
+			
+			m_nMemoryRecycleTimerID = TimerHelper::GetInstance()->SetNewTimer(3000, &item);
+			return;
+		}
+	}
+
 	this->DestroyDoubleBuffer();
 
 	m_hMemDC = ::CreateCompatibleDC(NULL);
@@ -1361,6 +1388,10 @@ void WindowBase::CreateDoubleBuffer(int nWidth, int nHeight)
 //
 void WindowBase::DestroyDoubleBuffer()
 {
+	if (0 != m_nMemoryRecycleTimerID)
+	{
+		TimerHelper::GetInstance()->KillTimer(m_nMemoryRecycleTimerID);
+	}
 	if( NULL != m_hMemDC )
 	{
 		::SelectObject(m_hMemDC, m_hOldBitmap);
