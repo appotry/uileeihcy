@@ -402,7 +402,7 @@ public:
 	virtual void     ResizeRenderTarget( int nWidth, int nHeight ){}; 
 	virtual BYTE*    LockBits();
 	virtual void     UnlockBits();
-	virtual void     Clear(){}
+	virtual void     Clear();
 	virtual void     Save( const String& strPath ){};
 	virtual HBITMAP  CopyRect(RECT *prc){return NULL;}
 

@@ -609,6 +609,13 @@ void GdiplusRenderTarget::EndDraw( )
 	m_hDC = NULL;
 }
 
+void GdiplusRenderTarget::Clear()
+{
+	if (NULL != m_pGraphics)
+	{
+		m_pGraphics->Clear(Gdiplus::Color::MakeARGB(0,0,0,0));
+	}
+}
 BYTE* GdiplusRenderTarget::LockBits()
 {
 	if (NULL == m_hDC)
