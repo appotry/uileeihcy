@@ -482,12 +482,6 @@ LRESULT MouseManager::MouseLeave( int vkFlag, int xPos, int yPos )
 
 	this->m_bMouseTrack = TRUE;// 继续开启TRACKMOUSEEVENT
 
-#if 0
-	HideToolTip();
-#else
-	UI_HideToolTip();
-#endif
-
 	this->SetHoverObject(NULL);
 	this->SetPressObject(NULL);
 	if (GetCapture() == m_pWindow->m_hWnd)  // 有可能是其它对象直接发送过来WM_MOUSELEAVE，例如COMBOBOX.button.onlbuttondown
@@ -522,6 +516,7 @@ LRESULT MouseManager::LButtonDown( int vkFlag, int xPos, int yPos )
 			}
 		}
 	}
+
 	return 0L;
 }
 
@@ -546,9 +541,8 @@ LRESULT MouseManager::LButtonUp( int vkFlag, int xPos, int yPos )
 		::GetCursorPos(&pt);
 		::MapWindowPoints(NULL, this->m_pWindow->m_hWnd, &pt, 1 );
 		Object* pNowHover = this->GetObjectByPos( this->m_pWindow, &pt );
-		//this->m_pObjPress = NULL;
+
 		this->SetPressObject(NULL);
-		//this->m_pObjHover = pNowHover;
 		this->SetHoverObject(pNowHover);
 
 		if( pNowHover != pSaveObjPress && NULL != pSaveObjPress )
@@ -586,12 +580,15 @@ LRESULT MouseManager::RButtonDown( WPARAM w,LPARAM l )
 {
 	if( NULL != m_pObjPress )
 	{
+		UI_HideToolTip();
 		return ::UISendMessage( m_pObjPress, WM_RBUTTONDOWN, w, l );
 	}
 	else if( NULL != m_pObjHover )
 	{
+		UI_HideToolTip();
 		return ::UISendMessage( m_pObjHover, WM_RBUTTONDOWN, w, l );
 	}
+	
 	return 0;
 }
 LRESULT MouseManager::RButtonUp( WPARAM w,LPARAM l )
@@ -727,7 +724,7 @@ Object* MouseManager::GetObjectByPos(Object* pObjParent, POINT* pt)
 		}
 
 		pChild = NULL;
-		while (pChild = pObjParent->EnumChildObject(pChild))
+		while (pChild = pObjParent->REnumChildObject(pChild))  // 反过来搜索。因为越后面的才显示在上面
 		{
 			if (!pChild->IsVisible())
 				continue;
