@@ -245,6 +245,7 @@ public:
 	void         WindowPoint2ObjectClientPoint(const POINT* ptWindow, POINT* ptObj);
 	void         ObjectPoint2ObjectClientPoint(const POINT* ptWindow, POINT* ptObj);
 	bool         GetScrollOffset(int* pxOffset, int* pyOffset);
+	bool         GetObjectVisibleRectInWindow(RECT* prc);
 
 	int          GetWidth();
 	int          GetHeight();
@@ -275,7 +276,7 @@ public:
 	bool         IsCollapsed();
 	bool         IsMySelfVisible();
 	bool         IsEnable();
-	void         SetVisible( bool b, bool bUpdateNow=true );
+	void         SetVisible( bool b, bool bRedraw=true, bool bUpdateLayout=true );
 	void         SetEnable( bool b, bool bUpdateNow=true );
 	bool         IsDefault();
 	bool         IsReadonly();

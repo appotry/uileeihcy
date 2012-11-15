@@ -1,72 +1,65 @@
 #include "stdafx.h"
 
-
-RenderOffsetClipHelper::RenderOffsetClipHelper(Object* pObject, bool bSetClip)
+// pInitRect一般是取 window对象的 &m_rcParent.如果是只刷新一个控件，则直接指为NULL就行了，在begindraw中
+// 会指定该对象的剪裁区域。
+RenderOffsetClipHelper::RenderOffsetClipHelper(RECT* pInitRect)
 {
-	m_bSetClip = bSetClip;
+	m_bUpdateClip = false;
+	m_rcClip.SetRectEmpty();
 
-	CRect rc ;
-	pObject->GetParentRect(&rc);
-	m_ptOffset.x = rc.left;
-	m_ptOffset.y = rc.top;
-	if (m_bSetClip)
+	m_ptOffset.x = 0;
+	m_ptOffset.y = 0;
+
+	if (NULL != pInitRect)
 	{
-		m_rcClip = rc;
-		::OffsetRect(&m_rcClip, -m_ptOffset.x, -m_ptOffset.y);
+		m_rcClip.CopyRect(pInitRect);
+		m_bUpdateClip = true;
 	}
 }
-void RenderOffsetClipHelper::Reset(HRDC hRDC)
+void RenderOffsetClipHelper::Reset(IRenderTarget* pRenderTarget)
 {
-	if (m_bSetClip)
-	{
-		SelectClipRgn(hRDC, NULL);
-	}
-	SetViewportOrgEx(hRDC,0,0,NULL);
+	pRenderTarget->SelectClipRgn(NULL);
+	pRenderTarget->SetViewportOrgEx(0,0,NULL);
 }
-void RenderOffsetClipHelper::Update(HRDC hRDC)
+void RenderOffsetClipHelper::Update(IRenderTarget* pRenderTarget)
 {
-	SetViewportOrgEx(hRDC, m_ptOffset.x, m_ptOffset.y, NULL);
+	pRenderTarget->SetViewportOrgEx(m_ptOffset.x, m_ptOffset.y, NULL);
 
-	if (m_bSetClip)
+	if (m_bUpdateClip)
 	{
-		CRect rcDevice = m_rcClip;
-		rcDevice.OffsetRect(m_ptOffset.x, m_ptOffset.y); // 转换为设备坐标参数传递给CreateRectRgnIndirect
-
-		HRGN hRgn = CreateRectRgnIndirect(&rcDevice);
-		SelectClipRgn(hRDC, hRgn);
+		HRGN hRgn = CreateRectRgnIndirect(&m_rcClip);
+		SelectClipRgn(pRenderTarget, hRgn);
 		SAFE_DELETE_GDIOBJECT(hRgn);
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////
 // 返回false时，表示这个对象已完全超出当前剪裁区域了，不需要再绘制
-bool RenderOffsetClipHelper::DrawChild(Object* pChild, HRDC hRDC)
+bool RenderOffsetClipHelper::DrawChild(Object* pChild, IRenderTarget* pRenderTarget)
 {
 	if (NULL == pChild)
 		return false;
 
-	CRect rcParent;
-	pChild->GetParentRect(&rcParent);
+	CRect rcWindow;
+	pChild->GetWindowRect(&rcWindow);
 
-	if (m_bSetClip)
+	if (m_bUpdateClip)
 	{
 		CRect rcIntersect;
-		if (!rcIntersect.IntersectRect(&m_rcClip, &rcParent) )
+		if (!rcIntersect.IntersectRect(&m_rcClip, &rcWindow) )
 			return false;
 
 		m_rcClip = rcIntersect;
-		m_rcClip.OffsetRect(-rcParent.left, -rcParent.top);
 	}
 
-	m_ptOffset.x += rcParent.left;
-	m_ptOffset.y += rcParent.top;
+	m_ptOffset.x = rcWindow.left;
+	m_ptOffset.y = rcWindow.top;
 	
-	this->Update(hRDC);
-
+	this->Update(pRenderTarget);
 	return true;
 }
 
-void RenderOffsetClipHelper::Scroll(HRDC hRDC, Object* pObjScroll, bool bUpdate)
+void RenderOffsetClipHelper::Scroll(IRenderTarget* pRenderTarget, Object* pObjScroll, bool bUpdate)
 {
 	if (NULL == pObjScroll)
 		return;
@@ -77,32 +70,28 @@ void RenderOffsetClipHelper::Scroll(HRDC hRDC, Object* pObjScroll, bool bUpdate)
 		m_ptOffset.x -= xOffset;
 		m_ptOffset.y -= yOffset;
 
-		if (m_bSetClip)
-		{
-			OffsetRect(&m_rcClip, xOffset, yOffset);
-		}
-
 		if (bUpdate)
-			this->Update(hRDC);
+			this->Update(pRenderTarget);
 	}
 }
 
-void RenderOffsetClipHelper::DrawClient(HRDC hRDC, Object* pObject, bool bUpdate)
+void RenderOffsetClipHelper::DrawClient(IRenderTarget* pRenderTarget, Object* pObject, bool bUpdate)
 {
 	if (NULL == pObject)
 		return;
 
-	m_ptOffset.x += pObject->GetNonClientL();
-	m_ptOffset.y += pObject->GetNonClientT();
+	CRegion4 r;
+	pObject->GetNonClientRegion(&r);
 
-	if (m_bSetClip)
+	m_ptOffset.x += r.left;
+	m_ptOffset.y += r.top;
+	if (m_bUpdateClip)
 	{
-		m_rcClip.right -= pObject->GetNonClientW();
-		m_rcClip.bottom -= pObject->GetNonClientH();
+		Util::DeflatRect(&m_rcClip, &r);
 	}
 
 	if (bUpdate)
-		this->Update(hRDC);
+		this->Update(pRenderTarget);
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -161,7 +161,7 @@ void WindowlessRichEdit::Draw(HDC hDC)
 // 	::FillRect(hDC, &rcClient, hBrush);
 // 	::DeleteObject(hBrush);
 
-#if 1
+#if 0
 	::OffsetRect(&rcClient, -rcClient.left, -rcClient.top);
 //	::FillRect(hDC, &rcClient, (HBRUSH)::GetStockObject(BLACK_BRUSH));  // <- 经测试，该绘制第一次的偏移也是正确的！证明就是txdraw内部有问题，无视了偏移和剪裁
 

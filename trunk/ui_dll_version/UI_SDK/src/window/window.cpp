@@ -111,19 +111,19 @@ void Window::OnSysCommand(UINT nID, CPoint point)
 	{
 		// 隐藏显示最大化按钮，显示还原按钮
 		if (NULL != m_pBtnSystemRestore)
-			m_pBtnSystemRestore->SetVisible(true, false);
+			m_pBtnSystemRestore->SetVisible(true, true, true);
 
 		if (NULL != m_pBtnSystemMaximize)
-			m_pBtnSystemMaximize->SetVisible(false, true);
+			m_pBtnSystemMaximize->SetVisible(false, true, false);
 	}
 	else if(SC_RESTORE == nID)
 	{
 		// 隐藏显示还原按钮，显示最大化按钮
 		if (NULL != m_pBtnSystemMaximize)
-			m_pBtnSystemMaximize->SetVisible(true, false);
+			m_pBtnSystemMaximize->SetVisible(true, false, false);
 
 		if (NULL != m_pBtnSystemRestore)
-			m_pBtnSystemRestore->SetVisible(false, true);
+			m_pBtnSystemRestore->SetVisible(false, true, false);
 	}
 	else if(SC_CLOSE == nID)
 	{

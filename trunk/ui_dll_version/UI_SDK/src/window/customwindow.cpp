@@ -290,8 +290,8 @@ void CustomWindow::OnDrawWindow(IRenderTarget* pRenderTarget)
 {
 	if (NULL != m_pLayeredWindowWrap)
 	{
-//		 m_pLayeredWindowWrap->OnDrawWindow(pRenderTarget);
-		RenderOffsetClipHelper roc(this);
+//		m_pLayeredWindowWrap->OnDrawWindow(pRenderTarget);
+		RenderOffsetClipHelper roc(&m_rcParent);
 
 // 		if (this->IsVisible())    // 由于分层窗口在下次显示时不能先更新再显示，导致隐藏时作的刷新都没处理。因此将这里的隐藏去掉
 // 		{
@@ -1288,7 +1288,7 @@ HRDC LayeredWindowWrap::BeginRedrawObjectPart(Object* pRedrawObj, RECT* prc1, RE
 		m_pWindow->m_hRenderTarget->Clear();
 	}
 
-	RenderOffsetClipHelper roc(m_pWindow);
+	RenderOffsetClipHelper roc();
 	pInvalidateObj->DrawObjectTransparentBkgnd(m_pWindow->m_hRenderTarget, roc, true);
 	roc.Reset(m_pWindow->m_hRenderTarget);
 
