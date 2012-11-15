@@ -1397,7 +1397,7 @@ protected:
 			return false;
 
 		int nThumbBtnPos = (int)(nPos / (nRange-nPage) * (float)(rcChannel.Height() - nNewSize)) + rcChannel.top;
-		this->m_pBtnThumb->SetObjectPos(rcChannel.left, nThumbBtnPos, rcChannel.Width(), nNewSize);
+		this->m_pBtnThumb->SetObjectPos(rcChannel.left, nThumbBtnPos, rcChannel.Width(), nNewSize, SWP_NOREDRAW);
 		return true;
 	}
 
@@ -1620,7 +1620,7 @@ protected:
 			return false;
 
 		int nThumbBtnPos = (int)(nPos / (nRange-nPage) * (float)(rcChannel.Width() - nNewSize)) + rcChannel.left;
-		this->m_pBtnThumb->SetObjectPos(nThumbBtnPos, rcChannel.top, nNewSize, rcChannel.Height());
+		this->m_pBtnThumb->SetObjectPos(nThumbBtnPos, rcChannel.top, nNewSize, rcChannel.Height(), SWP_NOREDRAW);
 		return true;
 	}
 
@@ -1835,7 +1835,7 @@ void SystemVScrollBarRender::OnBindObjSize(UINT nType, int cx, int cy)
 	int nNonClientH = pBindObj->GetNonClientB() - pBindObj->GetPaddingB();
 
 	if (m_pScrollBar->IsMySelfVisible())
-		m_pScrollBar->SetObjectPos(cx-nNonClientV, 0, nNonClientV, cy - nNonClientH);
+		m_pScrollBar->SetObjectPos(cx-nNonClientV, 0, nNonClientV, cy - nNonClientH, SWP_NOREDRAW);
 }
 void SystemHScrollBarRender::OnBindObjSize(UINT nType, int cx, int cy)
 {
@@ -1848,7 +1848,7 @@ void SystemHScrollBarRender::OnBindObjSize(UINT nType, int cx, int cy)
 
 	if (m_pScrollBar->IsMySelfVisible())
 	{
-		m_pScrollBar->SetObjectPos(0, cy-nNonClientH, cx - nNonClientV, nNonClientH);
+		m_pScrollBar->SetObjectPos(0, cy-nNonClientH, cx - nNonClientV, nNonClientH, SWP_NOREDRAW);
 	}
 }
 
@@ -1871,7 +1871,7 @@ void SystemHScrollBarRender::OnSize(UINT nType, int cx, int cy)
 		// TODO: 减去margin
 		m_pBtnLineUpLeft->SetObjectPos( 
 			rcClient.left,rcClient.top, 
-			s.cx, rcClient.Height(), 0);
+			s.cx, rcClient.Height(), SWP_NOREDRAW);
 
 		nX1 += s.cx;
 	}
@@ -1887,7 +1887,7 @@ void SystemHScrollBarRender::OnSize(UINT nType, int cx, int cy)
 		// TODO: 减去margin
 		m_pBtnLineDownRight->SetObjectPos( 
 			rcClient.right - s.cx,rcClient.top, 
-			s.cx, rcClient.Height(), 0 );
+			s.cx, rcClient.Height(), SWP_NOREDRAW);
 
 		nX2 -= s.cx;
 	}
@@ -1915,7 +1915,7 @@ void SystemVScrollBarRender::OnSize(UINT nType, int cx, int cy)
 		// TODO: 减去margin
 		m_pBtnLineUpLeft->SetObjectPos( 
 			rcClient.left,rcClient.top, 
-			rcClient.Width(), s.cy, 0 );
+			rcClient.Width(), s.cy, SWP_NOREDRAW);
 		nY1 += s.cy;
 	}
 	if( NULL != m_pBtnLineDownRight )
@@ -1932,7 +1932,7 @@ void SystemVScrollBarRender::OnSize(UINT nType, int cx, int cy)
 		// TODO: 减去margin
 		m_pBtnLineDownRight->SetObjectPos(
 			rcClient.left, rcClient.bottom-s.cy,
-			rcClient.Width(), s.cy, 0 );
+			rcClient.Width(), s.cy, SWP_NOREDRAW);
 		nY2 -= s.cy;
 	}
 	this->UpdateThumbButtonPos(true); // <-- 为了解决换肤后，由于lineup,linedown btn还没有更新位置，导致thumbbtn位置不正确的问题  TODO: 优化

@@ -248,23 +248,26 @@ void WindowBase::RedrawObject(Object* pRedrawObj, RECT* prc, bool bUpdateNow, bo
 	}
 }
 
-void WindowBase::_InnerRedrawObject(Object* pInvalidateObj, bool bOnlyRedrawBkgnd)
+void WindowBase::_InnerRedrawObject(Object* pRedrawObj, bool bOnlyRedrawBkgnd)
 {
+
+	CRect rcObjVisible;
+	if (false == pRedrawObj->GetObjectVisibleRectInWindow(&rcObjVisible))   // 该对象在窗口上不可见，不绘制
+		return;
+
+	RenderOffsetClipHelper roc(NULL);
 	IRenderTarget*  pRenderTarget = CreateRenderTarget(m_hWnd);
 
-	RenderOffsetClipHelper roc(this, false);
-	pInvalidateObj->GetWindowRect(&roc.m_rcClip);
-
-	bool bNeedClear = this->IsTransparent() && pInvalidateObj->IsTransparent();  // 防止分层窗口的alpha重叠变黑
-	if (pRenderTarget->BeginDraw(m_hMemDC, roc.m_rcClip, NULL, bNeedClear))
+	bool bNeedClear = this->IsTransparent() && pRedrawObj->IsTransparent();  // 防止分层窗口的alpha重叠变黑
+	if (pRenderTarget->BeginDraw(m_hMemDC, &rcObjVisible, NULL, bNeedClear))
 	{
- 		pInvalidateObj->DrawObjectTransparentBkgnd(pRenderTarget, roc, pInvalidateObj->IsTransparent());
+ 		pRedrawObj->DrawObjectTransparentBkgnd(pRenderTarget, roc, pRedrawObj->IsTransparent());
 		
 		if (!bOnlyRedrawBkgnd)
- 			pInvalidateObj->DrawObject(pRenderTarget, roc);
+ 			pRedrawObj->DrawObject(pRenderTarget, roc);
  	
   		pRenderTarget->EndDraw();
-  		this->CommitDoubleBuffet2Window(NULL, &roc.m_rcClip);
+  		this->CommitDoubleBuffet2Window(NULL, &rcObjVisible);
  	}
 	SAFE_RELEASE(pRenderTarget);
 }
@@ -299,7 +302,7 @@ HRDC WindowBase::BeginRedrawObjectPart(Object* pRedrawObj, RECT* prc1, RECT* prc
 
 	IRenderTarget*  pRenderTarget = CreateRenderTarget(m_hWnd);
 
-	RenderOffsetClipHelper roc(this, false);
+	RenderOffsetClipHelper roc(NULL);
 	if (pRenderTarget->BeginDraw(m_hMemDC, prc1, prc2))
 	{
 		pRedrawObj->DrawObjectTransparentBkgnd(pRenderTarget, roc, /*true*/pRedrawObj->IsTransparent());
@@ -999,7 +1002,7 @@ LRESULT WindowBase::_OnPaint( UINT uMsg, WPARAM wParam,LPARAM lParam, BOOL& bHan
 //
 void WindowBase::OnDrawWindow(IRenderTarget* pRenderTarget)
 {
-	RenderOffsetClipHelper roc(this);
+	RenderOffsetClipHelper roc(&m_rcParent);
 
 	if (this->IsVisible())
 	{

@@ -664,13 +664,77 @@ POINT Object::GetRealPosInWindow()
 	return pt;
 }
 
+// 获取一个对象在窗口上的可视区域。例如用于绘制该对象时的裁剪
+bool Object::GetObjectVisibleRectInWindow(RECT* prc)
+{
+	CRect  rcClip, rcTemp, rcParent;
+	rcClip.SetRectEmpty();
 
-// 通过将一个剪裁区域选进设备内容来建立自己的剪裁区域，这个剪裁区域使用设备坐标。
-// GDI为剪裁区域建立一份副本，所以在将它选进设备内容之后，使用者可以删除它。
+	Object* pObjParent = NULL;;
 
-// [递归] 将该对象及其子对象绘制到hRDC上面
+	int xOffset = 0, yOffset = 0;
+
+	bool bFirstParent = true;
+	bool bBreak = false;
+	while (!bBreak)
+	{
+		pObjParent = this->REnumParentObject(pObjParent);
+		if (NULL == pObjParent)  // 最后还需要再计算一次自己在父对象中的范围
+		{
+			pObjParent = this;
+			bBreak = true;
+		}
+
+		if (bFirstParent)
+		{
+			pObjParent->GetParentRect(&rcClip);
+			bFirstParent = false;
+		}
+		else
+		{
+			pObjParent->GetParentRect(&rcParent);
+
+			// 减掉非客户区域
+			if (!pObjParent->IsNcObject())
+			{
+				CRegion4 rcNonRect;
+				pObjParent->GetParentObject()->GetNonClientRegion(&rcNonRect);
+				Util::DeflatRect(&rcClip, &rcNonRect);
+
+				xOffset += rcNonRect.left; 
+				yOffset += rcNonRect.top;
+
+				// pObjParent在它的父中的直接位置（减掉了滚动区域)
+				int xScroll = 0, yScroll= 0;
+				pObjParent->GetParentObject()->GetScrollOffset(&xScroll, &yScroll);
+				::OffsetRect(&rcParent, -xScroll, -yScroll);
+			}
+
+			// 计算出pObjParent在窗口中的位置
+			::OffsetRect(&rcParent, xOffset, yOffset);
+			
+			BOOL b = ::IntersectRect(rcTemp, &rcClip, &rcParent);
+			if (false == b)
+				return false;
+
+			rcClip = rcTemp;
+
+			xOffset = rcParent.left; 
+			yOffset = rcParent.top;
+		}
+	}
+
+	if (rcClip.Width() <= 0 || rcClip.Height() <= 0)
+		return false;
+
+	::CopyRect(prc, &rcClip);
+	return true;
+}
+
 //
+// 递归. 将该对象及其子对象绘制到hRDC上面
 // 因为子控件的范围可能要比parent还大，因此在这里必须取子和父的交集clip rgn进行绘制  
+//
 void Object::DrawObject(HRDC hRDC, RenderOffsetClipHelper roc)
 {
 	if (!this->IsVisible())
@@ -1138,7 +1202,7 @@ bool Object::IsEnable()
 //	备注：分层窗口中，隐藏一个对象时，不能直接调用::InvalidateRect(&rc..)
 //        必须调用 GetWindowObject(); pWindow->InvalidateObject(GetWindowObject(),...);
 //
-void Object::SetVisible( bool b, bool bUpdateNow )
+void Object::SetVisible(bool b, bool bRedraw, bool bUpdateLayout)
 {
 	bool bOld = IsVisible();
 
@@ -1163,20 +1227,22 @@ void Object::SetVisible( bool b, bool bUpdateNow )
 
 	if( b != bOld )
 	{
-		this->UpdateLayout(false);
-		if(bUpdateNow)
+		if (bUpdateLayout)
+			this->UpdateLayout(bRedraw);
+
+		if(bRedraw)
 		{
 			if (b)
-				this->UpdateObject(bUpdateNow); 
+				this->UpdateObject(bRedraw); 
 			else
-				this->UpdateObjectBkgnd(bUpdateNow); 
+				this->UpdateObjectBkgnd(bRedraw); 
 		}
 	}
 
 	
 
 	// 如果隐藏的对象是一个焦点对象，则将焦点重新切回到第一个对象
-	if( false == b )
+	if (false == b)
 	{
 		WindowBase* pWindow = this->GetWindowObject();
 		if (NULL != pWindow)
@@ -1390,16 +1456,14 @@ void Object::SetObjectPos( int x, int y, int cx, int cy, int nFlag )
 		return;  // DONOTHING
 	}
 
-// 	if (bMove || bSize)   // 注，千万先别放在，会导致滚动条刷新狂慢
-// 	{
-// 		// 刷新移动前的区域位置
-// 		if (!(nFlag & SWP_NOREDRAW))
-// 		{
-// 			CRect rcWindow;
-// 			this->GetWindowRect(&rcWindow);
-// 			this->UpdateObject(&rcWindow, false);
-// 		}
-// 	}
+	if (bMove || bSize)   // 注，千万先别放在，会导致滚动条刷新狂慢
+	{
+		// 刷新移动前的区域位置
+		if (!(nFlag & SWP_NOREDRAW))
+		{
+			this->UpdateObjectBkgnd(true);
+		}
+	}
 
 	if (this->GetObjectType() == OBJ_WINDOW)
 	{
@@ -1421,16 +1485,14 @@ void Object::SetObjectPos( int x, int y, int cx, int cy, int nFlag )
 		::SetRect(&m_rcParent, x,y,x+cx,y+cy);
 	}
 
-// 	if (bMove || bSize)
-// 	{
-// 		// 刷新移动后的区域位置
-// 		if( !(nFlag & SWP_NOREDRAW) )
-// 		{
-// 			CRect rcWindow;
-// 			this->GetWindowRect(&rcWindow);
-// 			this->UpdateObject(&rcWindow, true);
-// 		}
-// 	}
+	if (bMove || bSize)
+	{
+		// 刷新移动后的区域位置
+		if( !(nFlag & SWP_NOREDRAW) )
+		{
+			this->UpdateObject();
+		}
+	}
 
 	// MSDN: MoveWindow sends the WM_WINDOWPOSCHANGING, WM_WINDOWPOSCHANGED, WM_MOVE, WM_SIZE, and WM_NCCALCSIZE messages to the window. 
 	// 在这里我们暂时只先发送WM_MOVE/WM_SIZE消息
