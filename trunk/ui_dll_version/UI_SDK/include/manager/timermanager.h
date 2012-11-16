@@ -89,7 +89,7 @@ public:
 		{
 			::KillTimer(0, idEvent);
 		}
-		::UISendMessage(ti.pNotify, ui_ WM_TIMER, idEvent, (LPARAM)&ti);
+		::UISendMessage(ti.pNotify, WM_TIMER, idEvent, (LPARAM)&ti);
 		if (0 == ti.nRepeatCount)
 		{
 			KillTimer(idEvent);

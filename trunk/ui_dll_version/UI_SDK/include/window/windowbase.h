@@ -125,6 +125,7 @@ public:
 	UI_BEGIN_MSG_MAP
 		UIMSG_WM_GETGRAPHICSRENDERTYPE( OnGetGraphicsRenderType )
 		UIMSG_WM_ERASEBKGND( OnEraseBkgnd )
+		UIMSG_WM_TIMER(OnTimer)
 	UI_END_MSG_MAP_CHAIN_PARENT(Panel)
 
 protected:
@@ -147,6 +148,7 @@ protected:
 
 	BOOL    OnEraseBkgnd(HRDC);
 	LRESULT OnGetGraphicsRenderType();
+	void    OnTimer(UINT_PTR nIDEvent, LPARAM lParam);
 
 public:
 	HWND     m_hWnd;                // ´°¿Ú¾ä±ú

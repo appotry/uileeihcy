@@ -1347,11 +1347,43 @@ void WindowBase::ReCreateRenderTarget()
 }
 
 //
+// 内存回收
+//
+void WindowBase::OnTimer(UINT_PTR nIDEvent, LPARAM lParam)
+{
+	if (nIDEvent != m_nMemoryRecycleTimerID)
+	{
+		SetMsgHandled(FALSE);
+		return;
+	}
+
+	TimerItem* pItem = (TimerItem*)lParam;
+	if (NULL == pItem)
+		return;
+
+	if (NULL == m_hMemBitmap)
+		return;
+
+	CRect  rcClient;
+	::GetClientRect(m_hWnd, &rcClient);
+
+	BITMAP bm;
+	GetObject(m_hMemBitmap, sizeof(bm), &bm);
+
+	if (bm.bmWidth > rcClient.Width() || bm.bmHeight > rcClient.Height())
+	{
+		// 重新创建
+		this->DestroyDoubleBuffer();
+		this->CreateDoubleBuffer(rcClient.Width(), rcClient.Height());
+	}
+}
+//
 //	创建双缓冲数据
 //
 void WindowBase::CreateDoubleBuffer(int nWidth, int nHeight)
 {
-	// 增加个优化项：过一段时间，空闲时再将内存收回。
+	// 增加个优化项：不是每次窗口大小改变就重建图片缓存。当前窗口大小如果小于图片缓存时开启一个计时器，过一段时间，再将内存收回。
+	// 避免在窗口伸缩时频繁创建图片
 	if (0 != m_nMemoryRecycleTimerID)
 	{
 		TimerHelper::GetInstance()->KillTimer(m_nMemoryRecycleTimerID);
@@ -1368,7 +1400,7 @@ void WindowBase::CreateDoubleBuffer(int nWidth, int nHeight)
 			item.wParam = 0;
 			item.lParam = 0;
 			
-			m_nMemoryRecycleTimerID = TimerHelper::GetInstance()->SetNewTimer(3000, &item);
+			m_nMemoryRecycleTimerID = TimerHelper::GetInstance()->SetNewTimer(10000, &item);
 			return;
 		}
 	}
