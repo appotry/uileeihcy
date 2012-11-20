@@ -5,6 +5,7 @@ Window::Window(void)
 	m_pBtnSystemMaximize = NULL;
 	m_pBtnSystemRestore  = NULL;
 	m_pBtnSystemMinimize = NULL;
+	m_pBtnSystemClose = NULL;
 }
 
 Window::~Window(void)
@@ -33,7 +34,19 @@ void Window::HandleSysBtnStyle()
 	m_pBtnSystemMinimize = this->FindChildObject(XML_SYS_BTN_MINIMIZE);
 	m_pBtnSystemRestore = this->FindChildObject(XML_SYS_BTN_RESTORE);
 	m_pBtnSystemMaximize = this->FindChildObject(XML_SYS_BTN_MAXIMIZE);
+	m_pBtnSystemClose = this->FindChildObject(XML_SYS_BTN_CLOSE);
 
+	// 去除这些按钮的TABSTOP属性
+	if (NULL != m_pBtnSystemClose)
+		m_pBtnSystemClose->ModifyStyle(0, CONTROL_STYLE_TABSTOP, false);
+	if (NULL != m_pBtnSystemRestore)
+		m_pBtnSystemRestore->ModifyStyle(0, CONTROL_STYLE_TABSTOP, false);
+	if (NULL != m_pBtnSystemMinimize)
+		m_pBtnSystemMinimize->ModifyStyle(0, CONTROL_STYLE_TABSTOP, false);
+	if (NULL != m_pBtnSystemMaximize)
+		m_pBtnSystemMaximize->ModifyStyle(0, CONTROL_STYLE_TABSTOP, false);
+
+	// 根据系统按钮的数据决定窗口样式
 	UINT nAdd = 0, nRemove = 0;
 
 	if (NULL != m_pBtnSystemMinimize)

@@ -3,11 +3,16 @@
 #include <textserv.h>
 #include <RichOle.h>
 #include "CaretWindow.h"
+#include "richeditolemgr.h"
 
 #pragma comment(lib, "Riched20.lib")
 class   RichEditBase;
 
-//
+//  RichEdit及其Callback的实现，可以参考MFC CRichEditView
+//  RichEidt的ole view的实现，可以参考ATL插入一个控件对象的实现代码
+
+
+// 
 //
 //	Q1. 无窗口RE是怎么创建的？
 //		a. 调用CreateTextSevices()
@@ -52,6 +57,65 @@ class   RichEditBase;
 //      在TxGetScrollBars中，返回你的m_dwStyle样式。因此需要在m_dwStyle中指定
 //      WM_HSCROLL,WM_VSCROLL...
 //
+//  Q14.OLE的生命周期.
+//      因为richedit的undo功能，对象会一直保存在内存中，直到richedit关闭。
+//
+//      1. WM_KEYDOWN delete键删除对象时，IRichEditOleCallback::DeleteObject。这里不能调用Release
+// 			>	UIDLL.dll!IRichEditOleCallbackImpl<WindowlessRichEdit>::DeleteObject(IOleObject * lpoleobj=0x0011fc90)  行251	C++
+// 				riched20.dll!CObjectMgr::ReplaceRange()  + 0x9a 字节	
+// 				riched20.dll!CRchTxtPtr::ReplaceRange()  + 0x18dde 字节	
+// 				riched20.dll!CTxtRange::ReplaceRange()  + 0x80 字节	
+// 				riched20.dll!CTxtSelection::ReplaceRange()  + 0x1f9 字节	
+// 				riched20.dll!CTxtSelection::Backspace()  + 0xc0 字节	
+// 				riched20.dll!CTxtEdit::OnTxKeyDown()  + 0x5d4 字节	
+// 				riched20.dll!CTxtEdit::TxSendMessage()  + 0x21f3 字节	
+// 				UIDLL.dll!WindowlessRichEdit::OnPostHandleMsg(HWND__ * hWnd=0x00220428, unsigned int Msg=256, unsigned int wParam=8, long lParam=917505)  行196 + 0x39 字节	C++
+//
+//      2. DeleteObject之后，接着会响应IOleObject::Close。 这里不能调用Release
+//         将一个OLE对象用delete键给删除掉时，会调用。然后将对象用ctrl+z再还原，然后再删除时，又会调用一次
+//
+// 			>	UIDLL.dll!CGifOleObject::Close(unsigned long dwSaveOption=0)  行50	C++
+// 				riched20.dll!COleObject::Close()  + 0x2d 字节	
+// 				riched20.dll!CReplaceObjectAE::OnCommit()  + 0xa 字节	
+// 				riched20.dll!CommitAEList()  + 0x21 字节	
+// 				riched20.dll!CGenUndoBuilder::Done()  + 0xf276 字节	
+// 				riched20.dll!CTxtEdit::TxSendMessage()  + 0x11b 字节	
+// 				UIDLL.dll!WindowlessRichEdit::OnPostHandleMsg(HWND__ * hWnd=0x001504fc, unsigned int Msg=256, unsigned int wParam=8, long lParam=917505)  行196 + 0x39 字节	C++
+//
+//      3. 销毁. 在ole对象已不在undo范围时，richedit才会将该对象release掉，此时CGifOleObject被释放
+//         堆栈如下：
+//           >	UIDLL.dll!CGifOleObject::~CGifOleObject()  行13	C++
+// 				UIDLL.dll!CGifOleObject::`scalar deleting destructor'()  + 0x2b 字节	C++
+// 				UIDLL.dll!CGifOleObject::Release()  行66 + 0x2b 字节	C++
+// 				riched20.dll!SafeReleaseAndNULL()  + 0x17 字节	
+// 				riched20.dll!COleObject::DisconnectObject()  + 0x95 字节	
+// 				riched20.dll!COleObject::CleanupState()  + 0x33 字节	
+// 				riched20.dll!COleObject::MakeZombie()  + 0xa 字节	
+// 				riched20.dll!CReplaceObjectAE::Destroy()  + 0x1a 字节	
+// 				riched20.dll!DestroyAEList()  + 0x1d 字节	
+// 				riched20.dll!CUndoStack::ClearAll()  + 0x2c 字节	
+// 				riched20.dll!CGenUndoBuilder::Done()  + 0x1c56d 字节	
+// 				riched20.dll!CTxtEdit::TxSendMessage()  + 0x11b 字节	
+// 				UIDLL.dll!WindowlessRichEdit::OnChar(unsigned int uMsg=258, unsigned int wParam=97, long lParam=1966081)  行297 + 0x39 字节	C++
+//
+//   Q15.  Rich Edit 剪贴板操作 
+//      http://zjqzy03080312.blog.163.com/blog/static/1857428072012124112714348/
+//
+//		应用程序可以粘贴剪贴板中内容到一个Rich Edit控件中，采用最佳可用剪贴板格式或者指定的剪贴板格式。
+//      你也可以决定是否一个Rich Edit控件可以粘贴某种剪贴板格式。 
+//
+//		对于一个Edit控件而言，你可以使用WM_COPY或者WM_CUT消息来拷贝或者剪切当前选中内容。同样的，你可
+//      以使用WM_PASTE消息将这些剪贴板内容粘贴到一个Rich Edit控件中。控件将粘贴它所识别的第一个可用格式，
+//      这大概是最具描述性的格式。 
+//
+//		你可以使用EM_PASTESPECIAL消息来粘贴指定的剪贴板格式。这个消息对具有"特殊粘贴"命令的应用程序很有
+//      用，该命令可以让用户选择剪贴板格式。你可以使用EM_CANPASTE消息来决定控件是否识别某种指定的格式。 
+//
+//		你也可以使用EM_CANPASTE消息来决定Rich Edit控件是否识别所有可用的剪贴板格式。该消息在处理WM_INITMENUPOPUP
+//      消息时很有用。应用程序可以启用或者屏蔽"粘贴"命令，取决于控件是否可以粘贴任一个可用类型。 
+//
+//		Rich Edit控件注册两种剪贴板格式："富文本格式(RTF)"和一种叫做"RichEdit 文本与对象"的格式。应用程序
+//      可以使用RegisterClipboardFormat函数来注册这些格式，其取值为CF_RTF与CF_RETEXTOBJ
 //
 class UIAPI ITextHostImpl : public ITextHost
 {
@@ -123,6 +187,8 @@ public:
 	void    RevokeDragDrop(void);
 	void    RegisterDragDrop(void);
 	bool    SetText(const TCHAR* szText);
+
+	IRichEditOle* GetRichEditOle() { return m_spOle; }
 	
 protected:
 
@@ -160,155 +226,8 @@ interface ITextEditControl
 };
 
 
-template<class T>
-class UIAPI IRichEditOleCallbackImpl : public IRichEditOleCallback
-{
-public:
-	IRichEditOleCallbackImpl(){ m_hRichEditWnd = NULL; }
-
-	// *** IUnknown methods ***
-// 	virtual HRESULT __stdcall QueryInterface(REFIID riid, LPVOID FAR * lplpObj) { return E_NOTIMPL; }
-// 	virtual ULONG   __stdcall AddRef() { return 1; }
-// 	virtual ULONG   __stdcall Release(){ return 0; }
-
-	// *** IRichEditOleCallback methods ***
-// 	virtual HRESULT __stdcall GetNewStorage(LPSTORAGE FAR * lplpstg);
-// 	virtual HRESULT __stdcall GetInPlaceContext(LPOLEINPLACEFRAME FAR * lplpFrame, LPOLEINPLACEUIWINDOW FAR * lplpDoc, LPOLEINPLACEFRAMEINFO lpFrameInfo) ;
-// 	virtual HRESULT __stdcall ShowContainerUI(BOOL fShow) ;
-// 	virtual HRESULT __stdcall QueryInsertObject(LPCLSID lpclsid, LPSTORAGE lpstg, LONG cp) ;
-// 	virtual HRESULT __stdcall DeleteObject(LPOLEOBJECT lpoleobj) ;
-// 	virtual HRESULT __stdcall QueryAcceptData(LPDATAOBJECT lpdataobj, CLIPFORMAT FAR * lpcfFormat, DWORD reco, BOOL fReally, HGLOBAL hMetaPict) ;
-// 	virtual HRESULT __stdcall ContextSensitiveHelp(BOOL fEnterMode) ;
-// 	virtual HRESULT __stdcall GetClipboardData(CHARRANGE FAR * lpchrg, DWORD reco, LPDATAOBJECT FAR * lplpdataobj) ;
-// 	virtual HRESULT __stdcall GetDragDropEffect(BOOL fDrag, DWORD grfKeyState, LPDWORD pdwEffect) ;
-// 	virtual HRESULT __stdcall GetContextMenu(WORD seltype, LPOLEOBJECT lpoleobj, CHARRANGE FAR * lpchrg, HMENU FAR * lphmenu) ;
-
-	// This method must be implemented to allow cut, copy, paste, drag, 
-	// and drop operations of Component Object Model (COM) objects.
-	// 例如向richedit中随便拖入一个桌面上的图标，就会调用该函数
-	HRESULT __stdcall GetNewStorage(LPSTORAGE FAR * lplpstg)
-	{
-		if (NULL == lplpstg)
-		{
-			return E_INVALIDARG;
-		}
-		LPLOCKBYTES lpLockBytes = NULL;
-		SCODE sc = ::CreateILockBytesOnHGlobal(NULL, TRUE, &lpLockBytes);
-		if (sc != S_OK)
-		{
-			return E_OUTOFMEMORY;
-		}
-
-		sc = ::StgCreateDocfileOnILockBytes(lpLockBytes,
-			STGM_SHARE_EXCLUSIVE|STGM_CREATE|STGM_READWRITE, 0, lplpstg);
-		if (sc != S_OK)
-		{
-			return E_OUTOFMEMORY;
-		}
-
-		return S_OK;
-	}
-	HRESULT __stdcall GetInPlaceContext(LPOLEINPLACEFRAME FAR * lplpFrame,
-		LPOLEINPLACEUIWINDOW FAR * lplpDoc,
-		LPOLEINPLACEFRAMEINFO lpFrameInfo)
-	{
-		return E_NOTIMPL;
-	}
-	HRESULT __stdcall ShowContainerUI(BOOL fShow)
-	{
-		return E_NOTIMPL;
-	}
-	// 在从外部拖入一个文件到richedit时，先响应了GetNewStorage成功后，就会再调到这个接口函数
-	// 当返回S_OK时，这个对象将被插入，返回FALSE时，对象将不会被插入
-	HRESULT __stdcall QueryInsertObject(LPCLSID lpclsid, LPSTORAGE lpstg,
-		LONG cp)
-	{
-		return S_OK;
-	}
-	// 例如将richedit中的一个COM对象删除，则会调用一次该接口函数
-	// 例如将richedit中的一个COM对象用鼠标拖拽到另一个位置，则会调用一次该接口函数
-	// 该函数仅是一个通知，告诉我们有一个对象要被deleted from rich edit control;
-	HRESULT __stdcall DeleteObject(LPOLEOBJECT lpoleobj)
-	{
-		lpoleobj->Release();
-		return S_OK;
-	}
-
-	// 在richedit中使用 CTRL+V时被调用
-	HRESULT __stdcall QueryAcceptData(LPDATAOBJECT lpdataobj,
-		CLIPFORMAT FAR * lpcfFormat, DWORD reco,
-		BOOL fReally, HGLOBAL hMetaPict)
-	{
-		return E_NOTIMPL;
-	}
-	HRESULT __stdcall ContextSensitiveHelp(BOOL fEnterMode)
-	{
-		return E_NOTIMPL;
-	}
-	// 在richedit中使用 CTRL+C 时被调用
-	HRESULT __stdcall GetClipboardData(CHARRANGE FAR * lpchrg, DWORD reco,
-		LPDATAOBJECT FAR * lplpdataobj)
-	{
-		return E_NOTIMPL;
-	}
-
-	// 在richedit中使用鼠标拖拽时被调用
-	HRESULT __stdcall GetDragDropEffect(BOOL fDrag, DWORD grfKeyState,
-		LPDWORD pdwEffect)
-	{
-		if (!fDrag) // allowable dest effects
-		{
-			DWORD dwEffect;
-			// check for force link
-			if ((grfKeyState & (MK_CONTROL|MK_SHIFT)) == (MK_CONTROL|MK_SHIFT))
-				dwEffect = DROPEFFECT_LINK;
-			// check for force copy
-			else if ((grfKeyState & MK_CONTROL) == MK_CONTROL)
-				dwEffect = DROPEFFECT_COPY;
-			// check for force move
-			else if ((grfKeyState & MK_ALT) == MK_ALT)
-				dwEffect = DROPEFFECT_MOVE;
-			// default -- recommended action is move
-			else
-				dwEffect = DROPEFFECT_MOVE;
-			if (dwEffect & *pdwEffect) // make sure allowed type
-				*pdwEffect = dwEffect;
-		}
-		return S_OK;
-	}
-
-	// 右击RichEdit时被调用，根据鼠标右键时，鼠标下面的对象的不同，得到的参数也不同，
-	// 例如在空白处右击，seltype=0, lpoleobj=NULL
-	// 例如在一个COM对象处右击，可能seltype=2, lpoleobj = xxx;
-	HRESULT __stdcall GetContextMenu(WORD seltype, LPOLEOBJECT lpoleobj,
-		CHARRANGE FAR * lpchrg,
-		HMENU FAR * lphmenu)
-	{
-#ifdef _DEBUG
-		T* pThis = dynamic_cast<T*>(this);
-		return pThis->InsertGif(_T("C:\\richedit.gir"));
-#endif
-#ifdef _DEBUG
-		HMENU& hMenu = *lphmenu;
-		TCHAR szInfo[128] = _T("");
-		_stprintf(szInfo, _T("GetContextMenu Args: seltype=%d, lpoleobj=%08x, lpchrg=%d,%d"),
-			seltype, lpoleobj, lpchrg->cpMin, lpchrg->cpMax);
-
-		hMenu = CreatePopupMenu();
-		BOOL bRet = ::AppendMenu(hMenu, MF_STRING, 10001, szInfo);
-#endif
-		return S_OK;
-	}
-
-
-	HWND  GetRichEidtHWND(){ return m_hRichEditWnd; }
-	void  SetRichEditHWND(HWND hWnd){ m_hRichEditWnd = hWnd; }
-
-private:
-	HWND   m_hRichEditWnd;
-};
-
-
+	
+ 
 // 条件判断
 #define PRE_HANDLE_MSG() \
 	{ \
@@ -329,7 +248,7 @@ private:
 
 class UIAPI WindowlessRichEdit : public ITextHostImpl, 
 	                             public ITextEditControl
-	                           , public IRichEditOleCallbackImpl<WindowlessRichEdit>
+	                           , public IRichEditOleCallback
 {
 public:
 	WindowlessRichEdit(RichEditBase*);
@@ -364,13 +283,46 @@ protected:
 	LRESULT OnChar(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	void    OnWindowPosChanged(LPWINDOWPOS);
 
+protected:
+	// *** IRichEditOleCallback methods ***
+ 	virtual HRESULT __stdcall GetNewStorage(LPSTORAGE FAR * lplpstg);
+ 	virtual HRESULT __stdcall GetInPlaceContext(LPOLEINPLACEFRAME FAR * lplpFrame, LPOLEINPLACEUIWINDOW FAR * lplpDoc, LPOLEINPLACEFRAMEINFO lpFrameInfo) ;
+ 	virtual HRESULT __stdcall ShowContainerUI(BOOL fShow) ;
+ 	virtual HRESULT __stdcall QueryInsertObject(LPCLSID lpclsid, LPSTORAGE lpstg, LONG cp) ;
+ 	virtual HRESULT __stdcall DeleteObject(LPOLEOBJECT lpoleobj) ;
+ 	virtual HRESULT __stdcall QueryAcceptData(LPDATAOBJECT lpdataobj, CLIPFORMAT FAR * lpcfFormat, DWORD reco, BOOL fReally, HGLOBAL hMetaPict) ;
+ 	virtual HRESULT __stdcall ContextSensitiveHelp(BOOL fEnterMode) ;
+ 	virtual HRESULT __stdcall GetClipboardData(CHARRANGE FAR * lpchrg, DWORD reco, LPDATAOBJECT FAR * lplpdataobj) ;
+ 	virtual HRESULT __stdcall GetDragDropEffect(BOOL fDrag, DWORD grfKeyState, LPDWORD pdwEffect) ;
+ 	virtual HRESULT __stdcall GetContextMenu(WORD seltype, LPOLEOBJECT lpoleobj, CHARRANGE FAR * lpchrg, HMENU FAR * lphmenu) ;
+
 public:
+	// Helper 
+	WORD GetSelectionType() const
+	{
+		LRESULT lr = 0;
+		m_spTextServices->TxSendMessage(EM_SELECTIONTYPE, 0, 0L, &lr);
+		return (WORD)lr;
+	}
+	bool GetSelectionOleObject(RichEditOleObjectItem** ppItem);
+
+	// Function
 	bool    Create(HWND hWndParent);
 	void    Draw(HDC);
 	bool    HitTest(POINT pt);
 
 	// 
+	bool    InsertOleObject(RichEditOleObjectItem* pItem);
 	bool    InsertGif(const TCHAR* szGifPath);
+
+	// Call this function to paste the OLE item in dataobj into this rich edit document/view.
+	void    DoPaste(LPDATAOBJECT pDataObject, CLIPFORMAT cf, HMETAFILEPICT hMetaPict);
+
+protected:
+	
+	// Creation IDataObject from IDataObject (used for drag-drop, paste)
+	IOleObject*  CreateOleObjectFromData(LPDATAOBJECT pDataObject, bool bOleCreateFromDataOrOleCreateStaticFromData = true, OLERENDER render = OLERENDER_DRAW, CLIPFORMAT cfFormat = 0, LPFORMATETC lpFormatEtc = NULL);
+	int     GetObjectTypeByOleObject(LPOLEOBJECT pOleObject); 
 
 public:
 	// IUnknown  Interface
@@ -390,9 +342,12 @@ public:
 	virtual HRESULT	TxGetViewInset(LPRECT prc);
 
 protected:
-	RichEditBase*   m_pRichEditBase;
+	void    ClearOleObjects();
 
-	vector<IUnknown*>  m_vecpUnkOleObject;
+protected:
+	RichEditBase*   m_pRichEditBase;
+	RichEditOleObjectManager  m_olemgr;
+
 
 protected:
 	// 非windowless richedit要调用的初始化函数
@@ -401,45 +356,11 @@ protected:
 	void   ReleaseRichEidtDll();
 	static HMODULE  s_RichEditDll;
 	static LONG     s_refDll;
-};
-
-//
-// http://blog.csdn.net/tangaowen/article/details/6198238
-//
-// 存储ole对象的相关的信息
-class OleObjectInfo
-{
 public:
-	OleObjectInfo()
-	{
-		nPos = 0; nIndex = 0;
-		szPath = NULL;
-	}
-	~OleObjectInfo()
-	{
-		SAFE_ARRAY_DELETE(szPath);
-	}
-
-	int     nPos;    // ole对象在richedit中的位置nPos. 处理复制的时候，需要通过这个来判断，复制的是否是文字还是ole对象
-	int     nIndex;  // 
-	TCHAR*  szPath;  // 文件路径
-
+	//RichEdit formats
+	static UINT     s_cfRichTextFormat;      // CLIPFORMAT
+	static UINT     s_cfRichTextAndObjects;  // CLIPFORMAT
 };
-// 管理richedit中的 ole对象对应的结构体列表
-class OleObjectManager
-{
-public:
 
-	// 这个方法传入一个位置nPos,如果这个位置是一个ole obj ,那么返回这个ole object对应的vector中的OleStruct对象，否则返回NULL.
-	// 在处理复制的时候，就调用这个方法，来将所有的ole obj的数据，替换为编码过的OleStruct对象的数据。然后在处理粘贴的时候，又解码，将对应的Ole object对象插入到
-	// RichEdit中。
-	OleObjectInfo*  GetObjectByPos(int nPos)
-	{
-		return NULL;
-	}
-
-protected:
-	vector<OleObjectInfo*>  m_vecOleObject;
-};
 
 //#include <atlctl.h>

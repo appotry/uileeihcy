@@ -19,15 +19,20 @@ LONG DYtoHimetricY(LONG dy, LONG yPerInch) { return (LONG) MulDiv(dy, HIMETRIC_P
 
 HMODULE WindowlessRichEdit::s_RichEditDll = NULL;
 LONG    WindowlessRichEdit::s_refDll = 0;
+UINT    WindowlessRichEdit::s_cfRichTextFormat = 0;
+UINT    WindowlessRichEdit::s_cfRichTextAndObjects = 0;
 
-WindowlessRichEdit::WindowlessRichEdit(RichEditBase* pRichEditBase)
+WindowlessRichEdit::WindowlessRichEdit(RichEditBase* pRichEditBase):m_olemgr(this)
 {
 	m_pRichEditBase = pRichEditBase;
-//	this->InitRichEidtDll();
+	this->InitRichEidtDll();
 }
 
 WindowlessRichEdit::~WindowlessRichEdit(void)
 {
+	// 销毁所有的ole对象
+	this->ClearOleObjects();
+
 	m_pRichEditBase = NULL;
 
 	// Revoke our drop target
@@ -47,7 +52,65 @@ WindowlessRichEdit::~WindowlessRichEdit(void)
 // 	}
 //	m_vecpUnkOleObject.clear();
 
-//	this->ReleaseRichEidtDll();
+	this->ReleaseRichEidtDll();
+}
+
+//
+// 有几个注意事项非常重要正确启用以这种功能的工作的： 
+//
+//  框架窗口将工具栏和状态栏的父项的需要创建具有 WS_CLIPCHILDREN 样式。如果不存在此样式应
+//  用程序将在对象处于活动的 RichEdit 控件中时表现绘画的一些问题。 
+//
+//  应该用 WS_CLIPSIBLING 样式创建 RichEdit 控件本身。 此处太，如果不存在样式 RichEdit 控
+//  件将出现绘画问题时对象处于活动的过程中创建子窗口。 
+//
+//  销毁 RichEdit 控制时，您的应用程序应停用任何处于活动对象和调用 IOleObject->Close() 
+//  RichEdit 控件中的所有嵌入的对象上。如果这不进行某些对象应用程序可能不关闭，从而导致它
+//  们保留在内存，即使 RichEdit 控件已被破坏。下面是演示如何处理结算的 OLE 对象的代码段：
+//
+void WindowlessRichEdit::ClearOleObjects()
+{
+	if (m_spOle)
+	{
+		HRESULT hr = 0;
+
+		// 
+		// Start by getting the total number of objects in the control.
+		// 
+		int objectCount = m_spOle->GetObjectCount();
+
+		// 
+		// Loop through each object in the control and if active
+		// deactivate, and if open, close.
+		// 
+		for (int i = 0; i < objectCount; i++)
+		{
+			REOBJECT reObj;
+			ZeroMemory(&reObj, sizeof(REOBJECT));
+			reObj.cbStruct  = sizeof(REOBJECT);
+
+			// 
+			// Get the Nth object
+			// 
+			hr = m_spOle->GetObject(i,&reObj,REO_GETOBJ_POLEOBJ);
+			if(SUCCEEDED(hr))
+			{
+				// 
+				// If active, deactivate.
+				// 
+				if (reObj.dwFlags && REO_INPLACEACTIVE)
+					m_spOle->InPlaceDeactivate();
+
+				// 
+				// If the object is open, close it.
+				// 
+				if(reObj.dwFlags&&REO_OPEN)
+					hr = reObj.poleobj->Close(OLECLOSE_NOSAVE);
+
+				reObj.poleobj->Release();  // release GetObject
+			}
+		}
+	}
 }
 
 bool WindowlessRichEdit::Create(HWND hWndParent)
@@ -137,6 +200,8 @@ void WindowlessRichEdit::InitRichEidtDll()
 	if (NULL == s_RichEditDll)
 	{
 		s_RichEditDll = ::LoadLibrary(GetLibraryName());
+		s_cfRichTextFormat = ::RegisterClipboardFormat(_T("Rich Text Format"));
+		s_cfRichTextAndObjects = ::RegisterClipboardFormat(_T("RichEdit Text and Objects"));
 	}
 	s_refDll++;
 }
@@ -817,7 +882,7 @@ ITextHostImpl::ITextHostImpl()
 	m_chPasswordChar = L'*';
 	m_laccelpos = -1;
 	m_fWordWrap = false;
-	m_fRich = false;
+	m_fRich = true;
 	m_fRegisteredForDrop = false;
 	m_fPassword = false;
 
@@ -1089,58 +1154,42 @@ bool ITextHostImpl::SetText(const TCHAR* szText)
 	return false; 
 }
 
-bool WindowlessRichEdit::InsertGif(const TCHAR* szGifPath)
+#include "E:\\编程\\workingpath\\test\\richeditole\\richeditole_i.h"
+//#pragma comment(lib, "E:\\编程\\workingpath\\test\\richeditole\\Debug\\richeditole.lib")
+
+// DEFINE_GUID(CLDIS_GifImageObject, 
+//			0xC925B680, 0xB27F, 0x4363, 0xAF, 0xAC, 0x7C, 0x5D, 0x0F, 0xD1, 0xAC, 0x81);
+
+bool WindowlessRichEdit::InsertOleObject(RichEditOleObjectItem* pItem)
 {
-	if (NULL == m_spOle)
+	if (NULL == pItem)
 		return false;
 
-	bool    bRet = false;
-	HRESULT hr = E_FAIL;
-	LPOLECLIENTSITE pClientSite = NULL;
+	bool       bRet = false;
+	HRESULT    hr = E_FAIL;
+	IOleObject*     pOleObject = NULL;
 	IStorage*       pStorage = NULL;
 	ILockBytes*     pLockbytes = NULL;
-	IGifOleObject*  pGifOleObject = NULL;
+	LPOLECLIENTSITE pClientSite = NULL;
 
 	do 
 	{
-		hr = ::CreateILockBytesOnHGlobal(NULL, TRUE, &pLockbytes);
-		if (FAILED(hr) || NULL == pLockbytes)
-			break;
-
-		hr = ::StgCreateDocfileOnILockBytes(pLockbytes,
-			STGM_SHARE_EXCLUSIVE|STGM_CREATE|STGM_READWRITE, 0, &pStorage);
-		if (FAILED(hr))
-			break;
-
-		hr = CGifOleObject::CreateInstance(IID_IGifOleObject, (void**)&pGifOleObject);
-		if FAILED(hr)
-			break;
-
 		hr = m_spOle->GetClientSite(&pClientSite);
 		if (FAILED(hr))
 			break;
 
-		hr = pGifOleObject->SetClientSite(pClientSite);
-		if (FAILED(hr))
-			break;
-
-		hr = pGifOleObject->LoadGif(szGifPath);
-		if (FAILED(hr))
-			break;
-
-		hr = OleSetContainedObject(static_cast<IOleObject*>(pGifOleObject), TRUE);
-		if (FAILED(hr))
+		pItem->QueryInterface(IID_IOleObject, (void**)&pOleObject);
+		if (NULL == pOleObject)
 			break;
 
 		REOBJECT reObj;
 		ZeroMemory(&reObj, sizeof(REOBJECT));
 		reObj.cbStruct = sizeof(REOBJECT);
-		//reObj.clsid = __uuidof(...);
-		reObj.poleobj = static_cast<IOleObject*>(pGifOleObject);
+		reObj.poleobj = pOleObject;
 		reObj.polesite = pClientSite;
 		reObj.dvaspect = DVASPECT_CONTENT;
 		reObj.dwFlags = REO_BELOWBASELINE;
-		reObj.pstg = pStorage;
+		reObj.pstg = NULL;
 		reObj.dwUser = 0;
 		reObj.cp = REO_CP_SELECTION;
 
@@ -1151,30 +1200,348 @@ bool WindowlessRichEdit::InsertGif(const TCHAR* szGifPath)
 		// The rich edit control automatically increments the reference count for the interfaces 
 		// if it holds onto them, so the caller can safely release the interfaces if they are not 
 		// needed. 
+		HRESULT hr = m_spOle->InsertObject(&reObj);
+		if (FAILED(hr))
+			break;
+
+		OleSetContainedObject(static_cast<IOleObject*>(pOleObject), TRUE);
+
+		this->m_olemgr.AddOleItem(pItem);
+		bRet = true;
+	} while (0);
+	
+	
+	SAFE_RELEASE(pClientSite);
+	SAFE_RELEASE(pOleObject);
+	
+	return bRet;
+}
+bool WindowlessRichEdit::InsertGif(const TCHAR* szGifPath)
+{
+	GifOleObject* pGifOle = new GifOleObject;
+	pGifOle->LoadGif(szGifPath);
+
+	return this->InsertOleObject(pGifOle);
+}
+
+
+void WindowlessRichEdit::DoPaste(LPDATAOBJECT pDataObject, CLIPFORMAT cf, HMETAFILEPICT hMetaPict)
+{
+
+	LPOLEOBJECT     pOleObject = NULL;
+	LPOLEOBJECT     lpOleObject = NULL;
+	IStorage*       pStorage = NULL;
+	ILockBytes*     pLockbytes = NULL;
+	LPOLECLIENTSITE pClientSite = NULL;
+
+	bool  bRet = false;
+	do 
+	{
+		SCODE sc = ::CreateILockBytesOnHGlobal(NULL, TRUE, &pLockbytes);
+		if (sc != S_OK)
+			break;
+
+		sc = ::StgCreateDocfileOnILockBytes(pLockbytes, STGM_SHARE_EXCLUSIVE|STGM_CREATE|STGM_READWRITE, 0, &pStorage);
+		if (sc != S_OK)
+			break;
+
+		HRESULT hr = m_spOle->GetClientSite(&pClientSite);
+		if (FAILED(hr))
+			break;
+
+// 		sc = ::OleCreateFromData(pDataObject, IID_IUnknown, OLERENDER_DRAW, NULL, pClientSite, pStorage, (void**)&lpOleObject);
+// 		if (FAILED(sc))
+			sc = ::OleCreateStaticFromData(pDataObject, IID_IUnknown, OLERENDER_DRAW, NULL, pClientSite, pStorage, (void**)&lpOleObject);
+
+		if (sc != S_OK)
+			break;
+
+		// all items are "contained" -- this makes our reference to this object
+		//  weak -- which is needed for links to embedding silent update.
+		OleSetContainedObject(lpOleObject, TRUE);
+
+	
+
+
+		REOBJECT reObj;
+		memset(&reObj, 0, sizeof(reObj));
+		reObj.cbStruct = sizeof(REOBJECT);
+		reObj.cp = REO_CP_SELECTION;
+
+		reObj.poleobj = pOleObject;
+		reObj.polesite = pClientSite;
+		reObj.dvaspect = DVASPECT_CONTENT;
+		reObj.dwFlags = REO_BELOWBASELINE;
+		reObj.pstg = pStorage;
+		reObj.dwUser = 0;
+		reObj.cp = REO_CP_SELECTION;
+
 		hr = m_spOle->InsertObject(&reObj);
 		if (FAILED(hr))
 			break;
 
-		pClientSite->OnShowWindow(TRUE);
-		SAFE_RELEASE(pClientSite);
-
 		bRet = true;
-	} 
-	while (0);
+	} while (0);
 
+	SAFE_RELEASE(pLockbytes);
+	SAFE_RELEASE(pStorage);
 	SAFE_RELEASE(pClientSite);
-
-	if (false == bRet)
+	if (!bRet)
 	{
-		SAFE_RELEASE(pLockbytes);
-		SAFE_RELEASE(pStorage);
-		SAFE_RELEASE(pGifOleObject);
-	}
-	else
-	{
-//		m_vecpUnkOleObject.push_back(static_cast<IUnknown*>(pGifOleObject));
+		SAFE_RELEASE(lpOleObject);
 	}
 
-	return bRet;
+
 }
 
+IOleObject* WindowlessRichEdit::CreateOleObjectFromData(LPDATAOBJECT pDataObject, bool bOleCreateFromDataOrOleCreateStaticFromData, OLERENDER render, CLIPFORMAT cfFormat, LPFORMATETC lpFormatEtc)
+{
+	LPOLEOBJECT     lpOleObject = NULL;
+	IStorage*       pStorage = NULL;
+	ILockBytes*     pLockbytes = NULL;
+	LPOLECLIENTSITE pClientSite = NULL;
+
+	bool  bRet = false;
+	do 
+	{
+		SCODE sc = ::CreateILockBytesOnHGlobal(NULL, TRUE, &pLockbytes);
+		if (sc != S_OK)
+			break;
+
+		sc = ::StgCreateDocfileOnILockBytes(pLockbytes, STGM_SHARE_EXCLUSIVE|STGM_CREATE|STGM_READWRITE, 0, &pStorage);
+		if (sc != S_OK)
+			break;
+
+		HRESULT hr = m_spOle->GetClientSite(&pClientSite);
+		if (FAILED(hr))
+			break;
+
+		if (bOleCreateFromDataOrOleCreateStaticFromData)
+			sc = ::OleCreateFromData(pDataObject, IID_IUnknown, render, NULL, pClientSite, pStorage, (void**)&lpOleObject);
+		else
+			sc = ::OleCreateStaticFromData(pDataObject, IID_IUnknown, render, NULL, pClientSite, pStorage, (void**)&lpOleObject);
+
+		if (sc != S_OK)
+			break;
+
+		// all items are "contained" -- this makes our reference to this object
+		//  weak -- which is needed for links to embedding silent update.
+		OleSetContainedObject(lpOleObject, TRUE);
+
+		bRet = true;
+	} while (0);
+
+	SAFE_RELEASE(pLockbytes);
+	SAFE_RELEASE(pStorage);
+	SAFE_RELEASE(pClientSite);
+	if (!bRet)
+	{
+		SAFE_RELEASE(lpOleObject);
+	}
+
+	return lpOleObject;
+}
+
+// int WindowlessRichEdit::GetObjectTypeByOleObject(LPOLEOBJECT*  pOleObject)
+// {
+// 	if (NULL == pOleObject)
+// 		return OT_STATIC;
+// 
+// 	// check for linked object
+// 	LPOLELINK lpOleLink = NULL;
+// 	m_lpObject->QueryInterface(IID_IOleLink, (void**)&lpOleLink);
+// 	if (lpOleLink != NULL)
+// 	{
+// 		lpOleLink->Release();
+// 		return OT_LINK;
+// 	}
+// 
+// 	// check for static object
+// 	DWORD dwStatus;
+// 	if (pOleObject->GetMiscStatus(DVASPECT_CONTENT, &dwStatus) == S_OK
+// 		&& (dwStatus & OLEMISC_STATIC) == 0)
+// 	{
+// 		return OT_EMBEDDED;
+// 	}
+// 
+// 	// not not link, not embedding -- must be static
+// 	return OT_STATIC;
+// }
+
+bool WindowlessRichEdit::GetSelectionOleObject(RichEditOleObjectItem** ppItem)
+{
+	if (NULL == ppItem)
+		return false;
+
+	REOBJECT reObj;
+	ZeroMemory(&reObj, sizeof(REOBJECT));
+	reObj.cbStruct = sizeof(REOBJECT);
+
+	HRESULT hr = m_spOle->GetObject(REO_IOB_USE_CP, &reObj, REO_GETOBJ_NO_INTERFACES);
+	if (SUCCEEDED(hr))
+	{
+		*ppItem = m_olemgr.GetOleItem(reObj.dwUser);
+		return true;
+	}
+
+	return false;
+}
+
+#pragma region  // IRichEditOleCallback
+// This method must be implemented to allow cut, copy, paste, drag, 
+// and drop operations of Component Object Model (COM) objects.
+// 例如向richedit中随便拖入一个桌面上的图标，就会调用该函数
+HRESULT __stdcall WindowlessRichEdit::GetNewStorage(LPSTORAGE FAR * lplpstg)
+{
+	if (NULL == lplpstg)
+	{
+		return E_INVALIDARG;
+	}
+	LPLOCKBYTES lpLockBytes = NULL;
+	SCODE sc = ::CreateILockBytesOnHGlobal(NULL, TRUE, &lpLockBytes);
+	if (sc != S_OK)
+	{
+		return E_OUTOFMEMORY;
+	}
+
+	sc = ::StgCreateDocfileOnILockBytes(lpLockBytes,
+		STGM_SHARE_EXCLUSIVE|STGM_CREATE|STGM_READWRITE, 0, lplpstg);
+	if (sc != S_OK)
+	{
+		return E_OUTOFMEMORY;
+	}
+
+	return S_OK;
+}
+HRESULT __stdcall WindowlessRichEdit::GetInPlaceContext(LPOLEINPLACEFRAME FAR * lplpFrame,
+									LPOLEINPLACEUIWINDOW FAR * lplpDoc,
+									LPOLEINPLACEFRAMEINFO lpFrameInfo)
+{
+	return E_NOTIMPL;
+}
+HRESULT __stdcall WindowlessRichEdit::ShowContainerUI(BOOL fShow)
+{
+	return E_NOTIMPL;
+}
+// 在从外部拖入一个文件到richedit时，先响应了GetNewStorage成功后，就会再调到这个接口函数
+// 当返回S_OK时，这个对象将被插入，返回FALSE时，对象将不会被插入
+HRESULT __stdcall WindowlessRichEdit::QueryInsertObject(LPCLSID lpclsid, LPSTORAGE lpstg,
+									LONG cp)
+{
+	return S_OK;
+}
+// 例如将richedit中的一个COM对象删除，则会调用一次该接口函数
+// 例如将richedit中的一个COM对象用鼠标拖拽到另一个位置，则会调用一次该接口函数
+// 该函数仅是一个通知，告诉我们有一个对象要被deleted from rich edit control;
+// 这里不用调用release lpoleobj?
+HRESULT __stdcall WindowlessRichEdit::DeleteObject(LPOLEOBJECT lpoleobj)
+{
+	return S_OK;
+}
+
+//	CRichEditView::QueryAcceptData
+// 在richedit中使用 CTRL+V、拖放时被调用
+HRESULT __stdcall WindowlessRichEdit::QueryAcceptData(LPDATAOBJECT lpdataobj, CLIPFORMAT FAR * lpcfFormat, DWORD reco, BOOL fReally, HGLOBAL hMetaPict)
+{
+	if (!fReally) // not actually pasting
+		return S_OK;
+
+
+	// if direct pasting a particular native format allow it
+	if (*lpcfFormat == CF_TEXT ||
+		*lpcfFormat == WindowlessRichEdit::s_cfRichTextFormat ||
+		*lpcfFormat == WindowlessRichEdit::s_cfRichTextAndObjects
+		)
+		return S_OK;
+
+	// if format is 0, then force particular formats if available
+	if (*lpcfFormat == 0 /*&& (m_nPasteType == 0)*/)
+	{
+		if (IsClipboardFormatAvailable((CLIPFORMAT)WindowlessRichEdit::s_cfRichTextAndObjects)) // native avail, let richedit do as it wants
+			return S_OK;
+		else if (IsClipboardFormatAvailable((CLIPFORMAT)WindowlessRichEdit::s_cfRichTextFormat))
+		{
+			*lpcfFormat = (CLIPFORMAT)WindowlessRichEdit::s_cfRichTextFormat;
+			return S_OK;
+		}
+		else if (IsClipboardFormatAvailable(CF_TEXT))
+		{
+			*lpcfFormat = CF_TEXT;
+			return S_OK;
+		}
+	}
+
+	// paste OLE formats
+	// GetThisPtr()->DoPaste(lpdataobj, *lpcfFormat, hMetaPict);
+
+	return S_FALSE;
+}
+HRESULT __stdcall WindowlessRichEdit::ContextSensitiveHelp(BOOL fEnterMode)
+{
+	return E_NOTIMPL;
+}
+// 在richedit中使用 CTRL+C/拖拽 时被调用，获取要复制的数据
+// This method returns success status. If the SCODE of the return value is E_NOTIMPL, the 
+// rich edit control creates its own clipboard object. 
+// If the SCODE of the return value is a failure other than E_NOTIMPL, the operation fails.
+
+HRESULT __stdcall WindowlessRichEdit::GetClipboardData(CHARRANGE FAR * lpchrg, DWORD reco, LPDATAOBJECT FAR * lplpdataobj)
+{
+	WORD wSelType = this->GetSelectionType();
+	if (SEL_OBJECT == wSelType)
+	{
+		RichEditOleObjectItem* pItem = NULL;
+		bool bRet = this->GetSelectionOleObject(&pItem);
+		if (!bRet || NULL == pItem)
+			return E_NOTIMPL;
+
+		return S_OK;   // 注：如果SEL_OBJECT == wSelType时返回E_NOTIMPL会造成内存pItem被AddRef，最后导致内存泄露.什么原理?
+
+	}
+	return E_NOTIMPL;
+}
+
+// 在richedit中使用鼠标拖拽时被调用
+HRESULT __stdcall WindowlessRichEdit::GetDragDropEffect(BOOL fDrag, DWORD grfKeyState, LPDWORD pdwEffect)
+{
+	if (!fDrag) // allowable dest effects
+	{
+		DWORD dwEffect;
+		// check for force link
+		if ((grfKeyState & (MK_CONTROL|MK_SHIFT)) == (MK_CONTROL|MK_SHIFT))
+			dwEffect = DROPEFFECT_LINK;
+		// check for force copy
+		else if ((grfKeyState & MK_CONTROL) == MK_CONTROL)
+			dwEffect = DROPEFFECT_COPY;
+		// check for force move
+		else if ((grfKeyState & MK_ALT) == MK_ALT)
+			dwEffect = DROPEFFECT_MOVE;
+		// default -- recommended action is move
+		else
+			dwEffect = DROPEFFECT_MOVE;
+		if (dwEffect & *pdwEffect) // make sure allowed type
+			*pdwEffect = dwEffect;
+	}
+	return S_OK;
+}
+
+// 右击RichEdit时被调用，根据鼠标右键时，鼠标下面的对象的不同，得到的参数也不同，
+// 例如在空白处右击，seltype=0, lpoleobj=NULL
+// 例如在一个COM对象处右击，可能seltype=2, lpoleobj = xxx;
+HRESULT __stdcall WindowlessRichEdit::GetContextMenu(WORD seltype, LPOLEOBJECT lpoleobj, CHARRANGE FAR * lpchrg, HMENU FAR * lphmenu)
+{
+#ifdef _DEBUG
+	return this->InsertGif(_T("C:\\richedit.gif"));
+#endif
+#ifdef _DEBUG
+	HMENU& hMenu = *lphmenu;
+	TCHAR szInfo[128] = _T("");
+	_stprintf(szInfo, _T("GetContextMenu Args: seltype=%d, lpoleobj=%08x, lpchrg=%d,%d"),
+		seltype, lpoleobj, lpchrg->cpMin, lpchrg->cpMax);
+
+	hMenu = CreatePopupMenu();
+	BOOL bRet = ::AppendMenu(hMenu, MF_STRING, 10001, szInfo);
+#endif
+	return S_OK;
+}
+#pragma endregion
