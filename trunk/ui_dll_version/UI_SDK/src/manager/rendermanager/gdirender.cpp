@@ -430,6 +430,21 @@ void GdiRenderTarget::EndDraw()
  	m_hDC = NULL;
 }
 
+void GdiRenderTarget::Clear()
+{
+	if (NULL == m_hDC)
+		return;
+
+	BITMAP  bm;
+	HBITMAP hBitmap = (HBITMAP)::GetCurrentObject(m_hDC, OBJ_BITMAP);
+	if (NULL == hBitmap)
+		return;
+
+	::GetObject(hBitmap, sizeof(bm), &bm);
+	RECT  rc = {0,0, bm.bmWidth, bm.bmHeight};
+	::FillRect(m_hDC, &rc, (HBRUSH)::GetStockObject(BLACK_BRUSH));
+}
+
 int GdiRenderTarget::DrawString( const TCHAR* szText, const CRect* lpRect, UINT nFormat, HRFONT hRFont, COLORREF col )
 {
 	if( NULL == hRFont )

@@ -41,6 +41,7 @@ protected:
 	Object*   m_pBtnSystemMaximize;
 	Object*   m_pBtnSystemRestore;
 	Object*   m_pBtnSystemMinimize;
+	Object*   m_pBtnSystemClose;
 };
 
 
