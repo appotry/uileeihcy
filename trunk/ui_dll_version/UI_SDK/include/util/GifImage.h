@@ -144,6 +144,27 @@ private:
 	static Gif_Timer*  s_giftimer;
 };
 
+struct Gif_Timer_Notify
+{
+	int  nType;
+	union
+	{
+		struct
+		{
+			HWND   hWnd;
+			HDC    hDC;
+			int    x;
+			int    y;
+		}notify_hwnd;
+		struct
+		{
+			Message*   pNotifyMsg;
+			UINT       nTimerID;
+
+		}notify_ui_msg;
+	};
+};
+
 //
 //	GIF¶¯»­×´Ì¬
 //	

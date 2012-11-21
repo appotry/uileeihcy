@@ -1,31 +1,14 @@
 #pragma 
 #include "../util/GifImage.h"
+#include "richeditolemgr.h"
 
-//////////////////////////////////////////////////////////////////////////
-//
-//                      用于richedit中插入的ole对象
-//
-//////////////////////////////////////////////////////////////////////////
-
-
-// http://www.cnblogs.com/wlwel/archive/2012/08/05/2623899.html
-// 引用原文：根据我的调查（呃，通过实践，通过QueryInterface观察），我发现实现一个
-// richedit中的动画控件只需要实现二个接口：IOleObject、IViewObject2，前者为了融入
-// 到richedit环境中，后者为了渲染显示。由于richedit默认只喜好无窗口模式，所以针对
-// IOleInPlaceSiteWindowless之类的，你去实现意义也不大，因为人家容器不认你，当然还
-// 有IPersist系列接口，对于标准的环境有用（比如IDE），但这里并不是很需要，所以认清
-// 核心问题能减少很多困惑。更显然的是我的控件没有用ATL框架，因为此控件脱离了richedit
-// 环境生存的意义也不大，更有甚者我没必要让使其成为标准（也没可能），仅仅是为了在
-// 一个系统中的richedit中更好地展示。实现的接口越少，引入的麻烦越少，这样才能使精力
-// 集中在主要问题上。
-
-//
-// 更多的实现细节可以参考atl的源代码：CComControlBase  IOleObjectImpl
-//
-//
+namespace UI
+{
+class GifImageItem;
+class GifImageItemMgr;
 
 // {2EAE75F5-D78F-43ca-811D-8F8B01CCE05B}
-static const GUID IID_IGifOleObject = { 0x2eae75f5, 0xd78f, 0x43ca, { 0x81, 0x1d, 0x8f, 0x8b, 0x1, 0xcc, 0xe0, 0x5b } };
+extern const GUID IID_IGifOleObject; 
 class IGifOleObject
 {
 public:
@@ -33,10 +16,11 @@ public:
 	virtual HRESULT __stdcall Refresh() = 0;
 };
 
+
 class GifOleObject : public IGifOleObject, public RichEditOleObjectItem
 {
 public:
-	GifOleObject();
+	GifOleObject(GifImageItemMgr* pMgr);
 	~GifOleObject();
 
 // public:
@@ -47,6 +31,63 @@ public:
 	virtual HRESULT __stdcall Refresh();
 #pragma endregion
 
+#pragma region // iviewobject
+	virtual HRESULT STDMETHODCALLTYPE Draw(DWORD dwDrawAspect, LONG lindex,  void *pvAspect,  DVTARGETDEVICE *ptd, HDC hdcTargetDev, HDC hdcDraw, LPCRECTL lprcBounds, LPCRECTL lprcWBounds, BOOL ( STDMETHODCALLTYPE *pfnContinue )(ULONG_PTR dwContinue), ULONG_PTR dwContinue);
+#pragma endregion
+
 protected:
-	GifImage*        m_pGif;
+	GifImageItem*    m_pGifItem;
+	GifImageItemMgr* m_pGifItemMgr;
 };
+
+
+// gif图像管理。如果将同一gif文件插入多次，则只保留一份内存
+enum GifImageLoadType
+{
+	GifImageLoadType_None,
+	GifImageLoadType_File,
+	GifImageLoadType_ImageID,
+};
+
+// 一个GIF文件对应一个GifImageItem
+// 可能多个GifOleObject关联一个GifImageItem::GifImage对象
+class GifImageItem
+{
+public:
+	GifImageItem();
+	~GifImageItem();
+	int       AddRef();
+	int       Release();
+
+protected:
+	// 由GigImageItemMgr调用的函数
+	bool      LoadGifByPath(const TCHAR* szFilePath); 
+
+public:
+	TCHAR*             m_szFileIDorName;
+	GifImageLoadType   m_eFileLoadType;  
+	GifImage*          m_pGif;
+
+protected:
+	int       m_dwRef;
+
+	friend class GifImageItemMgr;
+};
+
+// 管理 GifImageItem
+class GifImageItemMgr
+{
+public:
+	GifImageItemMgr(){};
+	~GifImageItemMgr(){};
+
+	bool   LoadGifByPath(const TCHAR* szFilePath, GifImageItem** ppGifImageItem);
+	bool   LoadGifByID(const TCHAR* szImageID, GifImageItem** ppGifImageItem);
+
+protected:
+	GifImageItem*  FindItem(GifImageLoadType eType, const TCHAR* szFileIDorName);
+
+protected:
+	list<GifImageItem*>   m_listGifImageFile;
+};
+}

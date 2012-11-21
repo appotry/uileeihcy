@@ -375,10 +375,6 @@
 						>
 					</File>
 					<File
-						RelativePath="..\UI_SDK\include\control\gifoleobject.h"
-						>
-					</File>
-					<File
 						RelativePath="..\UI_SDK\include\control\HwndHost.h"
 						>
 					</File>
@@ -407,10 +403,6 @@
 						>
 					</File>
 					<File
-						RelativePath="..\UI_SDK\include\control\richedit.h"
-						>
-					</File>
-					<File
 						RelativePath="..\UI_SDK\include\control\scrollbar.h"
 						>
 					</File>
@@ -422,10 +414,26 @@
 						RelativePath="..\UI_SDK\include\control\tooltip.h"
 						>
 					</File>
-					<File
-						RelativePath="..\UI_SDK\include\control\WindowlessRichEdit.h"
+					<Filter
+						Name="richedit"
 						>
-					</File>
+						<File
+							RelativePath="..\UI_SDK\include\control\gifoleobject.h"
+							>
+						</File>
+						<File
+							RelativePath="..\UI_SDK\include\control\richedit.h"
+							>
+						</File>
+						<File
+							RelativePath="..\UI_SDK\include\control\richeditolemgr.h"
+							>
+						</File>
+						<File
+							RelativePath="..\UI_SDK\include\control\WindowlessRichEdit.h"
+							>
+						</File>
+					</Filter>
 				</Filter>
 				<Filter
 					Name="window"
@@ -679,10 +687,6 @@
 						>
 					</File>
 					<File
-						RelativePath="..\UI_SDK\src\control\gifoleobject.cpp"
-						>
-					</File>
-					<File
 						RelativePath="..\UI_SDK\src\control\HwndHost.cpp"
 						>
 					</File>
@@ -707,10 +711,6 @@
 						>
 					</File>
 					<File
-						RelativePath="..\UI_SDK\src\control\richedit.cpp"
-						>
-					</File>
-					<File
 						RelativePath="..\UI_SDK\src\control\scrollbar.cpp"
 						>
 					</File>
@@ -722,10 +722,26 @@
 						RelativePath="..\UI_SDK\src\control\tooltip.cpp"
 						>
 					</File>
-					<File
-						RelativePath="..\UI_SDK\src\control\WindowlessRichEdit.cpp"
+					<Filter
+						Name="richedit"
 						>
-					</File>
+						<File
+							RelativePath="..\UI_SDK\src\control\gifoleobject.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\UI_SDK\src\control\richedit.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\UI_SDK\src\control\richeditolemgr.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\UI_SDK\src\control\WindowlessRichEdit.cpp"
+							>
+						</File>
+					</Filter>
 				</Filter>
 				<Filter
 					Name="window"

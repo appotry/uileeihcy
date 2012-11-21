@@ -9,7 +9,8 @@
 //  RichEdit对应的方法和接口全部由WindowlessRichEdit实现，外部进行操作时，可直接获
 //  取WindowlessRichEdit的指针进行调用。
 //
-
+namespace UI
+{
 class UIAPI RichEditBase : public Control
 {
 public:
@@ -79,3 +80,5 @@ class UIAPI RichEdit : public RichEditBase
 public:
 	UI_DECLARE_OBJECT(RichEdit,OBJ_CONTROL);
 };
+
+}

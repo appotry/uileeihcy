@@ -22,9 +22,10 @@ LONG    WindowlessRichEdit::s_refDll = 0;
 UINT    WindowlessRichEdit::s_cfRichTextFormat = 0;
 UINT    WindowlessRichEdit::s_cfRichTextAndObjects = 0;
 
-WindowlessRichEdit::WindowlessRichEdit(RichEditBase* pRichEditBase):m_olemgr(this)
+WindowlessRichEdit::WindowlessRichEdit(RichEditBase* pRichEditBase)
 {
 	m_pRichEditBase = pRichEditBase;
+	m_pOleMgr = new RichEditOleObjectManager(this);
 	this->InitRichEidtDll();
 }
 
@@ -53,6 +54,7 @@ WindowlessRichEdit::~WindowlessRichEdit(void)
 //	m_vecpUnkOleObject.clear();
 
 	this->ReleaseRichEidtDll();
+	SAFE_DELETE(m_pOleMgr);
 }
 
 //
@@ -1154,12 +1156,6 @@ bool ITextHostImpl::SetText(const TCHAR* szText)
 	return false; 
 }
 
-#include "E:\\±à³Ì\\workingpath\\test\\richeditole\\richeditole_i.h"
-//#pragma comment(lib, "E:\\±à³Ì\\workingpath\\test\\richeditole\\Debug\\richeditole.lib")
-
-// DEFINE_GUID(CLDIS_GifImageObject, 
-//			0xC925B680, 0xB27F, 0x4363, 0xAF, 0xAC, 0x7C, 0x5D, 0x0F, 0xD1, 0xAC, 0x81);
-
 bool WindowlessRichEdit::InsertOleObject(RichEditOleObjectItem* pItem)
 {
 	if (NULL == pItem)
@@ -1168,8 +1164,6 @@ bool WindowlessRichEdit::InsertOleObject(RichEditOleObjectItem* pItem)
 	bool       bRet = false;
 	HRESULT    hr = E_FAIL;
 	IOleObject*     pOleObject = NULL;
-	IStorage*       pStorage = NULL;
-	ILockBytes*     pLockbytes = NULL;
 	LPOLECLIENTSITE pClientSite = NULL;
 
 	do 
@@ -1206,7 +1200,7 @@ bool WindowlessRichEdit::InsertOleObject(RichEditOleObjectItem* pItem)
 
 		OleSetContainedObject(static_cast<IOleObject*>(pOleObject), TRUE);
 
-		this->m_olemgr.AddOleItem(pItem);
+		this->m_pOleMgr->AddOleItem(pItem);
 		bRet = true;
 	} while (0);
 	
@@ -1218,8 +1212,13 @@ bool WindowlessRichEdit::InsertOleObject(RichEditOleObjectItem* pItem)
 }
 bool WindowlessRichEdit::InsertGif(const TCHAR* szGifPath)
 {
-	GifOleObject* pGifOle = new GifOleObject;
-	pGifOle->LoadGif(szGifPath);
+	GifOleObject* pGifOle = new GifOleObject(m_pOleMgr->GetGifImageItemMgr());
+	HRESULT hr = pGifOle->LoadGif(szGifPath);
+	if (FAILED(hr))
+	{
+		SAFE_DELETE(pGifOle);
+		return false;
+	}
 
 	return this->InsertOleObject(pGifOle);
 }
@@ -1259,8 +1258,6 @@ void WindowlessRichEdit::DoPaste(LPDATAOBJECT pDataObject, CLIPFORMAT cf, HMETAF
 		// all items are "contained" -- this makes our reference to this object
 		//  weak -- which is needed for links to embedding silent update.
 		OleSetContainedObject(lpOleObject, TRUE);
-
-	
 
 
 		REOBJECT reObj;
@@ -1380,7 +1377,7 @@ bool WindowlessRichEdit::GetSelectionOleObject(RichEditOleObjectItem** ppItem)
 	HRESULT hr = m_spOle->GetObject(REO_IOB_USE_CP, &reObj, REO_GETOBJ_NO_INTERFACES);
 	if (SUCCEEDED(hr))
 	{
-		*ppItem = m_olemgr.GetOleItem(reObj.dwUser);
+		*ppItem = m_pOleMgr->GetOleItem(reObj.dwUser);
 		return true;
 	}
 
@@ -1531,7 +1528,7 @@ HRESULT __stdcall WindowlessRichEdit::GetDragDropEffect(BOOL fDrag, DWORD grfKey
 HRESULT __stdcall WindowlessRichEdit::GetContextMenu(WORD seltype, LPOLEOBJECT lpoleobj, CHARRANGE FAR * lpchrg, HMENU FAR * lphmenu)
 {
 #ifdef _DEBUG
-	return this->InsertGif(_T("C:\\richedit.gif"));
+	return this->InsertGif(_T("C:\\aaa.gif"));
 #endif
 #ifdef _DEBUG
 	HMENU& hMenu = *lphmenu;

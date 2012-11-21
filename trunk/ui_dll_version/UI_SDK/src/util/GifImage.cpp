@@ -333,6 +333,7 @@ GifImage::GifImage()
 	m_hMemPrevSaveDC = NULL;
 	m_hMemPrevSaveBitmap = NULL;
 	m_nDrawStatus = GIF_DRAW_STATUS_STOP;
+	m_nDrawX = m_nDrawY = 0;
 
 	InitializeCriticalSection(&m_sect);
 	m_hEvent_not_in_timer_list = ::CreateEvent(NULL,TRUE,TRUE,NULL);
@@ -886,7 +887,7 @@ GIF_Frame* GifImage::GetFrame(int nIndex)
 }
 
 //
-//	设置绘制参数
+//	设置绘制参数。在显示前必须调用该函数，用于准备一些参数 
 //
 //	Parameter
 //		hWnd
@@ -912,12 +913,20 @@ BOOL GifImage::SetDrawParam(HWND hWnd, int x, int y, COLORREF colorTransparent)
 	m_nDrawX = x;
 	m_nDrawY = y;
 
-	m_hDC = ::GetDC(m_hWnd);
-	m_hMemCanvasDC = ::CreateCompatibleDC(m_hDC);
-	m_hMemCanvasBitmap = ::CreateCompatibleBitmap(m_hDC,this->GetWidth(),this->GetHeight());
+	if (NULL != m_hWnd)
+		m_hDC = ::GetDC(m_hWnd);
+
+	m_hMemCanvasDC = ::CreateCompatibleDC(NULL);
+	Image image; 
+	image.Create(this->GetWidth(),this->GetHeight(), 32, Image::createAlphaChannel);
+	m_hMemCanvasBitmap = image.Detach();
+
 	/*HBITMAP hOldBmp = */(HBITMAP)::SelectObject(m_hMemCanvasDC, m_hMemCanvasBitmap);
-	m_hMemPrevSaveDC =::CreateCompatibleDC(m_hDC);
-	m_hMemPrevSaveBitmap = ::CreateCompatibleBitmap(m_hDC,this->GetWidth(),this->GetHeight());
+
+	m_hMemPrevSaveDC =::CreateCompatibleDC(NULL);
+	image.Create(this->GetWidth(),this->GetHeight(), 32, Image::createAlphaChannel);
+	m_hMemPrevSaveBitmap = image.Detach();
+
 	/*HBITMAP hOldBmp = */(HBITMAP)::SelectObject(m_hMemPrevSaveDC, m_hMemPrevSaveBitmap);
 
 	m_hBrushTransparent = ::CreateSolidBrush(colorTransparent);
@@ -970,7 +979,10 @@ void GifImage::Start()
 		EnterCriticalSection(&m_sect);
 		handle_disposal(NULL);                           // 刷背景
 		draw_frame( this->GetFrame(m_nCurFrameIndex));   // 绘制第一帧到m_hMemCanvasDC中
-		::BitBlt(m_hDC,this->GetDrawX(),this->GetDrawY(), this->GetWidth(), this->GetHeight(),m_hMemCanvasDC,0,0,SRCCOPY);
+		if (NULL != m_hDC)
+		{
+			::BitBlt(m_hDC,this->GetDrawX(),this->GetDrawY(), this->GetWidth(), this->GetHeight(),m_hMemCanvasDC,0,0,SRCCOPY);
+		}
 		LeaveCriticalSection(&m_sect);
 	}
 	else
@@ -998,7 +1010,10 @@ void GifImage::Stop()
 	m_nDrawStatus = GIF_DRAW_STATUS_STOP;
 
 	handle_disposal(NULL);  // 刷背景
-	::BitBlt(m_hDC,this->GetDrawX(),this->GetDrawY(), this->GetWidth(), this->GetHeight(),m_hMemCanvasDC,0,0,SRCCOPY);
+	if (NULL != m_hDC)
+	{
+		::BitBlt(m_hDC,this->GetDrawX(),this->GetDrawY(), this->GetWidth(), this->GetHeight(),m_hMemCanvasDC,0,0,SRCCOPY);
+	}
 
 	LeaveCriticalSection(&m_sect);
 }
@@ -1012,7 +1027,7 @@ void GifImage::OnPaint(HDC hDC)
 		return;
 
 	EnterCriticalSection(&m_sect);
-	::BitBlt(hDC, 0,0/*this->GetDrawX(),this->GetDrawY()*/, this->GetWidth(), this->GetHeight(), m_hMemCanvasDC,0,0,SRCCOPY);
+	::BitBlt(hDC, this->GetDrawX(),this->GetDrawY(), this->GetWidth(), this->GetHeight(), m_hMemCanvasDC,0,0,SRCCOPY);
 	LeaveCriticalSection(&m_sect);
 }
 
@@ -1079,7 +1094,7 @@ void GifImage::draw_frame(GIF_Frame* pFrame)
 	if (NULL == pFrame)
 		return;
 
-	if( pFrame->control.disposal_methold == GIF_DISPOSAL_RESTORE_PREVIOUS )
+	if (pFrame->control.disposal_methold == GIF_DISPOSAL_RESTORE_PREVIOUS)
 	{
 		// 备份
 		::BitBlt(m_hMemPrevSaveDC,0,0,this->GetWidth(),this->GetHeight(),m_hMemCanvasDC,0,0,SRCCOPY);
@@ -1133,7 +1148,10 @@ void GifImage::on_timer(Gif_TimerItem* pTimerItem)
 
 	GIF_Frame* pFrame = this->GetFrame(m_nCurFrameIndex);
 	draw_frame(pFrame);
-	::BitBlt(m_hDC,this->GetDrawX(),this->GetDrawY(), this->GetWidth(), this->GetHeight(),m_hMemCanvasDC,0,0,SRCCOPY);
+	if (NULL != m_hDC)
+	{
+		::BitBlt(m_hDC,this->GetDrawX(),this->GetDrawY(), this->GetWidth(), this->GetHeight(),m_hMemCanvasDC,0,0,SRCCOPY);
+	}
 
 	// 为了避免频繁的更新列表，在这里每次仅更新Gif_timer_item里面的数据，而不是删除再添加一个
 	int nNextFrameIndex = get_next_frame_index();
