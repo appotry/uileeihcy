@@ -3,10 +3,9 @@
 #include <textserv.h>
 #include <RichOle.h>
 #include "CaretWindow.h"
-#include "richeditolemgr.h"
+
 
 #pragma comment(lib, "Riched20.lib")
-class   RichEditBase;
 
 //  RichEdit及其Callback的实现，可以参考MFC CRichEditView
 //  RichEidt的ole view的实现，可以参考ATL插入一个控件对象的实现代码
@@ -117,6 +116,13 @@ class   RichEditBase;
 //		Rich Edit控件注册两种剪贴板格式："富文本格式(RTF)"和一种叫做"RichEdit 文本与对象"的格式。应用程序
 //      可以使用RegisterClipboardFormat函数来注册这些格式，其取值为CF_RTF与CF_RETEXTOBJ
 //
+namespace UI
+{
+
+class   RichEditBase;
+class   RichEditOleObjectItem;
+class   RichEditOleObjectManager;
+
 class UIAPI ITextHostImpl : public ITextHost
 {
 public:
@@ -346,8 +352,7 @@ protected:
 
 protected:
 	RichEditBase*   m_pRichEditBase;
-	RichEditOleObjectManager  m_olemgr;
-
+	RichEditOleObjectManager*  m_pOleMgr;
 
 protected:
 	// 非windowless richedit要调用的初始化函数
@@ -362,5 +367,5 @@ public:
 	static UINT     s_cfRichTextAndObjects;  // CLIPFORMAT
 };
 
-
+}
 //#include <atlctl.h>
