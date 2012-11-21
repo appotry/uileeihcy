@@ -153,6 +153,53 @@ int GradientFillV( HDC hDC, const RECT* prc, COLORREF colFrom, COLORREF colTo )
 
 	return TRUE;
 }
+
+// HIMETRIC units per inch (used for conversion)
+#define HIMETRIC_PER_INCH 2540
+// Convert Himetric along the X axis to X pixels
+LONG HimetricXtoDX(LONG xHimetric, LONG xPerInch) 
+{	
+	if (-1 == xPerInch)
+	{
+		HDC hDC = GetDC(NULL);
+		xPerInch = GetDeviceCaps(hDC, LOGPIXELSX); 
+		ReleaseDC(NULL, hDC);
+	}
+	return (LONG) MulDiv(xHimetric, xPerInch, HIMETRIC_PER_INCH);
+}
+// Convert Himetric along the Y axis to Y pixels
+LONG HimetricYtoDY(LONG yHimetric, LONG yPerInch) 
+{	
+	if (-1 == yPerInch)
+	{
+		HDC hDC = GetDC(NULL);
+		yPerInch = GetDeviceCaps(hDC, LOGPIXELSY); 
+		ReleaseDC(NULL, hDC);
+	}
+	return (LONG) MulDiv(yHimetric, yPerInch, HIMETRIC_PER_INCH);
+}
+// Convert Pixels on the X axis to Himetric
+LONG DXtoHimetricX(LONG dx, LONG xPerInch) 
+{ 
+	if (-1 == xPerInch)
+	{
+		HDC hDC = GetDC(NULL);
+		xPerInch = GetDeviceCaps(hDC, LOGPIXELSX); 
+		ReleaseDC(NULL, hDC);
+	}
+	return (LONG) MulDiv(dx, HIMETRIC_PER_INCH, xPerInch); 
+}
+// Convert Pixels on the Y axis to Himetric
+LONG DYtoHimetricY(LONG dy, LONG yPerInch) 
+{ 
+	if (-1 == yPerInch)
+	{
+		HDC hDC = GetDC(NULL);
+		yPerInch = GetDeviceCaps(hDC, LOGPIXELSY); 
+		ReleaseDC(NULL, hDC);
+	}
+	return (LONG) MulDiv(dy, HIMETRIC_PER_INCH, yPerInch); 
+}
 #endif
 }
 }

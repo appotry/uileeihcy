@@ -99,6 +99,11 @@ namespace UI
 		virtual HRESULT STDMETHODCALLTYPE GetExtent(DWORD dwDrawAspect, LONG lindex, DVTARGETDEVICE *ptd, LPSIZEL lpsizel);
 #pragma endregion
 
+#pragma region  // 子类扩展时需要实现的函数
+		virtual HRESULT OnDraw(HDC hDC, RECT* prc) = 0;
+		virtual HRESULT OnGetSize(SIZE* pSize) = 0;
+#pragma endregion
+
 	protected:
 		LONG               m_dwRef;
 //		IDataAdviseHolder* m_pDataAdviseHolder;
