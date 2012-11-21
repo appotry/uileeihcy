@@ -190,7 +190,9 @@ void GifPicture::OnPaint( HRDC hRDC )
 		{
 			CRect rc;
 			this->GetWindowRect(&rc);
-			m_pGifImage->SetDrawParam(GetHWND(),rc.left, rc.top);
+			Gif_Timer_Notify notify(GetHWND(),rc.left, rc.top);
+			int nIndex = 0;
+			m_pGifImage->AddDrawParam(&notify, &nIndex);
 			m_pGifImage->Start();
 
 			b = false;

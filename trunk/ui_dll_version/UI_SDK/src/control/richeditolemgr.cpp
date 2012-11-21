@@ -77,7 +77,13 @@ HRESULT STDMETHODCALLTYPE RichEditOleObjectItem::GetClientSite(IOleClientSite **
 }
 HRESULT STDMETHODCALLTYPE RichEditOleObjectItem::GetExtent(DWORD dwDrawAspect, SIZEL *psizel) 
 {
-	psizel->cx = psizel->cy = 2000;
+//	psizel->cx = psizel->cy = 2000;
+	SIZE  size = {0,0};
+	this->OnGetSize(&size);
+
+	psizel->cx = Util::DXtoHimetricX(size.cx);
+	psizel->cy = Util::DYtoHimetricY(size.cx);
+
 	return S_OK;
 }
 
@@ -93,9 +99,12 @@ HRESULT STDMETHODCALLTYPE RichEditOleObjectItem::Draw(
 												BOOL ( STDMETHODCALLTYPE *pfnContinue )(ULONG_PTR dwContinue),
 												ULONG_PTR dwContinue) 
 {
-	HBRUSH hBrush = CreateSolidBrush(rand());
-	::FillRect(hdcDraw, (RECT*)lprcBounds, hBrush);
-	DeleteObject(hBrush);
+
+	RECT  rc = {lprcBounds->left, lprcBounds->top, lprcBounds->right, lprcBounds->bottom};
+	return this->OnDraw(hdcDraw, &rc);
+// 	HBRUSH hBrush = CreateSolidBrush(rand());
+// 	::FillRect(hdcDraw, (RECT*)lprcBounds, hBrush);
+// 	DeleteObject(hBrush);
 	return S_OK;
 }
 

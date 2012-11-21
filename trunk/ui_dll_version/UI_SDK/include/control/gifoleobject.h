@@ -32,7 +32,8 @@ public:
 #pragma endregion
 
 #pragma region // iviewobject
-	virtual HRESULT STDMETHODCALLTYPE Draw(DWORD dwDrawAspect, LONG lindex,  void *pvAspect,  DVTARGETDEVICE *ptd, HDC hdcTargetDev, HDC hdcDraw, LPCRECTL lprcBounds, LPCRECTL lprcWBounds, BOOL ( STDMETHODCALLTYPE *pfnContinue )(ULONG_PTR dwContinue), ULONG_PTR dwContinue);
+	virtual HRESULT OnDraw(HDC hDC, RECT* prc);
+	virtual HRESULT OnGetSize(SIZE* pSize);
 #pragma endregion
 
 protected:

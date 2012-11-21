@@ -6,17 +6,6 @@
 //       问题原来是从riched20.lib联系在一起的IID_ITextServices，是错误的。
 const IID IID_ITextServices_Fix = { 0x8d33f740, 0xcf58, 0x11ce, {0xa8, 0x9d, 0x00, 0xaa, 0x00, 0x6c, 0xad, 0xc5} };
 
-// HIMETRIC units per inch (used for conversion)
-#define HIMETRIC_PER_INCH 2540
-// Convert Himetric along the X axis to X pixels
-LONG HimetricXtoDX(LONG xHimetric, LONG xPerInch) {	return (LONG) MulDiv(xHimetric, xPerInch, HIMETRIC_PER_INCH);}
-// Convert Himetric along the Y axis to Y pixels
-LONG HimetricYtoDY(LONG yHimetric, LONG yPerInch) {	return (LONG) MulDiv(yHimetric, yPerInch, HIMETRIC_PER_INCH);}
-// Convert Pixels on the X axis to Himetric
-LONG DXtoHimetricX(LONG dx, LONG xPerInch) { return (LONG) MulDiv(dx, HIMETRIC_PER_INCH, xPerInch); }
-// Convert Pixels on the Y axis to Himetric
-LONG DYtoHimetricY(LONG dy, LONG yPerInch) { return (LONG) MulDiv(dy, HIMETRIC_PER_INCH, yPerInch); }
-
 HMODULE WindowlessRichEdit::s_RichEditDll = NULL;
 LONG    WindowlessRichEdit::s_refDll = 0;
 UINT    WindowlessRichEdit::s_cfRichTextFormat = 0;
@@ -1040,14 +1029,14 @@ void ITextHostImpl::SetMaxLegnth(DWORD dw)
 
 LONG ITextHostImpl::GetSelBarWidth()
 {
-	return HimetricXtoDX(m_lSelBarWidth, m_nxPerInch);
+	return Util::HimetricXtoDX(m_lSelBarWidth, m_nxPerInch);
 }
 
 LONG ITextHostImpl::SetSelBarWidth(LONG l_SelBarWidth)
 {
 	LONG lOldSelBarWidth = m_lSelBarWidth;
 
-	m_lSelBarWidth = DXtoHimetricX(l_SelBarWidth, m_nxPerInch);
+	m_lSelBarWidth = Util::DXtoHimetricX(l_SelBarWidth, m_nxPerInch);
 
 	if (m_lSelBarWidth)
 	{

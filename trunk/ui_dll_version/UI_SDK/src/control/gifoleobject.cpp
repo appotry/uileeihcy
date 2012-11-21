@@ -44,6 +44,13 @@ bool GifImageItem::LoadGifByPath(const TCHAR* szFilePath)
 		return false;
 	}
 
+	Gif_Timer_Notify notify(NULL, 0,0);
+	int nIndex = 0;
+
+	m_pGif->AddDrawParam(&notify, &nIndex);
+	m_pGif->Start();
+	//	m_pGifItem->m_pGif->Pause();
+
 	m_eFileLoadType = GifImageLoadType_File;
 	SAFE_ARRAY_DELETE(m_szFileIDorName);
 	m_szFileIDorName = new TCHAR[_tcslen(szFilePath)+1];
@@ -150,10 +157,6 @@ HRESULT __stdcall GifOleObject::LoadGif(const TCHAR* szPath)
 	if (NULL == m_pGifItem)
 		return E_FAIL;
 
-	m_pGifItem->m_pGif->SetDrawParam(NULL, 0,0);
-	m_pGifItem->m_pGif->Start();
-//	m_pGifItem->m_pGif->Pause();
-
 	return S_OK;
 }
 HRESULT __stdcall GifOleObject::Refresh()
@@ -165,11 +168,24 @@ HRESULT __stdcall GifOleObject::Refresh()
 	return S_OK;
 }
 
-HRESULT STDMETHODCALLTYPE GifOleObject::Draw(DWORD dwDrawAspect, LONG lindex,  void *pvAspect,  DVTARGETDEVICE *ptd, HDC hdcTargetDev, HDC hdcDraw, LPCRECTL lprcBounds, LPCRECTL lprcWBounds, BOOL ( STDMETHODCALLTYPE *pfnContinue )(ULONG_PTR dwContinue), ULONG_PTR dwContinue)
+HRESULT GifOleObject::OnDraw(HDC hDC, RECT* prc)
 {
 	if (NULL == m_pGifItem || NULL == m_pGifItem->m_pGif)
 		return E_FAIL;
 
-	m_pGifItem->m_pGif->OnPaint(hdcDraw, lprcBounds->left, lprcBounds->top);
+	m_pGifItem->m_pGif->OnPaint(hDC, prc->left, prc->top);
+	return S_OK;
+}
+HRESULT GifOleObject::OnGetSize(SIZE* pSize)
+{
+	if (NULL == pSize)
+		return E_INVALIDARG;
+
+	if (NULL == m_pGifItem || NULL == m_pGifItem->m_pGif)
+		return E_FAIL;
+
+	pSize->cx = m_pGifItem->m_pGif->GetWidth();
+	pSize->cy = m_pGifItem->m_pGif->GetHeight();
+	
 	return S_OK;
 }

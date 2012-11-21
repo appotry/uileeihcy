@@ -102,8 +102,8 @@ public:
 
 	void set_timer(const Gif_TimerItem& item);
 	void on_set_timer(Gif_TimerItem* pItem);
-	void kill_timer(int id);
-	void on_kill_timer(int id);
+	void kill_timer(int id, bool bWait=false);
+	void on_kill_timer(int id, HANDLE hWaitEvent);
 	void on_modify_timer();
 
 	void update_wait_time();
@@ -142,27 +142,6 @@ public:
 
 private:
 	static Gif_Timer*  s_giftimer;
-};
-
-struct Gif_Timer_Notify
-{
-	int  nType;
-	union
-	{
-		struct
-		{
-			HWND   hWnd;
-			HDC    hDC;
-			int    x;
-			int    y;
-		}notify_hwnd;
-		struct
-		{
-			Message*   pNotifyMsg;
-			UINT       nTimerID;
-
-		}notify_ui_msg;
-	};
 };
 
 //
@@ -312,6 +291,84 @@ struct GIF_Frame
 };
 
 
+
+
+// Gif动画绘制的方式
+enum Gif_Timer_Notify_Type
+{
+	Gif_Timer_Notify_Direct_Hwnd,
+	Gif_Timer_Notify_Post_Thread_Msg,
+};
+class Gif_Timer_Notify
+{
+public:
+	Gif_Timer_Notify();
+	Gif_Timer_Notify(HWND hWnd, int x, int y);
+	Gif_Timer_Notify(Message* pNotifyObj, UINT nTimerID);
+
+	Gif_Timer_Notify_Type  eType;
+	union
+	{
+		struct  // 直接显示在窗口的某个位置(未考虑裁剪)
+		{
+			HWND   hWnd;
+			HDC    hDC;
+			int    x;
+			int    y;
+		}notify_hwnd;
+
+		struct  // 发送消息给界面线程，通知对象自己绘制
+		{
+			Message*   pNotifyMsgObj;
+			UINT       nTimerID;
+
+		}notify_ui_msg;
+	};
+};
+
+// 一个GIF可能会在多处显示，因此GifImage类至少会包含一个GifImageDrawItem
+class GifImageDrawItem
+{
+public:
+	GifImageDrawItem(GifImage* pGifImage, Gif_Timer_Notify* pNotify);
+	~GifImageDrawItem();
+
+	void   Start();
+	void   Pause();
+	void   Stop();
+	void   OnPaint(HDC hDC);
+	void   OnPaint(HDC hDC, int x, int y);
+	GIF_DRAW_STATUS GetStatus();
+
+	void   draw_frame(GIF_Frame* pFrame);
+	int    get_next_frame_index();
+	void   handle_disposal(GIF_Frame* pFrame);
+
+public:  // Gif绘制线程调用函数
+	void   on_timer(Gif_TimerItem* pTimerItem);   
+
+protected:
+	void   commit();
+
+protected:
+	int    nIndex;    // 该GifImageDrawItem的标识
+
+	Gif_Timer_Notify  m_notify;             // 通知方式
+
+	HDC         m_hMemCanvasDC;       // m_hDC的兼容DC，双缓冲
+	HBITMAP     m_hMemCanvasBitmap;   // 双缓冲
+	HDC         m_hMemPrevSaveDC;     // 保存上一帧图片的兼容DC, disposal=3的情况
+	HBITMAP     m_hMemPrevSaveBitmap; // 保存上一帧图片, disposal=3的情况
+
+	int         m_nCurFrameIndex;     // 当前绘制帧索引
+	GIF_DRAW_STATUS  m_nDrawStatus;   // 当前gif绘制状态:开始、暂停、停止
+
+	GifImage*   m_pGifImage;
+	friend class   GifImage;
+};
+
+typedef map<int, GifImageDrawItem*> GifImageDrawItemMap;
+
 class GifImage
 {
 public:
@@ -320,62 +377,56 @@ public:
 
 protected:
 	int    skip_data_block(fstream& f, byte* pBits=NULL);
-	int    get_next_frame_index();
-
 	void   release_resource();
-	void   draw_frame(GIF_Frame* pFrame);
-	void   handle_disposal(GIF_Frame* pFrame);
 
 	bool   decode_by_lzw(fstream& f, GIF_Frame* pFrame, int byte_LZW_code_size, byte* pColorTable, int nColorTableSize);
 	bool   decode_by_gdiplus(fstream& f, GIF_Frame* pFrame, int  nFrameStartPos, GIF_FileMark& header, GIF_LogicalScreenDescriptor& logicScreenDesc, byte* pColorTable, int nColorTableSize);
 	bool   decode_gif_image_transparent(GIF_Frame* pFrame, int nTransparentIndex);
 	void   build_one_frame_data(GIF_FileMark*, GIF_LogicalScreenDescriptor*, void* pColorTable, int nColorTableSize, void* pImageData, int nImageDataSize, void** ppOut, int* pOutSize  );
 
-public:  // Gif绘制线程调用函数
-	void   on_add_to_timer_list();
-	void   on_remove_from_timer_list();
-	void   on_timer(Gif_TimerItem* pTimerItem);   
-
 public:  // 外部接口
 	bool   Load(const TCHAR* szPath);
 	bool   Destroy();
-	BOOL   SetDrawParam( HWND hWnd, int x, int y, COLORREF colTransparent=GetSysColor(COLOR_BTNFACE));
-	void   SetDrawPos( int x, int y );
+	
+	bool   SetTransparentColor(COLORREF colTransparent = GetSysColor(COLOR_BTNFACE));
+	bool   AddDrawParam(Gif_Timer_Notify* pNotify, int* pIndex);
+	void   SetDrawPos(int x, int y);
 
-	void   Start();
-	void   Pause();
-	void   Stop();
-	void   OnPaint(HDC hDC);
-	void   OnPaint(HDC hDC, int x, int y);
+	void   Start(int nIndex = -1);
+	void   Pause(int nIndex = -1);
+	void   Stop(int nIndex = -1);
+	void   OnPaint(HDC hDC, int nIndex = -1);
+	void   OnPaint(HDC hDC, int x, int y, int nIndex = -1);
+	GIF_DRAW_STATUS GetStatus(int nIndex = -1);
 
 	int    GetWidth()  { return m_nImageWidth; }
 	int    GetHeight() { return m_nImageHeight; }
-	int    GetDrawX()  { return m_nDrawX; }
-	int    GetDrawY()  { return m_nDrawY; }
-	HWND   GetHWnd()   { return m_hWnd; }
+	int    GetDrawX()  { return 0/*m_nDrawX*/; }
+	int    GetDrawY()  { return 0/*m_nDrawY*/; }
+//	HWND   GetHWnd()   { return m_hWnd; }
 	int    GetFrameCount()      { return (int)m_vFrame.size(); }
-	GIF_DRAW_STATUS GetStatus() { return m_nDrawStatus; }
 	GIF_Frame*      GetFrame( int nIndex );
 
-private:
-	vector<GIF_Frame*>  m_vFrame;             // gif图片帧列表
-	int                 m_nCurFrameIndex;     // 当前绘制帧索引
+protected:   // 内部接口
+	GifImageDrawItem*  GetDrawItemByIndex(int nIndex);
 
-	GIF_DRAW_STATUS     m_nDrawStatus;        // 当前gif绘制状态:开始、暂停、停止
+
+protected:
+	vector<GIF_Frame*>  m_vFrame;             // gif图片帧列表
+
 	CRITICAL_SECTION    m_sect;               // 线程数据保护
-	HANDLE              m_hEvent_not_in_timer_list;  // 标识该对象还存在于计时器列表中，暂时不能删除
 
 	int                 m_nImageWidth;        // 图片宽度
 	int                 m_nImageHeight;       // 图片高度
-	int                 m_nDrawX;             // 图片显示位置
-	int                 m_nDrawY;             // 图片显示位置
 
-	HWND                m_hWnd;               // 要绘制在哪个窗口上面（获取哪个窗口的DC）
-	HDC                 m_hDC;                // m_hWnd的DC
-	HDC                 m_hMemCanvasDC;       // m_hDC的兼容DC，双缓冲
-	HBITMAP             m_hMemCanvasBitmap;   // 双缓冲
-	HDC                 m_hMemPrevSaveDC;     // 保存上一帧图片的兼容DC, disposal=3的情况
-	HBITMAP             m_hMemPrevSaveBitmap; // 保存上一帧图片, disposal=3的情况
+	int                 m_nNextDrawItemIndex; // 下一个GifImageDrawItem的标识
+	GifImageDrawItemMap m_mapDrawItem;        // 绘图数据列表
+
+//	int                 m_nDrawX;             // 图片显示位置
+//	int                 m_nDrawY;             // 图片显示位置
+//
+//	HWND                m_hWnd;               // 要绘制在哪个窗口上面（获取哪个窗口的DC）
+//	HDC                 m_hDC;                // m_hWnd的DC
 
 	//////////////////////////////////////////////////////////////////////////
 	//
@@ -386,11 +437,13 @@ private:
 	//
 	// 2. background_color_index引用的是全局颜色表中的值，如果没有全局颜色表就没有该背景画刷
 	//
-	// 3. 每一帧中的disposal==2 restore to background是表示还原该帧范围内的背景，而不是还原整幅图片的背景
+	// 3. 每一帧中的disposal==2 restore to background是表示还原该帧RECT范围内的背景，而不是还原整幅图片的背景
 	//
 	//////////////////////////////////////////////////////////////////////////
 	HBRUSH              m_hBrushTransparent;  // 用于实现透明的画刷
 
+
+	friend class GifImageDrawItem;
 };
 
 

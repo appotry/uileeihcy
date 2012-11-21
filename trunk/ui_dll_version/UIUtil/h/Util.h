@@ -171,6 +171,10 @@ namespace UI { namespace Util {
 	BOOL UIUTILAPI GradientFillH( HDC hDC, const RECT* prc, COLORREF colFrom, COLORREF colTo );
 	BOOL UIUTILAPI GradientFillV( HDC hDC, const RECT* prc, COLORREF colFrom, COLORREF colTo );
 
+	LONG UIUTILAPI HimetricXtoDX(LONG xHimetric, LONG xPerInch=-1);
+	LONG UIUTILAPI HimetricYtoDY(LONG yHimetric, LONG yPerInch=-1);
+	LONG UIUTILAPI DXtoHimetricX(LONG dx, LONG xPerInch=-1);
+	LONG UIUTILAPI DYtoHimetricY(LONG dy, LONG yPerInch=-1);
 #endif
 
 }}
