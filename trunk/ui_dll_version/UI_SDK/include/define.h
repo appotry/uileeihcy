@@ -109,7 +109,10 @@ UI_RESOURCE_TYPE;
 #define XML_I18N             _T("i18n")
 #define XML_PROJECT          _T("project")
 
+
 #define XML_ITEM             _T("item")
+#define XML_IMAGE_ITEM_GIF   _T("gif")
+#define XML_IMAGE_ITEM_CURSOR _T("cursor")
 #define XML_ID               _T("id")
 #define XML_TEXT             _T("text")
 #define XML_TOOLTIP          _T("tooltip")
@@ -137,7 +140,8 @@ enum IMAGE_ITEM_TYPE
 	IMAGE_ITEM_TYPE_ICON,
 	IMAGE_ITEM_TYPE_IMAGE_LIST,
 	IMAGE_ITEM_TYPE_GIF,
-	IMAGE_ITEM_TYPE_PNGLISTGIF
+	IMAGE_ITEM_TYPE_PNGLISTGIF,
+	IMAGE_ITEM_TYPE_CURSOR,
 };
 
 #define XML_IMAGE_ICON_WIDTH          _T("width")         // 要加载的图标宽度

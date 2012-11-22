@@ -560,9 +560,9 @@ bool  GridLayout::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 		1. 解析Grid的每一列的宽度
 	*/
 	String strWidth;
-	if( this->m_pPanel->GetAttribute( XML_LAYOUT_GRID_WIDTH,strWidth ) )
+	if (this->m_pPanel->GetAttribute(XML_LAYOUT_GRID_WIDTH, strWidth))
 	{
-		this->m_pPanel->EraseAttribute( XML_LAYOUT_GRID_WIDTH );
+		this->m_pPanel->EraseAttribute(XML_LAYOUT_GRID_WIDTH);
 	}
 	else
 	{
@@ -571,13 +571,13 @@ bool  GridLayout::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 	}
 
 	vector<String>  strVec;
-	UI_Split( strWidth, XML_SEPARATOR, strVec );
+	UI_Split(strWidth, XML_SEPARATOR, strVec);
 	int nCount = (int)strVec.size();
-	for( int i = 0; i < nCount; i++ )
+	for (int i = 0; i < nCount; i++)
 	{
 		String  str = strVec[i];
 		// 判断是否为 AUTO 类型
-		if( XML_AUTO == str )
+		if (XML_AUTO == str)
 		{
 			GridWH  wh;
 			wh.type = GWHT_AUTO;
@@ -587,7 +587,7 @@ bool  GridLayout::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 		}
 
 		// 判读是否为 * 类型
-		int nIndex = str.find( XML_ASTERISK );
+		int nIndex = str.find(XML_ASTERISK);
 		if( String::npos != nIndex )
 		{
 			GridWH  wh;
@@ -617,23 +617,24 @@ bool  GridLayout::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 		2. 解析Grid的每一列的高度
 	*/
 	String strHeight;
-	if( this->m_pPanel->GetAttribute( XML_LAYOUT_GRID_HEIGHT, strHeight ) )
+	if (this->m_pPanel->GetAttribute(XML_LAYOUT_GRID_HEIGHT, strHeight))
 	{
-		this->m_pPanel->EraseAttribute( XML_LAYOUT_GRID_HEIGHT );
+		this->m_pPanel->EraseAttribute(XML_LAYOUT_GRID_HEIGHT);
 	}
 	else
 	{
-		// 如果对于gridlayout没有定义layout.width，则默认layout.width="*"
+		// 如果对于gridlayout没有定义layout.height，则默认layout.height="*"
 		strHeight = XML_ASTERISK;
 	}
 	strVec.clear();
-	UI_Split( strHeight, XML_SEPARATOR, strVec );
+
+	UI_Split(strHeight, XML_SEPARATOR, strVec);
 	nCount = (int)strVec.size();
-	for( int i = 0; i < nCount; i++ )
+	for (int i = 0; i < nCount; i++)
 	{
 		String str = strVec[i];
 		// 判断是否为 AUTO 类型
-		if( XML_AUTO == str )
+		if (XML_AUTO == str)
 		{
 			GridWH  wh;
 			wh.type = GWHT_AUTO;
@@ -644,7 +645,7 @@ bool  GridLayout::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 
 		// 判读是否为 * 类型
 		int nIndex = str.find( XML_ASTERISK );
-		if( String::npos != nIndex )
+		if (String::npos != nIndex)
 		{
 			GridWH  wh;
 			wh.type = GWHT_ASTERISK;
@@ -678,33 +679,33 @@ SIZE  GridLayout::MeasureChildObject( HRDC hRDC )
 	int nGridCols = (int)this->widths.size();
 
 	Object*   pChild = NULL;
-	while( pChild = this->m_pPanel->EnumChildObject( pChild ) )
+	while (pChild = this->m_pPanel->EnumChildObject(pChild))
 	{
-		if( !pChild->IsVisible() )
+		if (!pChild->IsVisible())
 			continue;
 
 		int nRow = 0, nCol = 0, nnGridRowspan = 1, nnGridColspan = 1 ;
 
 		String strAttribute;
-		if( pChild->GetAttribute( XML_LAYOUT_GRID_ROW, strAttribute ) )
+		if (pChild->GetAttribute(XML_LAYOUT_GRID_ROW, strAttribute))
 		{
 			nRow = _ttoi( strAttribute.c_str() );
 		}
-		if( pChild->GetAttribute( XML_LAYOUT_GRID_COL, strAttribute ) )
+		if (pChild->GetAttribute(XML_LAYOUT_GRID_COL, strAttribute))
 		{
 			nCol = _ttoi( strAttribute.c_str() );
 		}
-		if( pChild->GetAttribute( XML_LAYOUT_GRID_ROWSPAN, strAttribute ) )
+		if (pChild->GetAttribute(XML_LAYOUT_GRID_ROWSPAN, strAttribute))
 		{
 			nnGridRowspan = _ttoi( strAttribute.c_str() );
 		}
-		if( pChild->GetAttribute( XML_LAYOUT_GRID_COLSPAN, strAttribute ) )
+		if (pChild->GetAttribute(XML_LAYOUT_GRID_COLSPAN, strAttribute))
 		{
 			nnGridColspan = _ttoi( strAttribute.c_str() );
 		}
 
 		// 超出了范围
-		if( nCol >= nGridCols || nRow >= nGridRows )
+		if (nCol >= nGridCols || nRow >= nGridRows)
 		{
 			UI_LOG_WARN( _T("GridLayout::MeasureChildObject, Object[ m_strID=\"%s\", col=%d, row=%d ] 超出grid范围 [col=%d,row=%d] )"),
 				pChild->m_strID.c_str(), nCol, nRow, nGridCols, nGridRows );
@@ -729,9 +730,9 @@ SIZE  GridLayout::MeasureChildObject( HRDC hRDC )
 		SIZE s = pChild->GetDesiredSize( hRDC );
 		
 		// 设置对象所在列的宽度
-		if( nnGridColspan == 1)
+		if (nnGridColspan == 1)
 		{
-			switch( widths[nCol].type )
+			switch (widths[nCol].type)
 			{
 			case GWHT_VALUE:     // 该列的值是固定值，不需要修改
 				break;
@@ -742,7 +743,7 @@ SIZE  GridLayout::MeasureChildObject( HRDC hRDC )
 				break;
 
 			case GWHT_AUTO:      // 该列是自动大小，那么取这一列的最大值
-				if( s.cx > widths[nCol].last )
+				if (s.cx > widths[nCol].last)
 					widths[nCol].last = s.cx;
 				break;
 
@@ -753,20 +754,20 @@ SIZE  GridLayout::MeasureChildObject( HRDC hRDC )
 		}
 
 		//设置对象所在行的高度
-		if( nnGridRowspan == 1 )
+		if (nnGridRowspan == 1)
 		{
-			switch( heights[nRow].type )
+			switch (heights[nRow].type)
 			{
 			case GWHT_VALUE:     // 该行的值是固定值，不需要修改
 				break;
 
 			case GWHT_ASTERISK:  // 该行是平分大小，在这里先取这一行的最大值，在Arrange里面会再具体赋值
-				if( s.cy > heights[nRow].last )
+				if (s.cy > heights[nRow].last)
 					heights[nRow].last = s.cy;
 				break;
 
 			case GWHT_AUTO:      // 该行是自动大小，那么去这一行的最大值
-				if( s.cy > heights[nRow].last )
+				if (s.cy > heights[nRow].last)
 					heights[nRow].last = s.cy;
 				break;
 
@@ -784,49 +785,55 @@ SIZE  GridLayout::MeasureChildObject( HRDC hRDC )
 	
 	double maxRate = 0;
 	// 求出比例基数
-	for( int i = 0; i < nGridCols; i++ )
+	for (int i = 0; i < nGridCols; i++)
 	{
-		if( this->widths[i].type == GWHT_ASTERISK )
+		if (this->widths[i].type == GWHT_ASTERISK)
 		{
+			if (widths[i].xml == 0)
+				widths[i].xml = 1;
+
 			double rate = (double)widths[i].last / (double)widths[i].xml;
-			if( rate > maxRate )
+			if (rate > maxRate)
 				maxRate = rate;
 		}
 	}
 	// 用求出的基数重新计算
-	for( int i = 0; i < nGridCols; i++ )
+	for (int i = 0; i < nGridCols; i++)
 	{
-		if( this->widths[i].type == GWHT_ASTERISK )
+		if (this->widths[i].type == GWHT_ASTERISK)
 		{
-			widths[i].last = (int)( widths[i].xml * maxRate );
+			widths[i].last = (int)(widths[i].xml * maxRate);
 		}
 	}
 
 	// 同理求出各行的高度
 	maxRate = 0;
-	for( int i = 0; i < nGridRows; i++ )
+	for (int i = 0; i < nGridRows; i++)
 	{
-		if( this->heights[i].type == GWHT_ASTERISK )
+		if (this->heights[i].type == GWHT_ASTERISK)
 		{
+			if (heights[i].xml == 0)
+				heights[i].xml = 1;
+
 			double rate = (double)heights[i].last / (double)heights[i].xml;
-			if( rate > maxRate )
+			if (rate > maxRate)
 				maxRate = rate;
 		}
 	}
-	for( int i = 0; i < nGridRows; i++ )
-	{
-		if( this->heights[i].type == GWHT_ASTERISK )
-		{
-			heights[i].last =(int)( heights[i].xml * maxRate );
+	for (int i = 0; i < nGridRows; i++)
+	{ 
+		if (this->heights[i].type == GWHT_ASTERISK)
+		{ 
+			heights[i].last =(int)(heights[i].xml * maxRate);
 		}
 	}
 
 	// 返回panel需要的大小
-	for( int i = 0; i < nGridCols; i++ )
+	for (int i = 0; i < nGridCols; i++)
 	{
 		size.cx += widths[i].last;
 	}
-	for( int i = 0; i < nGridRows; i++ )
+	for (int i = 0; i < nGridRows; i++)
 	{
 		size.cy += heights[i].last;
 	}
@@ -864,33 +871,33 @@ void  GridLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bReD
 	
 	// 第一步. 必须先安排auto类型
 	Object*   pChild = NULL;
-	while( pChild = this->m_pPanel->EnumChildObject( pChild ) )
+	while (pChild = this->m_pPanel->EnumChildObject(pChild))
 	{
-		if( !pChild->IsVisible() )
+		if (!pChild->IsVisible())
 			continue;
 
 		int nRow = 0, nCol = 0, nnGridRowspan = 1, nnGridColspan = 1 ;
 
 		String strAttribute;
-		if( pChild->GetAttribute( XML_LAYOUT_GRID_ROW, strAttribute ) )
+		if (pChild->GetAttribute( XML_LAYOUT_GRID_ROW, strAttribute))
 		{
 			nRow = _ttoi( strAttribute.c_str() );
 		}
-		if( pChild->GetAttribute( XML_LAYOUT_GRID_COL, strAttribute ) )
+		if (pChild->GetAttribute( XML_LAYOUT_GRID_COL, strAttribute))
 		{
 			nCol = _ttoi( strAttribute.c_str() );
 		}
-		if( pChild->GetAttribute( XML_LAYOUT_GRID_ROWSPAN, strAttribute ) )
+		if (pChild->GetAttribute( XML_LAYOUT_GRID_ROWSPAN, strAttribute))
 		{
 			nnGridRowspan = _ttoi( strAttribute.c_str() );
 		}
-		if( pChild->GetAttribute( XML_LAYOUT_GRID_COLSPAN, strAttribute ) )
+		if (pChild->GetAttribute( XML_LAYOUT_GRID_COLSPAN, strAttribute))
 		{
 			nnGridColspan = _ttoi( strAttribute.c_str() );
 		}
 
 		// 超出了范围
-		if( nCol >= nGridCols || nRow >= nGridRows )
+		if (nCol >= nGridCols || nRow >= nGridRows)
 		{
 			UI_LOG_WARN( _T("GridLayout::ArrangeChildObject, Object[ m_strID=\"%s\", col=%d, row=%d ] 超出grid范围 [col=%d,row=%d] )"),
 				pChild->m_strID.c_str(), nCol, nRow, nGridCols, nGridRows );
@@ -898,7 +905,7 @@ void  GridLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bReD
 		}
 
 		// 只求auto类型
-		if(  widths[nCol].type != GWHT_AUTO && heights[nRow].type != GWHT_AUTO )
+		if (widths[nCol].type != GWHT_AUTO && heights[nRow].type != GWHT_AUTO)
 		{
 			continue ;
 		}
@@ -906,14 +913,14 @@ void  GridLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bReD
 		SIZE s = pChild->GetDesiredSize( hRDC );
 		//::RestoreDC( hDC, -1 );
 
-		if( widths[nCol].type == GWHT_AUTO )
+		if (widths[nCol].type == GWHT_AUTO)
 		{
 			if( widths[nCol].last < s.cx )
 				widths[nCol].last = s.cx;
 		}
-		if( heights[nRow].type == GWHT_AUTO )
+		if (heights[nRow].type == GWHT_AUTO)
 		{
-			if( heights[nRow].last < s.cy )
+			if (heights[nRow].last < s.cy)
 				heights[nRow].last = s.cy;
 		}
 	}
@@ -924,9 +931,9 @@ void  GridLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bReD
 	int nASTERISKWidth  = 0;      // 宽度中的*的数量
 	int nASTERISKHeight = 0;      // 高度中的*的数量
 
-	for( int i = 0; i < nGridCols; i++ )
+	for (int i = 0; i < nGridCols; i++)
 	{
-		if( widths[i].type != GWHT_ASTERISK )
+		if (widths[i].type != GWHT_ASTERISK)
 		{
 			nWidthRemain -= widths[i].last;
 		}
@@ -935,9 +942,9 @@ void  GridLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bReD
 			nASTERISKWidth += widths[i].xml;
 		}
 	}
-	for( int i = 0; i < nGridRows; i++ )
+	for (int i = 0; i < nGridRows; i++)
 	{
-		if( heights[i].type != GWHT_ASTERISK )
+		if (heights[i].type != GWHT_ASTERISK)
 		{
 			nHeightRemain -= heights[i].last;
 		}
@@ -947,17 +954,22 @@ void  GridLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bReD
 		}
 	}
 
+	if (nASTERISKWidth == 0)
+		nASTERISKWidth = 1;
+	if (nASTERISKHeight == 0)
+		nASTERISKHeight = 1;
+
 	// 开始平分(TODO. 由于整数的除法，这里可能造成几个像素的误差）
-	for( int i = 0; i < nGridCols; i++ )
+	for (int i = 0; i < nGridCols; i++)
 	{
-		if( widths[i].type == GWHT_ASTERISK )
+		if (widths[i].type == GWHT_ASTERISK)
 		{
 			widths[i].last = nWidthRemain / nASTERISKWidth * widths[i].xml;
 		}
 	}
-	for( int i = 0; i < nGridRows; i++ )
+	for (int i = 0; i < nGridRows; i++)
 	{
-		if( heights[i].type == GWHT_ASTERISK )
+		if (heights[i].type == GWHT_ASTERISK)
 		{
 			heights[i].last = nHeightRemain / nASTERISKHeight * heights[i].xml;
 		}
@@ -966,26 +978,26 @@ void  GridLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bReD
 
 	// 第三步. 安排各个控件的位置
 	pChild = NULL;
-	while( pChild = this->m_pPanel->EnumChildObject( pChild ) )
+	while (pChild = this->m_pPanel->EnumChildObject(pChild))
 	{
 		int nRow = 0, nCol = 0, nGridRowspan = 1, nGridColspan = 1 ;
 
 		String strAttribute;
-		if( pChild->GetAttribute( XML_LAYOUT_GRID_ROW, strAttribute ) )
+		if (pChild->GetAttribute(XML_LAYOUT_GRID_ROW, strAttribute))
 		{
-			nRow = _ttoi( strAttribute.c_str() );
+			nRow = _ttoi( strAttribute.c_str());
 		}
-		if( pChild->GetAttribute( XML_LAYOUT_GRID_COL, strAttribute ) )
+		if (pChild->GetAttribute(XML_LAYOUT_GRID_COL, strAttribute))
 		{
-			nCol = _ttoi( strAttribute.c_str() );
+			nCol = _ttoi( strAttribute.c_str());
 		}
-		if( pChild->GetAttribute( XML_LAYOUT_GRID_ROWSPAN, strAttribute ) )
+		if (pChild->GetAttribute( XML_LAYOUT_GRID_ROWSPAN, strAttribute))
 		{
-			nGridRowspan = _ttoi( strAttribute.c_str() );
+			nGridRowspan = _ttoi( strAttribute.c_str());
 		}
-		if( pChild->GetAttribute( XML_LAYOUT_GRID_COLSPAN, strAttribute ) )
+		if ( pChild->GetAttribute( XML_LAYOUT_GRID_COLSPAN, strAttribute))
 		{
-			nGridColspan = _ttoi( strAttribute.c_str() );
+			nGridColspan = _ttoi(strAttribute.c_str());
 		}
 
 		// (row,col) -> ( rect.left, rect.top, rect.right, rect.bottom )
@@ -1012,17 +1024,17 @@ void  GridLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bReD
 
 // 获取第nCol列离GRID最左侧的距离
 // 注意：这里的参数可以是对象的col+colspan，因此该值可能会超出grid的最大列
-int GridLayout::getColPos( int nCol )
+int GridLayout::getColPos(int nCol)
 {
 	int nGridCols = widths.size();
-	if( nCol > nGridCols )
+	if (nCol >= nGridCols)
 	{
-		UI_LOG_WARN( _T("GridLayout::getColPos, nCol[%d] > widths.size[%d]"), nCol, nGridCols );
+	//	UI_LOG_WARN( _T("GridLayout::getColPos, nCol[%d] > widths.size[%d]"), nCol, nGridCols );
 		nCol = nGridCols;
 	}
 
 	int nRet = 0;
-	for( int i = 0; i < nCol; i++ )
+	for (int i = 0; i < nCol; i++)
 	{
 		nRet += widths[i].last;
 	}
@@ -1032,21 +1044,21 @@ int GridLayout::getColPos( int nCol )
 int GridLayout::getRowPos( int nRow )
 {
 	int nGridRows = heights.size();
-	if( nRow > nGridRows )
+	if (nRow >= nGridRows)
 	{
-		UI_LOG_WARN( _T("GridLayout::getRowPos, nCol[%d] > heights.size[%d]"), nRow, nGridRows );
+	//	UI_LOG_WARN( _T("GridLayout::getRowPos, nCol[%d] > heights.size[%d]"), nRow, nGridRows );
 		nRow = nGridRows;
 	}
 
 	int nRet = 0;
-	for( int i = 0; i < nRow; i++ )
+	for (int i = 0; i < nRow; i++)
 	{
 		nRet += heights[i].last;
 	}
 	return nRet;
 }
 
-SIZE  DockLayout::MeasureChildObject( HRDC hRDC )
+SIZE  DockLayout::MeasureChildObject(HRDC hRDC)
 {
 	SIZE size = {0,0};
 

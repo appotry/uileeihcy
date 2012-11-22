@@ -94,7 +94,6 @@ public:
 	void   OnTimer(UINT_PTR nIDEvent, LPARAM lParam);
 
 private:
-	GDIGifRenderBitmap*  m_pGifBitmap; 
-	GifImageBase*        m_pGifImage;
+	GifImageRenderItem*  m_pGifRender;
 };
 }

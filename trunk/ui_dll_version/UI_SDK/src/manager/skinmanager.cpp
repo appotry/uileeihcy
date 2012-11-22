@@ -346,13 +346,24 @@ bool SkinManager::GetResourceDataSourcePath( UI_RESOURCE_TYPE eResType, String& 
 // }
 HRBITMAP SkinManager::GetImage( const String& strImageID, GRAPHICS_RENDER_TYPE eRenderType )
 {
-	if ( NULL == m_pImageMgr )
+	if (NULL == m_pImageMgr)
 	{
-		UI_LOG_ERROR( _T("SkinManager::GetImage  failed."));
+		UI_LOG_ERROR( _T("%s failed."), FUNC_NAME);
 		return false;
 	}
 
 	return this->m_pImageMgr->GetImage( strImageID, eRenderType );
+}
+
+GifImageBase* SkinManager::GetGifImage(const String& strID)
+{
+	if (NULL == m_pImageMgr)
+	{
+		UI_LOG_ERROR( _T("%s failed."), FUNC_NAME);
+		return false;
+	}
+
+	return this->m_pImageMgr->GetGifImage(strID);
 }
 
 bool SkinManager::GetColor( const String& strColorID, UIColor** pCol )

@@ -1419,11 +1419,23 @@ HRBITMAP ProjectManager::GetImage( const String& strImageID, GRAPHICS_RENDER_TYP
 	SkinManager*  pSkinMgr = (NULL == hSkin)? m_pCurActiveSkinMgr:this->_GetSkinManagerByHSKIN( hSkin );
 	if( NULL == pSkinMgr )
 	{
-		UI_LOG_ERROR( _T("ProjectManager::GetImage  Failed. pSkinMgr == NULL") );
+		UI_LOG_ERROR( _T("%s Failed. pSkinMgr == NULL"), FUNC_NAME);
 		return false;
 	}
 
 	return pSkinMgr->GetImage( strImageID, eRenderType );
+}
+GifImageBase* ProjectManager::GetGifImage( const String& strImageID, HSKIN hSkin)
+{
+	// 获取当前正使用的皮肤
+	SkinManager*  pSkinMgr = (NULL == hSkin)? m_pCurActiveSkinMgr:this->_GetSkinManagerByHSKIN( hSkin );
+	if( NULL == pSkinMgr )
+	{
+		UI_LOG_ERROR( _T("%s Failed. pSkinMgr == NULL"), FUNC_NAME);
+		return false;
+	}
+
+	return pSkinMgr->GetGifImage(strImageID);
 }
 
 HRFONT ProjectManager::GetFontEx( HRFONT hRFont, WPARAM w, LPARAM l, GRAPHICS_RENDER_TYPE eRenderType, HSKIN hSkin )

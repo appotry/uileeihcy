@@ -268,6 +268,56 @@ namespace UI
 		vector<CPojo_CursorItem*>   m_vCursors;
 	};
 
+
+	class CPojo_GifItem
+	{
+	public:
+		CPojo_GifItem();
+		~CPojo_GifItem();
+
+	private:
+		String      m_strID;      // image id
+		String      m_strPath;    // image path
+		bool        m_bUseSkinHLS;         // 该图片是否参与皮肤色调改变 
+		ImageData*  m_pOriginImageData;    // 该图片的原始数据（改变图片色调时使用）
+
+	public:
+		bool  ModifyGif(const String& strPath) { UIASSERT(0); return false; } // TODO:
+		bool  ModifyHLS(short h, short l, short s, int nFlag){ UIASSERT(0); return false; } // TODO:
+		void  SetAttribute(const ATTRMAP& mapAttr);
+		GifImageBase*  GetGifImage();
+
+		DECLARE_STRING_SETGET( ID );
+		DECLARE_STRING_SETGET( Path );
+		DECLARE_bool_SETGET(UseSkinHLS);
+
+	public:
+		ATTRMAP   m_mapAttribute;
+		GifImageBase*   m_pGifImage;
+	};
+	class CPojo_Gif
+	{
+	public:
+		CPojo_Gif(){};
+		~CPojo_Gif();
+
+		bool LoadItem(ATTRMAP& mapAttr, const String& strFullPath);
+
+		int  GetGifCount(); 
+		CPojo_GifItem* GetGifItem( int nIndex );
+		CPojo_GifItem* GetGifItem( const String& strID );
+
+		bool InsertGif(const String& strID, const String& strPath, CPojo_GifItem** pRet);
+		bool ModifyGif(const String& strID, const String& strPath);
+		bool RemoveGif(const String& strID);
+		bool Clear();
+		bool ChangeSkinHLS(short h, short l, short s, int nFlag){UIASSERT(0); return false;};  // TODO:
+
+		GifImageBase* GetGif( const String& strID);
+
+	private:
+		vector<CPojo_GifItem*>   m_vGifs;
+	};
 	
 
 	//

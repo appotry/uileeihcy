@@ -147,31 +147,6 @@ private:
 	int     m_nCount;
 };
 
-class GDIGifRenderBitmap : public IRenderBitmap
-{
-protected:
-	GDIGifRenderBitmap(IRenderBitmap** ppOutRef);
-	~GDIGifRenderBitmap();
-public:
-	static  void CreateInstance(IRenderBitmap** pOutRef);
-	virtual GRAPHICS_RENDER_TYPE GetRenderType() { return GRAPHICS_RENDER_TYPE_GDI; }
-
-	virtual bool  LoadFromFile(const String& strPath, const ATTRMAP& mapAttrib);
-	virtual void  SetAttribute(const ATTRMAP& mapAttrib);
-
-	virtual int   GetWidth();
-	virtual int   GetHeight();
-
-	virtual BYTE* LockBits();
-	virtual void  UnlockBits();
-
-	virtual bool  SaveBits( ImageData* pImageData );
-	virtual bool  ChangeHLS( const ImageData* pOriginImageData, short h, short l, short s, int nFlag );
-
-	GifImageBase*  GetGifImage() { return m_pGifImage; }
-protected:
-	GifImageBase*  m_pGifImage;
-};
 
 //////////////////////////////////////////////////////////////////////////
 

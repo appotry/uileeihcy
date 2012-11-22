@@ -826,7 +826,7 @@ bool CXmlImageParse::Save( CPojo_Image*  pImageInfo )
 }
 
 
-bool CXmlImageParse::Load( CPojo_Image*  pImageInfo )
+bool CXmlImageParse::Load(CPojo_Image*  pImageInfo, CPojo_Cursor* pCursorInfo, CPojo_Gif* pGifInfo)
 {
 	if( NULL == pImageInfo )
 		return false;
@@ -838,7 +838,7 @@ bool CXmlImageParse::Load( CPojo_Image*  pImageInfo )
 	else
 		pXml = &tempXml;
 
-	bool bRet = this->load_from_file(pXml, m_strDataSource, pImageInfo);
+	bool bRet = this->load_from_file(pXml, m_strDataSource, pImageInfo, pCursorInfo, pGifInfo);
 	if( false == bRet )
 	{
 		UI_LOG_FATAL(_T("CXmlImageParse::Load  failed!"));
@@ -855,11 +855,11 @@ bool CXmlImageParse::Load( CPojo_Image*  pImageInfo )
 }
 
 // 从temp文件
-bool CXmlImageParse::Reload( CPojo_Image* pImageInfo )
+bool CXmlImageParse::Reload(CPojo_Image* pImageInfo, CPojo_Cursor* pCursorInfo, CPojo_Gif* pGifInfo)
 {
 	UIASSERT(g_pUIApplication->IsDesignMode());
 
-	return this->load_from_file( &m_xml, m_strDataSource + TEMP_FILE_EXT, pImageInfo );
+	return this->load_from_file(&m_xml, m_strDataSource + TEMP_FILE_EXT, pImageInfo, pCursorInfo, pGifInfo);
 }
 bool CXmlImageParse::InsertImage(  CPojo_ImageItem *pImageItemInfo )
 {
@@ -1036,9 +1036,9 @@ bool CXmlImageParse::clear_save( CPojo_Image*  pImageInfo )
 	return bRet;
 }
 
-bool  CXmlImageParse::load_from_file( CMarkup* pXml, const String& strDataSource, CPojo_Image *pImageInfo )
+bool CXmlImageParse::load_from_file( CMarkup* pXml, const String& strDataSource, CPojo_Image *pImageInfo, CPojo_Cursor* pCursorInfo, CPojo_Gif* pGifInfo )
 {
-	if( NULL == pXml || NULL == pImageInfo )
+	if( NULL == pXml || NULL == pImageInfo || NULL == pCursorInfo || NULL == pGifInfo)
 		return false;
 
 	if( false == ::LoadXml_ToLower(pXml, strDataSource) )
@@ -1061,7 +1061,10 @@ bool  CXmlImageParse::load_from_file( CMarkup* pXml, const String& strDataSource
 		bool bLoopRet = true;
 		for ( ;; )
 		{
-			if (false == pXml->FindElem( XML_ITEM ))        { break; }
+//			if (false == pXml->FindElem( XML_ITEM ))        { break; }
+			if (false == pXml->FindElem())                  { break; }
+
+			String strTagName = pXml->GetTagName();
 
 			//	加载所有属性
 			ATTRMAP  mapAttrib;
@@ -1095,8 +1098,20 @@ bool  CXmlImageParse::load_from_file( CMarkup* pXml, const String& strDataSource
 				strFullPath = szFullPath;
 			}
 
-			if (false == pImageInfo->LoadItem(mapAttrib, strFullPath))
-				UI_LOG_WARN(_T("%s insert image failed."), FUNC_NAME);
+			if (strTagName == XML_IMAGE_ITEM_CURSOR)
+			{
+				UIASSERT(0);// TODO
+			}
+			else if (strTagName == XML_IMAGE_ITEM_GIF)
+			{
+				if (false == pGifInfo->LoadItem(mapAttrib, strFullPath))
+					UI_LOG_WARN(_T("%s insert gif failed"), FUNC_NAME);
+			}
+			else
+			{
+				if (false == pImageInfo->LoadItem(mapAttrib, strFullPath))
+					UI_LOG_WARN(_T("%s insert image failed."), FUNC_NAME);
+			}
 		}
 		bRet = true;
 	} 

@@ -133,6 +133,7 @@ namespace UI
 	UIAPI void     UI_ReleaseBitmap( HRBITMAP hBitmap );
 	UIAPI int      UI_GetBitmapWidth( HRBITMAP hBitmap );
 	UIAPI int      UI_GetBitmapHeight( HRBITMAP hBitmap );
+	UIAPI GifImageBase*  UI_GetGifImage(const String& strImageID, HSKIN hSkin = NULL);
 
 	UIAPI bool     UI_SetActiveSkin( HSKIN hSkin );
 	UIAPI HSKIN    UI_GetSkinHandle( int nIndex );
