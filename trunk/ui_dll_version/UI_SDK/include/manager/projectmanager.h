@@ -97,6 +97,7 @@ namespace UI
 		HRFONT           GetDefaultFont( GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI, HSKIN hSkin = NULL );
 		HRFONT           GetFontEx(HRFONT hRFont, WPARAM w, LPARAM l, GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI, HSKIN hSkin = NULL );
 		HRBITMAP         GetImage( const String& strImageID, GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI, HSKIN hSkin = NULL );
+		GifImageBase*    GetGifImage( const String& strImageID, HSKIN hSkin = NULL);
 
 		bool             SetActiveSkin( HSKIN hSkin );
 		int              GetActiveSkinIndex();

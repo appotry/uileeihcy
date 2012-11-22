@@ -32,6 +32,7 @@ public:
 	bool       ChangeSkinHLS(short h, short l, short s, int nFlag);
 
 	HRBITMAP   GetImage( const String& strID, GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI );
+	GifImageBase* GetGifImage( const String& strID);
 
 	IImageParse*   GetImageParse() { return m_pImageParse; }
 	void           SetImageParse( IImageParse* p );
@@ -46,6 +47,7 @@ private:
 	// 对象属性
 	CPojo_Image     m_pojoImage;    // 界面图片
 	CPojo_Cursor    m_pojoCursor;   // 鼠标样式图片
+	CPojo_Gif       m_pojoGif;      // 动画
 
 	SkinManager*    m_pSkinMgr;
 };

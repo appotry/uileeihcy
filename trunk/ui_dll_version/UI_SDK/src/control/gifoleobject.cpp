@@ -47,7 +47,7 @@ bool GifImageItem::LoadGifByPath(const TCHAR* szFilePath)
 	Gif_Timer_Notify notify(NULL, 0,0);
 	int nIndex = 0;
 
-	m_pGif->AddDrawParam(&notify, &nIndex);
+	m_pGif->AddRender(&notify, &nIndex);
 	m_pGif->Start();
 	//	m_pGifItem->m_pGif->Pause();
 

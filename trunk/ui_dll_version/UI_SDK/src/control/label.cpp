@@ -136,21 +136,20 @@ void Picture::OnPaint( HRDC hRDC )
 
 GifPicture::GifPicture()
 {
-	m_pGifImage = NULL;
-	m_pGifBitmap = NULL;
+	m_pGifRender = NULL;
 }
 GifPicture::~GifPicture()
 {
-//	SAFE_DELETE(m_pGifImage);
+	SAFE_RELEASE(m_pGifRender);
 }
 
 SIZE GifPicture::GetAutoSize( HRDC hDC )
 {
 	SIZE s = {0, 0};
-	if (NULL != m_pGifImage)
+	if (NULL != m_pGifRender)
 	{
-		s.cx = m_pGifImage->GetWidth();
-		s.cy = m_pGifImage->GetHeight();
+		s.cx = m_pGifRender->GetWidth();
+		s.cy = m_pGifRender->GetHeight();
 	}
 	return s;
 }
@@ -159,7 +158,6 @@ void GifPicture::ResetAttribute()
 {
 	__super::ResetAttribute();
 	this->ModifyStyle(OBJECT_STYLE_TRANSPARENT, 0);  // 默认不透明
-	SAFE_RELEASE(m_pGifBitmap);
 	return;
 }
 bool GifPicture::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
@@ -171,26 +169,22 @@ bool GifPicture::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 	ATTRMAP::iterator iter = m_mapAttribute.find(XML_GIFPICTURE_PATH);
 	if (iter != m_mapAttribute.end())
 	{
-		String& strPath = iter->second;
+		String& strGifID = iter->second;
 
-		IRenderBitmap* pBitmap = UI_GetBitmap(strPath);
-		if (NULL != pBitmap)
+		GifImageBase* pGifImage = UI_GetGifImage(strGifID);
+		if (NULL != pGifImage)
 		{
-			m_pGifBitmap = dynamic_cast<GDIGifRenderBitmap*>(pBitmap);
-			if (NULL != m_pGifBitmap)
-			{
-				m_pGifImage = m_pGifBitmap->GetGifImage();
+			SAFE_RELEASE(m_pGifRender);
 
-				POINT pt = this->GetRealPosInWindow();
- 				Gif_Timer_Notify notify(GetHWND(),pt.x + m_rcNonClient.left, pt.y + m_rcNonClient.top);
-//				Gif_Timer_Notify notify(static_cast<Message*>(this), 1);
-				m_pGifImage->AddDrawParam(&notify);
-				m_pGifImage->Start();
-			}
+			POINT pt = this->GetRealPosInWindow();
+			Gif_Timer_Notify notify(GetHWND(), pt.x + m_rcNonClient.left, pt.y + m_rcNonClient.top);
+//			Gif_Timer_Notify notify(static_cast<Message*>(this), 1);
+			m_pGifRender = pGifImage->AddRender(&notify);
+			m_pGifRender->Start();
 		}
 		else
 		{
-			UI_LOG_WARN(_T("%s load gif image failed. path=%s"), FUNC_NAME, strPath.c_str());
+			UI_LOG_WARN(_T("%s load gif image failed. id=%s"), FUNC_NAME, strGifID.c_str());
 		}
 
 		m_mapAttribute.erase(iter);
@@ -201,28 +195,27 @@ bool GifPicture::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 
 void GifPicture::OnPaint( HRDC hRDC )
 {
-	if (NULL != m_pGifImage)
+	if (NULL != m_pGifRender)
 	{
 		HDC hDC = GetHDC(hRDC);
-		m_pGifImage->OnPaint(hDC, 0,0);  // 因为HDC是已经带偏移量的，因此直接绘制在0,0即可
-		m_pGifImage->OnPaint(hDC, m_pGifImage->GetWidth(),0, 1);  // 因为HDC是已经带偏移量的，因此直接绘制在0,0即可
+		m_pGifRender->OnPaint(hDC, 0,0);  // 因为HDC是已经带偏移量的，因此直接绘制在0,0即可
 		ReleaseHDC(hRDC, hDC);
 	}
 }
 
 void GifPicture::OnMove(CPoint ptPos)
 {
-	if (NULL != m_pGifImage)
+	if (NULL != m_pGifRender)
 	{
 		POINT pt = this->GetRealPosInWindow();
 		Gif_Timer_Notify notify(GetHWND(),pt.x + m_rcNonClient.left, pt.y + m_rcNonClient.top);
-		m_pGifImage->ModifyDrawParam(&notify);
+		m_pGifRender->ModifyRenderParam(&notify);
 	}
 }
 
 void GifPicture::OnTimer(UINT_PTR nIDEvent, LPARAM lParam)
 {
-	if (NULL != m_pGifImage && m_pGifImage->GetStatus() == GIF_DRAW_STATUS_START)
+	if (NULL != m_pGifRender && m_pGifRender->GetStatus() == GIF_DRAW_STATUS_START)
 	{
 		this->UpdateObject();
 	}

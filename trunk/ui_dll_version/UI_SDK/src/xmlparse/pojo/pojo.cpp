@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+#pragma region  // Project
 //////////////////////////////////////////////////////////////////////////
 //
 //	CPojo_Project
@@ -129,7 +130,7 @@ bool CPojo_Project::GetSkinPath( const String& strSkinName, TCHAR* szPath )
 	_tcscpy( szPath, pItem->GetSkinXmlPath().c_str() );
 	return true;
 }
-
+#pragma  endregion 
 //////////////////////////////////////////////////////////////////////////
 //
 //	CPojo_ImageItem
@@ -201,6 +202,8 @@ void UIImage::Modify( const String& str )
 	}
 }
 #endif
+
+#pragma  region //image
 
 //////////////////////////////////////////////////////////////////////////
 CPojo_ImageItem::CPojo_ImageItem()
@@ -538,9 +541,9 @@ CPojo_ImageItem* CPojo_Image::GetImageItem( const String& strID )
 bool CPojo_Image::InsertImage( const String& strID, const String& strPath, CPojo_ImageItem** pRet )
 {
 	CPojo_ImageItem* pItem = this->GetImageItem(strID);
-	if( NULL != pItem )
+	if (NULL != pItem)
 	{
-		UI_LOG_WARN(_T("CPojo_Image::InsertImage failed, insert item=%s, path=%s"), strID.c_str(), strPath.c_str() );
+		UI_LOG_WARN(_T("%s failed, insert item=%s, path=%s"), FUNC_NAME, strID.c_str(), strPath.c_str() );
 		return false;
 	}
 
@@ -549,7 +552,7 @@ bool CPojo_Image::InsertImage( const String& strID, const String& strPath, CPojo
 	pImageItem->SetPath( strPath );
 
 	this->m_vImages.push_back(pImageItem);  
-	if( NULL != pRet )
+	if (NULL != pRet)
 		*pRet = pImageItem;
 	return true;
 }
@@ -562,7 +565,7 @@ bool CPojo_Image::ModifyImage( const String& strID, const String& strPath )
 		return p->ModifyImage(strPath);
 	}
 
-	UI_LOG_WARN(_T("CPojo_Image::ModifyImage failed. modify image id=%s, path=%s"), strID.c_str(), strPath.c_str() );
+	UI_LOG_WARN(_T("%s failed. modify image id=%s, path=%s"), FUNC_NAME, strID.c_str(), strPath.c_str() );
 	return false;
 }
 bool CPojo_Image::RemoveImage( const String& strID )
@@ -647,6 +650,9 @@ HRBITMAP CPojo_Image::GetImage( const String& strID, GRAPHICS_RENDER_TYPE eRende
 	
 	return pBitmap;
 }
+#pragma endregion
+
+#pragma region // Cursor
 //////////////////////////////////////////////////////////////////////////
 //
 //	CPojo_CursorItem
@@ -925,7 +931,176 @@ void  CPojo_Cursor::Clear()
 	m_vCursors.clear();
 }
 
+#pragma endregion
 
+#pragma region // Gif
+
+CPojo_GifItem::CPojo_GifItem()
+{
+	m_pGifImage = NULL;
+	m_pOriginImageData = NULL;
+	m_bUseSkinHLS = false;
+}
+CPojo_GifItem::~CPojo_GifItem()
+{
+	SAFE_DELETE(m_pGifImage);
+}
+GifImageBase*  CPojo_GifItem::GetGifImage()
+{
+	if (NULL == m_pGifImage)
+	{
+		String strExt = m_strPath.substr(m_strPath.length()-4, 4);
+
+		if (0 == _tcsicmp(strExt.c_str(), _T(".gif")))
+		{
+			m_pGifImage = new GifImage;
+		}
+		else
+		{
+			m_pGifImage = new PngListGifImage;
+		}
+		m_pGifImage->Load(m_strPath.c_str(), &m_mapAttribute);
+	}
+
+	return m_pGifImage;
+}
+
+void CPojo_GifItem::SetAttribute(const ATTRMAP& mapAttr) 
+{ 
+	m_mapAttribute = mapAttr; 
+}
+
+
+CPojo_Gif::~CPojo_Gif()
+{	
+	this->Clear(); 
+}
+
+bool CPojo_Gif::LoadItem(ATTRMAP& mapAttr, const String& strFullPath)
+{
+	String strID;
+
+	ATTRMAP::iterator iter;
+	iter = mapAttr.find(XML_ID);
+	if (mapAttr.end() != iter)
+	{
+		strID = iter->second;
+	}
+
+	CPojo_GifItem* pItem = NULL;
+	if (this->InsertGif(strID, strFullPath, &pItem))
+	{
+		pItem->SetAttribute(mapAttr);
+		return true;
+	}
+	else
+	{
+		UI_LOG_WARN( _T("%s insert gif id=%s, path=%s failed."), FUNC_NAME, strID.c_str(), strFullPath.c_str());
+		return false;
+	}
+}
+int CPojo_Gif::GetGifCount() 
+{
+	return (int)m_vGifs.size();
+}
+
+CPojo_GifItem* CPojo_Gif::GetGifItem( int nIndex )
+{
+	if (nIndex < 0)
+		return NULL;
+	if( nIndex >= (int)m_vGifs.size() )
+		return NULL;
+
+	return m_vGifs[nIndex];
+}
+
+CPojo_GifItem* CPojo_Gif::GetGifItem( const String& strID )
+{
+	vector<CPojo_GifItem*>::iterator  iter = m_vGifs.begin();
+	vector<CPojo_GifItem*>::iterator  iterEnd = m_vGifs.end();
+
+	for( ; iter != iterEnd; iter++ )
+	{
+		CPojo_GifItem* p = *iter;
+		if( p->GetIDRef() == strID )
+			return p;
+	}
+	return NULL;
+}
+GifImageBase* CPojo_Gif::GetGif( const String& strID)
+{
+	CPojo_GifItem* pItem = this->GetGifItem(strID);
+	if (NULL == pItem)
+		return NULL;
+
+	return pItem->GetGifImage();
+}
+
+bool CPojo_Gif::InsertGif(const String& strID, const String& strPath, CPojo_GifItem** pRet)
+{
+	CPojo_GifItem* pItem = this->GetGifItem(strID);
+	if (NULL != pItem)
+	{
+		UI_LOG_WARN(_T("%s failed, insert item=%s, path=%s"), FUNC_NAME, strID.c_str(), strPath.c_str() );
+		return false;
+	}
+
+	CPojo_GifItem*  pGifItem = new CPojo_GifItem;
+	pGifItem->SetID(strID);
+	pGifItem->SetPath(strPath);
+
+	this->m_vGifs.push_back(pGifItem);  
+	if (NULL != pRet)
+		*pRet = pGifItem;
+	return true;
+}
+bool CPojo_Gif::ModifyGif(const String& strID, const String& strPath)
+{
+	CPojo_GifItem* p = this->GetGifItem(strID);
+	if( NULL != p )
+	{
+		return p->ModifyGif(strPath);
+	}
+
+	UI_LOG_WARN(_T("%s failed. modify gif id=%s, path=%s"), FUNC_NAME, strID.c_str(), strPath.c_str() );
+	return false;
+}
+bool CPojo_Gif::RemoveGif(const String& strID)
+{
+	vector<CPojo_GifItem*>::iterator  iter = m_vGifs.begin();
+	vector<CPojo_GifItem*>::iterator  iterEnd = m_vGifs.end();
+
+	for( ; iter != iterEnd; iter++ )
+	{
+		CPojo_GifItem* p = *iter;
+		if( p->GetIDRef() == strID )
+		{
+			delete p;
+			p = NULL;
+			m_vGifs.erase(iter);
+			return true;
+		}
+	}
+	return false;
+}
+bool CPojo_Gif::Clear()
+{
+	vector<CPojo_GifItem*>::iterator  iter = m_vGifs.begin();
+	vector<CPojo_GifItem*>::iterator  iterEnd = m_vGifs.end();
+
+	for( ; iter != iterEnd; iter++ )
+	{
+		CPojo_GifItem* p = *iter;
+		delete p;
+		p = NULL;
+	}
+
+	m_vGifs.clear();
+	return true;
+}
+#pragma  endregion
+
+#pragma region //Color
 //////////////////////////////////////////////////////////////////////////
 //
 //	CPojo_ColorItem
@@ -1241,11 +1416,8 @@ bool CPojo_Color::ChangeSkinHLS(short h, short l, short s, int nFlag)
 
 	return true;
 }
+#pragma endregion
 
-//////////////////////////////////////////////////////////////////////////
-//
-//	CPojo_ColorItem
-//
 #if 0
 
 UIFont::UIFont(LOGFONT* plogfont, UIFont** ppOutRef)

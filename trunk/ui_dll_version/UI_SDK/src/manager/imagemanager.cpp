@@ -92,7 +92,7 @@ bool ImageManager::Load( const String& strXmlPath )
 
 	m_pImageParse = IParseClassFactory::CreateImageParseInstance( strXmlPath );
 
-	if( false == m_pImageParse->Load( &m_pojoImage ) )
+	if (false == m_pImageParse->Load(&m_pojoImage, &m_pojoCursor, &m_pojoGif))
 		return false;
 
 	return true;
@@ -111,7 +111,7 @@ bool ImageManager::Reload()
 	}
 
 	this->Clear();
-	return  m_pImageParse->Reload( &m_pojoImage );
+	return  m_pImageParse->Reload(&m_pojoImage, &m_pojoCursor, &m_pojoGif);
 }
 
 bool ImageManager::ChangeSkinHLS(short h, short l, short s, int nFlag)
@@ -169,6 +169,10 @@ bool ImageManager::GetImage( const String& strID, UIImage** ppImage )
 HRBITMAP ImageManager::GetImage( const String& strID, GRAPHICS_RENDER_TYPE eRenderType )
 {
 	return m_pojoImage.GetImage(strID, eRenderType);
+}
+GifImageBase* ImageManager::GetGifImage(const String& strID)
+{
+	return m_pojoGif.GetGif(strID);
 }
 
 bool ImageManager::GetCursor( const String& strID, UICursor** ppCursor )

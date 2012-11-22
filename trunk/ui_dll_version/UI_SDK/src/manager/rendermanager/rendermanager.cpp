@@ -163,14 +163,14 @@ void RenderBitmapFactory::CreateInstance(IRenderBitmap** ppOut, GRAPHICS_RENDER_
 			{
 				GDIImageListRenderBitmap::CreateInstance(ppOut);
 			}
-			else if (eType == IMAGE_ITEM_TYPE_GIF)
-			{
-				GDIGifRenderBitmap::CreateInstance(ppOut);
-			}
-			else if (eType == IMAGE_ITEM_TYPE_PNGLISTGIF)
-			{
-				GDIGifRenderBitmap::CreateInstance(ppOut);
-			}
+// 			else if (eType == IMAGE_ITEM_TYPE_GIF)
+// 			{
+// 				GDIGifRenderBitmap::CreateInstance(ppOut);
+// 			}
+// 			else if (eType == IMAGE_ITEM_TYPE_PNGLISTGIF)
+// 			{
+// 				GDIGifRenderBitmap::CreateInstance(ppOut);
+// 			}
 			else 
 			{
 				GDIRenderBitmap::CreateInstance(ppOut);

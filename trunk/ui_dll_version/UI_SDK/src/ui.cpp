@@ -689,6 +689,14 @@ HRBITMAP UI_GetBitmap( const String& strImageID, GRAPHICS_RENDER_TYPE eRenderTyp
 	return g_pUIApplication->m_ProjectMgr.GetImage( strImageID, eRenderType, hSkin );
 }
 
+GifImageBase*  UI_GetGifImage(const String& strImageID, HSKIN hSkin)
+{
+	if (NULL == g_pUIApplication)
+		return NULL;
+
+	return g_pUIApplication->m_ProjectMgr.GetGifImage(strImageID, hSkin);
+}
+
 void UI_ReleaseBitmap( HRBITMAP hBitmap )
 {
 	if( NULL == hBitmap )

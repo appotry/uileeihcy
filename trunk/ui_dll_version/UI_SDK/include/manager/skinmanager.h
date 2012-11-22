@@ -84,6 +84,7 @@ namespace UI
 		HRFONT               GetDefaultFont( GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI );
 		HRFONT               GetFontEx( HRFONT hRFont, WPARAM w, LPARAM l, GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI );
 		HRBITMAP             GetImage( const String& strImageID, GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI );
+		GifImageBase*        GetGifImage(const String& strID);
 
 		bool                 LoadLayout(Object* pRootObj);
 		bool                 ReLoadLayout( Object* pRootObj, list<Object*>& listAllChild );

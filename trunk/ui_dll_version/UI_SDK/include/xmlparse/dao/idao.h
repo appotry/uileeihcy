@@ -64,17 +64,17 @@ namespace UI
 		// 创建数据文件
 		virtual  bool Create() = 0;
 		// 保存文件
-		virtual  bool Save( CPojo_Image*  pImageInfo ) = 0;
+		virtual  bool Save(CPojo_Image*  pImageInfo) = 0;
 		// 加载
-		virtual  bool Load( CPojo_Image*  pImageInfo ) = 0;
+		virtual  bool Load(CPojo_Image*  pImageInfo, CPojo_Cursor* pCursorInfo, CPojo_Gif* pGifInfo) = 0;
 		// 从temp文件中重新加载
-		virtual  bool Reload( CPojo_Image* pImageInfo ) = 0;
+		virtual  bool Reload(CPojo_Image* pImageInfo, CPojo_Cursor* pCursorInfo, CPojo_Gif* pGifInfo) = 0;
 		// 插入一张图片
-		virtual  bool InsertImage( CPojo_ImageItem *pImageItemInfo ) = 0;
+		virtual  bool InsertImage(CPojo_ImageItem *pImageItemInfo) = 0;
 		// 修改一张图片
-		virtual  bool ModifyImage( CPojo_ImageItem *pImageItemInfo ) = 0;
+		virtual  bool ModifyImage(CPojo_ImageItem *pImageItemInfo) = 0;
 		// 删除一张图片
-		virtual  bool RemoveImage( const String& strID ) = 0;
+		virtual  bool RemoveImage(const String& strID) = 0;
 		
 	};
 

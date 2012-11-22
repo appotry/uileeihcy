@@ -48,15 +48,15 @@ namespace UI
 	public:
 		virtual  bool Create();
 		virtual  bool Save( CPojo_Image*  pImageInfo );
-		virtual  bool Load( CPojo_Image*  pImageInfo );
-		virtual  bool Reload( CPojo_Image* pImageInfo );
+		virtual  bool Load( CPojo_Image*  pImageInfo, CPojo_Cursor* pCursorInfo, CPojo_Gif* pGifInfo);
+		virtual  bool Reload( CPojo_Image* pImageInfo, CPojo_Cursor* pCursorInfo, CPojo_Gif* pGifInfo);
 
 		virtual  bool InsertImage( CPojo_ImageItem *pImageItemInfo );
 		virtual  bool ModifyImage( CPojo_ImageItem *pImageItemInfo );
 		virtual  bool RemoveImage( const String& strID );
 
 	private:
-		bool  load_from_file( CMarkup* pXml, const String& strDataSource, CPojo_Image *pImageInfo );
+		bool  load_from_file( CMarkup* pXml, const String& strDataSource, CPojo_Image *pImageInfo, CPojo_Cursor* pCursorInfo, CPojo_Gif* pGifInfo);
 		bool  insert_image_2_xml( CPojo_ImageItem *pImageItemInfo );
 		bool  clear_save( CPojo_Image*  pImageInfo );
 	private:

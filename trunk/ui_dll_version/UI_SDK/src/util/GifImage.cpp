@@ -227,7 +227,7 @@ void Gif_Timer::on_timer(Gif_TimerItem* pItem)
 	if( NULL == pItem )
 		return;
 
-	GifImageDrawItem* pImageDrawItem = (GifImageDrawItem*)pItem->pData;
+	GifImageRenderItem* pImageDrawItem = (GifImageRenderItem*)pItem->pData;
 	if (NULL == pImageDrawItem)
 		return;
 
@@ -349,7 +349,7 @@ Gif_Timer_Notify::Gif_Timer_Notify(Message* pNotifyObj, UINT nTimerID)
 	notify_ui_msg.pNotifyMsgObj = pNotifyObj;
 }
 
-GifImageDrawItem::GifImageDrawItem(GifImageBase* pGifImage, Gif_Timer_Notify* pNotify)
+GifImageRenderItem::GifImageRenderItem(GifImageBase* pGifImage, Gif_Timer_Notify* pNotify)
 {
 	m_pGifImage = pGifImage;
 	m_nCurFrameIndex = 0;
@@ -388,7 +388,7 @@ GifImageDrawItem::GifImageDrawItem(GifImageBase* pGifImage, Gif_Timer_Notify* pN
 //	::FillRect( m_hMemPrevSaveDC,&rcBack,m_hBrushTransparent);
 }
 
-GifImageDrawItem::~GifImageDrawItem()
+GifImageRenderItem::~GifImageRenderItem()
 {
 	if (m_nDrawStatus != GIF_DRAW_STATUS_STOP)
 		this->Stop();
@@ -423,7 +423,7 @@ GifImageDrawItem::~GifImageDrawItem()
 	}
 }
 
-bool GifImageDrawItem::ModifyDrawParam(Gif_Timer_Notify* pNotify)
+bool GifImageRenderItem::ModifyRenderParam(Gif_Timer_Notify* pNotify)
 {
 	if (NULL == pNotify)
 		return false;
@@ -442,13 +442,26 @@ bool GifImageDrawItem::ModifyDrawParam(Gif_Timer_Notify* pNotify)
 	LeaveCriticalSection(&m_pGifImage->m_sect);
 	return true;
 }
+
+void GifImageRenderItem::Release()
+{
+	if (NULL == m_pGifImage)
+	{
+		delete this;
+		return;
+	}
+
+	m_pGifImage->DeleteRender(this);  // 注：该调用会触发delete this.因此后面不准再添加其它代码了
+	return;
+}
+
 #pragma endregion
 //////////////////////////////////////////////////////////////////////////
 
 GifImageBase::GifImageBase()
 {
 	m_hBrushTransparent = NULL;
-	m_nNextDrawItemIndex = 0;
+	m_nNextRenderItemIndex = 0;
 	m_nImageWidth = 0;
 	m_nImageHeight = 0;
 
@@ -476,28 +489,24 @@ bool GifImage::Destroy()
 		m_vFrame[i] = NULL;
 	}
 	m_vFrame.clear();
-	LeaveCriticalSection(&m_sect);
 
-	this->release_resource();
-
-	return true;
-}
-void GifImage::release_resource()
-{
-	GifImageDrawItemMap::iterator iter = m_mapDrawItem.begin();
-	GifImageDrawItemMap::iterator iterEnd = m_mapDrawItem.end();
+	GifImageRenderItemMap::iterator iter = m_mapRenderItem.begin();
+	GifImageRenderItemMap::iterator iterEnd = m_mapRenderItem.end();
 	for (; iter != iterEnd; iter++)
 	{
-		GifImageDrawItem* pItem = iter->second;
+		GifImageRenderItem* pItem = iter->second;
 		SAFE_DELETE(pItem);
 	}
-	m_mapDrawItem.clear();
+	m_mapRenderItem.clear();
 
 	if (NULL != m_hBrushTransparent)
 	{
 		::DeleteObject(m_hBrushTransparent);
 		m_hBrushTransparent = NULL;
 	}
+	LeaveCriticalSection(&m_sect);
+
+	return true;
 }
 
 //
@@ -575,14 +584,19 @@ void GifImage::build_one_frame_data(
 }
 
 //
-//	使用路径进行文件GIF加载
+//	使用路径进行文件GIF加载（只有外部请求一人render时，才真正调用load加载文件）
 //
 bool GifImage::Load(const TCHAR* szPath, const ATTRMAP* pMapAttr)
+{
+	m_strFilePath = szPath;
+	return true;
+}
+bool GifImage::RealLoad()
 {
 	UIASSERT(0 == m_vFrame.size());
 
 	fstream f;
-	f.open(szPath, ios_base::in|ios_base::binary);
+	f.open(m_strFilePath.c_str(), ios_base::in|ios_base::binary);
 	if( f.fail() )
 		return false;
 
@@ -963,7 +977,7 @@ bool GifImage::decode_by_gdiplus(fstream& f,
 	return true;
 }
 
-int GifImageDrawItem::get_next_frame_index()
+int GifImageRenderItem::get_next_frame_index()
 {
 	int nIndex = m_nCurFrameIndex;
 	m_nCurFrameIndex++;
@@ -986,37 +1000,80 @@ GIF_Frame* GifImageBase::GetFrame(int nIndex)
 //	Return
 //		成功返回TRUE，失败返回FALSE
 //
-bool GifImageBase::AddDrawParam(Gif_Timer_Notify* pNotify, int* pIndex)
+GifImageRenderItem* GifImageBase::AddRender(Gif_Timer_Notify* pNotify, int* pIndex)
 {
-	if (m_vFrame.size() <= 0 || NULL == pNotify)
-		return false;
+	if (NULL == pNotify)
+		return NULL;
 
-	if (NULL == m_hBrushTransparent)
+	if (0 == m_mapRenderItem.size())
 	{
-		this->SetTransparentColor();
+		if (false == this->RealLoad())   // 只有在真正有人请求一个Render时，才创建文件
+			return NULL;
+
+		if (NULL == m_hBrushTransparent)
+			this->SetTransparentColor();
 	}
 
-	GifImageDrawItem* pDrawItem = new GifImageDrawItem(this, pNotify);
-	m_mapDrawItem.insert(make_pair(m_nNextDrawItemIndex, pDrawItem));
+	if (m_vFrame.size() <= 0)
+		return NULL;
+
+	GifImageRenderItem* pDrawItem = new GifImageRenderItem(this, pNotify);
+	m_mapRenderItem.insert(make_pair(m_nNextRenderItemIndex, pDrawItem));
 	
 	if (NULL != pIndex)
 	{
-		*pIndex = m_nNextDrawItemIndex;
+		*pIndex = m_nNextRenderItemIndex;
 	}
-	m_nNextDrawItemIndex++;
+	m_nNextRenderItemIndex++;
 
-	return true;
+	return pDrawItem;
 }
-bool GifImageBase::ModifyDrawParam(Gif_Timer_Notify* pNotify, int nIndex)
+bool GifImageBase::ModifyRender(Gif_Timer_Notify* pNotify, int nIndex)
 {
 	if (m_vFrame.size() <= 0 || NULL == pNotify)
 		return false;
 
-	GifImageDrawItem* pItem = this->GetDrawItemByIndex(nIndex);
+	GifImageRenderItem* pItem = this->GetDrawItemByIndex(nIndex);
 	if (NULL == pItem)
 		return false;
 
-	return pItem->ModifyDrawParam(pNotify);
+	return pItem->ModifyRenderParam(pNotify);
+}
+
+bool GifImageBase::DeleteRender(int nIndex)
+{
+	GifImageRenderItem* pItem = this->GetDrawItemByIndex(nIndex);
+	if (NULL == pItem)
+		return false;
+
+	m_mapRenderItem.erase(nIndex);
+	SAFE_DELETE(pItem);
+
+	if (m_mapRenderItem.size() == 0)
+	{
+		this->Destroy();
+	}
+	return true;
+}
+void GifImageBase::DeleteRender(GifImageRenderItem*  pItem)
+{
+	GifImageRenderItemMap::iterator iter = m_mapRenderItem.begin();	
+	GifImageRenderItemMap::iterator iterEnd = m_mapRenderItem.end();
+
+	for (; iter != iterEnd; iter++)
+	{
+		if (iter->second == pItem)
+		{
+			m_mapRenderItem.erase(iter);
+			break;
+		}
+	}
+	SAFE_DELETE(pItem);
+
+	if (m_mapRenderItem.size() == 0)
+	{
+		this->Destroy();
+	}
 }
 
 bool GifImageBase::SetTransparentColor(COLORREF colTransparent)
@@ -1028,16 +1085,31 @@ bool GifImageBase::SetTransparentColor(COLORREF colTransparent)
 }
 
 
-GifImageDrawItem*  GifImageBase::GetDrawItemByIndex(int nIndex)
+GifImageRenderItem*  GifImageBase::GetDrawItemByIndex(int nIndex)
 {
 	if (-1 == nIndex)
 		nIndex = 0;
 
-	GifImageDrawItemMap::iterator iter= m_mapDrawItem.find(nIndex);
-	if (iter == m_mapDrawItem.end())
+	GifImageRenderItemMap::iterator iter= m_mapRenderItem.find(nIndex);
+	if (iter == m_mapRenderItem.end())
 		return NULL;
 	else
 		return iter->second;
+}
+
+int GifImageRenderItem::GetWidth()
+{
+	if (NULL == m_pGifImage)
+		return 0;
+
+	return m_pGifImage->GetWidth();
+}
+int GifImageRenderItem::GetHeight()
+{
+	if (NULL == m_pGifImage)
+		return 0;
+
+	return m_pGifImage->GetHeight();
 }
 
 //
@@ -1045,17 +1117,20 @@ GifImageDrawItem*  GifImageBase::GetDrawItemByIndex(int nIndex)
 //
 void GifImageBase::Start(int nIndex)
 {
-	GifImageDrawItem* pItem = this->GetDrawItemByIndex(nIndex);
+	GifImageRenderItem* pItem = this->GetDrawItemByIndex(nIndex);
 	if (NULL == pItem)
 		return;
 	
 	pItem->Start();
 }
-void GifImageDrawItem::Start()
+void GifImageRenderItem::Start()
 {
 	int nSize = (int)m_pGifImage->m_vFrame.size();
 	if (nSize <= 0)
 		return ;
+
+	if (m_nDrawStatus == GIF_DRAW_STATUS_START)
+		return;
 
 	m_nDrawStatus = GIF_DRAW_STATUS_START;
 	if (nSize == 1)    // 单帧gif图片不需要使用计时器
@@ -1078,13 +1153,13 @@ void GifImageBase::Pause(int nIndex)
 	if (m_vFrame.size() <= 0)
 		return ;
 
-	GifImageDrawItem* pItem = this->GetDrawItemByIndex(nIndex);
+	GifImageRenderItem* pItem = this->GetDrawItemByIndex(nIndex);
 	if (NULL == pItem)
 		return;
 
 	pItem->Pause();
 }
-void GifImageDrawItem::Pause()
+void GifImageRenderItem::Pause()
 {
 	m_nDrawStatus = GIF_DRAW_STATUS_PAUSE;
 }
@@ -1093,13 +1168,13 @@ void GifImageBase::Stop(int nIndex)
 	if (m_vFrame.size() <= 0)
 		return ;
 
-	GifImageDrawItem* pItem = this->GetDrawItemByIndex(nIndex);
+	GifImageRenderItem* pItem = this->GetDrawItemByIndex(nIndex);
 	if (NULL == pItem)
 		return;
 
 	pItem->Stop();
 }
-void GifImageDrawItem::Stop()
+void GifImageRenderItem::Stop()
 {
 	// 刷新父窗口，这里需要注意进行同步，线程中的最后一次on_timer可能将下面的刷背景又覆盖了
 	EnterCriticalSection(&m_pGifImage->m_sect);
@@ -1117,13 +1192,13 @@ void GifImageDrawItem::Stop()
 //
 void GifImageBase::OnPaint(HDC hDC, int nIndex)
 {
-	GifImageDrawItem* pItem = this->GetDrawItemByIndex(nIndex);
+	GifImageRenderItem* pItem = this->GetDrawItemByIndex(nIndex);
 	if (NULL == pItem)
 		return;
 
 	pItem->OnPaint(hDC);
 }
-void GifImageDrawItem::OnPaint(HDC hDC)
+void GifImageRenderItem::OnPaint(HDC hDC)
 {
 	if (GIF_DRAW_STATUS_STOP == m_nDrawStatus)
 		return;
@@ -1138,13 +1213,13 @@ void GifImageDrawItem::OnPaint(HDC hDC)
 //
 void GifImageBase::OnPaint(HDC hDC, int x, int y, int nIndex)
 {
-	GifImageDrawItem* pItem = this->GetDrawItemByIndex(nIndex);
+	GifImageRenderItem* pItem = this->GetDrawItemByIndex(nIndex);
 	if (NULL == pItem)
 		return;
 
 	pItem->OnPaint(hDC, x, y);
 }
-void GifImageDrawItem::OnPaint(HDC hDC, int x, int y)
+void GifImageRenderItem::OnPaint(HDC hDC, int x, int y)
 {
 	if (GIF_DRAW_STATUS_STOP == m_nDrawStatus)
 		return;
@@ -1156,7 +1231,7 @@ void GifImageDrawItem::OnPaint(HDC hDC, int x, int y)
 	LeaveCriticalSection(&m_pGifImage->m_sect);
 }
 
-void GifImageDrawItem::commit(HDC hDC, int x, int y)
+void GifImageRenderItem::commit(HDC hDC, int x, int y)
 {
 	switch (m_notify.eType)
 	{
@@ -1182,13 +1257,13 @@ void GifImageDrawItem::commit(HDC hDC, int x, int y)
 
 GIF_DRAW_STATUS GifImageBase::GetStatus(int nIndex)
 {
-	GifImageDrawItem* pItem = this->GetDrawItemByIndex(nIndex);
+	GifImageRenderItem* pItem = this->GetDrawItemByIndex(nIndex);
 	if (NULL == pItem)
 		return GIF_DRAW_STATUS_STOP;
 
 	return pItem->GetStatus();
 }
-GIF_DRAW_STATUS GifImageDrawItem::GetStatus()
+GIF_DRAW_STATUS GifImageRenderItem::GetStatus()
 {
 	return m_nDrawStatus; 
 }
@@ -1196,7 +1271,7 @@ GIF_DRAW_STATUS GifImageDrawItem::GetStatus()
 //
 //	当一帧绘制完成后，并到达delay时间，将要绘制下一帧时，处理它的disposal
 //
-void GifImageDrawItem::handle_disposal(GIF_Frame* pFrame)
+void GifImageRenderItem::handle_disposal(GIF_Frame* pFrame)
 {
 	// 当pFrame为空时，默认就刷新整个图片的背景
 	int  nDisposal = GIF_DISPOSAL_RESTORE_BACKGROUND;
@@ -1239,7 +1314,7 @@ void GifImageDrawItem::handle_disposal(GIF_Frame* pFrame)
 //		pFrame
 //			[in]	要绘制的当前帧
 //
-void GifImageDrawItem::draw_frame(GIF_Frame* pFrame)
+void GifImageRenderItem::draw_frame(GIF_Frame* pFrame)
 {
 	if (NULL == pFrame)
 		return;
@@ -1273,7 +1348,7 @@ void GifImageDrawItem::draw_frame(GIF_Frame* pFrame)
 //
 // 注：在另一个线程中被调用
 //
-void GifImageDrawItem::on_timer(Gif_TimerItem* pTimerItem)  
+void GifImageRenderItem::on_timer(Gif_TimerItem* pTimerItem)  
 {
 	if (m_nDrawStatus != GIF_DRAW_STATUS_START)  
 	{
@@ -1283,7 +1358,6 @@ void GifImageDrawItem::on_timer(Gif_TimerItem* pTimerItem)
 	EnterCriticalSection(&m_pGifImage->m_sect);
 	if (m_nDrawStatus != GIF_DRAW_STATUS_START)
 	{
-		UIASSERT(0);  // 这里会被调用吗？
 		Gif_Timer_Factory::GetGifTimerEngine()->on_kill_timer((int)this, NULL);
 		return;
 	}

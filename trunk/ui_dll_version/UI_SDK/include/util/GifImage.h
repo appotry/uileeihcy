@@ -330,11 +330,14 @@ public:
 };
 
 // 一个GIF可能会在多处显示，因此GifImage类至少会包含一个GifImageDrawItem
-class GifImageDrawItem
+class GifImageRenderItem
 {
 public:
-	GifImageDrawItem(GifImageBase* pGifImage, Gif_Timer_Notify* pNotify);
-	~GifImageDrawItem();
+	GifImageRenderItem(GifImageBase* pGifImage, Gif_Timer_Notify* pNotify);
+protected:
+	~GifImageRenderItem();
+
+public:
 
 	void   Start();
 	void   Pause();
@@ -342,23 +345,23 @@ public:
 	void   OnPaint(HDC hDC);
 	void   OnPaint(HDC hDC, int x, int y);
 	GIF_DRAW_STATUS GetStatus();
-	bool   ModifyDrawParam(Gif_Timer_Notify* pNotify);
+	bool   ModifyRenderParam(Gif_Timer_Notify* pNotify); 
+	void   Release();
 
+	int    GetWidth();
+	int    GetHeight();
 
+protected:
 	void   draw_frame(GIF_Frame* pFrame);
 	int    get_next_frame_index();
 	void   handle_disposal(GIF_Frame* pFrame);
+	void   commit(HDC hDC, int x, int y);
 
 public:  // Gif绘制线程调用函数
 	void   on_timer(Gif_TimerItem* pTimerItem);   
 
 protected:
-	void   commit(HDC hDC, int x, int y);
-
-protected:
-	int    nIndex;    // 该GifImageDrawItem的标识
-
-	Gif_Timer_Notify  m_notify;             // 通知方式
+	Gif_Timer_Notify  m_notify;       // 到过绘制下一帧时间时的通知方式
 
 	HDC         m_hMemCanvasDC;       // m_hDC的兼容DC，双缓冲
 	HBITMAP     m_hMemCanvasBitmap;   // 双缓冲
@@ -369,10 +372,11 @@ protected:
 	GIF_DRAW_STATUS  m_nDrawStatus;   // 当前gif绘制状态:开始、暂停、停止
 
 	GifImageBase*    m_pGifImage;
-	friend class   GifImage;
+	friend class     GifImageBase;
+	friend class     GifImage;
 };
 
-typedef map<int, GifImageDrawItem*> GifImageDrawItemMap;
+typedef map<int, GifImageRenderItem*> GifImageRenderItemMap;
 
 class GifImageBase
 {
@@ -383,10 +387,14 @@ public:
 public:  // 外部接口
 	virtual bool   Load(const TCHAR* szPath, const ATTRMAP* pMapAttr=NULL) = 0;
 	virtual bool   Destroy() = 0;
+protected:
+	virtual bool   RealLoad() = 0;
 
+public:
 	bool   SetTransparentColor(COLORREF colTransparent = GetSysColor(COLOR_BTNFACE));
-	bool   AddDrawParam(Gif_Timer_Notify* pNotify, int* pIndex = NULL);
-	bool   ModifyDrawParam(Gif_Timer_Notify* pNotify, int nIndex=-1);
+	GifImageRenderItem*  AddRender(Gif_Timer_Notify* pNotify, int* pIndex = NULL);
+	bool   ModifyRender(Gif_Timer_Notify* pNotify, int nIndex=-1);
+	bool   DeleteRender(int nIndex=-1);
 
 	void   Start(int nIndex = -1);
 	void   Pause(int nIndex = -1);
@@ -401,7 +409,8 @@ public:  // 外部接口
 	GIF_Frame* GetFrame( int nIndex );
 
 protected:   // 内部接口
-	GifImageDrawItem*  GetDrawItemByIndex(int nIndex);
+	GifImageRenderItem*  GetDrawItemByIndex(int nIndex);
+	void    DeleteRender(GifImageRenderItem*  pItem);
 
 protected:
 	vector<GIF_Frame*>  m_vFrame;             // gif图片帧列表
@@ -410,8 +419,8 @@ protected:
 	int                 m_nImageWidth;        // 图片宽度
 	int                 m_nImageHeight;       // 图片高度
 
-	int                 m_nNextDrawItemIndex; // 下一个GifImageDrawItem的标识
-	GifImageDrawItemMap m_mapDrawItem;        // 绘图数据列表
+	int                 m_nNextRenderItemIndex; // 下一个GifImageDrawItem的标识
+	GifImageRenderItemMap m_mapRenderItem;        // 绘图数据列表
 
 	//////////////////////////////////////////////////////////////////////////
 	//
@@ -427,7 +436,7 @@ protected:
 	//////////////////////////////////////////////////////////////////////////
 	HBRUSH              m_hBrushTransparent;  // 用于实现透明的画刷
 
-	friend class GifImageDrawItem;
+	friend class GifImageRenderItem;
 };
 
 
@@ -439,8 +448,6 @@ public:
 
 protected:
 	int    skip_data_block(fstream& f, byte* pBits=NULL);
-	void   release_resource();
-
 	bool   decode_by_lzw(fstream& f, GIF_Frame* pFrame, int byte_LZW_code_size, byte* pColorTable, int nColorTableSize);
 	bool   decode_by_gdiplus(fstream& f, GIF_Frame* pFrame, int  nFrameStartPos, GIF_FileMark& header, GIF_LogicalScreenDescriptor& logicScreenDesc, byte* pColorTable, int nColorTableSize);
 	bool   decode_gif_image_transparent(GIF_Frame* pFrame, int nTransparentIndex);
@@ -448,7 +455,11 @@ protected:
 
 public:
 	bool   Load(const TCHAR* szPath, const ATTRMAP* pMapAttr=NULL);
+	bool   RealLoad();
 	bool   Destroy();
+
+private:
+	String  m_strFilePath;
 };
 
 
@@ -514,7 +525,8 @@ class PngListGifImage : public GifImageBase
 public:
 	bool   Load(const TCHAR* szPath, const ATTRMAP* pMapAttr=NULL){return false;};
 	bool   Destroy(){return false;}
-
+protected:
+	bool   RealLoad(){ return false; }
 protected:
 	Image  m_pngImage;
 };
