@@ -137,11 +137,11 @@ void Picture::OnPaint( HRDC hRDC )
 GifPicture::GifPicture()
 {
 	m_pGifImage = NULL;
-	b = true;
+	m_pGifBitmap = NULL;
 }
 GifPicture::~GifPicture()
 {
-	SAFE_DELETE(m_pGifImage);
+//	SAFE_DELETE(m_pGifImage);
 }
 
 SIZE GifPicture::GetAutoSize( HRDC hDC )
@@ -155,6 +155,13 @@ SIZE GifPicture::GetAutoSize( HRDC hDC )
 	return s;
 }
 
+void GifPicture::ResetAttribute()
+{
+	__super::ResetAttribute();
+	this->ModifyStyle(OBJECT_STYLE_TRANSPARENT, 0);  // 默认不透明
+	SAFE_RELEASE(m_pGifBitmap);
+	return;
+}
 bool GifPicture::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 {
 	bool bRet = __super::SetAttribute(mapAttrib, bReload);
@@ -166,16 +173,26 @@ bool GifPicture::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 	{
 		String& strPath = iter->second;
 
-		if (NULL == m_pGifImage)
+		IRenderBitmap* pBitmap = UI_GetBitmap(strPath);
+		if (NULL != pBitmap)
 		{
-			m_pGifImage = new GifImage;
+			m_pGifBitmap = dynamic_cast<GDIGifRenderBitmap*>(pBitmap);
+			if (NULL != m_pGifBitmap)
+			{
+				m_pGifImage = m_pGifBitmap->GetGifImage();
+
+				POINT pt = this->GetRealPosInWindow();
+ 				Gif_Timer_Notify notify(GetHWND(),pt.x + m_rcNonClient.left, pt.y + m_rcNonClient.top);
+//				Gif_Timer_Notify notify(static_cast<Message*>(this), 1);
+				m_pGifImage->AddDrawParam(&notify);
+				m_pGifImage->Start();
+			}
 		}
-		m_pGifImage->Destroy();
-		bool bRet = m_pGifImage->Load(strPath.c_str());
-		if (false == bRet)
+		else
 		{
 			UI_LOG_WARN(_T("%s load gif image failed. path=%s"), FUNC_NAME, strPath.c_str());
 		}
+
 		m_mapAttribute.erase(iter);
 	}
 
@@ -186,19 +203,27 @@ void GifPicture::OnPaint( HRDC hRDC )
 {
 	if (NULL != m_pGifImage)
 	{
-		if (b)
-		{
-			CRect rc;
-			this->GetWindowRect(&rc);
-			Gif_Timer_Notify notify(GetHWND(),rc.left, rc.top);
-			int nIndex = 0;
-			m_pGifImage->AddDrawParam(&notify, &nIndex);
-			m_pGifImage->Start();
-
-			b = false;
-		}
 		HDC hDC = GetHDC(hRDC);
 		m_pGifImage->OnPaint(hDC, 0,0);  // 因为HDC是已经带偏移量的，因此直接绘制在0,0即可
+		m_pGifImage->OnPaint(hDC, m_pGifImage->GetWidth(),0, 1);  // 因为HDC是已经带偏移量的，因此直接绘制在0,0即可
 		ReleaseHDC(hRDC, hDC);
+	}
+}
+
+void GifPicture::OnMove(CPoint ptPos)
+{
+	if (NULL != m_pGifImage)
+	{
+		POINT pt = this->GetRealPosInWindow();
+		Gif_Timer_Notify notify(GetHWND(),pt.x + m_rcNonClient.left, pt.y + m_rcNonClient.top);
+		m_pGifImage->ModifyDrawParam(&notify);
+	}
+}
+
+void GifPicture::OnTimer(UINT_PTR nIDEvent, LPARAM lParam)
+{
+	if (NULL != m_pGifImage && m_pGifImage->GetStatus() == GIF_DRAW_STATUS_START)
+	{
+		this->UpdateObject();
 	}
 }

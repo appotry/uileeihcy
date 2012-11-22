@@ -78,7 +78,7 @@ public:
 //	static void  CreateInstance( IRenderBitmap** pOutRef );
 
 public:
-	virtual bool  LoadFromFile( const String& strPath ) = 0;
+	virtual bool  LoadFromFile( const String& strPath, const ATTRMAP& mapAttrib ) = 0;
 	virtual int   GetWidth() = 0;
 	virtual int   GetHeight() = 0;
 
@@ -88,6 +88,7 @@ public:
 	virtual bool  SaveBits( ImageData* pImageData ) = 0;
 	virtual bool  ChangeHLS( const ImageData* pOriginImageData, short h, short l, short s, int nFlag ) = 0;
 	
+protected:
 	virtual void  SetAttribute( const ATTRMAP& mapAttrib ) = 0;
 };
 
@@ -105,7 +106,7 @@ public:
 class RenderBitmapFactory
 {
 public:
-	static void CreateInstance(IRenderBitmap** ppOut, GRAPHICS_RENDER_TYPE eGraphicsRenderType, const ATTRMAP& mapAttrib, const String& strPath);
+	static void CreateInstance(IRenderBitmap** ppOut, GRAPHICS_RENDER_TYPE eGraphicsRenderType, IMAGE_ITEM_TYPE eType, const String& strPath);
 };
 class  IRenderFont : public IRenderResource
 {

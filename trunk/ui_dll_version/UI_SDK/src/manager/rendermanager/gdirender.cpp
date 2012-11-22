@@ -144,12 +144,14 @@ void GDIIconRenderBitmap::SetAttribute( const ATTRMAP& mapAttrib )
 	}
 }
 
-bool GDIIconRenderBitmap::LoadFromFile( const String& strPath )
+bool GDIIconRenderBitmap::LoadFromFile( const String& strPath, const ATTRMAP& mapAttrib  )
 {
+	this->SetAttribute(mapAttrib);
+
 	if (! m_image.IsNull())
 		m_image.Destroy();
 
-	HICON hIcon = (HICON)::LoadImage ( NULL, strPath.c_str(), IMAGE_ICON, m_nIconWidth, m_nIconHeight, LR_LOADFROMFILE );
+	HICON hIcon = (HICON)::LoadImage(NULL, strPath.c_str(), IMAGE_ICON, m_nIconWidth, m_nIconHeight, LR_LOADFROMFILE);
 	if (NULL == hIcon)
 		return false;
 
@@ -168,6 +170,101 @@ bool GDIIconRenderBitmap::LoadFromFile( const String& strPath )
 	else
 		return true;
 }
+//////////////////////////////////////////////////////////////////////////
+
+GDIGifRenderBitmap::GDIGifRenderBitmap(IRenderBitmap** ppOutRef):IRenderBitmap((IRenderResource**)ppOutRef)
+{
+	 m_pGifImage = NULL;
+}
+GDIGifRenderBitmap::~GDIGifRenderBitmap()
+{
+	if (NULL != m_pGifImage)
+	{
+		m_pGifImage->Destroy();
+		SAFE_DELETE(m_pGifImage);
+	}
+}
+void GDIGifRenderBitmap::CreateInstance(IRenderBitmap** ppOutRef)
+{
+	UIASSERT(NULL != ppOutRef);
+	if (NULL == ppOutRef)
+		return;
+
+	GDIGifRenderBitmap* p = new GDIGifRenderBitmap(ppOutRef);
+	*ppOutRef = p;
+}
+
+bool GDIGifRenderBitmap::LoadFromFile(const String& strPath, const ATTRMAP& mapAttrib)
+{
+	if (NULL != m_pGifImage)
+	{
+		m_pGifImage->Destroy();
+		SAFE_DELETE(m_pGifImage);
+	}
+
+	String strType;
+	ATTRMAP::const_iterator iter = mapAttrib.find(XML_IMAGE_ITEM_TYPE);
+	if (iter != mapAttrib.end())
+	{
+		strType = iter->second;
+	}
+
+	if (strType == XML_IMAGE_ITEM_TYPE_GIF)
+	{
+		m_pGifImage = new GifImage;
+	}
+	else
+	{
+		m_pGifImage = new PngListGifImage;
+	}
+
+	bool bRet = m_pGifImage->Load(strPath.c_str(), &mapAttrib);
+	if (false == bRet)
+	{
+		UI_LOG_WARN(_T("%s load gif file failed. path=%s"), FUNC_NAME, strPath.c_str());
+	}
+	return bRet;
+}
+void GDIGifRenderBitmap::SetAttribute(const ATTRMAP& mapAttrib)
+{
+}
+
+int GDIGifRenderBitmap::GetWidth()
+{
+	if (NULL == m_pGifImage)
+		return 0;
+
+	return m_pGifImage->GetWidth();
+}
+int GDIGifRenderBitmap::GetHeight()
+{
+	if (NULL == m_pGifImage)
+		return 0;
+
+	return m_pGifImage->GetHeight();
+}
+
+BYTE* GDIGifRenderBitmap::LockBits()
+{
+	UIASSERT(0);
+	return NULL;
+}
+void GDIGifRenderBitmap::UnlockBits()
+{
+	UIASSERT(0);
+}
+
+bool GDIGifRenderBitmap::SaveBits(ImageData* pImageData)
+{
+	UIASSERT(0);
+	return false;
+}
+bool GDIGifRenderBitmap::ChangeHLS(const ImageData* pOriginImageData, short h, short l, short s, int nFlag)
+{
+	UIASSERT(0);
+	return false;
+}
+
 //////////////////////////////////////////////////////////////////////////
 #pragma  endregion
 

@@ -60,7 +60,13 @@ img.xml <- ImgXmlParse
 <?xml version="1.0" encoding="utf-8" ?>
 <...>
 	<img>
-		<item id="btn_4.png">img\btn.png</item>	   // id: 图片id，可起为图片名称    node data:图片路径，程序可自己转化成绝对路径
+		<item
+			id="btn_4.png"     // id: 图片id，可起为图片名称
+			type=""            // 图片类型:icon, imagelist, gif
+			useskinhls=""      // 是否参与色调改变: 0/1
+			count=""           // imagelist类型中图片项数量
+			width="" height="" // icon类型加载时指定的图片大小
+		>img\btn.png</item>	   // node data:图片路径，程序可自己转化成绝对路径。或者写成path=""属性
 	</img>
 </...>
 
@@ -89,7 +95,7 @@ font.xml <- FontXmlParse
  <?xml version="1.0" encoding="utf-8" ?>
  <...>
 	 <color>
-		<item id="black">255,255,255</item>			
+		<item id="black" useskinhls="">255,255,255</item>   // 是否参与色调改变: 0/1
 	 </color>
  </...>
 

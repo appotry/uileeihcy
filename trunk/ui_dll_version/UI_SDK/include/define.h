@@ -124,27 +124,28 @@ UI_RESOURCE_TYPE;
 #define XML_FONT_STRIKEOUT   _T("strikeout")  
 
 #define XML_IMAGE_USESKINHLS          _T("useskinhls")    // 改变皮肤色调时，该图片是否参与 0/1，默认为1
+
 #define XML_IMAGE_ITEM_TYPE           _T("type")          // image类型
 #define XML_IMAGE_ITEM_TYPE_IMAGE     _T("image")         // 默认值
 #define XML_IMAGE_ITEM_TYPE_ICON      _T("icon")          // 图标 
 #define XML_IMAGE_ITEM_TYPE_IMAGELIST _T("imagelist")     // 图片列表
+#define XML_IMAGE_ITEM_TYPE_GIF       _T("gif")           // gif图片
+#define XML_IMAGE_ITEM_TYPE_PNGLISTGIF _T("pnglistgif")   // png列表形式的gif图片
+enum IMAGE_ITEM_TYPE
+{
+	IMAGE_ITEM_TYPE_IMAGE,
+	IMAGE_ITEM_TYPE_ICON,
+	IMAGE_ITEM_TYPE_IMAGE_LIST,
+	IMAGE_ITEM_TYPE_GIF,
+	IMAGE_ITEM_TYPE_PNGLISTGIF
+};
+
 #define XML_IMAGE_ICON_WIDTH          _T("width")         // 要加载的图标宽度
 #define XML_IMAGE_ICON_HEIGHT         _T("height")        // 要加载的图标高度
 #define XML_IMAGE_IMAGELIST_COUNT     _T("count")         // 图片列表项的数目 
 #define XML_IMAGE_IMAGELIST_LAYOUT    _T("layout")        // 图片列表项的排布方式
 #define XML_IMAGE_IMAGELIST_LAYOUT_H  _T("h")  
 #define XML_IMAGE_IMAGELIST_LAYOUT_V  _T("v")
-
-enum IMAGE_ITEM_TYPE
-{
-	IMAGE_ITEM_TYPE_IMAGE,
-	IMAGE_ITEM_TYPE_ICON,
-	IMAGE_ITEM_TYPE_IMAGE_LIST,
-
-	// 将GIF不作为image type，而是做为一类control来实现
-//	IMAGE_ITEM_TYPE_GIF,  
-//	IMAGE_ITEM_TYPE_IMAGE_LIST_GIF
-};
 
 #define XML_COLOR_USESKINHLS          _T("useskinhls")    // 改变皮肤色调时，该颜色是否参与 0/1，默认为1
 

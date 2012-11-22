@@ -146,48 +146,51 @@ IRenderFont::IRenderFont(IRenderResource** ppOutRef) : IRenderResource(ppOutRef)
 {
 }
 
-void RenderBitmapFactory::CreateInstance(IRenderBitmap** ppOut, GRAPHICS_RENDER_TYPE eGraphicsRenderType, const ATTRMAP& mapAttrib, const String& strPath)
+void RenderBitmapFactory::CreateInstance(IRenderBitmap** ppOut, GRAPHICS_RENDER_TYPE eGraphicsRenderType, IMAGE_ITEM_TYPE eType, const String& strPath)
 {
 	if (NULL == ppOut)
 		return;
-
-	String strType;
-	ATTRMAP::const_iterator iter = mapAttrib.find(XML_IMAGE_ITEM_TYPE);
-	if (iter != mapAttrib.end())
-		strType = iter->second;
 
 	switch (eGraphicsRenderType)
 	{	
 	case GRAPHICS_RENDER_TYPE_GDI:
 		{
-			if (strType == XML_IMAGE_ITEM_TYPE_ICON)
+			if (eType == IMAGE_ITEM_TYPE_ICON)
+			{
 				GDIIconRenderBitmap::CreateInstance(ppOut);
-			else if (strType == XML_IMAGE_ITEM_TYPE_IMAGELIST)
+			}
+			else if (eType == IMAGE_ITEM_TYPE_IMAGE_LIST)
+			{
 				GDIImageListRenderBitmap::CreateInstance(ppOut);
+			}
+			else if (eType == IMAGE_ITEM_TYPE_GIF)
+			{
+				GDIGifRenderBitmap::CreateInstance(ppOut);
+			}
+			else if (eType == IMAGE_ITEM_TYPE_PNGLISTGIF)
+			{
+				GDIGifRenderBitmap::CreateInstance(ppOut);
+			}
 			else 
 			{
-				String strExt = strPath.substr(strPath.length()-4, 4);
-				if (0 == _tcsicmp(strExt.c_str(), _T(".ico")))
-					GDIIconRenderBitmap::CreateInstance(ppOut);
-				else
-					GDIRenderBitmap::CreateInstance(ppOut);
+				GDIRenderBitmap::CreateInstance(ppOut);
 			}
 		}
 		break;
 
 	case GRAPHICS_RENDER_TYPE_GDIPLUS:
 		{
-			if (strType == XML_IMAGE_ITEM_TYPE_ICON)
+			if (eType == IMAGE_ITEM_TYPE_ICON)
+			{
 				GdiplusIconRenderBitmap::CreateInstance(ppOut);
-			else if (strType == XML_IMAGE_ITEM_TYPE_IMAGELIST)
+			}
+			else if (eType == IMAGE_ITEM_TYPE_IMAGE_LIST)
+			{
 				GdiplusImageListRenderBitmap::CreateInstance(ppOut);
+			}
 			else 
 			{
-				String strExt = strPath.substr(strPath.length()-4, 4);
-				if (0 == _tcsicmp(strExt.c_str(), _T(".ico")))
-					GdiplusIconRenderBitmap::CreateInstance(ppOut);
-				else
-					GdiplusRenderBitmap::CreateInstance(ppOut);
+				GdiplusRenderBitmap::CreateInstance(ppOut);
 			}
 		}
 		break;
@@ -199,10 +202,10 @@ void RenderBitmapFactory::CreateInstance(IRenderBitmap** ppOut, GRAPHICS_RENDER_
 		break;
 	}
 
-	if (NULL != *ppOut)
-	{
-		(*ppOut)->SetAttribute(mapAttrib);
-	} 
+// 	if (NULL != *ppOut)
+// 	{
+// 		(*ppOut)->SetAttribute(mapAttrib);
+// 	} 
 }
  
 

@@ -23,8 +23,10 @@ public:
 	Image*  GetBitmap() { return &m_image; }
 
 public:
-	virtual bool  LoadFromFile( const String& strPath )
+	virtual bool  LoadFromFile(const String& strPath, const ATTRMAP& mapAttrib)
 	{
+		this->SetAttribute(mapAttrib);
+
 		if( ! m_image.IsNull() )
 		{
 			m_image.Destroy();
@@ -119,9 +121,9 @@ class GDIIconRenderBitmap : public GDIRenderBitmap
 protected:
 	GDIIconRenderBitmap(IRenderBitmap** ppOutRef);	
 public:
-	static  void CreateInstance( IRenderBitmap** pOutRef );
-	virtual void SetAttribute( const ATTRMAP& mapAttrib );
-	virtual bool  LoadFromFile( const String& strPath );
+	static  void  CreateInstance( IRenderBitmap** pOutRef );
+	virtual void  SetAttribute( const ATTRMAP& mapAttrib );
+	virtual bool  LoadFromFile( const String& strPath, const ATTRMAP& mapAttrib );
 private:
 	int    m_nIconWidth;
 	int    m_nIconHeight;
@@ -143,6 +145,32 @@ public:
 private:
 	IMAGELIST_LAYOUT_TYPE   m_eLayout;
 	int     m_nCount;
+};
+
+class GDIGifRenderBitmap : public IRenderBitmap
+{
+protected:
+	GDIGifRenderBitmap(IRenderBitmap** ppOutRef);
+	~GDIGifRenderBitmap();
+public:
+	static  void CreateInstance(IRenderBitmap** pOutRef);
+	virtual GRAPHICS_RENDER_TYPE GetRenderType() { return GRAPHICS_RENDER_TYPE_GDI; }
+
+	virtual bool  LoadFromFile(const String& strPath, const ATTRMAP& mapAttrib);
+	virtual void  SetAttribute(const ATTRMAP& mapAttrib);
+
+	virtual int   GetWidth();
+	virtual int   GetHeight();
+
+	virtual BYTE* LockBits();
+	virtual void  UnlockBits();
+
+	virtual bool  SaveBits( ImageData* pImageData );
+	virtual bool  ChangeHLS( const ImageData* pOriginImageData, short h, short l, short s, int nFlag );
+
+	GifImageBase*  GetGifImage() { return m_pGifImage; }
+protected:
+	GifImageBase*  m_pGifImage;
 };
 
 //////////////////////////////////////////////////////////////////////////

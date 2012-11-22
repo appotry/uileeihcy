@@ -212,8 +212,7 @@ CPojo_ImageItem::CPojo_ImageItem()
 
 	m_bUseSkinHLS = true;
 	m_bHasAlphaChannel = false;
-//	u.icon.m_nWidth = u.icon.m_nHeight = 0;
-
+	m_eType = IMAGE_ITEM_TYPE_IMAGE;
 }
 CPojo_ImageItem::~CPojo_ImageItem()
 {
@@ -236,10 +235,10 @@ HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType, bool* pbFi
 					*pbFirstTimeCreate = true;
 
 				//GDIRenderBitmap::CreateInstance( (IRenderBitmap**)&m_pGdiBitmap );
-				RenderBitmapFactory::CreateInstance((IRenderBitmap**)&m_pGdiBitmap, eRenderType, m_mapAttribute, m_strPath);
+				RenderBitmapFactory::CreateInstance((IRenderBitmap**)&m_pGdiBitmap, eRenderType, m_eType, m_strPath);
 				if( NULL != m_pGdiBitmap )
 				{
-					m_pGdiBitmap->LoadFromFile(m_strPath);
+					m_pGdiBitmap->LoadFromFile(m_strPath, m_mapAttribute);
 					UI_LOG_DEBUG(_T("%s gdi bitmap create: %s \tPtr=0x%08X"),FUNC_NAME, m_strID.c_str(), m_pGdiBitmap);
 				}
 				if (m_pGdiBitmap->GetBitmap()->HasAlphaChannel())
@@ -270,10 +269,10 @@ HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType, bool* pbFi
 					*pbFirstTimeCreate = true;
 
 				//GdiplusRenderBitmap::CreateInstance( (IRenderBitmap**)&m_pGdiplusBitmap );
-				RenderBitmapFactory::CreateInstance((IRenderBitmap**)&m_pGdiplusBitmap, eRenderType, m_mapAttribute, m_strPath);
+				RenderBitmapFactory::CreateInstance((IRenderBitmap**)&m_pGdiplusBitmap, eRenderType, m_eType, m_strPath);
 				if( NULL != m_pGdiplusBitmap )
 				{
-					m_pGdiplusBitmap->LoadFromFile(m_strPath);
+					m_pGdiplusBitmap->LoadFromFile(m_strPath, m_mapAttribute);
 					UI_LOG_DEBUG(_T("%s gdiplus bitmap create: %s \tPtr=0x%08X"), FUNC_NAME, m_strID.c_str(), m_pGdiplusBitmap );
 
 #if 1  // 转化为Gdi类型  <-- 但最后发现其实两者最后的绘制内存占用率也差不多....为什么呢？按理gdiplus应该比gdi慢N倍的
@@ -290,7 +289,7 @@ HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType, bool* pbFi
 							else
 								*pbFirstTimeCreate = false;
 
-							RenderBitmapFactory::CreateInstance((IRenderBitmap**)&m_pGdiBitmap, GRAPHICS_RENDER_TYPE_GDI, m_mapAttribute, m_strPath);
+							RenderBitmapFactory::CreateInstance((IRenderBitmap**)&m_pGdiBitmap, GRAPHICS_RENDER_TYPE_GDI, m_eType, m_strPath);
 							if (NULL != m_pGdiBitmap)
 							{
 								m_pGdiBitmap->GetBitmap()->CreateFromGdiplusBitmap(*pBitmap);
@@ -324,10 +323,10 @@ HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType, bool* pbFi
 				if (NULL != pbFirstTimeCreate)
 					*pbFirstTimeCreate = true;
 
-				RenderBitmapFactory::CreateInstance((IRenderBitmap**)&m_pDirect2DBitmap, eRenderType, m_mapAttribute, m_strPath);
+				RenderBitmapFactory::CreateInstance((IRenderBitmap**)&m_pDirect2DBitmap, eRenderType, m_eType, m_strPath);
 				if (NULL != m_pDirect2DBitmap)
 				{
-					m_pDirect2DBitmap->LoadFromFile(m_strPath);
+					m_pDirect2DBitmap->LoadFromFile(m_strPath, m_mapAttribute);
 					UI_LOG_DEBUG(_T("%s direct2d bitmap create: %s \tPtr=0x%08X"), FUNC_NAME, m_strID.c_str(), m_pDirect2DBitmap );
 				}
 			}
@@ -430,8 +429,42 @@ void CPojo_ImageItem::SetAttribute(const ATTRMAP& mapAttr)
 		if (strUseSkinHLS ==_T("0") || strUseSkinHLS == _T("false"))
 			bUseSkinHLS = false;
 	}
-
 	this->SetUseSkinHLS(bUseSkinHLS);
+
+	iter = mapAttr.find(XML_IMAGE_ITEM_TYPE);
+	if (iter != mapAttr.end())
+	{
+		const String& strType = iter->second;
+
+		if (strType == XML_IMAGE_ITEM_TYPE_ICON)
+		{
+			m_eType = IMAGE_ITEM_TYPE_ICON;
+		}
+		else if (strType == XML_IMAGE_ITEM_TYPE_IMAGELIST)
+		{
+			m_eType = IMAGE_ITEM_TYPE_IMAGE_LIST;
+		}
+		else if (strType == XML_IMAGE_ITEM_TYPE_GIF)
+		{
+			m_eType = IMAGE_ITEM_TYPE_GIF;
+		}
+		else if (strType == XML_IMAGE_ITEM_TYPE_PNGLISTGIF)
+		{
+			m_eType = IMAGE_ITEM_TYPE_PNGLISTGIF;
+		}
+		else 
+		{
+			String strExt = m_strPath.substr(m_strPath.length()-4, 4);
+			if (0 == _tcsicmp(strExt.c_str(), _T(".ico")))
+			{
+				m_eType = IMAGE_ITEM_TYPE_ICON;
+			}
+			else
+			{
+				m_eType = IMAGE_ITEM_TYPE_IMAGE;
+			}
+		}
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////

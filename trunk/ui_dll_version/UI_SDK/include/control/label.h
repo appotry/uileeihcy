@@ -80,16 +80,21 @@ public:
 
 	UI_BEGIN_MSG_MAP
 		UIMSG_WM_PAINT(OnPaint)
+		UIMSG_WM_MOVE(OnMove)
+		UIMSG_WM_TIMER(OnTimer)
 	UI_END_MSG_MAP_CHAIN_PARENT(Control)
 
 	// virtual º¯Êý
 	SIZE   GetAutoSize( HRDC hDC );
 	bool   SetAttribute( ATTRMAP& mapAttrib, bool bReload=false );
+	void   ResetAttribute();
 
 	void   OnPaint( HRDC hRDC );
+	void   OnMove(CPoint ptPos);
+	void   OnTimer(UINT_PTR nIDEvent, LPARAM lParam);
 
 private:
-	GifImage*   m_pGifImage;
-	bool b;
+	GDIGifRenderBitmap*  m_pGifBitmap; 
+	GifImageBase*        m_pGifImage;
 };
 }

@@ -82,7 +82,7 @@ public:
 	// needs recreated. (For more information about resources, see Resources 
 	// Overview.)
 	//
-	virtual bool  LoadFromFile(const String& strPath)
+	virtual bool  LoadFromFile(const String& strPath, const ATTRMAP& mapAttrib)
 	{
 		if (NULL == g_D2DGlobalData.m_pWICFactory)
 			g_D2DGlobalData.CreateD2D();
