@@ -31,6 +31,7 @@
                   textrender.font="normal">
       <Label text="线程 'Win32 线程' (0xe7c) 已退出，返回值为 0 (0x0)。" layout.left="10" layout.top="78"
              textrender.color="white"/>
+      <GifPicture layout.right="100" layout.top="100" path="aaa.gif"/>
       <Panel layout="stack" layout.right="2" layout.top="2" layout.direction="righttoleft">
         <Button id="sys_close" autosize="bkimage" drawfocus="0" istransparent="1"
                     bkgnd.render.type="imagelist"
@@ -65,6 +66,7 @@
     <item id="icon_restore.png" path="icon_restore.png"/>
     <item id="icon_max.png" path="icon_max.png"/>
     <item id="chatframe_surface.png" path="chatframe_surface.png"/>
+    <item type="gif" id="aaa.gif" path="c:\aaa.gif"/>
   </image>
   <font>
     <item id="normal" facename="宋体" size="9"/>

@@ -48,6 +48,8 @@ using namespace UI;
 #include <vector>
 using namespace std;
 
+namespace UI
+{
 #ifdef _DEBUG
 #define DEBUG_TRACE
 #endif
@@ -70,7 +72,8 @@ using namespace std;
 	#define GIFTRACE1_int(x,d)
 #endif
 
-class  GifImage;
+class  Message;
+class  GifImageBase;
 struct Gif_TimerItem  // 计时器数据
 {
 public:
@@ -330,7 +333,7 @@ public:
 class GifImageDrawItem
 {
 public:
-	GifImageDrawItem(GifImage* pGifImage, Gif_Timer_Notify* pNotify);
+	GifImageDrawItem(GifImageBase* pGifImage, Gif_Timer_Notify* pNotify);
 	~GifImageDrawItem();
 
 	void   Start();
@@ -339,6 +342,8 @@ public:
 	void   OnPaint(HDC hDC);
 	void   OnPaint(HDC hDC, int x, int y);
 	GIF_DRAW_STATUS GetStatus();
+	bool   ModifyDrawParam(Gif_Timer_Notify* pNotify);
+
 
 	void   draw_frame(GIF_Frame* pFrame);
 	int    get_next_frame_index();
@@ -348,7 +353,7 @@ public:  // Gif绘制线程调用函数
 	void   on_timer(Gif_TimerItem* pTimerItem);   
 
 protected:
-	void   commit();
+	void   commit(HDC hDC, int x, int y);
 
 protected:
 	int    nIndex;    // 该GifImageDrawItem的标识
@@ -363,34 +368,25 @@ protected:
 	int         m_nCurFrameIndex;     // 当前绘制帧索引
 	GIF_DRAW_STATUS  m_nDrawStatus;   // 当前gif绘制状态:开始、暂停、停止
 
-	GifImage*   m_pGifImage;
+	GifImageBase*    m_pGifImage;
 	friend class   GifImage;
 };
 
 typedef map<int, GifImageDrawItem*> GifImageDrawItemMap;
 
-class GifImage
+class GifImageBase
 {
 public:
-	GifImage();
-	~GifImage();
-
-protected:
-	int    skip_data_block(fstream& f, byte* pBits=NULL);
-	void   release_resource();
-
-	bool   decode_by_lzw(fstream& f, GIF_Frame* pFrame, int byte_LZW_code_size, byte* pColorTable, int nColorTableSize);
-	bool   decode_by_gdiplus(fstream& f, GIF_Frame* pFrame, int  nFrameStartPos, GIF_FileMark& header, GIF_LogicalScreenDescriptor& logicScreenDesc, byte* pColorTable, int nColorTableSize);
-	bool   decode_gif_image_transparent(GIF_Frame* pFrame, int nTransparentIndex);
-	void   build_one_frame_data(GIF_FileMark*, GIF_LogicalScreenDescriptor*, void* pColorTable, int nColorTableSize, void* pImageData, int nImageDataSize, void** ppOut, int* pOutSize  );
+	GifImageBase();
+	virtual ~GifImageBase();
 
 public:  // 外部接口
-	bool   Load(const TCHAR* szPath);
-	bool   Destroy();
-	
+	virtual bool   Load(const TCHAR* szPath, const ATTRMAP* pMapAttr=NULL) = 0;
+	virtual bool   Destroy() = 0;
+
 	bool   SetTransparentColor(COLORREF colTransparent = GetSysColor(COLOR_BTNFACE));
-	bool   AddDrawParam(Gif_Timer_Notify* pNotify, int* pIndex);
-	void   SetDrawPos(int x, int y);
+	bool   AddDrawParam(Gif_Timer_Notify* pNotify, int* pIndex = NULL);
+	bool   ModifyDrawParam(Gif_Timer_Notify* pNotify, int nIndex=-1);
 
 	void   Start(int nIndex = -1);
 	void   Pause(int nIndex = -1);
@@ -401,19 +397,14 @@ public:  // 外部接口
 
 	int    GetWidth()  { return m_nImageWidth; }
 	int    GetHeight() { return m_nImageHeight; }
-	int    GetDrawX()  { return 0/*m_nDrawX*/; }
-	int    GetDrawY()  { return 0/*m_nDrawY*/; }
-//	HWND   GetHWnd()   { return m_hWnd; }
-	int    GetFrameCount()      { return (int)m_vFrame.size(); }
-	GIF_Frame*      GetFrame( int nIndex );
+	int    GetFrameCount() { return (int)m_vFrame.size(); }
+	GIF_Frame* GetFrame( int nIndex );
 
 protected:   // 内部接口
 	GifImageDrawItem*  GetDrawItemByIndex(int nIndex);
 
-
 protected:
 	vector<GIF_Frame*>  m_vFrame;             // gif图片帧列表
-
 	CRITICAL_SECTION    m_sect;               // 线程数据保护
 
 	int                 m_nImageWidth;        // 图片宽度
@@ -421,12 +412,6 @@ protected:
 
 	int                 m_nNextDrawItemIndex; // 下一个GifImageDrawItem的标识
 	GifImageDrawItemMap m_mapDrawItem;        // 绘图数据列表
-
-//	int                 m_nDrawX;             // 图片显示位置
-//	int                 m_nDrawY;             // 图片显示位置
-//
-//	HWND                m_hWnd;               // 要绘制在哪个窗口上面（获取哪个窗口的DC）
-//	HDC                 m_hDC;                // m_hWnd的DC
 
 	//////////////////////////////////////////////////////////////////////////
 	//
@@ -442,8 +427,28 @@ protected:
 	//////////////////////////////////////////////////////////////////////////
 	HBRUSH              m_hBrushTransparent;  // 用于实现透明的画刷
 
-
 	friend class GifImageDrawItem;
+};
+
+
+class GifImage : public GifImageBase
+{
+public:
+	GifImage();
+	~GifImage();
+
+protected:
+	int    skip_data_block(fstream& f, byte* pBits=NULL);
+	void   release_resource();
+
+	bool   decode_by_lzw(fstream& f, GIF_Frame* pFrame, int byte_LZW_code_size, byte* pColorTable, int nColorTableSize);
+	bool   decode_by_gdiplus(fstream& f, GIF_Frame* pFrame, int  nFrameStartPos, GIF_FileMark& header, GIF_LogicalScreenDescriptor& logicScreenDesc, byte* pColorTable, int nColorTableSize);
+	bool   decode_gif_image_transparent(GIF_Frame* pFrame, int nTransparentIndex);
+	void   build_one_frame_data(GIF_FileMark*, GIF_LogicalScreenDescriptor*, void* pColorTable, int nColorTableSize, void* pImageData, int nImageDataSize, void** ppOut, int* pOutSize  );
+
+public:
+	bool   Load(const TCHAR* szPath, const ATTRMAP* pMapAttr=NULL);
+	bool   Destroy();
 };
 
 
@@ -500,3 +505,18 @@ private:
 	WORD   GIF_LZW_CLEAN_TAG;    // CLEAR标记的值
 	WORD   GIF_LZW_END_TAG;      // END标记的值
 };
+
+//
+//	png列表形式的GIF图片
+//
+class PngListGifImage : public GifImageBase
+{
+public:
+	bool   Load(const TCHAR* szPath, const ATTRMAP* pMapAttr=NULL){return false;};
+	bool   Destroy(){return false;}
+
+protected:
+	Image  m_pngImage;
+};
+
+}

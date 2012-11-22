@@ -124,9 +124,9 @@ void Gif_Timer::on_set_timer(Gif_TimerItem* pItem)
 	// 过滤相同ID
 	list<Gif_TimerItem*>::iterator iter = m_vItem.begin();
 	list<Gif_TimerItem*>::iterator iterEnd = m_vItem.end();
-	for ( ; iter != iterEnd; iter++ )
+	for (; iter != iterEnd; iter++)
 	{
-		if( (*iter)->nID == pItem->nID)
+		if ((*iter)->nID == pItem->nID)
 			return;
 	}
 
@@ -349,7 +349,7 @@ Gif_Timer_Notify::Gif_Timer_Notify(Message* pNotifyObj, UINT nTimerID)
 	notify_ui_msg.pNotifyMsgObj = pNotifyObj;
 }
 
-GifImageDrawItem::GifImageDrawItem(GifImage* pGifImage, Gif_Timer_Notify* pNotify)
+GifImageDrawItem::GifImageDrawItem(GifImageBase* pGifImage, Gif_Timer_Notify* pNotify)
 {
 	m_pGifImage = pGifImage;
 	m_nCurFrameIndex = 0;
@@ -382,6 +382,10 @@ GifImageDrawItem::GifImageDrawItem(GifImage* pGifImage, Gif_Timer_Notify* pNotif
 	m_hMemCanvasBitmap = image.Detach();
 
 	/*HBITMAP hOldBmp = */(HBITMAP)::SelectObject(m_hMemCanvasDC, m_hMemCanvasBitmap);
+
+	RECT rcBack = {0,0, m_pGifImage->GetWidth(),m_pGifImage->GetHeight()};
+	::FillRect( m_hMemCanvasDC,&rcBack,m_pGifImage->m_hBrushTransparent);
+//	::FillRect( m_hMemPrevSaveDC,&rcBack,m_hBrushTransparent);
 }
 
 GifImageDrawItem::~GifImageDrawItem()
@@ -419,26 +423,50 @@ GifImageDrawItem::~GifImageDrawItem()
 	}
 }
 
+bool GifImageDrawItem::ModifyDrawParam(Gif_Timer_Notify* pNotify)
+{
+	if (NULL == pNotify)
+		return false;
+
+	EnterCriticalSection(&m_pGifImage->m_sect);
+	if (NULL != m_notify.notify_hwnd.hDC)
+	{
+		::ReleaseDC(m_notify.notify_hwnd.hWnd, m_notify.notify_hwnd.hDC);
+		m_notify.notify_hwnd.hDC = NULL;
+	}
+
+	::memcpy(&m_notify, pNotify, sizeof(Gif_Timer_Notify));
+	if (NULL != m_notify.notify_hwnd.hWnd)
+		m_notify.notify_hwnd.hDC = ::GetDC(m_notify.notify_hwnd.hWnd);
+
+	LeaveCriticalSection(&m_pGifImage->m_sect);
+	return true;
+}
 #pragma endregion
 //////////////////////////////////////////////////////////////////////////
 
-GifImage::GifImage()
+GifImageBase::GifImageBase()
 {
 	m_hBrushTransparent = NULL;
 	m_nNextDrawItemIndex = 0;
+	m_nImageWidth = 0;
+	m_nImageHeight = 0;
 
 	InitializeCriticalSection(&m_sect);
 }
-
+GifImageBase::~GifImageBase()
+{
+	DeleteCriticalSection(&m_sect);
+}
+GifImage::GifImage()
+{
+}
 GifImage::~GifImage()
 {
 	this->Destroy();
-
-	DeleteCriticalSection(&m_sect);
 }
 bool GifImage::Destroy()
 {
-	
 	EnterCriticalSection(&m_sect);
 	int nSize = (int) m_vFrame.size();
 	for (int i = 0; i < nSize; i++)
@@ -458,7 +486,7 @@ void GifImage::release_resource()
 {
 	GifImageDrawItemMap::iterator iter = m_mapDrawItem.begin();
 	GifImageDrawItemMap::iterator iterEnd = m_mapDrawItem.end();
-	for (; iter != iterEnd;)
+	for (; iter != iterEnd; iter++)
 	{
 		GifImageDrawItem* pItem = iter->second;
 		SAFE_DELETE(pItem);
@@ -549,7 +577,7 @@ void GifImage::build_one_frame_data(
 //
 //	使用路径进行文件GIF加载
 //
-bool GifImage::Load(const TCHAR* szPath)
+bool GifImage::Load(const TCHAR* szPath, const ATTRMAP* pMapAttr)
 {
 	UIASSERT(0 == m_vFrame.size());
 
@@ -944,7 +972,7 @@ int GifImageDrawItem::get_next_frame_index()
 
 	return nIndex;
 }
-GIF_Frame* GifImage::GetFrame(int nIndex)
+GIF_Frame* GifImageBase::GetFrame(int nIndex)
 {
 	if( nIndex < 0 || nIndex >= (int)m_vFrame.size() )
 		return NULL;
@@ -958,40 +986,49 @@ GIF_Frame* GifImage::GetFrame(int nIndex)
 //	Return
 //		成功返回TRUE，失败返回FALSE
 //
-bool GifImage::AddDrawParam(Gif_Timer_Notify* pNotify, int* pIndex)
+bool GifImageBase::AddDrawParam(Gif_Timer_Notify* pNotify, int* pIndex)
 {
-	if (m_vFrame.size() <= 0 || NULL == pNotify || NULL == pIndex)
+	if (m_vFrame.size() <= 0 || NULL == pNotify)
 		return false;
+
+	if (NULL == m_hBrushTransparent)
+	{
+		this->SetTransparentColor();
+	}
 
 	GifImageDrawItem* pDrawItem = new GifImageDrawItem(this, pNotify);
 	m_mapDrawItem.insert(make_pair(m_nNextDrawItemIndex, pDrawItem));
-	*pIndex = m_nNextDrawItemIndex;
+	
+	if (NULL != pIndex)
+	{
+		*pIndex = m_nNextDrawItemIndex;
+	}
 	m_nNextDrawItemIndex++;
 
-	return TRUE;
+	return true;
+}
+bool GifImageBase::ModifyDrawParam(Gif_Timer_Notify* pNotify, int nIndex)
+{
+	if (m_vFrame.size() <= 0 || NULL == pNotify)
+		return false;
+
+	GifImageDrawItem* pItem = this->GetDrawItemByIndex(nIndex);
+	if (NULL == pItem)
+		return false;
+
+	return pItem->ModifyDrawParam(pNotify);
 }
 
-bool GifImage::SetTransparentColor(COLORREF colTransparent)
+bool GifImageBase::SetTransparentColor(COLORREF colTransparent)
 {
 	SAFE_DELETE_GDIOBJECT(m_hBrushTransparent);
 	m_hBrushTransparent = ::CreateSolidBrush(colTransparent);
 
 	return true;
-//	RECT rcBack = {0,0, this->GetWidth(),this->GetHeight()};
-//	::FillRect( m_hMemCanvasDC,&rcBack,m_hBrushTransparent);
-//	::FillRect( m_hMemPrevSaveDC,&rcBack,m_hBrushTransparent);
 }
 
-//
-//	更新显示位置
-//
-void GifImage::SetDrawPos( int x, int y )
-{
-// 	m_nDrawX = x;
-// 	m_nDrawY = y;
-}
 
-GifImageDrawItem*  GifImage::GetDrawItemByIndex(int nIndex)
+GifImageDrawItem*  GifImageBase::GetDrawItemByIndex(int nIndex)
 {
 	if (-1 == nIndex)
 		nIndex = 0;
@@ -1006,7 +1043,7 @@ GifImageDrawItem*  GifImage::GetDrawItemByIndex(int nIndex)
 //
 //	TODO: 如何实现立即显示第一帧数据
 //
-void GifImage::Start(int nIndex)
+void GifImageBase::Start(int nIndex)
 {
 	GifImageDrawItem* pItem = this->GetDrawItemByIndex(nIndex);
 	if (NULL == pItem)
@@ -1026,7 +1063,7 @@ void GifImageDrawItem::Start()
 		EnterCriticalSection(&m_pGifImage->m_sect);
 		handle_disposal(NULL);                           // 刷背景
 		draw_frame( m_pGifImage->GetFrame(m_nCurFrameIndex));   // 绘制第一帧到m_hMemCanvasDC中
-		commit();
+		commit(m_notify.notify_hwnd.hDC, m_notify.notify_hwnd.x,m_notify.notify_hwnd.y);
 		LeaveCriticalSection(&m_pGifImage->m_sect);
 	}
 	else
@@ -1036,7 +1073,7 @@ void GifImageDrawItem::Start()
 	}
 }
 
-void GifImage::Pause(int nIndex)
+void GifImageBase::Pause(int nIndex)
 {
 	if (m_vFrame.size() <= 0)
 		return ;
@@ -1051,7 +1088,7 @@ void GifImageDrawItem::Pause()
 {
 	m_nDrawStatus = GIF_DRAW_STATUS_PAUSE;
 }
-void GifImage::Stop(int nIndex)
+void GifImageBase::Stop(int nIndex)
 {
 	if (m_vFrame.size() <= 0)
 		return ;
@@ -1070,7 +1107,7 @@ void GifImageDrawItem::Stop()
 	m_nDrawStatus = GIF_DRAW_STATUS_STOP;
 
 	handle_disposal(NULL);  // 刷背景
-	this->commit();
+	this->commit(m_notify.notify_hwnd.hDC, m_notify.notify_hwnd.x,m_notify.notify_hwnd.y);
 
 	LeaveCriticalSection(&m_pGifImage->m_sect);
 }
@@ -1078,7 +1115,7 @@ void GifImageDrawItem::Stop()
 //
 //	外部窗口调用
 //
-void GifImage::OnPaint(HDC hDC, int nIndex)
+void GifImageBase::OnPaint(HDC hDC, int nIndex)
 {
 	GifImageDrawItem* pItem = this->GetDrawItemByIndex(nIndex);
 	if (NULL == pItem)
@@ -1091,15 +1128,15 @@ void GifImageDrawItem::OnPaint(HDC hDC)
 	if (GIF_DRAW_STATUS_STOP == m_nDrawStatus)
 		return;
 
-	EnterCriticalSection(&m_pGifImage->m_sect);
-	this->commit();
-	LeaveCriticalSection(&m_pGifImage->m_sect);
+//	EnterCriticalSection(&m_pGifImage->m_sect);
+//	this->commit(m_notify.notify_hwnd.hDC, m_notify.notify_hwnd.x,m_notify.notify_hwnd.y);
+//	LeaveCriticalSection(&m_pGifImage->m_sect);
 }
 
 //
 //	UI控件调用，x,y为控件内部坐标，如(0,0)
 //
-void GifImage::OnPaint(HDC hDC, int x, int y, int nIndex)
+void GifImageBase::OnPaint(HDC hDC, int x, int y, int nIndex)
 {
 	GifImageDrawItem* pItem = this->GetDrawItemByIndex(nIndex);
 	if (NULL == pItem)
@@ -1113,32 +1150,37 @@ void GifImageDrawItem::OnPaint(HDC hDC, int x, int y)
 		return;
 
 	EnterCriticalSection(&m_pGifImage->m_sect);
-	//::BitBlt(hDC, x, y, this->GetWidth(), this->GetHeight(), m_hMemCanvasDC,0,0,SRCCOPY);
-	UIASSERT(0);
-	this->commit();
+	//this->commit(hDC, x, y);
+	::BitBlt(hDC, x, y, 
+		m_pGifImage->GetWidth(), m_pGifImage->GetHeight(),m_hMemCanvasDC,0,0,SRCCOPY);
 	LeaveCriticalSection(&m_pGifImage->m_sect);
 }
 
-void GifImageDrawItem::commit()
+void GifImageDrawItem::commit(HDC hDC, int x, int y)
 {
 	switch (m_notify.eType)
 	{
 	case Gif_Timer_Notify_Direct_Hwnd:
-		if (NULL != m_notify.notify_hwnd.hDC)
+		if (NULL != hDC)
 		{
-			::BitBlt(m_notify.notify_hwnd.hDC,m_notify.notify_hwnd.x,m_notify.notify_hwnd.y, 
+			::BitBlt(hDC, x, y, 
 				m_pGifImage->GetWidth(), m_pGifImage->GetHeight(),m_hMemCanvasDC,0,0,SRCCOPY);
 		}
 		break;
 	case Gif_Timer_Notify_Post_Thread_Msg:
 		{		
 			// 转发到界面线程
+			UIMSG msg;
+			msg.message = WM_TIMER;
+			msg.wParam = m_notify.notify_ui_msg.nTimerID;
+			msg.pObjMsgTo = m_notify.notify_ui_msg.pNotifyMsgObj;
+			UIPostMessage(&msg);
 		}
 		break;
 	}
 }
 
-GIF_DRAW_STATUS GifImage::GetStatus(int nIndex)
+GIF_DRAW_STATUS GifImageBase::GetStatus(int nIndex)
 {
 	GifImageDrawItem* pItem = this->GetDrawItemByIndex(nIndex);
 	if (NULL == pItem)
@@ -1266,7 +1308,7 @@ void GifImageDrawItem::on_timer(Gif_TimerItem* pTimerItem)
 
 	GIF_Frame* pFrame = m_pGifImage->GetFrame(m_nCurFrameIndex);
 	draw_frame(pFrame);
-	this->commit();
+	this->commit(m_notify.notify_hwnd.hDC, m_notify.notify_hwnd.x,m_notify.notify_hwnd.y);
 
 	// 为了避免频繁的更新列表，在这里每次仅更新Gif_timer_item里面的数据，而不是删除再添加一个
 	int nNextFrameIndex = get_next_frame_index();

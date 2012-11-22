@@ -32,8 +32,10 @@ public:
 	//		因此在这里先使用GDI DrawIcon获取一次完整的数据
 	//		TODO: 这里只默认支持16*16大小的，ico中其它大小的图标暂时没有增加接口分别加载
 	//
-	virtual bool  LoadFromFile( const String& strPath )
+	virtual bool  LoadFromFile( const String& strPath, const ATTRMAP& mapAttrib )
 	{
+		this->SetAttribute(mapAttrib);
+
 		SAFE_DELETE(m_pBitmap);
 		m_pBitmap = Gdiplus::Bitmap::FromFile(strPath.c_str());
 
@@ -317,9 +319,9 @@ protected:
 	GdiplusIconRenderBitmap(IRenderBitmap** ppOutRef);	
 public:
 	~GdiplusIconRenderBitmap();
-	static  void CreateInstance( IRenderBitmap** pOutRef );
-	virtual void SetAttribute( const ATTRMAP& mapAttrib );
-	virtual bool  LoadFromFile( const String& strPath );
+	static  void  CreateInstance( IRenderBitmap** pOutRef );
+	virtual void  SetAttribute( const ATTRMAP& mapAttrib );
+	virtual bool  LoadFromFile( const String& strPath, const ATTRMAP& mapAttrib );
 protected:
 	int    m_nIconWidth;
 	int    m_nIconHeight;
