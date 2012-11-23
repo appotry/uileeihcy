@@ -192,6 +192,7 @@ public:
 //	virtual HRDC     CreateCompatibleHRDC( int nWidth, int nHeight );
 	virtual HDC      GetHDC();
 	virtual void     ReleaseHDC( HDC hDC );
+	virtual HDC      GetOriginHDC();
 
 	virtual HRGN     GetClipRgn();
 	virtual int      SelectClipRgn( HRGN hRgn, int nMode = RGN_COPY );

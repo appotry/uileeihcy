@@ -30,7 +30,7 @@ long UISendMessage(UIMSG* pMsg, int nMsgMapID, BOOL* pbHandled)
 		return -1;
 	}
 	BOOL bRet = pMessageTo->ProcessMessage(pMsg, nMsgMapID);
-	if (NULL != pbHandled)
+	if (NULL != pbHandled) 
 	{
 		*pbHandled = bRet;
 	}

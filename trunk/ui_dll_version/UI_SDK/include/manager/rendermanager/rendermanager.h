@@ -141,6 +141,7 @@ public:
 
 	virtual HDC      GetHDC() = 0;
 	virtual void     ReleaseHDC( HDC hDC ) = 0;
+	virtual HDC      GetOriginHDC() = 0;
 
 	virtual HRGN     GetClipRgn() = 0;
 	virtual int      SelectClipRgn( HRGN hRgn, int nMode = RGN_COPY ) = 0;

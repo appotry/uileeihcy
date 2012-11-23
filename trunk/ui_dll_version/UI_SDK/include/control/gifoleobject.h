@@ -17,10 +17,10 @@ public:
 };
 
 
-class GifOleObject : public IGifOleObject, public RichEditOleObjectItem
+class GifOleObject : public IGifOleObject, public RichEditOleObjectItem, public Message
 {
 public:
-	GifOleObject(GifImageItemMgr* pMgr);
+	GifOleObject(CPojo_Gif* pGifMgr);
 	~GifOleObject();
 
 // public:
@@ -36,59 +36,65 @@ public:
 	virtual HRESULT OnGetSize(SIZE* pSize);
 #pragma endregion
 
+	UI_BEGIN_MSG_MAP
+		UIMSG_WM_TIMER(OnTimer)
+	UI_END_MSG_MAP
+
+	void OnTimer(UINT_PTR nIDEvent, LPARAM lParam);
+
 protected:
-	GifImageItem*    m_pGifItem;
-	GifImageItemMgr* m_pGifItemMgr;
+	GifImageRenderItem*    m_pGifRenderItem;
+	CPojo_Gif*       m_pGifMgr;
 };
 
 
 // gif图像管理。如果将同一gif文件插入多次，则只保留一份内存
-enum GifImageLoadType
-{
-	GifImageLoadType_None,
-	GifImageLoadType_File,
-	GifImageLoadType_ImageID,
-};
-
-// 一个GIF文件对应一个GifImageItem
-// 可能多个GifOleObject关联一个GifImageItem::GifImage对象
-class GifImageItem
-{
-public:
-	GifImageItem();
-	~GifImageItem();
-	int       AddRef();
-	int       Release();
-
-protected:
-	// 由GigImageItemMgr调用的函数
-	bool      LoadGifByPath(const TCHAR* szFilePath); 
-
-public:
-	TCHAR*             m_szFileIDorName;
-	GifImageLoadType   m_eFileLoadType;  
-	GifImage*          m_pGif;
-
-protected:
-	int       m_dwRef;
-
-	friend class GifImageItemMgr;
-};
-
-// 管理 GifImageItem
-class GifImageItemMgr
-{
-public:
-	GifImageItemMgr(){};
-	~GifImageItemMgr(){};
-
-	bool   LoadGifByPath(const TCHAR* szFilePath, GifImageItem** ppGifImageItem);
-	bool   LoadGifByID(const TCHAR* szImageID, GifImageItem** ppGifImageItem);
-
-protected:
-	GifImageItem*  FindItem(GifImageLoadType eType, const TCHAR* szFileIDorName);
-
-protected:
-	list<GifImageItem*>   m_listGifImageFile;
-};
+// enum GifImageLoadType
+// {
+// 	GifImageLoadType_None,
+// 	GifImageLoadType_File,
+// 	GifImageLoadType_ImageID,
+// };
+// 
+// // 一个GIF文件对应一个GifImageItem
+// // 可能多个GifOleObject关联一个GifImageItem::GifImage对象
+// class GifImageItem
+// {
+// public:
+// 	GifImageItem();
+// 	~GifImageItem();
+// 	int       AddRef();
+// 	int       Release();
+// 
+// protected:
+// 	// 由GigImageItemMgr调用的函数
+// 	bool      LoadGifByPath(const TCHAR* szFilePath); 
+// 
+// public:
+// 	TCHAR*             m_szFileIDorName;
+// 	GifImageLoadType   m_eFileLoadType;  
+// 	GifImage*          m_pGif;
+// 
+// protected:
+// 	int       m_dwRef;
+// 
+// 	friend class GifImageItemMgr;
+// };
+// 
+// // 管理 GifImageItem
+// class GifImageItemMgr
+// {
+// public:
+// 	GifImageItemMgr(){};
+// 	~GifImageItemMgr(){};
+// 
+// 	bool   LoadGifByPath(const TCHAR* szFilePath, GifImageItem** ppGifImageItem);
+// 	bool   LoadGifByID(const TCHAR* szImageID, GifImageItem** ppGifImageItem);
+// 
+// protected:
+// 	GifImageItem*  FindItem(GifImageLoadType eType, const TCHAR* szFileIDorName);
+// 
+// protected:
+// 	list<GifImageItem*>   m_listGifImageFile;
+// };
 }

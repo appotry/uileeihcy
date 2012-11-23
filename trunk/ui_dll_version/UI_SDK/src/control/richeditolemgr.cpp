@@ -152,7 +152,7 @@ RichEditOleObjectManager::RichEditOleObjectManager(WindowlessRichEdit* pRichEdit
 {
 	m_pRichEdit = pRichEdit;
 	m_dwIndex = 0;
-	m_pGifImageItemMgr = new GifImageItemMgr();
+//	m_pGifImageItemMgr = new GifImageItemMgr();
 }
 RichEditOleObjectManager::~RichEditOleObjectManager()
 {
@@ -163,7 +163,7 @@ RichEditOleObjectManager::~RichEditOleObjectManager()
 		iter->second->Release();
 	}
 	m_mapOleObject.clear();
-	SAFE_DELETE(m_pGifImageItemMgr);
+//	SAFE_DELETE(m_pGifImageItemMgr);
 }
 
 bool RichEditOleObjectManager::AddOleItem(RichEditOleObjectItem* pItem)

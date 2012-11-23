@@ -307,7 +307,7 @@ class Gif_Timer_Notify
 public:
 	Gif_Timer_Notify();
 	Gif_Timer_Notify(HWND hWnd, int x, int y);
-	Gif_Timer_Notify(Message* pNotifyObj, UINT nTimerID);
+	Gif_Timer_Notify(Message* pNotifyObj, UINT nTimerID, LPARAM lParam=NULL);
 
 	Gif_Timer_Notify_Type  eType;
 	union
@@ -324,6 +324,7 @@ public:
 		{
 			Message*   pNotifyMsgObj;
 			UINT       nTimerID;
+			LPARAM     lParam;
 
 		}notify_ui_msg;
 	};
