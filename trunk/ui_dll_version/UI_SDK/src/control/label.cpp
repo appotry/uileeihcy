@@ -47,7 +47,7 @@ void Label::ResetAttribute()
 {
 	Control::ResetAttribute();
 
-	this->ModifyStyle( OBJECT_STYLE_TRANSPARENT );
+	this->ModifyStyle(0, OBJECT_STYLE_TRANSPARENT);
 }
 bool Label::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 {
@@ -157,7 +157,7 @@ SIZE GifPicture::GetAutoSize( HRDC hDC )
 void GifPicture::ResetAttribute()
 {
 	__super::ResetAttribute();
-	this->ModifyStyle(OBJECT_STYLE_TRANSPARENT, 0);  // 默认不透明
+	this->ModifyStyle(0, OBJECT_STYLE_TRANSPARENT);  // 默认不透明
 	return;
 }
 bool GifPicture::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
@@ -176,9 +176,9 @@ bool GifPicture::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 		{
 			SAFE_RELEASE(m_pGifRender);
 
-			POINT pt = this->GetRealPosInWindow();
-			Gif_Timer_Notify notify(GetHWND(), pt.x + m_rcNonClient.left, pt.y + m_rcNonClient.top);
-//			Gif_Timer_Notify notify(static_cast<Message*>(this), 1);
+//			POINT pt = this->GetRealPosInWindow();
+//			Gif_Timer_Notify notify(GetHWND(), pt.x + m_rcNonClient.left, pt.y + m_rcNonClient.top);
+			Gif_Timer_Notify notify(static_cast<Message*>(this), 1);
 			m_pGifRender = pGifImage->AddRender(&notify);
 			m_pGifRender->Start();
 		}
@@ -193,13 +193,15 @@ bool GifPicture::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 	return true;
 }
 
-void GifPicture::OnPaint( HRDC hRDC )
+void GifPicture::OnPaint(IRenderTarget* pRenderTarget)
 {
 	if (NULL != m_pGifRender)
 	{
-		HDC hDC = GetHDC(hRDC);
+		// GIF都是直接带alpha通道的，可以用原始HDC绘制。否则使用Gdipulus::Graphics.GetHDC
+		// 会大大降低绘制效率
+		HDC hDC = pRenderTarget->GetOriginHDC(); 
+		                                                      
 		m_pGifRender->OnPaint(hDC, 0,0);  // 因为HDC是已经带偏移量的，因此直接绘制在0,0即可
-		ReleaseHDC(hRDC, hDC);
 	}
 }
 
@@ -207,9 +209,9 @@ void GifPicture::OnMove(CPoint ptPos)
 {
 	if (NULL != m_pGifRender)
 	{
-		POINT pt = this->GetRealPosInWindow();
-		Gif_Timer_Notify notify(GetHWND(),pt.x + m_rcNonClient.left, pt.y + m_rcNonClient.top);
-		m_pGifRender->ModifyRenderParam(&notify);
+// 		POINT pt = this->GetRealPosInWindow();
+// 		Gif_Timer_Notify notify(GetHWND(),pt.x + m_rcNonClient.left, pt.y + m_rcNonClient.top);
+// 		m_pGifRender->ModifyRenderParam(&notify);
 	}
 }
 

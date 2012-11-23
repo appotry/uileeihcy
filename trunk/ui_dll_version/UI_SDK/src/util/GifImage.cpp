@@ -342,11 +342,12 @@ Gif_Timer_Notify::Gif_Timer_Notify(HWND hWnd, int x, int y)
 	notify_hwnd.x = x;
 	notify_hwnd.y = y;
 }
-Gif_Timer_Notify::Gif_Timer_Notify(Message* pNotifyObj, UINT nTimerID)
+Gif_Timer_Notify::Gif_Timer_Notify(Message* pNotifyObj, UINT nTimerID, LPARAM lParam)
 {
 	eType = Gif_Timer_Notify_Post_Thread_Msg;
 	notify_ui_msg.nTimerID = nTimerID;
 	notify_ui_msg.pNotifyMsgObj = pNotifyObj;
+	notify_ui_msg.lParam = lParam;
 }
 
 GifImageRenderItem::GifImageRenderItem(GifImageBase* pGifImage, Gif_Timer_Notify* pNotify)
@@ -367,6 +368,7 @@ GifImageRenderItem::GifImageRenderItem(GifImageBase* pGifImage, Gif_Timer_Notify
 	m_notify.notify_hwnd.x = m_notify.notify_hwnd.y = 0;
 	m_notify.notify_ui_msg.nTimerID = 0;
 	m_notify.notify_ui_msg.pNotifyMsgObj = NULL;
+	m_notify.notify_ui_msg.lParam = 0;
 
 	if (NULL != pNotify)
 	{
@@ -1248,6 +1250,7 @@ void GifImageRenderItem::commit(HDC hDC, int x, int y)
 			UIMSG msg;
 			msg.message = WM_TIMER;
 			msg.wParam = m_notify.notify_ui_msg.nTimerID;
+			msg.lParam = m_notify.notify_ui_msg.lParam;
 			msg.pObjMsgTo = m_notify.notify_ui_msg.pNotifyMsgObj;
 			UIPostMessage(&msg);
 		}

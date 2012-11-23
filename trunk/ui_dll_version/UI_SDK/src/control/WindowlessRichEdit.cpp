@@ -1201,7 +1201,7 @@ bool WindowlessRichEdit::InsertOleObject(RichEditOleObjectItem* pItem)
 }
 bool WindowlessRichEdit::InsertGif(const TCHAR* szGifPath)
 {
-	GifOleObject* pGifOle = new GifOleObject(m_pOleMgr->GetGifImageItemMgr());
+	GifOleObject* pGifOle = new GifOleObject(m_pOleMgr->GetGifManager());
 	HRESULT hr = pGifOle->LoadGif(szGifPath);
 	if (FAILED(hr))
 	{
@@ -1427,6 +1427,10 @@ HRESULT __stdcall WindowlessRichEdit::DeleteObject(LPOLEOBJECT lpoleobj)
 
 //	CRichEditView::QueryAcceptData
 // 在richedit中使用 CTRL+V、拖放时被调用
+//
+// 1. 如何粘贴HTML格式？
+//    在MSDN中搜索 HTML Clipboard Format
+//
 HRESULT __stdcall WindowlessRichEdit::QueryAcceptData(LPDATAOBJECT lpdataobj, CLIPFORMAT FAR * lpcfFormat, DWORD reco, BOOL fReally, HGLOBAL hMetaPict)
 {
 	if (!fReally) // not actually pasting

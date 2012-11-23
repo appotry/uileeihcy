@@ -691,10 +691,6 @@ void CustomWindow::EndRedrawObjectPart(IRenderTarget* pRenderTarget, RECT* prc1,
 		pRenderTarget->EndDraw();
 		SAFE_RELEASE(pRenderTarget);
 		m_pLayeredWindowWrap->Commit2LayeredWindow();
-
-//		m_pLayeredWindowWrap->PreEndDrawObject(prc1, prc2);
-//		__super::EndRedrawObjectPart(pRenderTarget, prc1, prc2);
-//		m_pLayeredWindowWrap->PostEndDrawObject(prcWindow, bFinish);
 	}
 }
 void CustomWindow::CommitDoubleBuffet2Window(HDC hDCWnd, RECT* prcCommit)
@@ -1303,25 +1299,6 @@ HRDC LayeredWindowWrap::BeginRedrawObjectPart(Object* pRedrawObj, RECT* prc1, RE
 	return NULL;
 }
 
-void LayeredWindowWrap::PreEndDrawObject(RECT* prcWindow1, RECT* prcWindow2)
-{
-#if 0  // TODO: RenderEngine Modify
-	if (m_pWindow->IsTransparent())
-	{
-		::FillRect(m_hLayeredMemDC, prcWindow, (HBRUSH)::GetStockObject(BLACK_BRUSH));
-	}
-#endif
-}
-// void LayeredWindowWrap::PostEndDrawObject(CRect* prcWindow, bool bFinish)
-// {
-// #if 0  // TODO: RenderEngine Modify
-// 	if (bFinish)
-// 	{
-// 		this->Commit2LayeredWindow();
-// 	}
-// #endif
-// }
-
 // 模拟拖拽窗口拉伸过程
 void LayeredWindowWrap::OnLButtonDown(UINT nHitTest)
 {
@@ -1507,8 +1484,23 @@ void LayeredWindowWrap::OnExitSizeMove()
 	m_sizeWindowOld.cy = 0;
 }
 
+int nLastTickCount = 0;
+bool DoCommit2LayeredWindowRequst()
+{
+	int nNow = GetTickCount();
+	int nDiff = nNow - nLastTickCount;
+	if (nDiff < 40)
+	{
+		return false;
+	}
+	nLastTickCount = nNow;
+	return true;
+}
 void LayeredWindowWrap::Commit2LayeredWindow()
 {
+	if (false == DoCommit2LayeredWindowRequst()) // TODO: 该函数主要用于限制动画刷新帧数
+		return;
+
 	POINT ptMemDC  = {0,0};
 	int   nFlag = ULW_OPAQUE;
 	DWORD dwColorMask = 0;

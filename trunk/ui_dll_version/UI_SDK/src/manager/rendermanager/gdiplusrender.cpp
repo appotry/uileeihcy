@@ -400,6 +400,8 @@ GdiplusRenderTarget::~GdiplusRenderTarget()
 //
 HDC GdiplusRenderTarget::GetHDC()
 {
+	UI_LOG_DEBUG(_T("%s advise: 该函数效率太低，最好不要调用"));
+
 	if( NULL == m_pGraphics )
 		return NULL;
 
@@ -418,6 +420,12 @@ HDC GdiplusRenderTarget::GetHDC()
 	::SetBkMode(hDC, TRANSPARENT);
 
 	return hDC;
+}
+
+// 该HDC不需要释放 
+HDC GdiplusRenderTarget::GetOriginHDC()
+{
+	return m_hDC;
 }
 void GdiplusRenderTarget::ReleaseHDC( HDC hDC )
 {

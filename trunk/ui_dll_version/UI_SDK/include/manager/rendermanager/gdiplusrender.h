@@ -390,6 +390,7 @@ public:
 
 	virtual HDC      GetHDC();
 	virtual void     ReleaseHDC( HDC hDC );
+	virtual HDC      GetOriginHDC();
 
 	virtual HRGN     GetClipRgn() ;
 	virtual int      SelectClipRgn( HRGN hRgn, int nMode = RGN_COPY );

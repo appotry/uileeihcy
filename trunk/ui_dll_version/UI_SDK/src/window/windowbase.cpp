@@ -251,7 +251,6 @@ void WindowBase::RedrawObject(Object* pRedrawObj, RECT* prc, bool bUpdateNow, bo
 
 void WindowBase::_InnerRedrawObject(Object* pRedrawObj, bool bOnlyRedrawBkgnd)
 {
-
 	CRect rcObjVisible;
 	if (false == pRedrawObj->GetObjectVisibleRectInWindow(&rcObjVisible))   // 该对象在窗口上不可见，不绘制
 		return;
@@ -1375,6 +1374,7 @@ void WindowBase::OnTimer(UINT_PTR nIDEvent, LPARAM lParam)
 		// 重新创建
 		this->DestroyDoubleBuffer();
 		this->CreateDoubleBuffer(rcClient.Width(), rcClient.Height());
+		this->UpdateObject();  // 如果不重新刷新，会导致原来的显示数据丢失，窗口无法显示了
 	}
 }
 //

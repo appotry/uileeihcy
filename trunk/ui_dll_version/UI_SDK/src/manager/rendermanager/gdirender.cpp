@@ -342,6 +342,11 @@ void GdiRenderTarget::ReleaseHDC( HDC hDC )
 {
 	return ;
 }
+// 该HDC不需要释放 
+HDC GdiRenderTarget::GetOriginHDC()
+{
+	return m_hDC;
+}
 
 HRGN GdiRenderTarget::GetClipRgn()
 {

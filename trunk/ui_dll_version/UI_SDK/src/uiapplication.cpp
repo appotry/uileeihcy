@@ -73,6 +73,15 @@ BOOL CForwardPostMessageWindow::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARA
 		delete pMsg;
 		return TRUE;
 	}
+	else if (WM_DESTROY == uMsg)  // 将剩余未处理完的post消息释放，避免内存泄露
+	{
+		MSG msg;
+		while(::PeekMessage(&msg, m_hWnd, UI_WM_POSTMESSAGE, UI_WM_POSTMESSAGE, PM_REMOVE))
+		{
+			UIMSG* pMsg = (UIMSG*)msg.wParam;
+			delete pMsg;
+		}
+	}
 
 	return FALSE;
 }

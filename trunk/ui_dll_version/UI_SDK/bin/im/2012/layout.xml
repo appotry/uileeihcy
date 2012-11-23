@@ -20,7 +20,7 @@
     </CustomWindow>
 
     <CustomWindow id="chatdlg" width="553" height="520" minwidth="450" minheight="500" border="6,6,6,6"
-                  transparent.typex="layered" istransparent="1"
+                  transparent.type="layered" istransparent="1"
                   bkgnd.render.type="image"
                   bkgnd.render.image="chatframe.png"
                   bkgnd.render.image.drawtype="stretch"
@@ -32,7 +32,7 @@
       <Label text="线程 'Win32 线程' (0xe7c) 已退出，返回值为 0 (0x0)。" layout.left="10" layout.top="78"
              textrender.color="white"/>
 
-      <Panel layout="grid" layout.width="*,*,*,*,*,*,*,*,*,*" layout.height="*,*,*,*" layout.left="10" layout.top="100">
+      <!--Panel layout="grid" layout.width="*,*,*,*,*,*,*,*,*,*" layout.height="*,*,*,*,*,*" layout.left="10" layout.top="100">
         <GifPicture path="aaa.gif"  layout.row="0" layout.col="0"></GifPicture>
         <GifPicture path="aaa.gif"  layout.row="0" layout.col="1"></GifPicture>
         <GifPicture path="aaa.gif"  layout.row="0" layout.col="2"></GifPicture>
@@ -76,7 +76,29 @@
         <GifPicture path="aaa.gif"  layout.row="3" layout.col="7"></GifPicture>
         <GifPicture path="aaa.gif"  layout.row="3" layout.col="8"></GifPicture>
         <GifPicture path="aaa.gif"  layout.row="3" layout.col="9"></GifPicture>
-      </Panel>
+
+        <GifPicture path="aaa.gif"  layout.row="4" layout.col="0"></GifPicture>
+        <GifPicture path="aaa.gif"  layout.row="4" layout.col="1"></GifPicture>
+        <GifPicture path="aaa.gif"  layout.row="4" layout.col="2"></GifPicture>
+        <GifPicture path="aaa.gif"  layout.row="4" layout.col="3"></GifPicture>
+        <GifPicture path="aaa.gif"  layout.row="4" layout.col="4"></GifPicture>
+        <GifPicture path="aaa.gif"  layout.row="4" layout.col="5"></GifPicture>
+        <GifPicture path="aaa.gif"  layout.row="4" layout.col="6"></GifPicture>
+        <GifPicture path="aaa.gif"  layout.row="4" layout.col="7"></GifPicture>
+        <GifPicture path="aaa.gif"  layout.row="4" layout.col="8"></GifPicture>
+        <GifPicture path="aaa.gif"  layout.row="4" layout.col="9"></GifPicture>
+
+        <GifPicture path="aaa.gif"  layout.row="5" layout.col="0"></GifPicture>
+        <GifPicture path="aaa.gif"  layout.row="5" layout.col="1"></GifPicture>
+        <GifPicture path="aaa.gif"  layout.row="5" layout.col="2"></GifPicture>
+        <GifPicture path="aaa.gif"  layout.row="5" layout.col="3"></GifPicture>
+        <GifPicture path="aaa.gif"  layout.row="5" layout.col="4"></GifPicture>
+        <GifPicture path="aaa.gif"  layout.row="5" layout.col="5"></GifPicture>
+        <GifPicture path="aaa.gif"  layout.row="5" layout.col="6"></GifPicture>
+        <GifPicture path="aaa.gif"  layout.row="5" layout.col="7"></GifPicture>
+        <GifPicture path="aaa.gif"  layout.row="5" layout.col="8"></GifPicture>
+        <GifPicture path="aaa.gif"  layout.row="5" layout.col="9"></GifPicture>
+      </Panel-->
       
       <Panel layout="stack" layout.right="2" layout.top="2" layout.direction="righttoleft">
         <Button id="sys_close" autosize="bkimage" drawfocus="0" istransparent="1"
@@ -101,7 +123,7 @@
                     bkgnd.render.imagelist.layout="h"></Button>  
       </Panel>
       <!--RichEdit id="outputedit" layout.left="0" layout.right="0" layout.top="95" layout.bottom="100" istransparent="1"-->
-      <RichEdit id="inputedit" layout.left="0" layout.right="0" layout.bottom="5" height="90"/>
+      <RichEdit id="inputedit" layout.left="0" layout.right="0" layout.bottom="5" height="200"/>
     </CustomWindow>
   </layout>
 

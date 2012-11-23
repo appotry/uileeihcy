@@ -114,7 +114,7 @@ namespace UI
 	};
 
 typedef map<DWORD, RichEditOleObjectItem*> OLEOITEMMAP;
-class GifImageItemMgr;
+//class GifImageItemMgr;
 
 	// 管理richedit中的 ole对象对应的结构体列表
 	class RichEditOleObjectManager
@@ -125,7 +125,8 @@ class GifImageItemMgr;
 
 		bool    AddOleItem(RichEditOleObjectItem* pItem);
 		RichEditOleObjectItem*  GetOleItem(int dwUser);
-		GifImageItemMgr*  GetGifImageItemMgr() { return m_pGifImageItemMgr; }
+//		GifImageItemMgr*  GetGifImageItemMgr() { return m_pGifImageItemMgr; }
+		CPojo_Gif*    GetGifManager() { return &m_gifMgr; }
 
 	protected:
 		WindowlessRichEdit*   m_pRichEdit;
@@ -133,6 +134,7 @@ class GifImageItemMgr;
 		OLEOITEMMAP           m_mapOleObject;
 		DWORD                 m_dwIndex;    // 下一个item的索引计数
 
-		GifImageItemMgr*      m_pGifImageItemMgr;
+//		GifImageItemMgr*      m_pGifImageItemMgr;
+		CPojo_Gif             m_gifMgr;
 	};
 }

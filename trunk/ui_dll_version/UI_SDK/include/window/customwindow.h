@@ -177,8 +177,6 @@ public:
 	void      OnWindowPosChanged(LPWINDOWPOS lpWndPos);
 	void      RedrawObject(Object* pInvalidateObj, bool bUpdateNow, bool bOnlyRedrawBkgnd=false);
 	HRDC      BeginRedrawObjectPart(Object* pRedrawObj, RECT* prc1, RECT* prc2);
-	void      PreEndDrawObject(RECT* prcWindow1, RECT* prcWindow2);
-//	void      PostEndDrawObject(CRect* prcWindow, bool bFinish);
 
 	void      OnLButtonDown(UINT nHitTest);
 	void      OnLButtonUp();
