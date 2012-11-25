@@ -120,7 +120,7 @@ namespace UI
 {
 
 class   RichEditBase;
-class   RichEditOleObjectItem;
+class   IRichEditOleObjectItem;
 class   RichEditOleObjectManager;
 
 class UIAPI ITextHostImpl : public ITextHost
@@ -252,8 +252,8 @@ interface ITextEditControl
 			return TRUE; \
 	}
 
-class UIAPI WindowlessRichEdit : public ITextHostImpl, 
-	                             public ITextEditControl
+class UIAPI WindowlessRichEdit : public ITextHostImpl
+	                           , public ITextEditControl
 	                           , public IRichEditOleCallback
 {
 public:
@@ -276,6 +276,7 @@ public:
 		MESSAGE_HANDLER_EX(WM_SETFOCUS, OnDefaultHandle)
 		MESSAGE_HANDLER_EX(WM_VSCROLL,  OnDefaultHandle)
 		MESSAGE_HANDLER_EX(WM_HSCROLL,  OnDefaultHandle)
+		MESSAGE_HANDLER_EX(WM_TIMER,    OnTimer)
 //		POST_HANDLE_MSG()		
 	END_MSG_MAP()
 
@@ -288,6 +289,9 @@ protected:
 	void    OnObjectPosChanged(UINT fwSide, LPRECT pRect);
 	LRESULT OnChar(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	void    OnWindowPosChanged(LPWINDOWPOS);
+	LRESULT OnTimer(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+	bool    DoGifOleUpdateRequst();
 
 protected:
 	// *** IRichEditOleCallback methods ***
@@ -310,7 +314,7 @@ public:
 		m_spTextServices->TxSendMessage(EM_SELECTIONTYPE, 0, 0L, &lr);
 		return (WORD)lr;
 	}
-	bool GetSelectionOleObject(RichEditOleObjectItem** ppItem);
+	bool GetSelectionOleObject(IRichEditOleObjectItem** ppItem);
 
 	// Function
 	bool    Create(HWND hWndParent);
@@ -318,8 +322,9 @@ public:
 	bool    HitTest(POINT pt);
 
 	// 
-	bool    InsertOleObject(RichEditOleObjectItem* pItem);
+	bool    InsertOleObject(IRichEditOleObjectItem* pItem);
 	bool    InsertGif(const TCHAR* szGifPath);
+	bool    InsertComObject(CLSID clsid);
 
 	// Call this function to paste the OLE item in dataobj into this rich edit document/view.
 	void    DoPaste(LPDATAOBJECT pDataObject, CLIPFORMAT cf, HMETAFILEPICT hMetaPict);
@@ -353,6 +358,8 @@ protected:
 protected:
 	RichEditBase*   m_pRichEditBase;
 	RichEditOleObjectManager*  m_pOleMgr;
+
+	int    m_nLastTimerKickCount;
 
 protected:
 	// 非windowless richedit要调用的初始化函数

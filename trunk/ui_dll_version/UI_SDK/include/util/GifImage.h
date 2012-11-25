@@ -352,6 +352,8 @@ public:
 	int    GetWidth();
 	int    GetHeight();
 
+	GifImageBase*  GetGifImage() { return m_pGifImage; }
+
 protected:
 	void   draw_frame(GIF_Frame* pFrame);
 	int    get_next_frame_index();

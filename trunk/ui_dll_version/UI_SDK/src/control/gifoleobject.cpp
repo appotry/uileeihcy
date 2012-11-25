@@ -1,152 +1,20 @@
 #include "stdafx.h"
 #include "control\gifoleobject.h"
+#include "control\oledataobject.h"
 
 const GUID IID_IGifOleObject =
 { 0x2eae75f5, 0xd78f, 0x43ca, { 0x81, 0x1d, 0x8f, 0x8b, 0x1, 0xcc, 0xe0, 0x5b } };
 
-// #pragma region
-// GifImageItem::GifImageItem()
-// {
-// 	m_szFileIDorName = NULL;
-// 	m_eFileLoadType = GifImageLoadType_None;  
-// 	m_pGif = NULL;
-// 	m_dwRef = 0;
-// }
-// GifImageItem::~GifImageItem()
-// {
-// 	SAFE_ARRAY_DELETE(m_szFileIDorName);
-// 	SAFE_DELETE(m_pGif);
-// }
-// 
-// int GifImageItem::AddRef()
-// {
-// 	return ++m_dwRef;
-// }
-// int GifImageItem::Release()
-// {
-// 	m_dwRef--;
-// 	if (0 == m_dwRef)
-// 	{
-// 		delete this;
-// 		return 0;
-// 	}
-// 	return m_dwRef;
-// }
-// 
-// bool GifImageItem::LoadGifByPath(const TCHAR* szFilePath)
-// {
-// 	SAFE_DELETE(m_pGif);
-// 	m_pGif = new GifImage;
-// 
-// 	if (false == m_pGif->Load(szFilePath))
-// 	{
-// 		SAFE_DELETE(m_pGif);
-// 		return false;
-// 	}
-// 
-// 	Gif_Timer_Notify notify(NULL, 0,0);
-// 	int nIndex = 0;
-// 
-// 	m_pGif->AddRender(&notify, &nIndex);
-// 	m_pGif->Start();
-// 	//	m_pGifItem->m_pGif->Pause();
-// 
-// 	m_eFileLoadType = GifImageLoadType_File;
-// 	SAFE_ARRAY_DELETE(m_szFileIDorName);
-// 	m_szFileIDorName = new TCHAR[_tcslen(szFilePath)+1];
-// 	_tcscpy(m_szFileIDorName, szFilePath);
-// 
-// 	return true;
-// }
-// 
-// bool  GifImageItemMgr::LoadGifByPath(const TCHAR* szFilePath, GifImageItem** ppGifImageItem)
-// {
-// 	if (NULL == ppGifImageItem)
-// 		return false;
-// 
-// 	// 1. 查找该文件是否已经加载过
-// 	GifImageItem* p = this->FindItem(GifImageLoadType_File, szFilePath);
-// 	if (NULL != p)
-// 	{
-// 		p->AddRef();
-// 		*ppGifImageItem = p;
-// 		return true;
-// 	}
-// 	
-// 	// 2. 加载文件
-// 	GifImageItem* pItem = new GifImageItem;
-// 	if (false == pItem->LoadGifByPath(szFilePath))
-// 	{
-// 		SAFE_DELETE(pItem);
-// 		return false;
-// 	}
-// 	pItem->AddRef();
-// 	*ppGifImageItem = pItem;
-// 
-// 	m_listGifImageFile.push_back(pItem);
-// 	return true;
-// }
-// bool  GifImageItemMgr::LoadGifByID(const TCHAR* szImageID, GifImageItem** ppGifImageItem)
-// {
-// 	return false;
-// }
-// 
-// GifImageItem*  GifImageItemMgr::FindItem(GifImageLoadType eType, const TCHAR* szFileIDorName)
-// {
-// 	list<GifImageItem*>::iterator  iter = m_listGifImageFile.begin();
-// 	list<GifImageItem*>::iterator  iterEnd = m_listGifImageFile.end();
-// 	for (; iter != iterEnd; iter++)
-// 	{
-// 		GifImageItem* pItem = *iter;
-// 		if (NULL == pItem)
-// 			continue;
-// 		
-// 		if (pItem->m_eFileLoadType == eType)
-// 		{
-// 			if (NULL == szFileIDorName || NULL == pItem->m_szFileIDorName)
-// 				continue;
-// 
-// 			if (eType == GifImageLoadType_File)
-// 			{
-// 				if (0 == _tcsicmp(szFileIDorName, pItem->m_szFileIDorName))  // 文件路径不区分大小写 
-// 				{
-// 					return pItem;
-// 				}
-// 			}
-// 			else
-// 			{
-// 				if (0 == _tcscmp(szFileIDorName, pItem->m_szFileIDorName))
-// 				{
-// 					return pItem;
-// 				}
-// 			}
-// 		}
-// 	}
-// 
-// 	return NULL;
-// }
-//#pragma endregion
-
-
-GifOleObject::GifOleObject(CPojo_Gif* pMgr)
+GifOleObject::GifOleObject(CPojo_Gif* pMgr, Message* pNotifyObj)
 {
 	m_pGifMgr = pMgr;
 	m_pGifRenderItem = NULL;
+	m_pNotifyMsg = pNotifyObj;
 }
 GifOleObject::~GifOleObject()
 {
 	SAFE_RELEASE(m_pGifRenderItem);
 }
-
-// HRESULT GifOleObject::CreateInstance(REFIID riid, void** ppv)
-// {
-// 	GifOleObject* p = new GifOleObject;
-// 	HRESULT hr = p->QueryInterface(riid, ppv);
-// 	if (FAILED(hr))
-// 		delete p;
-// 
-// 	return hr;
-// }
 
 HRESULT __stdcall GifOleObject::LoadGif(const TCHAR* szPath)
 {
@@ -162,7 +30,7 @@ HRESULT __stdcall GifOleObject::LoadGif(const TCHAR* szPath)
 	if (NULL == pGif)
 		return E_FAIL;
 
-	Gif_Timer_Notify notify(this, 1);
+	Gif_Timer_Notify notify(m_pNotifyMsg, 1, (LPARAM)this);
 	m_pGifRenderItem = pGif->AddRender(&notify);
 	m_pGifRenderItem->Start();
 
@@ -202,10 +70,27 @@ HRESULT GifOleObject::OnGetSize(SIZE* pSize)
 	return S_OK;
 }
 
-void GifOleObject::OnTimer(UINT_PTR nIDEvent, LPARAM lParam)
+HRESULT GifOleObject::GetClipboardData(CHARRANGE FAR * lpchrg, DWORD reco, LPDATAOBJECT* lplpdataobj)
 {
-	if (NULL != m_pViewAdviseSink)
-	{
-		m_pViewAdviseSink->OnViewChange(DVASPECT_CONTENT, 0);
-	}
+	if (NULL == lplpdataobj)
+		return E_INVALIDARG;
+
+	OleDataObject* pDataobject = new OleDataObject;
+	pDataobject->AddRef();
+
+	FORMATETC  format = {0};
+	format.cfFormat = CF_BITMAP;
+	format.dwAspect = DVASPECT_CONTENT;
+	format.tymed = TYMED_GDI;
+
+	GIF_Frame* pFirstFrame = m_pGifRenderItem->GetGifImage()->GetFrame(0);
+	UIASSERT(NULL != pFirstFrame);
+
+	STGMEDIUM medium = {0};
+	medium.tymed = TYMED_GDI;
+	medium.hBitmap = (HBITMAP)OleDuplicateData((HANDLE)(HBITMAP)pFirstFrame->image, CF_BITMAP, 0);;
+	pDataobject->SetData(&format, &medium, TRUE);
+	
+	*lplpdataobj = static_cast<IDataObject*>(pDataobject);
+	return S_OK;
 }
