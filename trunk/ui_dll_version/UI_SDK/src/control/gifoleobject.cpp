@@ -79,16 +79,22 @@ HRESULT GifOleObject::GetClipboardData(CHARRANGE FAR * lpchrg, DWORD reco, LPDAT
 	pDataobject->AddRef();
 
 	FORMATETC  format = {0};
-	format.cfFormat = CF_BITMAP;
+	format.cfFormat = CF_TEXT/*CF_BITMAP*/;
 	format.dwAspect = DVASPECT_CONTENT;
-	format.tymed = TYMED_GDI;
+	format.tymed = TYMED_HGLOBAL/*TYMED_GDI*/;
 
 	GIF_Frame* pFirstFrame = m_pGifRenderItem->GetGifImage()->GetFrame(0);
 	UIASSERT(NULL != pFirstFrame);
+	HGLOBAL hGlobal = GlobalAlloc(0, 10);
+	LPSTR lpstr = (LPSTR)::GlobalLock(hGlobal);
+	strcpy(lpstr, "leeihcy");
+	::GlobalUnlock(hGlobal);
 
 	STGMEDIUM medium = {0};
-	medium.tymed = TYMED_GDI;
-	medium.hBitmap = (HBITMAP)OleDuplicateData((HANDLE)(HBITMAP)pFirstFrame->image, CF_BITMAP, 0);;
+	medium.tymed = TYMED_HGLOBAL/*TYMED_GDI*/;
+	//medium.hBitmap = (HBITMAP)OleDuplicateData((HANDLE)(HBITMAP)pFirstFrame->image, CF_BITMAP, 0);;
+	
+	medium.hGlobal = hGlobal;
 	pDataobject->SetData(&format, &medium, TRUE);
 	
 	*lplpdataobj = static_cast<IDataObject*>(pDataobject);

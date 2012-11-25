@@ -1591,8 +1591,8 @@ HRESULT __stdcall WindowlessRichEdit::GetDragDropEffect(BOOL fDrag, DWORD grfKey
 HRESULT __stdcall WindowlessRichEdit::GetContextMenu(WORD seltype, LPOLEOBJECT lpoleobj, CHARRANGE FAR * lpchrg, HMENU FAR * lphmenu)
 {
 #ifdef _DEBUG
-	//return this->InsertGif(_T("C:\\aaa.gif"));
-	return this->InsertComObject(__uuidof(GifImageObject));
+	return this->InsertGif(_T("C:\\aaa.gif"));
+	//return this->InsertComObject(__uuidof(GifImageObject));
 #endif
 #ifdef _DEBUG
 	HMENU& hMenu = *lphmenu;
