@@ -15,6 +15,7 @@ WindowlessRichEdit::WindowlessRichEdit(RichEditBase* pRichEditBase)
 {
 	m_pRichEditBase = pRichEditBase;
 	m_pOleMgr = new RichEditOleObjectManager(this);
+	m_nLastTimerKickCount = 0;
 	this->InitRichEidtDll();
 }
 
@@ -358,6 +359,31 @@ LRESULT WindowlessRichEdit::OnChar(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	// 	}
 	return lr;
 }
+
+bool WindowlessRichEdit::DoGifOleUpdateRequst()
+{
+	int nNow = GetTickCount();
+	int nDiff = nNow - m_nLastTimerKickCount;
+	if (nDiff < 40)
+	{
+		return false;
+	}
+	m_nLastTimerKickCount = nNow;
+	return true;
+}
+LRESULT WindowlessRichEdit::OnTimer(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	SetMsgHandled(FALSE);
+	if (NULL != m_pRichEditBase && 0 == wParam)
+	{
+		if (false == DoGifOleUpdateRequst()) // 该函数主要用于限制动画刷新帧数
+			return 0;
+		
+		m_pRichEditBase->UpdateObject();
+	}
+	return 0;
+}
+
 
 //@cmember Get the view rectangle relative to the inset
 // 其实就是文字与边框的padding
@@ -1145,7 +1171,10 @@ bool ITextHostImpl::SetText(const TCHAR* szText)
 	return false; 
 }
 
-bool WindowlessRichEdit::InsertOleObject(RichEditOleObjectItem* pItem)
+//
+//	如果InsertObject时不去提供/创建storage对象,那么复制对象后粘贴操作将失败!
+//
+bool WindowlessRichEdit::InsertOleObject(IRichEditOleObjectItem* pItem)
 {
 	if (NULL == pItem)
 		return false;
@@ -1153,15 +1182,25 @@ bool WindowlessRichEdit::InsertOleObject(RichEditOleObjectItem* pItem)
 	bool       bRet = false;
 	HRESULT    hr = E_FAIL;
 	IOleObject*     pOleObject = NULL;
+	IStorage*       pStorage = NULL;
+	ILockBytes*     pLockbytes = NULL;
 	LPOLECLIENTSITE pClientSite = NULL;
 
 	do 
 	{
+		SCODE sc = ::CreateILockBytesOnHGlobal(NULL, TRUE, &pLockbytes);
+		if (sc != S_OK)
+			break;
+
+		sc = ::StgCreateDocfileOnILockBytes(pLockbytes, STGM_SHARE_EXCLUSIVE|STGM_CREATE|STGM_READWRITE, 0, &pStorage);
+		if (sc != S_OK)
+			break;
+
 		hr = m_spOle->GetClientSite(&pClientSite);
 		if (FAILED(hr))
 			break;
 
-		pItem->QueryInterface(IID_IOleObject, (void**)&pOleObject);
+		pItem->GetOleObject(&pOleObject);
 		if (NULL == pOleObject)
 			break;
 
@@ -1172,7 +1211,7 @@ bool WindowlessRichEdit::InsertOleObject(RichEditOleObjectItem* pItem)
 		reObj.polesite = pClientSite;
 		reObj.dvaspect = DVASPECT_CONTENT;
 		reObj.dwFlags = REO_BELOWBASELINE;
-		reObj.pstg = NULL;
+		reObj.pstg = pStorage;
 		reObj.dwUser = 0;
 		reObj.cp = REO_CP_SELECTION;
 
@@ -1196,12 +1235,14 @@ bool WindowlessRichEdit::InsertOleObject(RichEditOleObjectItem* pItem)
 	
 	SAFE_RELEASE(pClientSite);
 	SAFE_RELEASE(pOleObject);
+	SAFE_RELEASE(pStorage);
+	SAFE_RELEASE(pLockbytes);
 	
 	return bRet;
 }
 bool WindowlessRichEdit::InsertGif(const TCHAR* szGifPath)
 {
-	GifOleObject* pGifOle = new GifOleObject(m_pOleMgr->GetGifManager());
+	GifOleObject* pGifOle = new GifOleObject(m_pOleMgr->GetGifManager(), static_cast<Message*>(this->m_pRichEditBase));
 	HRESULT hr = pGifOle->LoadGif(szGifPath);
 	if (FAILED(hr))
 	{
@@ -1212,11 +1253,23 @@ bool WindowlessRichEdit::InsertGif(const TCHAR* szGifPath)
 	return this->InsertOleObject(pGifOle);
 }
 
+bool WindowlessRichEdit::InsertComObject(CLSID clsid)
+{
+	RichEditOleObjectItem_Com* pItem = new RichEditOleObjectItem_Com;
+	pItem->Attach(clsid);
+
+	bool bRet = this->InsertOleObject(pItem);
+
+	IOleObject* p = NULL;
+	pItem->GetOleObject(&p, false);
+	p->Release();
+	
+	return bRet;
+}
 
 void WindowlessRichEdit::DoPaste(LPDATAOBJECT pDataObject, CLIPFORMAT cf, HMETAFILEPICT hMetaPict)
 {
 
-	LPOLEOBJECT     pOleObject = NULL;
 	LPOLEOBJECT     lpOleObject = NULL;
 	IStorage*       pStorage = NULL;
 	ILockBytes*     pLockbytes = NULL;
@@ -1254,7 +1307,7 @@ void WindowlessRichEdit::DoPaste(LPDATAOBJECT pDataObject, CLIPFORMAT cf, HMETAF
 		reObj.cbStruct = sizeof(REOBJECT);
 		reObj.cp = REO_CP_SELECTION;
 
-		reObj.poleobj = pOleObject;
+		reObj.poleobj = lpOleObject;
 		reObj.polesite = pClientSite;
 		reObj.dvaspect = DVASPECT_CONTENT;
 		reObj.dwFlags = REO_BELOWBASELINE;
@@ -1354,7 +1407,7 @@ IOleObject* WindowlessRichEdit::CreateOleObjectFromData(LPDATAOBJECT pDataObject
 // 	return OT_STATIC;
 // }
 
-bool WindowlessRichEdit::GetSelectionOleObject(RichEditOleObjectItem** ppItem)
+bool WindowlessRichEdit::GetSelectionOleObject(IRichEditOleObjectItem** ppItem)
 {
 	if (NULL == ppItem)
 		return false;
@@ -1474,18 +1527,33 @@ HRESULT __stdcall WindowlessRichEdit::ContextSensitiveHelp(BOOL fEnterMode)
 // This method returns success status. If the SCODE of the return value is E_NOTIMPL, the 
 // rich edit control creates its own clipboard object. 
 // If the SCODE of the return value is a failure other than E_NOTIMPL, the operation fails.
-
+//
+// 之后richedit内部将会调用OleSetClipboard, SetClipboardDataObject (将IDataObject AddRef)
+//
 HRESULT __stdcall WindowlessRichEdit::GetClipboardData(CHARRANGE FAR * lpchrg, DWORD reco, LPDATAOBJECT FAR * lplpdataobj)
 {
 	WORD wSelType = this->GetSelectionType();
 	if (SEL_OBJECT == wSelType)
 	{
-		RichEditOleObjectItem* pItem = NULL;
+		IRichEditOleObjectItem* pItem = NULL;
 		bool bRet = this->GetSelectionOleObject(&pItem);
 		if (!bRet || NULL == pItem)
-			return E_NOTIMPL;
+			return S_OK  ;
 
-		return S_OK;   // 注：如果SEL_OBJECT == wSelType时返回E_NOTIMPL会造成内存pItem被AddRef，最后导致内存泄露.什么原理?
+		if (FAILED(pItem->GetClipboardData(lpchrg, reco, lplpdataobj)))
+		{
+			// 调用默认的方法。内部堆栈为：
+			// 0. COM组件的：     ATL::IOleObjectImpl<XXX>::GetClipboardData <-- 默认ATL内部没有实现
+			// 1. riched20.dll的: CDataTransferObj::Create()
+			// 2. riched20.dll的: CLightDTEngine::RangeToDataObject()
+			// 3. riched20.dll的: CTxtEdit::GetClipboardData()
+			// 4. UIDLL.dll的:    这里m_spOle->GetClipboardData
+			m_spOle->GetClipboardData(lpchrg,reco,lplpdataobj);
+			return S_OK;
+		}
+
+		return S_OK;   // 注：如果SEL_OBJECT == wSelType时返回不是S_OK会造成内存pItem被AddRef，最后导致内存泄露.什么原理?/
+		               // 貌似是因为为IDataObject放到clipboard中增加了一个引用计数。当再去复制一个其它内容时，引用计数就会正常
 
 	}
 	return E_NOTIMPL;
@@ -1515,13 +1583,16 @@ HRESULT __stdcall WindowlessRichEdit::GetDragDropEffect(BOOL fDrag, DWORD grfKey
 	return S_OK;
 }
 
+#include "E:\\编程\\workingpath\\test\\richeditole\\richeditole_i.h"
+
 // 右击RichEdit时被调用，根据鼠标右键时，鼠标下面的对象的不同，得到的参数也不同，
 // 例如在空白处右击，seltype=0, lpoleobj=NULL
 // 例如在一个COM对象处右击，可能seltype=2, lpoleobj = xxx;
 HRESULT __stdcall WindowlessRichEdit::GetContextMenu(WORD seltype, LPOLEOBJECT lpoleobj, CHARRANGE FAR * lpchrg, HMENU FAR * lphmenu)
 {
 #ifdef _DEBUG
-	return this->InsertGif(_T("C:\\aaa.gif"));
+	//return this->InsertGif(_T("C:\\aaa.gif"));
+	return this->InsertComObject(__uuidof(GifImageObject));
 #endif
 #ifdef _DEBUG
 	HMENU& hMenu = *lphmenu;

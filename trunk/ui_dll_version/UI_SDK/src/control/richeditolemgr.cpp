@@ -3,7 +3,45 @@
 #include "control\gifoleobject.h"
 
 #pragma region
-RichEditOleObjectItem::RichEditOleObjectItem()
+RichEditOleObjectItem_Com::RichEditOleObjectItem_Com()
+{
+	m_pOleObject = NULL;
+}
+RichEditOleObjectItem_Com::~RichEditOleObjectItem_Com()
+{  
+	SAFE_RELEASE(m_pOleObject);
+}
+
+HRESULT  RichEditOleObjectItem_Com::GetOleObject(IOleObject** ppOleObject, bool bAddRef)
+{
+	if (NULL == ppOleObject)
+		return E_INVALIDARG;
+
+	if (NULL == m_pOleObject)
+		return E_FAIL;
+
+	*ppOleObject = m_pOleObject;
+
+	if (bAddRef)
+		m_pOleObject->AddRef();
+
+	return S_OK;
+}
+HRESULT  RichEditOleObjectItem_Com::GetClipboardData(CHARRANGE FAR * lpchrg, DWORD reco, LPDATAOBJECT FAR * lplpdataobj)
+{
+	return E_NOTIMPL;
+}
+
+
+HRESULT  RichEditOleObjectItem_Com::Attach(CLSID  clsid)
+{
+	SAFE_RELEASE(m_pOleObject);
+	return ::CoCreateInstance(clsid, NULL, CLSCTX_INPROC, IID_IOleObject, (void**)&m_pOleObject); 
+}
+#pragma endregion
+
+#pragma region
+RichEditOleObjectItem_Inner::RichEditOleObjectItem_Inner()
 {
 	m_pViewAdviseSink = NULL;
 	m_pClientSite = NULL;
@@ -12,7 +50,7 @@ RichEditOleObjectItem::RichEditOleObjectItem()
 	m_pOleAdviseHolder = NULL;
 //	m_pDataAdviseHolder = NULL;
 }
-RichEditOleObjectItem::~RichEditOleObjectItem()
+RichEditOleObjectItem_Inner::~RichEditOleObjectItem_Inner()
 {
 	SAFE_RELEASE(m_pViewAdviseSink);
 	SAFE_RELEASE(m_pClientSite);
@@ -20,7 +58,7 @@ RichEditOleObjectItem::~RichEditOleObjectItem()
 //	SAFE_RELEASE(m_pDataAdviseHolder);
 }
 
-HRESULT STDMETHODCALLTYPE RichEditOleObjectItem::QueryInterface(REFIID riid, void** ppvObject)
+HRESULT STDMETHODCALLTYPE RichEditOleObjectItem_Inner::QueryInterface(REFIID riid, void** ppvObject)
 {
 	if (::IsEqualIID(riid, IID_IUnknown) || ::IsEqualIID(riid, IID_IOleObject))
 	{
@@ -43,12 +81,12 @@ HRESULT STDMETHODCALLTYPE RichEditOleObjectItem::QueryInterface(REFIID riid, voi
 	return S_OK;
 }
 
-ULONG STDMETHODCALLTYPE RichEditOleObjectItem::AddRef( void) 
+ULONG STDMETHODCALLTYPE RichEditOleObjectItem_Inner::AddRef( void) 
 {
 	return ++m_dwRef;
 }
 
-ULONG STDMETHODCALLTYPE RichEditOleObjectItem::Release( void) 
+ULONG STDMETHODCALLTYPE RichEditOleObjectItem_Inner::Release( void) 
 {
 	if (0 == --m_dwRef)
 	{
@@ -58,7 +96,7 @@ ULONG STDMETHODCALLTYPE RichEditOleObjectItem::Release( void)
 	return m_dwRef;
 }
 
-HRESULT STDMETHODCALLTYPE RichEditOleObjectItem::SetClientSite(IOleClientSite *pClientSite)
+HRESULT STDMETHODCALLTYPE RichEditOleObjectItem_Inner::SetClientSite(IOleClientSite *pClientSite)
 {
 	SAFE_RELEASE(m_pClientSite);
 	m_pClientSite = pClientSite;
@@ -67,7 +105,7 @@ HRESULT STDMETHODCALLTYPE RichEditOleObjectItem::SetClientSite(IOleClientSite *p
 	return S_OK;
 }
 
-HRESULT STDMETHODCALLTYPE RichEditOleObjectItem::GetClientSite(IOleClientSite **ppClientSite) 
+HRESULT STDMETHODCALLTYPE RichEditOleObjectItem_Inner::GetClientSite(IOleClientSite **ppClientSite) 
 {
 	*ppClientSite = m_pClientSite;
 	if (NULL != m_pClientSite)
@@ -75,7 +113,7 @@ HRESULT STDMETHODCALLTYPE RichEditOleObjectItem::GetClientSite(IOleClientSite **
 
 	return S_OK;
 }
-HRESULT STDMETHODCALLTYPE RichEditOleObjectItem::GetExtent(DWORD dwDrawAspect, SIZEL *psizel) 
+HRESULT STDMETHODCALLTYPE RichEditOleObjectItem_Inner::GetExtent(DWORD dwDrawAspect, SIZEL *psizel) 
 {
 //	psizel->cx = psizel->cy = 2000;
 	SIZE  size = {0,0};
@@ -87,7 +125,7 @@ HRESULT STDMETHODCALLTYPE RichEditOleObjectItem::GetExtent(DWORD dwDrawAspect, S
 	return S_OK;
 }
 
-HRESULT STDMETHODCALLTYPE RichEditOleObjectItem::Draw( 
+HRESULT STDMETHODCALLTYPE RichEditOleObjectItem_Inner::Draw( 
 												DWORD dwDrawAspect,
 												LONG lindex,
 												void *pvAspect,
@@ -108,12 +146,12 @@ HRESULT STDMETHODCALLTYPE RichEditOleObjectItem::Draw(
 	return S_OK;
 }
 
-HRESULT STDMETHODCALLTYPE RichEditOleObjectItem::GetExtent(DWORD dwDrawAspect, LONG lindex, DVTARGETDEVICE *ptd, LPSIZEL lpsizel) 
+HRESULT STDMETHODCALLTYPE RichEditOleObjectItem_Inner::GetExtent(DWORD dwDrawAspect, LONG lindex, DVTARGETDEVICE *ptd, LPSIZEL lpsizel) 
 {
 	return this->GetExtent(dwDrawAspect, lpsizel);
 }
 
-HRESULT STDMETHODCALLTYPE RichEditOleObjectItem::Advise(IAdviseSink *pAdvSink,DWORD *pdwConnection)
+HRESULT STDMETHODCALLTYPE RichEditOleObjectItem_Inner::Advise(IAdviseSink *pAdvSink,DWORD *pdwConnection)
 {
 	HRESULT hr = S_OK;
 	if (m_pOleAdviseHolder == NULL)
@@ -122,14 +160,14 @@ HRESULT STDMETHODCALLTYPE RichEditOleObjectItem::Advise(IAdviseSink *pAdvSink,DW
 		hr = m_pOleAdviseHolder->Advise(pAdvSink, pdwConnection);
 	return hr;
 }
-HRESULT STDMETHODCALLTYPE RichEditOleObjectItem::Unadvise(DWORD dwConnection)
+HRESULT STDMETHODCALLTYPE RichEditOleObjectItem_Inner::Unadvise(DWORD dwConnection)
 {
 	HRESULT hRes = E_FAIL;
 	if (m_pOleAdviseHolder != NULL)
 		hRes = m_pOleAdviseHolder->Unadvise(dwConnection);
 	return hRes;
 }
-HRESULT STDMETHODCALLTYPE RichEditOleObjectItem::SetAdvise( DWORD aspects, DWORD advf, IAdviseSink *pAdvSink) 
+HRESULT STDMETHODCALLTYPE RichEditOleObjectItem_Inner::SetAdvise( DWORD aspects, DWORD advf, IAdviseSink *pAdvSink) 
 {
 	SAFE_RELEASE(m_pViewAdviseSink);
 	m_pViewAdviseSink = pAdvSink;
@@ -138,7 +176,7 @@ HRESULT STDMETHODCALLTYPE RichEditOleObjectItem::SetAdvise( DWORD aspects, DWORD
 	return S_OK;
 }
 
-HRESULT STDMETHODCALLTYPE RichEditOleObjectItem::GetAdvise(DWORD *pAspects, DWORD *pAdvf, IAdviseSink **ppAdvSink)
+HRESULT STDMETHODCALLTYPE RichEditOleObjectItem_Inner::GetAdvise(DWORD *pAspects, DWORD *pAdvf, IAdviseSink **ppAdvSink)
 {
 	*ppAdvSink = m_pViewAdviseSink;
 	if (NULL != m_pViewAdviseSink)
@@ -156,23 +194,26 @@ RichEditOleObjectManager::RichEditOleObjectManager(WindowlessRichEdit* pRichEdit
 }
 RichEditOleObjectManager::~RichEditOleObjectManager()
 {
+	// еп╤ор╩об
+	// OleFlushClipboard();
+
 	OLEOITEMMAP::iterator iter = m_mapOleObject.begin();
 	OLEOITEMMAP::iterator iterEnd = m_mapOleObject.end();
 	for (; iter != iterEnd; iter++)
 	{
-		iter->second->Release();
+		SAFE_DELETE(iter->second);
 	}
 	m_mapOleObject.clear();
 //	SAFE_DELETE(m_pGifImageItemMgr);
 }
 
-bool RichEditOleObjectManager::AddOleItem(RichEditOleObjectItem* pItem)
+bool RichEditOleObjectManager::AddOleItem(IRichEditOleObjectItem* pItem)
 {
 	m_mapOleObject.insert(make_pair(m_dwIndex++, pItem));
 	return true;
 }
 
-RichEditOleObjectItem*  RichEditOleObjectManager::GetOleItem(int dwUser)
+IRichEditOleObjectItem*  RichEditOleObjectManager::GetOleItem(int dwUser)
 {
 	OLEOITEMMAP::iterator iter = m_mapOleObject.find(dwUser);
 	if (iter == m_mapOleObject.end())

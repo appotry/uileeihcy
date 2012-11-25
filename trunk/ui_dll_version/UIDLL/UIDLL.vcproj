@@ -422,6 +422,10 @@
 							>
 						</File>
 						<File
+							RelativePath="..\UI_SDK\include\control\oledataobject.h"
+							>
+						</File>
+						<File
 							RelativePath="..\UI_SDK\include\control\richedit.h"
 							>
 						</File>
@@ -727,6 +731,10 @@
 						>
 						<File
 							RelativePath="..\UI_SDK\src\control\gifoleobject.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\UI_SDK\src\control\oledataobject.cpp"
 							>
 						</File>
 						<File

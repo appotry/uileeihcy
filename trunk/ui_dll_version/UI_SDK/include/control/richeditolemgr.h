@@ -1,4 +1,5 @@
 #pragma once
+#include "oledataobject.h"
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -7,37 +8,63 @@
 //////////////////////////////////////////////////////////////////////////
 
 
-// http://www.cnblogs.com/wlwel/archive/2012/08/05/2623899.html
-// 引用原文：根据我的调查（呃，通过实践，通过QueryInterface观察），我发现实现一个
-// richedit中的动画控件只需要实现二个接口：IOleObject、IViewObject2，前者为了融入
-// 到richedit环境中，后者为了渲染显示。由于richedit默认只喜好无窗口模式，所以针对
-// IOleInPlaceSiteWindowless之类的，你去实现意义也不大，因为人家容器不认你，当然还
-// 有IPersist系列接口，对于标准的环境有用（比如IDE），但这里并不是很需要，所以认清
-// 核心问题能减少很多困惑。更显然的是我的控件没有用ATL框架，因为此控件脱离了richedit
-// 环境生存的意义也不大，更有甚者我没必要让使其成为标准（也没可能），仅仅是为了在
-// 一个系统中的richedit中更好地展示。实现的接口越少，引入的麻烦越少，这样才能使精力
-// 集中在主要问题上。
-
+//  Q1. 调用InsertObject时，一定要传递一个Storage指针吗？
+//  A1. 如果传递一个NULL，则在复制该对象后，将无法粘贴。内部的原因也还没有搞清楚
+//      ILockBytes，它是一个Storage后存储介质之间的桥梁，StgCreateDocfileOnILockBytes
+//      代表在内存中创建一个存储对象。相应的StgCreateDocFile表示使用文件创建一个
+//      存储对象
+//
+//   Q2. IDataObject怎么被其它进程访问的？
+//   A2. 从目前查到的资料中显示，应该是Marshal的结果
+//
+//   Q3. 进程退出后，为什么还能进行拷贝粘贴?
+//   A3. 其实这全靠OleFlushClipboard。它会将当前剪贴板中的IDataObject进行复制，创建一个
+//       临时的IDataObject，并释放之前的IDataObject对象。因此在程序退出前应该调用一下
+//       这个函数
 //
 // 更多的实现细节可以参考atl的源代码：CComControlBase  IOleObjectImpl
 //
 //
 
-
 namespace UI
 {
 	class WindowlessRichEdit;
 
-	// 存储ole对象的相关的信息
-	class RichEditOleObjectItem : public IOleObject, public IViewObject2
+	class IRichEditOleObjectItem
 	{
 	public:
-		RichEditOleObjectItem();
-		virtual ~RichEditOleObjectItem();
+		virtual ~IRichEditOleObjectItem() = 0{};
+		virtual HRESULT  GetOleObject(IOleObject** ppOleObject, bool bAddRef=true) = 0;	
+		virtual HRESULT  GetClipboardData(CHARRANGE FAR * lpchrg, DWORD reco, LPDATAOBJECT FAR * lplpdataobj) = 0;
+	};
 
-		virtual HRESULT STDMETHODCALLTYPE QueryInterface( REFIID riid, void  **ppvObject);
+	// 存储外部自使用COM实现的OLE对象
+	class RichEditOleObjectItem_Com : public IRichEditOleObjectItem
+	{
+	public:
+		RichEditOleObjectItem_Com();
+		~RichEditOleObjectItem_Com();
+
+	public:
+		virtual HRESULT  GetOleObject(IOleObject** ppOleObject, bool bAddRef=true);
+		virtual HRESULT  GetClipboardData(CHARRANGE FAR * lpchrg, DWORD reco, LPDATAOBJECT FAR * lplpdataobj);
+		HRESULT  Attach(CLSID  clsid);
+	private:
+		IOleObject*   m_pOleObject;
+	};
+
+	// 存储内部自己实现的ole对象的相关的信息
+	class RichEditOleObjectItem_Inner : public IOleObject, public IViewObject2, public IRichEditOleObjectItem
+	{
+	public:
+		RichEditOleObjectItem_Inner();
+		virtual ~RichEditOleObjectItem_Inner();
+
+#pragma region // IUnknown
+		virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void  **ppvObject);
 		virtual ULONG   STDMETHODCALLTYPE AddRef(void);
 		virtual ULONG   STDMETHODCALLTYPE Release(void);
+#pragma endregion
 
 #pragma region // ole object 
 		virtual HRESULT STDMETHODCALLTYPE SetHostNames(LPCOLESTR szContainerApp,LPCOLESTR szContainerObj) 
@@ -99,6 +126,21 @@ namespace UI
 		virtual HRESULT STDMETHODCALLTYPE GetExtent(DWORD dwDrawAspect, LONG lindex, DVTARGETDEVICE *ptd, LPSIZEL lpsizel);
 #pragma endregion
 
+#pragma region  // 实现父类的虚函数
+		virtual HRESULT  GetOleObject(IOleObject** ppOleObject, bool bAddRef=true)
+		{
+			if (NULL == ppOleObject)
+				return E_INVALIDARG;
+
+			*ppOleObject = static_cast<IOleObject*>(this);
+
+			if (bAddRef)
+				this->AddRef();
+
+			return S_OK;
+		}
+#pragma  endregion
+
 #pragma region  // 子类扩展时需要实现的函数
 		virtual HRESULT OnDraw(HDC hDC, RECT* prc) = 0;
 		virtual HRESULT OnGetSize(SIZE* pSize) = 0;
@@ -113,7 +155,7 @@ namespace UI
 
 	};
 
-typedef map<DWORD, RichEditOleObjectItem*> OLEOITEMMAP;
+typedef map<DWORD, IRichEditOleObjectItem*> OLEOITEMMAP;
 //class GifImageItemMgr;
 
 	// 管理richedit中的 ole对象对应的结构体列表
@@ -123,8 +165,8 @@ typedef map<DWORD, RichEditOleObjectItem*> OLEOITEMMAP;
 		RichEditOleObjectManager(WindowlessRichEdit* pRichEdit);
 		~RichEditOleObjectManager();
 
-		bool    AddOleItem(RichEditOleObjectItem* pItem);
-		RichEditOleObjectItem*  GetOleItem(int dwUser);
+		bool    AddOleItem(IRichEditOleObjectItem* pItem);
+		IRichEditOleObjectItem*  GetOleItem(int dwUser);
 //		GifImageItemMgr*  GetGifImageItemMgr() { return m_pGifImageItemMgr; }
 		CPojo_Gif*    GetGifManager() { return &m_gifMgr; }
 
@@ -137,4 +179,5 @@ typedef map<DWORD, RichEditOleObjectItem*> OLEOITEMMAP;
 //		GifImageItemMgr*      m_pGifImageItemMgr;
 		CPojo_Gif             m_gifMgr;
 	};
+
 }

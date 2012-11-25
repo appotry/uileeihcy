@@ -400,7 +400,7 @@ GdiplusRenderTarget::~GdiplusRenderTarget()
 //
 HDC GdiplusRenderTarget::GetHDC()
 {
-	UI_LOG_DEBUG(_T("%s advise: 该函数效率太低，最好不要调用"));
+	UI_LOG_DEBUG(_T("%s advise: 该函数效率太低，最好不要调用"), FUNC_NAME);
 
 	if( NULL == m_pGraphics )
 		return NULL;
