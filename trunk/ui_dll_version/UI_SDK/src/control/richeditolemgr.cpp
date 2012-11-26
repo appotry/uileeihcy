@@ -96,6 +96,19 @@ ULONG STDMETHODCALLTYPE RichEditOleObjectItem_Inner::Release( void)
 	return m_dwRef;
 }
 
+HRESULT RichEditOleObjectItem_Inner::GetOleObject(IOleObject** ppOleObject, bool bAddRef)
+{
+	if (NULL == ppOleObject)
+		return E_INVALIDARG;
+
+	*ppOleObject = static_cast<IOleObject*>(this);
+
+	if (bAddRef)
+		this->AddRef();
+
+	return S_OK;
+}
+
 HRESULT STDMETHODCALLTYPE RichEditOleObjectItem_Inner::SetClientSite(IOleClientSite *pClientSite)
 {
 	SAFE_RELEASE(m_pClientSite);

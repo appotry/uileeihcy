@@ -1267,9 +1267,16 @@ bool WindowlessRichEdit::InsertComObject(CLSID clsid)
 	return bRet;
 }
 
-void WindowlessRichEdit::DoPaste(LPDATAOBJECT pDataObject, CLIPFORMAT cf, HMETAFILEPICT hMetaPict)
+// 检测pDataObject中的各种格式，按优先级进行插入 
+HRESULT WindowlessRichEdit::DoPaste(LPDATAOBJECT pDataObject, BOOL fReally, CLIPFORMAT* pOutClipFormat)
 {
+	// 我们自己实现的OLE对象，如动画
 
+	// static object类型：如CF_DIB/CF_BITMAP
+	return E_FAIL;
+
+
+#if 0
 	LPOLEOBJECT     lpOleObject = NULL;
 	IStorage*       pStorage = NULL;
 	ILockBytes*     pLockbytes = NULL;
@@ -1292,7 +1299,10 @@ void WindowlessRichEdit::DoPaste(LPDATAOBJECT pDataObject, CLIPFORMAT cf, HMETAF
 
 // 		sc = ::OleCreateFromData(pDataObject, IID_IUnknown, OLERENDER_DRAW, NULL, pClientSite, pStorage, (void**)&lpOleObject);
 // 		if (FAILED(sc))
+		{
+			// CF_METAFILEPICT, CF_DIB, or CF_ BITMAP, and CF_ENHMF
 			sc = ::OleCreateStaticFromData(pDataObject, IID_IUnknown, OLERENDER_DRAW, NULL, pClientSite, pStorage, (void**)&lpOleObject);
+		}
 
 		if (sc != S_OK)
 			break;
@@ -1329,8 +1339,8 @@ void WindowlessRichEdit::DoPaste(LPDATAOBJECT pDataObject, CLIPFORMAT cf, HMETAF
 	{
 		SAFE_RELEASE(lpOleObject);
 	}
-
-
+#endif
+	//return bRet ? S_OK:E_FAIL;
 }
 
 IOleObject* WindowlessRichEdit::CreateOleObjectFromData(LPDATAOBJECT pDataObject, bool bOleCreateFromDataOrOleCreateStaticFromData, OLERENDER render, CLIPFORMAT cfFormat, LPFORMATETC lpFormatEtc)
@@ -1462,13 +1472,14 @@ HRESULT __stdcall WindowlessRichEdit::ShowContainerUI(BOOL fShow)
 {
 	return E_NOTIMPL;
 }
+// 调用richedit ole的InsertObject函数时将触发这个回调函数
 // 在从外部拖入一个文件到richedit时，先响应了GetNewStorage成功后，就会再调到这个接口函数
-// 当返回S_OK时，这个对象将被插入，返回FALSE时，对象将不会被插入
-HRESULT __stdcall WindowlessRichEdit::QueryInsertObject(LPCLSID lpclsid, LPSTORAGE lpstg,
-									LONG cp)
+// 当返回S_OK时，这个对象将被插入，返回其它值时，对象将不会被插入
+HRESULT __stdcall WindowlessRichEdit::QueryInsertObject(LPCLSID lpclsid, LPSTORAGE lpstg, LONG cp)
 {
 	return S_OK;
 }
+
 // 例如将richedit中的一个COM对象删除，则会调用一次该接口函数
 // 例如将richedit中的一个COM对象用鼠标拖拽到另一个位置，则会调用一次该接口函数
 // 该函数仅是一个通知，告诉我们有一个对象要被deleted from rich edit control;
@@ -1478,46 +1489,56 @@ HRESULT __stdcall WindowlessRichEdit::DeleteObject(LPOLEOBJECT lpoleobj)
 	return S_OK;
 }
 
-//	CRichEditView::QueryAcceptData
-// 在richedit中使用 CTRL+V、拖放时被调用
+//  
+//  在richedit中使用 CTRL+V粘贴、拖拽时被询问是否接受
 //
 // 1. 如何粘贴HTML格式？
 //    在MSDN中搜索 HTML Clipboard Format
+//
+// 2. BOOL fReally是做什么的？
+//    从MSDN上看好像是用于EM_CANPASTE消息的，这个时候仅check，不去import
 //
 HRESULT __stdcall WindowlessRichEdit::QueryAcceptData(LPDATAOBJECT lpdataobj, CLIPFORMAT FAR * lpcfFormat, DWORD reco, BOOL fReally, HGLOBAL hMetaPict)
 {
 	if (!fReally) // not actually pasting
 		return S_OK;
 
-
 	// if direct pasting a particular native format allow it
 	if (*lpcfFormat == CF_TEXT ||
 		*lpcfFormat == WindowlessRichEdit::s_cfRichTextFormat ||
-		*lpcfFormat == WindowlessRichEdit::s_cfRichTextAndObjects
-		)
+		*lpcfFormat == WindowlessRichEdit::s_cfRichTextAndObjects)
+	{
 		return S_OK;
+	}
 
 	// if format is 0, then force particular formats if available
-	if (*lpcfFormat == 0 /*&& (m_nPasteType == 0)*/)
+	// ?? TODO: 如果是拖拽操作，也能用IsClipboardFormatAvailable来检测吗?
+	if (*lpcfFormat == 0)
 	{
 		if (IsClipboardFormatAvailable((CLIPFORMAT)WindowlessRichEdit::s_cfRichTextAndObjects)) // native avail, let richedit do as it wants
+		{
+			*lpcfFormat = (CLIPFORMAT)WindowlessRichEdit::s_cfRichTextAndObjects;
 			return S_OK;
+		}
 		else if (IsClipboardFormatAvailable((CLIPFORMAT)WindowlessRichEdit::s_cfRichTextFormat))
 		{
 			*lpcfFormat = (CLIPFORMAT)WindowlessRichEdit::s_cfRichTextFormat;
 			return S_OK;
 		}
-		else if (IsClipboardFormatAvailable(CF_TEXT))
-		{
-			*lpcfFormat = CF_TEXT;
-			return S_OK;
-		}
 	}
 
 	// paste OLE formats
-	// GetThisPtr()->DoPaste(lpdataobj, *lpcfFormat, hMetaPict);
+	if (SUCCEEDED(DoPaste(lpdataobj, fReally, lpcfFormat)))
+		return S_FALSE;  // A return of a successful SCODE other than S_OK means that the callback either checked the data itself (if fReally is FALSE) or imported the data itself (if fReally is TRUE).
 
-	return S_FALSE;
+	// 最后检查一下文本格式
+	if (IsClipboardFormatAvailable(CF_TEXT))
+	{
+		*lpcfFormat = CF_TEXT;
+		return S_OK;
+	}
+
+	return E_FAIL;
 }
 HRESULT __stdcall WindowlessRichEdit::ContextSensitiveHelp(BOOL fEnterMode)
 {
@@ -1530,6 +1551,8 @@ HRESULT __stdcall WindowlessRichEdit::ContextSensitiveHelp(BOOL fEnterMode)
 //
 // 之后richedit内部将会调用OleSetClipboard, SetClipboardDataObject (将IDataObject AddRef)
 //
+// WCH_EMBEDDING
+// 
 HRESULT __stdcall WindowlessRichEdit::GetClipboardData(CHARRANGE FAR * lpchrg, DWORD reco, LPDATAOBJECT FAR * lplpdataobj)
 {
 	WORD wSelType = this->GetSelectionType();
@@ -1538,7 +1561,7 @@ HRESULT __stdcall WindowlessRichEdit::GetClipboardData(CHARRANGE FAR * lpchrg, D
 		IRichEditOleObjectItem* pItem = NULL;
 		bool bRet = this->GetSelectionOleObject(&pItem);
 		if (!bRet || NULL == pItem)
-			return S_OK  ;
+			return S_OK;
 
 		if (FAILED(pItem->GetClipboardData(lpchrg, reco, lplpdataobj)))
 		{
@@ -1583,7 +1606,8 @@ HRESULT __stdcall WindowlessRichEdit::GetDragDropEffect(BOOL fDrag, DWORD grfKey
 	return S_OK;
 }
 
-#include "E:\\编程\\workingpath\\test\\richeditole\\richeditole_i.h"
+//#include "E:\\编程\\workingpath\\test\\richeditole\\richeditole_i.h"
+#include "tom.h"
 
 // 右击RichEdit时被调用，根据鼠标右键时，鼠标下面的对象的不同，得到的参数也不同，
 // 例如在空白处右击，seltype=0, lpoleobj=NULL

@@ -7,6 +7,8 @@ void _AfxOleCopyFormatEtc(LPFORMATETC petcDest, LPFORMATETC petcSrc);
 OleDataObject::OleDataObject()
 {
 	m_dwRef = 0;
+//	m_pMarshal = NULL;
+//	::CoCreateFreeThreadedMarshaler(static_cast<IUnknown*>(this), &m_pMarshal);
 }
 OleDataObject::~OleDataObject()
 {
@@ -23,7 +25,7 @@ OleDataObject::~OleDataObject()
 			CoTaskMemFree(pItem->formatetc.ptd);
 		::ReleaseStgMedium(&pItem->stgmedium);
 	}
-
+//	SAFE_RELEASE(m_pMarshal);
 }
 
 HRESULT STDMETHODCALLTYPE OleDataObject::QueryInterface(REFIID riid,void **ppvObject)
@@ -35,7 +37,15 @@ HRESULT STDMETHODCALLTYPE OleDataObject::QueryInterface(REFIID riid,void **ppvOb
 	{
 		*ppvObject = static_cast<IDataObject*>(this);
 	}
-	return E_NOINTERFACE;
+// 	else if (::IsEqualIID(riid, IID_IMarshal) && NULL != m_pMarshal)
+// 	{
+// 		//*ppvObject = m_pMarshal;
+// 		return m_pMarshal->QueryInterface(riid, ppvObject);
+// 	}
+	else
+	{
+		return E_NOINTERFACE;
+	}
 
 	this->AddRef();
 	return S_OK;
@@ -55,6 +65,8 @@ ULONG   STDMETHODCALLTYPE OleDataObject::Release(void)
 	return m_dwRef;
 }
 
+// 注：如果其它程序粘贴的话，该函数可能在其它线程中被调用
+//     但从目前来看，SetData/GetData好像不会同时发生，因此没有添加同步机制
 HRESULT STDMETHODCALLTYPE OleDataObject::GetData(FORMATETC *pformatetcIn, STGMEDIUM *pmedium)
 {
 	if (NULL == pformatetcIn || NULL == pmedium)
@@ -108,7 +120,7 @@ HRESULT STDMETHODCALLTYPE OleDataObject::QueryGetData(FORMATETC *pformatetcIn)
 }
 HRESULT STDMETHODCALLTYPE OleDataObject::GetCanonicalFormatEtc(FORMATETC *pformatectIn, FORMATETC *pformatetcOut)
 {
-return E_NOTIMPL;
+	return DATA_S_SAMEFORMATETC ;
 }
 
 // If FALSE, the caller retains ownership of the storage medium and the data object 
@@ -156,6 +168,8 @@ HRESULT STDMETHODCALLTYPE OleDataObject::EnumFormatEtc(DWORD dwDirection, IEnumF
 
 	return S_OK;
 }
+
+// 数据改变的通知机制，不实现
 HRESULT STDMETHODCALLTYPE OleDataObject::DAdvise(FORMATETC *pformatetc, DWORD advf, IAdviseSink *pAdvSink, DWORD *pdwConnection)
 {
 return E_NOTIMPL;
@@ -219,7 +233,7 @@ HRESULT STDMETHODCALLTYPE IEnumFORMATETCImpl::Next(ULONG celt, FORMATETC *rgelt,
 	{
 		if (i < m_nCurIndex)
 			continue;
-		if (i > m_nCurIndex+(int)celt)
+		if (i >= m_nCurIndex+(int)celt)
 			break;
 
 		_AfxOleCopyFormatEtc(&rgelt[j++], &(*iter)->formatetc);

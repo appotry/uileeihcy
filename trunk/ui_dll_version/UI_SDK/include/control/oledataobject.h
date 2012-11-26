@@ -38,10 +38,14 @@ namespace UI
 	protected:
 		list<OleDataObjectItem*>   m_list;
 		long     m_dwRef;
+//		/*IMarshal*/IUnknown* m_pMarshal;
 
 		friend class IEnumFORMATETCImpl;
 	};
 
+	// 用于IDataObject::EnumFormatEtc中，实现各种格式的遍历
+	// 同时自己实现一个IEnumFORMATETC就能直接引用OleDataObject
+	// 中的数据，避免拷贝
 	class IEnumFORMATETCImpl : public IEnumFORMATETC
 	{
 	public:
