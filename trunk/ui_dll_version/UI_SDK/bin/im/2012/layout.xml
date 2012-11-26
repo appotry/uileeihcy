@@ -20,7 +20,7 @@
     </CustomWindow>
 
     <CustomWindow id="chatdlg" width="553" height="520" minwidth="450" minheight="500" border="6,6,6,6"
-                  transparent.type0="layered" istransparent="1"
+                  transparent.type="layered" istransparent="1"
                   bkgnd.render.type="image"
                   bkgnd.render.image="chatframe.png"
                   bkgnd.render.image.drawtype="stretch"

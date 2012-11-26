@@ -1420,9 +1420,9 @@ namespace UI
 				// to get their true color values.
 				//
 				//////////////////////////////////////////////////////////////////////////
-				if( m_bHasAlphaChannel )
+				if (m_bHasAlphaChannel)
 				{
-					for( int i = 0; i < (int)nBytesPerRow; i+=4 )
+					for (int i = 0; i < (int)nBytesPerRow; i+=4)
 					{
 						pbDestRow[i]   = pbSrcRow[i]  *pbSrcRow[i+3]/255;
 						pbDestRow[i+1] = pbSrcRow[i+1]*pbSrcRow[i+3]/255;

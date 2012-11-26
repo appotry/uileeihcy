@@ -98,23 +98,14 @@
 // 				UIDLL.dll!WindowlessRichEdit::OnChar(unsigned int uMsg=258, unsigned int wParam=97, long lParam=1966081)  行297 + 0x39 字节	C++
 //
 //   Q15.  Rich Edit 剪贴板操作 
-//      http://zjqzy03080312.blog.163.com/blog/static/1857428072012124112714348/
-//
-//		应用程序可以粘贴剪贴板中内容到一个Rich Edit控件中，采用最佳可用剪贴板格式或者指定的剪贴板格式。
-//      你也可以决定是否一个Rich Edit控件可以粘贴某种剪贴板格式。 
-//
-//		对于一个Edit控件而言，你可以使用WM_COPY或者WM_CUT消息来拷贝或者剪切当前选中内容。同样的，你可
-//      以使用WM_PASTE消息将这些剪贴板内容粘贴到一个Rich Edit控件中。控件将粘贴它所识别的第一个可用格式，
-//      这大概是最具描述性的格式。 
-//
-//		你可以使用EM_PASTESPECIAL消息来粘贴指定的剪贴板格式。这个消息对具有"特殊粘贴"命令的应用程序很有
-//      用，该命令可以让用户选择剪贴板格式。你可以使用EM_CANPASTE消息来决定控件是否识别某种指定的格式。 
-//
-//		你也可以使用EM_CANPASTE消息来决定Rich Edit控件是否识别所有可用的剪贴板格式。该消息在处理WM_INITMENUPOPUP
-//      消息时很有用。应用程序可以启用或者屏蔽"粘贴"命令，取决于控件是否可以粘贴任一个可用类型。 
 //
 //		Rich Edit控件注册两种剪贴板格式："富文本格式(RTF)"和一种叫做"RichEdit 文本与对象"的格式。应用程序
 //      可以使用RegisterClipboardFormat函数来注册这些格式，其取值为CF_RTF与CF_RETEXTOBJ
+//
+//   Q16.  IOleRichEditCallBack中的QueryAcceptData和QueryInsertData有什么区别?
+//       
+//      QueryInsertData针对调用了richedit的InsertObject插入一个OLE时触发。
+//      QueryAcceptData是在粘贴和拖拽时将会触发。
 //
 namespace UI
 {
@@ -327,7 +318,7 @@ public:
 	bool    InsertComObject(CLSID clsid);
 
 	// Call this function to paste the OLE item in dataobj into this rich edit document/view.
-	void    DoPaste(LPDATAOBJECT pDataObject, CLIPFORMAT cf, HMETAFILEPICT hMetaPict);
+	HRESULT DoPaste(LPDATAOBJECT pDataObject, BOOL fReally, CLIPFORMAT* pOutClipFormat);
 
 protected:
 	

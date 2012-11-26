@@ -22,6 +22,7 @@
 //       临时的IDataObject，并释放之前的IDataObject对象。因此在程序退出前应该调用一下
 //       这个函数
 //
+//
 // 更多的实现细节可以参考atl的源代码：CComControlBase  IOleObjectImpl
 //
 //
@@ -127,18 +128,7 @@ namespace UI
 #pragma endregion
 
 #pragma region  // 实现父类的虚函数
-		virtual HRESULT  GetOleObject(IOleObject** ppOleObject, bool bAddRef=true)
-		{
-			if (NULL == ppOleObject)
-				return E_INVALIDARG;
-
-			*ppOleObject = static_cast<IOleObject*>(this);
-
-			if (bAddRef)
-				this->AddRef();
-
-			return S_OK;
-		}
+		virtual HRESULT  GetOleObject(IOleObject** ppOleObject, bool bAddRef=true);
 #pragma  endregion
 
 #pragma region  // 子类扩展时需要实现的函数
@@ -152,7 +142,6 @@ namespace UI
 		IOleAdviseHolder*  m_pOleAdviseHolder;
 		IAdviseSink*       m_pViewAdviseSink;
 		IOleClientSite*    m_pClientSite;
-
 	};
 
 typedef map<DWORD, IRichEditOleObjectItem*> OLEOITEMMAP;
