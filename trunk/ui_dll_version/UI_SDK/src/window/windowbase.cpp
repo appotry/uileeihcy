@@ -1384,26 +1384,27 @@ void WindowBase::CreateDoubleBuffer(int nWidth, int nHeight)
 {
 	// 增加个优化项：不是每次窗口大小改变就重建图片缓存。当前窗口大小如果小于图片缓存时开启一个计时器，过一段时间，再将内存收回。
 	// 避免在窗口伸缩时频繁创建图片
-	if (0 != m_nMemoryRecycleTimerID)
-	{
-		TimerHelper::GetInstance()->KillTimer(m_nMemoryRecycleTimerID);
-	}
-	if (NULL != m_hMemBitmap)
-	{
-		BITMAP bm;
-		GetObject(m_hMemBitmap, sizeof(bm), &bm);
-		if (bm.bmWidth >= nWidth && bm.bmHeight >= nHeight)
-		{
-			TimerItem item;
-			item.nRepeatCount = 1;
-			item.pNotify = this;
-			item.wParam = 0;
-			item.lParam = 0;
-			
-			m_nMemoryRecycleTimerID = TimerHelper::GetInstance()->SetNewTimer(10000, &item);
-			return;
-		}
-	}
+	// --> 暂时关闭。会导致分层窗口界面开关更新不及时
+// 	if (0 != m_nMemoryRecycleTimerID)
+// 	{
+// 		TimerHelper::GetInstance()->KillTimer(m_nMemoryRecycleTimerID);
+// 	}
+// 	if (NULL != m_hMemBitmap)
+// 	{
+// 		BITMAP bm;
+// 		GetObject(m_hMemBitmap, sizeof(bm), &bm);
+// 		if (bm.bmWidth >= nWidth && bm.bmHeight >= nHeight)
+// 		{
+// 			TimerItem item;
+// 			item.nRepeatCount = 1;
+// 			item.pNotify = this;
+// 			item.wParam = 0;
+// 			item.lParam = 0;
+// 			
+// 			m_nMemoryRecycleTimerID = TimerHelper::GetInstance()->SetNewTimer(10000, &item);
+// 			return;
+// 		}
+// 	}
 
 	this->DestroyDoubleBuffer();
 

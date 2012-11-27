@@ -72,6 +72,7 @@ void RichEditBase::OnEraseBkgnd(IRenderTarget*  pRendrTarget)
 {
 	SetMsgHandled(FALSE);
 }
+
 void RichEditBase::OnPaint(IRenderTarget*  pRendrTarget)
 {
 	HDC hDC = pRendrTarget->GetHDC();
