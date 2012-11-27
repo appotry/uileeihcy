@@ -474,10 +474,10 @@ long WindowBase::ModalLoop(HWND hWndParent)
 {
 	this->ShowWindow();
 	::UpdateWindow( this->m_hWnd );
-
+	
 	this->m_bDoModal = true;
 	bool bEnableWindow = false;
-	if (NULL != hWndParent && GetDesktopWindow() != hWndParent)
+	if (NULL != hWndParent && GetDesktopWindow() != hWndParent && IsWindowEnabled(hWndParent))
 	{
 		::EnableWindow( hWndParent, FALSE );
 		bEnableWindow = true;
@@ -497,6 +497,12 @@ long WindowBase::ModalLoop(HWND hWndParent)
 			this->m_bEndModal = false;
 			break;
 		}
+	}
+
+	// hide the window before enabling the parent, etc.
+	if (m_hWnd != NULL)
+	{
+		SetWindowPos(m_hWnd, NULL, 0, 0, 0, 0, SWP_HIDEWINDOW|SWP_NOSIZE|SWP_NOMOVE|SWP_NOACTIVATE|SWP_NOZORDER);
 	}
 
 	if (bEnableWindow)
