@@ -455,13 +455,13 @@ void GdiRenderTarget::Clear()
 
 int GdiRenderTarget::DrawString( const TCHAR* szText, const CRect* lpRect, UINT nFormat, HRFONT hRFont, COLORREF col )
 {
-	if( NULL == hRFont )
+	if (NULL == hRFont)
 	{
 		UI_LOG_WARN(_T("GdiRenderTarget::DrawString hRFont == NULL"));
 		return -1;
 	}
 
-	if( ((IRenderFont*)hRFont)->GetRenderType() != GRAPHICS_RENDER_TYPE_GDI )
+	if (((IRenderFont*)hRFont)->GetRenderType() != GRAPHICS_RENDER_TYPE_GDI)
 	{
 		UI_LOG_WARN(_T("GdiRenderTarget::DrawString hRFont render type != GRAPHICS_RENDER_TYPE_GDI"));
 		return -1;

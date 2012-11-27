@@ -17,6 +17,10 @@
 #include <memory.h>
 #include <tchar.h>
 
+#include <atlbase.h>
+#include <atlapp.h>
+#include <atlwin.h>
+#include <atldlgs.h>
 
 #include "ui.h"
 #pragma comment(lib, "uidll.lib")

@@ -1484,22 +1484,22 @@ void LayeredWindowWrap::OnExitSizeMove()
 	m_sizeWindowOld.cy = 0;
 }
 
-int nLastTickCount = 0;
-bool DoCommit2LayeredWindowRequst()
-{
-	int nNow = GetTickCount();
-	int nDiff = nNow - nLastTickCount;
-	if (nDiff < 40)
-	{
-		return false;
-	}
-	nLastTickCount = nNow;
-	return true;
-}
+// int nLastTickCount = 0;
+// bool DoCommit2LayeredWindowRequst()
+// {
+// 	int nNow = GetTickCount();
+// 	int nDiff = nNow - nLastTickCount;
+// 	if (nDiff < 40)
+// 	{
+// 		return false;
+// 	}
+// 	nLastTickCount = nNow;
+// 	return true;
+// }
 void LayeredWindowWrap::Commit2LayeredWindow()
 {
-	if (false == DoCommit2LayeredWindowRequst()) // TODO: 该函数主要用于限制动画刷新帧数
-		return;
+// 	if (false == DoCommit2LayeredWindowRequst()) // TODO: 该函数主要用于限制动画刷新帧数
+// 		return;
 
 	POINT ptMemDC  = {0,0};
 	int   nFlag = ULW_OPAQUE;
