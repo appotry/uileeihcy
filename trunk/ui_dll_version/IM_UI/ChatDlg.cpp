@@ -34,10 +34,6 @@ void CChatDlg::OnInitWindow()
 }
 void CChatDlg::OnBnClickChangeBkImg()
 {
-	ReleaseCapture();
-	CChatDlg    chatDlg;
-	chatDlg.DoModal(_T("chatdlg"),m_hWnd);
-	return;
 	CFileDialog  dlg(TRUE);
 	if (IDOK !=dlg.DoModal())
 		return;

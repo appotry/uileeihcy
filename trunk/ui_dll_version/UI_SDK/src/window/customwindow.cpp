@@ -68,17 +68,23 @@ LRESULT CustomWindow::_OnNcDestroy( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 //
 // 屏蔽WM_NCACTIVATE消息，否则在win7上被激活或失活会有边框(但是因为现在不使用WS_THICKFRAME来实现拖拽，也没有这个
 // 问题了，这里响应该消息仅为了实现窗口刷新）
+// 20121127 后注:强制返回1将导致从一个模态customwindow中再弹出一个模态窗口时（如CFileDialog），新弹出的窗口将永远不能被激活。
+//               貌似是子模态窗口会向父窗口发送这个消息进行检测
 //
 // Remark
 //	Return Nonzero if Windows should proceed with default processing; 0 to prevent the caption bar or icon from being deactivated.
 //
-//	这里不能返回0，否则会导致其它窗口出现很多问题
+//	这里不能返回0，否则会导致其它窗口出现很多问题（--废弃）
 //	
 LRESULT CustomWindow::_OnNcActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
 	this->SetActive(wParam?true:false);
-	this->UpdateObject();
-	return 1;
+
+	bHandled = FALSE;
+	return 0;
+
+// 	this->UpdateObject();
+// 	return 1;
 }
 
 

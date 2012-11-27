@@ -545,11 +545,11 @@ LRESULT MouseManager::LButtonUp( int vkFlag, int xPos, int yPos )
 		this->SetPressObject(NULL);
 		this->SetHoverObject(pNowHover);
 
-		if( pNowHover != pSaveObjPress && NULL != pSaveObjPress )
+		if (pNowHover != pSaveObjPress && NULL != pSaveObjPress)
 		{
 			::UISendMessage( pSaveObjPress, WM_MOUSELEAVE );
 		}
-		if( pNowHover != pSaveObjHover && NULL != pNowHover )
+		if (pNowHover != pSaveObjHover && NULL != pNowHover )
 		{
 			::UISendMessage( pNowHover, WM_MOUSEMOVE, (WPARAM) vkFlag, MAKELPARAM( pt.x, pt.y ) );
 		}
