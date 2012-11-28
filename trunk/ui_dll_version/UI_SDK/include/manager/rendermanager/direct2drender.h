@@ -82,7 +82,7 @@ public:
 	// needs recreated. (For more information about resources, see Resources 
 	// Overview.)
 	//
-	virtual bool  LoadFromFile(const String& strPath, const ATTRMAP& mapAttrib)
+	virtual bool  LoadFromFile(const String& strPath, bool bCreateAlphaChannel, const ATTRMAP& mapAttrib)
 	{
 		if (NULL == g_D2DGlobalData.m_pWICFactory)
 			g_D2DGlobalData.CreateD2D();
@@ -165,7 +165,7 @@ public:
 		return false;
 	}
 
-	virtual bool  Modify(const String& strFilePath)
+	virtual bool  Modify(const String& strFilePath, bool bCreateAlphaChannel)
 	{
 		UIASSERT(0); // TODO:
 		return false;

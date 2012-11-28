@@ -78,11 +78,12 @@ public:
 //	static void  CreateInstance( IRenderBitmap** pOutRef );
 
 public:
-	virtual bool  LoadFromFile( const String& strPath, const ATTRMAP& mapAttrib ) = 0;
-	virtual bool  Modify(const String& strFilePath) = 0;
+	virtual bool  LoadFromFile( const String& strPath, bool bCreateAlphaChannel, const ATTRMAP& mapAttrib ) = 0;
+	virtual bool  Modify(const String& strFilePath, bool bCreateAlphaChannel) = 0;
 	virtual bool  Create(int nWidth, int nHeight) = 0;
 	virtual int   GetWidth() = 0;
 	virtual int   GetHeight() = 0;
+	virtual COLORREF GetAverageColor() { return 0; }
 
 	virtual BYTE* LockBits() = 0;
 	virtual void  UnlockBits() = 0;
@@ -108,7 +109,7 @@ public:
 class RenderBitmapFactory
 {
 public:
-	static void CreateInstance(IRenderBitmap** ppOut, GRAPHICS_RENDER_TYPE eGraphicsRenderType, IMAGE_ITEM_TYPE eType, const String& strPath);
+	static void CreateInstance(IRenderBitmap** ppOut, GRAPHICS_RENDER_TYPE eGraphicsRenderType, IMAGE_ITEM_TYPE eType);
 };
 class  IRenderFont : public IRenderResource
 {

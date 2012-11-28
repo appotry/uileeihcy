@@ -233,61 +233,44 @@ namespace UI
 		operator HBITMAP() const throw();
 		HBITMAP GetHBITMAP() { return m_hBitmap; }
 #if WINVER >= 0x0500
-		BOOL AlphaBlend( HDC hDestDC, int xDest, int yDest, BYTE bSrcAlpha = 0xff, 
-			BYTE bBlendOp = AC_SRC_OVER ) const throw();
-		BOOL AlphaBlend( HDC hDestDC, const POINT& pointDest, BYTE bSrcAlpha = 0xff, 
-			BYTE bBlendOp = AC_SRC_OVER ) const throw();
-		BOOL AlphaBlend( HDC hDestDC, int xDest, int yDest, int nDestWidth, 
-			int nDestHeight, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight, 
-			BYTE bSrcAlpha = 0xff, BYTE bBlendOp = AC_SRC_OVER ) const throw();
-		BOOL AlphaBlend( HDC hDestDC, const RECT& rectDest, const RECT& rectSrc, 
-			BYTE bSrcAlpha = 0xff, BYTE bBlendOp = AC_SRC_OVER ) const throw();
+		BOOL  AlphaBlend( HDC hDestDC, int xDest, int yDest, BYTE bSrcAlpha = 0xff, BYTE bBlendOp = AC_SRC_OVER ) const throw();
+		BOOL  AlphaBlend( HDC hDestDC, const POINT& pointDest, BYTE bSrcAlpha = 0xff, BYTE bBlendOp = AC_SRC_OVER ) const throw();
+		BOOL  AlphaBlend( HDC hDestDC, int xDest, int yDest, int nDestWidth, int nDestHeight, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight, BYTE bSrcAlpha = 0xff, BYTE bBlendOp = AC_SRC_OVER ) const throw();
+		BOOL  AlphaBlend( HDC hDestDC, const RECT& rectDest, const RECT& rectSrc, BYTE bSrcAlpha = 0xff, BYTE bBlendOp = AC_SRC_OVER ) const throw();
 #endif  // WINVER >= 0x0500
-		void Attach( HBITMAP hBitmap, DIBOrientation eOrientation = DIBOR_DEFAULT ) throw();
-		BOOL BitBlt( HDC hDestDC, int xDest, int yDest, DWORD dwROP = SRCCOPY ) const throw();
-		BOOL BitBlt( HDC hDestDC, const POINT& pointDest, DWORD dwROP = SRCCOPY ) const throw();
-		BOOL BitBlt( HDC hDestDC, int xDest, int yDest, int nDestWidth, 
-			int nDestHeight, int xSrc, int ySrc, DWORD dwROP = SRCCOPY ) const throw();
-		BOOL BitBlt( HDC hDestDC, const RECT& rectDest, const POINT& pointSrc, 
-			DWORD dwROP = SRCCOPY ) const throw();
-		BOOL Create( int nWidth, int nHeight, int nBPP, DWORD dwFlags = 0 ) throw();
-		BOOL CreateEx( int nWidth, int nHeight, int nBPP, DWORD eCompression, 
-			const DWORD* pdwBitmasks = NULL, DWORD dwFlags = 0 ) throw();
-		void Destroy() throw();
+		void  Attach( HBITMAP hBitmap, DIBOrientation eOrientation = DIBOR_DEFAULT ) throw();
+		BOOL  BitBlt( HDC hDestDC, int xDest, int yDest, DWORD dwROP = SRCCOPY ) const throw();
+		BOOL  BitBlt( HDC hDestDC, const POINT& pointDest, DWORD dwROP = SRCCOPY ) const throw();
+		BOOL  BitBlt( HDC hDestDC, int xDest, int yDest, int nDestWidth, int nDestHeight, int xSrc, int ySrc, DWORD dwROP = SRCCOPY ) const throw();
+		BOOL  BitBlt( HDC hDestDC, const RECT& rectDest, const POINT& pointSrc, DWORD dwROP = SRCCOPY ) const throw();
+		BOOL  Create( int nWidth, int nHeight, int nBPP, DWORD dwFlags = 0 ) throw();
+		BOOL  CreateEx( int nWidth, int nHeight, int nBPP, DWORD eCompression, const DWORD* pdwBitmasks = NULL, DWORD dwFlags = 0 ) throw();
+		void  Destroy() throw();
 		HBITMAP Detach() throw();
-		BOOL Draw( HDC hDestDC, int xDest, int yDest, int nDestWidth, 
-			int nDestHeight, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight ) const throw();
-		/* <BEGIN bo.li ADD 20101202 增加9宫绘制 */
-		BOOL Draw( HDC hDestDC, int xDest, int yDest, int nDestWidth, 
-			int nDestHeight, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight,
-			Image9Region* pImage9Region ) const throw();
-		/* ADD END> */
-		BOOL Draw( HDC hDestDC, const RECT& rectDest, const RECT& rectSrc ) const throw();
-		BOOL Draw( HDC hDestDC, int xDest, int yDest ) const throw();
-		BOOL Draw( HDC hDestDC, const POINT& pointDest ) const throw();
-		BOOL Draw( HDC hDestDC, int xDest, int yDest, int nDestWidth, 
-			int nDestHeight ) const throw();
-		BOOL Draw( HDC hDestDC, const RECT& rectDest ) const throw();
+		BOOL  Draw( HDC hDestDC, int xDest, int yDest, int nDestWidth, int nDestHeight, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight ) const throw();
+		/* bo.li ADD 20101202 增加9宫绘制 */
+		BOOL  Draw( HDC hDestDC, int xDest, int yDest, int nDestWidth, int nDestHeight, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight, Image9Region* pImage9Region ) const throw();
+		BOOL  Draw( HDC hDestDC, const RECT& rectDest, const RECT& rectSrc ) const throw();
+		BOOL  Draw( HDC hDestDC, int xDest, int yDest ) const throw();
+		BOOL  Draw( HDC hDestDC, const POINT& pointDest ) const throw();
+		BOOL  Draw( HDC hDestDC, int xDest, int yDest, int nDestWidth, int nDestHeight ) const throw();
+		BOOL  Draw( HDC hDestDC, const RECT& rectDest ) const throw();
 		const void* GetBits() const throw();
 		void* GetBits() throw();
-		int GetBPP() const throw();
-		void GetColorTable( UINT iFirstColor, UINT nColors, RGBQUAD* prgbColors ) const throw();
-		HDC GetDC() const throw();
-		static HRESULT GetExporterFilterString( String& strExporters, 
-			vector< GUID >& aguidFileTypes, LPCTSTR pszAllFilesDescription = NULL, 
-			DWORD dwExclude = excludeDefaultSave, TCHAR chSeparator = _T( '|' ) );
-		static HRESULT GetImporterFilterString( String& strImporters, 
-			vector< GUID >& aguidFileTypes, LPCTSTR pszAllFilesDescription = NULL, 
-			DWORD dwExclude = excludeDefaultLoad, TCHAR chSeparator = _T( '|' ) );
+		int   GetBPP() const throw();
+		void  GetColorTable( UINT iFirstColor, UINT nColors, RGBQUAD* prgbColors ) const throw();
+		HDC   GetDC() const throw();
+		static HRESULT GetExporterFilterString( String& strExporters, vector< GUID >& aguidFileTypes, LPCTSTR pszAllFilesDescription = NULL, DWORD dwExclude = excludeDefaultSave, TCHAR chSeparator = _T( '|' ) );
+		static HRESULT GetImporterFilterString( String& strImporters, vector< GUID >& aguidFileTypes, LPCTSTR pszAllFilesDescription = NULL, DWORD dwExclude = excludeDefaultLoad, TCHAR chSeparator = _T( '|' ) );
 
-		int GetHeight() const throw();
-		int GetMaxColorTableEntries() const throw();
-		int GetPitch() const throw();
+		int  GetHeight() const throw();
+		int  GetMaxColorTableEntries() const throw();
+		int  GetPitch() const throw();
 		const void* GetPixelAddress( int x, int y ) const throw();
 		void* GetPixelAddress( int x, int y ) throw();
 		COLORREF GetPixel( int x, int y ) const throw();
 		LONG GetTransparentColor() const throw();
-		int GetWidth() const throw();
+		int  GetWidth() const throw();
 		bool IsDIBSection() const throw();
 		bool IsIndexed() const throw();
 		bool IsNull() const throw();
@@ -300,51 +283,34 @@ namespace UI
 		bool LoadFromData( void* pImageData, int nSize );
 		/* ADD END> */
 		HRESULT CreateFromGdiplusBitmap( Gdiplus::Bitmap& bmSrc ) throw();
+		HRESULT Create32BPPFromGdiplusBitmap( Gdiplus::Bitmap& bmSrc ) throw();
 
-		BOOL MaskBlt( HDC hDestDC, int xDest, int yDest, int nDestWidth, 
-			int nDestHeight, int xSrc, int ySrc, HBITMAP hbmMask, int xMask, 
-			int yMask, DWORD dwROP = SRCCOPY ) const throw();
-		BOOL MaskBlt( HDC hDestDC, const RECT& rectDest, const POINT& pointSrc, 
-			HBITMAP hbmMask, const POINT& pointMask, DWORD dwROP = SRCCOPY ) const throw();
-		BOOL MaskBlt( HDC hDestDC, int xDest, int yDest, HBITMAP hbmMask, 
-			DWORD dwROP = SRCCOPY ) const throw();
-		BOOL MaskBlt( HDC hDestDC, const POINT& pointDest, HBITMAP hbmMask, 
-			DWORD dwROP = SRCCOPY ) const throw();
+		BOOL MaskBlt( HDC hDestDC, int xDest, int yDest, int nDestWidth, int nDestHeight, int xSrc, int ySrc, HBITMAP hbmMask, int xMask, int yMask, DWORD dwROP = SRCCOPY ) const throw();
+		BOOL MaskBlt( HDC hDestDC, const RECT& rectDest, const POINT& pointSrc, HBITMAP hbmMask, const POINT& pointMask, DWORD dwROP = SRCCOPY ) const throw();
+		BOOL MaskBlt( HDC hDestDC, int xDest, int yDest, HBITMAP hbmMask, DWORD dwROP = SRCCOPY ) const throw();
+		BOOL MaskBlt( HDC hDestDC, const POINT& pointDest, HBITMAP hbmMask, DWORD dwROP = SRCCOPY ) const throw();
 		BOOL PlgBlt( HDC hDestDC, const POINT* pPoints, HBITMAP hbmMask = NULL ) const throw();
-		BOOL PlgBlt( HDC hDestDC, const POINT* pPoints, int xSrc, int ySrc, 
-			int nSrcWidth, int nSrcHeight, HBITMAP hbmMask = NULL, int xMask = 0, 
-			int yMask = 0 ) const throw();
+		BOOL PlgBlt( HDC hDestDC, const POINT* pPoints, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight, HBITMAP hbmMask = NULL, int xMask = 0, int yMask = 0 ) const throw();
 		/* ↓ 修改：将CPoint->Point,并去掉默认参数CPoint(0,0) */
-		BOOL PlgBlt( HDC hDestDC, const POINT* pPoints, const RECT& rectSrc, 
-			const POINT& pointMask, HBITMAP hbmMask = NULL ) const throw();
+		BOOL PlgBlt( HDC hDestDC, const POINT* pPoints, const RECT& rectSrc, const POINT& pointMask, HBITMAP hbmMask = NULL ) const throw();
 		void ReleaseDC() const throw();
 		HRESULT Save( IStream* pStream, REFGUID guidFileType ) const throw();
 		HRESULT Save( LPCTSTR pszFileName, REFGUID guidFileType = GUID_NULL ) const throw();
-		void SetColorTable( UINT iFirstColor, UINT nColors, 
-			const RGBQUAD* prgbColors ) throw();
+		void SetColorTable( UINT iFirstColor, UINT nColors, const RGBQUAD* prgbColors ) throw();
 		void SetPixel( int x, int y, COLORREF color ) throw();
 		void SetPixelIndexed( int x, int y, int iIndex ) throw();
 		void SetPixelRGB( int x, int y, BYTE r, BYTE g, BYTE b ) throw();
 		LONG SetTransparentColor( LONG iTransparentColor ) throw();
 		COLORREF SetTransparentColor( COLORREF colorTransparent ) throw();
-		BOOL StretchBlt( HDC hDestDC, int xDest, int yDest, int nDestWidth, 
-			int nDestHeight, DWORD dwROP = SRCCOPY ) const throw();
+		BOOL StretchBlt( HDC hDestDC, int xDest, int yDest, int nDestWidth, int nDestHeight, DWORD dwROP = SRCCOPY ) const throw();
 		BOOL StretchBlt( HDC hDestDC, const RECT& rectDest, DWORD dwROP = SRCCOPY ) const throw();
-		BOOL StretchBlt( HDC hDestDC, int xDest, int yDest, int nDestWidth, 
-			int nDestHeight, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight,
-			DWORD dwROP = SRCCOPY ) const throw();
-		BOOL StretchBlt( HDC hDestDC, const RECT& rectDest, const RECT& rectSrc,
-			DWORD dwROP = SRCCOPY ) const throw();
+		BOOL StretchBlt( HDC hDestDC, int xDest, int yDest, int nDestWidth, int nDestHeight, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight, DWORD dwROP = SRCCOPY ) const throw();
+		BOOL StretchBlt( HDC hDestDC, const RECT& rectDest, const RECT& rectSrc, DWORD dwROP = SRCCOPY ) const throw();
 #if WINVER >= 0x0500
-		BOOL TransparentBlt( HDC hDestDC, int xDest, int yDest, int nDestWidth, 
-			int nDestHeight, UINT crTransparent = CLR_INVALID ) const throw();
-		BOOL TransparentBlt( HDC hDestDC, const RECT& rectDest, 
-			UINT crTransparent = CLR_INVALID ) const throw();
-		BOOL TransparentBlt( HDC hDestDC, int xDest, int yDest, int nDestWidth,
-			int nDestHeight, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight,
-			UINT crTransparent = CLR_INVALID ) const throw();
-		BOOL TransparentBlt( HDC hDestDC, const RECT& rectDest, const RECT& rectSrc,
-			UINT crTransparent = CLR_INVALID ) const throw();
+		BOOL TransparentBlt( HDC hDestDC, int xDest, int yDest, int nDestWidth, int nDestHeight, UINT crTransparent = CLR_INVALID ) const throw();
+		BOOL TransparentBlt( HDC hDestDC, const RECT& rectDest, UINT crTransparent = CLR_INVALID ) const throw();
+		BOOL TransparentBlt( HDC hDestDC, int xDest, int yDest, int nDestWidth, int nDestHeight, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight, UINT crTransparent = CLR_INVALID ) const throw();
+		BOOL TransparentBlt( HDC hDestDC, const RECT& rectDest, const RECT& rectSrc, UINT crTransparent = CLR_INVALID ) const throw();
 #endif  // WINVER >= 0x0500
 
 		static BOOL IsTransparencySupported() throw();
@@ -358,21 +324,23 @@ namespace UI
 		void   RestoreBits( ImageData* pImageData );
 		bool   ImageList_Draw(HDC hDestDC, int x, int y, int col, int row, int cx, int cy );  // libo add 20120401 增加图像列表绘制方法
 		HBITMAP CopyRect(RECT* prc);    // libo add 20121019 增加拷贝图片的一部分的方法
+		COLORREF GetAverageColor();
 		
 		// libo add 20121027 增加一个向该Bitmap绘制内容的方法
 		HDC    BeginDrawToMyself() { this->GetDC(); return m_hDC; }
 		void   EndDrawToMyself() { this->ReleaseDC(); }
 
+
 	private:
 		HBITMAP m_hBitmap;
 		void* m_pBits;
-		int m_nWidth;
-		int m_nHeight;
-		int m_nPitch;
-		int m_nBPP;               // bit per pixel
-		bool m_bIsDIBSection;
-		bool m_bHasAlphaChannel;
-		LONG m_iTransparentColor;    // -1 表示未采用, -2 表示直接使用m_colorTransparent
+		int   m_nWidth;
+		int   m_nHeight;
+		int   m_nPitch;
+		int   m_nBPP;               // bit per pixel
+		bool  m_bIsDIBSection;
+		bool  m_bHasAlphaChannel;
+		LONG  m_iTransparentColor;    // -1 表示未采用, -2 表示直接使用m_colorTransparent
 		COLORREF m_colorTransparent; // 当m_iTransparentColor为-2时有效
 
 
@@ -388,8 +356,7 @@ namespace UI
 	private:
 		static CLSID FindCodecForExtension( LPCTSTR pszExtension, const Gdiplus::ImageCodecInfo* pCodecs, UINT nCodecs );
 		static CLSID FindCodecForFileType( REFGUID guidFileType, const Gdiplus::ImageCodecInfo* pCodecs, UINT nCodecs );
-		static void BuildCodecFilterString( const Gdiplus::ImageCodecInfo* pCodecs, UINT nCodecs, 
-			String& strFilter, vector< GUID >& aguidFileTypes, LPCTSTR pszAllFilesDescription, DWORD dwExclude, TCHAR chSeparator );
+		static void BuildCodecFilterString( const Gdiplus::ImageCodecInfo* pCodecs, UINT nCodecs, String& strFilter, vector< GUID >& aguidFileTypes, LPCTSTR pszAllFilesDescription, DWORD dwExclude, TCHAR chSeparator );
 		static bool ShouldExcludeFormat( REFGUID guidFileType, DWORD dwExclude ) throw();
 		void UpdateBitmapInfo( DIBOrientation eOrientation );
 
@@ -766,6 +733,7 @@ namespace UI
 			hBitmap = Detach();
 			::DeleteObject( hBitmap );
 		}
+		m_bHasAlphaChannel = false;
 	}
 
 	inline HBITMAP Image::Detach() throw()
@@ -1342,18 +1310,20 @@ namespace UI
 #endif
 	}
 
-	inline HRESULT Image::CreateFromGdiplusBitmap( Gdiplus::Bitmap& bmSrc ) throw()
+	// 2012.11.28 增加强制创建一个32位带alpha通道的功能，使得24位格式图片也能在分层窗口上显示
+	inline HRESULT Image::CreateFromGdiplusBitmap(Gdiplus::Bitmap& bmSrc) throw()
 	{
-		Gdiplus::PixelFormat eSrcPixelFormat = bmSrc.GetPixelFormat();
-		UINT nBPP = 32;
+		UINT  nBPP = 32;
 		DWORD dwFlags = 0;
+
+		Gdiplus::PixelFormat eSrcPixelFormat = bmSrc.GetPixelFormat();
 		Gdiplus::PixelFormat eDestPixelFormat = PixelFormat32bppRGB;
 		if( eSrcPixelFormat&PixelFormatGDI )
 		{
 			nBPP = Gdiplus::GetPixelFormatSize( eSrcPixelFormat );
 			eDestPixelFormat = eSrcPixelFormat;
 		}
-		if( Gdiplus::IsAlphaPixelFormat( eSrcPixelFormat ) )
+		if( m_bHasAlphaChannel || Gdiplus::IsAlphaPixelFormat( eSrcPixelFormat ) )  // Add by libo 如果需要强制创建一个带alpha channel的位图
 		{
 			nBPP = 32;
 			dwFlags |= createAlphaChannel;
@@ -1424,13 +1394,130 @@ namespace UI
 				{
 					for (int i = 0; i < (int)nBytesPerRow; i+=4)
 					{
-						pbDestRow[i]   = pbSrcRow[i]  *pbSrcRow[i+3]/255;
-						pbDestRow[i+1] = pbSrcRow[i+1]*pbSrcRow[i+3]/255;
-						pbDestRow[i+2] = pbSrcRow[i+2]*pbSrcRow[i+3]/255;
-						pbDestRow[i+3] = pbSrcRow[i+3];
+						int nAlpha = pbSrcRow[i+3];
+						pbDestRow[i]   = pbSrcRow[i]  *nAlpha/255;
+						pbDestRow[i+1] = pbSrcRow[i+1]*nAlpha/255;
+						pbDestRow[i+2] = pbSrcRow[i+2]*nAlpha/255;
+						pbDestRow[i+3] = nAlpha;
 					}
 				}
-				else
+				else 
+				{
+					/* < BEGIN 20100623 libo MODIFY，　在VS2005以下，没有memcpy_s函数 */
+					//memcpy_s(pbDestRow, nBytesPerRow, pbSrcRow, nBytesPerRow);
+					memcpy( pbDestRow,  pbSrcRow, nBytesPerRow );
+					/* 20100623 libo MODIFY END > */
+				}
+				pbDestRow += GetPitch();
+				pbSrcRow += data.Stride;
+			}
+
+			bmSrc.UnlockBits( &data );
+		}
+		else
+		{
+			// Let GDI+ work its magic
+			Gdiplus::Bitmap bmDest( GetWidth(), GetHeight(), GetPitch(), eDestPixelFormat, static_cast< BYTE* >( GetBits() ) );
+			Gdiplus::Graphics gDest( &bmDest );
+
+			gDest.DrawImage( &bmSrc, 0, 0 );
+		}
+
+		return( S_OK );
+	}
+
+
+	// 指定创建32位格式的Image。为了避免24位的图片有没有alpha值，导致在分层窗口上显示不出来，在这里将alpha填充为255
+	inline HRESULT Image::Create32BPPFromGdiplusBitmap( Gdiplus::Bitmap& bmSrc ) throw()
+	{
+		Gdiplus::PixelFormat eSrcPixelFormat = bmSrc.GetPixelFormat();
+		UINT nBPP = 32;
+		DWORD dwFlags = 0;
+		Gdiplus::PixelFormat eDestPixelFormat = PixelFormat32bppRGB;
+		if( eSrcPixelFormat&PixelFormatGDI )
+		{
+			nBPP = Gdiplus::GetPixelFormatSize( eSrcPixelFormat );
+			eDestPixelFormat = eSrcPixelFormat;
+		}
+		if( Gdiplus::IsAlphaPixelFormat( eSrcPixelFormat ) )
+		{
+			nBPP = 32;
+			dwFlags |= createAlphaChannel;
+			eDestPixelFormat = PixelFormat32bppARGB;
+		}
+
+		BOOL bSuccess = Create( bmSrc.GetWidth(), bmSrc.GetHeight(), nBPP, dwFlags );
+		if( !bSuccess )
+		{
+			return( E_FAIL );
+		}
+		//USES_ATL_SAFE_ALLOCA;
+		Gdiplus::ColorPalette* pPalette = NULL;
+		if( Gdiplus::IsIndexedPixelFormat( eSrcPixelFormat ) )
+		{
+			UINT nPaletteSize = bmSrc.GetPaletteSize();
+			pPalette = static_cast< Gdiplus::ColorPalette* >( _alloca(nPaletteSize) );
+
+			if( pPalette == NULL )
+				return E_OUTOFMEMORY;
+
+			bmSrc.GetPalette( pPalette, nPaletteSize );
+
+			RGBQUAD argbPalette[256];
+			assert( (pPalette->Count > 0) && (pPalette->Count <= 256) );
+			for( UINT iColor = 0; iColor < pPalette->Count; iColor++ )
+			{
+				Gdiplus::ARGB color = pPalette->Entries[iColor];
+				argbPalette[iColor].rgbRed = (BYTE)( (color>>RED_SHIFT) & 0xff );
+				argbPalette[iColor].rgbGreen = (BYTE)( (color>>GREEN_SHIFT) & 0xff );
+				argbPalette[iColor].rgbBlue = (BYTE)( (color>>BLUE_SHIFT) & 0xff );
+				argbPalette[iColor].rgbReserved = 0;
+			}
+
+			SetColorTable( 0, pPalette->Count, argbPalette );
+		}
+
+		if( eDestPixelFormat == eSrcPixelFormat  )
+		{
+			// The pixel formats are identical, so just memcpy the rows.
+			Gdiplus::BitmapData data;
+			Gdiplus::Rect rect( 0, 0, GetWidth(), GetHeight() );
+			if(bmSrc.LockBits( &rect, Gdiplus::ImageLockModeRead, eSrcPixelFormat, &data )!=Gdiplus::Ok)
+			{
+				return E_OUTOFMEMORY;
+			}
+
+			size_t nBytesPerRow = ( (nBPP*GetWidth()+8-1)&~(8 -1) )/ 8;//AtlAlignUp( nBPP*GetWidth(), 8 )/8;
+
+			BYTE* pbDestRow = static_cast< BYTE* >( GetBits() );
+			BYTE* pbSrcRow = static_cast< BYTE* >( data.Scan0 );
+
+			for( int y = 0; y < GetHeight(); y++ )
+			{
+				//////////////////////////////////////////////////////////////////////////
+				//
+				//                         实现预乘。
+				//
+				// First you need to create a pre-multiplied 32-bits-per-pixel (bpp) bitmap using a
+				// blue-green-red-alpha (BGRA) color channel byte order. Pre-multiplied just means
+				// that the color channel values have already been multiplied by the alpha value.
+				// This tends to provide better performance for alpha blending images, but it means
+				// you need to reverse the process by dividing the color values by the alpha value
+				// to get their true color values.
+				//
+				//////////////////////////////////////////////////////////////////////////
+				if (m_bHasAlphaChannel)
+				{
+					for (int i = 0; i < (int)nBytesPerRow; i+=4)
+					{
+						int nAlpha = pbSrcRow[i+3];
+						pbDestRow[i]   = pbSrcRow[i]  *nAlpha/255;
+						pbDestRow[i+1] = pbSrcRow[i+1]*nAlpha/255;
+						pbDestRow[i+2] = pbSrcRow[i+2]*nAlpha/255;
+						pbDestRow[i+3] = nAlpha;
+					}
+				}
+				else 
 				{
 					/* < BEGIN 20100623 libo MODIFY，　在VS2005以下，没有memcpy_s函数 */
 					//memcpy_s(pbDestRow, nBytesPerRow, pbSrcRow, nBytesPerRow);
@@ -2531,6 +2618,61 @@ namespace UI
 
 		HBITMAP hRetValue = image.Detach();
 		return hRetValue;
+	}
+
+	// 获取图像的平均色值
+	inline COLORREF Image::GetAverageColor()
+	{
+		if (m_nBPP != 24 && m_nBPP != 32)   // 仅支持24、32位的图片
+			return 0;
+
+		if (NULL == m_hBitmap)
+			return 0;
+
+		int nCount = m_nWidth*m_nHeight;
+		if (0 == nCount)
+			return 0;
+
+		BYTE* pTemp = (BYTE*)m_pBits;
+		int   bytesperpx    = m_nBPP>>3;
+		int   bytesperline   = bytesperpx*m_nWidth;  /*abs(m_nPitch);*/ // 注：由于位于一行要求是4的位置，可能导致当宽度为奇数数，后面会补充无用的位。因此这里不能直接用m_nPitch
+		bool  bHaveAlphaChannel = GetBPP() == 32;
+
+		LONGLONG  a = 0, g = 0, b = 0, r = 0;
+		if (bHaveAlphaChannel)
+		{
+			for (int row = 0; row < m_nHeight; row ++ )
+			{
+				for( int i = 0; i < bytesperline; i += bytesperpx )
+				{
+					/*BYTE B*/ b += pTemp[i];
+					/*BYTE G*/ g += pTemp[i+1];
+					/*BYTE R*/ r += pTemp[i+2];
+					/*BYTE A*/ a += pTemp[i+3];
+				}
+				pTemp += m_nPitch;
+			}
+		}
+		else
+		{
+			for (int row = 0; row < m_nHeight; row ++ )
+			{
+				for( int i = 0; i < bytesperline; i += bytesperpx )
+				{
+					/*BYTE B*/ b += pTemp[i];
+					/*BYTE G*/ g += pTemp[i+1];
+					/*BYTE R*/ r += pTemp[i+2];
+				}
+				pTemp += m_nPitch;
+			}
+		}
+
+		a = a/nCount;
+		r = r/nCount;
+		g = g/nCount;
+		b = b/nCount;
+
+		return ((COLORREF)(((BYTE)(r)|((WORD)((BYTE)(g))<<8))|(((DWORD)(BYTE)(b))<<16)|(((DWORD)(BYTE)(a))<<24)));
 	}
 };  // namespace 
 

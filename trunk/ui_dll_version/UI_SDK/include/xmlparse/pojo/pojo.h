@@ -154,14 +154,17 @@ namespace UI
 		String    m_strPath;    // image path
 
 		bool      m_bUseSkinHLS;         // 该图片是否参与皮肤色调改变 
-		bool      m_bHasAlphaChannel;    // 该图片是否拥有alpha channel。有alpha channel的图片一率采用gdi创建，采用alphablend绘制
+		bool      m_bMustHasAlphaChannel;// 该图片是否需要创建alpha channel。1. 有alpha channel的图片一率采用gdi创建，采用alphablend绘制。2. 没有alpha channel的gdi图片将无法在分层窗口上面绘制
 		ATTRMAP   m_mapAttribute;        // 为该图片配置的属性，例如imagelist的count，icon的width height
 		IMAGE_ITEM_TYPE m_eType;         // 图片类型
 
 		ImageData*            m_pOriginImageData;    // 该图片的原始数据（改变图片色调时使用）
 		GDIRenderBitmap*      m_pGdiBitmap;          // 外部引用
-		GdiplusRenderBitmap*  m_pGdiplusBitmap;      // 外部引用
-		Direct2DRenderBitmap* m_pDirect2DBitmap;     // 
+
+    //  注：为了提高绘图效率，同时也避免一张图片加载多种形式，尽量使用GDI(AlphaBlend)来绘图。
+	//	    需要注意的是：如果需要使用alpha通道时，必须强制创建一个32位的GDI BITMAP
+ 	//	GdiplusRenderBitmap*  m_pGdiplusBitmap;      // 外部引用
+	//	Direct2DRenderBitmap* m_pDirect2DBitmap;     // 外部引用
 
 	public:
 		DECLARE_STRING_SETGET( ID );
