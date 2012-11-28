@@ -23,17 +23,22 @@ public:
 	Image*  GetBitmap() { return &m_image; }
 
 public:
-	virtual bool  LoadFromFile(const String& strPath, const ATTRMAP& mapAttrib)
+	virtual bool  LoadFromFile(const String& strPath, bool bCreateAlphaChannel, const ATTRMAP& mapAttrib)
 	{
 		this->SetAttribute(mapAttrib);
 
-		if( ! m_image.IsNull() )
+		if (!m_image.IsNull())
 		{
 			m_image.Destroy();
 		}
 
+		if (bCreateAlphaChannel)
+		{
+			m_image.ForceUseAlpha();
+		}
+
 		String strExt = strPath.substr(strPath.length()-4, 4);
-		if( 0 == _tcsicmp(strExt.c_str(), _T(".ico")) )
+		if (0 == _tcsicmp(strExt.c_str(), _T(".ico")))
 		{
 			const int ICON_SIZE = 16;
 			HICON hIcon = (HICON)::LoadImage ( NULL, strPath.c_str(), IMAGE_ICON,ICON_SIZE,ICON_SIZE, LR_LOADFROMFILE );
@@ -52,7 +57,7 @@ public:
 			m_image.Load( strPath.c_str() );
 		}
 
-		if( m_image.IsNull() )
+		if (m_image.IsNull())
 			return false;
 		else
 			return true;
@@ -71,9 +76,13 @@ public:
 		else
 			return true;
 	}
-	virtual bool Modify(const String& strFilePath)
+	virtual bool Modify(const String& strFilePath, bool bCreateAlphaChannel)
 	{
 		m_image.Destroy();
+
+		if (bCreateAlphaChannel)
+			m_image.ForceUseAlpha();
+
 		m_image.Load(strFilePath.c_str());
 		return m_image.IsNull() ? false: true;
 	}
@@ -85,6 +94,11 @@ public:
 	virtual int   GetHeight()
 	{
 		return m_image.GetHeight();
+	}
+
+	virtual COLORREF GetAverageColor() 
+	{
+		return m_image.GetAverageColor();
 	}
 
 	virtual BYTE* LockBits()

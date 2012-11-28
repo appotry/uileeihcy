@@ -209,22 +209,94 @@ void UIImage::Modify( const String& str )
 CPojo_ImageItem::CPojo_ImageItem()
 {
 	m_pGdiBitmap = NULL;
-	m_pGdiplusBitmap = NULL;
-	m_pDirect2DBitmap = NULL;
+// 	m_pGdiplusBitmap = NULL;
+// 	m_pDirect2DBitmap = NULL;
 	m_pOriginImageData = NULL;
 
 	m_bUseSkinHLS = true;
-	m_bHasAlphaChannel = false;
+//	m_bHasAlphaChannel = false;
+	m_bMustHasAlphaChannel = false;
 	m_eType = IMAGE_ITEM_TYPE_IMAGE;
 }
 CPojo_ImageItem::~CPojo_ImageItem()
 {
 	SAFE_DELETE(m_pGdiBitmap);
-	SAFE_DELETE(m_pGdiplusBitmap);
-	SAFE_DELETE(m_pDirect2DBitmap);
+// 	SAFE_DELETE(m_pGdiplusBitmap);
+// 	SAFE_DELETE(m_pDirect2DBitmap);
 	SAFE_DELETE(m_pOriginImageData);
 }
 
+#if 1
+HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType, bool* pbFirstTimeCreate )
+{
+	switch (eRenderType)
+	{
+	case GRAPHICS_RENDER_TYPE_GDI:
+		{
+			if (NULL == m_pGdiBitmap)
+			{
+				if (NULL != pbFirstTimeCreate)
+					*pbFirstTimeCreate = true;
+
+				RenderBitmapFactory::CreateInstance((IRenderBitmap**)&m_pGdiBitmap, GRAPHICS_RENDER_TYPE_GDI, m_eType);
+				if (NULL != m_pGdiBitmap)
+				{
+					if (false == m_pGdiBitmap->LoadFromFile(m_strPath, m_bMustHasAlphaChannel, m_mapAttribute))
+					{
+						SAFE_RELEASE(m_pGdiBitmap);
+						UI_LOG_ERROR(_T("%s Load gdi bitmap from file failed. path=%s"), FUNC_NAME, m_strPath.c_str());
+						return NULL;
+					}
+					UI_LOG_DEBUG(_T("%s gdi bitmap create: %s \tPtr=0x%08X"),FUNC_NAME, m_strID.c_str(), m_pGdiBitmap);
+				}
+// 				if (m_pGdiBitmap->GetBitmap()->HasAlphaChannel())
+// 				{
+// 					m_bHasAlphaChannel = true;
+// 				}
+			}
+
+			if( NULL != m_pGdiBitmap )
+			{
+				m_pGdiBitmap->AddRef();
+			}
+			return (HRBITMAP)m_pGdiBitmap;
+		}
+		break;
+
+	case GRAPHICS_RENDER_TYPE_GDIPLUS:
+		{
+			m_bMustHasAlphaChannel = true;  // 只要有尝试创建GRAPHICS_RENDER_TYPE_GDIPLUS类型的图片，就将m_bMustHasAlphaChannel设置为true（这也许不太准确，但也是个办法）
+
+			if (NULL != m_pGdiBitmap)
+			{
+				if (!m_pGdiBitmap->GetBitmap()->HasAlphaChannel())  // 重新创建一张带alpha channel的图片
+				{
+					m_pGdiBitmap->GetBitmap()->Destroy();
+					if (false == m_pGdiBitmap->LoadFromFile(m_strPath, m_bMustHasAlphaChannel, m_mapAttribute))
+					{
+						SAFE_RELEASE(m_pGdiBitmap);
+						UI_LOG_ERROR(_T("%s Load gdi bitmap from file failed. path=%s"), FUNC_NAME, m_strPath.c_str());
+						return NULL;
+					}
+				}
+
+				m_pGdiBitmap->AddRef();
+				return (HRBITMAP)m_pGdiBitmap;
+			}
+			else
+			{
+				return GetImage(GRAPHICS_RENDER_TYPE_GDI, pbFirstTimeCreate);
+			}
+		}
+		break;
+
+	default:
+		return NULL;
+	}
+
+	return NULL;
+}
+#else
 HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType, bool* pbFirstTimeCreate )
 {	
 	switch (eRenderType)
@@ -240,7 +312,12 @@ HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType, bool* pbFi
 				RenderBitmapFactory::CreateInstance((IRenderBitmap**)&m_pGdiBitmap, eRenderType, m_eType, m_strPath);
 				if( NULL != m_pGdiBitmap )
 				{
-					m_pGdiBitmap->LoadFromFile(m_strPath, m_mapAttribute);
+					if (false == m_pGdiBitmap->LoadFromFile(m_strPath, m_mapAttribute))
+					{
+						SAFE_RELEASE(m_pGdiBitmap);
+						UI_LOG_ERROR(_T("%s Load gdi bitmap from file failed. path=%s"), FUNC_NAME, m_strPath.c_str());
+						return NULL;
+					}
 					UI_LOG_DEBUG(_T("%s gdi bitmap create: %s \tPtr=0x%08X"),FUNC_NAME, m_strID.c_str(), m_pGdiBitmap);
 				}
 				if (m_pGdiBitmap->GetBitmap()->HasAlphaChannel())
@@ -274,7 +351,12 @@ HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType, bool* pbFi
 				RenderBitmapFactory::CreateInstance((IRenderBitmap**)&m_pGdiplusBitmap, eRenderType, m_eType, m_strPath);
 				if( NULL != m_pGdiplusBitmap )
 				{
-					m_pGdiplusBitmap->LoadFromFile(m_strPath, m_mapAttribute);
+					if (false == m_pGdiplusBitmap->LoadFromFile(m_strPath, m_mapAttribute))
+					{
+						SAFE_RELEASE(m_pGdiplusBitmap);
+						UI_LOG_ERROR(_T("%s Load gdiplus bitmap from file failed. path=%s"), FUNC_NAME, m_strPath.c_str());
+						return NULL;
+					}
 					UI_LOG_DEBUG(_T("%s gdiplus bitmap create: %s \tPtr=0x%08X"), FUNC_NAME, m_strID.c_str(), m_pGdiplusBitmap );
 
 #if 1  // 转化为Gdi类型  <-- 但最后发现其实两者最后的绘制内存占用率也差不多....为什么呢？按理gdiplus应该比gdi慢N倍的
@@ -328,7 +410,12 @@ HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType, bool* pbFi
 				RenderBitmapFactory::CreateInstance((IRenderBitmap**)&m_pDirect2DBitmap, eRenderType, m_eType, m_strPath);
 				if (NULL != m_pDirect2DBitmap)
 				{
-					m_pDirect2DBitmap->LoadFromFile(m_strPath, m_mapAttribute);
+					if (false == m_pDirect2DBitmap->LoadFromFile(m_strPath, m_mapAttribute))
+					{
+						SAFE_RELEASE(m_pDirect2DBitmap);
+						UI_LOG_ERROR(_T("%s Load d2d bitmap from file failed. path=%s"), FUNC_NAME, m_strPath.c_str());
+						return NULL;
+					}
 					UI_LOG_DEBUG(_T("%s direct2d bitmap create: %s \tPtr=0x%08X"), FUNC_NAME, m_strID.c_str(), m_pDirect2DBitmap );
 				}
 			}
@@ -345,16 +432,15 @@ HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType, bool* pbFi
 	}
 	return NULL;
 }
-
+#endif
 bool CPojo_ImageItem::ModifyHLS(short h, short l, short s, int nFlag)
 {
 	if (false == m_bUseSkinHLS)
 		return true;
 
 	ModifyHLS(m_pGdiBitmap, h,l,s,nFlag);
-	ModifyHLS(m_pGdiplusBitmap, h,l,s,nFlag);
+//	ModifyHLS(m_pGdiplusBitmap, h,l,s,nFlag);
 
-// 	UIASSERT(0);
 // 	ModifyHLS(m_pDirect2DBitmap, h,l,s,nFlag);
 
 	return true;
@@ -383,7 +469,10 @@ bool CPojo_ImageItem::ModifyHLS(IRenderBitmap* pBitmap, short h, short l, short 
 //
 // 修改图片
 //
-// 注意：外界根本就不会知道image已经被重新创建的事实，因为没有指针被销毁
+// 注意：1. 外界根本就不会知道image已经被重新创建的事实，因为没有指针被销毁
+//       2. 但是有一个问题，如果第一次加载的是32位带alpha的图片，返回出去的将是GdiBitmap，
+//          这时候如果modify为一个非32位的位置，将导致GdiBitmap没有alpha通道，在分层窗口上
+//          显示失败
 //
 bool CPojo_ImageItem::ModifyImage(const String& strPath)
 {
@@ -393,16 +482,16 @@ bool CPojo_ImageItem::ModifyImage(const String& strPath)
 
 	if (NULL != m_pGdiBitmap)
 	{
-		m_pGdiBitmap->Modify(strPath);
+		m_pGdiBitmap->Modify(strPath, m_bMustHasAlphaChannel);
 	}
-	if (NULL != m_pGdiplusBitmap)
-	{
-		m_pGdiplusBitmap->Modify(strPath);
-	}
-	if (NULL != m_pDirect2DBitmap)
-	{
-		m_pDirect2DBitmap->Modify(strPath);
-	}
+// 	if (NULL != m_pGdiplusBitmap)
+// 	{
+// 		m_pGdiplusBitmap->Modify(strPath);
+// 	}
+// 	if (NULL != m_pDirect2DBitmap)
+// 	{
+// 		m_pDirect2DBitmap->Modify(strPath);
+// 	}
 
 	return true;
 }

@@ -34,7 +34,7 @@ void CChatDlg::OnInitWindow()
 }
 void CChatDlg::OnBnClickChangeBkImg()
 {
-	CFileDialog  dlg(TRUE, _T("*.png"), 0,4|2, _T("*.png\0*.png\0\0"));
+	CFileDialog  dlg(TRUE, _T("*.png"), 0,4|2, _T("*.png\0*.png\0*.jpg\0*.jpg\0*.bmp\0*.bmp\0*.*\0*.*\0\0"));
 	if (IDOK !=dlg.DoModal())
 		return;
 
@@ -42,6 +42,17 @@ void CChatDlg::OnBnClickChangeBkImg()
 //	SAFE_DELETE(m_pForegndRender);
 
 	UI_ModifyImageItemInRunTime(_T("chatframe_surface"), strFileName);
+	
+	IRenderBitmap* pRenderBitmap = UI_GetBitmap(_T("chatframe_surface"));
+	COLORREF avgColor = pRenderBitmap->GetAverageColor();
+
+	UIColor* pColor = NULL;
+	UI_GetColor(_T("avg_surface_color"), &pColor);
+	if (NULL != pColor)
+	{
+		pColor->SetColor(avgColor);
+	}
+
 	UI_RedrawTopWindows();
 //  RenderBase* pRender = RenderFactory::GetRender(RENDER_TYPE_IMAGE, this);
 // 	ImageRender* pImageRender = dynamic_cast<ImageRender*>(pRender);

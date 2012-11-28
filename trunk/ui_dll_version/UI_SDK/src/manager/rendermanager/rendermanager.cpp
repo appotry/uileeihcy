@@ -146,7 +146,7 @@ IRenderFont::IRenderFont(IRenderResource** ppOutRef) : IRenderResource(ppOutRef)
 {
 }
 
-void RenderBitmapFactory::CreateInstance(IRenderBitmap** ppOut, GRAPHICS_RENDER_TYPE eGraphicsRenderType, IMAGE_ITEM_TYPE eType, const String& strPath)
+void RenderBitmapFactory::CreateInstance(IRenderBitmap** ppOut, GRAPHICS_RENDER_TYPE eGraphicsRenderType, IMAGE_ITEM_TYPE eType)
 {
 	if (NULL == ppOut)
 		return;
