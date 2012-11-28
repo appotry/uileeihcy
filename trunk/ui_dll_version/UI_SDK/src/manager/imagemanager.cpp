@@ -195,10 +195,10 @@ bool ImageManager::InsertImageItem( const String& strID, const String& strPath )
 }
 bool ImageManager::ModifyImageItem( const String& strID, const String& strPath )
 {
-	if( NULL == m_pImageParse )
+	if (NULL == m_pImageParse)
 		return false;
 
-	if( false == m_pojoImage.ModifyImage( strID, strPath ) )
+	if (false == m_pojoImage.ModifyImage(strID, strPath))
 	{
 		UI_LOG_ERROR(_T("ImageManager::ModifyImageItem  m_pojoImage.ModifyImage strID=%s,strPath=%s Failed. "), strID.c_str(), strPath.c_str() );
 		return false;
@@ -206,12 +206,25 @@ bool ImageManager::ModifyImageItem( const String& strID, const String& strPath )
 
 	return m_pImageParse->ModifyImage( this->m_pojoImage.GetImageItem(strID) );
 }
+bool ImageManager::ModifyImageItemInRunTime(const String& strID, const String& strPath)
+{
+	if (false == m_pojoImage.ModifyImage(strID, strPath))
+	{
+		UI_LOG_ERROR(_T("%s m_pojoImage.ModifyImage strID=%s,strPath=%s Failed. "), FUNC_NAME, strID.c_str(), strPath.c_str() );
+		return false;
+	}
+
+	// TODO: 保存到用户配置文件中
+	UI_LOG_DEBUG(_T("%s TODO: 保存到用户配置文件中"), FUNC_NAME);
+	
+	return true;
+}
 bool ImageManager::RemoveImageItem( const String& strID )
 {
-	if( NULL == m_pImageParse )
+	if (NULL == m_pImageParse)
 		return false;
 
-	if( false == m_pojoImage.RemoveImage( strID ) )
+	if (false == m_pojoImage.RemoveImage(strID))
 	{
 		UI_LOG_ERROR(_T("ImageManager::RemoveImageItem  m_pojoImage.RemoveImage strID=%s Failed. "), strID.c_str() );
 		return false;

@@ -499,14 +499,14 @@ ImageRender::~ImageRender()
 	SAFE_DELETE(m_pRegion);
 }
 
-bool ImageRender::SetAttribute( const String& strPrefix, map<String,String>& mapAttrib )
+bool ImageRender::SetAttribute(const String& strPrefix, map<String,String>& mapAttrib)
 {
 	String strAttrib = strPrefix + XML_RENDER_IMAGE;
 	ATTRMAP::iterator iter = mapAttrib.find(strAttrib);
 	if (mapAttrib.end() != iter)
 	{
 		const String& strImageID = iter->second;
-		m_pBitmap = ::UI_GetBitmap( strImageID, ::GetGraphicsRenderType(m_pObject) );
+		m_pBitmap = ::UI_GetBitmap(strImageID, ::GetGraphicsRenderType(m_pObject));
 		mapAttrib.erase(iter);
 	}
 
@@ -551,6 +551,18 @@ bool ImageRender::SetAttribute( const String& strPrefix, map<String,String>& map
 	}
 	return true;
 } 
+
+void ImageRender::SetRenderBitmapDirect(IRenderBitmap* pBitmap)
+{
+	SAFE_RELEASE(m_pBitmap);
+	m_pBitmap = pBitmap;
+}
+
+void ImageRender::SetBkColorDirect(COLORREF color)
+{
+	SAFE_RELEASE(m_pColorBk);
+	UIColor::CreateInstance(color, &m_pColorBk);
+}
 
 void ImageRender::DrawState(IRenderTarget* pRenderTarget, const CRect* prc, int nState)
 {

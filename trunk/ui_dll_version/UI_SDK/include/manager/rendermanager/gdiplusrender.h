@@ -56,6 +56,16 @@ public:
 		else
 			return true;
 	}
+	virtual bool  Modify(const String& strFilePath)
+	{
+		SAFE_DELETE(m_pBitmap);
+		m_pBitmap = Gdiplus::Bitmap::FromFile(strFilePath.c_str());
+
+		if (NULL == m_pBitmap)
+			return false;
+		else
+			return true;
+	}
 
 	virtual int   GetWidth()
 	{

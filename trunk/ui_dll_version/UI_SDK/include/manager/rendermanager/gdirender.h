@@ -71,6 +71,12 @@ public:
 		else
 			return true;
 	}
+	virtual bool Modify(const String& strFilePath)
+	{
+		m_image.Destroy();
+		m_image.Load(strFilePath.c_str());
+		return m_image.IsNull() ? false: true;
+	}
 
 	virtual int   GetWidth()
 	{

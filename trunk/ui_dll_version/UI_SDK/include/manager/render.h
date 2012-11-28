@@ -95,7 +95,7 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 
 
 	// 窗口背景绘制基类，用于实现各种样式窗口背景的绘制，如：平铺，居中，拉伸，9宫等
-	class RenderBase
+	class UIAPI RenderBase
 	{
 	public:
 		RenderBase();
@@ -128,7 +128,7 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 	};
 
 	// 工厂类
-	class RenderFactory
+	class UIAPI RenderFactory
 	{
 	public:
 		static RenderBase* GetRender( const String& strType, Object* pObj );
@@ -177,7 +177,7 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 		UIColor*     m_pBorderColor;
 	};
 
-	class ImageRender : public RenderBase
+	class UIAPI ImageRender : public RenderBase
 	{
 	public:
 		ImageRender();
@@ -190,6 +190,8 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 
 		void    SetImageDrawType(int n) { m_nImageDrawType = n; }
 		int     GetImageDrawType() { return m_nImageDrawType; }
+		void    SetRenderBitmapDirect(IRenderBitmap* pBitmap);
+		void    SetBkColorDirect(COLORREF color);
 
 	protected:
 		IRenderBitmap*    m_pBitmap;

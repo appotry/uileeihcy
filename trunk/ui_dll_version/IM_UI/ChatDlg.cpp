@@ -34,14 +34,27 @@ void CChatDlg::OnInitWindow()
 }
 void CChatDlg::OnBnClickChangeBkImg()
 {
-	CFileDialog  dlg(TRUE);
+	CFileDialog  dlg(TRUE, _T("*.png"), 0,4|2, _T("*.png\0*.png\0\0"));
 	if (IDOK !=dlg.DoModal())
 		return;
 
 	String strFileName = dlg.m_szFileName;
-	if (NULL != m_pForegndRender)
-	{
-	//	m_pForegndRender->Set
-	}
+//	SAFE_DELETE(m_pForegndRender);
 
+	UI_ModifyImageItemInRunTime(_T("chatframe_surface"), strFileName);
+	UI_RedrawTopWindows();
+//  RenderBase* pRender = RenderFactory::GetRender(RENDER_TYPE_IMAGE, this);
+// 	ImageRender* pImageRender = dynamic_cast<ImageRender*>(pRender);
+// 	if (NULL == pImageRender)
+// 	{
+// 		SAFE_DELETE(pRender);
+// 		return;
+// 	}
+// 	pImageRender->SetBkColorDirect(RGB(255,255,255));
+// 
+// 	UI_InsertImageItem(NULL, strFileName, strFileName);
+// 	pImageRender->SetRenderBitmapDirect(::UI_GetBitmap(strFileName, ::GetGraphicsRenderType(this)));
+// 	
+// 	m_pForegndRender = pRender;
+// 	this->UpdateObject();
 }

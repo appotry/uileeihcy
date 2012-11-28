@@ -164,6 +164,18 @@ public:
 			return true;
 		return false;
 	}
+
+	virtual bool  Modify(const String& strFilePath)
+	{
+		UIASSERT(0); // TODO:
+		return false;
+	}
+	virtual bool  Create( int nWidth, int nHeight )
+	{
+		UIASSERT(0); // TODO:
+		return false;
+	}
+
 	virtual int   GetWidth()
 	{
 		return m_nWidth;

@@ -79,6 +79,8 @@ public:
 
 public:
 	virtual bool  LoadFromFile( const String& strPath, const ATTRMAP& mapAttrib ) = 0;
+	virtual bool  Modify(const String& strFilePath) = 0;
+	virtual bool  Create(int nWidth, int nHeight) = 0;
 	virtual int   GetWidth() = 0;
 	virtual int   GetHeight() = 0;
 
