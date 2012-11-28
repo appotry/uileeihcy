@@ -44,14 +44,21 @@ void CChatDlg::OnBnClickChangeBkImg()
 	UI_ModifyImageItemInRunTime(_T("chatframe_surface"), strFileName);
 	
 	IRenderBitmap* pRenderBitmap = UI_GetBitmap(_T("chatframe_surface"));
-	COLORREF avgColor = pRenderBitmap->GetAverageColor();
+	COLORREF avgColor = 0;
+	if (NULL != pRenderBitmap)
+	{
+		pRenderBitmap->GetAverageColor();
+		SAFE_RELEASE(pRenderBitmap);
+	}
 
 	UIColor* pColor = NULL;
 	UI_GetColor(_T("avg_surface_color"), &pColor);
 	if (NULL != pColor)
 	{
 		pColor->SetColor(avgColor);
+		SAFE_RELEASE(pColor);
 	}
+	
 
 	UI_RedrawTopWindows();
 //  RenderBase* pRender = RenderFactory::GetRender(RENDER_TYPE_IMAGE, this);
