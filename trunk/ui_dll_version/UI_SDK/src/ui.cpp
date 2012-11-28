@@ -312,7 +312,16 @@ bool UI_RemoveStyleAttribute( HSKIN hSkin, STYLE_SELECTOR_TYPE  type, const Stri
 	if (NULL == g_pUIApplication)
 		return false;
 
-	return g_pUIApplication->m_ProjectMgr.RemoveStyleAttribute(hSkin, type, strID, strKey );
+	return g_pUIApplication->m_ProjectMgr.RemoveStyleAttribute(hSkin, type, strID, strKey);
+}
+
+// 在程序进行过程中，用户修改界面背景图片（背景图换肤）
+bool UI_ModifyImageItemInRunTime(const String& strID, const String& strPath)
+{
+	if (NULL == g_pUIApplication)
+		return false;
+
+	return g_pUIApplication->m_ProjectMgr.ModifyImageItemInRunTime(strID, strPath);
 }
 
 //
@@ -789,6 +798,15 @@ void UI_UpdateLayout( WindowBase* pObj, BOOL bRedraw )
 
 	if( bRedraw )
 		pObj->UpdateObject();
+}
+
+// 刷新所有顶层窗口
+void  UI_RedrawTopWindows()
+{
+	if (NULL == g_pUIApplication)
+		return;
+
+	g_pUIApplication->m_TopWindowMgr.InvalidateWindow();
 }
 
 Menu* UI_LoadMenu( const String& strMenuID )

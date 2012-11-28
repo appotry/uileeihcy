@@ -223,7 +223,6 @@ CPojo_ImageItem::~CPojo_ImageItem()
 	SAFE_DELETE(m_pGdiplusBitmap);
 	SAFE_DELETE(m_pDirect2DBitmap);
 	SAFE_DELETE(m_pOriginImageData);
-	
 }
 
 HRBITMAP CPojo_ImageItem::GetImage( GRAPHICS_RENDER_TYPE eRenderType, bool* pbFirstTimeCreate )
@@ -358,38 +357,9 @@ bool CPojo_ImageItem::ModifyHLS(short h, short l, short s, int nFlag)
 // 	UIASSERT(0);
 // 	ModifyHLS(m_pDirect2DBitmap, h,l,s,nFlag);
 
-// 	if( NULL != m_pGdiBitmap )
-// 	{
-// 		if( NULL == m_pOriginImageData )
-// 		{
-// 			m_pOriginImageData = new ImageData;
-// 			if( false == m_pGdiBitmap->SaveBits(m_pOriginImageData) )
-// 			{
-// 				UI_LOG_WARN(_T("%s not support this image to change hue. id=%s"), _T(__FUNCTION__), m_strID.c_str() );
-// 				m_bUseSkinHLS = false;
-// 				SAFE_DELETE(m_pOriginImageData);
-// 				return false;
-// 			}
-// 		}
-// 		m_pGdiBitmap->ChangeHLS(m_pOriginImageData, h,l,s,nFlag);
-// 	}
-// 	if( NULL != m_pGdiplusBitmap )
-// 	{
-// 		if( NULL == m_pOriginImageData )
-// 		{
-// 			m_pOriginImageData = new ImageData;
-// 			if( false == m_pGdiplusBitmap->SaveBits(m_pOriginImageData) )
-// 			{
-// 				UI_LOG_WARN(_T("%s not support this image to change hue. id=%s"), _T(__FUNCTION__), m_strID.c_str() );
-// 				m_bUseSkinHLS = false;
-// 				SAFE_DELETE(m_pOriginImageData);
-// 			}
-// 		}
-// 		m_pGdiplusBitmap->ChangeHLS(m_pOriginImageData,  h,l,s,nFlag);
-// 	}
 	return true;
 }
-bool CPojo_ImageItem::ModifyHLS( IRenderBitmap* pBitmap, short h, short l, short s, int nFlag )
+bool CPojo_ImageItem::ModifyHLS(IRenderBitmap* pBitmap, short h, short l, short s, int nFlag)
 {
 	if (false == m_bUseSkinHLS)
 		return true;
@@ -401,7 +371,7 @@ bool CPojo_ImageItem::ModifyHLS( IRenderBitmap* pBitmap, short h, short l, short
 			m_pOriginImageData = new ImageData;
 			if( false == pBitmap->SaveBits(m_pOriginImageData) )
 			{
-				UI_LOG_WARN(_T("%s not support this image to change hue. id=%s"), _T(__FUNCTION__), m_strID.c_str() );
+				UI_LOG_WARN(_T("%s not support this image to change hue. id=%s"), FUNC_NAME, m_strID.c_str() );
 				m_bUseSkinHLS = false;
 				SAFE_DELETE(m_pOriginImageData);
 			}
@@ -410,11 +380,29 @@ bool CPojo_ImageItem::ModifyHLS( IRenderBitmap* pBitmap, short h, short l, short
 	}
 	return true;
 }
-bool CPojo_ImageItem::ModifyImage( const String& strPath )
+//
+// 修改图片
+//
+// 注意：外界根本就不会知道image已经被重新创建的事实，因为没有指针被销毁
+//
+bool CPojo_ImageItem::ModifyImage(const String& strPath)
 {
 	m_strPath = strPath;
-	// TODO: Modify ...
-	UIASSERT(0);
+
+	SAFE_DELETE(m_pOriginImageData);
+
+	if (NULL != m_pGdiBitmap)
+	{
+		m_pGdiBitmap->Modify(strPath);
+	}
+	if (NULL != m_pGdiplusBitmap)
+	{
+		m_pGdiplusBitmap->Modify(strPath);
+	}
+	if (NULL != m_pDirect2DBitmap)
+	{
+		m_pDirect2DBitmap->Modify(strPath);
+	}
 
 	return true;
 }
@@ -562,7 +550,24 @@ bool CPojo_Image::ModifyImage( const String& strID, const String& strPath )
 	CPojo_ImageItem* p = this->GetImageItem(strID);
 	if( NULL != p )
 	{
-		return p->ModifyImage(strPath);
+		bool bRet = p->ModifyImage(strPath);
+
+		if (p->GetUseSkinHLS())
+		{
+			// 检查当前皮肤的HLS
+			IProjectSkinItemInfo* pSkinItemInfo;
+			UI_GetProjectSkinItemInfo((HSKIN)m_pSkinMgr, &pSkinItemInfo);
+			if (NULL != pSkinItemInfo)
+			{
+				SKIN_HLS_INFO* pHLSInfo = pSkinItemInfo->GetSkinHlsInfo();
+				if ( 0 != pHLSInfo->h || 0 != pHLSInfo->l || 0 != pHLSInfo->s)
+				{
+					p->ModifyHLS(pHLSInfo->h, pHLSInfo->l, pHLSInfo->s, pHLSInfo->nFlag|CHANGE_SKIN_HLS_FLAG_HLS);
+				}
+			}
+		}
+
+		return bRet;
 	}
 
 	UI_LOG_WARN(_T("%s failed. modify image id=%s, path=%s"), FUNC_NAME, strID.c_str(), strPath.c_str() );
@@ -633,7 +638,7 @@ HRBITMAP CPojo_Image::GetImage( const String& strID, GRAPHICS_RENDER_TYPE eRende
 		return NULL;
 	}
 
-	if (bFirstTimeCreate)
+	if (bFirstTimeCreate && pItem->GetUseSkinHLS())
 	{
 		// 检查当前皮肤的HLS
 		IProjectSkinItemInfo* pSkinItemInfo;

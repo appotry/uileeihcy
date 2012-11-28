@@ -53,21 +53,23 @@ namespace UI
 		bool             CreateSkinStyleMgr( SkinManager* pSkinManager, const String&  strXmlPath );
 		bool             CreateSkinLayoutMgr(SkinManager* pSkinManager, const String&  strXmlPath );
 
-		bool             InsertImageItem( HSKIN hSkin, const String& strID, const String& strPath );
-		bool             InsertColorItem( HSKIN hSkin, const String& strID, const String& strColor );
-		bool             InsertFontItem ( HSKIN hSkin, const String& strID, LOGFONT* pLogFont );
-		bool             InsertStyleItem( HSKIN hSkin, STYLE_SELECTOR_TYPE  type, const String& strID, const String& strInherit );
+		bool             InsertImageItem(HSKIN hSkin, const String& strID, const String& strPath);
+		bool             InsertColorItem(HSKIN hSkin, const String& strID, const String& strColor);
+		bool             InsertFontItem (HSKIN hSkin, const String& strID, LOGFONT* pLogFont);
+		bool             InsertStyleItem(HSKIN hSkin, STYLE_SELECTOR_TYPE  type, const String& strID, const String& strInherit );
 		bool             InsertStyleAttribute( HSKIN hSkin, STYLE_SELECTOR_TYPE type, const String& strID, const String& strKey, const String& strValue );
-		bool             ModifyFontItem ( HSKIN hSkin, const String& strID, LOGFONT* pLogFont );
-		bool             ModifyImageItem( HSKIN hSkin, const String& strID, const String& strPath );
-		bool             ModifyColorItem( HSKIN hSkin, const String& strID, const String& strColor );
-		bool             ModifyStyleItem( HSKIN hSkin, STYLE_SELECTOR_TYPE  type, const String& strID, const String& strInherit );
+		bool             ModifyFontItem (HSKIN hSkin, const String& strID, LOGFONT* pLogFont);
+		bool             ModifyImageItem(HSKIN hSkin, const String& strID, const String& strPath);
+		bool             ModifyColorItem(HSKIN hSkin, const String& strID, const String& strColor);
+		bool             ModifyStyleItem(HSKIN hSkin, STYLE_SELECTOR_TYPE  type, const String& strID, const String& strInherit );
 		bool             ModifyStyleAttribute( HSKIN hSkin, STYLE_SELECTOR_TYPE type, const String& strID, const String& strKey, const String& strValue );
-		bool             RemoveImageItem( HSKIN hSkin, const String& strID );
-		bool             RemoveFontItem ( HSKIN hSkin, const String& strID );
-		bool             RemoveColorItem( HSKIN hSkin, const String& strID );
-		bool             RemoveStyleItem( HSKIN hSkin, STYLE_SELECTOR_TYPE  type, const String& strID );
-		bool             RemoveStyleAttribute( HSKIN hSkin, STYLE_SELECTOR_TYPE type, const String& strID, const String& strKey );
+		bool             RemoveImageItem(HSKIN hSkin, const String& strID);
+		bool             RemoveFontItem (HSKIN hSkin, const String& strID);
+		bool             RemoveColorItem(HSKIN hSkin, const String& strID);
+		bool             RemoveStyleItem(HSKIN hSkin, STYLE_SELECTOR_TYPE  type, const String& strID);
+		bool             RemoveStyleAttribute(HSKIN hSkin, STYLE_SELECTOR_TYPE type, const String& strID, const String& strKey);
+
+		bool             ModifyImageItemInRunTime(const String& strID, const String& strPath);
 
 		int              GetSkinCount();
 		HSKIN            GetSkinHandle( int nIndex );

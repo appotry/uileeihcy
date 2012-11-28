@@ -808,13 +808,18 @@ Menu* ProjectManager::LoadMenu( const String& strMenuId )
 //
 //	往指定皮肤中插入一张图片
 //
-bool ProjectManager::InsertImageItem( HSKIN hSkin, const String& strID, const String& strPath )
+bool ProjectManager::InsertImageItem(HSKIN hSkin, const String& strID, const String& strPath)
 {
 	SkinManager* pSkinManager = this->_GetSkinManagerByHSKIN( hSkin );
-	if( NULL == pSkinManager )
+	if (NULL == pSkinManager)
 	{
-		UI_LOG_ERROR( _T("ProjectManager::InsertImageItem failed") );
-		return false;
+		pSkinManager = m_pCurActiveSkinMgr;
+
+		if (NULL == pSkinManager)
+		{
+			UI_LOG_ERROR( _T("ProjectManager::InsertImageItem failed") );
+			return false;
+		}
 	}
 
 	ImageManager* pImgMgr = pSkinManager->GetImageManager();
@@ -832,10 +837,15 @@ bool ProjectManager::InsertImageItem( HSKIN hSkin, const String& strID, const St
 bool ProjectManager::InsertColorItem( HSKIN hSkin, const String& strID, const String& strColor )
 {
 	SkinManager* pSkinManager = this->_GetSkinManagerByHSKIN( hSkin );
-	if( NULL == pSkinManager )
+	if (NULL == pSkinManager)
 	{
-		UI_LOG_ERROR( _T("ProjectManager::InsertColorItem failed") );
-		return false;
+		pSkinManager = m_pCurActiveSkinMgr;
+
+		if (NULL == pSkinManager)
+		{
+			UI_LOG_ERROR( _T("ProjectManager::InsertColorItem failed") );
+			return false;
+		}
 	}
 
 	ColorManager* pColorMgr = pSkinManager->GetColorManager();
@@ -855,10 +865,15 @@ bool ProjectManager::InsertColorItem( HSKIN hSkin, const String& strID, const St
 bool ProjectManager::InsertFontItem ( HSKIN hSkin, const String& strID, LOGFONT* pLogFont )
 {
 	SkinManager* pSkinManager = this->_GetSkinManagerByHSKIN( hSkin );
-	if( NULL == pSkinManager )
+	if (NULL == pSkinManager)
 	{
-		UI_LOG_ERROR( _T("ProjectManager::InsertFontItem failed") );
-		return false;
+		pSkinManager = m_pCurActiveSkinMgr;
+
+		if (NULL == pSkinManager)
+		{
+			UI_LOG_ERROR( _T("ProjectManager::InsertFontItem failed") );
+			return false;
+		}
 	}
 
 	FontManager* pFontMgr = pSkinManager->GetFontManager();
@@ -873,10 +888,15 @@ bool ProjectManager::InsertFontItem ( HSKIN hSkin, const String& strID, LOGFONT*
 bool ProjectManager::InsertStyleItem( HSKIN hSkin, STYLE_SELECTOR_TYPE  type, const String& strID, const String& strInherit )
 {
 	SkinManager* pSkinManager = this->_GetSkinManagerByHSKIN( hSkin );
-	if( NULL == pSkinManager )
+	if (NULL == pSkinManager)
 	{
-		UI_LOG_ERROR( _T("ProjectManager::InsertStyleItem failed") );
-		return false;
+		pSkinManager = m_pCurActiveSkinMgr;
+
+		if (NULL == pSkinManager)
+		{
+			UI_LOG_ERROR( _T("ProjectManager::InsertStyleItem failed") );
+			return false;
+		}
 	}
 
 	StyleManager* pStyleMgr = pSkinManager->GetStyleManager();
@@ -891,17 +911,27 @@ bool ProjectManager::InsertStyleItem( HSKIN hSkin, STYLE_SELECTOR_TYPE  type, co
 bool ProjectManager::InsertStyleAttribute( HSKIN hSkin, STYLE_SELECTOR_TYPE type, const String& strID, const String& strKey, const String& strValue )
 {
 	SkinManager* pSkinManager = this->_GetSkinManagerByHSKIN( hSkin );
-	if( NULL == pSkinManager )
+	if (NULL == pSkinManager)
 	{
-		UI_LOG_ERROR( _T("ProjectManager::InsertStyleAttribute failed") );
-		return false;
+		pSkinManager = m_pCurActiveSkinMgr;
+
+		if (NULL == pSkinManager)
+		{
+			UI_LOG_ERROR( _T("ProjectManager::InsertStyleAttribute failed") );
+			return false;
+		}
 	}
 
 	StyleManager* pStyleMgr = pSkinManager->GetStyleManager();
-	if( NULL == pStyleMgr )
+	if (NULL == pStyleMgr)
 	{
-		UI_LOG_ERROR( _T("ProjectManager::InsertStyleAttribute failed") );
-		return false;
+		pSkinManager = m_pCurActiveSkinMgr;
+
+		if (NULL == pSkinManager)
+		{
+			UI_LOG_ERROR( _T("ProjectManager::InsertStyleAttribute failed") );
+			return false;
+		}
 	}
 
 	return pStyleMgr->InsertStyleAttribute( type, strID, strKey, strValue );
@@ -909,10 +939,15 @@ bool ProjectManager::InsertStyleAttribute( HSKIN hSkin, STYLE_SELECTOR_TYPE type
 bool ProjectManager::ModifyImageItem( HSKIN hSkin, const String& strID, const String& strPath )
 {
 	SkinManager* pSkinManager = this->_GetSkinManagerByHSKIN( hSkin );
-	if( NULL == pSkinManager )
+	if (NULL == pSkinManager)
 	{
-		UI_LOG_ERROR( _T("ProjectManager::ModifyImageItem failed._1") );
-		return false;
+		pSkinManager = m_pCurActiveSkinMgr;
+
+		if (NULL == pSkinManager)
+		{
+			UI_LOG_ERROR( _T("ProjectManager::ModifyImageItem failed._1") );
+			return false;
+		}
 	}
 
 	ImageManager* pImageMgr = pSkinManager->GetImageManager();
@@ -927,10 +962,15 @@ bool ProjectManager::ModifyImageItem( HSKIN hSkin, const String& strID, const St
 bool ProjectManager::ModifyColorItem( HSKIN hSkin, const String& strID, const String& strColor )
 {
 	SkinManager* pSkinManager = this->_GetSkinManagerByHSKIN( hSkin );
-	if( NULL == pSkinManager )
+	if (NULL == pSkinManager)
 	{
-		UI_LOG_ERROR( _T("ProjectManager::ModifyColorItem failed._1") );
-		return false;
+		pSkinManager = m_pCurActiveSkinMgr;
+
+		if (NULL == pSkinManager)
+		{
+			UI_LOG_ERROR( _T("ProjectManager::ModifyColorItem failed._1") );
+			return false;
+		}
 	}
 
 	ColorManager* pColorMgr = pSkinManager->GetColorManager();
@@ -951,8 +991,13 @@ bool ProjectManager::ModifyFontItem ( HSKIN hSkin, const String& strID, LOGFONT*
 	SkinManager* pSkinManager = this->_GetSkinManagerByHSKIN( hSkin );
 	if( NULL == pSkinManager )
 	{
-		UI_LOG_ERROR( _T("ProjectManager::ModifyFontItem failed._1") );
-		return false;
+		pSkinManager = m_pCurActiveSkinMgr;
+
+		if (NULL == pSkinManager)
+		{
+			UI_LOG_ERROR( _T("ProjectManager::ModifyFontItem failed._1") );
+			return false;
+		}
 	}
 
 	FontManager* pFontMgr = pSkinManager->GetFontManager();
@@ -970,8 +1015,13 @@ bool ProjectManager::ModifyStyleItem( HSKIN hSkin, STYLE_SELECTOR_TYPE  type, co
 	SkinManager* pSkinManager = this->_GetSkinManagerByHSKIN( hSkin );
 	if( NULL == pSkinManager )
 	{
-		UI_LOG_ERROR( _T("ProjectManager::ModifyStyleItem failed") );
-		return false;
+		pSkinManager = m_pCurActiveSkinMgr;
+
+		if (NULL == pSkinManager)
+		{
+			UI_LOG_ERROR( _T("ProjectManager::ModifyStyleItem failed") );
+			return false;
+		}
 	}
 
 	StyleManager* pStyleMgr = pSkinManager->GetStyleManager();
@@ -989,8 +1039,13 @@ bool ProjectManager::ModifyStyleAttribute( HSKIN hSkin, STYLE_SELECTOR_TYPE type
 	SkinManager* pSkinManager = this->_GetSkinManagerByHSKIN( hSkin );
 	if( NULL == pSkinManager )
 	{
-		UI_LOG_ERROR( _T("ProjectManager::ModifyStyleAttribute failed") );
-		return false;
+		pSkinManager = m_pCurActiveSkinMgr;
+
+		if (NULL == pSkinManager)
+		{
+			UI_LOG_ERROR( _T("ProjectManager::ModifyStyleAttribute failed") );
+			return false;
+		}
 	}
 
 	StyleManager* pStyleMgr = pSkinManager->GetStyleManager();
@@ -1008,10 +1063,15 @@ bool ProjectManager::ModifyStyleAttribute( HSKIN hSkin, STYLE_SELECTOR_TYPE type
 bool ProjectManager::RemoveImageItem( HSKIN hSkin, const String& strID )
 {
 	SkinManager* pSkinManager = this->_GetSkinManagerByHSKIN( hSkin );
-	if( NULL == pSkinManager )
+	if (NULL == pSkinManager)
 	{
-		UI_LOG_ERROR( _T("ProjectManager::RemoveImageItem failed._1") );
-		return false;
+		pSkinManager = m_pCurActiveSkinMgr;
+
+		if (NULL == pSkinManager)
+		{
+			UI_LOG_ERROR( _T("ProjectManager::RemoveImageItem failed._1") );
+			return false;
+		}
 	}
 	ImageManager* pImageManager = pSkinManager->GetImageManager();
 	if( NULL == pImageManager )
@@ -1030,8 +1090,13 @@ bool ProjectManager::RemoveFontItem ( HSKIN hSkin, const String& strID )
 	SkinManager* pSkinManager = this->_GetSkinManagerByHSKIN( hSkin );
 	if( NULL == pSkinManager )
 	{
-		UI_LOG_ERROR( _T("ProjectManager::RemoveFontItem failed._1") );
-		return false;
+		pSkinManager = m_pCurActiveSkinMgr;
+
+		if (NULL == pSkinManager)
+		{
+			UI_LOG_ERROR( _T("ProjectManager::RemoveFontItem failed._1") );
+			return false;
+		}
 	}
 	FontManager* pFontManager = pSkinManager->GetFontManager();
 	if( NULL == pFontManager )
@@ -1051,8 +1116,13 @@ bool ProjectManager::RemoveColorItem( HSKIN hSkin, const String& strID )
 	SkinManager* pSkinManager = this->_GetSkinManagerByHSKIN( hSkin );
 	if( NULL == pSkinManager )
 	{
-		UI_LOG_ERROR( _T("ProjectManager::RemoveColorItem failed._1") );
-		return false;
+		pSkinManager = m_pCurActiveSkinMgr;
+
+		if (NULL == pSkinManager)
+		{
+			UI_LOG_ERROR( _T("ProjectManager::RemoveColorItem failed._1") );
+			return false;
+		}
 	}
 	ColorManager* pColorManager = pSkinManager->GetColorManager();
 	if( NULL == pColorManager )
@@ -1068,8 +1138,13 @@ bool ProjectManager::RemoveStyleItem( HSKIN hSkin, STYLE_SELECTOR_TYPE  type, co
 	SkinManager* pSkinManager = this->_GetSkinManagerByHSKIN( hSkin );
 	if( NULL == pSkinManager )
 	{
-		UI_LOG_ERROR( _T("ProjectManager::RemoveStyleItem failed") );
-		return false;
+		pSkinManager = m_pCurActiveSkinMgr;
+
+		if (NULL == pSkinManager)
+		{
+			UI_LOG_ERROR( _T("ProjectManager::RemoveStyleItem failed") );
+			return false;
+		}
 	}
 
 	StyleManager* pStyleMgr = pSkinManager->GetStyleManager();
@@ -1081,13 +1156,18 @@ bool ProjectManager::RemoveStyleItem( HSKIN hSkin, STYLE_SELECTOR_TYPE  type, co
 
 	return pStyleMgr->RemoveStyleItem( type, strID );
 }
-bool ProjectManager::RemoveStyleAttribute( HSKIN hSkin, STYLE_SELECTOR_TYPE type, const String& strID, const String& strKey )
+bool ProjectManager::RemoveStyleAttribute(HSKIN hSkin, STYLE_SELECTOR_TYPE type, const String& strID, const String& strKey)
 {
 	SkinManager* pSkinManager = this->_GetSkinManagerByHSKIN( hSkin );
 	if( NULL == pSkinManager )
 	{
-		UI_LOG_ERROR( _T("ProjectManager::RemoveStyleAttribute failed") );
-		return false;
+		pSkinManager = m_pCurActiveSkinMgr;
+
+		if (NULL == pSkinManager)
+		{
+			UI_LOG_ERROR( _T("ProjectManager::RemoveStyleAttribute failed") );
+			return false;
+		}
 	}
 
 	StyleManager* pStyleMgr = pSkinManager->GetStyleManager();
@@ -1098,6 +1178,21 @@ bool ProjectManager::RemoveStyleAttribute( HSKIN hSkin, STYLE_SELECTOR_TYPE type
 	}
 
 	return pStyleMgr->RemoveStyleAttribute( type, strID, strKey);
+}
+
+bool ProjectManager::ModifyImageItemInRunTime(const String& strID, const String& strPath)
+{
+	if (NULL == m_pCurActiveSkinMgr)
+		return false;
+
+	ImageManager* pImageMgr = m_pCurActiveSkinMgr->GetImageManager();
+	if (NULL == pImageMgr)
+	{
+		UI_LOG_ERROR(_T("%s GetImageManager Failed."), FUNC_NAME);
+		return false;
+	}
+
+	return pImageMgr->ModifyImageItemInRunTime(strID, strPath);
 }
 
 //

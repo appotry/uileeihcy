@@ -26,7 +26,7 @@
                   bkgnd.render.image.drawtype="stretch"
                   bkgnd.render.9region="12,101,12,12"
                   foregnd.render.type="image"
-                  foregnd.render.image="chatframe_surface.png"
+                  foregnd.render.image="chatframe_surface"
                   foregnd.render.image.drawtype="simple"
                   textrender.font="normal">
       <Label text="线程 'Win32 线程' (0xe7c) 已退出，返回值为 0 (0x0)。" layout.left="10" layout.top="78" textrender.color="white"/>
@@ -138,7 +138,7 @@
     <item id="icon_min.png" path="icon_min.png"/>
     <item id="icon_restore.png" path="icon_restore.png"/>
     <item id="icon_max.png" path="icon_max.png"/>
-    <item id="chatframe_surface.png" path="chatframe_surface.png"/>
+    <item id="chatframe_surface" path="chatframe_surface.png"/>
     <gif  id="aaa.gif" path="c:\aaa.gif"/>
   </image>
   <font>

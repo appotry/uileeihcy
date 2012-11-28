@@ -268,7 +268,7 @@ void CustomWindow::OnEraseBkgnd(IRenderTarget* pRenderTarget)
 		if (NULL != m_pForegndRender)
 		{
 			CRect rcSurface = rc;
-			Util::DeflatRect(&rcSurface, &m_rcBorder);
+			Util::DeflatRect(&rcSurface, &m_rcBorder); // 这里是避免纹理图片绘制在窗口圆角上面
 			m_pForegndRender->DrawState(pRenderTarget, &rcSurface, nState);
 		}
 		if (NULL != m_pBkgndRender)

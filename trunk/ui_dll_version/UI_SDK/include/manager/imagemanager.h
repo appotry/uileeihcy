@@ -25,11 +25,13 @@ public:
 	bool       Save();
 	void       Clear();
 //	bool       GetImage( const String& strID, UIImage** ppImage );
-	bool       GetCursor( const String& strID, UICursor** ppCursor );
-	bool       InsertImageItem( const String& strID, const String& strPath );
-	bool       ModifyImageItem( const String& strID, const String& strPath );
-	bool       RemoveImageItem( const String& strID );
+	bool       GetCursor(const String& strID, UICursor** ppCursor);
+	bool       InsertImageItem(const String& strID, const String& strPath);
+	bool       ModifyImageItem(const String& strID, const String& strPath);
+	bool       RemoveImageItem(const String& strID);
 	bool       ChangeSkinHLS(short h, short l, short s, int nFlag);
+
+	bool       ModifyImageItemInRunTime(const String& strID, const String& strPath);
 
 	HRBITMAP   GetImage( const String& strID, GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI );
 	GifImageBase* GetGifImage( const String& strID);

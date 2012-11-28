@@ -866,6 +866,9 @@ bool CXmlImageParse::InsertImage(  CPojo_ImageItem *pImageItemInfo )
 	if( NULL == pImageItemInfo )
 		return false;
 
+	if (false == g_pUIApplication->IsDesignMode())
+		return false;
+
 	UIASSERT(g_pUIApplication->IsDesignMode());
 
 	m_xml.ResetPos();
