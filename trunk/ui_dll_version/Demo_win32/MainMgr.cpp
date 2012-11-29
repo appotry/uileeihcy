@@ -37,6 +37,8 @@ bool CMainMgr::Initialize()
 	::UpdateWindow(m_pMainWindow->m_hWnd);
 
 	this->InitVisualization();
+	this->HandlePlayingFile();
+
 	return bRet;
 }
 
@@ -322,6 +324,68 @@ bool CMainMgr::SetVolumn(long lPercent)
 		m_config.player.m_bDirty = true;
 	}
 	return bRet;
+}
+
+// 设置当前播放进行。如nPercent=50,表示播放50%处
+bool CMainMgr::SetPlayProgressPercent(int nPercent)
+{
+	if (nPercent < 0 || nPercent > 100)
+		return false;
+
+	return ::mp3_set_cur_pos(nPercent/100.0);
+}
+
+// 由playlistmgr调用，保存当前正在播放的文件信息
+bool CMainMgr::SavePlayingFileInfo()
+{
+	if (NULL != m_pCurPlayingItem)
+	{
+		m_config.player.m_strPlayingFileName = m_pCurPlayingItem->GetFilePath();
+
+		m_config.player.m_nPlayingTime = 0;  // TODO: 目前仅取得播放比例，没有去获取当前播放精确时刻
+		if (NULL != m_pMainWindow)
+		{
+			m_config.player.m_nPlayingTime = m_pMainWindow->GetCurrentPlayingPercent();
+		}
+		m_config.player.m_bDirty = true;
+	}
+	return true;
+}
+
+// 播放上一次的文件
+void CMainMgr::HandlePlayingFile()
+{
+	if (m_config.player.m_strPlayingFileName.length() > 0)
+	{
+		if (!PathFileExists(m_config.player.m_strPlayingFileName.c_str()))
+		{
+			m_config.player.m_strPlayingFileName.clear();
+			m_config.player.m_nPlayingTime = 0;
+			m_config.player.m_bDirty = true;
+			return;
+		}
+
+		PlayerListItemInfo* pLastPlaingFileInfo = GetPlayerListMgr()->GetItemByPath(m_config.player.m_strPlayingFileName);
+		if (NULL == pLastPlaingFileInfo)
+		{
+			m_config.player.m_strPlayingFileName.clear();
+			m_config.player.m_nPlayingTime = 0;
+			m_config.player.m_bDirty = true;
+			return;
+		}
+
+		Play(pLastPlaingFileInfo);
+		if (0 != m_config.player.m_nPlayingTime)
+		{
+			this->SetPlayProgressPercent(m_config.player.m_nPlayingTime);
+		}
+	}
+}
+
+// 主窗口正在退出
+void CMainMgr::OnMainWindowDestroy()
+{
+	this->SavePlayingFileInfo();
 }
 
 void CMainMgr::on_mp3_stop()

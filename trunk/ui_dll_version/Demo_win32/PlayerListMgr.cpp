@@ -98,7 +98,8 @@ PlayerListItemInfo* CPlayerListMgr::AddFile(const String& strFile)
 {
 	if (m_data.Add(strFile) )
 	{
-		return this->OnLoadItem(strFile);
+		ATTRMAP mapattr;
+		return this->OnLoadItem(strFile, mapattr);
 	}
 	return NULL;
 }
@@ -159,9 +160,8 @@ bool CPlayerListMgr::RemovePlayListItem(PlayerListItemInfo* pInfo)
 //
 // 可能是添加文件时被调用，也可能是启动时读取配置文件调用
 //
-PlayerListItemInfo* CPlayerListMgr::OnLoadItem(const String& strFile)
+PlayerListItemInfo* CPlayerListMgr::OnLoadItem(const String& strFile, ATTRMAP& attrmap)
 {
-
 	PlayerListItemInfo* pInfo = new PlayerListItemInfo;
 	pInfo->SetFilePath(strFile);
 	m_vecPlayerList.push_back(pInfo);
@@ -170,6 +170,7 @@ PlayerListItemInfo* CPlayerListMgr::OnLoadItem(const String& strFile)
 	{
 		m_pPlaylistDlg->OnAddItem(pInfo);
 	}
+
 	return pInfo;
 }
 
@@ -207,6 +208,18 @@ PlayerListItemInfo* CPlayerListMgr::GetItem(int i)
 
 	return m_vecPlayerList[i];
 }
+
+PlayerListItemInfo* CPlayerListMgr::GetItemByPath(const String& strFilePath)
+{
+	int nSize = (int)m_vecPlayerList.size();
+	for (int i = 0; i < nSize; i++)
+	{
+		if (m_vecPlayerList[i]->GetFilePath() == strFilePath)
+			return m_vecPlayerList[i];
+	}
+	return NULL;
+}
+
 int CPlayerListMgr::GetItemIndex(PlayerListItemInfo* pItem)
 {
 	if (NULL == pItem)

@@ -1564,6 +1564,9 @@ HRFONT WindowBase::GetHRFONT()
 void WindowBase::SaveMemBitmap(TCHAR* szFile)
 {
 #ifdef _DEBUG
+	if (NULL == m_hMemBitmap)
+		return;
+
 	::SelectObject(m_hMemDC, m_hOldBitmap);
 	Image image;
 	image.Attach(m_hMemBitmap);

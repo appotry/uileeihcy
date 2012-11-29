@@ -443,6 +443,8 @@ bool CPojo_ImageItem::ModifyHLS(short h, short l, short s, int nFlag)
 
 // 	ModifyHLS(m_pDirect2DBitmap, h,l,s,nFlag);
 
+// 	if (NULL != m_pGdiBitmap)
+// 		m_pGdiBitmap->GetBitmap()->Save(_T("c:\\aaa.png"),Gdiplus::ImageFormatPNG);
 	return true;
 }
 bool CPojo_ImageItem::ModifyHLS(IRenderBitmap* pBitmap, short h, short l, short s, int nFlag)

@@ -35,6 +35,12 @@ public:
 
 	bool     SetMute(bool bMute);
 	bool     SetVolumn(long lPercent);
+	bool     SetPlayProgressPercent(int nPercent);
+
+	void     HandlePlayingFile();     
+	bool     SavePlayingFileInfo();
+
+	void     OnMainWindowDestroy();
 
 protected:	
 	virtual void   on_mp3_stop();

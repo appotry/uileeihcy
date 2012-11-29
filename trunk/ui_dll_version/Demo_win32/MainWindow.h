@@ -103,6 +103,8 @@ public:
 	HBITMAP GetVisualizationInfo(RECT* prc);
 	void    OnVisualiazationTypeChanged(int nType);
 
+	int     GetCurrentPlayingPercent();
+
 protected:
 	HWND            m_hWndPlayerList;
 	CLyricDlg*      m_pLyricDlg;
