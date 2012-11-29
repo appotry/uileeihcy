@@ -45,10 +45,7 @@ extern HINSTANCE g_hInstance;
 using namespace std;
 
 #include <atlbase.h>
-#pragma warning(push)
-#pragma warning(disable:4996)  // atlapp.h (848) '_vswprintf': This function or variable may be unsafe.
 #include <atlapp.h>
-#pragma warning(pop)
 #include <atlwin.h>
 #include <atldlgs.h>
 #include "atlctrls.h"

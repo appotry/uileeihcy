@@ -323,8 +323,9 @@ namespace UI
 		bool   SaveBits( ImageData* pImageData );
 		void   RestoreBits( ImageData* pImageData );
 		bool   ImageList_Draw(HDC hDestDC, int x, int y, int col, int row, int cx, int cy );  // libo add 20120401 增加图像列表绘制方法
-		HBITMAP CopyRect(RECT* prc);    // libo add 20121019 增加拷贝图片的一部分的方法
-		COLORREF GetAverageColor();
+		HBITMAP  CopyRect(RECT* prc);    // libo add 20121019 增加拷贝图片的一部分的方法
+		COLORREF GetAverageColor();      // libo add 20121128 增加获取图片平均色的方法
+		bool   ChangeImageAlpha(ImageData* pOriginImageData, byte alpha);
 		
 		// libo add 20121027 增加一个向该Bitmap绘制内容的方法
 		HDC    BeginDrawToMyself() { this->GetDC(); return m_hDC; }
@@ -2244,7 +2245,7 @@ namespace UI
 		if( NULL == pImageData )
 			return false;
 
-		if( m_nBPP != 24 && m_nBPP != 32 )  // TODO: 暂不支持其它格式的（8位的是基于调色板的）
+		if (m_nBPP != 24 && m_nBPP != 32)  // TODO: 暂不支持其它格式的（8位的是基于调色板的）
 			return false;
 
 		BYTE* pThisBits = (BYTE*)m_pBits;
@@ -2260,7 +2261,7 @@ namespace UI
 		pImageData->m_ptr = new BYTE[nSize];
 		pImageData->m_pScan0 = pImageData->m_ptr;
 
-		if( m_nPitch < 0 )
+		if (m_nPitch < 0)
 			pImageData->m_pScan0 += ((m_nHeight-1)*bytesperline);
 
 		// 内存拷贝
@@ -2486,14 +2487,20 @@ namespace UI
 		}
 		return true;
 	}
-	inline bool Image::ChangeHLS( const ImageData* pOriginImageData, short h, short l , short s, int nFlag )
+	inline bool Image::ChangeHLS(const ImageData* pOriginImageData, short h, short l , short s, int nFlag)
 	{
-		if( NULL == pOriginImageData )
+		if (NULL == pOriginImageData)
 			return false;
 
 		BYTE* pTemp = pOriginImageData->m_pScan0;
-		if( NULL == pTemp )
+		if (NULL == pTemp)
 			return false;
+
+		if (m_nBPP != pOriginImageData->m_nbpp)
+		{
+			assert(0);
+			return false;
+		}
 
 		bool bChangeH = nFlag & CHANGE_SKIN_HLS_FLAG_H ? true:false;
 		bool bChangeL = nFlag & CHANGE_SKIN_HLS_FLAG_L ? true:false;
@@ -2504,9 +2511,11 @@ namespace UI
 			bChangeL = false;
 		if (s == 0)
 			bChangeS = false;
+		if (h == 0)
+			bChangeH = false;
 
-		if(false == bChangeH && false == bChangeL && false == bChangeS)
-			return false;
+// 		if(false == bChangeH && false == bChangeL && false == bChangeS) // 有可能是还原操作，因此不能直接退出 
+// 			return false;
 
 		BYTE* pNewImageBits = (BYTE*)m_pBits;
 		int   bytesperpx    = m_nBPP>>3;
@@ -2519,16 +2528,13 @@ namespace UI
 		if (bChangeS)
 			ds = (float)(s/100.0);
 
-		for (int row = 0; row < m_nHeight; row ++ )
+		for (int row = 0; row < m_nHeight; row ++)
 		{
-			for( int i = 0; i < bytesperline; i += bytesperpx )
+			for (int i = 0; i < bytesperline; i += bytesperpx)
 			{
 				BYTE B = pTemp[i];
 				BYTE G = pTemp[i+1];
 				BYTE R = pTemp[i+2];
-
-				if (bHaveAlphaChannel)
-					pNewImageBits[i+3] = pTemp[i+3];
 
 				if (bChangeL)
 					ChangeColorLuminance(R,G,B,l,dL);
@@ -2548,6 +2554,11 @@ namespace UI
 				pNewImageBits[i]   = B;
 				pNewImageBits[i+1] = G;
 				pNewImageBits[i+2] = R;
+
+				if (bHaveAlphaChannel)
+				{
+					pNewImageBits[i+3] = pTemp[i+3];
+				}
 			}
 
 			pNewImageBits += m_nPitch;
@@ -2673,6 +2684,13 @@ namespace UI
 		b = b/nCount;
 
 		return ((COLORREF)(((BYTE)(r)|((WORD)((BYTE)(g))<<8))|(((DWORD)(BYTE)(b))<<16)|(((DWORD)(BYTE)(a))<<24)));
+	}
+
+	// 修改图片的透明度
+	bool   ChangeImageAlpha(ImageData* pOriginImageData, byte alpha)
+	{
+		
+		return false;
 	}
 };  // namespace 
 

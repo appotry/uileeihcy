@@ -32,8 +32,20 @@ void  CPlayerListData::Load()
 		{
 			if (false == xml.FindElem(_T("item")))   break;
 			
+			//	加载所有属性
+			ATTRMAP  mapAttrib;
+			for( int j = 0; ; j++ )
+			{
+				String key = xml.GetAttribName(j);
+				if( _T("") == key )
+					break;
+
+				String value = xml.GetAttrib( key );
+				mapAttrib[key]= value;
+			}
+
 			String strValue = xml.GetData();
-			::GetPlayerListMgr()->OnLoadItem(strValue);
+			::GetPlayerListMgr()->OnLoadItem(strValue, mapAttrib);
 		}
 	}
 	while(0);

@@ -80,6 +80,11 @@ bool  CPlayerConfigData::Load(CConfigData* pData)
 
 			str = m_xml.GetAttrib(_T("PlayMode"));
 			pData->player.m_bytePlayMode = (byte)_ttoi(str.c_str());
+
+			pData->player.m_strPlayingFileName = m_xml.GetAttrib(_T("PlayingFileName"));
+
+			str = m_xml.GetAttrib(_T("PlayingTime"));
+			pData->player.m_nPlayingTime = _ttoi(str.c_str());
 		}
 
 
@@ -132,6 +137,9 @@ bool CPlayerConfigData::Save(CConfigData* pData)
 			m_xml.SetAttrib(_T("Balance"), szText);
 			_stprintf(szText, _T("%d"), pData->player.m_bytePlayMode);
 			m_xml.SetAttrib(_T("PlayMode"), szText);
+			m_xml.SetAttrib(_T("PlayingFileName"), pData->player.m_strPlayingFileName);
+			_stprintf(szText, _T("%d"), pData->player.m_nPlayingTime);
+			m_xml.SetAttrib(_T("PlayingTime"), szText);
 			bNeedSave = true;
 		}
 

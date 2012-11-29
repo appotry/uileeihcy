@@ -428,6 +428,15 @@ bool GdiRenderTarget::BeginDraw(HDC hDC, RECT* prc, RECT* prc2, bool bClear)
 		this->SelectClipRgn(hRgn, RGN_COPY);
 		SAFE_DELETE_GDIOBJECT(hRgn);
 	}
+
+	if (bClear)
+	{
+		HBRUSH hBrush = (HBRUSH)GetStockObject(BLACK_BRUSH);
+		if (NULL != prc)
+			::FillRect(m_hDC, prc, hBrush);
+		if (NULL != prc2)
+			::FillRect(m_hDC, prc2, hBrush);
+	}
 	return true;
 }
 void GdiRenderTarget::EndDraw()

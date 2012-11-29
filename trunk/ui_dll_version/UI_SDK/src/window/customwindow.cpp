@@ -664,7 +664,7 @@ HRGN CustomWindow::GetExcludeRgn( BYTE* pBits, const RECT& rc, bool bOffsetToOri
 
 void CustomWindow::RedrawObject( Object* pInvalidateObj, RECT* prc, bool bUpdateNow, bool bOnlyRedrawBkgnd)
 {
-	if( NULL == m_pLayeredWindowWrap )
+	if (NULL == m_pLayeredWindowWrap)
 	{
 		__super::RedrawObject(pInvalidateObj, prc, bUpdateNow, bOnlyRedrawBkgnd);
 		return;

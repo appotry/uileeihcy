@@ -48,10 +48,11 @@ public:
 	void   SetPlayMode(PLAY_MODE e);
 	PLAY_MODE GetPlayMode() { return m_ePlayMode; }
 
-	PlayerListItemInfo*  OnLoadItem(const String& strFile);
+	PlayerListItemInfo*  OnLoadItem(const String& strFile, ATTRMAP& attrmap);
 	
 	int   GetItemCount() { return (int)m_vecPlayerList.size(); }
 	PlayerListItemInfo*  GetItem(int i);
+	PlayerListItemInfo*  GetItemByPath(const String& strFilePath);
 	int   GetItemIndex(PlayerListItemInfo*);
 
 

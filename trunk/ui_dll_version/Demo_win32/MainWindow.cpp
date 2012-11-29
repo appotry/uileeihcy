@@ -57,6 +57,8 @@ BOOL MainWindow::PreCreateWindow( CREATESTRUCT& cs )
 }
 void MainWindow::OnDestroy()
 {
+	GetMainMgr()->OnMainWindowDestroy();
+
 	SetMsgHandled(FALSE);
 	::PostQuitMessage(0);
 }
@@ -584,8 +586,8 @@ void MainWindow::OnMenuClick(UINT nMenuID)
 
 void MainWindow::OnMusicProgressPosChanged( int nPos, int nScrollType )
 {
-	if( SB_ENDSCROLL == nScrollType )
-		::mp3_set_cur_pos(nPos/100.0);
+	if (SB_ENDSCROLL == nScrollType)
+		GetMainMgr()->SetPlayProgressPercent(nPos);
 
 //	UI_ChangeSkinH(nPos);
 }
@@ -808,4 +810,13 @@ void MainWindow::OnVisualiazationTypeChanged(int nType)
 	{
 		m_pVisuallzationPic->UpdateObject();
 	}
+}
+
+// 获取当前播放进度
+int MainWindow::GetCurrentPlayingPercent()
+{
+	if (NULL == m_pProgress)
+		return 0;
+
+	return m_pProgress->GetPos();
 }

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ui>
   <image>
+    <item id="close.png" useskinhlsx="0">close.png</item>
     <item id="player_skin.png">player_skin.png</item>
     <item id="minimize.png">minimize.png</item>
     <item id="minimode.png">minimode.png</item>
     <item id="player_skin.bmp">player_skin.bmp</item>
     <item id="playlist_skin.bmp">playlist_skin.bmp</item>
-    <item id="close.png">close.png</item>
     <item id="volume_thumb.png">volume_thumb.png</item>
     <item id="progress_thumb.png">progress_thumb.png</item>
     <item id="prev.png">prev.png</item>
@@ -36,7 +36,7 @@
     <item id="reset.png">eq_reset.png</item>
     <item id="eq_balance.png">eq_balance.png</item>
     <item id="eq_thumb.png">eq_thumb.png</item>
-    <item id="listbox.png" userskinhue="0">listbox.png</item>
+    <item id="listbox.png" useskinhls="0">listbox.png</item>
     <item id="scrollbar_bar.bmp">scrollbar_bar.bmp</item>
     <item id="scrollbar_button_linedown.bmp">scrollbar_button_linedown.bmp</item>
     <item id="scrollbar_button_lineup.bmp">scrollbar_button_lineup.bmp</item>
