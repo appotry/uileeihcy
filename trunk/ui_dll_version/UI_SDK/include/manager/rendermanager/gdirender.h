@@ -110,9 +110,17 @@ public:
 		// Nothing.
 	}
 
-	virtual bool  SaveBits( ImageData* pImageData )
+	virtual bool  SaveBits(ImageData* pImageData)
 	{
-		return m_image.SaveBits(pImageData);
+		if (NULL == pImageData)
+			return false;
+
+		int nSize = 0;
+		SAFE_ARRAY_DELETE(pImageData->m_ptr);
+		m_image.SaveBits(pImageData, &nSize);
+		pImageData->m_ptr = new BYTE[nSize];
+
+		return m_image.SaveBits(pImageData, &nSize);
 	}
 	virtual bool  ChangeHLS( const ImageData* pOriginImageData, short h, short l , short s, int nFlag )
 	{

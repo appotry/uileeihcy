@@ -70,6 +70,7 @@ namespace UI
 		bool             RemoveStyleAttribute(HSKIN hSkin, STYLE_SELECTOR_TYPE type, const String& strID, const String& strKey);
 
 		bool             ModifyImageItemInRunTime(const String& strID, const String& strPath);
+		bool             ModifyImageItemAlpha(const String& strID, int nAlphaPercent);
 
 		int              GetSkinCount();
 		HSKIN            GetSkinHandle( int nIndex );

@@ -32,6 +32,7 @@ public:
 	bool       ChangeSkinHLS(short h, short l, short s, int nFlag);
 
 	bool       ModifyImageItemInRunTime(const String& strID, const String& strPath);
+	bool       ModifyImageItemAlpha(const String& strID, int nAlphaPercent);
 
 	HRBITMAP   GetImage( const String& strID, GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI );
 	GifImageBase* GetGifImage( const String& strID);
