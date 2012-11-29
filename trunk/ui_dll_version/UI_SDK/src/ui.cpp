@@ -324,6 +324,14 @@ bool UI_ModifyImageItemInRunTime(const String& strID, const String& strPath)
 	return g_pUIApplication->m_ProjectMgr.ModifyImageItemInRunTime(strID, strPath);
 }
 
+bool UI_ModifyImageItemAlpha(const String& strID, int nAlphaPercent)
+{
+	if (NULL == g_pUIApplication)
+		return false;
+
+	return g_pUIApplication->m_ProjectMgr.ModifyImageItemAlpha(strID, nAlphaPercent);
+}
+
 //
 //	获取指定皮肤的图标存放路径
 //

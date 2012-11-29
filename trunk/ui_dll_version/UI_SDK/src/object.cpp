@@ -1488,7 +1488,7 @@ void Object::SetObjectPos( int x, int y, int cx, int cy, int nFlag )
 	if (bMove || bSize)
 	{
 		// 刷新移动后的区域位置
-		if( !(nFlag & SWP_NOREDRAW) )
+		if (!(nFlag & SWP_NOREDRAW))
 		{
 			this->UpdateObject();
 		}
@@ -1497,9 +1497,9 @@ void Object::SetObjectPos( int x, int y, int cx, int cy, int nFlag )
 	// MSDN: MoveWindow sends the WM_WINDOWPOSCHANGING, WM_WINDOWPOSCHANGED, WM_MOVE, WM_SIZE, and WM_NCCALCSIZE messages to the window. 
 	// 在这里我们暂时只先发送WM_MOVE/WM_SIZE消息
 	if (bMove)
-		UISendMessage( this, WM_MOVE, 0, MAKELPARAM(m_rcParent.left,m_rcParent.top) );
+		UISendMessage(this, WM_MOVE, 0, MAKELPARAM(m_rcParent.left,m_rcParent.top));
 	if (bSize)
-		UISendMessage( this, WM_SIZE, 0, MAKELPARAM(m_rcParent.Width(),m_rcParent.Height()) );
+		UISendMessage(this, WM_SIZE, 0, MAKELPARAM(m_rcParent.Width(),m_rcParent.Height()));
 
 	WINDOWPOS wndpos2 =  {NULL, NULL, x, y, cx, cy, nFlag};
 	UISendMessage(this, WM_WINDOWPOSCHANGED, NULL, (LPARAM)&wndpos2);

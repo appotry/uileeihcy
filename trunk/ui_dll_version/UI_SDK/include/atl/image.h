@@ -320,12 +320,12 @@ namespace UI
 		bool   CopyGrayImageFrom( const Image* pImage );         // libo add 20120321 去色
 		bool   DrawGray(HDC hDC, int xDest, int yDest, int wDest, int hDest, int xSrc, int ySrc);  // libo add 20120927
 		bool   ChangeHLS( const ImageData* pOriginImageData, short h, short l , short s, int nFlag );
-		bool   SaveBits( ImageData* pImageData );
+		bool   SaveBits( ImageData* pImageData, int* pNeedSize );
 		void   RestoreBits( ImageData* pImageData );
 		bool   ImageList_Draw(HDC hDestDC, int x, int y, int col, int row, int cx, int cy );  // libo add 20120401 增加图像列表绘制方法
 		HBITMAP  CopyRect(RECT* prc);    // libo add 20121019 增加拷贝图片的一部分的方法
 		COLORREF GetAverageColor();      // libo add 20121128 增加获取图片平均色的方法
-		bool   ChangeImageAlpha(ImageData* pOriginImageData, byte alpha);
+		bool   ModifyAlpha(ImageData* pOriginImageData, int nAlphaPercent);
 		
 		// libo add 20121027 增加一个向该Bitmap绘制内容的方法
 		HDC    BeginDrawToMyself() { this->GetDC(); return m_hDC; }
@@ -2240,25 +2240,36 @@ namespace UI
 		return bRet?true:false;
 	}
 
-	inline bool Image::SaveBits( ImageData* pImageData )
+
+	// 为了解决内存在另一个模块分配，却在其它模块释放，在这里修改为由外部自己分配内存
+	inline bool Image::SaveBits(ImageData* pImageData, int* pNeedSize)
 	{
-		if( NULL == pImageData )
+		if (NULL == pImageData || NULL == pNeedSize)
 			return false;
 
 		if (m_nBPP != 24 && m_nBPP != 32)  // TODO: 暂不支持其它格式的（8位的是基于调色板的）
 			return false;
 
-		BYTE* pThisBits = (BYTE*)m_pBits;
 		int   bytesperline = abs(m_nPitch);
+		int nSize = bytesperline*m_nHeight;
+		if (*pNeedSize != nSize)
+		{
+			*pNeedSize = nSize;
+			return false;
+		}
 
+		if (NULL == pImageData->m_ptr)
+			return false;
+
+		BYTE* pThisBits = (BYTE*)m_pBits;
+		
 		pImageData->m_nWidth = m_nWidth;
 		pImageData->m_nHeight = m_nHeight;
 		pImageData->m_nStride = m_nPitch;
 		pImageData->m_nbpp = m_nBPP;
 
 		// 创建内存
-		int nSize = bytesperline*m_nHeight;
-		pImageData->m_ptr = new BYTE[nSize];
+//		pImageData->m_ptr = new BYTE[nSize];
 		pImageData->m_pScan0 = pImageData->m_ptr;
 
 		if (m_nPitch < 0)
@@ -2687,10 +2698,44 @@ namespace UI
 	}
 
 	// 修改图片的透明度
-	bool   ChangeImageAlpha(ImageData* pOriginImageData, byte alpha)
+	inline bool Image::ModifyAlpha(ImageData* pOriginImageData, int nAlphaPercent)
 	{
+		if (m_nBPP != 32)
+			return false;
+
+		if (NULL == pOriginImageData)
+			return false;
+
+		BYTE* pTemp = pOriginImageData->m_pScan0;
+		if (NULL == pTemp)
+			return false;
 		
-		return false;
+		BYTE* pNewImageBits = (BYTE*)m_pBits;
+		int   bytesperpx    = m_nBPP>>3;
+		int   bytesperline   = bytesperpx*m_nWidth;  /*abs(m_nPitch);*/ // 注：由于位于一行要求是4的位置，可能导致当宽度为奇数数，后面会补充无用的位。因此这里不能直接用m_nPitch
+		bool  bHaveAlphaChannel = GetBPP() == 32;
+
+		for (int row = 0; row < m_nHeight; row ++)
+		{
+			for (int i = 0; i < bytesperline; i += bytesperpx)
+			{
+				BYTE B = pTemp[i];
+				BYTE G = pTemp[i+1];
+				BYTE R = pTemp[i+2];
+
+				BYTE  a = pTemp[i+3];
+				a = a * nAlphaPercent / 100;
+
+				pNewImageBits[i+3] = a;
+				pNewImageBits[i]   = pTemp[i]  *a/255;
+				pNewImageBits[i+1] = pTemp[i+1]*a/255;
+				pNewImageBits[i+2] = pTemp[i+2]*a/255;
+			}
+
+			pNewImageBits += m_nPitch;
+			pTemp += pOriginImageData->m_nStride;
+		}
+		return true;
 	}
 };  // namespace 
 

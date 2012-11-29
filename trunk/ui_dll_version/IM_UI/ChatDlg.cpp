@@ -3,6 +3,7 @@
 
 CChatDlg::CChatDlg(void)
 {
+	m_pAlphaSlider = NULL;
 	m_pChangeBkImgBtn = NULL;
 	this->SetWindowResizeType(WRSB_ALL);
 }
@@ -31,6 +32,13 @@ void CChatDlg::OnInitWindow()
 // 	DwmExtendFrameIntoClientArea(m_hWnd, &m);
 
 	m_pChangeBkImgBtn = (Button*)this->FindChildObject(_T("btn_change_bk_img"));
+	m_pAlphaSlider = (SliderCtrl*)this->FindChildObject(_T("alpha_slider"));
+	if (NULL != m_pAlphaSlider)
+	{
+		m_pAlphaSlider->SetPos(90, false);
+
+		OnAlphaChanged(90, SB_ENDSCROLL);
+	}
 }
 void CChatDlg::OnBnClickChangeBkImg()
 {
@@ -39,15 +47,15 @@ void CChatDlg::OnBnClickChangeBkImg()
 		return;
 
 	String strFileName = dlg.m_szFileName;
-//	SAFE_DELETE(m_pForegndRender);
 
 	UI_ModifyImageItemInRunTime(_T("chatframe_surface"), strFileName);
 	
+	// 求出图片平均色。注：QQ在这里对替换的图片还做了渐变处理，使得图片边缘与背景色连接融洽
 	IRenderBitmap* pRenderBitmap = UI_GetBitmap(_T("chatframe_surface"));
 	COLORREF avgColor = 0;
 	if (NULL != pRenderBitmap)
 	{
-		pRenderBitmap->GetAverageColor();
+		avgColor = pRenderBitmap->GetAverageColor();
 		SAFE_RELEASE(pRenderBitmap);
 	}
 
@@ -58,21 +66,15 @@ void CChatDlg::OnBnClickChangeBkImg()
 		pColor->SetColor(avgColor);
 		SAFE_RELEASE(pColor);
 	}
-	
 
 	UI_RedrawTopWindows();
-//  RenderBase* pRender = RenderFactory::GetRender(RENDER_TYPE_IMAGE, this);
-// 	ImageRender* pImageRender = dynamic_cast<ImageRender*>(pRender);
-// 	if (NULL == pImageRender)
-// 	{
-// 		SAFE_DELETE(pRender);
-// 		return;
-// 	}
-// 	pImageRender->SetBkColorDirect(RGB(255,255,255));
-// 
-// 	UI_InsertImageItem(NULL, strFileName, strFileName);
-// 	pImageRender->SetRenderBitmapDirect(::UI_GetBitmap(strFileName, ::GetGraphicsRenderType(this)));
-// 	
-// 	m_pForegndRender = pRender;
-// 	this->UpdateObject();
+}
+
+void CChatDlg::OnAlphaChanged(int nPos, int nScrollType)
+{
+	if (nScrollType == SB_ENDSCROLL)
+	{
+		UI_ModifyImageItemAlpha(_T("chatframe.png"), nPos);
+		UI_RedrawTopWindows();
+	}
 }

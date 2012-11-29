@@ -78,7 +78,7 @@ public:
 //	static void  CreateInstance( IRenderBitmap** pOutRef );
 
 public:
-	virtual bool  LoadFromFile( const String& strPath, bool bCreateAlphaChannel, const ATTRMAP& mapAttrib ) = 0;
+	virtual bool  LoadFromFile(const String& strPath, bool bCreateAlphaChannel, const ATTRMAP& mapAttrib) = 0;
 	virtual bool  Modify(const String& strFilePath, bool bCreateAlphaChannel) = 0;
 	virtual bool  Create(int nWidth, int nHeight) = 0;
 	virtual int   GetWidth() = 0;
@@ -88,11 +88,11 @@ public:
 	virtual BYTE* LockBits() = 0;
 	virtual void  UnlockBits() = 0;
 
-	virtual bool  SaveBits( ImageData* pImageData ) = 0;
-	virtual bool  ChangeHLS( const ImageData* pOriginImageData, short h, short l, short s, int nFlag ) = 0;
+	virtual bool  SaveBits(ImageData* pImageData) = 0;
+	virtual bool  ChangeHLS(const ImageData* pOriginImageData, short h, short l, short s, int nFlag) = 0;
 	
 protected:
-	virtual void  SetAttribute( const ATTRMAP& mapAttrib ) = 0;
+	virtual void  SetAttribute(const ATTRMAP& mapAttrib) = 0;
 };
 
 class IImageListRenderBitmap : public IRenderBitmap

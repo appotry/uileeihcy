@@ -28,6 +28,7 @@ void SliderCtrlBase::ResetAttribute()
 	if( NULL != m_pButton )
 	{
 		m_pButton->ResetAttribute();
+		m_pButton->SetAutoSizeType(BUTTON_RENDER_AUTOSIZE_TYPE_BKIMAGE);  // 因为默认按钮是CONTENT autosize的，这里的滑块按钮没有内容，需要按背景进行auto size
 		m_pButton->SetObjectPos(0,0,0,0,SWP_NOMOVE|SWP_NOREDRAW); // 强制换肤后，刷新按钮的大小 TODO: 优化整个逻辑
 	}
 
@@ -314,11 +315,10 @@ void SliderCtrlBase::UpdateUIData(bool bCalBeginEnd, bool bUpdateButtonRect)
 
 	CRect rcClient;
 	this->GetClientRect(&rcClient);
-
 	
-	if( m_eDirectionType == PROGRESS_SCROLL_LEFT_2_RIGHT )
+	if(m_eDirectionType == PROGRESS_SCROLL_LEFT_2_RIGHT)
 	{
-		if( bCalBeginEnd )
+		if (bCalBeginEnd)
 		{
 			m_nBegin = rcClient.left;
 			m_nEnd = rcClient.right;
@@ -329,26 +329,26 @@ void SliderCtrlBase::UpdateUIData(bool bCalBeginEnd, bool bUpdateButtonRect)
 
 		// (m_nTrack-m_nBegin)/(m_nEnd-m_nBegin) = (m_nCur-m_nMin)/(m_nMax-m_nMin)
 		int nRange = GetRange();
-		if( nRange == 0 )
+		if (nRange == 0)
 			nRange = 1;
-		m_nTrack = (int)( (double)(m_nCur-m_nMin)/(double)nRange * (double)(m_nEnd-m_nBegin) )+ m_nBegin;
+		m_nTrack = (int)((double)(m_nCur-m_nMin)/(double)nRange * (double)(m_nEnd-m_nBegin))+ m_nBegin;
 
-		if (bUpdateButtonRect && NULL != m_pButton )
+		if (bUpdateButtonRect && NULL != m_pButton)
 		{
 			int nLeft = m_nTrack-s.cx/2;
-			if( nLeft < rcClient.left )
+			if (nLeft < rcClient.left)
 			{
 				nLeft = rcClient.left;
 			}
 			int nRight = nLeft + s.cx;
-			if( nRight > rcClient.right ) 
+			if (nRight > rcClient.right) 
 			{
 				nRight = rcClient.right;
 				nLeft = rcClient.right - s.cx;
 			}
 
 			// 上下居中
-			int yCenter = ( this->GetHeight()-s.cy ) / 2;
+			int yCenter = (this->GetHeight()-s.cy) / 2;
 			CRect rc(nLeft, yCenter, nRight, yCenter+s.cy);
 			m_pButton->SetObjectPos(&rc, SWP_NOREDRAW);
 		}
@@ -371,17 +371,17 @@ void SliderCtrlBase::UpdateUIData(bool bCalBeginEnd, bool bUpdateButtonRect)
 		int nRange = GetRange();
 		if (nRange == 0)
 			nRange = 1;
-		m_nTrack = (int)( (double)(m_nCur-m_nMin)/(double)nRange*(double)(m_nEnd-m_nBegin) )+ m_nBegin;
+		m_nTrack = (int)((double)(m_nCur-m_nMin)/(double)nRange*(double)(m_nEnd-m_nBegin))+ m_nBegin;
 
 		if (bUpdateButtonRect && NULL != m_pButton)
 		{
 			int nBottom = m_nTrack+s.cy/2;
-			if( nBottom > rcClient.bottom )
+			if(nBottom > rcClient.bottom)
 			{
 				nBottom = rcClient.bottom;
 			}
 			int nTop = nBottom-s.cy; 
-			if( nTop < rcClient.top )   
+			if (nTop < rcClient.top)   
 			{
 				nTop = rcClient.top;
 				nBottom = nTop + s.cy;
@@ -391,7 +391,7 @@ void SliderCtrlBase::UpdateUIData(bool bCalBeginEnd, bool bUpdateButtonRect)
 			m_pButton->SetObjectPos(&rc,SWP_NOREDRAW);
 		}
 	}
-	else if(m_eDirectionType == PROGRESS_SCROLL_TOP_2_BOTTOM)
+	else if (m_eDirectionType == PROGRESS_SCROLL_TOP_2_BOTTOM)
 	{
 		if(bCalBeginEnd)
 		{
@@ -399,7 +399,7 @@ void SliderCtrlBase::UpdateUIData(bool bCalBeginEnd, bool bUpdateButtonRect)
 			m_nBegin = rcClient.top;
 			m_nEnd   = rcClient.bottom;
 
-			if( m_pButton!=NULL )
+			if (m_pButton != NULL)
 			{
 				m_nBegin += s.cy/2;
 				m_nEnd   -= s.cy/2;
@@ -407,7 +407,7 @@ void SliderCtrlBase::UpdateUIData(bool bCalBeginEnd, bool bUpdateButtonRect)
 		}
 
 		int nRange = GetRange();
-		if( nRange == 0 )
+		if (nRange == 0)
 			nRange = 1;
 		m_nTrack = (int)( (double)(m_nCur-m_nMin)/(double)nRange*(double)(m_nEnd-m_nBegin)  )+ m_nBegin;
 
@@ -429,9 +429,9 @@ void SliderCtrlBase::UpdateUIData(bool bCalBeginEnd, bool bUpdateButtonRect)
 			m_pButton->SetObjectPos(&rc, SWP_NOREDRAW);
 		}
 	}
-	else if( m_eDirectionType == PROGRESS_SCROLL_RIGHT_2_LEFT )
+	else if (m_eDirectionType == PROGRESS_SCROLL_RIGHT_2_LEFT)
 	{
-		if( bCalBeginEnd )
+		if (bCalBeginEnd)
 		{
 			m_nBegin = rcClient.right;
 			m_nEnd = rcClient.left;
@@ -442,26 +442,26 @@ void SliderCtrlBase::UpdateUIData(bool bCalBeginEnd, bool bUpdateButtonRect)
 
 		// (m_nTrack-m_nBegin)/(m_nEnd-m_nBegin) = (m_nCur-m_nMin)/(m_nMax-m_nMin)
 		int nRange = GetRange();
-		if( nRange == 0 )
+		if (nRange == 0)
 			nRange = 1;
-		m_nTrack = (int)( (double)(m_nCur-m_nMin)/(double)nRange * (double)(m_nEnd-m_nBegin) )+ m_nBegin;
+		m_nTrack = (int)((double)(m_nCur-m_nMin)/(double)nRange * (double)(m_nEnd-m_nBegin))+ m_nBegin;
 
-		if (bUpdateButtonRect && NULL != m_pButton )
+		if (bUpdateButtonRect && NULL != m_pButton)
 		{
 			int nLeft = m_nTrack-s.cx/2;
-			if( nLeft < rcClient.left )
+			if (nLeft < rcClient.left)
 			{
 				nLeft = rcClient.left;
 			}
 			int nRight = nLeft + s.cx;
-			if( nRight > rcClient.right ) 
+			if (nRight > rcClient.right) 
 			{
 				nRight = rcClient.right;
 				nLeft = rcClient.right - s.cx;
 			}
 
 			// 上下居中
-			int yCenter = ( this->GetHeight()-s.cy ) / 2;
+			int yCenter = (this->GetHeight()-s.cy) / 2;
 			CRect rc(nLeft, yCenter, nRight, yCenter+s.cy);
 			m_pButton->SetObjectPos(&rc, SWP_NOREDRAW);
 		}
@@ -881,9 +881,9 @@ void SliderCtrlBase::UpdateTicksData()
 void SliderCtrlBase::OnPaint( HRDC hRDC )
 {
 	// 绘制进度条
-	if ( NULL != m_pForegndRender )
+	if (NULL != m_pForegndRender)
 	{
-		if( PROGRESS_SCROLL_LEFT_2_RIGHT == m_eDirectionType )
+		if (PROGRESS_SCROLL_LEFT_2_RIGHT == m_eDirectionType)
 		{
 			// 将前景拉伸绘制在背景上面，但只在按钮左侧显示出来，因此在这做一个clip
 			CRect rcBtnWindow(0,0,0,0);
@@ -896,11 +896,11 @@ void SliderCtrlBase::OnPaint( HRDC hRDC )
 			HRGN hRgnClip = ::CreateRectRgn(rcThisWindow.left,rcThisWindow.top,rcBtnWindow.left,rcThisWindow.bottom);
 
 			HRGN hRgnOld = GetClipRgn(hRDC);
-			SelectClipRgn(hRDC, hRgnClip );
+			SelectClipRgn(hRDC, hRgnClip);
 
 			CRect rc(0,0,0,0);
 			SIZE s = m_pForegndRender->GetDesiredSize();
-			if( s.cx == 0 || s.cy == 0 )
+			if (s.cx == 0 || s.cy == 0)
 			{
 				rc.right = GetWidth();
 				rc.bottom = GetHeight();
@@ -917,7 +917,7 @@ void SliderCtrlBase::OnPaint( HRDC hRDC )
 
 			::DeleteObject(hRgnClip);
 			::SelectClipRgn(hRDC,hRgnOld);
-			if( NULL != hRgnOld )
+			if (NULL != hRgnOld)
 			{
 				::DeleteObject(hRgnOld);
 				hRgnOld = NULL;
@@ -937,7 +937,7 @@ void SliderCtrlBase::OnPaint( HRDC hRDC )
 
 			CRect rc(0,0,0,0);
 			SIZE s = m_pForegndRender->GetDesiredSize();
-			if( s.cx == 0 || s.cy == 0 )
+			if (s.cx == 0 || s.cy == 0)
 			{
 				rc.right = GetWidth();
 				rc.bottom = GetHeight();
@@ -954,13 +954,13 @@ void SliderCtrlBase::OnPaint( HRDC hRDC )
 
 			::DeleteObject(hRgnClip);
 			::SelectClipRgn(hRDC,hRgnOld);
-			if( NULL != hRgnOld )
+			if (NULL != hRgnOld)
 			{
 				::DeleteObject(hRgnOld);
 				hRgnOld = NULL;
 			}
 		}
-		else if( PROGRESS_SCROLL_RIGHT_2_LEFT == m_eDirectionType )
+		else if (PROGRESS_SCROLL_RIGHT_2_LEFT == m_eDirectionType)
 		{
 			// 将前景拉伸绘制在背景上面，但只在按钮左侧显示出来，因此在这做一个clip
 // 			CRect rcBtnWindow(0,0,0,0);
@@ -1067,7 +1067,7 @@ void SliderCtrlBase::OnPaint( HRDC hRDC )
 SliderCtrl::SliderCtrl()
 {
 	UICreateInstance(&m_pButton);
-	this->AddChild( m_pButton );
+	this->AddChild(m_pButton);
 	m_pButton->SetButtonStyle(BUTOTN_STYLE_SLIDERTRACKBUTTON);
 
 	// 对按钮的消息进行拦截，统一在父类中处理 

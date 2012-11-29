@@ -202,6 +202,7 @@ namespace UI
 	UIAPI bool     UI_RemoveStyleAttribute( HSKIN hSkin, STYLE_SELECTOR_TYPE  type, const String& strID, const String& strKey );
 
 	UIAPI bool     UI_ModifyImageItemInRunTime(const String& strID, const String& strPath);
+	UIAPI bool     UI_ModifyImageItemAlpha(const String& strID, int nAlphaPercent);
 
 	UIAPI bool     UI_ReloadResource(HSKIN hSkin, UI_RESOURCE_TYPE eResType=UI_RESOURCE_NULL);
 	UIAPI void     UI_Save(HSKIN hSkin=NULL, UI_RESOURCE_TYPE eResType=UI_RESOURCE_NULL);

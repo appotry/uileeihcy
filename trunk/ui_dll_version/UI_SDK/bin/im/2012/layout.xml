@@ -22,7 +22,7 @@
     <CustomWindow id="chatdlg" width="553" height="520" minwidth="450" minheight="500" border="6,6,6,6"
                   transparent.type="layered" istransparent="1" Xtransparent.maskalpha="200"
                   bkgnd.render.type="image"
-                  xbkgnd.render.image="chatframe.png"
+                  bkgnd.render.image="chatframe.png"
                   bkgnd.render.image.drawtype="stretch"
                   bkgnd.render.9region="12,101,12,12"
                   foregnd.render.type="image"
@@ -30,9 +30,20 @@
                   foregnd.render.color="avg_surface_color"
                   foregnd.render.image.drawtype="simple"
                   textrender.font="normal">
-      <Label text=" 线程 'Win32 线程' (0xe7c) 已退出，返回值为 0 (0x0)。" layout.left="10" layout.top="78" textrender.color="white"/>
+      <Label text="线程 'Win32 线程' (0xe7c) 已退出，返回值为 0 (0x0)。" layout.left="10" layout.top="78" textrender.color="white"/>
       <Label text="线程 'Win32 线程' (0xe7c) 已退出，返回值为 0 (0x0)。" layout.left="10" layout.top="98" textrender.color="black"/>
 
+      <SliderCtrl id="alpha_slider"  istransparent="1" layout.right="10" layout.top="30" width="88" height="20"
+                  bkgnd.render.type="image"
+                  bkgnd.render.image.drawtype="center"
+                  bkgnd.render.image="slider_background.png"
+                  foregnd.render.type="image"
+                  foregnd.render.image.drawtype="center"
+                  foregnd.render.image="slider_foreground.png"
+                  
+                  trackbtn.bkgnd.render.type="image"
+                  trackbtn.bkgnd.render.image="slider_dragBackground.png"
+                  />
       <!--Panel layout="grid" layout.width="*,*,*,*,*,*,*,*,*,*" layout.height="*,*,*,*,*,*" layout.left="10" layout.top="100">
         <GifPicture path="aaa.gif"  layout.row="0" layout.col="0"></GifPicture>
         <GifPicture path="aaa.gif"  layout.row="0" layout.col="1"></GifPicture>
@@ -139,7 +150,10 @@
     <item id="icon_min.png" path="icon_min.png"/>
     <item id="icon_restore.png" path="icon_restore.png"/>
     <item id="icon_max.png" path="icon_max.png"/>
-    <item id="chatframe_surface" path2="c:\aaa.bmp" path="chatframe_surface.png"/>
+    <item id="chatframe_surface" path="chatframe_surface.png"/>
+    <item id="slider_background.png" path="slider_background.png"/>
+    <item id="slider_foreground.png" path="slider_foreground.png"/>
+    <item id="slider_dragBackground.png" path="slider_dragBackground.png"/>
     <gif  id="aaa.gif" path="c:\aaa.gif"/>
   </image>
   <font>

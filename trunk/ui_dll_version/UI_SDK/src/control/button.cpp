@@ -332,54 +332,54 @@ void ButtonBase::OnPaint(HRDC hRDC)
 	bool  bChecked = IsChecked();
 	bool  bForePress = IsForePress();
 
-	if( bDisable )
+	if (bDisable)
 	{
 		if (NULL != m_pForegndRender)
 		{
-			m_pForegndRender->DrawState( hRDC, &rcIcon, bChecked?BUTTON_ICON_RENDER_STATE_SELECTED_DISABLE:BUTTON_ICON_RENDER_STATE_DISABLE );
+			m_pForegndRender->DrawState(hRDC, &rcIcon, bChecked?BUTTON_ICON_RENDER_STATE_SELECTED_DISABLE:BUTTON_ICON_RENDER_STATE_DISABLE );
 		}
 		if (NULL != m_pTextRender)
 		{
-			m_pTextRender->DrawState( hRDC, &rcText, BUTTON_BKGND_RENDER_STATE_DISABLE, m_strText, DT_VCENTER|DT_CENTER|DT_SINGLELINE|DT_END_ELLIPSIS );
+			m_pTextRender->DrawState(hRDC, &rcText, BUTTON_BKGND_RENDER_STATE_DISABLE, m_strText, DT_VCENTER|DT_CENTER|DT_SINGLELINE|DT_END_ELLIPSIS );
 		}
 	}
 	else if (bForePress || (bPress && bHover))
 	{
 		if (NULL != m_pForegndRender)
 		{
-			m_pForegndRender->DrawState( hRDC, &rcIcon, bChecked?BUTTON_ICON_RENDER_STATE_SELECTED_PRESS:BUTTON_ICON_RENDER_STATE_PRESS );
+			m_pForegndRender->DrawState(hRDC, &rcIcon, bChecked?BUTTON_ICON_RENDER_STATE_SELECTED_PRESS:BUTTON_ICON_RENDER_STATE_PRESS);
 		}
 		if (NULL != m_pTextRender)
 		{
-			m_pTextRender->DrawState( hRDC, &rcText, BUTTON_BKGND_RENDER_STATE_PRESS, m_strText, DT_VCENTER|DT_CENTER|DT_SINGLELINE|DT_END_ELLIPSIS );
+			m_pTextRender->DrawState(hRDC, &rcText, BUTTON_BKGND_RENDER_STATE_PRESS, m_strText, DT_VCENTER|DT_CENTER|DT_SINGLELINE|DT_END_ELLIPSIS);
 		}
 	}
-	else if( bHover || bPress )
+	else if (bHover || bPress)
 	{
 		if (NULL != m_pForegndRender)
 		{
-			m_pForegndRender->DrawState( hRDC, &rcIcon, bChecked?BUTTON_ICON_RENDER_STATE_SELECTED_HOVER:BUTTON_ICON_RENDER_STATE_HOVER );
+			m_pForegndRender->DrawState(hRDC, &rcIcon, bChecked?BUTTON_ICON_RENDER_STATE_SELECTED_HOVER:BUTTON_ICON_RENDER_STATE_HOVER );
 		}
 		if (NULL != m_pTextRender)
 		{
-			m_pTextRender->DrawState( hRDC, &rcText, BUTTON_BKGND_RENDER_STATE_HOVER, m_strText, DT_VCENTER|DT_CENTER|DT_SINGLELINE|DT_END_ELLIPSIS );
+			m_pTextRender->DrawState(hRDC, &rcText, BUTTON_BKGND_RENDER_STATE_HOVER, m_strText, DT_VCENTER|DT_CENTER|DT_SINGLELINE|DT_END_ELLIPSIS );
 		}
 	}
 	else 
 	{
 		if (NULL != m_pForegndRender)
 		{
-			m_pForegndRender->DrawState( hRDC, &rcIcon, bChecked?BUTTON_ICON_RENDER_STATE_SELECTED_NORMAL:BUTTON_ICON_RENDER_STATE_NORMAL );
+			m_pForegndRender->DrawState(hRDC, &rcIcon, bChecked?BUTTON_ICON_RENDER_STATE_SELECTED_NORMAL:BUTTON_ICON_RENDER_STATE_NORMAL);
 		}
 		if (NULL != m_pTextRender)
 		{
-			m_pTextRender->DrawState( hRDC, &rcText, BUTTON_BKGND_RENDER_STATE_NORMAL, m_strText, DT_VCENTER|DT_CENTER|DT_SINGLELINE|DT_END_ELLIPSIS );
+			m_pTextRender->DrawState(hRDC, &rcText, BUTTON_BKGND_RENDER_STATE_NORMAL, m_strText, DT_VCENTER|DT_CENTER|DT_SINGLELINE|DT_END_ELLIPSIS);
 		}
 	}
 
-	if( IsFocus() )
+	if (IsFocus())
 	{
-		this->DrawFocus( hRDC, &rcIcon, &rcText );
+		this->DrawFocus(hRDC, &rcIcon, &rcText);
 	}	
 	return;
 }

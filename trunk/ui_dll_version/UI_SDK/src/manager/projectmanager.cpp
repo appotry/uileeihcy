@@ -1195,6 +1195,21 @@ bool ProjectManager::ModifyImageItemInRunTime(const String& strID, const String&
 	return pImageMgr->ModifyImageItemInRunTime(strID, strPath);
 }
 
+bool ProjectManager::ModifyImageItemAlpha(const String& strID, int nAlphaPercent)
+{
+	if (NULL == m_pCurActiveSkinMgr)
+		return false;
+
+	ImageManager* pImageMgr = m_pCurActiveSkinMgr->GetImageManager();
+	if (NULL == pImageMgr)
+	{
+		UI_LOG_ERROR(_T("%s GetImageManager Failed."), FUNC_NAME);
+		return false;
+	}
+
+	return pImageMgr->ModifyImageItemAlpha(strID, nAlphaPercent);
+}
+
 //
 //	保存到文件中
 //

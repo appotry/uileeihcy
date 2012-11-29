@@ -452,22 +452,41 @@ bool CPojo_ImageItem::ModifyHLS(IRenderBitmap* pBitmap, short h, short l, short 
 	if (false == m_bUseSkinHLS)
 		return true;
 
-	if( NULL != pBitmap)
+	if (NULL != pBitmap)
 	{
-		if( NULL == m_pOriginImageData )
+		if (NULL == m_pOriginImageData)
 		{
 			m_pOriginImageData = new ImageData;
-			if( false == pBitmap->SaveBits(m_pOriginImageData) )
+			if (false == pBitmap->SaveBits(m_pOriginImageData))
 			{
 				UI_LOG_WARN(_T("%s not support this image to change hue. id=%s"), FUNC_NAME, m_strID.c_str() );
 				m_bUseSkinHLS = false;
 				SAFE_DELETE(m_pOriginImageData);
 			}
 		}
-		pBitmap->ChangeHLS(m_pOriginImageData,  h,l,s,nFlag);
+		return pBitmap->ChangeHLS(m_pOriginImageData,  h,l,s,nFlag);
 	}
-	return true;
+	return false;
 }
+
+bool CPojo_ImageItem::ModifyAlpha(int nAlphaPercent)
+{
+	if (NULL != m_pGdiBitmap)
+	{
+		if (NULL == m_pOriginImageData)
+		{
+			m_pOriginImageData = new ImageData;
+			if (false == m_pGdiBitmap->SaveBits(m_pOriginImageData))
+			{
+				UI_LOG_WARN(_T("%s not support this image to change alpha. id=%s"), FUNC_NAME, m_strID.c_str() );
+				SAFE_DELETE(m_pOriginImageData);
+			}
+		}
+		return m_pGdiBitmap->GetBitmap()->ModifyAlpha(m_pOriginImageData, nAlphaPercent);
+	}
+	return false;
+}
+
 //
 // ÐÞ¸ÄÍ¼Æ¬
 //
@@ -710,6 +729,23 @@ bool CPojo_Image::ChangeSkinHLS(short h, short l, short s, int nFlag)
 	}
 
 	return true;
+}
+
+bool CPojo_Image::ModifyImageItemAlpha(const String& strID, int nAlphaPercent)
+{
+	vector<CPojo_ImageItem*>::iterator  iter = m_vImages.begin();
+	vector<CPojo_ImageItem*>::iterator  iterEnd = m_vImages.end();
+
+	for( ; iter != iterEnd; iter++ )
+	{
+		CPojo_ImageItem* p = *iter;
+		if (p->GetIDRef() == strID)
+		{
+			return p->ModifyAlpha(nAlphaPercent);
+		}
+	}
+
+	return false;
 }
 
 HRBITMAP CPojo_Image::GetImage( const String& strID, GRAPHICS_RENDER_TYPE eRenderType )

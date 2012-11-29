@@ -193,6 +193,7 @@ const UINT  LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE = RENDER_STATE_DI
 		void    SetRenderBitmapDirect(IRenderBitmap* pBitmap);
 		void    SetBkColorDirect(COLORREF color);
 
+		IRenderBitmap*   GetRenderBitmap() { return m_pBitmap; }
 	protected:
 		IRenderBitmap*    m_pBitmap;
 		UIColor*          m_pColorBk;

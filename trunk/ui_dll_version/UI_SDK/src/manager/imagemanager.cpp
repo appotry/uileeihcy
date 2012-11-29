@@ -219,6 +219,21 @@ bool ImageManager::ModifyImageItemInRunTime(const String& strID, const String& s
 	
 	return true;
 }
+
+bool ImageManager::ModifyImageItemAlpha(const String& strID, int nAlphaPercent)
+{
+	if (false == m_pojoImage.ModifyImageItemAlpha(strID, nAlphaPercent))
+	{
+		UI_LOG_ERROR(_T("%s m_pojoImage.ModifyImageItemAlpha strID=%s,nAlphaPercent=%d Failed. "), FUNC_NAME, strID.c_str(), nAlphaPercent);
+		return false;
+	}
+
+	// TODO: 保存到用户配置文件中
+	UI_LOG_DEBUG(_T("%s TODO: 保存到用户配置文件中"), FUNC_NAME);
+
+	return true;
+}
+
 bool ImageManager::RemoveImageItem( const String& strID )
 {
 	if (NULL == m_pImageParse)

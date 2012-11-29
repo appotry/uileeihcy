@@ -171,9 +171,10 @@ namespace UI
 		DECLARE_STRING_SETGET( Path );
 		DECLARE_bool_SETGET(UseSkinHLS);
 
-		bool     ModifyImage( const String& strPath );
-		bool     ModifyHLS( short h, short l, short s, int nFlag );
-		bool     ModifyHLS( IRenderBitmap* pBitmap, short h, short l, short s, int nFlag );
+		bool     ModifyImage(const String& strPath);
+		bool     ModifyHLS(short h, short l, short s, int nFlag);
+		bool     ModifyHLS(IRenderBitmap* pBitmap, short h, short l, short s, int nFlag);
+		bool     ModifyAlpha(int nAlphaPercent);
 		HRBITMAP GetImage(GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI, bool* pbFirstTimeCreate=NULL);
 		void     SetAttribute(const ATTRMAP& mapAttr);
 	};
@@ -201,6 +202,7 @@ namespace UI
 		bool RemoveImage( const String& strID );
 		bool Clear();
 		bool ChangeSkinHLS(short h, short l, short s, int nFlag);
+		bool ModifyImageItemAlpha(const String& strID, int nAlphaPercent);
 
 		HRBITMAP GetImage( const String& strID, GRAPHICS_RENDER_TYPE eRenderType = GRAPHICS_RENDER_TYPE_GDI );
 
