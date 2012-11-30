@@ -382,6 +382,7 @@ enum WINDOW_TRANSPARENT_PART_TYPE
 #define XML_LAYOUT_DOCK          _T("dock")          // 布局类型：dock
 #define XML_LAYOUT_CANVAS        _T("canvas")        // 布局类型：canvas
 #define XML_LAYOUT_CARD          _T("card")          // 布局类型：card
+#define XML_LAYOUT_SPLIT         _T("split")         // 布局类型: split
 
 // canvas布局中的子元素的属性
 #define XML_LAYOUT_CANVAS_LEFT          _T("layout.left")
@@ -397,12 +398,15 @@ enum WINDOW_TRANSPARENT_PART_TYPE
 #define XML_LAYOUT_STACK_TOPTOBOTTOM    _T("toptobottom")       // xml中可配置的值
 #define XML_LAYOUT_STACK_BOTTOMTOTOP    _T("bottomtotop")       // xml中可配置的值
 #define XML_LAYOUT_STACK_TOPANDBOTTOM   _T("topandbottom")      // xml中可配置的值
-#define LAYOUT_STACK_LEFTTORIGHT        1                       // 在代码中的取值
-#define LAYOUT_STACK_RIGHTTOLEFT        2                       // 在代码中的取值
-#define LAYOUT_STACK_LEFTANDRIGHT       3                       // 在代码中的取值
-#define LAYOUT_STACK_TOPTOBOTTOM        4                       // 在代码中的取值
-#define LAYOUT_STACK_BOTTOMTOTOP        5                       // 在代码中的取值
-#define LAYOUT_STACK_TOPANDBOTTOM       6                       // 在代码中的取值
+enum LAYOUT_STACK_DIRECTION
+{
+	LAYOUT_STACK_LEFTTORIGHT = 0,   
+	LAYOUT_STACK_RIGHTTOLEFT = 1,   
+	LAYOUT_STACK_LEFTANDRIGHT = 2,  
+	LAYOUT_STACK_TOPTOBOTTOM = 3,   
+	LAYOUT_STACK_BOTTOMTOTOP = 4,   
+	LAYOUT_STACK_TOPANDBOTTOM = 5   
+};
 
 // stack布局中的子元素的属性
 #define XML_LAYOUT_STACK_DOCK           _T("layout.dock")       // 当layout.direction=leftandright||topandbottom时，需要指定子元素到底停靠在哪一侧
@@ -430,6 +434,20 @@ enum WINDOW_TRANSPARENT_PART_TYPE
 #define XML_LAYOUT_GRID_COL             _T("layout.col")        // 
 #define XML_LAYOUT_GRID_ROWSPAN         _T("layout.rowspan")    // 
 #define XML_LAYOUT_GRID_COLSPAN         _T("layout.colspan")    // 
+
+// split布局的属性
+#define XML_LAYOUT_SPLIT_DIRECTION      _T("layout.direction")
+#define XML_LAYOUT_SPLIT_DIRECTION_H    _T("h")
+#define XML_LAYOUT_SPLIT_DIRECTION_V    _T("v")
+enum LAYOUT_SPLIT_DIRECTION
+{
+	LAYOUT_SPLIT_DIRECTION_H = 0,
+	LAYOUT_SPLIT_DIRECTION_V = 1,
+};
+#define XML_LAYOUT_SPLIT_SHOW_BUTTON   _T("layout.showbutton")  // 是否显示快速显示/隐藏按钮
+
+// split布局中的子元素的属性
+
 
 //
 // style.xml ===>

@@ -100,7 +100,7 @@ bool ButtonBase::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 
 	return true;
 }
-SIZE ButtonBase::GetAutoSize(HRDC hRDC)
+SIZE ButtonBase::GetAutoSize()
 {
 	SIZE s = {0,0};
 
@@ -126,16 +126,16 @@ SIZE ButtonBase::GetAutoSize(HRDC hRDC)
 				SIZE sizeIcon = {0,0};
 				SIZE sizeText = {0,0};
 
-				if( NULL != m_pForegndRender )
+				if (NULL != m_pForegndRender)
 				{
-					sizeIcon = m_pForegndRender->GetDesiredSize(  );
+					sizeIcon = m_pForegndRender->GetDesiredSize();
 				}
-				if( NULL != m_pTextRender )
+				if (NULL != m_pTextRender)
 				{
 					sizeText = m_pTextRender->GetDesiredSize(m_strText);
 				}
 
-				switch(m_nIconTextFlag)
+				switch (m_nIconTextFlag)
 				{
 				case BUTTON_ICONTEXT_RENDER_FLAG_ICON_POS_LEFT:
 				case BUTTON_ICONTEXT_RENDER_FLAG_ICON_POS_RIGHT:

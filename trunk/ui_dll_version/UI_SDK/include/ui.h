@@ -271,6 +271,7 @@ namespace UI
 #include "window\panel.h"
 #include "panel\groupbox.h"
 #include "panel\scrollpanel.h"
+#include "panel\splitpanel.h"
 #include "window\SyncWindowHelper.h"
 #include "window\windowbase.h"
 #include "window\window.h"

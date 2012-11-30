@@ -307,7 +307,7 @@ void SliderCtrlBase::UpdateUIData(bool bCalBeginEnd, bool bUpdateButtonRect)
 
 		if(s.cx == 0 || s.cy == 0)
 		{
-			s = m_pButton->GetDesiredSize(NULL);
+			s = m_pButton->GetDesiredSize();
 			s.cx -= m_pButton->GetMarginW();
 			s.cy -= m_pButton->GetMarginH();
 		}

@@ -30,7 +30,7 @@ public:
 	void              OnUnsubclassWindow();
 
 	virtual   bool    SetAttribute( map<String,String>& mapAttrib, bool bReload=false );
-	virtual   SIZE    GetDesiredSize( HRDC hDC );  
+	virtual   SIZE    GetDesiredSize();  
 
 protected:
 	static LRESULT    CALLBACK _WndProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );

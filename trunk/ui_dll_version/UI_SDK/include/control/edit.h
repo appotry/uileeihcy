@@ -117,6 +117,7 @@ public:
 		UIMSG_WM_LBUTTONDOWN( OnLButtonDown )
 		UIMSG_WM_LBUTTONUP( OnLButtonUp )
 		UIMSG_WM_LBUTTONDBLCLK( OnLButtonDblClk )
+		UIMSG_WM_RBUTTONDOWN(OnRButtonDown)
  		UIMSG_WM_SETFOCUS( OnSetFocus )
  		UIMSG_WM_KILLFOCUS( OnKillFocus )
 		UIMSG_WM_WINDOWPOSCHANGED(OnObjectPosChanged)
@@ -138,6 +139,7 @@ protected:
 	void        OnLButtonUp(UINT nFlags, POINT point);
 	void        OnMouseMove(UINT nFlags, POINT point);
 	void        OnLButtonDblClk(UINT nFlags, POINT point);
+	void        OnRButtonDown(UINT nFlags, CPoint point);
 
 	void        OnInputChar( UINT nChar );
 	void        OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags );
@@ -162,7 +164,7 @@ public:
 	virtual      bool        SetAttribute( ATTRMAP& mapAttrib, bool bReload=false );
 
 	// 从Control继承过来的虚函数
-	virtual      SIZE        GetAutoSize( HRDC hDC=NULL ); 
+	virtual      SIZE        GetAutoSize(); 
 
 	// 自己定义的虚函数
 	virtual      bool        FilterInputChar( UINT nChar );

@@ -81,7 +81,7 @@ bool Label::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 	return bRet;
 }
 
-SIZE Label::GetAutoSize( HRDC hRDC )
+SIZE Label::GetAutoSize()
 {
 //	SIZE size = MeasureString(GetFont(), this->m_strText.c_str() );
 	SIZE size = {0,0};
@@ -105,7 +105,7 @@ Picture::~Picture()
 {
 }
 
-SIZE Picture::GetAutoSize( HRDC hDC )
+SIZE Picture::GetAutoSize()
 {
 	SIZE sz = {0,0};
 	if (NULL != m_pBkgndRender)
@@ -143,7 +143,7 @@ GifPicture::~GifPicture()
 	SAFE_RELEASE(m_pGifRender);
 }
 
-SIZE GifPicture::GetAutoSize( HRDC hDC )
+SIZE GifPicture::GetAutoSize()
 {
 	SIZE s = {0, 0};
 	if (NULL != m_pGifRender)

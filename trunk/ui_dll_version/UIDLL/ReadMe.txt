@@ -62,8 +62,6 @@
 57. 考虑支持缩放效果
 58. icon在系统16位色下面显示全白
 59. 去掉ResetAttribute方法？？
-60. 将BkRender, ForeRender移到IObjectRender当中，子类controlRender可继承
-64. 关于DrawThemexxx的Gdiplus，可以考虑先画在一个HDC的BITMAP上面，然后转成Gdiplus::Bitmap
 65. TextRender可以考虑增加一个文字阴影效果，仿XP STYLE
 66. Edit中，字体改变后/换肤后，m_nCaretHeight没有更新，将导致绘制位置出错
 67. WPF中的元素Visibility可视性有三种值,之前我也没有仔细看过,一般就都用Hidden了(Flash的习惯),但事实上呢,Collapsed也有非常大的用处,hidden仅仅将元素设为不可视,但是元素在画面上依然将占有空间,而Collapsed的话,在不可视的基础上,还能将元素在画面上的占位符清除,元素彻底不影响画面.所以,某些时候可能用Collapsed更为合理.在做一个StackPanel的时候最明显,三个对象在StackPanel中的时候,中间的对象如果Hidden,还将占有Stack中的位置,而Collapsed的话,下面的对象就会挤上了(有点像DIV了..)  
@@ -78,7 +76,6 @@
 73. 点击打开一个系统COMBOOX的下拉列表，然后将鼠标放在一个UI控件上面，点击一下，下拉列表消失，再继续点击UI控件，无反应。
     因为没有人去触发一个WM_MOUSEMOVE来set hover对象
 78. 将layout.xml增加一个<#include>标签，允许将一些资源抽取出来 
-84. 实现新的一类换肤功能：背景主题图片	
 89. 普通窗口拉伸优化！不平滑
 92. playlistdlg resize的时候， listctrl 变化不正常，会变黑
 93. WINDOW 的两个消息链有点混乱，能不能想办法都合入到processwindowmessage中，ui_begin_msg_map只由外部去处理
@@ -94,7 +91,8 @@
 123.mwa,wav文件的directsound支持
     已基本支持，但是WAVE文件非PCM格式的问题  5.1声道 C:\Program Files\Microsoft DirectX SDK (March 2009)\Samples\Media\Wavs\MusicSurround.wav
     
-124.文件标签的读取
+124.文件标签的读取，现在仍然不清楚业内是如何去实现的。完全靠读文件吗？
+
 125.在分层窗口隐藏的时候，setwindowpos，然后再showwindow，会先显示旧的内容，然后刷新为新的内容 
 	提取出虚函数CustomWindow::OnDrawWindow，在里面不判断窗口的visible属性。继续观察..
 	
@@ -122,9 +120,6 @@
 146.使用ThemeTooltip后，再换肤。退出时font release崩溃了。应该是没有reset attr的原因吧。到时候查一下。
 147.WMA的停止后再播放有问题。SetRange (0)之后，再pushbuffer(0,xxx)，结果WMAFile GetNextSample得到的值并不是0.是因为异步READER导致的吗？	
 
-148.窗口最大化后，覆盖任务栏的问题，应该是GETMINMAXINFO没有去年任务栏高度的问题
-    另外，window类中处理的系统按钮命令是不是应该移到custom window当中？
-    
 151.d2d bitmap drawbitmap 的disable处理
 
 152.SetObjectPos里面的bMove||bSize，然后刷新父窗口，会导致滚动条刷新狂慢
@@ -140,7 +135,6 @@
 
 157.gif优化。1.大图片解码速度问题  2. 每个GIF占用的GDI还是偏多，IE中即使增加N个显示，GDI数量也不变
 	
-
 158. 延迟创建双缓存，会导致分层窗口在改变大小时，窗口形状也延迟更新
      分层窗口的限制帧数机制未完善，导致窗口刷新不正确    
      	
@@ -148,8 +142,9 @@
      有没有办法判断一个对象是否有效?
      
 162. 灰度图的绘制效率需要再研究下 2012.11.29
+     每次绘制时都会去创建一次灰度图
 
-164.
+164. 滚动条代码优化！太绕了 2012.11.30  
      
 ==================================疑问==================================
 
@@ -282,7 +277,13 @@
        
 163. 需要在退出时记录下当前播放曲目 2012.11.29
      已添加. 保存在配置文件中 2012.11.29
-              
+
+84. 实现新的一类换肤功能：背景主题图片	
+    2012.11.29 已实现基本功能    
+    
+148.窗口最大化后，覆盖任务栏的问题，应该是GETMINMAXINFO没有去年任务栏高度的问题
+    另外，window类中处理的系统按钮命令是不是应该移到custom window当中？
+                  
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
        	         	
 备注：

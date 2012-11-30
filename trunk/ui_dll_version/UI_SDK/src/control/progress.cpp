@@ -44,7 +44,7 @@ bool ProgressCtrlBase::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 	return true;
 }
 
-SIZE  ProgressCtrlBase::GetAutoSize( HRDC hRDC )
+SIZE  ProgressCtrlBase::GetAutoSize()
 {
 	if(NULL != m_pBkgndRender)
 		return m_pBkgndRender->GetDesiredSize();

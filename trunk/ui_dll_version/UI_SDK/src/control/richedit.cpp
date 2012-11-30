@@ -5,7 +5,7 @@ RichEditBase::RichEditBase():m_wrapRichEidt(this)
 	m_MgrScrollbar.SetBindObject(this);
 }
 
-SIZE RichEditBase::GetAutoSize( HRDC hRDC )
+SIZE RichEditBase::GetAutoSize()
 { 
 	SIZE  s = {0,0}; 
 	return s; 
@@ -32,7 +32,7 @@ bool RichEditBase::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 		m_pTextRender->SetAttribute(_T(""),m_mapAttribute);
 	}
 
-	if (NULL == m_pBkgndRender)
+	if (NULL == m_pBkgndRender && !this->IsTransparent())  // 如果没有指定为透明属性，则默认用窗口背景色绘制背景
 	{
 		m_pBkgndRender = RenderFactory::GetRender(RENDER_TYPE_COLOR, this);
 		ColorRender* pRender = dynamic_cast<ColorRender*>(m_pBkgndRender);
@@ -135,6 +135,19 @@ void RichEditBase::OnSize(UINT nType, int cx, int cy)
 	this->m_MgrScrollbar.OnBindObjectSize(&sizeContent, &rcClient, m_pCurMsg);
 }
 
+void RichEditBase::OnRButtonDown(UINT nFlags, CPoint point)
+{
+	SetMsgHandled(FALSE);  // 继续传递给windowless richedit
+
+	if (!this->IsFocus())
+	{
+		WindowBase* pWindow = this->GetWindowObject();
+		if (NULL != pWindow)
+		{
+			pWindow->GetKeyboardMgr().SetFocusObject(this);
+		}
+	}
+}
 
 // 因为richedit会自己负责刷新richedit的内容，因些
 LRESULT  RichEditBase::OnScroll(UINT uMsg, WPARAM wParam, LPARAM lParam)

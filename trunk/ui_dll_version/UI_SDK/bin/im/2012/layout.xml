@@ -31,8 +31,6 @@
                   foregnd.render.image.drawtype="simple"
                   textrender.font="normal">
       <Label text="线程 'Win32 线程' (0xe7c) 已退出，返回值为 0 (0x0)。" layout.left="10" layout.top="78" textrender.color="white"/>
-      <Label text="线程 'Win32 线程' (0xe7c) 已退出，返回值为 0 (0x0)。" layout.left="10" layout.top="98" textrender.color="black"/>
-
       <SliderCtrl id="alpha_slider"  istransparent="1" layout.right="10" layout.top="30" width="88" height="20"
                   bkgnd.render.type="image"
                   bkgnd.render.image.drawtype="center"
@@ -139,13 +137,13 @@
                     bkgnd.render.imagelist.count="3"
                     bkgnd.render.imagelist.layout="h"></Button>
       </Panel>
-      <!--RichEdit id="outputedit" layout.left="0" layout.right="0" layout.top="95" layout.bottom="100" istransparent="1"-->
-      <RichEdit id="inputedit" layout.left="0" layout.right="0" layout.bottom="5" height="200"/>
+      <RichEdit id="outputedit" layout.left="0" layout.right="0" layout.top="95" layout.bottom="100" istransparent="1"/>
+      <RichEdit id="inputedit" layout.left="0" layout.right="0" layout.bottom="5" height="95" bkgnd.render.type="color" bkgnd.render.color="white"/>
     </CustomWindow>
   </layout>
 
   <image>
-    <item id="chatframe.png" path="chatframe.png"/>
+    <item id="chatframe.png" path="chatframe2.png"/>
     <item id="icon_close.png" path="icon_close.png"/>
     <item id="icon_min.png" path="icon_min.png"/>
     <item id="icon_restore.png" path="icon_restore.png"/>

@@ -810,7 +810,7 @@ bool EditBase::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 }
 
 
-SIZE EditBase::GetAutoSize( HRDC hRDC )
+SIZE EditBase::GetAutoSize()
 {
 	String strTest = this->m_EditData.GetText();
 	if( strTest.empty() )
@@ -1237,6 +1237,20 @@ void EditBase::OnLButtonUp(UINT nFlags, POINT point)
 {
 	m_bMouseDrag = false;
 }	
+
+void EditBase::OnRButtonDown(UINT nFlags, CPoint point)
+{
+	SetMsgHandled(FALSE);
+
+	if (!this->IsFocus())
+	{
+		WindowBase* pWindow = this->GetWindowObject();
+		if (NULL != pWindow)
+		{
+			pWindow->GetKeyboardMgr().SetFocusObject(this);
+		}
+	}
+}
 
 //
 //	TODO: дк aa___bb

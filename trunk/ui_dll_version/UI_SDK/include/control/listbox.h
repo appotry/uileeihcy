@@ -147,7 +147,7 @@ namespace UI
 		LRESULT  OnGetToolTipInfo(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	public:
 		// Ðéº¯Êý
-		virtual  SIZE GetAutoSize( HRDC hRDC );
+		virtual  SIZE GetAutoSize();
 		virtual  void ResetAttribute();
 		virtual  bool SetAttribute(ATTRMAP& mapAttrib, bool bReload);
 

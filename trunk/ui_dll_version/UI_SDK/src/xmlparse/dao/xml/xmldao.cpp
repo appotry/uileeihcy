@@ -2635,17 +2635,17 @@ Object*  CXmlLayoutParse::mapXmlToClass( String strXmlName )
 //
 //	为m_mxl当前指向的对象加载它的属性
 //
-bool CXmlLayoutParse::loadAttributeForCurrentObjectInXml( Object* pObj, bool bReload/*=false*/ )
+bool CXmlLayoutParse::loadAttributeForCurrentObjectInXml(Object* pObj, bool bReload/*=false*/)
 {
 	map<String, String> mapAttrib;
 
 	//
 	//	加载所有属性
 	//
-	for( int j = 0; ; j++ )
+	for (int j = 0; ; j++)
 	{
 		String key = m_xml.GetAttribName(j);
-		if( _T("") == key )
+		if (_T("") == key)
 			break;
 
 		String value = m_xml.GetAttrib( key );
@@ -2669,7 +2669,7 @@ bool CXmlLayoutParse::loadAttributeForCurrentObjectInXml( Object* pObj, bool bRe
 	}
 	strTagName = pObj->GetObjectName();
 
-	::UI_LoadStyle( strTagName, strStyleClass, strID, mapAttrib );
+	::UI_LoadStyle(strTagName, strStyleClass, strID, mapAttrib);
 
 	// 
 	//	具体的key、value解析交由对象自己去处理
@@ -2684,42 +2684,42 @@ bool CXmlLayoutParse::loadAttributeForCurrentObjectInXml( Object* pObj, bool bRe
 //
 // 递归，加载所有子对象及子对象的属性
 //
-bool CXmlLayoutParse::loadObjects( Object* pObjParent )
+bool CXmlLayoutParse::loadObjects(Object* pObjParent)
 {
 	bool bRet = false;
 
-	if( false == m_xml.IntoElem() )
+	if (false == m_xml.IntoElem())
 		return false;
 
 	// 遍历所有子对象
-	while(true)
+	while (true)
 	{
 		bool bRet = this->m_xml.FindElem();
-		if( false == bRet )     break;
+		if (false == bRet)     break;
 
 		Object*  pObj = NULL;
 		String   tagName = this->m_xml.GetTagName();
-		if( _T("") == tagName )
+		if (_T("") == tagName)
 		{
 			UI_LOG_WARN( _T("LayoutXmlParse::loadObjects, xml invalid tag name.") );
 			return false;
 		}
 
 		// 将标签名转化为类
-		pObj = this->mapXmlToClass( tagName );
-		if( NULL == pObj )
+		pObj = this->mapXmlToClass(tagName);
+		if (NULL == pObj)
 		{
 			continue;
 		}
 
 		// 关联
-		pObjParent->AddChild( pObj );
+		pObjParent->AddChild(pObj);
 
 		// 加载属性
 		this->loadAttributeForCurrentObjectInXml(pObj);
 
 		// 默认将该控件的添加一个notify object为窗口对象，并将msgmapid设置为0
-		pObj->AddNotify( pObj->GetWindowObject(), 0 );
+		pObj->AddNotify(pObj->GetWindowObject(), 0);
 
 		// 递归，加载这个子对象的子对象
 		this->loadObjects( pObj );

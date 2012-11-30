@@ -18,10 +18,10 @@ public:
 
 	// Object 虚函数
 public:
-	virtual      SIZE        GetDesiredSize( HRDC hRDC ); // 内部调用GetAutoSize
+	virtual      SIZE        GetDesiredSize(); // 内部调用GetAutoSize
 	// 在没有指定控件的大小(width or height)的情况下，由自己计算自己所需要的大小，
 	// 返回值不包括margin，margin的计算由GetDesiredSize完成，但padding则由子对象自己完成
-	virtual      SIZE        GetAutoSize( HRDC hRDC ) = 0;
+	virtual      SIZE        GetAutoSize() = 0;
 
 };
 

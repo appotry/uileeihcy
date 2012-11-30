@@ -22,8 +22,8 @@ public:
 	// 虚函数
 public:
 	virtual      void        ResetAttribute();
-	virtual      bool        SetAttribute( map<String,String>& mapAttrib, bool bReload );
-	virtual      SIZE        GetDesiredSize( HRDC hRDC );
+	virtual      bool        SetAttribute(ATTRMAP& mapAttrib, bool bReload);
+	virtual      SIZE        GetDesiredSize();
 
 	// 消息处理
 protected:

@@ -29,7 +29,7 @@ public:
 	virtual      bool        SetAttribute( map<String,String>& mapAttrib, bool bReload=false );
 	
 	// 从Control继承过来的虚函数
-	virtual      SIZE        GetAutoSize( HRDC hDC );  
+	virtual      SIZE        GetAutoSize();  
 
 
 public:
@@ -59,7 +59,7 @@ public:
 	UI_END_MSG_MAP_CHAIN_PARENT(Control)
 
 	// virtual 函数
-	SIZE   GetAutoSize( HRDC hDC );
+	SIZE   GetAutoSize();
 	void   OnPaint( HRDC hRDC );
 
 private:
@@ -85,7 +85,7 @@ public:
 	UI_END_MSG_MAP_CHAIN_PARENT(Control)
 
 	// virtual 函数
-	SIZE   GetAutoSize( HRDC hDC );
+	SIZE   GetAutoSize();
 	bool   SetAttribute( ATTRMAP& mapAttrib, bool bReload=false );
 	void   ResetAttribute();
 

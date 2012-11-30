@@ -151,7 +151,7 @@ protected:
 public:
 	static  void  CreateInstance( IRenderBitmap** pOutRef );
 	virtual void  SetAttribute( const ATTRMAP& mapAttrib );
-	virtual bool  LoadFromFile( const String& strPath, const ATTRMAP& mapAttrib );
+	virtual bool  LoadFromFile( const String& strPath, bool bCreateAlphaChannel, const ATTRMAP& mapAttrib );
 private:
 	int    m_nIconWidth;
 	int    m_nIconHeight;

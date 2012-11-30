@@ -41,13 +41,13 @@ void  Panel::SetLayout(Layout*  pLayout)
 //////////////////////////////////////////////////////////////////////////
 
 
-SIZE Panel::GetDesiredSize( HRDC hRDC )
+SIZE Panel::GetDesiredSize()
 {
-	UIASSERT( this->m_pLayout != NULL );
+	UIASSERT (this->m_pLayout != NULL);
 
 	SIZE size = {0,0};
 	// 已指定了大小的窗体
-	if( this->m_nConfigWidth != AUTO && this->m_nConfigHeight != AUTO )
+	if (this->m_nConfigWidth != AUTO && this->m_nConfigHeight != AUTO)
 	{
 		size.cx = this->m_nConfigWidth;
 		size.cy = this->m_nConfigHeight;
@@ -55,13 +55,13 @@ SIZE Panel::GetDesiredSize( HRDC hRDC )
 	else
 	{
 		// 获取子对象所需要的空间
-	 	if( this->m_pLayout != NULL )
+	 	if (this->m_pLayout != NULL)
 	 		size = this->m_pLayout->Measure();
 
 		// 如果有指定width、height的其中一个，那么忽略在上一步中得到的值
-		if( this->m_nConfigWidth != AUTO )
+		if (this->m_nConfigWidth != AUTO)
 			size.cx = this->m_nConfigWidth;
-		if( this->m_nConfigHeight!= AUTO )
+		if (this->m_nConfigHeight!= AUTO)
 			size.cy = this->m_nConfigHeight;
 	}
 
@@ -78,10 +78,10 @@ void Panel::ResetAttribute()
 	SAFE_DELETE(m_pLayout);
 	this->ModifyStyle(OBJECT_STYLE_TRANSPARENT);
 }
-bool Panel::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
+bool Panel::SetAttribute(ATTRMAP& mapAttrib, bool bReload)
 {
 	bool bRet = Object::SetAttribute( mapAttrib, bReload );
-	if( false == bRet )	return false;
+	if (false == bRet)	return false;
 
 	// 布局类型
 	ATTRMAP::iterator iter = m_mapAttribute.find(XML_LAYOUT);
@@ -91,22 +91,23 @@ bool Panel::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 
 		String& strLayout = iter->second;
 		this->m_pLayout = LayoutManagerFactory::GetLayout( strLayout, this );
-		if( NULL == this->m_pLayout )
+		if (NULL == this->m_pLayout)
 		{
 			UI_LOG_ERROR( _T("Panel::SetAttribute，获取属性\"%s\"失败"), XML_LAYOUT );
 			// TODO. 是否需要return false;?
-		}else
+		}
+		else
 		{
-			this->m_pLayout->SetAttribute( mapAttrib,bReload );
+			this->m_pLayout->SetAttribute(mapAttrib,bReload);
 		}
 		this->m_mapAttribute.erase(iter);
 	}
-	else if(NULL == m_pLayout)
+	else if (NULL == m_pLayout)
 	{
 		// 默认为canvas布局
-		this->m_pLayout = LayoutManagerFactory::GetLayout( XML_LAYOUT_CANVAS, this );
+		this->m_pLayout = LayoutManagerFactory::GetLayout(XML_LAYOUT_CANVAS, this);
 		UIASSERT(NULL != m_pLayout);
-		this->m_pLayout->SetAttribute( mapAttrib,bReload );
+		this->m_pLayout->SetAttribute(mapAttrib,bReload);
 	}
  
 	return true;
