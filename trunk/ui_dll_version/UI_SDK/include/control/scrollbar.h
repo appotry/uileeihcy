@@ -64,8 +64,8 @@ namespace UI
 		void     SetVScrollPos(int nY);
 		
 		bool     SetScrollRange(int nX, int nY);
-		void     SetHScrollRange(int nX);
-		bool     SetVScrollRange(int nY);
+		bool     SetHScrollRange(int nX, bool bUpdate);
+		bool     SetVScrollRange(int nY, bool bUpdate);
 		void     GetScrollRange(int *pnxRange, int* pnyRange);
 		int      GetHScrollRange();
 		int      GetVScrollRange();
@@ -129,7 +129,7 @@ namespace UI
 	public:
 		virtual bool  SetAttribute(ATTRMAP& mapAttrib, bool bReload );   // ´ÓObject¼Ì³Ðµ½µÄ
 		virtual void  ResetAttribute();
-		virtual SIZE  GetAutoSize(HRDC hRDC);
+		virtual SIZE  GetAutoSize();
 
 		void    Init(ScrollBarMgr* pMgr);
 		int     GetScrollPos();

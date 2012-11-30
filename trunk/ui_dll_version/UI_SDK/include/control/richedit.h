@@ -39,13 +39,14 @@ public:
 		UIMESSAGE_HANDLER_EX(UI_WM_GETSCROLLOFFSET,OnGetScrollOffset)
 
 		UICHAIN_MSG_MAP_MEMBER(m_MgrScrollbar) 
+		UIMSG_WM_RBUTTONDOWN(OnRButtonDown)
 		UIMESSAGE_RANGE_HANDLER_EX(WM_MOUSEFIRST,WM_MOUSELAST, OnForwardMessage)
 
 		UIMSG_WM_OBJECTLOADED(OnObjectLoaded)
 	UI_END_MSG_MAP_CHAIN_PARENT(Control)
 
 public:
-	virtual  SIZE   GetAutoSize( HRDC hRDC );
+	virtual  SIZE   GetAutoSize();
 	virtual  bool   SetAttribute(ATTRMAP& mapAttrib, bool bReload);
 	virtual  void   ResetAttribute();
 
@@ -66,6 +67,7 @@ protected:
 	void     OnKillFocus( Object* pNewFocusObj );
 //	LRESULT  OnMouseRangeMsg(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	void     OnSize( UINT nType, int cx, int cy );
+	void     OnRButtonDown(UINT nFlags, CPoint point);
 
 protected:
 	WindowlessRichEdit   m_wrapRichEidt;

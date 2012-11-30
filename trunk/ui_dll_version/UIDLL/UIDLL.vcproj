@@ -506,6 +506,10 @@
 						RelativePath="..\UI_SDK\include\panel\scrollpanel.h"
 						>
 					</File>
+					<File
+						RelativePath="..\UI_SDK\include\panel\splitpanel.h"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="util"
@@ -784,6 +788,10 @@
 					</File>
 					<File
 						RelativePath="..\UI_SDK\src\panel\scrollpanel.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\UI_SDK\src\panel\splitpanel.cpp"
 						>
 					</File>
 				</Filter>

@@ -163,12 +163,12 @@ void GdiplusIconRenderBitmap::SetAttribute( const ATTRMAP& mapAttrib )
 	}
 }
 
-bool GdiplusIconRenderBitmap::LoadFromFile( const String& strPath, const ATTRMAP& mapAttrib )
+bool GdiplusIconRenderBitmap::LoadFromFile(const String& strPath, bool bCreateAlphaChannel, const ATTRMAP& mapAttrib)
 {
 	this->SetAttribute(mapAttrib);
 	SAFE_DELETE_GDIOBJECT(m_hBitmapToFixIcon);
 
-	HICON hIcon = (HICON)::LoadImage ( NULL, strPath.c_str(), IMAGE_ICON,m_nIconWidth,m_nIconHeight, LR_LOADFROMFILE );
+	HICON hIcon = (HICON)::LoadImage (NULL, strPath.c_str(), IMAGE_ICON,m_nIconWidth,m_nIconHeight, LR_LOADFROMFILE);
 	if (NULL == hIcon)
 		return false;
 

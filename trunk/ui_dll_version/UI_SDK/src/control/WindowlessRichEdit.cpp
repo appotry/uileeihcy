@@ -490,15 +490,16 @@ BOOL WindowlessRichEdit::TxSetScrollRange(
 									 INT nMaxPos, 
 									 BOOL fRedraw)  // -- fRedraw：由RichEditBase::OnScroll来负责刷新，因为RichEditBase::OnScroll中还有一些处理要做
 {
-//	UI_LOG_DEBUG(_T("%s nMinPos=%d, nMaxPos=%d, fRedraw=%d"), FUNC_NAME, nMinPos, nMaxPos, fRedraw);
+	UI_LOG_DEBUG(_T("%s nMinPos=%d, nMaxPos=%d, fRedraw=%d"), FUNC_NAME, nMinPos, nMaxPos, fRedraw);
 
 	if (SB_HORZ == fnBar)
 	{
-		m_pRichEditBase->GetScrollMgr().GetHScrollBar()->SetScrollRange(nMaxPos - nMinPos);
+		//m_pRichEditBase->GetScrollMgr().GetHScrollBar()->SetScrollRange(nMaxPos - nMinPos, fRedraw?true:false);
+		m_pRichEditBase->GetScrollMgr().SetHScrollRange(nMaxPos - nMinPos, fRedraw?true:false);
 	}
 	else if (SB_VERT == fnBar)
 	{
-		m_pRichEditBase->GetScrollMgr().SetVScrollRange(nMaxPos - nMinPos);
+		m_pRichEditBase->GetScrollMgr().SetVScrollRange(nMaxPos - nMinPos, fRedraw?true:false);
 	}
 
 
@@ -508,7 +509,7 @@ BOOL WindowlessRichEdit::TxSetScrollRange(
 //@cmember Set the scroll position
 BOOL WindowlessRichEdit::TxSetScrollPos (INT fnBar, INT nPos, BOOL fRedraw)    // -- fRedraw：由RichEditBase::OnScroll来负责刷新，因为RichEditBase::OnScroll中还有一些处理要做
 {
-//	UI_LOG_DEBUG(_T("%s, nPos=%d, fRedraw=%d"), FUNC_NAME, nPos, fRedraw);
+	UI_LOG_DEBUG(_T("%s, nPos=%d, fRedraw=%d"), FUNC_NAME, nPos, fRedraw);
 	if (SB_HORZ == fnBar)
 	{
 		m_pRichEditBase->GetScrollMgr().GetHScrollBar()->SetScrollPos(nPos);

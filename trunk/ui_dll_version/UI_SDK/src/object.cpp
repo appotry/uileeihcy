@@ -123,12 +123,12 @@ void Object::UpdateObject( RECT* prc, bool bUpdateNow )
 //	1. 获取自己的所在Layout
 //	2. 测量Layout的大小是否发生改变，如果这个Layout大小改变，再获取上一层Layout
 //
-void Object::UpdateLayout( bool bUpdate )
+void Object::UpdateLayout(bool bUpdate)
 {
 	Object* pParent = this->GetParentObject();
 	Object* pObjectToUpdate = this;
 
-	while(1)
+	while (1)
 	{
 		if (NULL == pParent || OBJ_CONTROL == pParent->GetObjectType())
 			return;
@@ -151,11 +151,6 @@ void Object::UpdateLayout( bool bUpdate )
 
 		break;
 	}
-
-// 		if( pParent->GetParentObject() != NULL )
-// 		{
-// 			pParent->UpdateLayout(bUpdate);
-// 		}
 }
 
 //

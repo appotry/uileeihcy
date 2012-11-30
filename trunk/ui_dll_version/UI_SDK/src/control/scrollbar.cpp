@@ -506,10 +506,55 @@ void ScrollBarMgr::GetScrollRange(int *pnxRange, int* pnyRange)
 	*pnxRange = this->GetHScrollRange();
 	*pnyRange = this->GetVScrollRange();
 }
-void ScrollBarMgr::SetHScrollRange(int nX)
+bool ScrollBarMgr::SetHScrollRange(int nX, bool bUpdate)
 {
+	bool bNeedUpdateNonClientRect = false;
+	if (NULL != m_pHScrollBar)
+	{
+		bool bOldVisible = m_pHScrollBar->IsMySelfVisible();
+		this->m_pHScrollBar->SetScrollRange(nX);
+		bool bNowVisible = m_pHScrollBar->IsMySelfVisible();
+
+		if (bOldVisible != bNowVisible)
+		{
+			bNeedUpdateNonClientRect = true;
+		}
+	}
+	if (false == bNeedUpdateNonClientRect && NULL != m_pVScrollBar)
+	{
+		bool bOldVisible = m_pVScrollBar->IsMySelfVisible();
+		m_pHScrollBar->SetScrollRange(m_pVScrollBar->GetScrollRange()); 
+		bool bNowVisible = m_pVScrollBar->IsMySelfVisible();
+
+		if (bOldVisible != bNowVisible)
+		{
+			bNeedUpdateNonClientRect = true;
+		}
+	}
+
+	if (bNeedUpdateNonClientRect)
+	{
+		this->UpdateBindObjectNonClientRect();
+		UISendMessage(this->GetBindObject(), WM_SIZE, 0,
+			MAKELPARAM(
+			this->GetBindObject()->GetWidth(), 
+			this->GetBindObject()->GetHeight())
+			);
+
+		return false;
+	}
+
+	if (bUpdate && NULL != m_pHScrollBar)
+	{
+		m_pHScrollBar->UpdateObject();
+	}
+	if (bUpdate && NULL != m_pVScrollBar)
+	{
+		m_pVScrollBar->UpdateObject();
+	}
+	return true;
 }
-bool ScrollBarMgr::SetVScrollRange(int nY)
+bool ScrollBarMgr::SetVScrollRange(int nY, bool bUpdate)
 {
 	bool bNeedUpdateNonClientRect = false;
 	if (NULL != m_pVScrollBar)
@@ -547,11 +592,11 @@ bool ScrollBarMgr::SetVScrollRange(int nY)
 		return false;
 	}
 
-	if (NULL != m_pHScrollBar)
+	if (bUpdate && NULL != m_pHScrollBar)
 	{
 		m_pHScrollBar->UpdateObject();
 	}
-	if (NULL != m_pVScrollBar)
+	if (bUpdate && NULL != m_pVScrollBar)
 	{
 		m_pVScrollBar->UpdateObject();
 	}
@@ -786,7 +831,7 @@ void ScrollBarBase::ResetAttribute()
 	SAFE_DELETE(m_pScrollBarRender);
 }
 
-SIZE ScrollBarBase::GetAutoSize(HRDC hRDC)
+SIZE ScrollBarBase::GetAutoSize()
 {
 	if (NULL != m_pBkgndRender)
 	{
@@ -1177,7 +1222,7 @@ public:
 	}
 	virtual  SIZE  GetAutoSize()
 	{
-		SIZE s = m_pBtnThumb->GetDesiredSize(NULL);
+		SIZE s = m_pBtnThumb->GetDesiredSize();
 		return s;
 	}
 
@@ -1865,8 +1910,8 @@ void SystemHScrollBarRender::OnSize(UINT nType, int cx, int cy)
 		s.cx = m_pBtnLineUpLeft->GetWidth();
 		s.cy = m_pBtnLineUpLeft->GetHeight();
 
-		if( s.cx == 0 || s.cy == 0 )
-			s = m_pBtnLineUpLeft->GetDesiredSize(NULL);
+		if (s.cx == 0 || s.cy == 0)
+			s = m_pBtnLineUpLeft->GetDesiredSize();
 
 		// TODO: 减去margin
 		m_pBtnLineUpLeft->SetObjectPos( 
@@ -1875,14 +1920,14 @@ void SystemHScrollBarRender::OnSize(UINT nType, int cx, int cy)
 
 		nX1 += s.cx;
 	}
-	if( NULL != m_pBtnLineDownRight )
+	if (NULL != m_pBtnLineDownRight)
 	{
 		SIZE s = {0,0};
 		s.cx = m_pBtnLineDownRight->GetWidth();
 		s.cy = m_pBtnLineDownRight->GetHeight();
 
-		if( s.cx == 0 || s.cy == 0 )
-			s = m_pBtnLineDownRight->GetDesiredSize(NULL);
+		if (s.cx == 0 || s.cy == 0)
+			s = m_pBtnLineDownRight->GetDesiredSize();
 
 		// TODO: 减去margin
 		m_pBtnLineDownRight->SetObjectPos( 
@@ -1907,9 +1952,9 @@ void SystemVScrollBarRender::OnSize(UINT nType, int cx, int cy)
 		s.cx = m_pBtnLineUpLeft->GetWidth();
 		s.cy = m_pBtnLineUpLeft->GetHeight();
 
-		if( s.cx == 0 || s.cy == 0 )
+		if (s.cx == 0 || s.cy == 0)
 		{
-			s = m_pBtnLineUpLeft->GetDesiredSize(NULL);
+			s = m_pBtnLineUpLeft->GetDesiredSize();
 		}
 
 		// TODO: 减去margin
@@ -1924,9 +1969,9 @@ void SystemVScrollBarRender::OnSize(UINT nType, int cx, int cy)
 		s.cx = m_pBtnLineDownRight->GetWidth();
 		s.cy = m_pBtnLineDownRight->GetHeight();
 
-		if( s.cx == 0 || s.cy == 0 )
+		if (s.cx == 0 || s.cy == 0)
 		{
-			s = m_pBtnLineDownRight->GetDesiredSize(NULL);
+			s = m_pBtnLineDownRight->GetDesiredSize();
 		}
 
 		// TODO: 减去margin
@@ -1945,7 +1990,7 @@ LRESULT SystemHScrollBarRender::OnNcCalcSize(BOOL bCalcValidRects, LPARAM lprc)
 	int nHeight = this->m_pScrollBar->GetHeight();
 	if (0 == nHeight)
 	{
-		SIZE s = this->m_pScrollBar->GetDesiredSize(NULL);
+		SIZE s = this->m_pScrollBar->GetDesiredSize();
 		nHeight = s.cy;
 	}
 	((RECT*)lprc)->bottom -= nHeight;
@@ -1959,7 +2004,7 @@ LRESULT SystemVScrollBarRender::OnNcCalcSize(BOOL bCalcValidRects, LPARAM lprc)
 	int nWidth = this->m_pScrollBar->GetWidth();
 	if (0 == nWidth)
 	{
-		SIZE s = this->m_pScrollBar->GetDesiredSize(NULL);
+		SIZE s = this->m_pScrollBar->GetDesiredSize();
 		nWidth = s.cx;
 	}
 	((RECT*)lprc)->right -= nWidth;

@@ -15,11 +15,11 @@ public:
 
 	virtual bool  SetAttribute( map<String,String>& mapAttrib, bool bReload=false ){ return true; };
 
-	virtual SIZE  MeasureChildObject( HRDC hRDC ) = 0; // 子类需实现；返回子控件所需要的控件
-	virtual void  ArrangeChildObject( HRDC hRDC, Object* pObjToArrage = NULL, bool bReDraw=false ) = 0; // 子类需实现；安排子控件的rectW，rectP
+	virtual SIZE  MeasureChildObject() = 0; // 子类需实现；返回子控件所需要的控件
+	virtual void  ArrangeChildObject(Object* pObjToArrage = NULL, bool bReDraw=false) = 0; // 子类需实现；安排子控件的rectW，rectP
 
 	// 子控件大小发生改变时，需要重新整理布局。（如一个对象隐藏、变大、变小）
-	virtual void  OnChildObjectWindowPosChaned( Object* pObj ){};
+	//virtual void  OnChildObjectWindowPosChaned( Object* pObj ){};
 
 public:
 	Panel*   m_pPanel;                         // 与该布局关联的panel
@@ -30,12 +30,11 @@ class StackLayout : public Layout
 {
 public:
 	StackLayout();
-	virtual SIZE  MeasureChildObject( HRDC hDC );
-	virtual void  ArrangeChildObject( HRDC hDC, Object* pObjToArrage = NULL, bool bReDraw=false );
+	virtual SIZE  MeasureChildObject();
+	virtual void  ArrangeChildObject(Object* pObjToArrage = NULL, bool bReDraw=false );
 	virtual bool  SetAttribute( map<String,String>& mapAttrib, bool bReload=false );
-	virtual void  OnChildObjectWindowPosChaned( Object* pObj );
 public:
-	int     direction;    // 堆栈排布的方向
+	LAYOUT_STACK_DIRECTION  direction;    // 堆栈排布的方向
 };
 
 
@@ -46,8 +45,8 @@ class CanvasLayout : public Layout
 {
 public:
 	CanvasLayout();
-	virtual SIZE  MeasureChildObject( HRDC hDC );
-	virtual void  ArrangeChildObject( HRDC hDC, Object* pObjToArrage, bool bReDraw=false );
+	virtual SIZE  MeasureChildObject();
+	virtual void  ArrangeChildObject(Object* pObjToArrage, bool bReDraw=false );
 
 public:
 };
@@ -77,8 +76,8 @@ class GridLayout : public Layout
 public:
 	~GridLayout();
 
-	virtual SIZE  MeasureChildObject(HRDC hRDC);
-	virtual void  ArrangeChildObject(HRDC hRDC, Object* pObjToArrage = NULL, bool bReDraw=false );
+	virtual SIZE  MeasureChildObject();
+	virtual void  ArrangeChildObject(Object* pObjToArrage = NULL, bool bReDraw=false);
 	virtual bool  SetAttribute(map<String,String>& mapAttrib, bool bReload=false);
 
 	int     getColPos(int nCol);
@@ -96,15 +95,15 @@ private:
 class DockLayout : public Layout
 {
 public:
-	virtual SIZE  MeasureChildObject( HRDC hRDC );
-	virtual void  ArrangeChildObject( HRDC hRDC, Object* pObjToArrage = NULL, bool bReDraw=false );
+	virtual SIZE  MeasureChildObject();
+	virtual void  ArrangeChildObject(Object* pObjToArrage = NULL, bool bReDraw=false);
 };
 
 class CardLayout : public Layout
 {
 public:
-	virtual SIZE  MeasureChildObject( HRDC hRDC );
-	virtual void  ArrangeChildObject( HRDC hRDC, Object* pObjToArrage = NULL, bool bReDraw=false );
+	virtual SIZE  MeasureChildObject();
+	virtual void  ArrangeChildObject(Object* pObjToArrage = NULL, bool bReDraw=false);
 public:
 	
 };

@@ -78,7 +78,7 @@ bool HwndHost::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 	return true;
 }
 
-SIZE HwndHost::GetDesiredSize( HRDC hDC )
+SIZE HwndHost::GetDesiredSize()
 {
 	SIZE s = {0,0};
 

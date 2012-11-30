@@ -402,6 +402,7 @@ void UIApplication::RegisterDefaultUIObject()
 	REGISTER_UI_OBJECT( Button );
 	REGISTER_UI_OBJECT( GroupBox );
 	REGISTER_UI_OBJECT( ScrollPanel );
+	REGISTER_UI_OBJECT( SplitPanel );
 	REGISTER_UI_OBJECT( HwndHost );
 	REGISTER_UI_OBJECT( CheckButton );
 	REGISTER_UI_OBJECT( RadioButton );

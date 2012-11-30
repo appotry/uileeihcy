@@ -144,7 +144,7 @@ void GDIIconRenderBitmap::SetAttribute( const ATTRMAP& mapAttrib )
 	}
 }
 
-bool GDIIconRenderBitmap::LoadFromFile( const String& strPath, const ATTRMAP& mapAttrib  )
+bool GDIIconRenderBitmap::LoadFromFile( const String& strPath, bool bCreateAlphaChannel, const ATTRMAP& mapAttrib  )
 {
 	this->SetAttribute(mapAttrib);
 

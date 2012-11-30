@@ -18,7 +18,7 @@ public:
 
 	virtual  void  ResetAttribute();
 	virtual  bool  SetAttribute( ATTRMAP& mapAttrib, bool bReload=false );
-	virtual  SIZE  GetAutoSize( HRDC hRDC );
+	virtual  SIZE  GetAutoSize();
 
 public:
 	void     SetIndexMap(const String& str);

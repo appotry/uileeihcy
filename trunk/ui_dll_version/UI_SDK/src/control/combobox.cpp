@@ -101,7 +101,7 @@ void ComboboxBase::ResetAttribute()
 	m_button->SetDrawFocusType(BUTTON_RENDER_DRAW_FOCUS_TYPE_NONE);
 	m_button->SetAutoSizeType(BUTTON_RENDER_AUTOSIZE_TYPE_BKIMAGE);
 }
-SIZE ComboboxBase::GetAutoSize(HRDC)
+SIZE ComboboxBase::GetAutoSize()
 {
 	SIZE s1 = m_edit->GetAutoSize();
 	SIZE s2 = m_button->GetAutoSize();
@@ -118,7 +118,7 @@ void ComboboxBase::OnSize( UINT nType, int cx, int cy )
 	int nBtnW = m_button->GetWidth();
 	if (0 == nBtnW)
 	{
-		SIZE s = m_button->GetDesiredSize(NULL);
+		SIZE s = m_button->GetDesiredSize();
 		nBtnW = s.cx;
 	}
 

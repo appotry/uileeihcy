@@ -41,7 +41,7 @@ bool  LEDCtrlBase::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 
 	return true;
 }
-SIZE  LEDCtrlBase::GetAutoSize( HRDC hRDC )
+SIZE  LEDCtrlBase::GetAutoSize()
 {
 	if (NULL == m_pImagelist)
 	{

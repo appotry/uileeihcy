@@ -1048,7 +1048,7 @@ void ListCtrlBase::OnSize(UINT nType, int cx, int cy)
 }
 
 
-SIZE ListCtrlBase::GetAutoSize( HRDC hRDC ) 
+SIZE ListCtrlBase::GetAutoSize() 
 {
 	SIZE s = {0,0};
 	return s;

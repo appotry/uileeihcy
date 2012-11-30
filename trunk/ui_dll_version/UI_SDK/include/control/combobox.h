@@ -32,7 +32,7 @@ public:
 
 	virtual bool SetAttribute( ATTRMAP& mapAttrib, bool bReload );
 	virtual void ResetAttribute();
-	virtual SIZE GetAutoSize( HRDC hRDC );
+	virtual SIZE GetAutoSize();
 
 public:
 	bool     AddString(const String& strText, bool bUpdate=true);

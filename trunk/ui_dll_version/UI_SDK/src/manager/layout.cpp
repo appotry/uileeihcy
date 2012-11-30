@@ -1,33 +1,37 @@
 #include "stdafx.h"
 
-Layout* LayoutManagerFactory::GetLayout( String strType, Panel* pPanel )
+Layout* LayoutManagerFactory::GetLayout(String strType, Panel* pPanel)
 {
 	Layout*  pLayout = NULL;
 
-	if( XML_LAYOUT_STACK == strType )
+	if (XML_LAYOUT_STACK == strType)
 	{
 		pLayout = new StackLayout();
 	}
-	else if( XML_LAYOUT_GRID == strType )
+	else if (XML_LAYOUT_GRID == strType)
 	{
 		pLayout = new GridLayout();
 	}
-	else if( XML_LAYOUT_DOCK == strType )
+	else if (XML_LAYOUT_DOCK == strType)
 	{
 		pLayout = new DockLayout();
 	}
-	else if( XML_LAYOUT_CANVAS == strType )
+	else if (XML_LAYOUT_CANVAS == strType)
 	{
 		pLayout = new CanvasLayout();
 	}
-	else if( XML_LAYOUT_CARD == strType )
+	else if (XML_LAYOUT_CARD == strType)
 	{
 		pLayout = new CardLayout();
 	}
-
-	if( NULL == pLayout )
+	else if (XML_LAYOUT_SPLIT == strType)
 	{
-		assert( false );
+		pLayout = new SplitLayout();
+	}
+
+	if (NULL == pLayout)
+	{
+		UIASSERT(false);
 		UI_LOG_WARN( _T("LayoutManagerFactory::GetLayout，failed. styType=%s"), strType.c_str() );
 	}
 	else
@@ -55,7 +59,7 @@ SIZE Layout::Measure()
 	else
 	{
 		// 获取子对象所需要的空间
-		size = this->MeasureChildObject(NULL);
+		size = this->MeasureChildObject();
 
 		// 计算padding 的大小
 		size.cx += m_pPanel->GetPaddingW();
@@ -82,15 +86,15 @@ SIZE Layout::Measure()
 }
 void Layout::Arrange(Object* pObjToArrage, bool bReDraw)
 {
-	this->ArrangeChildObject(NULL, pObjToArrage, bReDraw);
+	this->ArrangeChildObject(pObjToArrage, bReDraw);
 	
 	// 递归
 	Object*  pChild = NULL;
-	while( pChild = m_pPanel->EnumChildObject(pChild) )
+	while (pChild = m_pPanel->EnumChildObject(pChild))
 	{
 		// 只有Panel才需要去布局
-		if( pChild->GetObjectType() == OBJ_PANEL ||
-			pChild->GetObjectType() == OBJ_WINDOW )
+		if (pChild->GetObjectType() == OBJ_PANEL ||
+			pChild->GetObjectType() == OBJ_WINDOW)
 		{
 			((Panel*)pChild)->GetLayout()->Arrange(NULL, bReDraw);
 		}
@@ -104,29 +108,29 @@ StackLayout::StackLayout()
 bool StackLayout::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 {
 	String strDirection;
-	if( this->m_pPanel->GetAttribute( XML_LAYOUT_STACK_DIRECTION, strDirection ) )
+	if (this->m_pPanel->GetAttribute( XML_LAYOUT_STACK_DIRECTION, strDirection))
 	{
-		if( XML_LAYOUT_STACK_LEFTTORIGHT == strDirection )
+		if (XML_LAYOUT_STACK_LEFTTORIGHT == strDirection)
 		{
 			this->direction = LAYOUT_STACK_LEFTTORIGHT;
 		}
-		else if( XML_LAYOUT_STACK_RIGHTTOLEFT == strDirection )
+		else if (XML_LAYOUT_STACK_RIGHTTOLEFT == strDirection)
 		{
 			this->direction = LAYOUT_STACK_RIGHTTOLEFT;
 		}
-		else if( XML_LAYOUT_STACK_LEFTANDRIGHT == strDirection )
+		else if (XML_LAYOUT_STACK_LEFTANDRIGHT == strDirection)
 		{
 			this->direction = LAYOUT_STACK_LEFTANDRIGHT;
 		}
-		else if( XML_LAYOUT_STACK_TOPTOBOTTOM == strDirection )
+		else if (XML_LAYOUT_STACK_TOPTOBOTTOM == strDirection)
 		{
 			this->direction = LAYOUT_STACK_TOPTOBOTTOM;
 		}
-		else if( XML_LAYOUT_STACK_BOTTOMTOTOP == strDirection )
+		else if (XML_LAYOUT_STACK_BOTTOMTOTOP == strDirection)
 		{
 			this->direction = LAYOUT_STACK_BOTTOMTOTOP;
 		}
-		else if( XML_LAYOUT_STACK_TOPANDBOTTOM == strDirection )
+		else if (XML_LAYOUT_STACK_TOPANDBOTTOM == strDirection)
 		{
 			this->direction = LAYOUT_STACK_TOPANDBOTTOM;
 		}
@@ -139,25 +143,25 @@ bool StackLayout::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 	}
 	return true;
 }
-SIZE  StackLayout::MeasureChildObject( HRDC hRDC )
+SIZE  StackLayout::MeasureChildObject()
 {
 	SIZE  size = {0,0};
 
 	// 通过子控件来获取自己所需要的大小
 	Object*  pChild = NULL;
-	while( pChild = this->m_pPanel->EnumChildObject( pChild ) )
+	while (pChild = this->m_pPanel->EnumChildObject(pChild))
 	{
-		SIZE  s = pChild->GetDesiredSize( hRDC );
-		if( !pChild->IsVisible() )
+		SIZE  s = pChild->GetDesiredSize();
+		if (!pChild->IsVisible())
 			continue;
 
-		switch( this->direction )
+		switch (this->direction)
 		{
 		case LAYOUT_STACK_LEFTTORIGHT:
 		case LAYOUT_STACK_RIGHTTOLEFT:
 		case LAYOUT_STACK_LEFTANDRIGHT:
 			size.cx += s.cx;
-			if( size.cy < s.cy )
+			if (size.cy < s.cy)
 				size.cy = s.cy;
 			break;
 
@@ -165,7 +169,7 @@ SIZE  StackLayout::MeasureChildObject( HRDC hRDC )
 		case LAYOUT_STACK_BOTTOMTOTOP:
 		case LAYOUT_STACK_TOPANDBOTTOM:
 			size.cy += s.cy;
-			if( size.cx < s.cx )
+			if (size.cx < s.cx)
 				size.cx = s.cx;
 			break;
 		}
@@ -174,7 +178,7 @@ SIZE  StackLayout::MeasureChildObject( HRDC hRDC )
 	return size;
 }
 
-void  StackLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bReDraw )
+void  StackLayout::ArrangeChildObject(Object* pObjToArrage, bool bReDraw )
 {
 	// 调用该函数时，自己的大小已经被求出来了
 	CRect rcClient;
@@ -212,13 +216,13 @@ void  StackLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bRe
 		if( pObjToArrage != NULL && pChild == pObjToArrage )
 			bStartToArrange = true;
 
-		if( !pChild->IsVisible() )
+		if (!pChild->IsVisible())
 			continue;
 
 		SIZE s;
-		if( bStartToArrange )
+		if (bStartToArrange)
 		{
-			s = pChild->GetDesiredSize( hRDC );
+			s = pChild->GetDesiredSize();
 		}
 		else
 		{
@@ -379,50 +383,46 @@ void  StackLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bRe
 	}
 
 }
-void  StackLayout::OnChildObjectWindowPosChaned( Object* pObj )
-{
-
-}
 CanvasLayout::CanvasLayout()
 {
 }
 
-SIZE  CanvasLayout::MeasureChildObject( HRDC hRDC )
+SIZE  CanvasLayout::MeasureChildObject()
 {
 	SIZE size = {0,0};
 
 	// 通过子控件来获取自己所需要的大小
 	Object*  pChild = NULL;
-	while( pChild = this->m_pPanel->EnumChildObject( pChild ) )
+	while (pChild = this->m_pPanel->EnumChildObject(pChild))
 	{
-		SIZE  s = pChild->GetDesiredSize( hRDC );
+		SIZE  s = pChild->GetDesiredSize();
 		
 		String strAttribute;
-		if( pChild->GetAttribute(XML_LAYOUT_CANVAS_LEFT, strAttribute) )
+		if (pChild->GetAttribute(XML_LAYOUT_CANVAS_LEFT, strAttribute))
 		{
-			s.cx += _ttoi( strAttribute.c_str() );
+			s.cx += _ttoi(strAttribute.c_str());
 		}
-		else if( pChild->GetAttribute(XML_LAYOUT_CANVAS_RIGHT, strAttribute) )
+		else if (pChild->GetAttribute(XML_LAYOUT_CANVAS_RIGHT, strAttribute))
 		{
-			s.cx += _ttoi( strAttribute.c_str() );
+			s.cx += _ttoi(strAttribute.c_str());
 		}
-		if( pChild->GetAttribute(XML_LAYOUT_CANVAS_TOP, strAttribute) )
+		if (pChild->GetAttribute(XML_LAYOUT_CANVAS_TOP, strAttribute))
 		{
-			s.cy += _ttoi( strAttribute.c_str() );
+			s.cy += _ttoi(strAttribute.c_str());
 		}
-		else if( pChild->GetAttribute(XML_LAYOUT_CANVAS_BOTTOM, strAttribute) )
+		else if (pChild->GetAttribute(XML_LAYOUT_CANVAS_BOTTOM, strAttribute))
 		{
-			s.cy += _ttoi( strAttribute.c_str() );
+			s.cy += _ttoi(strAttribute.c_str());
 		}
 		
-		if( size.cx < s.cx )
+		if (size.cx < s.cx)
 			size.cx = s.cx;
-		if( size.cy < s.cy )
+		if (size.cy < s.cy)
 			size.cy = s.cy;
 	}
 	return size;
 }
-void  CanvasLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bReDraw )
+void  CanvasLayout::ArrangeChildObject(Object* pObjToArrage, bool bReDraw)
 {
 	// 调用该函数时，自己的大小已经被求出来了
 	CRect rcClient;
@@ -471,9 +471,9 @@ void  CanvasLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bR
 		// 计算出 pChild 的 rectP的宽和高
 
 		SIZE s = {0,0};
-		if( left == NDEF || right == NDEF || top == NDEF || bottom == NDEF )
+		if (left == NDEF || right == NDEF || top == NDEF || bottom == NDEF)
 		{
-			s = pChild->GetDesiredSize( hRDC );
+			s = pChild->GetDesiredSize();
 		}
 
 		// 如果同时指定了left/right,则忽略width属性
@@ -671,7 +671,7 @@ bool  GridLayout::SetAttribute( map<String,String>& mapAttrib, bool bReload )
 
 	return true;
 }
-SIZE  GridLayout::MeasureChildObject( HRDC hRDC )
+SIZE  GridLayout::MeasureChildObject()
 {
 	SIZE size = {0,0};
 
@@ -727,7 +727,7 @@ SIZE  GridLayout::MeasureChildObject( HRDC hRDC )
 			continue;
 		}
 
-		SIZE s = pChild->GetDesiredSize( hRDC );
+		SIZE s = pChild->GetDesiredSize();
 		
 		// 设置对象所在列的宽度
 		if (nnGridColspan == 1)
@@ -840,7 +840,7 @@ SIZE  GridLayout::MeasureChildObject( HRDC hRDC )
 	
 	return size;
 }
-void  GridLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bReDraw )
+void  GridLayout::ArrangeChildObject(Object* pObjToArrage, bool bReDraw )
 {
 	// 调用该函数时，自己的大小已经被求出来了
 
@@ -910,7 +910,7 @@ void  GridLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bReD
 			continue ;
 		}
 
-		SIZE s = pChild->GetDesiredSize( hRDC );
+		SIZE s = pChild->GetDesiredSize();
 		//::RestoreDC( hDC, -1 );
 
 		if (widths[nCol].type == GWHT_AUTO)
@@ -1058,7 +1058,7 @@ int GridLayout::getRowPos( int nRow )
 	return nRet;
 }
 
-SIZE  DockLayout::MeasureChildObject(HRDC hRDC)
+SIZE  DockLayout::MeasureChildObject()
 {
 	SIZE size = {0,0};
 
@@ -1078,33 +1078,33 @@ SIZE  DockLayout::MeasureChildObject(HRDC hRDC)
 		}
 	}
 
-	if( pCenterObj )
-		size = pCenterObj->GetDesiredSize( hRDC );
+	if (pCenterObj)
+		size = pCenterObj->GetDesiredSize();
 
 	// 2. 从后开始遍历停靠在四周的子对象的大小
 	pChild = NULL;
-	while( pChild = this->m_pPanel->REnumChildObject( pChild ) )
+	while (pChild = this->m_pPanel->REnumChildObject(pChild))
 	{
-		if( !pChild->IsVisible() )
+		if (!pChild->IsVisible())
 			continue;
 
 		String  strDock;
 		pChild->GetAttribute(XML_LAYOUT_DOCK_DOCK, strDock);
 
-		if( XML_LAYOUT_DOCK_DOCK_LEFT == strDock ||
-			XML_LAYOUT_DOCK_DOCK_RIGHT == strDock )
+		if (XML_LAYOUT_DOCK_DOCK_LEFT == strDock ||
+			XML_LAYOUT_DOCK_DOCK_RIGHT == strDock)
 		{
-			SIZE s = pChild->GetDesiredSize( hRDC );
-			if( s.cy > size.cy )
+			SIZE s = pChild->GetDesiredSize();
+			if (s.cy > size.cy)
 				size.cy = s.cy;
 			size.cx += s.cx;
 		}
 		else 
-		if ( XML_LAYOUT_DOCK_DOCK_TOP == strDock ||
-			 XML_LAYOUT_DOCK_DOCK_BOTTOM == strDock )
+		if (XML_LAYOUT_DOCK_DOCK_TOP == strDock ||
+			 XML_LAYOUT_DOCK_DOCK_BOTTOM == strDock)
 		{
-			SIZE s = pChild->GetDesiredSize( hRDC );
-			if( s.cx > size.cx )
+			SIZE s = pChild->GetDesiredSize();
+			if (s.cx > size.cx)
 				size.cx = s.cx;
 			size.cy += s.cy;
 		}
@@ -1118,7 +1118,7 @@ SIZE  DockLayout::MeasureChildObject(HRDC hRDC)
 
 	return size;
 }
-void  DockLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bReDraw )
+void  DockLayout::ArrangeChildObject(Object* pObjToArrage, bool bReDraw)
 {
 	// 调用该函数时，自己的大小已经被求出来了
 	int  nWidth  = m_pPanel->GetWidth();
@@ -1142,9 +1142,9 @@ void  DockLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bReD
 		pChild->GetAttribute(XML_LAYOUT_DOCK_DOCK, strDock);
 
 		// 计算出 pChild 的 rectP
-		if( XML_LAYOUT_DOCK_DOCK_LEFT == strDock )
+		if (XML_LAYOUT_DOCK_DOCK_LEFT == strDock)
 		{
-			SIZE s = pChild->GetDesiredSize( hRDC );
+			SIZE s = pChild->GetDesiredSize();
 			
 			CRect rcObj( 
 				nComsumeLeft             +  pChild->GetMarginL(), 
@@ -1156,9 +1156,9 @@ void  DockLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bReD
 			nComsumeLeft += s.cx;
 		}
 		else
-		if( XML_LAYOUT_DOCK_DOCK_RIGHT == strDock )
+		if (XML_LAYOUT_DOCK_DOCK_RIGHT == strDock)
 		{
-			SIZE s = pChild->GetDesiredSize( hRDC );
+			SIZE s = pChild->GetDesiredSize();
 			
 			CRect rcObj( 
 				nWidth - nComsumeRight - s.cx  +  pChild->GetMarginL(), 
@@ -1170,9 +1170,9 @@ void  DockLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bReD
 			nComsumeRight += s.cx;
 		}
 		else 
-		if ( XML_LAYOUT_DOCK_DOCK_TOP == strDock )
+		if (XML_LAYOUT_DOCK_DOCK_TOP == strDock)
 		{
-			SIZE s = pChild->GetDesiredSize( hRDC );
+			SIZE s = pChild->GetDesiredSize();
 
 			CRect rcObj( 
 				nComsumeLeft            +  pChild->GetMarginL() , 
@@ -1184,9 +1184,9 @@ void  DockLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bReD
 			nComsumeTop += s.cy;
 		}
 		else 
-		if( XML_LAYOUT_DOCK_DOCK_BOTTOM == strDock )
+		if (XML_LAYOUT_DOCK_DOCK_BOTTOM == strDock)
 		{
-			SIZE s = pChild->GetDesiredSize( hRDC );
+			SIZE s = pChild->GetDesiredSize();
 
 			CRect rcObj(
 				nComsumeLeft                    +  pChild->GetMarginL() , 
@@ -1218,23 +1218,23 @@ void  DockLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bReD
 	}
 }
 
-SIZE  CardLayout::MeasureChildObject( HRDC hRDC )
+SIZE  CardLayout::MeasureChildObject()
 {
 	SIZE size = {0,0};
 
 	Object*  pChild = NULL;
-	while( pChild = this->m_pPanel->EnumChildObject( pChild ) )
+	while (pChild = this->m_pPanel->EnumChildObject(pChild))
 	{
-		SIZE  s = pChild->GetDesiredSize( hRDC );
+		SIZE  s = pChild->GetDesiredSize();
 
-		if( size.cx < s.cx )
+		if (size.cx < s.cx)
 			size.cx = s.cx;
-		if( size.cy < s.cy )
+		if (size.cy < s.cy)
 			size.cy = s.cy;
 	}
 	return size;
 }
-void  CardLayout::ArrangeChildObject( HRDC hRDC, Object* pObjToArrage, bool bReDraw )
+void  CardLayout::ArrangeChildObject(Object* pObjToArrage, bool bReDraw )
 {
 	// 调用该函数时，自己的大小已经被求出来了
 	CRect rcClient;
@@ -1274,7 +1274,7 @@ DesktopLayout::DesktopLayout()
 }
  void  DesktopLayout::Arrange()
 {
-	SIZE s = this->m_pWindow->GetDesiredSize(NULL);  // 获得的SIZE包括了MARGIN的大小 s.cx=margin.left+width+margin.right
+	SIZE s = this->m_pWindow->GetDesiredSize();  // 获得的SIZE包括了MARGIN的大小 s.cx=margin.left+width+margin.right
 
 	// 读取其他属性值来设置rectW
 	int  x = 0, y = 0;                                 // 最终在屏幕中的坐标
@@ -1282,24 +1282,24 @@ DesktopLayout::DesktopLayout()
 
 	// 从XML中读取属性值
 	String  strLeft;
-	if( this->m_pWindow->GetAttribute( XML_LAYOUT_CANVAS_LEFT, strLeft ) )
+	if (this->m_pWindow->GetAttribute(XML_LAYOUT_CANVAS_LEFT, strLeft))
 	{
-		this->left = _ttoi( strLeft.c_str() );
+		this->left = _ttoi(strLeft.c_str());
 	}
 	String  strTop;
-	if( this->m_pWindow->GetAttribute( XML_LAYOUT_CANVAS_TOP, strTop ) )
+	if (this->m_pWindow->GetAttribute(XML_LAYOUT_CANVAS_TOP, strTop))
 	{
-		this->top = _ttoi( strTop.c_str() );
+		this->top = _ttoi(strTop.c_str());
 	}
 	String  strRight;
-	if( this->m_pWindow->GetAttribute( XML_LAYOUT_CANVAS_RIGHT, strRight ) )
+	if (this->m_pWindow->GetAttribute( XML_LAYOUT_CANVAS_RIGHT, strRight))
 	{
-		this->right = _ttoi( strRight.c_str() );
+		this->right = _ttoi(strRight.c_str());
 	}
 	String  strBottom;
-	if( this->m_pWindow->GetAttribute( XML_LAYOUT_CANVAS_BOTTOM, strBottom ) )
+	if (this->m_pWindow->GetAttribute( XML_LAYOUT_CANVAS_BOTTOM, strBottom))
 	{
-		this->bottom = _ttoi( strBottom.c_str() );
+		this->bottom = _ttoi(strBottom.c_str());
 	}
 
 	
@@ -1313,14 +1313,14 @@ DesktopLayout::DesktopLayout()
 	nCYScreen = rcWorkSize.Height();
 
 	// 计算出坐标
-	if( this->left != NDEF )
+	if (this->left != NDEF)
 	{
 		x = this->left;
 		x += m_pWindow->GetMarginL();
 	}
 	else
 	{
-		if( this->right != NDEF )
+		if (this->right != NDEF)
 		{
 			x = nCXScreen - this->right - s.cx;  // right是指窗口右侧距离屏幕右侧的距离
 			x -= m_pWindow->GetMarginR();
@@ -1331,14 +1331,14 @@ DesktopLayout::DesktopLayout()
 			x = ( nCXScreen - s.cx) / 2;
 		}
 	}
-	if( this->top != NDEF )
+	if (this->top != NDEF)
 	{
 		y = this->top;
 		y += m_pWindow->GetMarginT();
 	}
 	else
 	{
-		if( this->bottom != NDEF )
+		if (this->bottom != NDEF)
 		{
 			y = nCYScreen - this->bottom - s.cy; // 同right
 			y -= m_pWindow->GetMarginB();
@@ -1346,7 +1346,7 @@ DesktopLayout::DesktopLayout()
 		else
 		{
 			// 居中
-			y = ( nCYScreen - s.cy ) / 2;
+			y = (nCYScreen - s.cy) / 2;
 		}
 	}
 

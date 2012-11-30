@@ -320,7 +320,7 @@ public:
 	// 在布局过程中返回自己所需要的大小(包括padding+margin)，GetDesiredSize在子类中表现不同，
 	// 具体为： 在Panel中，会去调用 m_pLayout->Measure，而LayoutManager 又会去再调用LayoutManager子类的MeasureChildObject虚函数
 	//          在Control中，会去调用GetAutoSize虚函数
-	virtual      SIZE        GetDesiredSize( HRDC hDC ) = 0;  
+	virtual      SIZE        GetDesiredSize() = 0;  
 
 	// 将xml用的配置转成对象的属性，注意，子类重载该函数时，必须先调用父类的该方法
 	// bReload表示为换肤时调用，此时不能再给某些属性赋值，例如text属性

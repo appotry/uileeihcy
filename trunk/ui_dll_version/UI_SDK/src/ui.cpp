@@ -789,14 +789,14 @@ void  UI_UpdateTopWindowLayout( WindowBase* pWindow )
 //	
 void UI_UpdateLayout( WindowBase* pObj, BOOL bRedraw )
 {
-	if( NULL == pObj )
+	if (NULL == pObj)
 		return;
 
 //	HDC hDC = UI_GetCacheDC();
 //	HRDC hRDC = GetHRDC(hDC, pObj->m_hWnd);
 //	pObj->PrepareDC(hRDC);   // 由于不用求WindowBase* pObj的大小，导致它没有去设置DC属性，因此需要在这里设置一下
 	
-	if( NULL != pObj->GetLayout() )
+	if (NULL != pObj->GetLayout())
 	{
 		pObj->GetLayout()->Arrange(NULL);
 	}

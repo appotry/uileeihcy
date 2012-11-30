@@ -29,6 +29,8 @@ HRESULT __stdcall GifOleObject::LoadGif(const TCHAR* szPath)
 	GifImageBase* pGif = m_pGifMgr->GetGif(strID);
 	if (NULL == pGif)
 		return E_FAIL;
+	
+	pGif->SetTransparentColor(RGB(255,255,255));
 
 	Gif_Timer_Notify notify(m_pNotifyMsg, 1, (LPARAM)this);
 	m_pGifRenderItem = pGif->AddRender(&notify);
