@@ -309,7 +309,8 @@ public:
 
 	// ÆäËü
 	HRGN         GetClipRgnInWindow();
-	void         SetReDraw( bool bReDraw );
+	void         SetReDraw(bool bReDraw);
+	bool         SetCursor(const String& strCursorID);
 
 protected:
 	Object*      _findChildObjectItem( const String& objId );

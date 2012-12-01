@@ -12,7 +12,6 @@ public:
 	SIZE  Measure();                                               // 返回 m_pPanel 所需要的大小；内部调用MeasureChildObject
 	void  Arrange(Object* pObjToArrage=NULL, bool bReDraw=false);  // 安排 m_pPanel 的子控件的位置和大小；内部调用ArrangeChildObject
 
-
 	virtual bool  SetAttribute( map<String,String>& mapAttrib, bool bReload=false ){ return true; };
 
 	virtual SIZE  MeasureChildObject() = 0; // 子类需实现；返回子控件所需要的控件

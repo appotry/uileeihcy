@@ -9,7 +9,7 @@
              foregnd.render.type="imagelist"  foregnd.render.image="number.png" foregnd.render.imagelist.count="12"
              foregnd.render.imagelist.layout="h"/>
       <Label id="label_voice_status" text="立体声" layout.right="10" layout.top="76" textrender.color="voice_channel"/>
-      <Label id="label_playstatus" text="状态:停止" layout.right="10" layout.top="93" textrender.color="play_statue" transparentbk="1"/>
+      <Label id="label_playstatus" text="状态:停止" layout.right="10" layout.top="93" textrender.color="play_statue" istransparent="1"/>
       <Panel layout="stack" layout.right="6" layout.top="4" layout.direction="righttoleft">
         <Button id="sys_close"     styleclass="imagebtn" tooltip="退出"     bkgnd.render.image="close.png" />
         <Button id="btn_minimode"  styleclass="imagebtn" tooltip="迷你模式" bkgnd.render.image="minimode.png" />

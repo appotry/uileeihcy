@@ -348,6 +348,24 @@ enum WINDOW_TRANSPARENT_PART_TYPE
 
 // 其它通用属性
 #define XML_CURSOR                           _T("cursor")       // 对象的鼠标样式
+#define XML_CURSOR_IDC_ARROW                 _T("idc_arrow")    // 各种系统鼠标样式配置
+#define XML_CURSOR_IDC_IBEAM                 _T("idc_ibeam")
+#define XML_CURSOR_IDC_WAIT                  _T("idc_wait")
+#define XML_CURSOR_IDC_CROSS                 _T("idc_cross")
+#define XML_CURSOR_IDC_UPARROW               _T("idc_uparrow")
+#define XML_CURSOR_IDC_SIZE                  _T("idc_size")
+#define XML_CURSOR_IDC_ICON                  _T("idc_icon")
+#define XML_CURSOR_IDC_SIZENWSE              _T("idc_sizenwse")
+#define XML_CURSOR_IDC_SIZENESW              _T("idc_sizenesw")
+#define XML_CURSOR_IDC_SIZEWE                _T("idc_sizewe")
+#define XML_CURSOR_IDC_SIZENS                _T("idc_sizens")
+#define XML_CURSOR_IDC_SIZEALL               _T("idc_sizeall")
+#define XML_CURSOR_IDC_NO                    _T("idc_no")
+#define XML_CURSOR_IDC_HAND                  _T("idc_hand")
+#define XML_CURSOR_IDC_APPSTARTING           _T("idc_appstarting")
+#define XML_CURSOR_IDC_HELP                  _T("idc_help")
+
+
 #define XML_TOOLTIP                          _T("tooltip")      // 对象的提示信息，自定义的提示内容需要代码自行添加
 #define XML_CONTROL_STYLE_GROUP              _T("group")
 #define XML_CONTROL_STYLE_TABABLE            _T("tabable")
@@ -444,7 +462,12 @@ enum LAYOUT_SPLIT_DIRECTION
 	LAYOUT_SPLIT_DIRECTION_H = 0,
 	LAYOUT_SPLIT_DIRECTION_V = 1,
 };
-#define XML_LAYOUT_SPLIT_SHOW_BUTTON   _T("layout.showbutton")  // 是否显示快速显示/隐藏按钮
+#define XML_LAYOUT_SPLIT_DRAGBAR_PREFIX      _T("layout.dragbar.") 
+#define XML_LAYOUT_SPLIT_SHOW_BUTTON         _T("layout.showbutton")  // 是否显示快速显示/隐藏按钮
+#define XML_LAYOUT_SPLIT_LEFT_BUTTON_PREFIX  _T("layout.leftbtn.")
+#define XML_LAYOUT_SPLIT_UP_BUTTON_PREFIX    _T("layout.upbtn.")
+#define XML_LAYOUT_SPLIT_RIGHT_BUTTON_PREFIX _T("layout.rightbtn.")
+#define XML_LAYOUT_SPLIT_DOWN_BUTTON_PREFIX  _T("layout.downbtn.")
 
 // split布局中的子元素的属性
 
