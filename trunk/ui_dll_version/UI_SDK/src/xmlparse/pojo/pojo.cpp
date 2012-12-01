@@ -938,22 +938,22 @@ bool  CPojo_CursorItem::ModifyCursor( const String& strCurFilePath )
 CPojo_Cursor::CPojo_Cursor()
 {
 	// 添加默认的系统图标
-	this->InsertCursor( _T("idc_arrow"), _T(""));
-	this->InsertCursor( _T("idc_ibeam"), _T(""));
-	this->InsertCursor( _T("idc_wait"), _T(""));
-	this->InsertCursor( _T("idc_cross"), _T(""));
-	this->InsertCursor( _T("idc_uparrow"), _T(""));
-	this->InsertCursor( _T("idc_size"), _T(""));
-	this->InsertCursor( _T("idc_icon"), _T(""));
-	this->InsertCursor( _T("idc_sizenwse"), _T(""));
-	this->InsertCursor( _T("idc_sizenesw"), _T(""));
-	this->InsertCursor( _T("idc_sizewe"), _T(""));
-	this->InsertCursor( _T("idc_sizens"), _T(""));
-	this->InsertCursor( _T("idc_sizeall"), _T(""));
-	this->InsertCursor( _T("idc_no"), _T(""));
-	this->InsertCursor( _T("idc_hand"), _T(""));
-	this->InsertCursor( _T("idc_appstarting"), _T(""));
-	this->InsertCursor( _T("idc_help"), _T(""));
+	this->InsertCursor( XML_CURSOR_IDC_ARROW, _T(""));
+	this->InsertCursor( XML_CURSOR_IDC_IBEAM, _T(""));
+	this->InsertCursor( XML_CURSOR_IDC_WAIT, _T(""));
+	this->InsertCursor( XML_CURSOR_IDC_CROSS, _T(""));
+	this->InsertCursor( XML_CURSOR_IDC_UPARROW, _T(""));
+	this->InsertCursor( XML_CURSOR_IDC_SIZE, _T(""));
+	this->InsertCursor( XML_CURSOR_IDC_ICON, _T(""));
+	this->InsertCursor( XML_CURSOR_IDC_SIZENWSE, _T(""));
+	this->InsertCursor( XML_CURSOR_IDC_SIZENESW, _T(""));
+	this->InsertCursor( XML_CURSOR_IDC_SIZEWE, _T(""));
+	this->InsertCursor( XML_CURSOR_IDC_SIZENS, _T(""));
+	this->InsertCursor( XML_CURSOR_IDC_SIZEALL, _T(""));
+	this->InsertCursor( XML_CURSOR_IDC_NO, _T(""));
+	this->InsertCursor( XML_CURSOR_IDC_HAND, _T(""));
+	this->InsertCursor( XML_CURSOR_IDC_APPSTARTING, _T(""));
+	this->InsertCursor( XML_CURSOR_IDC_HELP, _T(""));
 }
 CPojo_Cursor::~CPojo_Cursor()
 {
@@ -963,7 +963,7 @@ CPojo_CursorItem* CPojo_Cursor::GetCursorItem( int nIndex )
 {
 	if (nIndex < 0)
 		return NULL;
-	if( nIndex >= (int)m_vCursors.size() )
+	if (nIndex >= (int)m_vCursors.size())
 		return NULL;
 
 	return m_vCursors[nIndex];
@@ -973,10 +973,10 @@ CPojo_CursorItem* CPojo_Cursor::GetCursorItem( const String& strID )
 	vector<CPojo_CursorItem*>::iterator  iter = m_vCursors.begin();
 	vector<CPojo_CursorItem*>::iterator  iterEnd = m_vCursors.end();
 
-	for( ; iter != iterEnd; iter++ )
+	for (; iter != iterEnd; iter++)
 	{
 		CPojo_CursorItem* p = *iter;
-		if( p->GetIDRef() == strID )
+		if (p->GetIDRef() == strID)
 		{
 			return p;
 		}
@@ -989,11 +989,11 @@ int   CPojo_Cursor::GetCursorCount()
 }
 bool  CPojo_Cursor::GetCursor( const String& strID, UICursor** pCursorRet )
 {
-	if( NULL == pCursorRet )
+	if (NULL == pCursorRet)
 		return false;
 
 	CPojo_CursorItem* p = this->GetCursorItem(strID);
-	if( NULL != p )
+	if (NULL != p)
 	{
 		return p->GetCursor(pCursorRet);
 	}
@@ -1004,7 +1004,7 @@ bool  CPojo_Cursor::GetCursor( const String& strID, UICursor** pCursorRet )
 bool  CPojo_Cursor::InsertCursor( const String& strID, const String& strCurFilePath )
 {
 	CPojo_CursorItem* p = this->GetCursorItem(strID);
-	if( NULL != p )
+	if (NULL != p)
 	{
 		UI_LOG_WARN(_T("CPojo_Cursor::InsertCursor failed, insert item=%s, cursor=%s"), strID.c_str(), strCurFilePath.c_str() );
 		return false;
@@ -1020,7 +1020,7 @@ bool  CPojo_Cursor::InsertCursor( const String& strID, const String& strCurFileP
 bool  CPojo_Cursor::ModifyCursor( const String& strID, const String& strCursor )
 {
 	CPojo_CursorItem* p = this->GetCursorItem(strID);
-	if( NULL != p )
+	if (NULL != p)
 	{
 		p->ModifyCursor(strCursor);
 		return true;
@@ -1034,10 +1034,10 @@ bool  CPojo_Cursor::RemoveCursor( const String& strID )
 	vector<CPojo_CursorItem*>::iterator  iter = m_vCursors.begin();
 	vector<CPojo_CursorItem*>::iterator  iterEnd = m_vCursors.end();
 
-	for( ; iter != iterEnd; iter++ )
+	for (; iter != iterEnd; iter++)
 	{
 		CPojo_CursorItem* p = *iter;
-		if( p->GetIDRef() == strID )
+		if (p->GetIDRef() == strID)
 		{
 			delete p;
 			p = NULL;
@@ -1053,7 +1053,7 @@ void  CPojo_Cursor::Clear()
 	vector<CPojo_CursorItem*>::iterator  iter = m_vCursors.begin();
 	vector<CPojo_CursorItem*>::iterator  iterEnd = m_vCursors.end();
 
-	for( ; iter != iterEnd; iter++ )
+	for (; iter != iterEnd; iter++)
 	{
 		CPojo_CursorItem* p = *iter;
 		delete p;
@@ -1140,7 +1140,7 @@ CPojo_GifItem* CPojo_Gif::GetGifItem( int nIndex )
 {
 	if (nIndex < 0)
 		return NULL;
-	if( nIndex >= (int)m_vGifs.size() )
+	if (nIndex >= (int)m_vGifs.size())
 		return NULL;
 
 	return m_vGifs[nIndex];
@@ -1151,10 +1151,10 @@ CPojo_GifItem* CPojo_Gif::GetGifItem( const String& strID )
 	vector<CPojo_GifItem*>::iterator  iter = m_vGifs.begin();
 	vector<CPojo_GifItem*>::iterator  iterEnd = m_vGifs.end();
 
-	for( ; iter != iterEnd; iter++ )
+	for  (; iter != iterEnd; iter++)
 	{
 		CPojo_GifItem* p = *iter;
-		if( p->GetIDRef() == strID )
+		if (p->GetIDRef() == strID)
 			return p;
 	}
 	return NULL;
@@ -1189,7 +1189,7 @@ bool CPojo_Gif::InsertGif(const String& strID, const String& strPath, CPojo_GifI
 bool CPojo_Gif::ModifyGif(const String& strID, const String& strPath)
 {
 	CPojo_GifItem* p = this->GetGifItem(strID);
-	if( NULL != p )
+	if (NULL != p)
 	{
 		return p->ModifyGif(strPath);
 	}
@@ -1202,10 +1202,10 @@ bool CPojo_Gif::RemoveGif(const String& strID)
 	vector<CPojo_GifItem*>::iterator  iter = m_vGifs.begin();
 	vector<CPojo_GifItem*>::iterator  iterEnd = m_vGifs.end();
 
-	for( ; iter != iterEnd; iter++ )
+	for (; iter != iterEnd; iter++)
 	{
 		CPojo_GifItem* p = *iter;
-		if( p->GetIDRef() == strID )
+		if (p->GetIDRef() == strID)
 		{
 			delete p;
 			p = NULL;
@@ -1220,7 +1220,7 @@ bool CPojo_Gif::Clear()
 	vector<CPojo_GifItem*>::iterator  iter = m_vGifs.begin();
 	vector<CPojo_GifItem*>::iterator  iterEnd = m_vGifs.end();
 
-	for( ; iter != iterEnd; iter++ )
+	for (; iter != iterEnd; iter++)
 	{
 		CPojo_GifItem* p = *iter;
 		delete p;

@@ -227,7 +227,7 @@ HRGN Object::GetClipRgnInWindow()
 
 void Object::SetReDraw( bool bReDraw )
 {
-	if( bReDraw )
+	if (bReDraw)
 	{
 		this->clearStateBit( CSB_PREVENTREDRAW );
 	}
@@ -236,6 +236,17 @@ void Object::SetReDraw( bool bReDraw )
 		this->setStateBit( CSB_PREVENTREDRAW );
 	}
 
+}
+
+bool Object::SetCursor(const String& strCursorID)
+{
+	SAFE_RELEASE(m_pCursor);
+	::UI_GetCursor(strCursorID, &m_pCursor);
+
+	if (NULL == m_pCursor)
+		return false;
+
+	return true;
 }
 
 // 获取一个控件所在窗口句炳
@@ -516,7 +527,7 @@ bool Object::SetAttribute(ATTRMAP& mapAttrib, bool bReload )
 	if (m_mapAttribute.end() != iter)
 	{
 		String& str = iter->second;
-		::UI_GetCursor( str, &m_pCursor );
+		this->SetCursor(str);
 		this->m_mapAttribute.erase(iter);
 	}
 

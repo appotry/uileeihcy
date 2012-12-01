@@ -768,9 +768,9 @@ bool HyperLink::SetAttribute( ATTRMAP& mapAttrib, bool bReload )
 	return true;
 }
 
-BOOL HyperLink::OnSetCursor( HWND hWnd, UINT nHitTest, UINT message )
+BOOL HyperLink::OnSetCursor(HWND hWnd, UINT nHitTest, UINT message)
 {
-	SetCursor( ::LoadCursor(NULL, IDC_HAND) );
+	::SetCursor(::LoadCursor(NULL, IDC_HAND));
 	return TRUE;
 }
 void HyperLink::OnClicked()
