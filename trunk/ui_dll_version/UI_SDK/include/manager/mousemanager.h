@@ -42,6 +42,7 @@ public:
 private:
 	LRESULT  MouseMove ( int vkFlag, int xPos, int yPos );
 	LRESULT  MouseLeave( int vkFlag, int xPos, int yPos );
+	LRESULT  CancelMode( WPARAM, LPARAM );
 	LRESULT  LButtonDown( int vkFlag, int xPos, int yPos );
 	LRESULT  LButtonUp ( int vkFlag, int xPos, int yPos );
 	LRESULT  RButtonDown(WPARAM,LPARAM);

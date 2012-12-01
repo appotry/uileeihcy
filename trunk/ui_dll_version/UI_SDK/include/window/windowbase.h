@@ -104,6 +104,7 @@ public:
 		MESSAGE_HANDLER( WM_RBUTTONDOWN,   _OnHandleMouseMessage )
 		MESSAGE_HANDLER( WM_RBUTTONUP,     _OnHandleMouseMessage )
 		MESSAGE_HANDLER( WM_LBUTTONDBLCLK, _OnHandleMouseMessage )
+		MESSAGE_HANDLER( WM_CANCELMODE,    _OnHandleMouseMessage )
 		MESSAGE_HANDLER( WM_SIZE,          _OnSize )
 		MESSAGE_HANDLER( WM_CHAR,          _OnHandleKeyboardMessage )
 		MESSAGE_HANDLER( WM_KEYDOWN,       _OnHandleKeyboardMessage )

@@ -4,8 +4,10 @@ namespace UI
 {
 //
 // 	1. ESC 取消drag
-// 	2. 窗口大小改变时，保持一个panel的大小
 //  3. panel最大拉伸限制
+//  5. drag到某一位置时，会显示出窗口0,0位置的图像，很可疑，要查清楚
+//
+// 	2. 窗口大小改变时，保持一个panel的大小
 // 	4. 初始drag位置
 //
 	class Button;
@@ -22,14 +24,18 @@ namespace UI
 			UIMSG_WM_LBUTTONDOWN(OnLButtonDown)
 			UIMSG_WM_LBUTTONUP(OnLButtonUp)
 			UIMSG_WM_MOUSEMOVE(OnMouseMove)
+			UIMSG_WM_CANCELMODE(OnCancelMode)
+			UIMSG_WM_KEYDOWN(OnKeyDown)
 		UI_END_MSG_MAP_CHAIN_PARENT(Panel)
 
 		void   SetSplitLayout(SplitLayout* pLayout);
-
+		bool   IsDraging() { return m_bButtonDown; }
 	protected:
-		void OnLButtonDown(UINT nFlags, POINT point);
-		void OnLButtonUp(UINT nFlags, POINT point);
-		void OnMouseMove(UINT nFlags, POINT point);
+		void   OnLButtonDown(UINT nFlags, POINT point);
+		void   OnLButtonUp(UINT nFlags, POINT point);
+		void   OnCancelMode();
+		void   OnMouseMove(UINT nFlags, POINT point);
+		void   OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 
 	protected:
 		SplitLayout*  m_pLayout;
@@ -61,5 +67,6 @@ namespace UI
 		Button*   m_pBtnRightDown;  // 快速显示/隐藏按钮（需要时才创建）
 
 		LAYOUT_SPLIT_DIRECTION  m_eDirection;    // 排布的方向
+		LAYOUT_SPLIT_DRAGBAR_ALIGN  m_eDragbarAlign;    // 拖拽条对齐方向 
 	};
 }

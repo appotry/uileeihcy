@@ -987,7 +987,7 @@ protected:
 // 	}
 
 #define UIMSG_WM_KEYDOWN MSG_WM_KEYDOWN
-//  void OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags );
+// void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 // #define UIMSG_WM_KEYDOWN(func)                        \
 // 	if ( uMsg == WM_KEYDOWN )                         \
 // 	{                                                 \
