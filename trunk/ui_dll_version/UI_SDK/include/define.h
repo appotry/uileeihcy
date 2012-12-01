@@ -462,8 +462,25 @@ enum LAYOUT_SPLIT_DIRECTION
 	LAYOUT_SPLIT_DIRECTION_H = 0,
 	LAYOUT_SPLIT_DIRECTION_V = 1,
 };
-#define XML_LAYOUT_SPLIT_DRAGBAR_PREFIX      _T("layout.dragbar.") 
-#define XML_LAYOUT_SPLIT_SHOW_BUTTON         _T("layout.showbutton")  // 是否显示快速显示/隐藏按钮
+
+#define XML_LAYOUT_SPLIT_DRAGBAR_INITPOS       _T("layout.dragbarpos")  // 拖拽条的初始位置
+#define XML_LAYOUT_SPLIT_DRAGBAR_ALIGN         _T("layout.align")       // 当窗口大小改变时，以哪个panel作为基准
+#define XML_LAYOUT_SPLIT_DRAGBAR_ALIGN_LEFT    _T("left")
+#define XML_LAYOUT_SPLIT_DRAGBAR_ALIGN_TOP     _T("top")
+#define XML_LAYOUT_SPLIT_DRAGBAR_ALIGN_RIGHT   _T("right")
+#define XML_LAYOUT_SPLIT_DRAGBAR_ALIGN_BOTTOM  _T("bottom")
+
+#define XML_LAYOUT_SPLIT_DRAGBAR_PREFIX        _T("layout.dragbar.")
+
+enum LAYOUT_SPLIT_DRAGBAR_ALIGN
+{
+	LAYOUT_SPLIT_DRAGBAR_ALIGN_LEFT   = 0,
+	LAYOUT_SPLIT_DRAGBAR_ALIGN_TOP    = 0,
+	LAYOUT_SPLIT_DRAGBAR_ALIGN_RIGHT  = 1,
+	LAYOUT_SPLIT_DRAGBAR_ALIGN_BOTTOM = 1,
+};
+
+#define XML_LAYOUT_SPLIT_SHOW_BUTTON         _T("layout.showbutton")       // 是否显示快速显示/隐藏按钮
 #define XML_LAYOUT_SPLIT_LEFT_BUTTON_PREFIX  _T("layout.leftbtn.")
 #define XML_LAYOUT_SPLIT_UP_BUTTON_PREFIX    _T("layout.upbtn.")
 #define XML_LAYOUT_SPLIT_RIGHT_BUTTON_PREFIX _T("layout.rightbtn.")

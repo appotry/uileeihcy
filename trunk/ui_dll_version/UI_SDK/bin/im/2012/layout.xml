@@ -139,7 +139,8 @@
       </Panel>
 
       <Panel layout="split" layout.direction="v" layout.left="0" layout.right="0" layout.top="95" layout.bottom="5"
-             layout.dragbar.bkgnd.render.type="color" layout.dragbar.bkgnd.render.color="avg_surface_color">
+             layout.dragbar.bkgnd.render.type="color" layout.dragbar.bkgnd.render.color="avg_surface_color"
+             layout.dragbarpos="100" layout.align="bottom">
         <RichEdit id="outputedit" istransparent="1"/>
         <RichEdit id="inputedit"  bkgnd.render.type="color" bkgnd.render.color="white"/>
       </Panel>
@@ -164,7 +165,7 @@
   <color>
     <item id="white">255,255,255</item>
     <item id="black">0,0,0</item>
-    <item id="avg_surface_color">255,255,255</item>
+    <item id="avg_surface_color">0,240,240</item>
   </color>
   <style/>
 </ui>

@@ -1373,6 +1373,14 @@ int Object::GetHeight()
 {
 	return m_rcParent.Height();
 }
+int Object::GetWidthWithMargins()
+{
+	return m_rcParent.Width() + m_rcMargin.left + m_rcMargin.right;
+}
+int Object::GetHeightWithMargins()
+{
+	return m_rcParent.Height() + m_rcMargin.top + m_rcMargin.bottom;
+}
 
 // 注：这里的clientrect 并不是0,0起点的，而是相对于Object左上角而言
 void Object::GetClientRect(CRect* prc)

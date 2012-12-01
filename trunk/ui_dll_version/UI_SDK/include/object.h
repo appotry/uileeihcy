@@ -249,6 +249,8 @@ public:
 
 	int          GetWidth();
 	int          GetHeight();
+	int          GetWidthWithMargins();
+	int          GetHeightWithMargins();
 	int          GetConfigWidth() { return m_nConfigWidth; }
 	int          GetConfigHeight() { return m_nConfigHeight; }
 	void         SetObjectPos( int x, int y, int cx, int cy, int nFlag=0 );

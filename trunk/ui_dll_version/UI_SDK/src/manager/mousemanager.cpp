@@ -320,6 +320,9 @@ LRESULT MouseManager::HandleMessage( UINT msg, WPARAM w, LPARAM l )
 		return this->MouseLeave( vkFlag, xPos, yPos );
 		break;
 
+	case WM_CANCELMODE:
+		return this->CancelMode(w,l);
+
 	case WM_LBUTTONDOWN:
 		return this->LButtonDown( vkFlag, xPos, yPos );
 		break;
@@ -489,6 +492,21 @@ LRESULT MouseManager::MouseLeave( int vkFlag, int xPos, int yPos )
 		::ReleaseCapture();
 	}
 	return TRUE;
+}
+
+LRESULT MouseManager::CancelMode( WPARAM w, LPARAM l)
+{
+	if (m_pObjPress != NULL)
+	{
+		UIMSG   msg;
+		msg.pObjMsgTo = m_pObjPress;
+		msg.message   = WM_CANCELMODE;
+		msg.wParam    = w;
+		msg.lParam    = l;
+		::UISendMessage(&msg);
+	}
+
+	return 0;
 }
 
 
