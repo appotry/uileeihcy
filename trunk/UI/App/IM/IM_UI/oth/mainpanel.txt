@@ -1,0 +1,563 @@
+
+
+
+[txdata] MainPanel
+    [string] iid: 5EF9D731-6286-480c-9084-7EED19371A70
+    [string] name: MainPanel
+    [txdata] properties
+        [string] name: MainPanel
+        [string] config: MainPanel_window
+        [buffer] clientAreaSize: 17010000A6020000
+        [buffer] minSize: 230100001C020000
+        [buffer] maxSize: 29020000FFFFFFFF
+        [bool] toolWindow: 1
+        [dword] tabOrder: 0x00002af9
+        [string] titleText: $platform:MainFrame_Title
+        [bool] showMaxButton: 0
+        [bool] ownerDrawTitle: 1
+    [txdata] children
+        [txdata] Title
+            [string] iid: CEE5ADED-CDE8-4977-AB89-F83DD988F4B2
+            [string] name: Title
+            [txdata] properties
+                [string] name: Title
+                [dword] color: 0xff000000
+                [txdata] font
+                    [string] iid: 208308FE-CD22-4420-BF71-80396E326181
+                    [txdata] properties
+                        [double] height: 10.000000
+                        [double] width: 0.000000
+                        [int] weight: 600
+                        [int] orientation: 0
+                        [string] facename: Tahoma
+                        [int] fontEffect: 3
+                        [array] fontMap
+                            [txdata] 
+                                [dword] codePage: 0x000003a8
+                                [string] facename: Microsoft YaHei
+                                [string] os: vista
+                                [double] fontSize: 10.000000
+                            [txdata] 
+                                [dword] codePage: 0x000003a8
+                                [string] facename: SimSun
+                                [double] fontSize: 10.000000
+                                [int] lineSpace: 3
+                            [txdata] 
+                                [dword] codePage: 0x000003a8
+                                [string] facename: Gulim
+                                [double] fontSize: 10.000000
+                            [txdata] 
+                                [dword] codePage: 0x000004e4
+                                [string] facename: Segoeui
+                                [string] os: vista
+                                [double] fontSize: 9.500000
+                            [txdata] 
+                                [dword] codePage: 0x000004e4
+                                [string] facename: Tahoma
+                                [double] fontSize: 9.500000
+                            [txdata] 
+                                [string] facename: Arial Unicode MS
+                [bool] autoWidth: 1
+                [bool] autoHeight: 1
+                [bool] layered: 1
+                [string] text: $platform:MainFrame_Title
+                [buffer] location: 0900000004000000
+            [txdata] attachParam
+                [int] client: 0
+        [txdata] MsoTagPrefix
+            [string] iid: CEE5ADED-CDE8-4977-AB89-F83DD988F4B2
+            [string] name: MsoTagPrefix
+            [txdata] properties
+                [string] name: MsoTagPrefix
+                [string] config: static_link_normal
+                [bool] autoHeight: 1
+                [bool] autoWidth: 1
+                [dword] color: 0xff000000
+                [buffer] location: 4600000007000000
+                [bool] colorize: 1
+                [bool] client: 1
+                [string] cursor: hand
+                [string] text:  - 
+                [bool] hidden: 1
+            [txdata] attachParam
+                [int] client: 0
+        [txdata] MsoTag
+            [string] iid: CEE5ADED-CDE8-4977-AB89-F83DD988F4B2
+            [string] name: MsoTag
+            [txdata] properties
+                [string] name: MsoTag
+                [string] config: static_link_normal
+                [bool] autoHeight: 1
+                [bool] autoWidth: 1
+                [dword] color: 0xff000000
+                [buffer] location: 5000000007000000
+                [bool] colorize: 1
+                [bool] client: 1
+                [string] cursor: hand
+            [txdata] attachParam
+                [int] client: 0
+        [txdata] AdjustColor
+            [string] iid: 70551436-19C4-4f25-BFC8-322D86AE1A9C
+            [string] name: AdjustColor
+            [txdata] properties
+                [string] reportId: AAE14FA3-BBC8-447A-8E1E-62FE7DC01B1B
+                [string] name: AdjustColor
+                [string] anchor: TOPRIGHT
+                [int] internalGap: 0
+                [string] toolTip: $platform:MainPanel_AdjustColor     // 调色
+                [dword] tabOrder: 0x0000006b
+                [bool] tabStop: 1
+                [string] config: MainPanel_MainSkinBtnBase
+                [buffer] margin: 00000000040000004600000000000000
+            [txdata] attachParam
+                [int] client: 0
+        [txdata] BanAltSpace
+            [string] iid: CEE5ADED-CDE8-4977-AB89-F83DD988F4B2
+            [string] name: BanAltSpace
+            [txdata] properties
+                [string] name: BanAltSpace
+                [buffer] location: 9CFFFFFF9CFFFFFF
+                [string] shortcut: ALT+SPACE
+        [txdata] WeatherFlash
+            [string] iid: 0BFBD0C8-507B-46dc-BC8C-D68AF3BAF298
+            [string] name: WeatherFlash
+            [txdata] properties
+                [string] name: WeatherFlash
+                [bool] sizeAsParent: 1
+                [int] zOrder: 1000000
+                [bool] transparent: 1
+            [txdata] attachParam
+                [int] client: 0
+        [txdata] 7
+            [string] iid: 93154F5C-A602-4F3A-9C62-A69C4EF2393C
+            [txdata] properties
+                [bool] sizeAsParent: 1
+            [txdata] children
+                [txdata] HeadPanel
+                    [string] iid: 93154F5C-A602-4F3A-9C62-A69C4EF2393C
+                    [string] name: HeadPanel
+                    [txdata] properties
+                        [buffer] size: FFFFFFFF50000000
+                        [buffer] margin: 00000000FBFFFFFF0000000000000000
+                        [string] name: HeadPanel
+                        [bool] oleDrop: 1
+                    [txdata] children
+                        [txdata] Header
+                            [string] iid: A5DFF81A-B003-4967-A286-87EB38041C7C
+                            [string] name: Header
+                            [txdata] properties
+                                [string] name: Header
+                                [buffer] margin: 04000000000000000200000000000000
+                                [buffer] size: 4400000044000000
+                            [txdata] children
+                                [txdata] HeadBorder
+                                    [string] iid: A5DFF81A-B003-4967-A286-87EB38041C7C
+                                    [string] name: HeadBorder
+                                    [txdata] properties
+                                        [string] name: HeadBorder
+                                        [buffer] margin: 00000000090000000000000000000000
+                                        [buffer] size: 4200000042000000
+                                        [string] anchor: LEFTCENTER
+                                        [txdata] topground
+                                            [string] iid: 40C0A0B4-33E3-4091-AE36-918F9C09E350
+                                            [txdata] properties
+                                                [string] file: systheme:HeadCtrl\Padding4Normal.gft
+                                    [txdata] children
+                                        [txdata] HeadImage
+                                            [string] iid: C85ECDC8-0FD0-4C1B-984F-76C744A1A103
+                                            [string] name: HeadImage
+                                            [txdata] properties
+                                                [dword] tabOrder: 0x00000064
+                                                [buffer] margin: 03000000030000000300000003000000
+                                                [buffer] location: 0000000000000000
+                                                [bool] AnimationHeadFlag: 1
+                                                [bool] tabStop: 1
+                                                [string] name: HeadImage
+                                                [int] zOrder: 1
+                                                [string] cursor: Hand
+                                                [bool] sizeAsParent: 1
+                            [txdata] attachParam
+                                [int] dock: 0
+                        [txdata] ServiceBarContainer
+                            [string] iid: 93154F5C-A602-4F3A-9C62-A69C4EF2393C
+                            [string] name: ServiceBarContainer
+                            [txdata] properties
+                                [string] name: ServiceBarContainer
+                                [buffer] size: 490000001C000000
+                            [txdata] children
+                                [txdata] 1
+                                    [string] iid: FCAA4CE1-0CCE-4D72-BC81-E95F3CCB86D9
+                                    [txdata] properties
+                                        [buffer] size: 0000000014000000
+                                        [buffer] margin: 000000000400000003000000FFFFFFFF
+                                        [buffer] padding: 00000000000000000200000000000000
+                                        [bool] autoWidth: 1
+                                    [txdata] children
+                                        [txdata] OpenMsgBox
+                                            [string] iid: 70551436-19C4-4f25-BFC8-322D86AE1A9C
+                                            [string] name: OpenMsgBox
+                                            [txdata] properties
+                                                [string] reportId: EE3ED320-A4CA-4AA2-943E-D0143D3CD376
+                                                [string] name: OpenMsgBox
+                                                [bool] layered: 1
+                                                [buffer] size: 0000000014000000
+                                                [string] texture: platformres:InformationBox\\Messagebox16.png
+                                                [int] internalGap: -8
+                                                [string] toolTip: $platform:IDS_MsgBox_MainPanelTips
+                                                [dword] tabOrder: 0x0000006a
+                                                [bool] tabStop: 1
+                                                [string] config: MainPanel_MainFlagBtnBase
+                                                [buffer] border: 01000000000000000100000001000000
+                                                [bool] autoWidth: 1
+                                                [buffer] textInching: 0100000000000000
+                                    [txdata] attachParam
+                                        [int] dock: 1
+                                [txdata] ServiceBar
+                                    [string] iid: 0BE9108E-D36F-41B2-9FAF-6E0A7D53985F
+                                    [string] name: ServiceBar
+                                    [txdata] properties
+                                        [string] name: ServiceBar
+                                        [buffer] size: 5300000012000000
+                                        [dword] tabOrder: 0x00000069
+                                        [bool] tabGroup: 1
+                                        [bool] autoSort: 1
+                                        [buffer] margin: 00000000030000000000000001000000
+                                        [string] config: MainPanel_ServiceBar
+                                    [txdata] attachParam
+                                        [int] dock: 4
+                            [txdata] attachParam
+                                [int] dock: 3
+                        [txdata] Weather
+                            [string] iid: 0BFBD0C8-507B-46dc-BC8C-D68AF3BAF298
+                            [string] name: Weather
+                            [txdata] properties
+                                [string] name: Weather
+                                [buffer] size: 3C00000032000000
+                                [buffer] margin: 00000000040000000200000000000000
+                                [int] zOrder: 11
+                            [txdata] attachParam
+                                [int] dock: 1
+                        [txdata] HeaderStack
+                            [string] iid: FCAA4CE1-0CCE-4D72-BC81-E95F3CCB86D9
+                            [string] name: HeaderStack
+                            [txdata] properties
+                                [string] name: HeaderStack
+                                [int] orientation: 1
+                                [buffer] margin: 000000000700000000000000FAFFFFFF
+                                [string] anchor: TOPLEFT,RIGHT
+                                [bool] autoHeight: 1
+                            [txdata] children
+                                [txdata] LabelButton
+                                    [string] iid: A3CE9426-A426-4074-BE4C-BBA58B3ACFBD
+                                    [string] name: LabelButton
+                                    [txdata] properties
+                                        [string] name: LabelButton
+                                        [dword] tabOrder: 0x00000065
+                                        [bool] tabStop: 1
+                                        [string] reportId: ce171f69-7948-4e27-921d-5748578c12e7
+                                        [int] style: 1
+                                [txdata] nickLable
+                                    [string] iid: CEE5ADED-CDE8-4977-AB89-F83DD988F4B2
+                                    [string] name: nickLable
+                                    [txdata] properties
+                                        [string] name: nickLable
+                                        [bool] layered: 1
+                                        [string] config: MainPanel_MainPanelNick_Classic
+                                        [string] anchor: BOTTOMLEFT
+                                        [buffer] location: 820000000A000000
+                                        [buffer] size: 3400000011000000
+                                        [dword] format: 0x00008820
+                                        [bool] autoWidth: 0
+                                        [string] text: QQ2010
+                                        [bool] autoHeight: 1
+                                [txdata] QQLevelFrame
+                                    [string] iid: 0BFBD0C8-507B-46dc-BC8C-D68AF3BAF298
+                                    [string] name: QQLevelFrame
+                                    [txdata] properties
+                                        [string] name: QQLevelFrame
+                                        [string] anchor: BOTTOMLEFT
+                                        [bool] transparent: 0
+                                        [buffer] margin: 00000000060000000000000000000000
+                                        [bool] client: 0
+                                    [txdata] children
+                                        [txdata] QQLevelPanel
+                                            [string] iid: FCAA4CE1-0CCE-4D72-BC81-E95F3CCB86D9
+                                            [string] name: QQLevelPanel
+                                            [txdata] properties
+                                                [buffer] size: 3200000016000000
+                                                [buffer] location: 0000000000000000
+                                                [string] name: QQLevelPanel
+                                                [bool] transparent: 0
+                                                [bool] client: 0
+                                                [bool] autoWidth: 1
+                                                [int] orientation: 1
+                                            [txdata] children
+                                                [txdata] QQLevelValuePanel
+                                                    [string] iid: FCAA4CE1-0CCE-4D72-BC81-E95F3CCB86D9
+                                                    [string] name: QQLevelValuePanel
+                                                    [txdata] properties
+                                                        [buffer] size: 0D0000000F000000
+                                                        [buffer] location: 0000000000000000
+                                                        [string] name: QQLevelValuePanel
+                                                        [bool] autoWidth: 1
+                                                        [bool] transparent: 0
+                                                        [bool] client: 1
+                                                        [int] orientation: 1
+                                                        [buffer] margin: 00000000030000000000000000000000
+                                                    [txdata] children
+                                                        [txdata] LVImage
+                                                            [string] iid: A280366E-B916-4930-9027-24D7F60134F3
+                                                            [string] name: LVImage
+                                                            [txdata] properties
+                                                                [string] name: LVImage
+                                                                [buffer] location: 0000000000000000
+                                                                [bool] hidden: 0
+                                                                [buffer] size: 0A00000007000000
+                                                                [string] file: platformres:MainPanel\\LV.png
+                                                                [bool] transparent: 1
+                                                                [bool] client: 1
+                                                                [buffer] margin: 01000000040000000000000000000000
+                            [txdata] attachParam
+                                [int] dock: 2
+                        [txdata] LongNick
+                            [string] iid: 6CE58487-32C0-4F87-812F-81A72EA1581C
+                            [string] name: LongNick
+                            [txdata] properties
+                                [string] name: LongNick
+                                [bool] layered: 1
+                                [dword] tabOrder: 0x00000068
+                                [buffer] location: 490000001D000000
+                                [buffer] size: 1E00000017000000
+                                [bool] autoHeight: 1
+                                [bool] autoWidth: 1
+                                [string] config: MainPanel_LongNick
+                            [txdata] attachParam
+                                [int] dock: 2
+                    [txdata] attachParam
+                        [int] dock: 2
+                [txdata] SearchInfo
+                    [string] iid: 25BF7B07-0798-452A-BD50-936296442F17
+                    [string] name: SearchInfo
+                    [txdata] properties
+                        [dword] tabOrder: 0x0000006c
+                        [string] name: SearchInfo
+                        [buffer] size: 500000001C000000
+                        [string] config: MainPanel_SearchControlConfig
+                    [txdata] attachParam
+                        [int] dock: 2
+                [txdata] CustomizeSkinLoadingWnd
+                    [string] iid: 0BFBD0C8-507B-46dc-BC8C-D68AF3BAF298
+                    [string] name: CustomizeSkinLoadingWnd
+                    [txdata] properties
+                        [string] name: CustomizeSkinLoadingWnd
+                        [buffer] location: 5100000066000000
+                        [buffer] size: 500000001C000000
+                        [buffer] margin: 02000000000000000200000000000000
+                        [bool] hidden: 1
+                        [txdata] background
+                            [string] iid: 40C0A0B4-33E3-4091-AE36-918F9C09E350
+                            [txdata] properties
+                                [string] file: platformres:SkinMgr\loading_bkg.gft
+                    [txdata] children
+                        [txdata] CustomizeSkinLoading_gif
+                            [string] iid: E24F8CBD-ADFB-468B-BB54-F4301E5C6531
+                            [string] name: CustomizeSkinLoading_gif
+                            [txdata] properties
+                                [string] name: CustomizeSkinLoading_gif
+                                [buffer] margin: 08000000000000000000000000000000
+                                [string] config: gifAnimation
+                                [string] anchor: LEFTCENTER
+                                [string] image: platformres:skinmgr\skinminiportal\loadinfo.gif
+                        [txdata] PromptText
+                            [string] iid: CEE5ADED-CDE8-4977-AB89-F83DD988F4B2
+                            [string] name: PromptText
+                            [txdata] properties
+                                [string] name: PromptText
+                                [bool] autoWidth: 1
+                                [bool] autoHeight: 1
+                                [string] text: $platform:SkinMiniPortal_LoadingPic   // 正在加载图片，请耐心等待...
+                                [string] anchor: LEFTCENTER
+                                [buffer] margin: 20000000000000000000000000000000
+                        [txdata] PromptLink
+                            [string] iid: CEE5ADED-CDE8-4977-AB89-F83DD988F4B2
+                            [string] name: PromptLink
+                            [txdata] properties
+                                [string] name: PromptLink
+                                [bool] autoWidth: 1
+                                [bool] autoHeight: 1
+                                [string] config: LinkStatic
+                                [string] anchor: RIGHTCENTER
+                                [buffer] margin: 00000000000000001400000000000000
+                        [txdata] CloseBtn
+                            [string] iid: 70551436-19C4-4f25-BFC8-322D86AE1A9C
+                            [string] name: CloseBtn
+                            [txdata] properties
+                                [buffer] size: 0B0000000B000000
+                                [string] name: CloseBtn
+                                [string] anchor: RIGHTCENTER
+                                [buffer] margin: 00000000000000000400000000000000
+                                [txdata] highlightBackground
+                                    [string] iid: 40C0A0B4-33E3-4091-AE36-918F9C09E350
+                                    [txdata] properties
+                                        [string] file: platformres:InformationBox\\delete_hover.gft
+                                [txdata] normalBackground
+                                    [string] iid: 40C0A0B4-33E3-4091-AE36-918F9C09E350
+                                    [txdata] properties
+                                        [string] file: platformres:InformationBox\\delete_normal.gft
+                                [txdata] pushedBackground
+                                    [string] iid: 40C0A0B4-33E3-4091-AE36-918F9C09E350
+                                    [txdata] properties
+                                        [string] file: platformres:InformationBox\\delete_hover.gft
+                    [txdata] attachParam
+                        [int] dock: 2
+                [txdata] YellowBar
+                    [string] iid: CE53BF9E-0486-4AF0-84B9-BCD70DB90BC8
+                    [string] name: YellowBar
+                    [txdata] properties
+                        [string] name: YellowBar
+                        [string] config: MainPanel_YellowBar
+                        [bool] hidden: 1
+                        [buffer] location: 510000007D000000
+                        [buffer] size: 5000000016000000
+                        [bool] supportAnimation: 0
+                    [txdata] attachParam
+                        [int] dock: 2
+                [txdata] BottmArea
+                    [string] iid: 0BFBD0C8-507B-46dc-BC8C-D68AF3BAF298
+                    [string] name: BottmArea
+                    [txdata] properties
+                        [string] name: BottmArea
+                        [buffer] size: CD0000003C000000
+                        [buffer] location: 000000000D010000
+                        [buffer] margin: 00000000000000000000000001000000
+                    [txdata] children
+                        [txdata] QuickApp
+                            [string] iid: FCAA4CE1-0CCE-4D72-BC81-E95F3CCB86D9
+                            [string] name: QuickApp
+                            [txdata] properties
+                                [string] name: QuickApp
+                                [string] anchor: TOPLEFT
+                                [buffer] margin: 00000000000000000000000000000000
+                                [buffer] size: EE0000001D000000
+                                [int] orientation: 1
+                        [txdata] 2
+                            [string] iid: FCAA4CE1-0CCE-4D72-BC81-E95F3CCB86D9
+                            [txdata] properties
+                                [bool] autoWidth: 1
+                                [bool] autoHeight: 1
+                                [int] orientation: 1
+                                [string] anchor: BOTTOMLEFT
+                                [buffer] margin: 00000000000000000000000005000000
+                            [txdata] children
+                                [txdata] MainMenu
+                                    [string] iid: 70551436-19C4-4f25-BFC8-322D86AE1A9C
+                                    [string] name: MainMenu
+                                    [txdata] properties
+                                        [string] reportId: 2beda308-3b97-4daf-8c27-da028d394cdd
+                                        [dword] tabOrder: 0x00000070
+                                        [bool] tabStop: 1
+                                        [buffer] margin: 06000000000000000000000000000000
+                                        [string] config: MainPanel_MainMenuButton
+                                        [buffer] size: 1500000014000000
+                                        [string] name: MainMenu
+                                        [string] toolTip: $platform:ToolTip_MainMenu
+                                [txdata] SettingButton
+                                    [string] iid: 70551436-19C4-4f25-BFC8-322D86AE1A9C
+                                    [string] name: SettingButton
+                                    [txdata] properties
+                                        [string] reportId: 7bf629b0-7848-4cbf-ba0d-bd68204b77c7
+                                        [dword] tabOrder: 0x00000071
+                                        [bool] tabStop: 1
+                                        [string] config: iconbutton
+                                        [buffer] margin: 08000000000000000000000000000000
+                                        [buffer] size: 1400000014000000
+                                        [string] name: SettingButton
+                                        [string] toolTip: $platform:MainPanel_Menu_E3
+                                        [txdata] logoDraw
+                                            [string] iid: 40C0A0B4-33E3-4091-AE36-918F9C09E350
+                                            [txdata] properties
+                                                [string] file: platformres:mainpanel\button\tools.png
+                                [txdata] MsgManager
+                                    [string] iid: 70551436-19C4-4f25-BFC8-322D86AE1A9C
+                                    [string] name: MsgManager
+                                    [txdata] properties
+                                        [string] reportId: 73bf5a86-7de5-46dc-b0d0-941ed8f1f745
+                                        [dword] tabOrder: 0x00000072
+                                        [bool] tabStop: 1
+                                        [string] config: iconbutton
+                                        [buffer] margin: 08000000000000000000000000000000
+                                        [buffer] size: 1400000014000000
+                                        [string] name: MsgManager
+                                        [string] toolTip: $platform:MainPanel_Menu_E5
+                                        [txdata] logoDraw
+                                            [string] iid: 40C0A0B4-33E3-4091-AE36-918F9C09E350
+                                            [txdata] properties
+                                                [string] file: platformres:MainPanel\\Button\\message.png
+                                [txdata] MainToolExtArea
+                                    [string] iid: FCAA4CE1-0CCE-4D72-BC81-E95F3CCB86D9
+                                    [string] name: MainToolExtArea
+                                    [txdata] properties
+                                        [string] name: MainToolExtArea
+                                        [bool] autoWidth: 1
+                                        [bool] autoHeight: 1
+                                        [int] orientation: 1
+                                        [buffer] margin: 05000000000000000300000000000000
+                                [txdata] Finger_Btn
+                                    [string] iid: 70551436-19C4-4f25-BFC8-322D86AE1A9C
+                                    [string] name: Finger_Btn
+                                    [txdata] properties
+                                        [string] reportId: 1762c1f1-5f5c-49be-a9b3-abc94d0eeb82
+                                        [dword] tabOrder: 0x00000075
+                                        [bool] tabStop: 1
+                                        [string] name: Finger_Btn
+                                        [string] shortcut: ALT+F
+                                        [string] config: iconbutton
+                                        [buffer] location: 9700000020000000
+                                        [bool] autoWidth: 1
+                                        [buffer] size: 3200000014000000
+                                        [buffer] border: 02000000010000000200000001000000
+                                        [int] internalGap: -1
+                                        [string] text: $platform:MAINFRAME_FIND
+                                        [string] toolTip: $platform:MainPanel_Menu_E6
+                                        [txdata] font
+                                            [string] iid: 208308FE-CD22-4420-BF71-80396E326181
+                                            [txdata] properties
+                                                [int] fontEffect: 3
+                                        [txdata] logoDraw
+                                            [string] iid: 40C0A0B4-33E3-4091-AE36-918F9C09E350
+                                            [txdata] properties
+                                                [string] file: sysres:Misc\find.png
+                    [txdata] attachParam
+                        [int] dock: 3
+                [txdata] 6
+                    [string] iid: 93154F5C-A602-4F3A-9C62-A69C4EF2393C
+                    [txdata] properties
+                        [buffer] location: 0300000006000000
+                        [buffer] size: 5000000016000000
+                    [txdata] children
+                        [txdata] MainPanelContent
+                            [string] iid: A5DFF81A-B003-4967-A286-87EB38041C7C
+                            [string] name: MainPanelContent
+                            [txdata] properties
+                                [buffer] size: 6D010000D3000000
+                                [string] name: MainPanelContent
+                                [buffer] location: 2000000000000000
+                                [buffer] margin: 00000000000000000000000000000000
+                            [txdata] children
+                                [txdata] Content
+                                    [string] iid: 0BFBD0C8-507B-46dc-BC8C-D68AF3BAF298
+                                    [string] name: Content
+                                    [txdata] properties
+                                        [string] name: Content
+                                        [bool] sizeAsParent: 1
+                            [txdata] attachParam
+                                [int] dock: 4
+        [txdata] YellowBarLinkItem
+            [string] iid: 6C75C0AE-217A-41AE-8BB0-05E0C300C84E
+            [string] name: YellowBarLinkItem
+            [txdata] properties
+                [string] name: YellowBarLinkItem
+                [dword] color: 0xff0065fd
+                [dword] colorLButtonDown: 0xff0065fd
+                [dword] colorMouseOn: 0xff0065fd
+                [bool] sink: 1

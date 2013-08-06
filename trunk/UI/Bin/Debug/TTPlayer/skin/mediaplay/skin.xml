@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<skin>
+  <include>.\layout.xml</include>
+  <include>.\style.xml</include>
+  <include>.\font.xml</include>
+  <include>.\color.xml</include>
+  <include>.\image.xml</include>
+</skin>

@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<skin>
+  <include>res.xml</include>
+  <include>login_dlg.xml</include>
+  <include>chat_dlg.xml</include>
+  <include>main_dlg.xml</include>
+  <include>changeskin_dlg.xml</include>
+  <include>contactmgr_dlg.xml</include>
+</skin>

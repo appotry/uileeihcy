@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<skin>
+<font>
+    <item id="normal" facename="宋体" size="9"/>
+    <item id="option_title" facename="宋体" size="11"/>
+    <item id="option_introduce_ttplayer_text" facename="宋体" size="20" bold="1"/>
+</font>
+</skin>

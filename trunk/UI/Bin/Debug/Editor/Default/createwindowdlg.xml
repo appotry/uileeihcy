@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<skin>
+  <layout>
+    <Window id="createwindowdlg" text="创建ui窗口" width="380" height="200">
+      <Panel layout="grid" layout.width="100,250" layout.height="30,30,30,30">
+        <Label text="窗口Id:" layout.col="0" layout.row="0" textrender.align="right|vcenter"/>
+        <Edit id="edit_id" layout.col="1" layout.row="0" margin="10,4,0,0" height="22"/>
+        
+        <Label text="窗口Class:" layout.col="0" layout.row="1" textrender.align="right|vcenter"/>
+        <ComboBox id="combo_class" readonly="1" layout.col="1" layout.row="1" margin="10,4,0,0" height="22"/>
+
+        <Label text="保存到皮肤文件:" layout.col="0" layout.row="2" textrender.align="right|vcenter"/>
+        <ComboBox id="combo_skin" readonly="1" layout.col="1" layout.row="2" margin="10,4,0,0" height="22" width="115"/>
+        <ComboBox id="combo_skinfile" layout.col="1" layout.row="2" margin="135,4,0,0" height="22" width="115"/>
+      </Panel>
+
+      <Button id="ok" layout.right="20" layout.bottom="20" width="50" height="22" text="ok"/>
+    </Window>
+  </layout>
+</skin>
