@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<config>
+  
+<log enable="1">
+    <item name="ui" enable="1" path="log\ui.log" level="debug" flag="dbgview"  fileflag="disable"/>
+    <item name="IM" enable="1" path="log\ui.log" level="debug" flag="dbgview"  fileflag="disable"/>
+</log>
+  
+<skinbuilder>
+    <ctrlsdll>
+        <item>IM_Ctrls.dll</item>
+    </ctrlsdll>
+</skinbuilder>
+
+<skinlist>
+  <skin name="2012">
+    <current/>
+    <recent>
+      
+    </recent>
+  </skin>
+</skinlist>
+</config>

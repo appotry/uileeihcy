@@ -1,0 +1,135 @@
+// UILog.idl : UILog 的 IDL 源
+//
+
+// 此文件将由 MIDL 工具处理以
+// 产生类型库(UILog.tlb)和封送处理代码。
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+// 日志输出级别
+typedef
+enum eLogLevel
+{
+	LOG_LEVEL_DEBUG = 0,
+	LOG_LEVEL_INFO  = 1,
+	LOG_LEVEL_WARN  = 2,
+	LOG_LEVEL_ERROR = 3,
+	LOG_LEVEL_FATAL = 4
+}LOG_LEVEL;
+
+// 日志相关flag
+typedef
+enum eLogFlag
+{
+	LOG_FLAG_THREADID = 0x0001,    // 打印本线程ID
+	LOG_FLAG_CONSOLE  = 0x0002,    // 将日志同时打印到控制台
+	LOG_FLAG_DBGVIEW  = 0x0004     // 将日志同时打印到dbgView
+}LOG_FLAG;
+
+// 输出文件相关flag
+typedef
+enum eLogFileFlag
+{
+	LOG_FLAG_FILE_DISABLE = 0x0001,    // 不输出到文件
+	LOG_FLAG_FILE_SIMPLE  = 0x0002,    // 每次写之前删除已经存在的文件内容
+	LOG_FLAG_FILE_TIME    = 0x0004,    // 日志名后加上当前时间
+	LOG_FLAG_FILE_LOOP    = 0x0008     // 输出文件循环使用
+}LOG_FILE_FLAG;
+
+typedef struct tagLOGITEM
+{
+	VARIANT_BOOL   bEnable;           // 日志是否打开
+	BSTR           logName;           // 日志模块名称
+	BSTR           logFile;           // 日志输出路径
+	LOG_LEVEL      logLevel;          // 日志输出等级
+	long           uLogFlag;          // 日志输出Flag
+	long           uLogFileFlag;      // 日志文件Flag
+	long           uLogFileLoopCount; // 文件循环次数
+	long           uCookie;           // log item索引
+
+}LOGITEM;
+
+[
+	object,
+	uuid(C63D124C-7D48-4fc8-9C52-6BF9752C1765),
+	nonextensible,
+	helpstring("ILogItem 接口"),
+	pointer_default(unique)
+]
+interface ILogItem : IUnknown
+{
+	[id(1), helpstring("IsEnable")]   
+	HRESULT IsEnable([out, retval]VARIANT_BOOL* pbEnable);
+	[id(2), helpstring("GetName")]    
+	HRESULT GetName([out, retval]BSTR* pRetVal);
+	[id(3), helpstring("GetLogPath")]  
+	HRESULT GetPath([out, retval]BSTR* pRetVal);
+	[id(4), helpstring("GetLevel")]    
+	HRESULT GetLevel([out, retval]LONG* pRetVal);
+	[id(5), helpstring("GetLogFlag")]  
+	HRESULT GetLogFlag([out, retval]LONG* pRetVal);
+	[id(6), helpstring("GetFileFlag")] 
+	HRESULT GetFileFlag([out, retval]LONG* pRetVal);
+	[id(7)]
+	HRESULT GetCookie([out, retval]LONG* pRetVal);
+}
+[
+	object,
+	uuid(47F812B2-1295-4115-92B9-283A31DF971A),
+	dual,
+	nonextensible,
+	helpstring("ILog 接口"),
+	pointer_default(unique)
+]
+interface ILog : IDispatch
+{
+	[id(1), helpstring("Create")] 
+	HRESULT Create([in] BSTR strXmlPath);
+	[id(2), helpstring("Load")] 
+	HRESULT Load([in] BSTR strXmlPath);
+	[id(3), helpstring("Log")] 
+	HRESULT Log([in]long lCookie, [in]LOG_LEVEL level, [in]BSTR bstrContent);
+	[id(4), helpstring("EnableLog")]
+	HRESULT EnableLog([in]VARIANT_BOOL bEnable);
+	[id(5), helpstring("AddLogItem")] 
+	HRESULT AddLogItem([in]LOGITEM* pLogItem, [out]long* pOutCookie);
+	[id(6), helpstring("ModifyLogItem")] 
+	HRESULT ModifyLogItem([in]long lCookie, [in]LOGITEM* pLogItem);
+	[id(7), helpstring("RemoveLogItem")] 
+	HRESULT DeleteLogItem([in]long lCookie);
+	[id(8), helpstring("Save")]
+	HRESULT Save();
+	[id(9), helpstring("IsDirty")]
+	HRESULT IsDirty([out, retval]VARIANT_BOOL* pbDirty);
+	[id(10), helpstring("IsEnable")]
+	HRESULT IsEnable([out, retval]VARIANT_BOOL* pbEnable);
+	[id(11), helpstring("GetLogItemCount")]
+	HRESULT GetLogItemCount([out, retval]LONG* pRetVal);
+	[id(12), helpstring("GetLogItemByIndex")]
+	HRESULT GetLogItemByIndex([in]LONG lIndex,[out, retval]ILogItem** ppRetVal);
+	[id(13), helpstring("GetLogItemByName")]
+	HRESULT GetLogItemByName([in]BSTR bstrLogItemName,[out, retval]ILogItem** ppRetVal);
+	[id(14), helpstring("GetLogItemByCookie")]
+	HRESULT GetLogItemByCookie([in]long lCookie, [out, retval]ILogItem** ppRetVal);
+	[id(15), helpstring("TestCanLog")] 
+	HRESULT TestCanLog([in]long lCookie, [in]LOG_LEVEL level, [out,retval]VARIANT_BOOL* pbRet);
+
+};
+[
+	uuid(F7715108-51D9-4CB2-9D6D-A4E53084A0D5),
+	version(1.0),
+	helpstring("UILog 1.0 类型库")
+]
+library UILogLib
+{
+	importlib("stdole2.tlb");
+	[
+		uuid(3A24D68D-EBB5-4836-B45A-3A954BFD07A1),
+		helpstring("Log Class")
+	]
+	coclass Log
+	{
+		[default] interface ILog;
+	};
+};

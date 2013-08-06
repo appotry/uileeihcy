@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<config>
+
+<recent_project_list>
+<item filepath="E:\skin\test.uiproj" lastvisittime="1374061876"/>
+</recent_project_list>
+<log enable="1">
+  <item name="ui" enable="1" path="log\ui.log" level="debug" flag="dbgview"  fileflag="disable"/>
+</log>
+
+<ctrllib>
+</ctrllib>
+</config>

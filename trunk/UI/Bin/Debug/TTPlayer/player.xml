@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<config>
+  <log enable="1">
+    <item name="ui" enable="1" path="log\ui.log" level="debug" flag="dbgview"   fileflag="disable"/>
+    <item name="TTPlayer" enable="1" path="log\ui.log" level="debug" flag="dbgview"  fileflag="disable"/>
+    <item name="ui_builder"  enable="1" path="log\ui_builder.log" level="debug" flag="dbgview" fileflag="disable"/>
+  </log>
+  <skin active="mediaplay"></skin>
+  
+  <Player Mute="0" Volume="16" Balance="0" PlayMode="1" PlayingFileName="G:\Misuc\さくらんぼ_(original).mp3" PlayingTime="30" />
+  <Visual Type="1" FramesPerSec="25" />
+
+</config>
