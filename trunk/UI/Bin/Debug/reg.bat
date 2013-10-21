@@ -1,0 +1,1 @@
+regsvr32 UI\UILog.dll /s

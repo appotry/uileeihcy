@@ -289,43 +289,7 @@ enum
     UI_WM_SKINMATERIALCHANGED,
 #pragma endregion
 
-    //////////////////////////////////////////////////////////////////////////
-#pragma region	// Button
-
-    //
-    //	按钮点击事件
-    //
-    //		message:UI_WM_NOTIFY
-    //		code:   UI_BN_CLICKED
-    //		wparam: NA // -- POINT*，基于window
-    //		lParam: 
-    //
-    UI_BN_CLICKED,
-
-    // Virtual 扩展，用于派生类中绘制焦点状态
-    //
-    //		message:UI_WM_NOTIFY
-    //		code:   UI_BN_DRAWFOCUS
-    //		wparam: IRenderTarget*
-    //		lParam: NA
-    //
-    UI_BN_DRAWFOCUS,
-#pragma endregion
-
-    //////////////////////////////////////////////////////////////////////////
-#pragma region // TrackBar
-
-    //
-    //	滑动条位置改变通知
-    //
-    //		message:UI_WM_NOTIFY
-    //		code:   UI_TRBN_POSCHANGED
-    //		wparam: new Pos
-    //		lParam: scroll type, SB_LEFT SB_RIGHT SB_THUMBTRACK SB_ENDSCROLL ...
-    //		pMsgFrom: this
-    //
-    UI_TRBN_POSCHANGED,
-#pragma endregion 
+   
 
 #pragma region // Popup Window
 
@@ -381,36 +345,6 @@ enum
     //////////////////////////////////////////////////////////////////////////
     // UI_WM_OVERWRITE,  // 需要重写的虚函数消息定义。在新架构中，外部控件不可能直接
                       // 继承基类的虚函数，因此改为发消息，统一走ProcessMessage
-
-
-    //
-    //  从XML中加载对象，并设置对象的属性
-    //  message : UI_WM_SETATTRIBUTE
-    //  code : NA
-    //  wparam : IMapAttribute*
-    //  lparam : bool bReload
-    //
-    UI_WM_SETATTRIBUTE,
-
-    //
-    //  设置对象的属性，但携带一个前缀参数
-    //  message : UI_WM_SETATTRIBUTE_PREFIX
-    //  code : NA
-    //  wparam : SetAttrPrefixData*
-    //  lparam : 
-    //
-    UI_WM_SETATTRIBUTE_PREFIX,
-
-    //
-    //  换肤前调用，释放现在正在使用的皮肤资源。
-    //  目前在对象构造时，也会触发一次，用于初始化
-    //  
-    //  message : UI_WM_RESETATTRIBUTE
-    //  code : NA
-    //  wparam : NA
-    //  lparam : NA
-    //
-    UI_WM_RESETATTRIBUTE,
 
     //
     //  获取对象期望大小，不包含对象的Margin，但需要自己去计算padding/border等
@@ -508,6 +442,70 @@ enum
     UI_WM_OWNERDRAW,
 };
 
+
+
+
+//
+//  从XML中加载对象，并设置对象的属性
+//  message : UI_WM_SETATTRIBUTE
+//  code : NA
+//  wparam : IMapAttribute*
+//  lparam : bool bReload
+//
+// #define  UI_WM_SETATTRIBUTE  139281918
+
+//
+//  设置对象的属性，但携带一个前缀参数
+//  message : UI_WM_SETATTRIBUTE_PREFIX
+//  code : NA
+//  wparam : SetAttrPrefixData*
+//  lparam : 
+//
+#define  UI_WM_SETATTRIBUTE_PREFIX  139281919
+
+//
+//  换肤前调用，释放现在正在使用的皮肤资源。
+//  目前在对象构造时，也会触发一次，用于初始化
+//  
+//  message : UI_WM_RESETATTRIBUTE
+//  code : NA
+//  wparam : NA
+//  lparam : NA
+//
+#define  UI_WM_RESETATTRIBUTE  139281920
+
+
+namespace UI
+{
+interface IMapAttribute;
+interface IListAttribute;
+}
+// 对象序列化消息。用于取代WM_SETATTRIBUTE
+enum SERIALIZEFLAG
+{
+//	SERIALIZEFLAG_LOAD = 0x01,
+	SERIALIZEFLAG_SAVE = 0x02,
+	SERIALIZEFLAG_GETLIST = 0x04,  // 获取属性列表和提示信息
+
+	// load 标识
+	SERIALIZEFLAG_RELOAD = 0x0100,
+
+	// save 标识
+};
+struct SERIALIZEDATA
+{
+	union{
+		UI::IMapAttribute*  pMapAttrib;    // load [in] / getlist [out]
+		UI::IListAttribute*  pListAttrib;  // save [out]
+	};
+	UINT nFlag;
+};
+
+// wParam: SERIALIZEDATA
+// lParam:
+// return: 
+#define  UI_WM_SERIALIZE 139281928
+
 //
 // 作为目标对象的拖拽事件
 //  wParam : DROPTARGETEVENT_TYPE
@@ -529,6 +527,27 @@ enum
 // return: IObject*
 #define UI_DM_GETDEFID  138011444
 
+// ScrollBarMgr通知控件平滑滚动，用于控件自己刷新或者设置其它标识
+// message: UI_WM_INERTIAVSCROLL
+// wParam: nOldPos
+// wParam: nNewPos
+#define UI_WM_INERTIAVSCROLL  138181247
+
+//
+//	按钮点击事件
+//
+//		message:UI_WM_NOTIFY
+//		code:   UI_BN_CLICKED
+//		wparam: NA // -- POINT*，基于window
+//		lParam: 
+//
+#define UI_BN_CLICKED  139222333
+
+// 获取对象属性列表
+// wParam: IUIEditor*
+// lParam: IRootUIEditorAttr*
+#define UI_EDITOR_GETOBJECTATTRLIST  139252026
+
 //
 // 为了可以在消息响应函数中直接访问当前消息结构，将m_pCurMsg作为成员函数进行访问或设置
 // 为了防止在处理一个消息A的过程中，必须再发送另外一个消息B，导致A的m_pCurMsg被B篡改，
@@ -540,10 +559,15 @@ enum
 //    导致Hook方收到两次消息。因此增加一个ProcessMessageNoHook函数，内部将不再DoHook
 //    同时派生类在CHAIN时
 // ps: 20130320
-//    在Ixxx层次，提供IMessage::ProcessMessage虚函数和xProcessMessage非虚函数，在xxx层次提供xProcessMessage非虚函数
+//    在Ixxx层次，提供IMessage::virtualProcessMessage虚函数和xProcessMessage非虚函数，
+//    在xxx层次，也提供innerVirtualProcessMessage(主要用于非IMessage派生类,IMessageInnerProxy调用)和xProcessMessage非虚函数
 //    同时外部控件可直接继承于MessageProxy提供消息映射
 //
 #define UI_BEGIN_MSG_MAP                              \
+    virtual BOOL innerVirtualProcessMessage(UI::UIMSG* pMsg, int nMsgMapID=0, bool bDoHook=false) \
+    {                                                 \
+        return this->xProcessMessage(pMsg, nMsgMapID, bDoHook); \
+    }                                                 \
     BOOL xProcessMessage(UI::UIMSG* pMsg, int nMsgMapID, bool bDoHook) \
     {                                                 \
         UIASSERT (pMsg);                              \
@@ -608,7 +632,7 @@ enum
     typedef UI::UIObjCreator<classname> _CreatorClass; \
     static void  CreateInstance(UI::IUIApplication* p, classname** pp) \
     { classname::_CreatorClass::UICreateInstance(p, pp); } \
-    virtual BOOL DoProcessMessage(UI::UIMSG* pMsg, int nMsgMapID, bool bDoHook) \
+    virtual BOOL virtualProcessMessage(UI::UIMSG* pMsg, int nMsgMapID, bool bDoHook) \
     { return xProcessMessage(pMsg, nMsgMapID, bDoHook); } \
     UI_BEGIN_MSG_MAP
 
@@ -691,7 +715,7 @@ enum
 // void OnSysCommand(UINT nID, CPoint point)
 #define UIMSG_WM_SYSCOMMAND  MSG_WM_SYSCOMMAND
 
-// void OnEraseBkgnd(IRenderTarget* pRenderTarget)
+// void  OnEraseBkgnd(UI::IRenderTarget* pRenderTarget)
 //	remark
 //		参数HDC，是已经做过了双缓冲处理了，可以直接使用。原始的WM_ERASEBKGND消息已被过滤了
 //		这里去掉了返回值，以防调用者自己也不知道到底该返回什么（其实这里的返回值没有意思）
@@ -699,7 +723,7 @@ enum
     if (uMsg == WM_ERASEBKGND)                        \
     {                                                 \
         SetMsgHandled(TRUE);                          \
-        func((IRenderTarget*)wParam);                 \
+		func((UI::IRenderTarget*)wParam);             \
         if (IsMsgHandled())                           \
             return TRUE;                              \
     }
@@ -1028,7 +1052,7 @@ enum
     if (uMsg == UI_WM_NOTIFY  &&                      \
         code == UI_BN_CLICKED &&                      \
         NULL != pMsgFrom   &&                         \
-        0 == _tcscmp(((IObject*)pMsgFrom)->GetID(),OBJID)) \
+        0 == _tcscmp(((IObject*)pMsgFrom)->GetId(),OBJID)) \
     {                                                 \
         SetMsgHandled(TRUE);                          \
         func( );                                      \
@@ -1063,7 +1087,7 @@ enum
     if (uMsg == UI_WM_NOTIFY &&                       \
         code == UI_BN_CLICKED &&                      \
         NULL != pMsgFrom &&                           \
-        0 == _tcscmp(((IObject*)pMsgFrom)->GetID(), OBJID)) \
+        0 == _tcscmp(((IObject*)pMsgFrom)->GetId(), OBJID)) \
     {                                                 \
         SetMsgHandled(TRUE);                          \
         func((IObject*)pMsgFrom, (POINT*)wParam);     \
@@ -1194,7 +1218,7 @@ enum
     }
 #endif
 
-// void  OnAnimateTick(int nCount, IStoryboard** ppArray)
+// void  OnAnimateTick(int nCount, UI::IStoryboard** ppArray)
 #define UIMSG_WM_ANIMATE_TICK(func)                   \
     if (uMsg == UI_WM_ANIMATE_TICK)                   \
     {                                                 \
@@ -1204,7 +1228,7 @@ enum
             return TRUE;                              \
     }
 
-// void OnAnimateOveri()
+// void OnAnimateOver()
 #define UIMSG_WM_ANIMATE_OVER(func)                   \
     if (uMsg == UI_WM_ANIMATE_OVER)                   \
     {                                                 \
@@ -1245,22 +1269,46 @@ enum
             return TRUE;                              \
     }
 
+// // void  SetAttribute(IMapAttribute* pMapAttr, bool bReload);
+// #define UIMSG_WM_SETATTRIBUTE(func)                   \
+//     if (uMsg == UI_WM_SETATTRIBUTE)                   \
+//     {                                                 \
+//         SetMsgHandled(TRUE);                          \
+//         func((UI::IMapAttribute*)wParam, lParam?true:false); \
+//         if (IsMsgHandled())                           \
+//             return TRUE;                              \
+//     }
 // void  SetAttribute(IMapAttribute* pMapAttr, bool bReload);
 #define UIMSG_WM_SETATTRIBUTE(func)                   \
-    if (uMsg == UI_WM_SETATTRIBUTE)                   \
+    if (uMsg == UI_WM_SERIALIZE)                      \
     {                                                 \
         SetMsgHandled(TRUE);                          \
-        func((UI::IMapAttribute*)wParam, lParam?true:false); \
-        if (IsMsgHandled())                           \
-            return TRUE;                              \
+		SERIALIZEDATA* pData = (SERIALIZEDATA*)wParam; \
+		if (!(pData->nFlag&SERIALIZEFLAG_SAVE))       \
+		{ \
+			bool bReload = pData->nFlag&SERIALIZEFLAG_RELOAD ? true:false; \
+			func((UI::IMapAttribute*)pData->pMapAttrib, bReload); \
+			if (IsMsgHandled())                           \
+	            return TRUE;                              \
+		} \
     }
+
+// void  OnSerialize(SERIALIZEDATA* pData);
+#define UIMSG_WM_SERIALIZE(func)                      \
+	if (uMsg == UI_WM_SERIALIZE)                      \
+	{                                                 \
+		SetMsgHandled(TRUE);                          \
+		func((SERIALIZEDATA*)wParam);                 \
+		if (IsMsgHandled())                           \
+			return TRUE;                              \
+	}
 
 // void SetAttribute(SetAttrPrefixData* pData);
 #define UIMSG_WM_SETATTRIBUTE_PREFIX(func)            \
     if (uMsg == UI_WM_SETATTRIBUTE_PREFIX)            \
     {                                                 \
         SetMsgHandled(TRUE);                          \
-        func((UI::SetAttrPrefixData*)wParam); \
+        func((UI::SetAttrPrefixData*)wParam);         \
         if (IsMsgHandled())                           \
             return TRUE;                              \
     }
@@ -1271,6 +1319,16 @@ enum
     {                                                 \
         SetMsgHandled(TRUE);                          \
         func();                                       \
+        if (IsMsgHandled())                           \
+            return TRUE;                              \
+    }
+
+// void  OnEditorGetAttrList(IUIEditor* pEditor, IUIEditorGroupAttribute*  pRootAttr);
+#define UIMSG_WM_EDITORGETATTRLIST(func)              \
+    if (uMsg == UI_EDITOR_GETOBJECTATTRLIST)          \
+    {                                                 \
+        SetMsgHandled(TRUE);                          \
+        func((IUIEditor*)wParam, (IUIEditorGroupAttribute*)lParam); \
         if (IsMsgHandled())                           \
             return TRUE;                              \
     }
@@ -1416,7 +1474,7 @@ struct GETDESIREDSIZEINFO
             return TRUE;                              \
     }
 
-// void OnDropTargetEvent(DROPTARGETEVENT_TYPE eType, DROPTARGETEVENT_DATA* pData)
+// void OnDropTargetEvent(UI::DROPTARGETEVENT_TYPE eType, UI::DROPTARGETEVENT_DATA* pData)
 #define UIMSG_WM_DROPTARGETEVENT(func)                \
     if (uMsg == UI_WM_DROPTARGETEVENT)                \
     {                                                 \

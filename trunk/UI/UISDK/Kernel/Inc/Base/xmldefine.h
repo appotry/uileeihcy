@@ -1,6 +1,8 @@
 #ifndef XMLDEFINE_H_CBBD5468_6BF1_45ac_B02C_F10AC19A651A
 #define XMLDEFINE_H_CBBD5468_6BF1_45ac_B02C_F10AC19A651A
 
+namespace UI
+{
 
 /////////////////////////////////////////////////////////////////////////////////
 //                                                                             //
@@ -263,6 +265,7 @@ enum WINDOW_TRANSPARENT_PART_TYPE
 #define WINDOW_TRANSPARENT_TYPE_AREO       8      // 注：如果在win7不支持areo情况下，该值可能为8|1，这样当恢复为支持areo主题时也能知道恢复成areo模式
 
 #define XML_MATERIAL_RENDER_PREFIX           _T("material.")         // customwindow用于支持换肤的皮肤render前缀
+#define XML_MASK_RENDER_PREFIX               _T("mask.")             // panel用于支持遮罩的render前缀
 
 // #define XML_WINDOW_SKIN_IMAGE_RENDER_PREFIX  _T("skinimg.")       // 窗口背景图皮肤前缀
 #define XML_PANEL_RENDER_REGION              _T("render.region") // 皮肤图片在窗口上显示的区域，类型于padding的配置
@@ -298,8 +301,8 @@ enum WINDOW_TRANSPARENT_PART_TYPE
 
 #define XML_TOOLTIP                          _T("tooltip")      // 对象的提示信息，自定义的提示内容需要代码自行添加
 #define XML_CONTROL_STYLE_GROUP              _T("group")
-#define XML_CONTROL_STYLE_TABABLE            _T("tabable")
-#define XML_REJEST_MOUSE_MSG                 _T("rejestmousemsg")  // 不接受鼠标消息
+#define XML_CONTROL_STYLE_TABABLE            _T("tabstop")
+#define XML_REJEST_MOUSE_MSG                 _T("rejectmousemsg")  // 不接受鼠标消息
 
 // window
 // #define  XML_WINDOW_BK_TYPE                    _T("bktype")     // 窗口背景绘制类型
@@ -331,6 +334,7 @@ enum WINDOW_TRANSPARENT_PART_TYPE
 #define XML_LAYOUT_DOCK          _T("dock")          // 布局类型：dock
 #define XML_LAYOUT_CANVAS        _T("canvas")        // 布局类型：canvas
 #define XML_LAYOUT_CARD          _T("card")          // 布局类型：card
+#define XML_LAYOUT_AVERAGE       _T("average")       // 布局类型：average
 
 enum LAYOUTTYPE
 {
@@ -339,6 +343,7 @@ enum LAYOUTTYPE
     LAYOUT_TYPE_GRID,
     LAYOUT_TYPE_DOCK,
     LAYOUT_TYPE_CARD,
+    LAYOUT_TYPE_AVERAGE,
 };
 
 // stack布局的属性
@@ -352,14 +357,27 @@ enum LAYOUTTYPE
 
 enum LAYOUT_STACK_DIRECTION
 {
-    LAYOUT_STACK_LEFTTORIGHT = 0,   
-    LAYOUT_STACK_RIGHTTOLEFT = 1,   
+    LAYOUT_STACK_LEFTTORIGHT  = 0,   
+    LAYOUT_STACK_RIGHTTOLEFT  = 1,   
     LAYOUT_STACK_LEFTANDRIGHT = 2,  
-    LAYOUT_STACK_TOPTOBOTTOM = 3,   
-    LAYOUT_STACK_BOTTOMTOTOP = 4,   
+    LAYOUT_STACK_TOPTOBOTTOM  = 3,   
+    LAYOUT_STACK_BOTTOMTOTOP  = 4,   
     LAYOUT_STACK_TOPANDBOTTOM = 5   
 };
 #define XML_LAYOUT_STACK_GAP            _T("layout.gap")        // 每一项之间的间隙
+
+// average布局
+#define XML_LAYOUT_AVERAGE_DIRECTION    _T("layout.direction")  // stack布局的方向
+#define XML_LAYOUT_AVERAGE_H            _T("h")
+#define XML_LAYOUT_AVERAGE_V            _T("v")
+
+enum LAYOUT_AVERAGE_DIRECTION
+{
+    LAYOUT_AVERAGE_H,
+    LAYOUT_AVERAGE_V
+};
+
+#define XML_LAYOUT_AVERAGE_GAP         _T("layout.gap")        // 每一项之间的间隙
 
 // dock布局的属性
 
@@ -379,6 +397,7 @@ enum eLAYOUT_ITEM_ATTR
     LAYOUT_ITEM_ALIGN_BOTTOM = 0x0010,
     LAYOUT_ITEM_ALIGN_CENTER = 0x0020,
     LAYOUT_ITEM_ALIGN_VCENTER = 0x0040,
+    LAYOUT_ITEM_ALIGN_FILL   = 0x0080,  // 填充剩余空间--stack布局
 
     LAYOUT_ITEM_ALIGN_LTRB = LAYOUT_ITEM_ALIGN_LEFT|LAYOUT_ITEM_ALIGN_TOP|LAYOUT_ITEM_ALIGN_RIGHT|LAYOUT_ITEM_ALIGN_BOTTOM,
 };
@@ -398,6 +417,7 @@ enum eLAYOUT_ITEM_ATTR
 
 #define XML_LAYOUT_ITEM_ALIGN_CENTER   _T("center")  // -- stack/dock layout
 #define XML_LAYOUT_ITEM_ALIGN_VCENTER  _T("vcenter") // -- stack layout
+#define XML_LAYOUT_ITEM_ALIGN_FILL     _T("fill")    // -- stack layout
 
 // enum LAYOUT_STACK_ITEM_ALIGN
 // {
@@ -454,7 +474,8 @@ enum STYLE_SELECTOR_TYPE{
 //////////////////////////////////////////////////////////////////////////
 // Button
 
-#define  XML_BUTTON_DEFPUSHBUTTON              _T("defpushbutton")     // 是否是默认按钮
+#define  XML_BUTTON_DEFPUSHBUTTON              _T("defpushbutton")    // 是否是默认按钮
+#define  XML_BUTTON_NOTDEFPUSHBUTTON           _T("notdefpushbutton") // 不获取默认按钮属性
 #define  XML_BUTTON_RENDER_DRAW_FOCUS_FLAG     _T("drawfocus")        // 如何绘制焦点
 typedef enum
 {
@@ -639,6 +660,8 @@ enum SCROLLBAR_DIRECTION_TYPE
 
 // ledctrl
 #define  XML_LEDCTRL_INDEXMAP                     _T("indexmap")    // 图片索引映射关系
+#define  XML_LEDEXCTRL_SAMEWIDTH                  _T("samewidth")   // bool，如果大小相同的话，就不用配置posmap属性了
+#define  XML_LEDEXCTRL_POSMAP                     _T("posmap")      // 图片项位置映射关系  0,20;20,40;40,60; ...
 
 // menu
 #define  XML_MENU                 _T("Menu")      // layout.xml中菜单结点的tag name
@@ -712,5 +735,5 @@ enum TABCTRL_HEAD_LAYOUT_TYPE
 #define   XML_EXPANDICON_RENDER_TYPE_PREFIX   _T("expandicon.")   // 展开/收缩图标render前缀
 
 
-
+}
 #endif XMLDEFINE_H_CBBD5468_6BF1_45ac_B02C_F10AC19A651A

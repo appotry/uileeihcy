@@ -43,12 +43,14 @@ void  LEDCtrl::SetAttribute(IMapAttribute* pMapAttr, bool bReload)
 
 void  LEDCtrl::GetDesiredSize(SIZE* pSize)
 {
-    pSize->cx = 0; pSize->cy = 0;
+    pSize->cx = m_pILEDCtrl->GetNonClientW();
+    pSize->cy = m_pILEDCtrl->GetNonClientH();
+
 	if (NULL == m_pImagelist)
 		return;
 
-    pSize->cx = m_pImagelist->GetItemWidth() * (int)m_vecIndex.size();
-	pSize->cy = m_pImagelist->GetItemHeight();
+    pSize->cx += m_pImagelist->GetItemWidth() * (int)m_vecIndex.size();
+	pSize->cy += m_pImagelist->GetItemHeight();
 }
 
 

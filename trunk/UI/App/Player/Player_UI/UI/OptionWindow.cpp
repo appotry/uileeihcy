@@ -8,6 +8,7 @@
 #include "UISDK\Kernel\Inc\Interface\ilistitembase.h"
 #include "UISDK\Control\Inc\Interface\ilabel.h"
 #include "UISDK\Control\Inc\Interface\ilistbox.h"
+#include "UISDK\Control\Inc\Interface\icheckbutton.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -23,26 +24,30 @@ COptionWindow::COptionWindow()
 	m_pComboboxVisualType = NULL;
 	m_pSliderVisualFps = NULL;
 	m_pLabelVisualFps = NULL;
+    m_pPanelCommon = NULL;
+    m_pCheckBtnWndTopMost = NULL;
 }
 
 BOOL COptionWindow::OnInitDialog( HWND, LPARAM )
 {
 	m_pPanelAbout = (UI::IPanel*)this->FindChildObject(_T("panel_about"));
 	m_pPanelVisualization = (UI::IPanel*)this->FindChildObject(_T("panel_visualization"));
+    m_pPanelCommon = (UI::IPanel*)this->FindChildObject(_T("panel_common"));
 
 // 	m_pPanelRichEditDemo = (UI::IPanel*)this->FindChildObject(_T("richedit_demo_panel"));
  	m_pPanelCtrlDemo = (UI::IPanel*)this->FindChildObject(_T("control_demo_panel"));
 	m_pIntroduceRichEdit = (UI::IRichEdit*)this->FindChildObject(_T("option_introduce_text"));
 
 	if (m_pPanelCtrlDemo)
-		m_pPanelCtrlDemo->SetVisible(false, false);
+		m_pPanelCtrlDemo->SetVisible(false, false, false);
 	if (m_pPanelRichEditDemo)
-		m_pPanelRichEditDemo->SetVisible(false, false);
+		m_pPanelRichEditDemo->SetVisible(false, false, false);
 	if (m_pPanelAbout)
-		m_pPanelAbout->SetVisible(false,false);
+		m_pPanelAbout->SetVisible(false,false, false);
 	if (m_pPanelVisualization)
-		m_pPanelVisualization->SetVisible(false, false);
-
+		m_pPanelVisualization->SetVisible(false, false, false);
+    if (m_pPanelCommon)
+        m_pPanelCommon->SetVisible(false, false, false);
 	//////////////////////////////////////////////////////////////////////////
 
 	if (m_pIntroduceRichEdit)
@@ -91,7 +96,7 @@ L"    一个集播放、音效、转换、歌词等多种功能于一身的专业音频播放软件。\r\n\
 			m_pComboboxVisualType->AddStringEx(_T("示波显示"))->SetData((LPARAM)VISUALIZATION_WAVE);
 			m_pComboboxVisualType->AddStringEx(_T("专辑封面"))->SetData((LPARAM)VISUALIZATION_NONE);
 
-			m_pComboboxVisualType->SetComboboxStyleType(COMBOBOX_STYLE_DROPDOWN);
+			m_pComboboxVisualType->SetReadOnly(true);
 
 			switch(pConfigData->visual.m_nType)
 			{
@@ -118,6 +123,15 @@ L"    一个集播放、音效、转换、歌词等多种功能于一身的专业音频播放软件。\r\n\
 		}
 	}
 
+    if (m_pPanelCommon)
+    {
+        m_pCheckBtnWndTopMost = (UI::ICheckButton*)m_pPanelCommon->FindChildObject(_T("checkbtn_topmost"));
+
+        if (m_pCheckBtnWndTopMost)
+        {
+            m_pCheckBtnWndTopMost->SetCheck(pConfigData->player.m_bWndTopMost? BST_CHECKED:BST_UNCHECKED);
+        }
+    }
 	//////////////////////////////////////////////////////////////////////////
 	
 // 	if (m_pPanelRichEditDemo)
@@ -141,10 +155,13 @@ L"    一个集播放、音效、转换、歌词等多种功能于一身的专业音频播放软件。\r\n\
 			{
 				switch(i)
 				{
-				case 0:
+				case 0:  // 关于
 					pItem->SetData((LPARAM)m_pPanelAbout);
 					break;
-				case 4:
+                case 1:  // 常规
+                    pItem->SetData((LPARAM)m_pPanelCommon);
+                    break;
+				case 4: // 视觉效果
 					pItem->SetData((LPARAM)m_pPanelVisualization);
 					break;
 				case 13:
@@ -183,7 +200,12 @@ void COptionWindow::OnClose()
 	}
 	else
 	{
-		this->HideWindow();
+        // 将主窗口拉到前面来
+        HWND hWndParent = ::GetWindow(GetHWND(), GW_OWNER);
+        if ( hWndParent!= NULL && ::GetActiveWindow() == GetHWND())
+            ::SetActiveWindow(hWndParent);
+
+        this->HideWindow();
 	}
 }
 void COptionWindow::OnDestroy()
@@ -238,15 +260,12 @@ void COptionWindow::OnLCNSelChanged(UI::IMessage* pObjMsgFrom, UI::IListItemBase
 	}
 }
 
-void COptionWindow::OnCbnSelChanged(UI::IMessage* pObjMsgFrom, UI::IListItemBase* pOldSelItem, UI::IListItemBase* pSelItem)
+void COptionWindow::OnCbnSelChanged(UI::IListItemBase* pOldSelItem, UI::IListItemBase* pSelItem)
 {
-	if (m_pComboboxVisualType == pObjMsgFrom)
+	if (pSelItem)
 	{
-		if (pSelItem)
-		{
-			int nType = (int)(pSelItem->GetData());
-			GetMainMgr()->SetVisualizationType(nType);
-		}
+		int nType = (int)(pSelItem->GetData());
+		GetMainMgr()->SetVisualizationType(nType);
 	}
 }
 
@@ -263,4 +282,13 @@ void COptionWindow::OnVisualFpsChanged( int nPos, int nScrollType )
 
 		::GetMainMgr()->SetVisualizationFps(nPos);
 	}
+}
+
+void COptionWindow::OnClickBtnWndTopMost()
+{
+    bool bTopMost = m_pCheckBtnWndTopMost->IsChecked();
+    GetConfigData()->player.m_bDirty = true;
+    GetConfigData()->player.m_bWndTopMost = bTopMost;
+
+    GetFrameWork()->FireEvent(NULL, EVENT_TYPE_UI, UI_EVENT_ID_ON_WNDTOPMOST_CHANGED, 0, bTopMost?1:0);
 }

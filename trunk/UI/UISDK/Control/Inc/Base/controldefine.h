@@ -32,6 +32,9 @@ namespace UI
 #define BUTTON_STYLE_VSCROLLTHUMB       0x87    // 滚动条拖拽按钮
 #define BUTOTN_STYLE_SLIDERTRACKBUTTON  0x88    // 滑动条上面的按钮
 
+#define BUTTON_STYLE_NOTDEFPUSH         0x0100  // 不成为默认按钮
+#define BUTTON_STYLE_CLICK_ONDOWN       0x0200  // 当鼠标按下时就触发click，而不是鼠标弹起时触发
+
 #define SLIDER_STYLE_POINT_LEFT         0x0100    // 滑块按钮箭头指针左侧 默认为无指向
 #define SLIDER_STYLE_POINT_TOP          0x0100    // 滑块按钮箭头指针上侧
 #define SLIDER_STYLE_POINT_RIGHT        0x0200    // 滑块按钮箭头指针右侧
@@ -43,6 +46,7 @@ namespace UI
 #define EDIT_STYLE_MASK                 0x00FF    // 编辑框类型使用的位
 #define EDIT_STYLE_COMBOBOX             0x0001    // 组合框中使用的编辑框
 #define EDIT_STYLE_WANTTAB              0x0100    // 接收TAB键消息
+#define EDIT_STYLE_READONNLY            0x0200    // 只读
 
     // tree style
 #define TREE_STYLE_HASLINE              0x0100    // 绘制虚线

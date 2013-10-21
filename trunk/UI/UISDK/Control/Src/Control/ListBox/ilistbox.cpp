@@ -9,7 +9,7 @@ namespace UI
 UI_IMPLEMENT_Ixxx_INTERFACE2(IListBoxBase, ListBoxBase, IListCtrlBase)
 UI_IMPLEMENT_Ixxx_INTERFACE2(IListBoxItem, ListBoxItem, IListItemBase)
 UI_IMPLEMENT_Ixxx_INTERFACE(IListBox, ListBox, ListBoxBase)
-
+UI_IMPLEMENT_Ixxx_INTERFACE2(IListBoxItemShareData, ListBoxItemShareData, IListItemTypeShareData)
 
 void  IListBoxBase::SetBindObject(IObject* pCombobox)
 {

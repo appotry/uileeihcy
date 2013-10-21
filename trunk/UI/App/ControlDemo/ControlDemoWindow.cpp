@@ -24,7 +24,7 @@ void CControlDemoWindow::OnInitWindow()
 
     HRESULT hr = SetCanDrop(true);
     UIASSERT(SUCCEEDED(hr));
-    this->ModifyStyle(OBJECT_RECEIVE_DRAGDROPEVENT, 0, false);
+    this->ModifyStyle(OBJECT_STYLE_RECEIVE_DRAGDROPEVENT, 0, false);
 
 //     UI::IListBox* pListBox = (UI::IListBox*)FindChildObject(_T("test_listbox"));
 //     if (pListBox)

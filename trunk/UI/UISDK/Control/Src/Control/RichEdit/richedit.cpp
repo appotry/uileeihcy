@@ -113,6 +113,7 @@ void RichEdit::ResetAttribute()
         m_pMgrScrollBar->SetScrollBarVisibleType(HSCROLLBAR, SCROLLBAR_VISIBLE_NONE);
         m_pMgrScrollBar->SetScrollBarVisibleType(VSCROLLBAR, SCROLLBAR_VISIBLE_AUTO);
     }
+    m_pIRichEdit->ModifyStyle(OBJECT_STYLE_ENABLE_IME, 0, false);
 }
 
 void RichEdit::OnObjectLoaded()
@@ -124,7 +125,7 @@ void RichEdit::OnObjectLoaded()
 	{
 		LOGFONT lf;
 		pFont->GetLogFont(&lf);
-		m_wrapRichEidt.SetFont(&lf);
+		m_wrapRichEidt.SetCharFormatByLogFont(&lf);
 	}
 
 	m_wrapRichEidt.Create(m_pIRichEdit->GetHWND());
@@ -138,7 +139,7 @@ void RichEdit::OnEraseBkgnd(IRenderTarget*  pRendrTarget)
     // 另外有可能RE还有自己的背景，会覆盖掉光标，因此将光标还是放在OnPaint中，但需要处理坐标偏移问题
 
     // 因为m_caret的位置是基于edit的，而不是client
-    m_caret.OnControlPaint(pRendrTarget);
+    m_caret.OnControlPaint(m_pIRichEdit, pRendrTarget);
 
 }
 
@@ -201,12 +202,12 @@ LRESULT RichEdit::OnRedrawObject(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	::SetMetaRgn(hDC);   
 
 	if (m_caret.GetCaretType()==CARET_TYPE_API)
-		m_caret.HideCaret();  // 解决系统光标在输入文字时不显示的问题。加上Hide/Show光标即可跟随输入位置
+		m_caret.HideCaret(m_pIRichEdit);  // 解决系统光标在输入文字时不显示的问题。加上Hide/Show光标即可跟随输入位置
 
 	m_pIRichEdit->UpdateObject();   
 
 	if (m_caret.GetCaretType()==CARET_TYPE_API)
-		m_caret.ShowCaret();
+		m_caret.ShowCaret(m_pIRichEdit);
 
 	RestoreDC(hDC,-1);     
 

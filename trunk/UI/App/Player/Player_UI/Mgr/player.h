@@ -31,6 +31,7 @@ enum PLAYER_UI_EVENT_ID
 	UI_EVENT_ID_ON_EQUALIZERDLG_VISIBLE_CHANGED,      // 均衡器窗口显示，    WPARAM：窗口句柄； LPARAM:BOOL bVisible
     UI_EVENT_ID_ON_LYRICDLG_CREATE,                   // 歌词窗口被创建，    WPARAM: 窗口句柄
     UI_EVENT_ID_ON_LYRICDLG_VISIBLE_CHANGED,          // 歌词窗口显示，      WPARAM：窗口句柄； LPARAM:BOOL bVisible
+    UI_EVENT_ID_ON_WNDTOPMOST_CHANGED,                // 窗口置顶显示，      WPARAM:            LPARAM:BOOL bTopMost
 };
 enum PLAYER_PALY_EVENT_ID
 {

@@ -42,9 +42,9 @@ void GetAppPath( TCHAR* strPath )
 //
 void GetAppPath_( TCHAR* strPath )
 {
-	int		dwLength;
+	int		dwLength = 0;
 	TCHAR	*p = NULL;
-	TCHAR	szFilePath[MAX_PATH];
+	TCHAR	szFilePath[MAX_PATH] = {0};
 
 	dwLength = GetModuleFileName(GetModuleHandle(NULL), szFilePath, MAX_PATH);
 	p = _tcsrchr(szFilePath, '\\');
@@ -57,9 +57,9 @@ void GetAppPath_( TCHAR* strPath )
 
 void GetAppPath( HINSTANCE hInst, TCHAR* strPath )
 {
-	int		dwLength;
+	int		dwLength = 0;
 	TCHAR	*p = NULL;
-	TCHAR	szFilePath[MAX_PATH];
+	TCHAR	szFilePath[MAX_PATH] = {0};
 
 	dwLength = GetModuleFileName(hInst, szFilePath, MAX_PATH);
 	p = _tcsrchr(szFilePath, '\\');
@@ -71,9 +71,9 @@ void GetAppPath( HINSTANCE hInst, TCHAR* strPath )
 }
 void GetAppPath_( HINSTANCE hInst, TCHAR* strPath )
 {
-	int		dwLength;
+	int		dwLength = 0;
 	TCHAR	*p = NULL;
-	TCHAR	szFilePath[MAX_PATH];
+	TCHAR	szFilePath[MAX_PATH] = {0};
 
 	dwLength = GetModuleFileName(hInst, szFilePath, MAX_PATH);
 	p = _tcsrchr(szFilePath, '\\');
@@ -107,6 +107,64 @@ void DeflatRect( RECT* pfc, RECT* pDeflatRc )
 	pfc->bottom -= pDeflatRc->bottom;
 }
 
+// 开机自启动
+// Software\\Microsoft\\Windows\\CurrentVersion\\Run
+bool InstallAutoRun(BOOL bInstall, TCHAR* szName, TCHAR* szPath)
+{
+	if (!szName)
+		return false;
+
+	HKEY hKey = NULL;
+	RegOpenKey(HKEY_LOCAL_MACHINE, _T("Software\\Microsoft\\Windows\\CurrentVersion\\Run"), &hKey); 
+	if (!hKey)
+		return false;
+
+	if (bInstall)
+	{
+		if (!szPath)
+		{
+			RegCloseKey(hKey);
+			return false;
+		}
+		RegSetValueEx(hKey, szName, 0, REG_SZ, (byte*)szPath, (_tcslen(szPath)+1) * sizeof(TCHAR));
+	}
+	else
+	{
+		RegDeleteValue(hKey, szName);
+	}
+	RegCloseKey(hKey);
+
+	return true;
+}
+bool QueryAutoRun(TCHAR* szName, TCHAR* szPath)
+{
+	if (!szName)
+		return false;
+
+	HKEY hKey = NULL;
+	RegOpenKey(HKEY_LOCAL_MACHINE, _T("Software\\Microsoft\\Windows\\CurrentVersion\\Run"),&hKey); 
+	if (!hKey)
+		return false;
+
+	long lSize = 0;
+	RegGetValue(hKey, NULL, szName, RRF_RT_REG_SZ, NULL, NULL, (LPDWORD)&lSize);
+	if (0 == lSize)
+	{
+		RegCloseKey(hKey);
+		return false;
+	}
+
+	if (szPath)
+	{
+		int nMax = MAX_PATH*sizeof(TCHAR);
+		if (lSize > nMax)
+			lSize = nMax;
+
+		RegGetValue(hKey, NULL, szName, RRF_RT_REG_SZ, NULL, (LPVOID)szPath, (LPDWORD)&lSize);
+	}
+	RegCloseKey(hKey);
+	return true;
+}
 #endif
 
 }}

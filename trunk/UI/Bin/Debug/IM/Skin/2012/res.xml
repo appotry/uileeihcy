@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<skin>
+	<layout>
+		<Menu id="login.status">
+			<String id="1001" text="我在线上" styleclass="login_status_menu_item" icon.render.imagelistitem.index="0" tooltip="表示希望好友看到你在线&#xA;声音：开启"/>
+			<String id="1002" text="Q我吧" styleclass="login_status_menu_item" icon.render.imagelistitem.index="6"/>
+			<Separator/>
+			<String id="1003" text="离开" styleclass="login_status_menu_item" icon.render.imagelistitem.index="3"/>
+			<String id="1004" text="忙碌" styleclass="login_status_menu_item" icon.render.imagelistitem.index="2"/>
+			<String id="1005" text="请勿打扰" styleclass="login_status_menu_item" icon.render.imagelistitem.index="5"/>
+			<Separator/>
+			<String id="1006" text="隐身" styleclass="login_status_menu_item" icon.render.imagelistitem.index="4"/>
+			<Separator/>
+			<Popup text="popup_test">
+				<String text="test1" tooltip="测试项1"></String>
+				<String text="test2" tooltip="测试项2"></String>
+			</Popup>
+		</Menu>
+	</layout>
+	<image>
+		<!-- Common -->
+		<image id="qq_default_face_100_100" antialiasing="1" path="Img\Common\qq_100_100.gif"/>
+		<icon id="qqicon" width="16" height="16" path="Img\Common\qq.ico"/>
+		<imagelist id="icon_close" path="Img\Common\icon_close.png" count="3"/>
+		<imagelist id="icon_min" path="Img\Common\icon_min.png" count="3"/>
+		<imagelist id="icon_restore" path="Img\Common\icon_restore.png" count="3"/>
+		<imagelist id="icon_max" path="Img\Common\icon_max.png" count="3"/>
+		<imagelist id="checkbox_icon" path="Img\Common\checkbox_icon.png" count="8"/>
+		<imagelist id="edit_bk" path="Img\Common\edit_bk.png" count="3" layout="v"/>
+		<image id="fringe_bkg.png" path="Img\Common\fringe_bkg.png"/>
+		<imagelist id="login_status" path="Img\status\status.png" count="7"/>
+		<imagelist id="button" path="Img\Common\button.png" count="5"/>
+		<imagelist id="button2" path="Img\Common\button2.png" count="8"/>
+		<image id="shadow_bkg.png" path="Img\Common\shadow_bkg.png"/>
+		<imagelist id="comboboxbtn" path="Img\Common\comboboxbtn.png" layout="h" count="3"/>
+		<imagelist id="comboboxbk" path="Img\Common\combobox_bk.png" layout="v" count="3"/>
+		<image id="combobox_listbox_bk" path="Img\Common\ComboBoxList_bkg.png"/>
+		<!-- Menu -->
+		<image id="menu_bkg.png" path="Img\Common\menu\menu_bkg.png"/>
+		<image id="menu_bkg_board.png" path="Img\Common\menu\menu_bkg_board.png"/>
+		<image id="menu_check.png" path="Img\Common\menu\menu_check.png"/>
+		<imagelist id="menu_highlight.png" path="Img\Common\menu\menu_highlight.png" count="3"/>
+		<image id="menu_cutling.png" path="Img\Common\menu\menu_cutling.png"/>
+		<image id="menu_arrow.png" path="Img\Common\menu\menu_arrow.png"/>
+		<!-- ListBox -->
+		<imagelist id="listitem_even" path="Img\Common\listitem\listitem_even.png" count="9"/>
+		<imagelist id="listitem_odd" path="Img\Common\listitem\listitem_odd.png" count="9"/>
+		<!-- ListView -->
+		<imagelist id="listhead.png" path="Img\Common\listitem\listhead.png" count="3"/>
+		<image id="headsplitline" path="Img\Common\listitem\All_listctrl_titleLine_.png"/>
+		<image id="list_bkg_border_.png" path="Img\Common\listitem\list_bkg_border_.png"/>
+		<!-- ScrollBar -->
+		<image id="vscrollbar_bkgnd" path="Img\Common\ScrollBar\vscrollbar_bkg.png"/>
+		<imagelist id="vscrollbar_thumb" path="Img\Common\ScrollBar\vscrollbarthumb.png" direction="h" count="3"/>
+		<image id="hscrollbar_bkgnd" path="Img\Common\ScrollBar\hscrollbar_horz_bkg.png"/>
+		<imagelist id="hscrollbar_thumb" path="Img\Common\ScrollBar\hscrollbarthumb.png" direction="v" count="3"/>
+		<!-- 登录窗口-->
+		<imagelist id="btn_login_set.png" path="Img\login\btn_login_set.png" count="3"/>
+		<image id="login_bk_img" path="Img\login\noon_.jpg"/>
+		<image id="picture_.png" path="Img\login\picture_.png"/>
+		<image id="login.texture.png" path="Img\login\texture_.png"/>
+		<imagelist id="button_login.png" path="Img\login\button_login.png" count="3" layout="v"/>
+		<imagelist id="button_cancel_login.png" path="Img\login\button_cancel_login.png" count="3" layout="v"/>
+		<imagelist id="login.zhuce.png" path="Img\login\zhuce.png" count="3" layout="v"/>
+		<imagelist id="login.mima.png" path="Img\login\mima.png" count="3" layout="v"/>
+		<image id="login.keyboard" path="Img\login\keyboard_.png"/>
+		<imagelist id="login_inputbtn.png" path="Img\login\login_inputbtn.png" count="3"/>
+		<imagelist id="btn_login_state.png" path="Img\login\btn_login_state.png" count="3"/>
+		<image id="listitemhover.png" path="Img\login\listitemhover.png"/>
+		<imagelist id="comboboxerasebutton.png" path="Img\login\comboboxerasebutton.png" count="3"/>
+		<image id="netsetting_texture.png" path="Img\login\netsetting_texture.png"/>
+		<image id="logining.qieicon" path="Img\login\qieicon_.png"/>
+		<gif id="logining.loading" path="Img\login\loading.gif"/>
+		<!-- 主窗口 -->
+		<imagelist id="btn_Skin" path="Img\maindlg\btn_Skin.png" count="3"/>
+		<image id="MainPanelContainer_background" path="Img\maindlg\MainPanelContainer_background.png"/>
+		<imagelist id="main_tab_check" path="Img\maindlg\main_tab_check.png" count="8"/>
+		<image id="main_search_bkg" path="Img\maindlg\main_search_bkg.png"/>
+		<image id="main_search_normal" path="Img\maindlg\main_search_normal.png"></image>
+		<image id="levl_icon" path="Img\maindlg\LV.png"></image>
+		<image id="level_icon" path="Img\maindlg\level.png"></image>
+		<imagelist id="LevelValue" path="Img\maindlg\LevelValue.png" count="10"/>
+		<imagelist id="contactlistexpandicon" path="Img\maindlg\contactlistexpandicon.png" count="7"/>
+		<image id="main_bottom_bkg" path="Img\maindlg\main_bottom_bkg.png"/>
+    <imagelist id="main_contact_tabbtn_icon" path="Img\maindlg\contacts_icon.png" count="2"/>
+    <imagelist id="main_group_tabbtn_icon" path="Img\maindlg\group_icon.png" count="2"/>
+    <imagelist id="main_recent_tabbtn_icon" path="Img\maindlg\recent_icon.png" count="2"/>
+    
+		<!-- 换肤窗口 -->
+		<image id="changeskin_texture" path="Img\ChangeSkin\FacadeMgrWin_png_bkg.png"/>
+		<imagelist id="changeskin_tabbtn" path="Img\ChangeSkin\FacadeMgrWin_tab.png" count="3"/>
+		<imagelist id="skinbtn_mouseover" path="Img\ChangeSkin\skinbtn_mouseover.png" count="3"/>
+		<imagelist id="skinbtn_mouseover2" path="Img\ChangeSkin\skinbtn_mouseover2.png" count="3"/>
+		<image id="TransSet" useskinhls="1" path="Img\ChangeSkin\TransSet.png"/>
+		<image id="MaterialAlphaSet" useskinhls="1" path="Img\ChangeSkin\MaterialAlphaSet.png"/>
+		<image id="changeskin_individuation" useskinhls="1" path="Img\ChangeSkin\individuation.png"/>
+		<image id="changeskin_individuation_bar" useskinhls="1" path="Img\ChangeSkin\individuation_bar.png"/>
+		<image id="changeskin_plus" path="Img\ChangeSkin\plus_.png"/>
+		<image id="changeskin_AreaMainPanel" useskinhls="1" path="Img\ChangeSkin\uimgr\AreaMainPanel.png"/>
+		<image id="changeskin_AreaPerson" useskinhls="1" path="Img\ChangeSkin\uimgr\AreaPerson.png"/>
+		<image id="changeskin_pluginbtnup" path="Img\ChangeSkin\uimgr\upbtn.png"/>
+		<image id="changeskin_pluginbtndown" path="Img\ChangeSkin\uimgr\downbtn.png"/>
+		<image id="changeskin_pluginadd" path="Img\ChangeSkin\uimgr\AreaMainIcon_.png"/>
+		<image id="changeskin_pluginadd2" path="Img\ChangeSkin\uimgr\AreaMainIcon_2_.png"/>
+		<image id="icon_contacts_selected_Blue" path="Img\ChangeSkin\uimgr\icon_contacts_selected_Blue.png"/>
+		<image id="icon_group_selected_Blue" path="Img\ChangeSkin\uimgr\icon_group_selected_Blue.png"/>
+		<image id="icon_last_selected_Blue" path="Img\ChangeSkin\uimgr\icon_last_selected_Blue.png"/>
+		<image id="icon_weibo_normal" path="Img\ChangeSkin\uimgr\icon_weibo_normal_.png"/>
+		<image id="icon_qzong_normal" path="Img\ChangeSkin\uimgr\icon_qzong_normal_.png"/>
+		<image id="weather_icon" path="Img\ChangeSkin\uimgr\weather_icon.png"/>
+		<image id="skin_bigpreview_18394" path="Img\SkinMgr\18394\preview.png"/>
+		<image id="skin_bigpreview_18400" path="Img\SkinMgr\18400\preview.png"/>
+		<image id="skin_bigpreview_18409" path="Img\SkinMgr\18409\preview.png"/>
+		<image id="skin_bigpreview_19247" path="Img\SkinMgr\19247\preview.png"/>
+		<image id="skin_bigpreview_19301" path="Img\SkinMgr\19301\preview.png"/>
+		<image id="skin_bigpreview_19508" path="Img\SkinMgr\19508\preview.png"/>
+		<image id="skin_bigpreview_19667" path="Img\SkinMgr\19667\preview.png"/>
+		<image id="skin_bigpreview_19700" path="Img\SkinMgr\19700\preview.png"/>
+		<image id="skin_preview_default" path="Img\SkinMgr\DefaultSkins\preview.png"/>
+		<image id="skin_preview_1.45_17" path="Img\SkinMgr\1.45_17\preview.jpg"/>
+		<image id="skin_preview_1.45_18" path="Img\SkinMgr\1.45_18\preview.jpg"/>
+		<image id="skin_preview_1.45_19" path="Img\SkinMgr\1.45_19\preview.jpg"/>
+		<image id="skin_preview_1.45_20" path="Img\SkinMgr\1.45_20\preview.jpg"/>
+		<image id="skin_preview_1.45_21" path="Img\SkinMgr\1.45_21\preview.jpg"/>
+		<image id="skin_preview_1.45_22" path="Img\SkinMgr\1.45_22\preview.jpg"/>
+		<image id="skin_preview_1.45_23" path="Img\SkinMgr\1.45_23\preview.jpg"/>
+		<image id="skin_preview_1.45_24" path="Img\SkinMgr\1.45_24\preview.jpg"/>
+		<image id="skin_preview_1.45_25" path="Img\SkinMgr\1.45_25\preview.jpg"/>
+		<image id="skin_preview_1.45_26" path="Img\SkinMgr\1.45_26\preview.jpg"/>
+		<image id="skin_preview_1.45_27" path="Img\SkinMgr\1.45_27\preview.jpg"/>
+		<image id="skin_preview_1.45_28" path="Img\SkinMgr\1.45_28\preview.jpg"/>
+		<image id="skin_preview_1.45_29" path="Img\SkinMgr\1.45_29\preview.jpg"/>
+		<!-- 皮肤 -->
+		<image id="skin" path="Img\SkinMgr\DefaultSkins\main_bkg.jpg"/>
+		<!-- 聊天窗口-->
+		<image id="chatframe.png" path="Img\chat\chatframe.png"/>
+		<image id="rightbkg.png" path="Img\chat\rightbkg.png"/>
+    <imagelist id="sendbtnleft" path="Img\chat\sendbtnleft.png" count="5" layout="h"/>
+    <imagelist id="sendbtnright" path="Img\chat\sendbtnright.png" count="5" layout="h"/>
+    
+    
+		<!-- 好友管理器 -->
+		<image id="contactmgr_texture" path="Img\ContactMgr\all_inside02_bkg.png"/>
+    
+		<!-- 自带头像 -->
+		<image id="head_1" antialiasing="true" path="Img\Head\1.png"/>
+		<image id="head_2" antialiasing="true" path="Img\Head\2.png"/>
+		<image id="head_3" antialiasing="true" path="Img\Head\3.png"/>
+		<image id="head_4" antialiasing="true" path="Img\Head\4.png"/>
+		<image id="head_5" antialiasing="true" path="Img\Head\5.png"/>
+		<image id="head_6" antialiasing="true" path="Img\Head\6.png"/>
+		<image id="head_7" antialiasing="true" path="Img\Head\7.png"/>
+		<image id="head_8" antialiasing="true" path="Img\Head\8.png"/>
+		<image id="chat.toolbar.screencatch.icon" path="Img\chat\MidToolbar\aio_quickbar_cut.png"/>
+		<image id="chat.toolbar.face.icon" path="Img\chat\MidToolbar\aio_quickbar_face.png"/>
+		<image id="chat.toolbar.font.icon" path="Img\chat\MidToolbar\aio_quickbar_font.png"/>
+		<image id="chat.toolbar.twitter.icon" path="Img\chat\MidToolbar\aio_quickbar_twitter.png"/>
+		<image id="chat.fonttoolbar.bold.icon" path="Img\chat\MidToolbar\font\bold.png"/>
+		<image id="chat.toolbar.italic.icon" path="Img\chat\MidToolbar\font\italic.png"/>
+		<image id="chat.toolbar.underline.icon" path="Img\chat\MidToolbar\font\underline.png"/>
+		<image id="chat.toolbar.color.icon" path="Img\chat\MidToolbar\Font\color.png"/>
+    
+    <!-- 表情 -->
+    <gif id="chat.emotion.1" path="Img\emotion\16A5A7C54D6A1D9C2CA0D2BB22A588A2.gif"/>
+    <gif id="chat.emotion.2" path="Img\emotion\17AD908C592E1C7EC977A5D130CA70DF.gif"/>
+    <!-- 表情窗口 -->
+    <image id="emotion.wnd.bk" path="Img\chat\face\faceWndBkg.png"/>
+    
+	</image>
+	<font>
+		<item id="normal" facename="微软雅黑" size="9" cleartype="0"/>
+		<item id="normal_bold" facename="微软雅黑" size="10" bold="1" cleartype="0"/>
+		<item id="main_dlg_nickname" facename="微软雅黑" size="19" bold="0" cleartype="0"/>
+	</font>
+	<color>
+		<item id="white">255,255,255,255</item>
+		<item id="black">0,0,0,255</item>
+		<item id="gray">128,128,128,255</item>
+		<item id="avg_surface_color">212,220,192,255</item>
+		<item id="login.netset.bk">112,188,220,254</item>
+		<item id="listbox.border">0,147,209,255</item>
+		<item id="contactlist_contact_hover_bkg">252,240,193,255</item>
+		<item id="contactlist_contact_press_bkg">252,235,167,255</item>
+		<item id="contactmgr_listview_bkg">203,233,249,255</item>
+	</color>
+	<style>
+		<class id="imagebtn" bkgnd.render.imagelist.alphaanimate="1" autosize="bkimage" drawfocus="0" istransparent="1" bkgnd.render.type="imagelist"/>
+		<class id="main.toolbarbtn" inherit=".imagebtn" notdefpushbutton="1" bkgnd.render.image="button2" bkgnd.render.image.drawtype="stretch" bkgnd.render.image.9region="3" textrender.type="contrastcolor" textrender.effect="halo" autosize="content" padding="4,0,4,0"/>
+		<class id="main.tabctrlbtn" autosize="bkimage" drawfocus="0" istransparent="1" notdefpushbutton="1" 
+           bkgnd.render.type="imagelist" bkgnd.render.image="main_tab_check" bkgnd.render.image.drawtype="stretch" bkgnd.render.image.9region="5" 
+           foregnd.render.type="imagelist" foregnd.render.list.statemap="0:0,1:0,2:0,3:0,4:1,5:1,6:1,7:1" foregnd.render.image.drawtype="bitblt"
+           iconalign="center"/>
+		<class id="chat.toolbarbtn.check" inherit=".imagebtn" notdefpushbutton="1" width="22" height="22" foregnd.render.type="image" bkgnd.render.image="button2" bkgnd.render.image.drawtype="stretch" bkgnd.render.image.9region="3" bkgnd.render.type="imagelist" iconalign="center"/>
+		<class id="changeskin.tabctrlbtn" autosize="bkimage" drawfocus="0" istransparent="1" bkgnd.render.type="imagelist" bkgnd.render.image="changeskin_tabbtn" bkgnd.render.image.drawtype="stretch" bkgnd.render.image.9region="2"/>
+		<class id="changeskin.preview.btn" bkgnd.render.type="image" bkgnd.render.image.drawtype="stretch" foregnd.render.type="imagelist" foregnd.render.image="skinbtn_mouseover" foregnd.render.image.drawtype="stretch" foregnd.render.image.9region="5" drawfocus="0" cursor="idc_hand" margin="1"/>
+		<class id="changeskin.bigpreview.btn" inherit=".changeskin.preview.btn" foregnd.render.image="skinbtn_mouseover2"/>
+		<class id="checkimagebtn" foregnd.render.imagelist.alphaanimate="1" autosize="content" drawfocus="0" istransparent="1" foregnd.render.type="imagelist" foregnd.render.image="checkbox_icon"/>
+		<Menu border="7" itemheight="22" bkgnd.render.type="image" bkgnd.render.image="menu_bkg.png" bkgnd.render.image.9region="35,10,10,10" bkgnd.render.image.drawtype="stretch" foregnd.render.type="imagelist" foregnd.render.image="menu_highlight.png" foregnd.render.image.drawtype="stretch" foregnd.render.image.9region="3" icongutterwidth="24" textleftindent="10" textrightindent="0" xseparatorheight="3" submenugap="-8" separator.render.type="image" separator.render.image="menu_cutling.png" separator.render.image.drawtype="stretch" triangle.render.type="image" triangle.render.image="menu_arrow.png" triangle.render.image.drawtype="center" textrender.type="colorlist" textrender.color="black;white;white;gray" xradioicon.render.type="image" xradioicon.render.image="menu_check_icon.png" xradioicon.render.image.drawtype="center" xcheckicon.render.type="image" xcheckicon.render.image="menu_check.png" xcheckicon.render.image.drawtype="center" xradiocheckiconbk.render.type="image" xradiocheckiconbk.render.image="menu_check_bk.png" xradiocheckiconbk.render.image.drawtype="center" transparent.type="layered" transparent.maskalpha="250"/>
+		<class id="menu_item" icon.render.type="imagelistitem"/>
+		<class id="login_status_menu_item" inherit=".menu_item" icon.render.image="login_status" icon.render.image.drawtype="center"/>
+		<ContactList bkgnd.render.type="null" istransparent="1" foregnd.render.type="colorlist" foregnd.render.color=";contactlist_contact_hover_bkg;contactlist_contact_press_bkg;;contactlist_contact_press_bkg;contactlist_contact_press_bkg;contactlist_contact_press_bkg;;" expandicon.render.type="imagelist" expandicon.render.image="contactlistexpandicon" expandicon.render.image.drawtype="center"/>
+		<ComboBox istransparent="1" padding="8,0,20,0" bkgnd.render.type="imagelist" bkgnd.render.image="comboboxbk" bkgnd.render.image.drawtype="stretch" bkgnd.render.image.9region="10,5,30,20" bkgnd.render.imagelist.alphaanimate="1" listbox.bkgnd.render.type="image" listbox.bkgnd.render.image="combobox_listbox_bk" listbox.bkgnd.render.image.drawtype="stretch" listbox.bkgnd.render.image.9region="5" listbox.istransparent="1" listbox.maxheight="120" listbox.border="3" listbox.transparent.type="layered"/>
+		<SystemVScrollBar bkgnd.render.type="null" width="10" bkgnd.render.image="vscrollbar_bkgnd" bkgnd.render.image.drawtype="stretch" bkgnd.render.image.9region="2,5,2,5" istransparent="1" thumbbtn.bkgnd.render.type="imagelist" thumbbtn.bkgnd.render.image="vscrollbar_thumb" thumbbtn.bkgnd.render.image.drawtype="stretch" thumbbtn.bkgnd.render.image.9region="2,5,2,5" thumbbtn.istransparent="1" nolinebtn="true"/>
+	</style>
+</skin>

@@ -34,6 +34,10 @@ void  ButtonBase::SetAttribute(IMapAttribute* pMapAttr, bool bReload)
 {
     DO_PARENT_PROCESS(IButtonBase, IControl);
 }
+void  ButtonBase::OnEditorGetAttrList(IUIEditor* pEditor, IUIEditorGroupAttribute*  pRootAttr)
+{
+	DO_PARENT_PROCESS(IButtonBase, IControl);
+}
 
 //	按钮的类型
 int  ButtonBase::GetButtonStyle()
@@ -53,7 +57,7 @@ void ButtonBase::OnEraseBkgnd(IRenderTarget* pRenderTarget)
 		bool  bDisable = !m_pIButtonBase->IsEnable();
 		bool  bHover   = m_pIButtonBase->IsHover();
 		bool  bPress   = m_pIButtonBase->IsPress();
-		bool  bForePress = m_pIButtonBase->IsForePress();
+		bool  bForePress = m_pIButtonBase->IsForcePress();
 		bool  bChecked = IsChecked();
         bool  bDefault = m_pIButtonBase->IsDefault();
 
@@ -83,7 +87,11 @@ void ButtonBase::OnEraseBkgnd(IRenderTarget* pRenderTarget)
 
 	if (m_pIButtonBase->IsFocus())  // 将focus放在这里是为了避免配置了padding时,在onpaint中绘制focus rect也会受到影响
 	{
-		this->DrawFocus(pRenderTarget);
+        LRESULT lRet = ::SendMessage(m_pIButtonBase->GetHWND(), WM_QUERYUISTATE, 0, 0);
+        if (!(lRet & UISF_HIDEFOCUS))
+        {
+    		this->DrawFocus(pRenderTarget);
+        }
 	}	
 }
 
@@ -137,8 +145,19 @@ void ButtonBase::OnLButtonDblClk(UINT nFlags, POINT point)
 	msg.lParam  = MAKELPARAM(point.x,point.y);
 	::UISendMessage( &msg );  
 }
+
+void  ButtonBase::OnLButtonDown(UINT nFlags, POINT point)
+{
+    if (m_pIButtonBase->TestStyleEx(BUTTON_STYLE_CLICK_ONDOWN))
+    {
+        this->OnClicked(&point);  
+    }   
+}
 void ButtonBase::OnLButtonUp(UINT nFlags, POINT point)
 {
+    if (m_pIButtonBase->TestStyleEx(BUTTON_STYLE_CLICK_ONDOWN))
+        return;
+
     IObject* pParent = m_pIButtonBase->GetParentObject();
     if (NULL == pParent)
         return;
@@ -153,7 +172,17 @@ void ButtonBase::OnLButtonUp(UINT nFlags, POINT point)
 		this->OnClicked(&point);   // 备注：由于DoNotify可能导致当前press hover对象发生改变，使得本控件丢失刷新
 	}
 }
+void  ButtonBase::OnRButtonUp(UINT nFlags, POINT point)
+{
+	UIMSG   msg;
+	msg.message = UI_WM_NOTIFY;
+	msg.nCode   = UI_BN_RCLICK;
+	msg.wParam  = NULL; //(WPARAM)pt;
+	msg.lParam  = NULL;
+	msg.pMsgFrom = this->m_pIButtonBase;
 
+	m_pIButtonBase->DoNotify(&msg);
+}
 
 void ButtonBase::OnClicked(POINT* pt)
 {
@@ -188,7 +217,7 @@ void ButtonBase::OnKillFocus(IObject*)
 {
     if (Util::IsKeyDown(VK_SPACE))
     {
-        bool bIsForePress = m_pIButtonBase->IsForePress();
+        bool bIsForePress = m_pIButtonBase->IsForcePress();
         m_pIButtonBase->clearStateBit(OSB_FORCEPRESS);
         if (bIsForePress)
         {
@@ -200,8 +229,12 @@ void ButtonBase::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
 {
 	if (VK_SPACE == nChar)
 	{
+        // windows控件在SPACE按下时，会去为Button窗口xxxBNSetCapture，
+        // 这样所有的鼠标消息都只跑到它里面来
 		m_pIButtonBase->setStateBit(OSB_FORCEPRESS);
 		m_pIButtonBase->UpdateObject();
+
+        m_pIButtonBase->SetMouseCapture(BUTTON_VK_SPACE_MOUSECAPTURE_NOTIFY_ID);
 	}
 }
 void ButtonBase::OnKeyUp( UINT nChar, UINT nRepCnt, UINT nFlags )
@@ -209,6 +242,8 @@ void ButtonBase::OnKeyUp( UINT nChar, UINT nRepCnt, UINT nFlags )
 	if (VK_SPACE == nChar)
 	{
 		m_pIButtonBase->clearStateBit(OSB_FORCEPRESS);
+        m_pIButtonBase->ReleaseMouseCapture();
+
 		if (!Util::IsKeyDown(VK_LBUTTON))
 		{
 			// 用于子类扩展
@@ -218,6 +253,7 @@ void ButtonBase::OnKeyUp( UINT nChar, UINT nRepCnt, UINT nFlags )
                 pt = pCurMsg->pt;
 
 			this->OnClicked(&pt);
+
 		}
 		m_pIButtonBase->UpdateObject();
 	}
@@ -233,7 +269,7 @@ void ButtonBase::SetCheck(int nCheckState)
 
 void ButtonBase::SetChecked()
 {
-	if ( m_nCheckState & BST_CHECKED )
+	if (m_nCheckState & BST_CHECKED)
 	{
 
 	}
@@ -307,12 +343,17 @@ void  Button::OnObjectLoaded()
     SAFE_RELEASE(pMapAttr);
 }
 
-void  Button::SetText(const TCHAR*  szText) 
+void  Button::SetText(const TCHAR*  szText, bool bUpdate) 
 {
     if (szText)
         m_strText = szText;
     else
         m_strText.clear();
+
+    if (bUpdate)
+    {
+        m_pIButton->UpdateObject();
+    }
 }
 void  Button::SetIconFromFile(const TCHAR* szIconPath)
 {
@@ -332,10 +373,39 @@ void  Button::SetIconFromFile(const TCHAR* szIconPath)
     IImageRender*  pImageForeRender = (IImageRender*)pForeRender->QueryInterface(UI::uiiidof(IImageRender));
 
     UI::IRenderBitmap*  pRenderBitmap = NULL;
-    pUIApplication->CreateRenderBitmapInstance(GetRenderLibraryType(m_pIButton), IMAGE_ITEM_TYPE_IMAGE, &pRenderBitmap);
+    UI::UICreateRenderBitmap(GetRenderLibraryType(m_pIButton), IMAGE_ITEM_TYPE_IMAGE, &pRenderBitmap);
     pRenderBitmap->LoadFromFile(szIconPath, true);
     pImageForeRender->SetRenderBitmap(pRenderBitmap);
-    pImageForeRender->SetDrawType(UI::DRAW_BITMAP_CENTER);
+    pImageForeRender->SetImageDrawType(UI::DRAW_BITMAP_CENTER);
+    SAFE_RELEASE(pRenderBitmap);
+
+    m_pIButton->SetForegndRender(pForeRender);
+    SAFE_RELEASE(pForeRender);
+}
+
+// 该HBITMAP最后会被RenderBitmap所销毁
+void  Button::SetIconFromHBITMAP(HBITMAP hBitmap)
+{
+    m_pIButton->SetForegndRender(NULL);
+    if (NULL == hBitmap)
+        return;
+
+    IUIApplication*  pUIApplication = m_pIButton->GetUIApplication();
+    if (NULL == pUIApplication)
+    {
+        UIASSERT(0);
+        return;
+    }
+
+    IRenderBase*   pForeRender = NULL;
+    pUIApplication->CreateRenderBase(RENDER_TYPE_IMAGE, m_pIButton, &pForeRender);
+    IImageRender*  pImageForeRender = (IImageRender*)pForeRender->QueryInterface(UI::uiiidof(IImageRender));
+
+    UI::IRenderBitmap*  pRenderBitmap = NULL;
+    UI::UICreateRenderBitmap(UI::GRAPHICS_RENDER_LIBRARY_TYPE_GDI, IMAGE_ITEM_TYPE_IMAGE, &pRenderBitmap);
+    pRenderBitmap->Attach(hBitmap, true);
+    pImageForeRender->SetRenderBitmap(pRenderBitmap);
+    pImageForeRender->SetImageDrawType(UI::DRAW_BITMAP_CENTER);
     SAFE_RELEASE(pRenderBitmap);
 
     m_pIButton->SetForegndRender(pForeRender);
@@ -470,9 +540,9 @@ UINT  Button::OnGetDlgCode(LPMSG lpMsg)
     }
     else
     {
-        if (m_pIButton->CanTabstop())
+        if (m_pIButton->CanTabstop() && !m_pIButton->TestStyleEx(BUTTON_STYLE_NOTDEFPUSH))
         {
-            nRet |= DLGC_UNDEFPUSHBUTTON;
+            nRet |= DLGC_UNDEFPUSHBUTTON;  // 表示现在不是默认按钮，但自己可以成为默认按钮
         }
     }
 
@@ -488,7 +558,7 @@ void Button::ResetAttribute()
     m_nIconAlignFlag  = ALIGN_LEFT;
     m_nDrawFocusType  = BUTTON_RENDER_DRAW_FOCUS_TYPE_DOT;
 
-    //	::SetRect( &m_rcPadding, 1,1,1,1 );
+    m_pIButton->ModifyStyleEx(0, BUTTON_STYLE_NOTDEFPUSH, 0);
 }
 
 void Button::SetAttribute(IMapAttribute* pMapAttrib, bool bReload )
@@ -588,25 +658,28 @@ void Button::SetAttribute(IMapAttribute* pMapAttrib, bool bReload )
 
     pMapAttrib->GetAttr_int(XML_BUTTON_ICON_TEXT_MARGIN, true, &m_nIconMarginText);
     pMapAttrib->GetAttr_int(XML_BUTTON_RENDER_DRAW_FOCUS_FLAG, true, &m_nDrawFocusType);
+
+    bool bNotDefpushbutton = 0;
+    pMapAttrib->GetAttr_bool(XML_BUTTON_NOTDEFPUSHBUTTON, true, &bNotDefpushbutton);
+    if (bNotDefpushbutton)
+    {
+        m_pIButton->ModifyStyleEx(BUTTON_STYLE_NOTDEFPUSH, 0, 0);
+    }
 }
 
-#if 0 // -- 架构改造
-bool Button::GetAttributeList(IUIBuilder* pBuilder)
+void  Button::OnEditorGetAttrList(IUIEditor* pEditor, IUIEditorGroupAttribute*  pRootAttr)
 {
-    if (false == __super::GetAttributeList(pBuilder))
-        return false;
+	__super::OnEditorGetAttrList(pEditor, pRootAttr);
 
-    int nGroupID = pBuilder->OnGetAttribute_AddGroupProperty(this, XmlName());
-    pBuilder->OnGetAttribute_AddProperty(this, nGroupID, XML_BUTTON_RENDER_AUTOSIZE_TYPE);
-    pBuilder->OnGetAttribute_AddProperty(this, nGroupID, XML_BUTTON_ICON_ALIGN);
-
-    pBuilder->OnGetAttribute_AddProperty(this, nGroupID, XML_TEXTRENDER_TYPE);
-    pBuilder->OnGetAttribute_AddProperty(this, nGroupID, XML_BUTTON_TEXT);
-    pBuilder->OnGetAttribute_AddProperty(this, nGroupID, XML_BUTTON_RENDER_DRAW_FOCUS_FLAG);
-
-    return true;
+	IUIEditorGroupAttribute*  pObjGroup = pEditor->CreateGroupAttribute(pRootAttr, Button::GetXmlName(), NULL);
+	pEditor->CreateTextAttribute(pObjGroup, XML_BUTTON_RENDER_AUTOSIZE_TYPE, NULL);
+	pEditor->CreateTextAttribute(pObjGroup, XML_BUTTON_ICON_ALIGN, NULL);
+	pEditor->CreateTextAttribute(pObjGroup, XML_BUTTON_TEXT, NULL);
+	pEditor->CreateTextAttribute(pObjGroup, XML_TEXTRENDER_TYPE, NULL);
+	pEditor->CreateTextAttribute(pObjGroup, XML_BUTTON_ICON_TEXT_MARGIN, NULL);
+	pEditor->CreateTextAttribute(pObjGroup, XML_BUTTON_RENDER_DRAW_FOCUS_FLAG, NULL);
+	pEditor->CreateTextAttribute(pObjGroup, XML_BUTTON_NOTDEFPUSHBUTTON, NULL);
 }
-#endif
 void Button::SetDrawFocusType(BUTTON_RENDER_DRAW_FOCUS_TYPE eType)
 {
     m_nDrawFocusType = eType;
@@ -681,7 +754,7 @@ void Button::OnPaint(IRenderTarget* pRenderTarget)
     bool  bHover   = m_pIButton->IsHover();
     bool  bPress   = m_pIButton->IsPress();
     bool  bChecked = IsChecked() || m_pIButton->IsSelected();
-    bool  bForePress = m_pIButton->IsForePress();
+    bool  bForePress = m_pIButton->IsForcePress();
 
     int  nState = 0;
     if (bDisable)

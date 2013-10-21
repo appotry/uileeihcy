@@ -3,6 +3,7 @@
 #include "UISDK\Kernel\Inc\Interface\ixmlwrap.h"
 #include "UISDK\Kernel\Inc\Interface\ipanel.h"
 #include "UISDK\Kernel\Inc\Interface\iwindow.h"
+#include "UISDK/Kernel/Inc/Interface/ianimate.h"
 
 // 注
 // 1. 如何解决系统类型按钮，当前选中按钮在置顶显示的问题
@@ -23,7 +24,10 @@ HRESULT  TabCtrl::UIParseLayoutElement(IUIElement* pElement, IUIApplication*  pU
     pElement->GetAttribList(&pMapAttrib);
     pStyleMgr->ParseStyle(TabCtrl::GetXmlName(), pMapAttrib);
 
-    UISendMessage(pTabCtrl, UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, 0);
+	SERIALIZEDATA data = {0};
+	data.pMapAttrib = pMapAttrib;
+	UISendMessage(pTabCtrl, UI_WM_SERIALIZE, (WPARAM)&data);
+//    UISendMessage(pTabCtrl, UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, 0);
     SAFE_RELEASE(pMapAttrib);
     pParent->AddChild(pTabCtrl);
 
@@ -143,8 +147,12 @@ HRESULT  TabCtrlBase::FinalConstruct(IUIApplication* p)
     IPanel::CreateInstance(p, &m_pPanelHead);
     IPanel::CreateInstance(p, &m_pPanelContent);
 
-    UISendMessage(static_cast<IMessage*>(m_pPanelHead), UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, 0);
-    UISendMessage(static_cast<IMessage*>(m_pPanelContent), UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, 0);
+	SERIALIZEDATA data = {0};
+	data.pMapAttrib = pMapAttrib;
+	UISendMessage(static_cast<IMessage*>(m_pPanelHead), UI_WM_SERIALIZE, (WPARAM)&data);
+	UISendMessage(static_cast<IMessage*>(m_pPanelContent), UI_WM_SERIALIZE, (WPARAM)&data);
+//     UISendMessage(static_cast<IMessage*>(m_pPanelHead), UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, 0);
+//     UISendMessage(static_cast<IMessage*>(m_pPanelContent), UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, 0);
     SAFE_RELEASE(pMapAttrib);
 
     m_pITabCtrlBase->AddChild(m_pPanelHead);
@@ -339,20 +347,23 @@ void  TabCtrlBase::SetCurItem(TabCtrlItemBase*  pItem)
     if (m_pCurItem == pItem)
         return;
 
+    bool  bAnimate = false;
+    IObject*  pAnimateObj1 = NULL;  // 当前显示
+    IObject*  pAnimateObj2 = NULL;  // 要显示的
+    IObject*  pBtn1 = NULL;
+    IObject*  pBtn2 = NULL;
+
     if (m_pCurItem)
     {
         // Hide
         if (m_pCurItem->m_pBtn)
         {
             m_pCurItem->m_pBtn->SetSelected(false);
+            pBtn1 = m_pCurItem->m_pBtn;
         }
         if (m_pCurItem->m_pContent)
         {
-            bool bNeedUpdate = false;
-            if (NULL == pItem || NULL == pItem->m_pContent)
-                bNeedUpdate = true;
-
-            m_pCurItem->m_pContent->SetVisible(false, bNeedUpdate, false);  // 
+            pAnimateObj1 = m_pCurItem->m_pContent;
         }
     }
 
@@ -364,10 +375,65 @@ void  TabCtrlBase::SetCurItem(TabCtrlItemBase*  pItem)
         if (m_pCurItem->m_pBtn)
         {
             m_pCurItem->m_pBtn->SetSelected(true);
+            pBtn2 = m_pCurItem->m_pBtn;
         }
         if (m_pCurItem->m_pContent)
         {
-            m_pCurItem->m_pContent->SetVisible(true, true, false);
+            pAnimateObj2 = m_pCurItem->m_pContent;
+        }
+    }
+
+    bool bAnimateSuccess = false;
+    if (bAnimate)
+    {
+        IUIApplication*  pUIApplication = m_pITabCtrlBase->GetUIApplication();
+        IAnimateManager*  pAnimateMgr = pUIApplication->GetAnimateMgr();
+        if (pAnimateMgr)
+        {
+            ISlideAnimate*  pSlideAnimate = (ISlideAnimate*)pAnimateMgr->CreateControlAnimateInstance(E_CONTROL_ANIMATE_SLIDE);
+            CRect rcContentInWindow;
+            m_pPanelContent->GetClientRectInWindow(&rcContentInWindow);
+           
+            CRect rcBtn1(0,0,0,0), rcBtn2(0,0,0,0);
+            if (pBtn1)
+                pBtn1->GetParentRect(&rcBtn1);
+            if (pBtn2)
+                pBtn2->GetParentRect(&rcBtn2);
+            
+            bool bSlideRet = false;
+            if (rcBtn1.left < rcBtn2.left)
+            {
+                bSlideRet = pSlideAnimate->Slide(pAnimateObj1, pAnimateObj2, &rcContentInWindow, UI::SLIDE_RIGHT2LEFT);
+            }
+            else
+            {
+                bSlideRet = pSlideAnimate->Slide(pAnimateObj2, pAnimateObj1, &rcContentInWindow, UI::SLIDE_LEFT2RIGHT);
+            }
+
+            if (bSlideRet)
+            {
+                bAnimateSuccess = true;
+            }
+            else
+            {
+                SAFE_DELETE_Ixxx(pSlideAnimate);
+            }
+        }
+    }
+
+    if (!bAnimateSuccess)
+    {
+        if (pAnimateObj1)
+        {
+            bool bNeedUpdate = false;
+            if (NULL == pItem || NULL == pItem->m_pContent)
+                bNeedUpdate = true;
+
+            pAnimateObj1->SetVisible(false, bNeedUpdate, false);                 
+        }
+        if (pAnimateObj2)
+        {
+            pAnimateObj2->SetVisible(true, true, false);
         }
     }
 
@@ -418,7 +484,12 @@ void  TabCtrl::AddItem(const TCHAR*  szText, IObject* pContentObj)
 
     IMapAttribute*  pMapAttrib = NULL;
     UICreateIMapAttribute(&pMapAttrib);
-    UISendMessage(pBtn, UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, (LPARAM)0);
+
+	SERIALIZEDATA data = {0};
+	data.pMapAttrib = pMapAttrib;
+	UISendMessage(pBtn, UI_WM_SERIALIZE, (WPARAM)&data);
+//    UISendMessage(pBtn, UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, (LPARAM)0);
+
     pMapAttrib->Release();
 
     pBtn->SetConfigWidth(100);

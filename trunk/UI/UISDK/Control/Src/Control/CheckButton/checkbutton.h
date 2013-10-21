@@ -16,6 +16,7 @@ public:
 
     UI_BEGIN_MSG_MAP
         UIMSG_BN_CLICKED2(m_pIButtonBase, OnClicked)
+        UIMSG_WM_GETDLGCODE(OnGetDlgCode)
         UIMSG_WM_QUERYINTERFACE(QueryInterface)
         UIMSG_WM_GETOBJECTINFO(OnGetObjectInfo)
         UIMSG_WM_RESETATTRIBUTE(ResetAttribute)
@@ -29,6 +30,7 @@ public:
     void  ResetAttribute();
 	void  SetAttribute(IMapAttribute* pMapAttrib, bool bReload);
 	void  OnClicked();
+    UINT  OnGetDlgCode(LPMSG lpMsg) { return 0; }
 
 protected:
     ICheckButton*  m_pICheckButton;

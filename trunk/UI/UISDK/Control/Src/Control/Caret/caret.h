@@ -18,19 +18,19 @@ public:
     ~CCaret();
 
 	BOOL  CreateCaret(IObject* pObj, HBITMAP hbmp, int nWidth, int nHeight, CARET_TYPE eType = CARET_TYPE_UNKNOWN);
-	void  DestroyCaret();
-	void  SetCaretPos(int x, int y, bool bRedraw=true);
-	void  ShowCaret(bool bRedraw=true);
-	void  HideCaret(bool bRedraw=true);
-    void  OnControlPaint(IRenderTarget* p);
+	void  DestroyCaret(IObject* pObj, bool bRedraw);
+	void  SetCaretPos(IObject* pObj, int x, int y, bool bRedraw=true);
+	void  ShowCaret(IObject* pObj, bool bRedraw=true);
+	void  HideCaret(IObject* pObj, bool bRedraw=true);
+    void  OnControlPaint(IObject* pObj, IRenderTarget* p);
 //     void  PreCommitWindowBuffer(HDC hMemDC);
 //     void  PostCommitWindowBuffer(HDC hMemDC);
 
     CARET_TYPE  GetCaretType();
 
 public:
-    ICaret*  m_pCaret;
-    POINT  m_ptLast;
+    static ICaret*  m_pCaret;  // È«¾ÖÎ¨Ò»
+    static POINT  m_ptLast;
 };
 
 }

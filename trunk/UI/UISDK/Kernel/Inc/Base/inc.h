@@ -209,5 +209,6 @@ static const GUID CLSID_UI_ImageListItemRender = { 0x92444db1, 0x43a5, 0x46d3, {
 #include "UISDK\Kernel\Inc\Interface\irenderbase.h"
 #include "UISDK\Kernel\Inc\Interface\itextrenderbase.h"
 #include "UISDK\Kernel\Inc\Interface\renderlibrary.h"
+#include "UISDK\Kernel\Inc\Interface\iuieditor.h"
 
 #endif

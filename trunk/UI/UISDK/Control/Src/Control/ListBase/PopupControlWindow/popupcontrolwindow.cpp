@@ -10,6 +10,7 @@ PopupControlWindow::PopupControlWindow()
 {
 	m_pObject = NULL;
 	m_bExitLoop = false;
+    m_bMouseIn = false;
 }
 
 //(WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE);
@@ -45,7 +46,10 @@ void  PopupControlWindow::Create(IObject*  pBindObj, const TCHAR* szId, HWND hPa
         if (szId)
             this->SetID(szId);
 
-        UISendMessage(this, UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, (LPARAM)false);
+		SERIALIZEDATA data = {0};
+		data.pMapAttrib = pMapAttrib;
+		UISendMessage(this, UI_WM_SERIALIZE, (WPARAM)&data);
+//        UISendMessage(this, UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, (LPARAM)false);
 
         SAFE_RELEASE(pMapAttribCopy);
         SAFE_RELEASE(pMapAttrib);
@@ -171,7 +175,7 @@ void PopupControlWindow::OnActivateApp(BOOL bActive, DWORD dwThreadID)
 
 BOOL PopupControlWindow::PreTranslateMessage(MSG* pMsg)
 {
-	if (WM_KEYFIRST <= pMsg->message && WM_KEYLAST >= pMsg->message)
+	if ((WM_KEYFIRST <= pMsg->message && WM_KEYLAST >= pMsg->message) || WM_MOUSEWHEEL == pMsg->message)
 	{
 		if (WM_KEYDOWN == pMsg->message && VK_ESCAPE == pMsg->wParam)
 		{
@@ -190,10 +194,16 @@ BOOL PopupControlWindow::PreTranslateMessage(MSG* pMsg)
 	{
 		if (pMsg->hwnd != GetHWND())
 		{
+            if (m_bMouseIn)
+            {
+                ::PostMessage(GetHWND(), WM_MOUSELEAVE, 0, 0);
+                m_bMouseIn = false;
+            }
 			return TRUE;  // 窗口外的鼠标移动事件忽略
 		}
 		else
 		{
+            m_bMouseIn = true;
 			return FALSE;
 		}
 	}

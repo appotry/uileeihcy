@@ -25,12 +25,13 @@ enum DRAW_BITMAP_FLAG{
     DRAW_BITMAP_BITBLT_RIGHTTOP    = 0x00400000,  // 将图片绘制在右上角对齐
     DRAW_BITMAP_BITBLT_LEFTBOTTOM  = 0x00800000,  // 将图片绘制在右下角对齐
     DRAW_BITMAP_BITBLT_RIGHTBOTTOM = 0x01000000,  // 将图片绘制在右下角对齐
+    DRAW_BITMAP_STRETCH_ROUNDCORNER = 0x02000000, // 圆角拉伸
 };
 
 
 typedef struct tagDRAWBITMAPPARAM
 {
-	tagDRAWBITMAPPARAM() { memset(this, 0, sizeof(tagDRAWBITMAPPARAM)); nAlpha = 255;}
+	tagDRAWBITMAPPARAM() { memset(this, 0, sizeof(tagDRAWBITMAPPARAM)); nAlpha = 255; nFlag = DRAW_BITMAP_BITBLT;}
 
 	int    nFlag;  
 
@@ -44,6 +45,9 @@ typedef struct tagDRAWBITMAPPARAM
 	int    hSrc;
 	Image9Region* pRegion;   // 不需要拉伸时，不使用
 	byte   nAlpha;
+
+    // out param
+    CRect*  prcRealDraw;   // 图片真正绘制的区域。当prcRealDraw不为空时表示需要获取
 
 }DRAWBITMAPPARAM, *LPDRAWBITMAPPARAM;
 
@@ -101,6 +105,7 @@ interface IRenderBitmap : public IRenderResource
 	virtual int   GetHeight() = 0;
 	virtual int   GetBPP() = 0;
 	virtual COLORREF GetAverageColor() { return 0; }
+    virtual void  Attach(HBITMAP hBitmap, bool bDelete) {};
     virtual HBITMAP  Detach() { return NULL; }
 
 	virtual BYTE* LockBits() = 0;

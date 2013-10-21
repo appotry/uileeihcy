@@ -115,6 +115,7 @@ public:
 	void  OnEqualizerDlgVisibleChanged(HWND wParam, BOOL lParam);
     void  OnLyricDlgCreated(HWND hWnd);
     void  OnLyricDlgVisibleChanged(HWND wParam, BOOL lParam);
+    void  OnWndTopMostChanged(BOOL bTopMost);
     
     void  SetPlayerListDlgHandle(HWND hWnd);
     void  SetEqualizerDlgHandle(HWND hWnd);

@@ -5,6 +5,7 @@
 
 namespace UI
 {
+#define  LISTITEM_TYPE_ListBoxItem  138101630
 
 class ListBoxBase;
 interface UICTRLAPI IListBoxBase : public IListCtrlBase
@@ -13,6 +14,13 @@ interface UICTRLAPI IListBoxBase : public IListCtrlBase
     bool  SetSel(int nIndex);
     void  SetBindObject(IObject* pCombobox);
 };
+
+class ListBoxItemShareData;
+interface IListBoxItemShareData : public IListItemTypeShareData
+{
+    UI_DECLARE_Ixxx_INTERFACE(IListBoxItemShareData, ListBoxItemShareData);
+};
+
 
 class ListBoxItem;
 interface UICTRLAPI IListBoxItem : public IListItemBase

@@ -79,6 +79,8 @@
 //
 //   Q19. 怎么隐藏显示windowless richedit
 //      
+//   Q20. 处理WM_IME_COMPOSITION这个消息会导致输入法输入一个字按回车后居然显示两个字
+//        是因为在对话框窗口中返回了一个0，导致对话框会再去调用默认的dialog proc，导致多发出来一个WM_CHAR消息
 
 namespace UI
 {
@@ -139,7 +141,9 @@ public:
 	void  SetPasswordMode(bool b);
 	WCHAR SetPasswordChar(WCHAR chPasswordChar);
 	LONG  SetAccelPos(LONG l_accelpos);
-	bool  SetFont(LOGFONT* plf);
+    bool  SetCharFormatByLogFont(LOGFONT* plf);
+	bool  SetCharFormat(CHARFORMAT2* pcf);
+    void  GetCharFormat(CHARFORMAT2* pcf);
 	void  InitDefaultParaFormat();
 	bool  IsWordWrap() { return m_fWordWrap; }
 	void  SetWordWrap(bool fWordWrap);
@@ -155,7 +159,6 @@ public:
     bool  IsMultiLine();
 	void  RevokeDragDrop(void);
 	void  RegisterDragDrop(void);
-	bool  SetText(const TCHAR* szText);
 
 	IRichEditOle* GetRichEditOle() { return m_spOle; }
 	
@@ -228,21 +231,32 @@ public:
 
 	BEGIN_MSG_MAP_EX(WindowlessRichEdit)
 		PRE_HANDLE_MSG()
-		MSG_WM_SETCURSOR(OnSetCursor)
-		MSG_WM_KILLFOCUS(OnKillFocus)
-		MSG_WM_WINDOWPOSCHANGED(OnWindowPosChanged)
+		MSG_WM_SETCURSOR( OnSetCursor )
+		MSG_WM_KILLFOCUS( OnKillFocus )
+        MSG_WM_SETFOCUS( OnSetFocus )
+		MSG_WM_WINDOWPOSCHANGED( OnWindowPosChanged )
+        MESSAGE_HANDLER_EX( WM_LBUTTONDOWN, OnLButtonDown)
 
-		MESSAGE_HANDLER_EX(WM_KEYDOWN,  OnDefaultHandle)
-		MESSAGE_HANDLER_EX(WM_CHAR,     OnChar)
-		MESSAGE_RANGE_HANDLER_EX(WM_MOUSEFIRST,WM_MOUSELAST, OnDefaultHandle)
-		MESSAGE_HANDLER_EX(WM_SETFOCUS, OnDefaultHandle)
-		MESSAGE_HANDLER_EX(WM_VSCROLL,  OnDefaultHandle)
-		MESSAGE_HANDLER_EX(WM_HSCROLL,  OnDefaultHandle)
-        MESSAGE_HANDLER_EX(WM_IME_STARTCOMPOSITION, OnDefaultHandle)  // 不让RE处理这个消息会导致输入法的窗口不跟随
-        MESSAGE_HANDLER_EX(WM_IME_ENDCOMPOSITION, OnDefaultHandle)
-//        MESSAGE_HANDLER_EX(WM_IME_COMPOSITION, OnDefaultHandle)  --- TODO 处理这个消息会导致输入法输入一个字按回车后居然显示两个字，原因未知
-        MESSAGE_HANDLER_EX(WM_IME_NOTIFY, OnDefaultHandle)
-		MESSAGE_HANDLER_EX(WM_TIMER,    OnTimer)
+		MESSAGE_HANDLER_EX( WM_KEYDOWN,  OnDefaultHandle )
+		MESSAGE_HANDLER_EX( WM_CHAR,     OnChar )
+		MESSAGE_RANGE_HANDLER_EX( WM_MOUSEFIRST, WM_MOUSELAST, OnDefaultHandle )
+		MESSAGE_HANDLER_EX( WM_VSCROLL,  OnDefaultHandle )
+		MESSAGE_HANDLER_EX( WM_HSCROLL,  OnDefaultHandle )
+
+        MESSAGE_HANDLER_EX( WM_IME_STARTCOMPOSITION, OnDefaultHandle )  // 不让RE处理这个消息会导致输入法的窗口不跟随
+        MESSAGE_HANDLER_EX( WM_IME_ENDCOMPOSITION,   OnDefaultHandle )
+        MESSAGE_HANDLER_EX( WM_IME_COMPOSITION,      OnDefaultHandle )  
+        MESSAGE_HANDLER_EX( WM_IME_SETCONTEXT,       OnDefaultHandle )
+        MESSAGE_HANDLER_EX( WM_IME_NOTIFY,           OnDefaultHandle )
+        MESSAGE_HANDLER_EX( WM_IME_CONTROL,          OnDefaultHandle )
+        MESSAGE_HANDLER_EX( WM_IME_COMPOSITIONFULL,  OnDefaultHandle )
+        MESSAGE_HANDLER_EX( WM_IME_SELECT,           OnDefaultHandle )
+        MESSAGE_HANDLER_EX( WM_IME_CHAR,             OnDefaultHandle )
+        MESSAGE_HANDLER_EX( WM_IME_REQUEST,          OnDefaultHandle )
+        MESSAGE_HANDLER_EX( WM_IME_KEYDOWN,          OnDefaultHandle )
+        MESSAGE_HANDLER_EX( WM_IME_KEYUP,            OnDefaultHandle )
+
+		MESSAGE_HANDLER_EX( WM_TIMER,    OnTimer )
 //		POST_HANDLE_MSG()		
 	END_MSG_MAP()
 
@@ -252,10 +266,12 @@ protected:
 	BOOL    OnSetCursor(HWND wnd, UINT nHitTest, UINT message);
 	LRESULT OnDefaultHandle(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	void    OnKillFocus(HWND wndFocus);
+    void    OnSetFocus(HWND wndOld);
 	void    OnObjectPosChanged(UINT fwSide, LPRECT pRect);
 	LRESULT OnChar(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	void    OnWindowPosChanged(LPWINDOWPOS);
 	LRESULT OnTimer(UINT uMsg, WPARAM wParam, LPARAM lParam);
+    LRESULT OnLButtonDown(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	bool    DoGifOleUpdateRequst();
 
@@ -273,36 +289,46 @@ protected:
  	virtual HRESULT __stdcall GetContextMenu(WORD seltype, LPOLEOBJECT lpoleobj, CHARRANGE FAR * lpchrg, HMENU FAR * lphmenu) ;
 
 public:
-	// Helper 
-	WORD GetSelectionType() const
-	{
-		LRESULT lr = 0;
-		m_spTextServices->TxSendMessage(EM_SELECTIONTYPE, 0, 0L, &lr);
-		return (WORD)lr;
-	}
-	bool GetSelectionOleObject(IRichEditOleObjectItem** ppItem);
 
 	// Function
-	void    BindControl(RichEdit* p);
-	bool    Create(HWND hWndParent);
-	void    Draw(HDC);
-	bool    GetInvalidateRect(RECT* prc, bool* pbNeedRedrawScrollbar, bool bClear=true);
-	bool    HitTest(POINT pt);
+	void  BindControl(RichEdit* p);
+	bool  Create(HWND hWndParent);
+	void  Draw(HDC);
+	bool  GetInvalidateRect(RECT* prc, bool* pbNeedRedrawScrollbar, bool bClear=true);
+	bool  HitTest(POINT pt);
 
-	// 
-	bool    InsertOleObject(IRichEditOleObjectItem* pItem);
-	bool    InsertGif(const TCHAR* szGifPath);
-	bool    InsertComObject(CLSID clsid);
+    // 基本操作
+    bool  SetText(const TCHAR* szText);
+    int   GetText(TCHAR* szBuf, int nLen);
+    void  GetTextW(IBuffer** ppBuffer);
+    int   GetTextLengthW();
+    bool  GetEncodeTextW(IBuffer** ppBuffer);
+    bool  AppendText(const TCHAR* szText, int nSize=-1);
+    bool  AppendEncodeTextW(const TCHAR* szText, int nSize);
+    bool  ReplaceSelectionText(const TCHAR* szText, int nSize);
 
-	// Call this function to paste the OLE item in dataobj into this rich edit document/view.
-	HRESULT DoPaste(LPDATAOBJECT pDataObject, BOOL fReally, CLIPFORMAT* pOutClipFormat);
+    void  SetSel(int nPos, int nLen);
+    void  GetSel(int* pnPos, int* pnLen);
 
     // event mask
-    long    GetEventMask();
-    void    SetEventMask(long n);
-    void    ModifyEventMask(long nAdd, long nRemove);
-    void    SetAutoResize(bool b, int nMaxSize = 0);
+    long  GetEventMask();
+    void  SetEventMask(long n);
+    void  ModifyEventMask(long nAdd, long nRemove);
+    void  SetAutoResize(bool b, int nMaxSize = 0);
 	
+    // Ole操作
+    WORD  GetSelectionType() const;
+    IRichEditOleObjectItem*  GetSelectionOleObject();
+    IRichEditOleObjectItem*  GetOleObjectByCharPos(int ncp);
+
+    bool  InsertOleObject(IRichEditOleObjectItem* pItem);
+    bool  InsertGif(const TCHAR* szGifPath);
+    bool  InsertSkinGif(const TCHAR* szGifId);
+    bool  InsertComObject(REFCLSID clsid);
+
+    // Call this function to paste the OLE item in dataobj into this rich edit document/view.
+    HRESULT DoPaste(LPDATAOBJECT pDataObject, BOOL fReally, CLIPFORMAT* pOutClipFormat);
+
 public:
 	// IUnknown  Interface
 	virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid,void **ppvObject);
@@ -343,6 +369,7 @@ protected:
 	RECT   m_rcInvalidate;        // TxInvalidateRect辅助变量。无效区域的集合
 	bool   m_bNeedRedrawScrollbar;// 是否需要刷新滚动条区域
     bool   m_bDuringTxDraw;       // 标志当前是否正在调用TxDraw。在这个期间的光标操作（针对自绘类型）都不应该再去刷新RE了，否则死循环
+    bool   m_bFocus;
 
     int    m_nAutoResizeMaxSize;  // 自适应大小时的最大值。singleline对应width,multiline对应height。小于0表示无限制
 

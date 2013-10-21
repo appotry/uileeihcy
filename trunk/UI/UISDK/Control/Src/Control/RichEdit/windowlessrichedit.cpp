@@ -3,6 +3,8 @@
 #include "gifoleobject.h"
 #include "UISDK\Control\Src\Control\RichEdit\richedit.h"
 #include "UISDK\Kernel\Inc\Interface\iscrollbarmanager.h"
+#include "UISDK\Kernel\Inc\Util\ibuffer.h"
+#include "3rd\markup\markup.h"
 
 // 备注：在CreateTextSerives之后，调用QueryInterface获取ITextServices接口时，总是返回E_NOINTERFACE
 //       问题原来是从riched20.lib中的IID_ITextServices，是错误的。
@@ -25,6 +27,7 @@ WindowlessRichEdit::WindowlessRichEdit()
     m_bDuringTxDraw = false;
 
     m_nAutoResizeMaxSize = 0;
+    m_bFocus = false;
 	this->InitRichEidtDll();
 }
 
@@ -157,9 +160,8 @@ bool WindowlessRichEdit::Create(HWND hWndParent)
 	RECT  rcClient;
 	this->TxGetClientRect(&rcClient);
 	hr = m_spTextServices->OnTxInPlaceActivate(&rcClient);
+    m_spTextServices->OnTxUIActivate();
 	UIASSERT(SUCCEEDED(hr));
-// 	hr = m_spTextServices->TxSendMessage(WM_SETFOCUS, 0, 0, 0);
-// 	assert(SUCCEEDED(hr));
 
 	// 避免英文字体与中文字体不统一的问题
 	if (m_spTextServices)
@@ -183,6 +185,10 @@ bool WindowlessRichEdit::Create(HWND hWndParent)
 	// 注：这里千万不要直接传递this进去，否则会导致txservice调用texthost时，指针错误。
 	hr = m_spTextServices->TxSendMessage(EM_SETOLECALLBACK, 0, (LPARAM)static_cast<IRichEditOleCallback*>(this), &lr);
     
+    // 4.1以上的RE可以支持TSF(Text Service Framework)，这样就可以解析微软拼音输入法显示不正确的问题
+//    m_spTextServices->TxSendMessage(EM_SETEDITSTYLE, SES_USECTF, SES_USECTF, &lr);
+
+    ModifyEventMask(ENM_CHANGE, 0);
 	return true;
 }
 
@@ -274,19 +280,19 @@ LRESULT WindowlessRichEdit::OnPreHandleMsg( HWND hWnd, UINT Msg, WPARAM wParam, 
 }
 LRESULT WindowlessRichEdit::OnPostHandleMsg( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
 {
-	LRESULT lr = 0;
-	HRESULT hr = m_spTextServices->TxSendMessage(Msg, wParam, lParam, &lr);
-
-// 	if (hr == S_FALSE)
-// 	{
-// 		lr = ::DefWindowProc(hWnd, Msg, wParam, lParam);
-// 	}
-	return lr;
+	return OnDefaultHandle(Msg, wParam, lParam);
 }
 
 LRESULT  WindowlessRichEdit::OnDefaultHandle(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	return OnPostHandleMsg(m_hParentWnd, uMsg, wParam, lParam);
+    LRESULT lr = 0;
+    HRESULT hr = m_spTextServices->TxSendMessage(uMsg, wParam, lParam, &lr);
+
+    if (hr == S_FALSE)
+    {
+        lr = ::DefWindowProc(m_hParentWnd, uMsg, wParam, lParam);
+    }
+    return 1;
 }
 
 BOOL WindowlessRichEdit::OnSetCursor(HWND hWnd, UINT nHitTest, UINT message)
@@ -324,8 +330,35 @@ BOOL WindowlessRichEdit::OnSetCursor(HWND hWnd, UINT nHitTest, UINT message)
 
 void WindowlessRichEdit::OnKillFocus(HWND wndFocus)
 {
-	m_pRichEdit->GetCaret()->DestroyCaret();
+    m_bFocus = false;
+	m_pRichEdit->GetCaret()->DestroyCaret(m_pRichEdit->GetIRichEdit(), false);
+    m_pRichEdit->GetIRichEdit()->UpdateObject();
 	SetMsgHandled(FALSE);
+}
+
+//
+// TODO:
+// 为了解决鼠标第一次点击RE拖动没反应的问题，
+// 在LButtonDown中判断如果没有焦点则手动发送一次SETFOCUS
+// 猜测可能是因为先来的WM_LBUTTONDOWN消息，发送给RE后，然后再触发WM_FUCOS消息发送给RE，导致拖拽中断。
+void  WindowlessRichEdit::OnSetFocus(HWND wndOld)
+{
+    if (!m_bFocus)
+    {
+        m_bFocus = true;
+        OnDefaultHandle(WM_SETFOCUS, 0, 0); 
+    }
+}
+LRESULT WindowlessRichEdit::OnLButtonDown(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    SetMsgHandled(FALSE);
+    if (!m_bFocus)
+    {
+        m_bFocus = true;
+        OnDefaultHandle(uMsg, wParam, lParam);  // 用于定位新光标位置。直接发送WM_SETFOCUS会导致旧的光标位置显示出来，然后再跑到新位置上去
+        OnDefaultHandle(WM_SETFOCUS, 0, 0);     // 设置焦点，放弃WM_FUCOS消息中的处理
+    }
+    return 0;
 }
 
 void WindowlessRichEdit::OnWindowPosChanged(LPWINDOWPOS)
@@ -389,7 +422,7 @@ LRESULT WindowlessRichEdit::OnChar(UINT uMsg, WPARAM wParam, LPARAM lParam)
 // 	return 0;
 #endif
 
-	LRESULT lr = 0;
+  	LRESULT lr = 0;
 
 	HRESULT hr = m_spTextServices->TxSendMessage(uMsg, wParam, lParam, &lr);
 
@@ -542,6 +575,11 @@ void /*ITextHostImpl*/WindowlessRichEdit::TxInvalidateRect(LPCRECT prc, BOOL fMo
         msg.message = UI_WM_REDRAWOBJECT;
         msg.pMsgTo = m_pRichEdit->GetIRichEdit();
         UIPostMessage(m_pRichEdit->GetIRichEdit()->GetUIApplication(), &msg);  // 由于RECT参数在post消息中不好传递，因此将区域保存为成员变量。同时也能起来合并无效区域的作用
+
+//         if (prc)
+//             UI_LOG_DEBUG(_T("%s RECT:%d,%d, %d,%d"), FUNC_NAME, prc->left, prc->top, prc->right, prc->bottom);
+//         else
+//             UI_LOG_DEBUG(_T("%s All"), FUNC_NAME);
 	}
 
 //	::InvalidateRect(m_pRichEdit->GetHWND(), prc, fMode);
@@ -718,19 +756,35 @@ void ITextHostImpl::TxViewChange(BOOL fUpdate)
 	::UpdateWindow (m_hParentWnd);
 }
 
+//
 //@cmember Create the caret
+// hbmp [in] 
+//      Handle to the bitmap that defines the caret shape.
+//      If this parameter is NULL, the caret is solid. 
+//      If this parameter is (HBITMAP) 1, the caret is gray. 
+//      If this parameter is a bitmap handle, the caret is the specified bitmap. 
+//      The bitmap handle must have been created by the CreateBitmap, 
+//      CreateDIBitmap, or LoadBitmap function. 
+//
+//      If hBitmap is a bitmap handle, CreateCaret ignores 
+//      the nWidth and nHeight parameters; the bitmap 
+//      defines its own width and height.
+//
 BOOL WindowlessRichEdit::TxCreateCaret(HBITMAP hbmp, INT xWidth, INT yHeight)
 {
-    if (NULL == hbmp)  // 如果不为空，当前在richedit中有选中区域，不显示光标
-    {
+    if (!m_bFocus)
+        return FALSE;
+
+//     if (NULL == hbmp)  // 如果不为空，当前在richedit中有选中区域，不显示光标
+//     {
         bool  bNeedFixGdiAlpha = m_pRichEdit->IsNeedFixGdiAlpha();
-        m_pRichEdit->GetCaret()->CreateCaret(m_pRichEdit->GetIRichEdit(), hbmp, xWidth, yHeight, bNeedFixGdiAlpha?CARET_TYPE_WINDOW:CARET_TYPE_UNKNOWN);
-    }
-    else
-    {
-        m_pRichEdit->GetCaret()->DestroyCaret();
-    }
-	return TRUE;
+        return m_pRichEdit->GetCaret()->CreateCaret(m_pRichEdit->GetIRichEdit(), hbmp, xWidth, yHeight, /*bNeedFixGdiAlpha?CARET_TYPE_WINDOW:*/CARET_TYPE_UNKNOWN);
+//     }
+//     else
+//     {
+//         m_pRichEdit->GetCaret()->DestroyCaret(false);  // TODO: 这里不能再刷新了，因为该情况可能就是在RE维护过程中了，会导致死循环
+//     }
+// 	return TRUE;
 }
 
 //@cmember Show the caret
@@ -738,9 +792,9 @@ BOOL WindowlessRichEdit::TxShowCaret(BOOL fShow)
 {
     // 如果是TxDraw发出来的消息，则不能刷新
 	if (fShow)
-		m_pRichEdit->GetCaret()->ShowCaret(!m_bDuringTxDraw);
+		m_pRichEdit->GetCaret()->ShowCaret(m_pRichEdit->GetIRichEdit(), !m_bDuringTxDraw);
 	else
-		m_pRichEdit->GetCaret()->HideCaret(!m_bDuringTxDraw);
+		m_pRichEdit->GetCaret()->HideCaret(m_pRichEdit->GetIRichEdit(), !m_bDuringTxDraw);
 
 	return TRUE;
 }
@@ -753,7 +807,7 @@ BOOL WindowlessRichEdit::TxSetCaretPos(INT x, INT y)
 
     CRect rc;
     m_pRichEdit->GetIRichEdit()->GetWindowRect(&rc);
-	m_pRichEdit->GetCaret()->SetCaretPos(x-rc.left, y-rc.top, !m_bDuringTxDraw);
+	m_pRichEdit->GetCaret()->SetCaretPos(m_pRichEdit->GetIRichEdit(), x-rc.left, y-rc.top, !m_bDuringTxDraw);
 
 	return TRUE;
 }
@@ -1046,6 +1100,10 @@ ITextHostImpl::ITextHostImpl()
 	m_fPassword = false;
 
 	memset(&m_cf, 0, sizeof(CHARFORMAT2W));
+    m_cf.cbSize = sizeof(CHARFORMAT2W);
+    m_cf.dwMask = CFM_ALL;
+    
+    _tcscpy(m_cf.szFaceName, _T("宋体"));
 	InitDefaultParaFormat();
 
 	if (!(m_dwStyle & ES_LEFT))
@@ -1061,52 +1119,146 @@ ITextHostImpl::~ITextHostImpl()
 {
 }
 
-bool ITextHostImpl::SetFont(LOGFONT* plf)
+
+bool ITextHostImpl::SetCharFormatByLogFont(LOGFONT* plf)
 {
-	if (NULL == plf)
+    if (NULL == plf)
+        return false;
+
+    HWND hWnd = GetDesktopWindow();
+    HDC  hDC = GetDC(hWnd);
+    LONG yPixPerInch = GetDeviceCaps(hDC, LOGPIXELSY);
+    m_cf.yHeight = abs(plf->lfHeight * 1440 / yPixPerInch);
+    ReleaseDC(hWnd, hDC);
+
+    if (plf->lfWeight >= FW_BOLD)
+        m_cf.dwEffects |= CFE_BOLD;
+    else
+        m_cf.dwEffects &= ~CFE_BOLD;
+
+    if (plf->lfItalic)
+        m_cf.dwEffects |= CFE_ITALIC;
+    else
+        m_cf.dwEffects &= ~CFE_ITALIC;
+
+    if (plf->lfUnderline)
+        m_cf.dwEffects |= CFE_UNDERLINE;
+    else
+        m_cf.dwEffects &= ~CFE_UNDERLINE;
+
+    if (plf->lfStrikeOut)
+        m_cf.dwEffects |= CFE_STRIKEOUT;
+    else
+        m_cf.dwEffects &= ~CFE_STRIKEOUT;
+        
+    m_cf.bCharSet = plf->lfCharSet;
+    m_cf.bPitchAndFamily = plf->lfPitchAndFamily;
+#ifdef UNICODE
+    _tcscpy(m_cf.szFaceName, plf->lfFaceName);
+#else
+    //need to thunk pcf->szFaceName to a standard char string.in this case it's easy because our thunk is also our copy
+    MultiByteToWideChar(CP_ACP, 0, plf->lfFaceName, LF_FACESIZE, m_cf.szFaceName, LF_FACESIZE) ;
+#endif
+
+    if (m_spTextServices)
+    {
+        m_spTextServices->OnTxPropertyBitsChange(TXTBIT_CHARFORMATCHANGE, 
+            TXTBIT_CHARFORMATCHANGE);
+    }
+
+    return true;
+}
+bool ITextHostImpl::SetCharFormat(CHARFORMAT2* pcf)
+{
+	if (NULL == pcf)
 		return false;
 
 	// Set CHARFORMAT structure
-	m_cf.cbSize = sizeof(CHARFORMAT2W);
+    if (pcf->dwMask & CFM_SIZE)
+        m_cf.yHeight = pcf->yHeight;
 
-	HWND hWnd = GetDesktopWindow();
-	HDC  hDC = GetDC(hWnd);
-	LONG yPixPerInch = GetDeviceCaps(hDC, LOGPIXELSY);
-	m_cf.yHeight = abs(plf->lfHeight * 1440 / yPixPerInch);
-	ReleaseDC(hWnd, hDC);
+    if (pcf->dwMask & CFM_COLOR)
+    {
+        m_cf.crTextColor = pcf->crTextColor; 
+    }
+    if (pcf->dwMask & CFM_BACKCOLOR)
+    {
+        m_cf.crBackColor = pcf->crBackColor; 
+    }
 
-	m_cf.yOffset = 0;
-//	m_cf.crTextColor = RGB(0,0,0);  // 不涉及颜色的修改
+    if (pcf->dwMask & CFM_BOLD)
+    {
+        if (pcf->dwEffects & CFE_BOLD)
+            m_cf.dwEffects |= CFE_BOLD;
+        else
+            m_cf.dwEffects &= ~CFE_BOLD;
+    }
+    if (pcf->dwMask & CFM_ITALIC)
+    {
+        if (pcf->dwEffects & CFE_ITALIC)
+            m_cf.dwEffects |= CFE_ITALIC;
+        else
+            m_cf.dwEffects &= ~CFE_ITALIC;
+    }
+    if (pcf->dwMask & CFM_UNDERLINE)
+    {
+        if (pcf->dwEffects & CFM_UNDERLINE)
+            m_cf.dwEffects |= CFM_UNDERLINE;
+        else
+            m_cf.dwEffects &= ~CFM_UNDERLINE;
+    }
 
-	m_cf.dwEffects = CFM_EFFECTS | CFE_AUTOBACKCOLOR;
-	m_cf.dwEffects &= ~(CFE_PROTECTED | CFE_LINK);
+    if (pcf->dwMask & CFM_FACE)
+    {
+        _tcscpy(m_cf.szFaceName, pcf->szFaceName);
+    }
+// 	m_cf.dwEffects = CFM_EFFECTS | CFE_AUTOBACKCOLOR;
+// 	m_cf.dwEffects &= ~(CFE_PROTECTED | CFE_LINK | CFE_AUTOCOLOR);
 
-	if(plf->lfWeight < FW_BOLD)
-		m_cf.dwEffects &= ~CFE_BOLD;
-	if(!plf->lfItalic)
-		m_cf.dwEffects &= ~CFE_ITALIC;
-	if(!plf->lfUnderline)
-		m_cf.dwEffects &= ~CFE_UNDERLINE;
-	if(!plf->lfStrikeOut)
-		m_cf.dwEffects &= ~CFE_STRIKEOUT;
+//  LRESULT lr = 0;
+//  m_spTextServices->TxSendMessage(EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&m_cf, &lr);
 
-	m_cf.dwMask = CFM_ALL | CFM_BACKCOLOR;
-	m_cf.bCharSet = plf->lfCharSet;
-	m_cf.bPitchAndFamily = plf->lfPitchAndFamily;
-#ifdef UNICODE
-	_tcscpy(m_cf.szFaceName, plf->lfFaceName);
-#else
-	//need to thunk pcf->szFaceName to a standard char string.in this case it's easy because our thunk is also our copy
-	MultiByteToWideChar(CP_ACP, 0, plf->lfFaceName, LF_FACESIZE, m_cf.szFaceName, LF_FACESIZE) ;
-#endif
-
-	if (m_spTextServices)
-	{
-		m_spTextServices->OnTxPropertyBitsChange(TXTBIT_CHARFORMATCHANGE, 
-					TXTBIT_CHARFORMATCHANGE);
-	}
-
+    if (m_spTextServices)
+    {
+        m_spTextServices->OnTxPropertyBitsChange(TXTBIT_CHARFORMATCHANGE, 
+            TXTBIT_CHARFORMATCHANGE);
+    }
 	return true;
+}
+
+void  ITextHostImpl::GetCharFormat(CHARFORMAT2* pcf)
+{
+    if (NULL == pcf)
+        return;
+
+    if (pcf->dwMask & CFM_SIZE)
+        pcf->yHeight = m_cf.yHeight;
+
+    if (m_cf.dwMask & CFM_COLOR)
+        pcf->crTextColor = m_cf.crTextColor; 
+    if (m_cf.dwMask & CFM_BACKCOLOR)
+        pcf->crBackColor = m_cf.crBackColor; 
+
+    if (pcf->dwMask & CFM_BOLD)
+    {
+        if (m_cf.dwEffects & CFE_BOLD)
+            pcf->dwEffects |= CFE_BOLD;
+    }
+    if (pcf->dwMask & CFM_ITALIC)
+    {
+        if (m_cf.dwEffects & CFE_ITALIC)
+            pcf->dwEffects |= CFE_ITALIC;
+    }
+    if (pcf->dwMask & CFM_UNDERLINE)
+    {
+        if (m_cf.dwEffects & CFM_UNDERLINE)
+            pcf->dwEffects |= CFM_UNDERLINE;
+    }
+
+    if (pcf->dwMask & CFM_FACE)
+    {
+        _tcscpy(pcf->szFaceName, m_cf.szFaceName);
+    }
 }
 
 void ITextHostImpl::InitDefaultParaFormat() 
@@ -1318,7 +1470,7 @@ void ITextHostImpl::SetPasswordMode(bool b)
 	}
 }
 
-bool ITextHostImpl::SetText(const TCHAR* szText)
+bool WindowlessRichEdit::SetText(const TCHAR* szText)
 {
 	if (NULL == m_spTextServices)
 		return false;
@@ -1344,6 +1496,225 @@ bool ITextHostImpl::SetText(const TCHAR* szText)
 	}
 
 	return false; 
+}
+
+int  WindowlessRichEdit::GetText(TCHAR* szBuf, int nLen)
+{
+    if (NULL == m_spTextServices)
+        return 0;
+
+    GETTEXTEX textex = {0};
+    textex.cb = (nLen+1)*sizeof(TCHAR);  // nSize需要包括末尾的\0大小
+    textex.flags = GT_DEFAULT;
+    textex.codepage = 1200; // unicode
+
+    LRESULT lr = 0;
+    return m_spTextServices->TxSendMessage(EM_GETTEXTEX, (WPARAM)&textex, (LPARAM)szBuf, &lr);
+}
+
+// [注意]应该返回的是lr，而不是TxSendMessage!!
+int   WindowlessRichEdit::GetTextLengthW()
+{
+    LRESULT lr = 0;
+
+    GETTEXTLENGTHEX data = {0};
+    data.flags = GTL_DEFAULT;
+    data.codepage = 1200; // unicode
+    m_spTextServices->TxSendMessage(EM_GETTEXTLENGTHEX, (WPARAM)&data, (LPARAM)0, &lr);
+    return lr;
+
+    // m_spTextServices->TxSendMessage(WM_GETTEXTLENGTH, 0, 0, &lr);
+}
+void  WindowlessRichEdit::GetTextW(IBuffer** ppBuffer)
+{
+    int nSize = GetTextLengthW();
+    if (0 == nSize)
+        return;
+
+    TCHAR*  szBuffer = new TCHAR[nSize];
+    GetText(szBuffer, nSize);
+
+    UI::CreateTCHARBuffer(ppBuffer);
+    (*ppBuffer)->SetBuffer((void*)szBuffer, nSize);
+}
+
+bool  WindowlessRichEdit::GetEncodeTextW(IBuffer** ppBuffer)
+{
+    if (NULL == ppBuffer)
+        return false;
+
+    int nSize = GetTextLengthW();
+    if (0 == nSize)
+        return false;
+
+    TCHAR*  szBuffer = new TCHAR[nSize+1];
+    GetText(szBuffer, nSize);
+
+    CMarkup markup;
+    markup.AddElem(L"RE");
+    markup.AddAttrib(L"version", L"1.0");
+
+    // 保存字体信息
+    if (m_cf.dwEffects & CFE_BOLD)
+        markup.AddAttrib(L"bold", 1);
+    if (m_cf.dwEffects & CFE_ITALIC)
+        markup.AddAttrib(L"italic", 1);
+    if (m_cf.dwEffects & CFE_UNDERLINE)
+        markup.AddAttrib(L"underline", 1);
+    
+    markup.AddAttrib(L"color", m_cf.crTextColor);
+    markup.AddAttrib(L"face", m_cf.szFaceName);
+    markup.AddAttrib(L"height", (int)m_cf.yHeight);
+    markup.IntoElem();
+
+    // 保存文本与ole
+    int nTextStartIndex = 0;
+    int i = 0;
+    for (; i < nSize; i++)
+    {
+        if (szBuffer[i] == WCH_EMBEDDING)
+        {
+            int nCount = i - nTextStartIndex;
+            if (nCount > 0)
+            {
+                String str;
+                str.append(szBuffer+nTextStartIndex, nCount);
+                markup.AddElem(L"text", str);
+                markup.AddAttrib(L"length", nCount);
+
+                nTextStartIndex = i+1;
+            }
+
+            IRichEditOleObjectItem* pOleObj = GetOleObjectByCharPos(i);
+            if (pOleObj)
+            {
+                CComBSTR bstrEncode;
+                pOleObj->GetEncodeText(&bstrEncode);
+                if (bstrEncode.Length() > 0)
+                {
+                    markup.AddSubDoc((BSTR)bstrEncode);
+                }
+            }
+        }
+    }
+    // 最后一段文本
+    int nCount = i - nTextStartIndex;
+    if (nCount > 0)
+    {
+        String str;
+        str.append(szBuffer+nTextStartIndex, nCount);
+        markup.AddElem(L"text", str);
+        markup.AddAttrib(L"length", nCount);
+    }
+    SAFE_ARRAY_DELETE(szBuffer);
+
+    UI::CreateTCHARBuffer(ppBuffer);
+
+    szBuffer = new TCHAR[markup.GetDoc().length()+1];
+    _tcscpy(szBuffer, markup.GetDoc().c_str());
+    (*ppBuffer)->SetBuffer(szBuffer, markup.GetDoc().length());
+    return true;
+}
+
+bool  WindowlessRichEdit::ReplaceSelectionText(const TCHAR* szText, int nSize)
+{
+    // EM_REPLACESEL居然只接受以null字符结尾的字符串
+    if (m_spTextServices)
+    {
+        if (-1 == nSize || szText[nSize] == _T(''))
+        {
+            LRESULT lr = 0;
+            m_spTextServices->TxSendMessage(EM_REPLACESEL, TRUE, (LPARAM)szText, &lr);
+        }
+        else
+        {
+            TCHAR* szTemp = new TCHAR[nSize+1];
+            memcpy(szTemp, szText, nSize*sizeof(TCHAR));
+            szTemp[nSize] = _T('');
+
+            LRESULT lr = 0;
+            m_spTextServices->TxSendMessage(EM_REPLACESEL, TRUE, (LPARAM)szTemp, &lr);
+
+            SAFE_ARRAY_DELETE(szTemp);
+        }
+    }
+    return true;
+}
+bool  WindowlessRichEdit::AppendText(const TCHAR* szText, int nSize)
+{
+    SetSel(-1, 0);
+    return ReplaceSelectionText((TCHAR*)szText, nSize);
+}
+bool  WindowlessRichEdit::AppendEncodeTextW(const TCHAR* szText, int nSize)
+{
+    if (NULL == szText)
+        return false;
+
+    CMarkup markup;
+    if (!markup.SetDoc(szText))
+        return false;
+
+    if (!markup.FindElem(L"RE"))
+        return false;
+
+    // 解析字体样式
+    String  strColor = markup.GetAttrib(L"color");
+    String  strFace = markup.GetAttrib(L"face");
+    String  strHeight = markup.GetAttrib(L"height");
+    String  strBold = markup.GetAttrib(L"bold");
+    String  strItalic = markup.GetAttrib(L"italic");
+    String  strUnderline = markup.GetAttrib(L"underline");
+
+    CHARFORMAT2 cf;
+    memset(&cf, 0, sizeof(cf));
+    cf.cbSize = sizeof(cf);
+    cf.dwMask = CFM_ALL;
+    cf.yHeight = _ttoi(strHeight.c_str());
+    cf.crTextColor = _ttoi(strColor.c_str());
+    _tcscpy(cf.szFaceName, strFace.c_str());
+    if (strBold == L"1")
+        cf.dwEffects |= CFE_BOLD;
+    if (strItalic == L"1")
+        cf.dwEffects |= CFE_ITALIC;
+    if (strUnderline == L"1")
+        cf.dwEffects |= CFE_UNDERLINE;
+    
+    LRESULT lr = 0;
+    SetSel(-1, 0);
+    m_spTextServices->TxSendMessage(EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf, &lr);
+
+    // 解析文本与ole对象
+    if (markup.IntoElem())
+    {
+        while (markup.FindElem())
+        {
+            String strTag = markup.GetTagName();
+            if (strTag == _T("text"))
+            {
+                AppendText(markup.GetData().c_str(), -1);
+            }
+            else if (strTag == _T("com"))
+            {
+                String strCLSID = markup.GetAttrib(_T("clsid"));
+    
+                CLSID clsid = {0};
+                CLSIDFromString((LPOLESTR)strCLSID.c_str(), &clsid);
+                InsertComObject(clsid);
+            }
+            else if (strTag == _T("emotion"))
+            {
+                String strId = markup.GetAttrib(_T("id"));
+                InsertSkinGif(strId.c_str());
+            }
+            else if (strTag == _T("gif"))
+            {
+                String strPath = markup.GetAttrib(_T("path"));
+                InsertGif(strPath.c_str());
+            }
+        }
+    }
+    AppendText(_T("\r\n"), -1);
+    return true; 
 }
 
 //
@@ -1387,7 +1758,7 @@ bool WindowlessRichEdit::InsertOleObject(IRichEditOleObjectItem* pItem)
 		reObj.dvaspect = DVASPECT_CONTENT;
 		reObj.dwFlags = REO_BELOWBASELINE;
 		reObj.pstg = pStorage;
-		reObj.dwUser = 0;
+		reObj.dwUser = (DWORD)pItem;
 		reObj.cp = REO_CP_SELECTION;
 
 		SIZEL  sizel = {0,0};
@@ -1417,7 +1788,10 @@ bool WindowlessRichEdit::InsertOleObject(IRichEditOleObjectItem* pItem)
 }
 bool WindowlessRichEdit::InsertGif(const TCHAR* szGifPath)
 {
-	GifOleObject* pGifOle = new GifOleObject(/*m_pOleMgr->GetGifManager(), */static_cast<IMessage*>(this->m_pRichEdit->GetIRichEdit()));
+	GifOleObject* pGifOle = new GifOleObject(
+        m_pRichEdit->GetIRichEdit()->GetUIApplication(), 
+        static_cast<IMessage*>(this->m_pRichEdit->GetIRichEdit()));
+
 	HRESULT hr = pGifOle->LoadGif(szGifPath);
 	if (FAILED(hr))
 	{
@@ -1428,7 +1802,23 @@ bool WindowlessRichEdit::InsertGif(const TCHAR* szGifPath)
 	return this->InsertOleObject(pGifOle);
 }
 
-bool WindowlessRichEdit::InsertComObject(CLSID clsid)
+bool WindowlessRichEdit::InsertSkinGif(const TCHAR* szGifId)
+{
+    GifOleObject* pGifOle = new GifOleObject(
+        m_pRichEdit->GetIRichEdit()->GetUIApplication(), 
+        static_cast<IMessage*>(this->m_pRichEdit->GetIRichEdit()));
+
+    HRESULT hr = pGifOle->LoadSkinGif(szGifId);
+    if (FAILED(hr))
+    {
+        SAFE_DELETE(pGifOle);
+        return false;
+    }
+
+    return this->InsertOleObject(pGifOle);
+}
+
+bool WindowlessRichEdit::InsertComObject(REFCLSID clsid)
 {
 	RichEditOleObjectItem_Com* pItem = new RichEditOleObjectItem_Com;
 	pItem->Attach(clsid);
@@ -1610,6 +2000,12 @@ IOleObject* WindowlessRichEdit::CreateOleObjectFromData(LPDATAOBJECT pDataObject
 	return lpOleObject;
 }
 
+WORD  WindowlessRichEdit::GetSelectionType() const
+{
+    LRESULT lr = 0;
+    m_spTextServices->TxSendMessage(EM_SELECTIONTYPE, 0, 0L, &lr);
+    return (WORD)lr;
+}
 // int WindowlessRichEdit::GetObjectTypeByOleObject(LPOLEOBJECT*  pOleObject)
 // {
 // 	if (NULL == pOleObject)
@@ -1636,23 +2032,32 @@ IOleObject* WindowlessRichEdit::CreateOleObjectFromData(LPDATAOBJECT pDataObject
 // 	return OT_STATIC;
 // }
 
-bool WindowlessRichEdit::GetSelectionOleObject(IRichEditOleObjectItem** ppItem)
+IRichEditOleObjectItem* WindowlessRichEdit::GetSelectionOleObject()
 {
-	if (NULL == ppItem)
-		return false;
-
 	REOBJECT reObj;
 	ZeroMemory(&reObj, sizeof(REOBJECT));
 	reObj.cbStruct = sizeof(REOBJECT);
 
-	HRESULT hr = m_spOle->GetObject(REO_IOB_USE_CP, &reObj, REO_GETOBJ_NO_INTERFACES);
-	if (SUCCEEDED(hr))
-	{
-		*ppItem = m_pOleMgr->GetOleItem(reObj.dwUser);
-		return true;
-	}
+	HRESULT hr = m_spOle->GetObject(REO_IOB_SELECTION, &reObj, REO_GETOBJ_NO_INTERFACES);
+    if (SUCCEEDED(hr) && reObj.dwUser)
+    {
+        return (IRichEditOleObjectItem*)reObj.dwUser;
+    }
+	return NULL;
+}
+IRichEditOleObjectItem*  WindowlessRichEdit::GetOleObjectByCharPos(int ncp)
+{
+    REOBJECT reObj;
+    ZeroMemory(&reObj, sizeof(REOBJECT));
+    reObj.cbStruct = sizeof(REOBJECT);
+    reObj.cp = ncp;
 
-	return false;
+    HRESULT hr = m_spOle->GetObject(REO_IOB_USE_CP, &reObj, REO_GETOBJ_NO_INTERFACES);
+    if (SUCCEEDED(hr) && reObj.dwUser)
+    {
+        return (IRichEditOleObjectItem*)reObj.dwUser;
+    }
+    return NULL;
 }
 
 long  WindowlessRichEdit::GetEventMask()
@@ -1715,8 +2120,6 @@ HRESULT WindowlessRichEdit::DefTxNotify(DWORD iNotify, void* pv)
         {
             REQRESIZE* pData = (REQRESIZE*)pv;
             OnRequestResize(&pData->rc);
-            // UI_LOG_TEST(_T("%s  %d,%d  %d,%d"), FUNC_NAME, pData->rc.left, 
-            //   pData->rc.top, pData->rc.right, pData->rc.bottom);
         }
         break;
     }
@@ -1891,9 +2294,8 @@ HRESULT __stdcall WindowlessRichEdit::GetClipboardData(CHARRANGE FAR * lpchrg, D
 	WORD wSelType = this->GetSelectionType();
 	if (SEL_OBJECT == wSelType)
 	{
-		IRichEditOleObjectItem* pItem = NULL;
-		bool bRet = this->GetSelectionOleObject(&pItem);
-		if (!bRet || NULL == pItem)
+		IRichEditOleObjectItem* pItem = this->GetSelectionOleObject();
+		if (!pItem)
 			return S_OK;
 
 		if (FAILED(pItem->GetClipboardData(lpchrg, reco, lplpdataobj)))
@@ -1948,10 +2350,6 @@ HRESULT __stdcall WindowlessRichEdit::GetDragDropEffect(BOOL fDrag, DWORD grfKey
 HRESULT __stdcall WindowlessRichEdit::GetContextMenu(WORD seltype, LPOLEOBJECT lpoleobj, CHARRANGE FAR * lpchrg, HMENU FAR * lphmenu)
 {
 #ifdef _DEBUG
-	return this->InsertGif(_T("C:\\aaa.gif"));
-	//return this->InsertComObject(__uuidof(GifImageObject));
-#endif
-#ifdef _DEBUG
 	HMENU& hMenu = *lphmenu;
 	TCHAR szInfo[128] = _T("");
 	_stprintf(szInfo, _T("GetContextMenu Args: seltype=%d, lpoleobj=%08x, lpchrg=%d,%d"),
@@ -1959,7 +2357,35 @@ HRESULT __stdcall WindowlessRichEdit::GetContextMenu(WORD seltype, LPOLEOBJECT l
 
 	hMenu = CreatePopupMenu();
 	BOOL bRet = ::AppendMenu(hMenu, MF_STRING, 10001, szInfo);
+    POINT pt;
+    GetCursorPos(&pt);
+    ::TrackPopupMenu(hMenu, TPM_RETURNCMD, pt.x, pt.y, 0, m_hParentWnd, NULL);
+    DestroyMenu(hMenu);
 #endif
 	return S_OK;
+}
+
+void  WindowlessRichEdit::SetSel(int nPos, int nLen)
+{
+    if (m_spTextServices)
+    {
+        CHARRANGE range = {nPos, nPos+nLen};
+        LRESULT lr = 0;
+        m_spTextServices->TxSendMessage(EM_EXSETSEL, NULL, (LPARAM)&range, &lr);
+    }
+}
+void  WindowlessRichEdit::GetSel(int* pnPos, int* pnLen)
+{
+    if (m_spTextServices)
+    {
+        CHARRANGE range ={0, 0};
+        LRESULT lr = 0;
+        m_spTextServices->TxSendMessage(EM_EXGETSEL, NULL, (LPARAM)&range, &lr);
+
+        if (pnPos)
+            *pnPos = range.cpMin;
+        if (pnLen)
+            *pnLen = range.cpMin+range.cpMax;
+    }
 }
 #pragma endregion

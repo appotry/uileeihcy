@@ -102,6 +102,7 @@ namespace UI { namespace Util {
 
 	bool      UIUTILAPI TranslateRECT(const TCHAR* strRect, RECT* pRect, TCHAR szSep = _T(',') );
 	COLORREF  UIUTILAPI TranslateRGB(const TCHAR* strCol, TCHAR szSep = _T(',') );
+    COLORREF  UIUTILAPI TranslateHexColor(const TCHAR* szColor);
 	bool      UIUTILAPI TranslateImage9Region(const TCHAR* str, void* p9Region, TCHAR szSep = _T(',') );
 
     interface ISplitStringEnum
@@ -133,6 +134,7 @@ namespace UI { namespace Util {
 	BOOL UIUTILAPI CalcRelativePathToFile(const TCHAR* szFile, const TCHAR* szPath, TCHAR* szOutRelativePath );
 	BOOL UIUTILAPI CalcFullPathByRelative(const TCHAR* szDir, const TCHAR* szRelative, TCHAR* szOut ); 
 	void UIUTILAPI _WtlAbbreviateName(_Inout_z_ LPTSTR lpszCanon, int cchMax, BOOL bAtLeastNam);
+    void UIUTILAPI PathReplace2Backslashes(TCHAR* szPath);
 
 	//bool EnumFileInDirProc(TCHAR* szFileName);
 	BOOL UIUTILAPI EnumFileInDirectory(const TCHAR* szDir, EnumFileInDirProc proc, WPARAM wParam);
@@ -156,10 +158,10 @@ namespace UI { namespace Util {
 	void UIUTILAPI GetAppPath( TCHAR* strPath );
 	void UIUTILAPI GetAppPath_( TCHAR* strPath );
 	bool UIUTILAPI IsKeyDown( UINT vk );
-//	int  UIUTILAPI RectW( const RECT* prc );
-//	int  UIUTILAPI RectH( const RECT* prc );
 	void UIUTILAPI DeflatRect( RECT* pfc, RECT* pDeflatRc );
 	
+	bool UIUTILAPI InstallAutoRun(BOOL bInstall, TCHAR* szName, TCHAR* szPath);
+	bool UIUTILAPI QueryAutoRun(TCHAR* szName, TCHAR* szPath);
 #endif
 
 #ifdef UTIL_DEBUG

@@ -18,6 +18,7 @@ public:
         UIMSG_WM_LBUTTONUP(OnLButtonUp)
         UIMSG_WM_MOUSEMOVE(OnMouseMove)
         UIMSG_WM_CANCELMODE(OnCancelMode)
+        UIMSG_WM_SIZE(OnSize)
 
         UIMSG_WM_RESETATTRIBUTE(ResetAttribute)
         UIMSG_WM_SETATTRIBUTE(SetAttribute)
@@ -46,6 +47,7 @@ protected:
     void  ResetAttribute();
     void  SetAttribute(IMapAttribute* pMapAttr, bool bReload);
     void  OnObjectLoaded();
+    void  OnSize(UINT nType, int cx, int cy);
 
     void  OnLButtonDown(UINT nFlags, POINT point);
     void  OnLButtonUp(UINT nFlags, POINT point);
@@ -56,6 +58,9 @@ protected:
     bool  TestAvailableDragPos(POINT point, POINT* ptAvailable);
     void  UpdateLeftRightCtrlPos(int nPos);
     void  UpdateUpBottomCtrlPos(int nPos);
+    void  OnParentSizeChanged();
+
+    void  CalcAvailableRegion();
 
 private:
     ISplitterBar*   m_pISplitterBar;
@@ -63,18 +68,36 @@ private:
     SPLITTERBAR_DIRECTION  m_eDirection;   // 子对象排布的方向
     SPLITTERBAR_ALIGN      m_eAlign;       // 拖拽条对齐方向
 
-    IObject*  m_pObjLeftUp;                // 注：这两个对象必须配置在splitterbar后面，否则在splitterbar::onobjloaded中查找不到
-    IObject*  m_pObjRightBottom;
+    union
+    {
+        struct
+        {
+            IObject*  m_pObjLeft;                // 注：这两个对象必须配置在splitterbar后面，否则在splitterbar::onobjloaded中查找不到
+            IObject*  m_pObjRight;
+
+            int  m_nLeftMin;
+            int  m_nLeftMax;
+            int  m_nRightMin;
+            int  m_nRightMax;
+        };
+        struct
+        {
+            IObject*  m_pObjTop;            
+            IObject*  m_pObjBottom;
+
+            int  m_nTopMin;
+            int  m_nTopMax;
+            int  m_nBottomMin;
+            int  m_nBottomMax;
+        };
+    };
 
     bool   m_bButtonDown;
     int    m_nDeviation;      // 鼠标按下时的偏差
     POINT  m_ptLButtonDown;   // 窗口坐标
     POINT  m_ptLastMouseMove; // 窗口坐标
 
-    int  m_nLeftUpMin;
-    int  m_nLeftUpMax;
-    int  m_nRightBottomMin;
-    int  m_nRightBottomMax;
+    CRect  m_rcAvailable;     // 在鼠标按下与弹起之间，该值有效
 };
 
 }

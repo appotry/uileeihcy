@@ -1,11 +1,21 @@
 #include "stdafx.h"
 #include "richeditolemgr.h"
 #include "gifoleobject.h"
+#include <algorithm>
+
+IRichEditOleObjectItem::~IRichEditOleObjectItem()
+{
+    if (m_pOleObjectMgr)
+    {
+        m_pOleObjectMgr->OnOleObjDelete(this);
+    }
+}
 
 #pragma region
 RichEditOleObjectItem_Com::RichEditOleObjectItem_Com()
 {
 	m_pOleObject = NULL;
+    memset(&m_clsid, 0, sizeof(m_clsid));
 }
 RichEditOleObjectItem_Com::~RichEditOleObjectItem_Com()
 {  
@@ -27,6 +37,20 @@ HRESULT  RichEditOleObjectItem_Com::GetOleObject(IOleObject** ppOleObject, bool 
 
 	return S_OK;
 }
+HRESULT  RichEditOleObjectItem_Com::GetEncodeText(BSTR* pbstr)
+{
+    if (!pbstr)
+        return E_INVALIDARG;
+
+    WCHAR szText[128] = {0};
+    WCHAR szGUID[64] = {0};
+
+    StringFromCLSID(m_clsid, (LPOLESTR*)&szGUID);
+    wsprintf(szText, L"<com version=\"1.0\" clsid=\"%s\"/>", szGUID);
+    *pbstr = SysAllocString(szText);
+    return S_OK;
+}
+
 HRESULT  RichEditOleObjectItem_Com::GetClipboardData(CHARRANGE FAR * lpchrg, DWORD reco, LPDATAOBJECT FAR * lplpdataobj)
 {
 	return E_NOTIMPL;
@@ -36,6 +60,7 @@ HRESULT  RichEditOleObjectItem_Com::GetClipboardData(CHARRANGE FAR * lpchrg, DWO
 HRESULT  RichEditOleObjectItem_Com::Attach(CLSID  clsid)
 {
 	SAFE_RELEASE(m_pOleObject);
+    m_clsid = clsid;
 	return ::CoCreateInstance(clsid, NULL, CLSCTX_INPROC, IID_IOleObject, (void**)&m_pOleObject); 
 }
 #pragma endregion
@@ -107,6 +132,10 @@ HRESULT RichEditOleObjectItem_Inner::GetOleObject(IOleObject** ppOleObject, bool
 		this->AddRef();
 
 	return S_OK;
+}
+HRESULT RichEditOleObjectItem_Inner::GetEncodeText(BSTR* pbstr)
+{
+    return E_NOTIMPL;
 }
 
 HRESULT STDMETHODCALLTYPE RichEditOleObjectItem_Inner::SetClientSite(IOleClientSite *pClientSite)
@@ -203,22 +232,18 @@ RichEditOleObjectManager::RichEditOleObjectManager(WindowlessRichEdit* pRichEdit
 {
 	m_pRichEdit = pRichEdit;
 	m_pUIApp = NULL;
-	m_dwIndex = 0;
-//	m_pGifImageItemMgr = new GifImageItemMgr();
 }
 RichEditOleObjectManager::~RichEditOleObjectManager()
 {
 	// 判断一下
 	// OleFlushClipboard();
 
-	OLEOITEMMAP::iterator iter = m_mapOleObject.begin();
-	OLEOITEMMAP::iterator iterEnd = m_mapOleObject.end();
-	for (; iter != iterEnd; iter++)
+	OLELIST::iterator iter = m_listOleObj.begin();
+	for (; iter != m_listOleObj.end(); iter = m_listOleObj.begin())
 	{
-		SAFE_DELETE(iter->second);
+        IRichEditOleObjectItem* pItem = *iter;
+	    SAFE_DELETE(pItem);  // 会触发OnOleObjDelete，删除iter
 	}
-	m_mapOleObject.clear();
-//	SAFE_DELETE(m_pGifImageItemMgr);
 }
 
 bool RichEditOleObjectManager::AddOleItem(IRichEditOleObjectItem* pItem)
@@ -227,20 +252,20 @@ bool RichEditOleObjectManager::AddOleItem(IRichEditOleObjectItem* pItem)
 		return false;
 
 	pItem->SetOleObjectManager(this);
-	m_mapOleObject.insert(make_pair(m_dwIndex++, pItem));
+	m_listOleObj.push_back(pItem);
 
 	return true;
 }
-
-IRichEditOleObjectItem*  RichEditOleObjectManager::GetOleItem(int dwUser)
+void  RichEditOleObjectManager::OnOleObjDelete(IRichEditOleObjectItem* pItem)
 {
-	OLEOITEMMAP::iterator iter = m_mapOleObject.find(dwUser);
-	if (iter == m_mapOleObject.end())
-	{
-		return NULL;
-	}
-	
-	return iter->second;
+    if (!pItem)
+        return;
+
+    OLELIST::iterator iter = std::find(m_listOleObj.begin(), m_listOleObj.end(), pItem);
+    if (iter != m_listOleObj.end())
+    {
+        m_listOleObj.erase(iter);
+    }
 }
 
 void RichEditOleObjectManager::SetUIApplication(IUIApplication* p)

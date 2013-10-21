@@ -97,7 +97,11 @@ HRESULT  Menu::UIParseLayoutElement(IUIElement* pElem, IUIApplication*  pUIApp, 
 
     pElem->GetAttribList(&pMapAttrib);
     pStyleMgr->ParseStyle(Menu::GetXmlName(), pMapAttrib);
-    UISendMessage(pIMenu, UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, (LPARAM)false);
+
+	SERIALIZEDATA data = {0};
+	data.pMapAttrib = pMapAttrib;
+	UISendMessage(pIMenu, UI_WM_SERIALIZE, (WPARAM)&data);
+//    UISendMessage(pIMenu, UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, (LPARAM)false);
     SAFE_RELEASE(pMapAttrib);
 
     // 遍历其子元素
@@ -183,7 +187,10 @@ IListItemBase* Menu::LoadMenuItem(IUIElement* pUIElement, const TCHAR* szTagName
             if (bDisable)
                 pItem->SetDisable(true);
 
-            UISendMessage(pItem, UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, (LPARAM)false);
+			SERIALIZEDATA data = {0};
+			data.pMapAttrib = pMapAttrib;
+			UISendMessage(pItem, UI_WM_SERIALIZE, (WPARAM)&data);
+//            UISendMessage(pItem, UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, (LPARAM)false);
         }
         return pItem;
     }
@@ -192,7 +199,10 @@ IListItemBase* Menu::LoadMenuItem(IUIElement* pUIElement, const TCHAR* szTagName
         IListItemBase* pItem = this->AppendSeparator(nID);
         if (pItem)
         {
-            UISendMessage(pItem, UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, (LPARAM)false);
+			SERIALIZEDATA data = {0};
+			data.pMapAttrib = pMapAttrib;
+			UISendMessage(pItem, UI_WM_SERIALIZE, (WPARAM)&data);
+//            UISendMessage(pItem, UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, (LPARAM)false);
         }
         return pItem;
     }
@@ -232,7 +242,10 @@ IListItemBase* Menu::LoadMenuItem(IUIElement* pUIElement, const TCHAR* szTagName
             if (bDisable)
                 pItem->SetDisable(true);
 
-            UISendMessage(pItem, UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, (LPARAM)false);
+			SERIALIZEDATA data = {0};
+			data.pMapAttrib = pMapAttrib;
+			UISendMessage(pItem, UI_WM_SERIALIZE, (WPARAM)&data);
+//            UISendMessage(pItem, UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, (LPARAM)false);
         }
         return pItem;
     }

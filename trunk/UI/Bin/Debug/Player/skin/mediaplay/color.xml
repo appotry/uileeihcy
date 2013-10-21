@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<skin>
+  <color>
+    <item id="black">0,0,0,255</item>
+    <item id="white">255,255,255,255</item>
+    <item id="gray">127,127,127,255</item>
+    <item id="scroll_title_text">255,255,255,255</item>
+    <item id="voice_channel">0,192,0,255</item>
+    <item id="play_statue">160,160,160,255</item>
+    <item id="default">255,255,255,255</item>
+    <item id="default2">128,255,255,255</item>
+    <item id="control_border_color">137,140,149,255</item>
+    <item id="maskcolor">255,0,255,0</item>
+    <item id="status_bk_color">0,0,0,255</item>
+    <item id="time_color">114,152,217,255</item>
+    <item id="border_color">137,140,149,255</item>
+    <item id="playlistbk_color2">32,32,32,255</item>
+    <item id="menu_item_hover">193,210,238,255</item>
+    <item id="menu_item_hover_border">49,106,197,255</item>
+    <item id="option_gradient_from" useskinhls="0">48,106,198,255</item>
+    <item id="option_gradient_to"  useskinhls="0">255,255,255,255</item>
+    <item id="option_title_text_color" useskinhls="0">255,255,255,255</item>
+    <item id="option_title_text_color_shadow" useskinhls="0">32,32,32,255</item>
+    <item id="option_introduce_ttplayer_text1" useskinhls="0">255,155,0,255</item>
+    <item id="option_introduce_ttplayer_text2" useskinhls="0">255,255,255,255</item>
+    <item id="option_introduce_ttplayer_text3" useskinhls="0">32,32,32,255</item>
+  </color>
+</skin>
+
+
+
+

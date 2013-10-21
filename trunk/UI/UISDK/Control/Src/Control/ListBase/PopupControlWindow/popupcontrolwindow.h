@@ -45,6 +45,7 @@ protected:
 protected:
     IObject*  m_pObject;   // 弹出窗口中装载的对象指针，如ListBox* Menu*
     bool      m_bExitLoop; // 在收到WM_EXITPOPUPLOOP之后，该变量为true
+    bool      m_bMouseIn;  // 鼠标在窗口上，用于触发WM_MOUSELEAVE
 };
 
 class PopupListBoxWindow : public PopupControlWindow

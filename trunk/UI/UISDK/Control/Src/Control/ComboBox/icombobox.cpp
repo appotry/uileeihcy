@@ -9,7 +9,6 @@ UI_IMPLEMENT_Ixxx_INTERFACE2(IComboBoxBase, ComboBoxBase, IControl)
 UI_IMPLEMENT_Ixxx_INTERFACE(IComboBox, ComboBox, ComboBoxBase)
 
 const TCHAR*  IComboBoxBase::GetText(){ return m_pComboBoxBaseImpl->GetText(); }
-void  IComboBoxBase::SetComboboxStyleType(int n) { return m_pComboBoxBaseImpl->SetComboboxStyleType(n); }
 void  IComboBoxBase::SetDropDownObjectPtr(IObject* p) { m_pComboBoxBaseImpl->SetDropDownObjectPtr(p); }
 void  IComboBoxBase::CloseUp() { m_pComboBoxBaseImpl->CloseUp(); }
 IEdit*  IComboBoxBase::GetEdit() { return m_pComboBoxBaseImpl->GetEdit(); }
@@ -29,5 +28,14 @@ bool  IComboBox::SetCurSel(int nIndex)
 IListBox*  IComboBox::GetListBox()
 {
     return m_pComboBoxImpl->GetListBox();
+}
+
+void  IComboBox::SetReadOnly(bool b)
+{
+    m_pComboBoxImpl->SetReadOnly(b);
+}
+bool  IComboBox::IsReadOnly()
+{   
+    return m_pComboBoxImpl->IsReadOnly();
 }
 }

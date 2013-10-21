@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<skin>
+  <layout>
+    <Window id="FirstPageDlg" width="500" height="500" bkgnd.render.type="color" bkgnd.render.color="firstpagedlgback">
+      <GroupBox text="最近打开的工程" layout.top="50" layout.left="50" width="200" height="200">
+        <HyperLink id="recent_hl_1" styleclass="fristpage_hyperlink" text="1" layout.top="5"/>
+        <HyperLink id="recent_hl_2" styleclass="fristpage_hyperlink" text="1" layout.top="25"/>
+        <HyperLink id="recent_hl_3" styleclass="fristpage_hyperlink" text="1" layout.top="45"/>
+        <HyperLink id="recent_hl_4" styleclass="fristpage_hyperlink" text="1" layout.top="65"/>
+        <HyperLink id="recent_hl_5" styleclass="fristpage_hyperlink" text="1" layout.top="85"/>
+        <Button id="recent_btn_1" styleclass="firstpage_recentbtn" layout.top="5"/>
+        <Button id="recent_btn_2" styleclass="firstpage_recentbtn" layout.top="25"/>
+        <Button id="recent_btn_3" styleclass="firstpage_recentbtn" layout.top="45"/>
+        <Button id="recent_btn_4" styleclass="firstpage_recentbtn" layout.top="65"/>
+        <Button id="recent_btn_5" styleclass="firstpage_recentbtn" layout.top="85"/>
+      </GroupBox>
+      <Button id="btnnew" text="新建" layout.right="100" layout.top="50" width="100" height="30"/>
+      <Button id="btnopen" text="打开皮肤" layout.right="100" layout.top="100" width="100" height="30"/>
+    </Window>
+
+    <Window id="PropertyDialog" minwidth="200" minheight="300">
+      <Panel layout="stack" layout.left="0" layout.top="2" layout.right="0" height="25" padding="10,0,0,0">
+        <RadioButton id="radiobtn_attr_xml" text="xml属性" tooltip="直接显示xml属性"  width="70" height="0" textrender.align="left|vcenter"/>
+        <RadioButton id="radiobtn_attr_obj" text="obj属性" tooltip="显示对象所有属性" width="70" height="0" textrender.align="left|vcenter"/>
+        <RadioButton id="radiobtn_attr_style" text="style属性" tooltip="样式属性" width="70" height="0" textrender.align="left|vcenter"/>
+      </Panel>
+      <PropertyCtrl id="propertyctrl" layout.left="0" layout.top="30" layout.right="0" layout.bottom="30"/>
+
+      <Label text="Command:" layout.left="0" width="60" height="25" layout.bottom="0"/>
+      <Edit id="edit_command" layout.left="60" layout.bottom="0" layout.right="30" height="25" bkgnd.render.theme.disable="1"/>
+      <Button id="btn_command" layout.right="5" layout.bottom="5" width="20" height="20" bkgnd.render.theme.disable="1"/>
+    </Window>
+
+    <Window id="StatusBar">
+      <Label id="statustext" text="Ready" layout.left="10" layout.top="0" layout.bottom="0" layout.right="300"></Label>
+    </Window>
+
+    <Window id="ToolBar" layout="stack">
+      <Panel id="normal" layout="stack">
+        <Button id="toolbar_btn_save" styleclass="toolbar_btn" tooltip="保存" foregnd.render.image="command_save"/>
+        <Button id="toolbar_btn_newwindow" styleclass="toolbar_btn" tooltip="新建窗口" foregnd.render.image="command_newwindow"/>
+        <Button id="toolbar_btn_undo" styleclass="toolbar_btn" tooltip="撤销" foregnd.render.image="command_undo"/>
+        <Button id="toolbar_btn_redo" styleclass="toolbar_btn" tooltip="还原" foregnd.render.image="command_redo"/>
+      </Panel>
+      <Panel id="layoutview" layout="stack">
+        <Button id="toolbar_btn_preview" styleclass="toolbar_btn" disable="0" tooltip="预览" foregnd.render.image="command_preview"/>
+      </Panel>
+    </Window>
+
+    <Window id="ProjectDependsCtrlDllConfigDlg" text="依赖控件库设置" width="400" height="400" padding="10">
+      <ListBox id="listbox" layout.left="0" layout.top="0" layout.right="100" layout.bottom="0"/>
+      <Button id="btn_add" text="添加" layout.right="10" layout.top="0"  width="80" height="22"/>
+      <Button id="btn_del" text="删除" layout.right="10" layout.top="30" width="80" height="22"/>
+
+      <Button id="btn_ok" text="关闭"  layout.right="10" layout.top="100" width="80" height="22"/>
+    </Window>
+
+    <Window id="ToolBox" text="工具箱" width="200" height="300">
+      <TreeView id="tree" layout.left="0" layout.top="0" layout.right="0" layout.bottom="0"/>
+    </Window>
+
+    <Window id="layoutview"></Window>
+  </layout>
+</skin>

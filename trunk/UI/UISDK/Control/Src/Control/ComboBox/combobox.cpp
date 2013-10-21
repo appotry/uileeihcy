@@ -255,7 +255,23 @@ const TCHAR*  ComboBoxBase::GetText()
 
     return m_pEdit->GetText();
 }
-
+void  ComboBoxBase::SetReadOnly(bool b)
+{
+    if (b)
+    {
+        m_pIComboBoxBase->ModifyStyleEx(COMBOBOX_STYLE_DROPDOWN, COMBOBOX_STYLE_EDITDROPDOWNLIST, true);
+    }
+    else
+    {
+        m_pIComboBoxBase->ModifyStyleEx(COMBOBOX_STYLE_EDITDROPDOWNLIST, COMBOBOX_STYLE_DROPDOWN, true);
+    }
+    if (m_pEdit)
+        m_pEdit->SetReadOnly(b, false);
+}
+bool  ComboBoxBase::IsReadOnly()
+{
+    return m_pIComboBoxBase->TestStyleEx(COMBOBOX_STYLE_DROPDOWN);
+}
 void ComboBoxBase::OnRedrawObject()
 {
 	m_pIComboBoxBase->UpdateObject();
@@ -265,7 +281,7 @@ void ComboBoxBase::OnLButtonDown(UINT nFlags, POINT point)
 {
 	if (m_pIComboBoxBase->TestStyleEx(COMBOBOX_STYLE_DROPDOWN))
 	{
-		if (m_pIComboBoxBase->IsForePress())
+		if (m_pIComboBoxBase->IsForcePress())
 			return;
 
         UIMSG  msg;
@@ -297,7 +313,7 @@ void ComboBoxBase::OnLButtonDown(UINT nFlags, POINT point)
 }
 void ComboBoxBase::OnBtnLButtonDown(UINT nFlags, POINT point)
 {
-	if (m_pButton->IsForePress())
+	if (m_pButton->IsForcePress())
 		return;
 
     UIMSG  msg;
@@ -351,7 +367,6 @@ void ComboBoxBase::OnStyleChanged(int nStyleType, LPSTYLESTRUCT lpStyleStruct)
                 m_pButton->SetVisible(false,true);
             }
 	    }
-
 	    else if (!(lpStyleStruct->styleOld & COMBOBOX_STYLE_EDITDROPDOWNLIST)  &&
 		    lpStyleStruct->styleNew & COMBOBOX_STYLE_EDITDROPDOWNLIST)
 	    {
@@ -388,26 +403,6 @@ void ComboBoxBase::OnUnInitPopupControlWindow()
 	}
 }
 
-//  设置COMBOBOX类型
-void ComboBoxBase::SetComboboxStyleType(int n)
-{
-	switch(n)
-	{
-	case COMBOBOX_STYLE_DROPDOWN:
-		{
-			m_pIComboBoxBase->ModifyStyleEx(COMBOBOX_STYLE_DROPDOWN, COMBOBOX_STYLE_EDITDROPDOWNLIST, true);
-            m_pIComboBoxBase->ModifyStyle(0, CONTROL_STYLE_TABSTOP, true);
-		}
-		break;
-
-	case COMBOBOX_STYLE_EDITDROPDOWNLIST:
-		{
-			m_pIComboBoxBase->ModifyStyleEx(COMBOBOX_STYLE_EDITDROPDOWNLIST|CONTROL_STYLE_TABSTOP, COMBOBOX_STYLE_DROPDOWN, true);
-            m_pIComboBoxBase->ModifyStyle(CONTROL_STYLE_TABSTOP, 0, false);
-		}
-		break;
-	}
-}
 
 bool ComboBoxBase::_DefaultDropDown()
 {
@@ -545,15 +540,15 @@ void  ComboBox::SetAttribute(IMapAttribute* pMapAttrib, bool bReload)
                 if (p)
                 {
 				    p->SetCount(8);
-				    p->SetColor(LISTCTRLITEM_FOREGND_RENDER_STATE_NORMAL,  RGB(0,0,0));
-				    p->SetColor(LISTCTRLITEM_FOREGND_RENDER_STATE_HOVER,   RGB(255,255,255));
-				    p->SetColor(LISTCTRLITEM_FOREGND_RENDER_STATE_PRESS,   RGB(255,255,255));
-				    p->SetColor(LISTCTRLITEM_FOREGND_RENDER_STATE_DISABLE, RGB(255,255,255));
+				    p->SetColor(LISTCTRLITEM_FOREGND_RENDER_STATE_NORMAL,  RGBA(0,0,0, 255));
+				    p->SetColor(LISTCTRLITEM_FOREGND_RENDER_STATE_HOVER,   RGBA(255,255,255, 255));
+				    p->SetColor(LISTCTRLITEM_FOREGND_RENDER_STATE_PRESS,   RGBA(255,255,255, 255));
+				    p->SetColor(LISTCTRLITEM_FOREGND_RENDER_STATE_DISABLE, RGBA(255,255,255, 255));
 
-				    p->SetColor(LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_NORMAL,  RGB(255,255,255));
-				    p->SetColor(LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_HOVER,   RGB(255,255,255));
-				    p->SetColor(LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_PRESS,   RGB(255,255,255));
-				    p->SetColor(LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE, RGB(255,255,255));
+				    p->SetColor(LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_NORMAL,  RGBA(255,255,255, 255));
+				    p->SetColor(LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_HOVER,   RGBA(255,255,255, 255));
+				    p->SetColor(LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_PRESS,   RGBA(255,255,255, 255));
+				    p->SetColor(LISTCTRLITEM_FOREGND_RENDER_STATE_SELECTED_DISABLE, RGBA(255,255,255, 255));
 
                     IRenderFont* pRenderFont = m_pIComboBox->GetRenderFont();
 				    p->SetRenderFont(pRenderFont);
@@ -571,21 +566,15 @@ void  ComboBox::SetAttribute(IMapAttribute* pMapAttrib, bool bReload)
 
 	m_pDropDownCtrl->SetAttributeByPrefix(XML_COMBOBOX_LISTBOX_PRIFIX, pMapAttrib, bReload, true);
     
+    __super::SetAttribute(pMapAttrib, bReload);
+
     if (!bReload)
     {
+        // 这个要放在设置完EDIT/BUTTON后面，否则EDIT在readonly下面又会被显示出来
         bool bReadonly = false;
         pMapAttrib->GetAttr_bool(XML_READONLY, true, &bReadonly);
-        if (bReadonly)
-        {
-            SetComboboxStyleType(COMBOBOX_STYLE_DROPDOWN);
-        }
-        else
-        {
-            SetComboboxStyleType(COMBOBOX_STYLE_EDITDROPDOWNLIST);
-        }
+        SetReadOnly(bReadonly);
     }
-
-    __super::SetAttribute(pMapAttrib, bReload);
 }
 void  ComboBox::ResetAttribute()
 {
@@ -612,10 +601,9 @@ void  ComboBox::OnPaint(IRenderTarget* pRenderTarget)
 	{
 //        UISendMessage(pItem, WM_PAINT, (WPARAM)pRenderTarget, 0); <-- 有可能item rect还没有update
 
+        // 用padding作为readonly的文字间距
 		CRect rc;
 		m_pIComboBox->GetClientRectAsWin32(&rc);
-		rc.left += 4;
-		rc.right -= 20;
 		pTextRender->DrawState(pRenderTarget, &rc, 0, pItem->GetText(), DT_SINGLELINE|DT_VCENTER|DT_LEFT);
 	}
 }

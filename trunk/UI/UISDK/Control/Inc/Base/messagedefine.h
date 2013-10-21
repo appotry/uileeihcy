@@ -5,12 +5,23 @@ namespace UI
 {
 interface IListItemBase;
 
+//
+//	滑动条位置改变通知
+//
+//		message:UI_WM_NOTIFY
+//		code:   UI_TRBN_POSCHANGED
+//		wparam: new Pos
+//		lParam: scroll type, SB_LEFT SB_RIGHT SB_THUMBTRACK SB_ENDSCROLL ...
+//		pMsgFrom: this
+//
+#define UI_TRBN_POSCHANGED  130172216
+
 // void OnTrbnPosChanged( int nPos, int nScrollType );
 #define UIMSG_TRBN_POSCHANGED_ID(OBJID, func)         \
     if (uMsg == UI_WM_NOTIFY  &&                      \
         code == UI_TRBN_POSCHANGED &&                 \
         NULL != pMsgFrom &&                           \
-        0 == _tcscmp(((IObject*)pMsgFrom)->GetID(), OBJID)) \
+        0 == _tcscmp(((IObject*)pMsgFrom)->GetId(), OBJID)) \
     {                                                 \
         SetMsgHandled(TRUE);                          \
         func ((int)wParam, (int)lParam);              \
@@ -31,14 +42,14 @@ interface IListItemBase;
             return TRUE;                              \
     }
 
-
-// void OnCbnSelChanged(Message* pMsgFrom, ListItemBase* pOldSelItem, ListItemBase* pSelItem)
-#define UIMSG_CBN_SELCHANGED(func)                    \
+// void OnCbnSelChanged(UI::IListItemBase* pOldSelItem, UI::IListItemBase* pSelItem)
+#define UIMSG_CBN_SELCHANGED(ptr, func)               \
     if (uMsg == UI_WM_NOTIFY  &&                      \
+        pMsgFrom == (UI::IMessage*)ptr &&             \
         code == UI_CBN_SELCHANGED )                   \
     {                                                 \
         SetMsgHandled(TRUE);                          \
-        func(pMsgFrom, (UI::IListItemBase*)wParam, (UI::IListItemBase*)lParam); \
+        func((UI::IListItemBase*)wParam, (UI::IListItemBase*)lParam); \
         if (IsMsgHandled())                           \
             return TRUE;                              \
     }

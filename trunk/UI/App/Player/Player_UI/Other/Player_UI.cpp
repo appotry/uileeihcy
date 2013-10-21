@@ -44,7 +44,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
     String strLogPath = szPath;
 
     // 加载日志
-    strLogPath.append(_T("TTPlayer\\player.xml"));
+    strLogPath.append(_T("player.xml"));
     g_pUIApp->SetLog(NULL, (BSTR)strLogPath.c_str());
     g_pUIApp->GetLog(&g_pLog);
     if (g_pLog)
@@ -58,7 +58,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
     }
 
     // 加载皮肤
-    str.append(_T("TTPlayer\\skin"));
+    str.append(_T("skin"));
     g_pUIApp->SetSkinDirection(str.c_str());
 
     if (FAILED(g_pUIApp->LoadSkin(GetConfigData()->skin.m_strActiveSkinName.c_str())))

@@ -36,6 +36,7 @@ public:
 //         MSG_WM_MOVE(OnMove)
          MSG_WM_DESTROY(OnDestroy)
          MSG_WM_PAINT(OnPaint)
+         MSG_WM_ERASEBKGND(OnEraseBkgnd)
          MSG_WM_TIMER(OnTimer)
          MESSAGE_HANDLER(UI_WM_SYNC_WINDOWPOSCHANING, OnSyncWindowPosChanging);
     END_MSG_MAP()
@@ -44,21 +45,24 @@ protected:
      int   OnCreate(LPCREATESTRUCT lpCreateStruct);
      void  OnDestroy();
      void  OnPaint(HDC hDC);
+     BOOL  OnEraseBkgnd(HDC hDC);
      void  OnTimer(UINT_PTR nIDEvent);
      void  OnMove(CPoint ptPos);
      virtual void  OnControlPaint(IRenderTarget* p){};
      LRESULT OnSyncWindowPosChanging(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 
 public:
-    virtual CARET_TYPE  GetType() { return CARET_TYPE_OWNERDRAW; }
+    virtual CARET_TYPE  GetType() { return CARET_TYPE_WINDOW; }
     virtual BOOL  Create(IObject* pObj, HWND hWndParent, HBITMAP hbmp, int nWidth, int nHeight);
-    virtual void  Destroy();
+    virtual void  Destroy(bool bRedraw);
     virtual void  SetPos(int x, int y, bool bRedraw);
     virtual void  Show(bool bRedraw);
     virtual void  Hide(bool bRedraw);
+    virtual IObject*  GetObject() { return m_pObject; }
 
     void  OnWindowMove();
     void  OnControlMove();
+    void  DrawCaretBitmap(HBITMAP hbmp, HDC hDstDC, HBITMAP hDstBmp, int nWidht, int nHeight);
 
 protected:
     void  _SetPos(int x, int y);

@@ -48,6 +48,9 @@ void  MenuPopupItemShareData::SetAttribute(IMapAttribute* pMapAttrib, bool bRelo
     {
         m_pListCtrl->GetUIApplication()->CreateRenderBase(RENDER_TYPE_THEME_MENUPOPUPTRIANGLE, m_pListCtrl, &m_pPopupTriangleRender);
     }
+
+    pMapAttrib->GetAttr_int(XML_MENU_LEFT_TEXT_INDENT, false, &nTextIndentLeft);
+    pMapAttrib->GetAttr_int(XML_MENU_RIGHT_TEXT_INDENT, false, &nTextIndentRight);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -93,7 +96,11 @@ void  MenuPopupItem::OnInitialize()
 
         IMapAttribute*  pMapAttrib = NULL;
         pListCtrl->GetMapAttribute(&pMapAttrib);
-        UISendMessage(m_pShareData->GetIMenuPopupItemShareData(), UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, 0);
+
+		SERIALIZEDATA data = {0};
+		data.pMapAttrib = pMapAttrib;
+		UISendMessage(m_pShareData->GetIMenuPopupItemShareData(), UI_WM_SERIALIZE, (WPARAM)&data);
+//        UISendMessage(m_pShareData->GetIMenuPopupItemShareData(), UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, 0);
         SAFE_RELEASE(pMapAttrib);
     }
     else

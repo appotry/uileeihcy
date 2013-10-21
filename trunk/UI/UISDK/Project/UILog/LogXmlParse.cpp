@@ -148,7 +148,9 @@ bool CLogXmlParse::Load(LogRes*  pLog)
 	CMarkup  xml;
 	if (false == xml.Load(m_strDataSource))
 	{
-		::OutputDebugString(_T("CLogXmlParse::Save  load xml failed"));
+        TCHAR szText[256] = _T("");
+        _stprintf(szText, _T("%s load xml failed: %s\n"), _T(__FUNCTION__), m_strDataSource.c_str());
+		::OutputDebugString(szText);
 		return false;
 	}
 

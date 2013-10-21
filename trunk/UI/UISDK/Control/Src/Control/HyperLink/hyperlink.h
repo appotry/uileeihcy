@@ -14,6 +14,7 @@ public:
 	UI_BEGIN_MSG_MAP
 		UIMSG_WM_SETCURSOR(OnSetCursor)
         UIMSG_BN_CLICKED2(m_pIHyperLink, OnClicked)
+        UIMSG_WM_GETDLGCODE(OnGetDlgCode)
         UIMSG_WM_GETOBJECTINFO(OnGetObjectInfo)
         UIMSG_WM_QUERYINTERFACE(QueryInterface)
         UIMSG_WM_RESETATTRIBUTE(ResetAttribute)
@@ -29,6 +30,7 @@ protected:
     void  ResetAttribute();
 	BOOL  OnSetCursor( HWND hWnd, UINT nHitTest, UINT message );
     void  OnClicked();
+    UINT  OnGetDlgCode(LPMSG lpMsg) { return 0; }
 
     IHyperLink*  m_pIHyperLink;
 

@@ -36,6 +36,9 @@ interface UICTRLAPI IEdit : public IControl
 
     void  SetSel(int nStartChar, int nEndChar);
     void  GetSel(int& nStartChar,int& nEndChar) const;
+
+    bool  IsReadOnly();
+    void  SetReadOnly(bool b, bool bUpdate);
 };
 
 }

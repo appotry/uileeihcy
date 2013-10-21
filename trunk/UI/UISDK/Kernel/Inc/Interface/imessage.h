@@ -28,9 +28,10 @@ interface UISDKAPI IMessage
     void  delete_this();
 
 protected:
+    friend class Message;  
     virtual ~IMessage();  // 虚函数1. 保证正确释放整个对象
 private:
-    virtual BOOL  DoProcessMessage(UIMSG* pMsg, int nMsgMapID, bool bDoHook);  // 虚函数2. 消息处理
+    virtual BOOL  virtualProcessMessage(UIMSG* pMsg, int nMsgMapID, bool bDoHook);  // 虚函数2. 消息处理
     virtual void  do_delete_this(){ }  // 由UIObjCreator负责实现
 
 public:

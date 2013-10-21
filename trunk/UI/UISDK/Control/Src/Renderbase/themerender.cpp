@@ -5,6 +5,7 @@
 #include "UISDK\Control\Inc\Interface\iprogressctrl.h"
 #include "UISDK\Control\Inc\Interface\isliderctrl.h"
 #include "UISDK\Control\Inc\Interface\imenu.h"
+#include "UISDK\Control\Inc\Interface\iedit.h"
 
 #pragma comment(lib, "uxtheme.lib")
 
@@ -298,7 +299,7 @@ void  EditBkThemeRender::DrawState(RENDERBASE_DRAWSTATE* pDrawStruct)
         }
         else
         {
-            if (GetObject()->IsReadonly())
+            if (GetObject()->TestStyleEx(EDIT_STYLE_READONNLY))
             {
                 DrawEdge(hDC, (RECT*)&pDrawStruct->rc, EDGE_SUNKEN, BF_RECT|BF_MIDDLE);
             }
@@ -1168,10 +1169,10 @@ void ListboxBkThemeRender::DrawState(RENDERBASE_DRAWSTATE* pDrawStruct)
         {
             DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT|BF_MIDDLE);
         }
-        else if (GetObject()->IsReadonly())
-        {
-            DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT|BF_MIDDLE);
-        }
+//         else if (GetObject()->IsReadonly())
+//         {
+//             DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT|BF_MIDDLE);
+//         }
         else
         {
             ::FillRect(hDC, (RECT*)prc, (HBRUSH)GetStockObject(WHITE_BRUSH));
@@ -1402,7 +1403,7 @@ void ComboboxBkThemeRender::DrawNormal( IRenderTarget* pRenderTarget, const CRec
 	}
 	else
 	{
-		if (GetObject()->IsReadonly())
+		if (GetObject()->TestStyleEx(COMBOBOX_STYLE_DROPDOWN))
 		{
 			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT|BF_MIDDLE);
 		}
@@ -1428,7 +1429,7 @@ void ComboboxBkThemeRender::DrawHover( IRenderTarget* pRenderTarget, const CRect
 	}
 	else
 	{
-		if( GetObject()->IsReadonly() )
+		if (GetObject()->TestStyleEx(COMBOBOX_STYLE_DROPDOWN))
 		{
 			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT|BF_MIDDLE);
 		}
@@ -1453,7 +1454,7 @@ void ComboboxBkThemeRender::DrawPress( IRenderTarget* pRenderTarget, const CRect
 	}
 	else
 	{
-		if (GetObject()->IsReadonly())
+		if (GetObject()->TestStyleEx(COMBOBOX_STYLE_DROPDOWN))
 		{
 			DrawEdge(hDC, (RECT*)prc, EDGE_SUNKEN, BF_RECT|BF_MIDDLE);
 		}
@@ -1786,7 +1787,9 @@ void MenuStringItemRender::DrawHover( IRenderTarget* pRenderTarget, const CRect*
     pRenderTarget->ReleaseHDC(hDC);
 }
 void MenuStringItemRender::DrawPress( IRenderTarget* pRenderTarget, const CRect* prc )
-{}
+{
+	return DrawHover(pRenderTarget, prc);
+}
 
 
 

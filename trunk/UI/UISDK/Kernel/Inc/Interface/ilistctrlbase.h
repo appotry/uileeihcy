@@ -31,6 +31,7 @@ enum LISTITEM_VISIBLE_POS_TYPE
 #define LISTITEM_OPFLAG_NOUPDATEITEMRECT   0x0002    // 不去计算每个子项的位置。最后必须调用一次UpdateItemRectAndScrollRange(NULL);
 #define LISTITEM_OPFLAG_NOSORT             0x0004    // 不去排序。最后必须调用一次
 #define LISTITEM_OPFLAG_NOALL   (LISTITEM_OPFLAG_NOREDRAW|LISTITEM_OPFLAG_NOUPDATEITEMRECT|LISTITEM_OPFLAG_NOSORT)
+typedef int LISTITEM_OPFLAGS;
 
 // 消息映射ID分类 
 // #define LISTCTRLBASE_KEYBOARDMOUSEMGR_PREMSG_ID   1   // mousemgr处理前先发给listctrl处理的消息映射ID
@@ -54,7 +55,6 @@ enum LISTITEM_VISIBLE_POS_TYPE
 //	点击listctrl
 //		message: UI_WM_NOTIFY
 //		code:    UI_LCN_CLICK
-//		wparam:  POINT
 //		lparam:  ListItemBase*
 #define UI_LCN_CLICK     135311304
 
@@ -140,6 +140,7 @@ interface UISDKAPI IListCtrlBase : public IControl
     void  RemoveItem(int nIndex, int nRemoveFlag);
     void  RemoveAllChildItems(IListItemBase* pParent, int nRemoveFlag);
     void  RemoveAllItem(int nRemoveFlag);
+    void  DelayRemoveItem(IListItemBase* pItem, int nRemoveFlag = 0);
 
     void  ToggleItemExpand(IListItemBase* pItem, bool bUpdate);
     void  CollapseItem(IListItemBase* pItem, bool bUpdate);
@@ -219,6 +220,12 @@ interface UISDKAPI IListCtrlBase : public IControl
 
     int   GetItemHeight();
     void  SetItemHeight(int nHeight, bool bUpdate=true);
+
+    void  Scroll2Y(int nY, bool bUpdate);
+    void  Scroll2X(int nX, bool bUpdate);
+    void  ScrollY(int nY, bool bUpdate);
+    void  ScrollX(int nX, bool bUpdate);
+    void  SetScrollPos(int nX, int nY, bool bUpdate);
 };
 
 

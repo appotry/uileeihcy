@@ -93,6 +93,7 @@ interface UISDKAPI IWindowBase : public IWindowRenderLayer
     void  HideWindow();
     bool  IsDoModal();
     void  CenterWindow(HWND hWndCenter = NULL);
+    void  UpdateDesktopLayout();
 
     void  OnObjectDeleteInd(IObject* p);
     void  OnObjectHideInd(IObject* p);
@@ -111,7 +112,6 @@ interface UISDKAPI IWindowBase : public IWindowRenderLayer
     void  EndDialog(INT_PTR);
 
     void  CommitDoubleBuffet2Window(HDC hDCWnd, RECT* prcCommit, int nRectCount=1);
-    HBITMAP  PaintObject(IObject* pObj);
     void  SaveMemBitmap(TCHAR* szFile);
     void  DrawMemBitmap(HDC hDC, RECT* prc);
 

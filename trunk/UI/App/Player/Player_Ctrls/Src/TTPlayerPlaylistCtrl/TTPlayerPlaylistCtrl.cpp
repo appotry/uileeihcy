@@ -207,7 +207,11 @@ LRESULT TTPlayerPlaylistCtrl::OnDrawItem(WPARAM wParam, LPARAM lParam)
 		CRect rcTime = rcItem;
 		CRect rcText = rcItem;
 
-		rcText.left = rcNum.right = 20;
+        if (m_pITTPlayerPlaylistCtrl->GetItemCount() > 99)  // ÈýÎ»Êý
+		    rcText.left = rcNum.right = 28;
+        else
+            rcText.left = rcNum.right = 20;
+
 		rcText.right = rcTime.left = rcItem.right - 25;
 		rcTime.right--;
 

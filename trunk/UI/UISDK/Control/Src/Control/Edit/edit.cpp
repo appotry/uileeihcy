@@ -4,6 +4,8 @@
 #include "UISDK\Kernel\Inc\Interface\iwindow.h"
 #include "UISDK\Kernel\Inc\Interface\iwindowmousemgr.h"
 #include "UISDK\Control\Src\Renderbase\renderbasedefine.h"
+
+#include "UISDK\Control\Inc\Interface\imenu.h"
 namespace UI
 {
 
@@ -227,12 +229,12 @@ void EditData::ReplaceString(const String& str, bool& bUpdate)
 //
 //	往后删除
 //
-void EditData::Delete( bool& bUpdate)
+void EditData::Delete(bool& bUpdate)
 {
 	bUpdate = true;
 
 	// 删除当前所选择的文字
-	if ( IsSelectionExist())
+	if (IsSelectionExist())
 	{
 		this->DeleteSelectionText();
 	}
@@ -404,6 +406,23 @@ void EditData::GetNextItemPos(int nCP, int* pNext)
 	*pNext = *ScriptString_pcOutChars(m_Analysis) - 1;
 
 }
+
+
+//
+//  删除当前选中文本，如果没有选区则不执行
+//
+void  EditData::DeleteSelectionText(bool& bUpdate)
+{
+    // 删除当前所选择的文字
+    if (IsSelectionExist())
+    {
+        bUpdate = true;
+        this->DeleteSelectionText();
+
+        m_nSelStart = m_nCaret;
+        this->Fire_Text_Changed();
+    }
+}   
 
 //
 //	删除当前选区内的文字
@@ -721,11 +740,13 @@ Edit::Edit()
 	m_nDrawFlags   = 0;
 
 	m_EditData.BindToEdit(this);
+  //  GetTsf()->Init();
 }
 
 
 Edit::~Edit()
 {
+  //  GetTsf()->Release();
 	SAFE_RELEASE(m_pColor);
 	SAFE_RELEASE(m_pColorSelect);
 	SAFE_RELEASE(m_pColorSelectBk);
@@ -788,6 +809,86 @@ void Edit::SetEditStyle(int n)
     m_pIEdit->SetStyleEx(MAKECONTROLSUBTYPE(m_pIEdit->GetStyleEx(), n));
 }
 
+void  Edit::DeleteSelectionText(bool bUpdate)
+{
+    bool bNeedUpdate1 = false;
+    bool bNeedUpdate2 = false;
+    int  nOldXCaretPos = m_nXCaretPos;
+
+    m_EditData.DeleteSelectionText(bNeedUpdate1);
+    this->CalcCaretPos(m_EditData.GetCaretIndex(), bNeedUpdate2);
+
+    if (bUpdate && (bNeedUpdate1 || bNeedUpdate2))
+    {
+        m_pIEdit->UpdateObject();
+    }
+    if (nOldXCaretPos != m_nXCaretPos)
+    {
+        this->UpdateCaretByPos();
+    }
+}
+
+bool  Edit::DoCut()
+{
+    OnKeyDown_Ctrl_X();
+    return true;
+//     if (DoCopy())
+//     {
+//         this->DeleteSelectionText(true);
+//         return true;
+//     }
+//     return false;
+}
+bool  Edit::DoCopy()
+{
+    OnKeyDown_Ctrl_C();
+    return true;
+//     String strSelText;
+//     m_EditData.GetSelectionText(strSelText);
+// 
+//     if (0 == strSelText.length())
+//         return false;
+// 
+//     if (::OpenClipboard(m_pIEdit->GetHWND()))
+//     {
+//         ::EmptyClipboard();
+// #ifdef _UNICODE
+//         {
+//             HGLOBAL hGlobal = ::GlobalAlloc(GMEM_FIXED, sizeof(WCHAR)*(strSelText.length()+1));
+//             WCHAR* pBits = (WCHAR*)::GlobalLock(hGlobal);
+//             wcscpy(pBits, strSelText.c_str());
+//             ::GlobalUnlock(hGlobal);
+//             ::SetClipboardData(CF_UNICODETEXT, hGlobal);
+//         }
+// 
+//         {
+//             int nSize = Util::U2A(strSelText.c_str(), NULL, 0);
+//             char* pAnsiText = new char[nSize];
+//             Util::U2A(strSelText.c_str(), pAnsiText, nSize);
+// 
+//             HGLOBAL hGlobal = ::GlobalAlloc(GMEM_FIXED, nSize+1);
+//             char* pBits = (char*)::GlobalLock(hGlobal);
+//             strcpy(pBits, pAnsiText);
+//             ::GlobalUnlock(hGlobal);
+//             SAFE_ARRAY_DELETE(pAnsiText);
+//             ::SetClipboardData(CF_TEXT, hGlobal);
+//         }
+// #else
+//         // TODO:
+//         UIASSERT(0);
+// #endif
+//         ::CloseClipboard();
+//         return true;
+//     }
+//     return false;
+}
+
+bool  Edit::DoPaste()
+{
+    OnKeyDown_Ctrl_V();
+    return true;
+}
+
 void Edit::SetSel(int nStartChar, int nEndChar)
 {
 	bool bUpdate = false, bUpdate2 = false;
@@ -827,6 +928,7 @@ void Edit::ResetAttribute()
 	SAFE_RELEASE(m_pColorSelectBk);
 	this->m_EditData.SetMaxChar(-1);
 	this->m_EditData.DestroyStringAnalysis();
+    m_pIEdit->ModifyStyle(OBJECT_STYLE_ENABLE_IME, 0, false);
 }
 void Edit::SetAttribute(IMapAttribute* pMatAttrib, bool bReload)
 {
@@ -919,29 +1021,32 @@ void Edit::SetAttribute(IMapAttribute* pMatAttrib, bool bReload)
 
             IColorListTextRender* pColorListTextRender = static_cast<IColorListTextRender*>(p);
             pColorListTextRender->SetCount(2);
-            pColorListTextRender->SetColor(EDIT_TEXTREDNER_STATE_NORMAL, RGB(0,0,0));
+            pColorListTextRender->SetColor(EDIT_TEXTREDNER_STATE_NORMAL, RGBA(0,0,0,255));
             if (m_pColorSelect)
                 pColorListTextRender->SetColor(EDIT_TEXTRENDER_STATE_SELECTED, m_pColorSelect->m_col);
             else 
-                pColorListTextRender->SetColor(EDIT_TEXTRENDER_STATE_SELECTED, RGB(255,255,255));
+                pColorListTextRender->SetColor(EDIT_TEXTRENDER_STATE_SELECTED, RGBA(255,255,255,255));
 
             m_pIEdit->SetTextRender(p);
             SAFE_RELEASE(p);
         }
     }
 
-    pMatAttrib->GetAttr_int(XML_EDIT_CARET_HEIGHT, true, &m_nCaretHeight);
-    if (m_nCaretHeight > 0)
-        m_nDrawFlags |= EDIT_DRAW_FLAG_CARET_HEIGHT_CONFIGED;
-
-    IRenderFont* pFont = m_pIEdit->GetRenderFont();
-    if (pFont)
+    if (MAPATTR_RET_NOT_EXIST == pMatAttrib->GetAttr_int(XML_EDIT_CARET_HEIGHT, true, &m_nCaretHeight))
     {
-        if (0 == (m_nDrawFlags & EDIT_DRAW_FLAG_CARET_HEIGHT_CONFIGED))
+        IRenderFont* pFont = m_pIEdit->GetRenderFont();
+        if (pFont)
         {
-            m_nCaretHeight = pFont->GetTextMetricsHeight();
+            if (0 == (m_nDrawFlags & EDIT_DRAW_FLAG_CARET_HEIGHT_CONFIGED))
+            {
+                m_nCaretHeight = pFont->GetTextMetricsHeight();
+            }
         }
-	}
+    }
+    else
+    {
+        m_nDrawFlags |= EDIT_DRAW_FLAG_CARET_HEIGHT_CONFIGED;
+    }
 }
 
 void  Edit::GetDesiredSize(SIZE* pSize)
@@ -1223,14 +1328,14 @@ void Edit::UpdateCaretByPos()
 	if (ptCaret.x < rcClient.left || ptCaret.x > rcClient.right)
 	{
 		// 将光标放在最后面
-		m_caret.SetCaretPos(rcClient.right,y, false); // 像Win7一样放在后面。那会不会有某些情况下需要放在前面？
+		m_caret.SetCaretPos(m_pIEdit, rcClient.right,y, false); // 像Win7一样放在后面。那会不会有某些情况下需要放在前面？
 		//m_caret.SetCaretPos(-1,-1); 这个只对系统光标有效，对模拟光标没用
 	}
 	else
 	{
-		m_caret.SetCaretPos(ptCaret.x, ptCaret.y);
+		m_caret.SetCaretPos(m_pIEdit, ptCaret.x, ptCaret.y);
 	}
-    m_caret.ShowCaret(true);
+    m_caret.ShowCaret(m_pIEdit, true);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1265,7 +1370,7 @@ void Edit::OnEraseBkgnd(IRenderTarget* pRenderTarget)
 	}
 
     // 因为m_caret的位置是基于edit的，而不是client
-    m_caret.OnControlPaint(pRenderTarget);
+    m_caret.OnControlPaint(m_pIEdit, pRenderTarget);
 }
 void Edit::OnPaint(IRenderTarget* pRenderTarget)
 {
@@ -1300,14 +1405,15 @@ BOOL Edit::OnSetCursor( HWND hWnd, UINT nHitTest, UINT message)
 
 void Edit::OnSetFocus(IObject*)
 {
-    m_caret.CreateCaret(m_pIEdit, NULL, 1, m_nCaretHeight, m_bNeedFixGdiAlpha?CARET_TYPE_WINDOW:CARET_TYPE_UNKNOWN);
+    m_caret.CreateCaret(m_pIEdit, NULL, 1, m_nCaretHeight, /*m_bNeedFixGdiAlpha?CARET_TYPE_WINDOW:*/CARET_TYPE_UNKNOWN);
 	this->UpdateCaretByPos();
-    m_caret.ShowCaret();
+    m_caret.ShowCaret(m_pIEdit);
 }
 void Edit::OnKillFocus(IObject*)
 {
 	m_bMouseDrag = false;
-	m_caret.DestroyCaret();
+	m_caret.DestroyCaret(m_pIEdit, false);
+    m_pIEdit->UpdateObject();
 }
 
 void Edit::OnFontModifyed(IRenderFont* pFont)
@@ -1406,7 +1512,7 @@ void Edit::OnChar( UINT nChar, UINT nRepCnt, UINT nFlags)
 }
 void Edit::OnInputChar(UINT nChar)
 {
-	if (m_pIEdit->IsReadonly())
+	if (IsReadOnly())
 		return;
 
 	if (false == FilterInputChar(nChar))
@@ -1480,6 +1586,63 @@ void Edit::OnRButtonDown(UINT nFlags, CPoint point)
 // 			pWindow->GetKeyboardMgr()->SetFocusObject(m_pIEdit->GetObjectImpl());
 // 		}
 // 	}
+}
+
+void Edit::OnRButtonUp(UINT nFlags, CPoint point)
+{
+    IMenu* pMenu = NULL;
+    IMenu::CreateInstance(m_pIEdit->GetUIApplication(), &pMenu);
+    pMenu->InitDefaultAttrib();
+
+#define MENU_ID_CUT     1
+#define MENU_ID_COPY    2
+#define MENU_ID_PASTE   3
+#define MENU_ID_SELALL  4
+
+    IListItemBase* pCutItem   = pMenu->AppendString(_T("剪切"), MENU_ID_CUT);
+    IListItemBase* pCopyItem  = pMenu->AppendString(_T("复制"), MENU_ID_COPY);
+    IListItemBase* pPasteItem = pMenu->AppendString(_T("粘贴"), MENU_ID_PASTE);
+    pMenu->AppendSeparator(-1);
+    IListItemBase* pSelAllItem = pMenu->AppendString(_T("全选"), MENU_ID_SELALL);
+    
+    if (!m_EditData.IsSelectionExist())
+    {
+        pCutItem->SetDisable(true);
+        pCopyItem->SetDisable(true);
+    }
+    if (!::IsClipboardFormatAvailable(CF_TEXT) &&
+        !::IsClipboardFormatAvailable(CF_UNICODETEXT))
+    {
+        pPasteItem->SetDisable(true);
+    }
+    if (0 == GetTextLength())
+    {
+        pSelAllItem->SetDisable(true);
+    }
+    
+    CPoint pt;
+    ::GetCursorPos(&pt);
+    UINT nRetCmd = pMenu->TrackPopupMenu(TPM_RETURNCMD, pt.x, pt.y, m_pIEdit);
+    SAFE_DELETE_Ixxx(pMenu);
+
+    switch (nRetCmd)
+    {
+    case MENU_ID_CUT:
+        DoCut();
+        break;
+
+    case MENU_ID_COPY:
+        DoCopy();
+        break;
+
+    case MENU_ID_PASTE:
+        DoPaste();
+        break;
+
+    case MENU_ID_SELALL:
+        SetSel(0, -1);
+        break;
+    }
 }
 
 //
@@ -1691,7 +1854,7 @@ void Edit::OnKeyDown_Ctrl_A()
 
 void Edit::OnKeyDown_Ctrl_X()
 {
-	if (m_pIEdit->IsReadonly())
+	if (IsReadOnly())
 	{
 		this->OnKeyDown_Ctrl_C();
 		return;
@@ -1720,7 +1883,7 @@ void Edit::OnKeyDown_Ctrl_C()
 }
 void Edit::OnKeyDown_Ctrl_V()
 {
-	if (m_pIEdit->IsReadonly())
+	if (IsReadOnly())
 		return;
 
 	bool bUpdate = false;
@@ -1747,7 +1910,7 @@ void Edit::OnKeyDown_Ctrl_Y()
 }
 void Edit::OnKeyDown_Backspace(bool bCtrlDown)
 {
-	if (m_pIEdit->IsReadonly())
+	if (IsReadOnly())
 		return;
 
 	bool bUpdate1 = false, bUpdate2 = false;
@@ -1767,7 +1930,7 @@ void Edit::OnKeyDown_Backspace(bool bCtrlDown)
 }
 void Edit::OnKeyDown_Delete(bool bCtrlDown)
 {
-	if (m_pIEdit->IsReadonly())
+	if (IsReadOnly())
 		return;
 
 	bool bUpdate1 = false, bUpdate2 = false;
@@ -1956,12 +2119,23 @@ void Edit::OnVisibleChanged(BOOL bVisible, IObject* pParent)
 
 UINT  Edit::OnGetDlgCode(LPMSG lpMsg)
 {
-    UINT nRet = DLGC_WANTCHARS|DLGC_WANTALLKEYS|DLGC_WANTARROWS;
+    UINT nRet = DLGC_WANTARROWS;
+
+    if (lpMsg && lpMsg->message == WM_KEYDOWN && lpMsg->wParam == VK_RETURN)
+    {
+        // 目前自己只是单行的，不需要回车键
+    }
+    else
+    {
+        nRet |= DLGC_WANTCHARS|DLGC_WANTALLKEYS;
+    }
 
     if (m_pIEdit->GetStyleEx() & EDIT_STYLE_WANTTAB)
     {
         if (!Util::IsKeyDown(VK_CONTROL))
+        {
             nRet |= DLGC_WANTTAB;
+        }
     }
     return nRet;
 }
@@ -1979,37 +2153,292 @@ LRESULT  Edit::OnWindowLayeredChanged(UINT uMsg, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
+LRESULT  Edit::OnImeRequest(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+
+    SetMsgHandled(FALSE);
+//     if (wParam == IMR_QUERYCHARPOSITION)
+//     {
+//         IMECHARPOSITION* pImeCharPosition = (IMECHARPOSITION*)lParam;
+//         if (pImeCharPosition)
+//         {
+//             CRect  rc;
+//             m_pIEdit->GetWindowRect(&rc);
+//             ::MapWindowPoints(m_pIEdit->GetHWND(), NULL, (LPPOINT)&rc, 2);
+//             ::CopyRect(&pImeCharPosition->rcDocument, &rc);
+//             pImeCharPosition->dwCharPos = 100;
+//             pImeCharPosition->pt.x = 100;
+//             pImeCharPosition->pt.y = 100;
+//             pImeCharPosition->cLineHeight = 20;
+//             SetMsgHandled(TRUE);
+//             return 1;
+//         }
+//     }
+//     else if (wParam == IMR_COMPOSITIONWINDOW)
+//     {
+//         int a = 0;
+//     }
+//     else
+//     {
+//         int a = 0;
+//     }
+    return 0;
+}
+
 // 设置输入法光标跟随
 LRESULT  Edit::OnImeNotify(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     SetMsgHandled(FALSE);
-    if (wParam == IMN_OPENCANDIDATE)
-    {
-        if (m_caret.GetCaretType() != CARET_TYPE_API) // 使用自带的caret不用管，输入法会自己识别
-        {
-            SetMsgHandled(TRUE);
-
-            HWND  hWnd = m_pIEdit->GetHWND();
-            HIMC himc = ImmGetContext(m_pIEdit->GetHWND());
-            if (himc)
-            {
-                COMPOSITIONFORM form = {0};
-                form.dwStyle = 1;
-
-                POINT ptCtrl = m_pIEdit->GetRealPosInWindow();
-                form.ptCurrentPos.x = m_caret.m_ptLast.x + ptCtrl.x;
-                form.ptCurrentPos.y = m_caret.m_ptLast.y + ptCtrl.y;
-
-                ImmSetCompositionWindow(himc, &form);
-                ImmReleaseContext(hWnd, himc);
-            }
-            return 0;
-        }
-
-        return 0;
-    }
+//     if (wParam == IMN_OPENCANDIDATE)
+//     {
+//         return 0;
+//     }
+//     else
+//     {
+//         SetMsgHandled(1);
+//     }
 
     return 0;
 }
+
+LRESULT  Edit::OnImeComposition(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    SetMsgHandled(0);
+    return 0;
+}
+LRESULT  Edit::OnImeSetContext(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    lParam = ISC_SHOWUICANDIDATEWINDOW;// &= ~ISC_SHOWUICOMPOSITIONWINDOW;
+    return DefWindowProc(m_pIEdit->GetHWND(), uMsg, wParam, lParam);
+    return 0;
+}
+
+LRESULT  Edit::OnStartComposition(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    SetMsgHandled(FALSE);
+    if (m_caret.GetCaretType() != CARET_TYPE_API) // 使用自带的caret不用管，输入法会自己识别
+    {
+        SetMsgHandled(TRUE);
+
+        HWND  hWnd = m_pIEdit->GetHWND();
+        HIMC himc = ImmGetContext(m_pIEdit->GetHWND());
+        if (himc)
+        {
+            COMPOSITIONFORM form = {0};
+            form.dwStyle = 1;
+
+            POINT ptCtrl = m_pIEdit->GetRealPosInWindow();
+            form.ptCurrentPos.x = m_caret.m_ptLast.x + ptCtrl.x;
+            form.ptCurrentPos.y = m_caret.m_ptLast.y + ptCtrl.y;
+
+            ImmSetCompositionWindow(himc, &form);
+            ImmReleaseContext(hWnd, himc);
+        }
+        return 0;
+    }
+    return 0;
+}
+
+bool Edit::IsReadOnly()
+{
+    return m_pIEdit->TestStyleEx(EDIT_STYLE_READONNLY);
+}
+
+void Edit::SetReadOnly(bool b, bool bUpdate)
+{
+    if (b == IsReadOnly())
+        return;
+
+    if (b)
+    {
+        m_pIEdit->ModifyStyleEx(EDIT_STYLE_READONNLY, 0, true);
+    }
+    else
+    {
+        m_pIEdit->ModifyStyleEx(0, EDIT_STYLE_READONNLY, true);
+    }
+    if (bUpdate)
+    {
+        m_pIEdit->UpdateObject();
+    }
+}
+//////////////////////////////////////////////////////////////////////////
+#if 0
+TsfHelper*  GetTsf()
+{
+    static TsfHelper _s;
+    return &_s;
+}
+
+TsfHelper::TsfHelper()
+{
+    m_lRef = 0;
+    m_pThreadMgr = NULL;
+    m_pTsfSink = NULL;
+    m_dwUIElementSinkCookie = 0;
+}
+TsfHelper::~TsfHelper()
+{  
+   
+}
+
+// 控件初始化时调用
+void TsfHelper::Init()
+{
+    if (0 == m_lRef)
+    {
+        Create();
+    }
+    m_lRef++;
+}
+
+// 控件销毁时调用
+void TsfHelper::Release()
+{
+    m_lRef --;
+    if (0 == m_lRef)
+    {
+        Destroy();
+    }
+}
+
+bool TsfHelper::Create()
+{
+    if (NULL != m_pThreadMgr)
+        return true;
+
+    // ITfThreadMgrEx is available on Vista or later.
+    HRESULT hr = S_OK;
+    hr = CoCreateInstance(CLSID_TF_ThreadMgr, 
+        NULL, 
+        CLSCTX_INPROC_SERVER, 
+        __uuidof(ITfThreadMgrEx), 
+        (void**)&m_pThreadMgr);
+
+    if (hr != S_OK)
+    {
+        return false;
+    }
+
+    // ready to start interacting
+    TfClientId cid;	// not used
+    if (FAILED(m_pThreadMgr->ActivateEx(&cid, TF_TMAE_UIELEMENTENABLEDONLY)))
+    {
+        return false;
+    }
+
+    // Setup sinks
+    BOOL bRc = FALSE;
+    m_pTsfSink = new CUIElementSink();
+    if (m_pTsfSink)
+    {
+        ITfSource *srcTm;
+        if (SUCCEEDED(hr = m_pThreadMgr->QueryInterface(__uuidof(ITfSource), (void **)&srcTm)))
+        {
+            // Sink for reading window change
+            if (SUCCEEDED(hr = srcTm->AdviseSink(__uuidof(ITfUIElementSink), (ITfUIElementSink*)m_pTsfSink, &m_dwUIElementSinkCookie)))
+            {
+                // Sink for input locale change
+//                 if (SUCCEEDED(hr = srcTm->AdviseSink(__uuidof(ITfInputProcessorProfileActivationSink), 
+//                     (ITfInputProcessorProfileActivationSink*)m_pTsfSink, &m_dwAlpnSinkCookie)))
+//                 {
+//                     if (SetupCompartmentSinks())	// Setup compartment sinks for the first time
+//                     {
+//                         bRc = TRUE;
+//                     }
+//                 }
+            }
+            srcTm->Release();
+        }
+    }
+    return true;
+}
+
+
+void TsfHelper::Destroy()
+{
+    SAFE_RELEASE(m_pTsfSink);
+    SAFE_RELEASE(m_pThreadMgr);
+    m_dwUIElementSinkCookie = 0;
+}
+
+
+
+CUIElementSink::CUIElementSink()
+{
+    _cRef = 0;
+}
+
+
+CUIElementSink::~CUIElementSink()
+{
+}
+
+STDAPI CUIElementSink::QueryInterface(REFIID riid, void **ppvObj)
+{
+    if (ppvObj == NULL)
+        return E_INVALIDARG;
+
+    *ppvObj = NULL;
+
+    if (IsEqualIID(riid, IID_IUnknown))
+    {
+        *ppvObj = reinterpret_cast<IUnknown *>(this);
+    }
+    else if (IsEqualIID(riid, __uuidof(ITfUIElementSink)))
+    {
+        *ppvObj = (ITfUIElementSink *)this;
+    }
+    else if (IsEqualIID(riid, __uuidof(ITfInputProcessorProfileActivationSink)))
+    {
+        *ppvObj = (ITfInputProcessorProfileActivationSink*)this;
+    }
+    else if (IsEqualIID(riid, __uuidof(ITfCompartmentEventSink)))
+    {
+        *ppvObj = (ITfCompartmentEventSink*)this;
+    }
+
+    if (*ppvObj)
+    {
+        AddRef();
+        return S_OK;
+    }
+
+    return E_NOINTERFACE;
+}
+
+STDAPI_(ULONG) CUIElementSink::AddRef()
+{
+    return ++_cRef;
+}
+
+STDAPI_(ULONG) CUIElementSink::Release()
+{
+    LONG cr = --_cRef;
+
+    if (_cRef == 0)
+    {
+        delete this;
+    }
+
+    return cr;
+}
+
+STDAPI CUIElementSink::BeginUIElement(DWORD dwUIElementId, BOOL *pbShow)
+{
+    *pbShow = TRUE;
+    return S_OK;
+}
+
+STDAPI CUIElementSink::UpdateUIElement(DWORD dwUIElementId)
+{
+    return S_OK;
+}
+
+STDAPI CUIElementSink::EndUIElement(DWORD dwUIElementId)
+{
+    return S_OK;
+}
+#endif
 
 }

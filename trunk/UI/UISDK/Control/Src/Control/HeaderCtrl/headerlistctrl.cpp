@@ -388,7 +388,7 @@ IListItemBase* HeaderListCtrl::HitTest(POINT ptWindow, HEADERLISTCTRL_HITTEST* p
                     if (!pHover)
                         pHover = m_pIHeaderListCtrl->GetPressObject();
 
-                    if (!pHover || pHover->IsRejestMouseMsgAll())
+                    if (!pHover || pHover->IsRejectMouseMsgAll())
                     {
                         if (peHitTest)
                             *peHitTest = HDC_HT_DIVIDER;
@@ -422,7 +422,7 @@ BOOL  HeaderListCtrl::OnSetCursor(HWND hWnd, UINT nHitTest, UINT message)
         if (!pHover)
             pHover = m_pIHeaderListCtrl->GetPressObject();
 
-        if (pHover && !pHover->IsRejestMouseMsgAll())
+        if (pHover && !pHover->IsRejectMouseMsgAll())
         {
             SetMsgHandled(FALSE);
             return FALSE;
