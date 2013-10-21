@@ -37,10 +37,11 @@ namespace UI
 	{
 	public:
 		IRichEditOleObjectItem() { m_pOleObjectMgr = NULL;}
-		virtual ~IRichEditOleObjectItem() = 0{};
+		virtual ~IRichEditOleObjectItem();
 
 		virtual HRESULT  GetOleObject(IOleObject** ppOleObject, bool bAddRef=true) = 0;	
 		virtual HRESULT  GetClipboardData(CHARRANGE FAR * lpchrg, DWORD reco, LPDATAOBJECT FAR * lplpdataobj) = 0;
+        virtual HRESULT  GetEncodeText(BSTR* pbstr) = 0;
 
 		void    SetOleObjectManager(RichEditOleObjectManager* pMgr) { m_pOleObjectMgr = pMgr; }
 	protected:
@@ -57,9 +58,12 @@ namespace UI
 	public:
 		virtual HRESULT  GetOleObject(IOleObject** ppOleObject, bool bAddRef=true);
 		virtual HRESULT  GetClipboardData(CHARRANGE FAR * lpchrg, DWORD reco, LPDATAOBJECT FAR * lplpdataobj);
+        virtual HRESULT  GetEncodeText(BSTR* pbstr);
 		HRESULT  Attach(CLSID  clsid);
+
 	private:
 		IOleObject*   m_pOleObject;
+        CLSID  m_clsid;
 	};
 
 	// 存储内部自己实现的ole对象的相关的信息
@@ -137,6 +141,7 @@ namespace UI
 
 #pragma region  // 实现父类的虚函数
 		virtual HRESULT  GetOleObject(IOleObject** ppOleObject, bool bAddRef=true);
+        virtual HRESULT  GetEncodeText(BSTR* pbstr);
 #pragma  endregion
 
 #pragma region  // 子类扩展时需要实现的函数
@@ -152,9 +157,7 @@ namespace UI
 		IOleClientSite*    m_pClientSite;
 	};
 
-typedef map<DWORD, IRichEditOleObjectItem*> OLEOITEMMAP;
-//class GifImageItemMgr;
-
+    typedef list<IRichEditOleObjectItem*> OLELIST;
 	enum RICHEDIT_OLE_TYPE
 	{
 		RICHEDIT_OLE_GIF_FILE = 1,
@@ -169,28 +172,18 @@ typedef map<DWORD, IRichEditOleObjectItem*> OLEOITEMMAP;
 		~RichEditOleObjectManager();
 
 		void   SetUIApplication(IUIApplication* p);
-		IRichEditOleObjectItem*  GetOleItem(int dwUser);
 		bool   AddOleItem(IRichEditOleObjectItem* pItem);
+        void   OnOleObjDelete(IRichEditOleObjectItem* pItem);
 
-#if 0 // -- 架构改造
-		GifRes*  GetGifManager() { return &m_gifMgr; }
-#endif
-		HGLOBAL  CreateGifFileClipboardData(const TCHAR* szFilePath, bool bUnicode=true);
+        HGLOBAL  CreateGifFileClipboardData(const TCHAR* szFilePath, bool bUnicode=true);
 		HGLOBAL  CreateEmotionClipboardData(const TCHAR* szEmotionName, bool bUnicode);
 		bool     ParseOleFormatXml(const LPWSTR wszXmlData);
 
 	protected:
 		WindowlessRichEdit*   m_pRichEdit;
 
-		OLEOITEMMAP           m_mapOleObject;
-		DWORD                 m_dwIndex;    // 下一个item的索引计数
-
+		OLELIST               m_listOleObj;
 		IUIApplication*       m_pUIApp;
-//		GifImageItemMgr*      m_pGifImageItemMgr;
-
-#if 0 // -- 架构改造
-		GifRes                m_gifMgr;
-#endif
 	};
 
 }

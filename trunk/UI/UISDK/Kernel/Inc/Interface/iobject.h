@@ -15,7 +15,7 @@ interface UISDKAPI IObject : public IMessage
 {
     UI_DECLARE_Ixxx_INTERFACE(IObject, Object)
 
-    const TCHAR*  GetID();
+    const TCHAR*  GetId();
     void  SetID(const TCHAR* szText);
 
     IWindowBase*  GetWindowObject();
@@ -50,7 +50,7 @@ interface UISDKAPI IObject : public IMessage
 
     int      GetStateBit();
     bool     IsFocus();
-    void     SetFocus(bool);
+//    void     SetFocus(bool);  要设置一个对象的焦点，得使用windowbase->SetFocusObj
     bool     IsTabstop();
     bool     CanTabstop();
     bool     IsGroup();
@@ -63,14 +63,14 @@ interface UISDKAPI IObject : public IMessage
     void     SetVisible(bool b, bool bRedraw=true, bool bUpdateLayout=true);
     void     SetEnable(bool b, bool bUpdateNow=true);
     bool     IsDefault();
-    bool     IsReadonly();
+//    bool     IsReadonly();
     bool     IsHover();
     bool     IsSelected();
     bool     IsPress();
-    bool     IsForePress();
-    bool     IsForeHover();
+    bool     IsForcePress();
+    bool     IsForceHover();
     void     SetDefault(bool, bool bNotify=true);
-    void     SetReadonly(bool);
+//    void     SetReadonly(bool);
     void     SetForceHover(bool, bool bNotify=true);
     void     SetForcePress(bool, bool bNotify=true);
     void     SetHover(bool, bool bNotify=true);
@@ -80,9 +80,9 @@ interface UISDKAPI IObject : public IMessage
     bool     IsTransparent();
     void     SetTransparent(bool b);
     bool     IsNcObject();
-    void     SetAsNcObject();
-    bool     IsRejestMouseMsgAll();
-    bool     IsRejestMouseMsgSelf();
+    void     SetAsNcObject(bool b);
+    bool     IsRejectMouseMsgAll();
+    bool     IsRejectMouseMsgSelf();
 
     IObject*  FindChildObject(const TCHAR* szObjId);
     IObject*  GetParentObject();
@@ -122,6 +122,9 @@ interface UISDKAPI IObject : public IMessage
     void  Standalone();
     void  MoveToAsFirstChild();
     void  MoveToAsLastChild();
+    void  InsertAfter(IObject* pInsertAfter);
+    void  InsertBefore(IObject* pInsertBefore);
+    bool  SwapObject(IObject* pObj1, IObject* pObj2);
 
     void  UpdateObject(bool bUpdateNow=true);
     void  UpdateObjectBkgnd(bool bUpdateNow);
@@ -220,8 +223,14 @@ interface UISDKAPI IObject : public IMessage
     void  AddAttribute(const TCHAR* szKey, const TCHAR*  szValue);
     void  GetMapAttribute(IMapAttribute** ppMapAttribute);
     SIZE  GetDesiredSize();
+    HBITMAP  TakeSnapshot();
+    HBITMAP  TakeBkgndSnapshot();
     
     bool  SetCursor(const TCHAR* szCursorID);
+    bool  SetMouseCapture(int nNotifyMsgId);
+    bool  ReleaseMouseCapture();
+    bool  SetKeyboardCapture(int nNotifyMsgId);
+    bool  ReleaseKeyboardCapture();
 };
 
 }

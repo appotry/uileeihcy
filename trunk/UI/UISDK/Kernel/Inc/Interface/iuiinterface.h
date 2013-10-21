@@ -152,7 +152,7 @@ namespace UI
         ICursorRes*  GetCursorRes();
         IGifRes*     GetGifRes();
 
-        HRESULT  InsertImageItem(const TCHAR* szID, const TCHAR* szPath);
+        IImageResItem*  InsertImageItem(const TCHAR* szID, const TCHAR* szPath);
         HRESULT  ModifyImageItem(const TCHAR* szID, const TCHAR* szPath);
         HRESULT  RemoveImageItem(const TCHAR* szID);
 
@@ -222,9 +222,10 @@ namespace UI
 
         long  GetImageCount();
         IImageResItem*  GetImageResItem(long lIndex);
-        IImageResItem*  GetImageResItem(const TCHAR* szID);
+        IImageResItem*  GetImageResItem(const TCHAR* szId);
         bool  ModifyImage(const TCHAR* szId, const TCHAR* szPath);
-        HRESULT  GetBitmap(const TCHAR* szImageID, GRAPHICS_RENDER_LIBRARY_TYPE eRenderType, __out IRenderBitmap** ppRenderBitmap);
+        HRESULT  GetBitmap(const TCHAR* szImageId, GRAPHICS_RENDER_LIBRARY_TYPE eRenderType, __out IRenderBitmap** ppRenderBitmap);
+        HBITMAP  LoadBitmap(const TCHAR* szId);
 
     private:
         ImageRes*  m_pImpl;
@@ -233,12 +234,16 @@ namespace UI
 
     class ImageResItem;
     interface UISDKAPI IImageResItem : public IRootInterface
-    {
+     {
         IImageResItem(ImageResItem* p);
         ImageResItem*  GetImpl(); 
 
         const TCHAR*  GetID();
         const TCHAR*  GetPath();
+        bool  GetUseSkinHLS();
+        bool  GetNeedAntiAliasing();
+        void  SetUseSkinHLS(bool b);
+        void  SetNeedAntiAliasing(bool b);
         bool  ModifyImage(const TCHAR*  szPath);
 
     private:
@@ -254,6 +259,16 @@ namespace UI
         void  GetCursor(const TCHAR*  szCursorID, IUICursor** pp);
     private:
         CursorRes*  m_pImpl;
+    };
+
+    class CursorResItem;
+    interface UISDKAPI ICursorResItem : public IRootInterface
+    {
+        ICursorResItem(CursorResItem* p);
+        CursorResItem*  GetImpl(); 
+
+    private:
+        CursorResItem*  m_pImpl;
     };
 
     class ColorRes;
@@ -295,7 +310,7 @@ namespace UI
     };
 
     class GifRes;
-    interface IGifImage;
+    class IGifImage;
     interface UISDKAPI IGifRes : public IRootInterface
     {
         IGifRes(GifRes* p);
@@ -304,6 +319,16 @@ namespace UI
         HRESULT  GetGifImage(const TCHAR*  szId, IGifImage** ppGifImage);
     private:
         GifRes*  m_pImpl;
+    };
+
+    class GifResItem;
+    interface UISDKAPI IGifResItem : public IRootInterface
+    {
+        IGifResItem(GifResItem* p);
+        GifResItem*  GetImpl();
+
+    private:
+        GifResItem*  m_pImpl;
     };
 
     class FontRes;

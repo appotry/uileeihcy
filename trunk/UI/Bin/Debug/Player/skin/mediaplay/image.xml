@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<skin>
+  <image>
+    <imagelist id="close.png" useskinhlsx="0" count="4">img\close.png</imagelist>
+    <image id="player_skin.png">img\player_skin.png</image>
+    <imagelist id="minimize.png" count="4">img\minimize.png</imagelist>
+    <imagelist id="minimode.png" count="4">img\minimode.png</imagelist>
+    <image id="player_skin.bmp">img\player_skin.bmp</image>
+    <image id="playlist_skin.bmp">img\playlist_skin.bmp</image>
+    <imagelist id="volume_thumb.png" count="4">img\volume_thumb.png</imagelist>
+    <imagelist id="progress_thumb.png" count="4">img\progress_thumb.png</imagelist>
+    <imagelist id="prev.png" count="4">img\prev.png</imagelist>
+    <imagelist id="play.png" count="4">img\play.png</imagelist>
+    <imagelist id="pause.png" count="4">img\pause.png</imagelist>
+    <imagelist id="open.png" count="4">img\open.png</imagelist>
+    <imagelist id="next.png" count="4">img\next.png</imagelist>
+    <imagelist id="mute.png" count="8">img\mute.png</imagelist>
+    <image id="progress_fill.png">img\progress_fill.png</image>
+    <imagelist id="lyric.png" count="8">img\lyric.png</imagelist>
+    <imagelist id="equalizer.png" count="8">img\equalizer.png</imagelist>
+    <imagelist id="playlist.png" count="8">img\playlist.png</imagelist>
+    <image id="volume_fill.png">img\volume_fill.png</image>
+    <imagelist id="stop.png" count="4">img\stop.png</imagelist>
+    <imagelist id="browser.png" count="4">img\browser.png</imagelist>
+    <imagelist id="playlist_add.png" count="4" layout="v">img\playlist_add.png</imagelist>
+    <imagelist id="playlist_del.png" count="4" layout="v">img\playlist_del.png</imagelist>
+    <imagelist id="playlist_edit.png" count="4" layout="v">img\playlist_edit.png</imagelist>
+    <imagelist id="playlist_find.png" count="4" layout="v">img\playlist_find.png</imagelist>
+    <imagelist id="playlist_list.png" count="4" layout="v">img\playlist_list.png</imagelist>
+    <imagelist id="playlist_mode.png" count="4" layout="v">img\playlist_mode.png</imagelist>
+    <imagelist id="playlist_sort.png" count="4" layout="v">img\playlist_sort.png</imagelist>
+    <image id="lyric_skin.png">img\lyric_skin.png</image>
+    <image id="equalizer_skin.bmp">img\equalizer_skin.bmp</image>
+    <imagelist id="eq_enabled.bmp" count="8">img\eq_enabled.bmp</imagelist>
+    <imagelist id="eq_profile.png" count="4">img\eq_profile.png</imagelist>
+    <imagelist id="reset.png" count="4">img\eq_reset.png</imagelist>
+    <imagelist id="eq_balance.png" count="4">img\eq_balance.png</imagelist>
+    <imagelist id="eq_thumb.png" count="4">img\eq_thumb.png</imagelist>
+    <imagelist id="listbox.png" useskinhls="0" count="9" layout="v">img\listbox.png</imagelist>
+    <image id="scrollbar_bar.bmp">img\scrollbar_bar.bmp</image>
+    <imagelist id="scrollbar_button_linedown.bmp" count="3">img\scrollbar_button_linedown.bmp</imagelist>
+    <imagelist id="scrollbar_button_lineup.bmp" count="3">img\scrollbar_button_lineup.bmp</imagelist>
+    <imagelist id="scrollbar_thumb.bmp" count="3">img\scrollbar_thumb.bmp</imagelist>
+    <image id="hscrollbar_bar.bmp">img\hscrollbar_bar.bmp</image>
+    <imagelist id="hscrollbar_button_lineright.bmp" count="3">img\hscrollbar_button_lineright.bmp</imagelist>
+    <imagelist id="hscrollbar_button_lineleft.bmp" count="3">img\hscrollbar_button_lineleft.bmp</imagelist>
+    <imagelist id="hscrollbar_thumb.bmp" count="3">img\hscrollbar_thumb.bmp</imagelist>
+    <imagelist id="number.png" count="12">img\number.png</imagelist>
+    <image id="menu_bk.png">img\menu_bk.png</image>
+    <image id="main_menu_bk.png">img\main_menu_bk.png</image>
+    <image id="menu_check_bk.png">img\menu_check_bk.png</image>
+    <image id="menu_check_icon.png">img\menu_check_icon.png</image>
+    <imagelist useskinhls="0" id="menuicon_imagelist.png"  count="50">img\menuicon_imagelist.png</imagelist>
+    <imagelist useskinhls="0" id="playmode_imagelist.png"  count="7">img\playmode_imagelist.png</imagelist>
+    <imagelist useskinhls="0" id="some_imagelist.png"      count="9">img\some_imagelist.png</imagelist>
+    <imagelist useskinhls="0" id="lyricedit_imagelist.png" count="17">img\lyricedit_imagelist.png</imagelist>
+    <icon id="ttplayer.ico"       useskinhls="0" width="16" height="16">img\ttplayer.ico</icon>
+    <icon id="ttplayer.ico_32_32" useskinhls="0" width="32" height="32">img\ttplayer.ico</icon>
+    <icon id="ttplayer.ico_48_48" useskinhls="0" width="48" height="48">img\ttplayer.ico</icon>
+    <image id="visualization_band.bmp">img\visualization_band.bmp</image>
+    <imagelist id="checkbox_icon.png" count="8" path="img\checkbox_icon.png"/>
+</image>
+</skin>

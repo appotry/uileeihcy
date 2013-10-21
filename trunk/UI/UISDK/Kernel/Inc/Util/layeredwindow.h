@@ -60,6 +60,22 @@ public:
 		::SelectObject(m_hLayeredMemDC, m_hLayeredBitmap);
 	}
 
+    void Move(POINT pt)
+    {
+//         POINT ptMemDC  = {0,0};
+// 
+//         int   nFlag = ULW_ALPHA;
+//         BLENDFUNCTION  bf;
+//         bf.BlendOp     = AC_SRC_OVER ;
+//         bf.AlphaFormat = AC_SRC_ALPHA;        
+//         bf.BlendFlags  = 0;
+//         bf.SourceConstantAlpha = m_nSourceConstantAlpha;
+// 
+//         ::UpdateLayeredWindow(m_hHostWnd, NULL, &pt, NULL, m_hLayeredMemDC, &ptMemDC, 0, &bf, nFlag );
+
+        ::UpdateLayeredWindow(m_hHostWnd, NULL, &pt, NULL, NULL, NULL, 0, NULL, 0); 
+    }
+
 	void InitLayered(int nAlpha = 255)
 	{
 		if (NULL == m_hHostWnd)

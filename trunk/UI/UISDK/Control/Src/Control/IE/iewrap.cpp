@@ -266,7 +266,11 @@ void IEWrap::CreateControl()
 			
             IMapAttribute* pEmpty = NULL;
             UICreateIMapAttribute(&pEmpty);
-			UISendMessage(m_pPopupIEWnd, UI_WM_SETATTRIBUTE, (WPARAM)pEmpty, (LPARAM)false);
+
+			SERIALIZEDATA sdata = {0};
+			sdata.pMapAttrib = pEmpty;
+			UISendMessage(m_pPopupIEWnd, UI_WM_SERIALIZE, (WPARAM)&sdata);
+//			UISendMessage(m_pPopupIEWnd, UI_WM_SETATTRIBUTE, (WPARAM)pEmpty, (LPARAM)false);
             SAFE_RELEASE(pEmpty);
 
 			SyncWindowData data;

@@ -3,6 +3,10 @@
 
 // UICtrl中的xml属性定义
 
+#pragma region // listbox
+
+#define XML_LISTBOX_TEXT_INDENT   _T("textindent")    // 文本缩进
+#pragma endregion
 
 
 #pragma region  // SplitterBar属性定义

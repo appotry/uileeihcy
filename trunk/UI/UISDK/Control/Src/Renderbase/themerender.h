@@ -3,7 +3,6 @@
 
 namespace UI
 {
-
 class ButtonBkThemeRender : public IThemeRenderBase
 {
 public:
@@ -74,6 +73,8 @@ public:
 class EditBkThemeRender : public IThemeRenderBase
 {
 public:
+    EditBkThemeRender()
+    {}
     UI_DECLARE_RENDERBASE2(EditBkThemeRender, XML_RENDER_TYPE_THEME, RENDER_TYPE_THEME_EDIT_BKGND, CONTROL_EDIT, -1)
 
     UI_BEGIN_MSG_MAP_Ixxx(EditBkThemeRender)

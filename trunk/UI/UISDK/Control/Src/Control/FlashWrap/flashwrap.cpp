@@ -290,7 +290,7 @@ void FlashWrap::ResetAttribute()
 	m_nFlashWidth = m_nFlashHeight = 0;
 
 	m_pIFlashWrap->SetTabstop(false);   // Label 不能有焦点
-	m_pIFlashWrap->ModifyStyle(OBJECT_STYLE_REJEST_MOUSE_MSG_ALL, 0, 0);  // 默认不接收鼠标消息
+	m_pIFlashWrap->ModifyStyle(OBJECT_STYLE_REJECT_MOUSE_MSG_ALL, 0, 0);  // 默认不接收鼠标消息
 }
 
 void FlashWrap::SetAttribute(IMapAttribute* pMapAttr, bool bReload)

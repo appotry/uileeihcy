@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<skin>
+  <image>
+    <!-- Control Type Icon -->
+    <image id="control_AppWindow">img\ControlIcon\AppWindow.png</image>
+    <image id="control_button">img\ControlIcon\button.png</image>
+    <image id="control_menu">img\ControlIcon\menu.png</image>
+    <image id="control_tooltip">img\ControlIcon\tooltip.png</image>
+    <image id="control_checkbox">img\ControlIcon\checkbox.png</image>
+    <image id="control_combobox">img\ControlIcon\combobox.png</image>
+    <image id="control_groupbox">img\ControlIcon\groupbox.png</image>
+    <image id="control_hscrollbar">img\ControlIcon\hscrollbar.png</image>
+    <image id="control_hyperlink">img\ControlIcon\hyperlink.png</image>
+    <image id="control_image">img\ControlIcon\image.png</image>
+    <image id="control_label">img\ControlIcon\label.png</image>
+    <image id="control_listbox">img\ControlIcon\listbox.png</image>
+    <image id="control_picturebox">img\ControlIcon\picturebox.png</image>
+    <image id="control_radiobutton">img\ControlIcon\radiobutton.png</image>
+    <image id="control_richtextbox">img\ControlIcon\richtextbox.png</image>
+    <image id="control_tabcontrol">img\ControlIcon\tabcontrol.png</image>
+    <image id="control_textbox">img\ControlIcon\textbox.png</image>
+    <image id="control_trackbar">img\ControlIcon\trackbar.png</image>
+    <image id="control_treeview">img\ControlIcon\treeview.png</image>
+    <image id="control_vscrollbar">img\ControlIcon\vscrollbar.png</image>
+    <image id="control_webbrowser">img\ControlIcon\webbrowser.png</image>
+    <image id="control_panel">img\ControlIcon\panel.png</image>
+    <image id="control_progress">img\ControlIcon\progress.png</image>
+    <image id="control_listview">img\ControlIcon\listview.png</image>
+    
+    <!-- Command Button Icon -->
+    <image id="command_save">img\CommandIcon\saveHS.png</image>
+    <image id="command_newwindow">img\CommandIcon\NewWindow.png</image>
+    <image id="command_undo">img\CommandIcon\Edit_UndoHS.png</image>
+    <image id="command_redo">img\CommandIcon\Edit_RedoHS.png</image>
+    <image id="command_preview">img\CommandIcon\preview.png</image>
+  </image>
+
+  <font>
+    <item id="default" facename="宋体" size="9"/>
+  </font>
+
+  <color>
+    <item id="white">255,255,255,255</item>
+    <item id="black">0,0,0,255</item>
+    <item id="firstpagedlgback">171,171,171,255</item>
+    <item id="toolbar_btn_hover_border">10,36,106,255</item>
+    <item id="toolbar_btn_hover_back">182,189,210,255</item>
+    <item id="toolbar_btn_press_border">10,36,106,255</item>
+    <item id="toolbar_btn_press_back">133,146,181,255</item>
+  </color>
+
+  <style>
+    <class id="fristpage_hyperlink" visible="0" height="20" layout.left="5" layout.right="25" textrender.align="left|vcenter"/>
+    <class id="firstpage_recentbtn" visible="0" text="x" width="20" height="20" layout.right="5"/>
+    <class id="toolbar_btn" width="24" height="24" drawfocus="0" layout.align="vcenter" disable="1"
+           foregnd.render.type="image" iconalign="center" istransparent="1" margin="1,0,1,0"
+           bkgnd.render.type="colorlist" bkgnd.render.color=";toolbar_btn_hover_back;toolbar_btn_press_back"
+           bkgnd.render.border.color=";toolbar_btn_hover_border;toolbar_btn_press_border"/>
+  </style>
+</skin>

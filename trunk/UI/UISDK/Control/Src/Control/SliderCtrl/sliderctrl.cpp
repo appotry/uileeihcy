@@ -138,12 +138,7 @@ int SliderCtrl::SetPos(int nPos, bool bUpdate)
 {
 	int oldPos = m_nCur;
 
-	if (nPos >= m_nMax)
-		nPos = m_nMax;
-
-	if (nPos <= m_nMin)
-		nPos = m_nMin;
-
+    nPos = FixCurValue(nPos);
 	m_nCur = nPos;
 
 	if (m_nCur != oldPos)

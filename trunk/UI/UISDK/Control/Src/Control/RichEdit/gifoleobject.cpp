@@ -6,51 +6,81 @@
 const GUID IID_IGifOleObject =
 { 0x2eae75f5, 0xd78f, 0x43ca, { 0x81, 0x1d, 0x8f, 0x8b, 0x1, 0xcc, 0xe0, 0x5b } };
 
-GifOleObject::GifOleObject(/*GifRes* pMgr, */IMessage* pNotifyObj)
+GifOleObject::GifOleObject(IUIApplication* pUIApp, IMessage* pNotifyObj)
 {
-#if 0 // -- 架构改造
-	m_pGifMgr = pMgr;
-	m_pGifRenderItem = NULL;
-#endif
+    m_pUIApp = pUIApp;
+    m_pGifRender = NULL;
+    m_pGifImage =
+ NULL;
 	m_pNotifyMsg = pNotifyObj;
 }
 GifOleObject::~GifOleObject()
 {
-#if 0 // -- 架构改造
-	SAFE_RELEASE(m_pGifRenderItem);
-#endif
+	SAFE_RELEASE(m_pGifRender);
+    SAFE_DELETE(m_pGifImage);
 }
 
 HRESULT __stdcall GifOleObject::LoadGif(const TCHAR* szPath)
 {
-#if 0 // -- 架构改造
-	if (NULL == m_pGifMgr || NULL == szPath)
-		return E_INVALIDARG;
+    if (m_pGifImage)
+        return E_FAIL;
 
-	ATTRMAP mapAttr;
-	m_strPath = szPath;
-	mapAttr[XML_ID] = szPath;
+    m_pGifImage = new IGifImage(m_pUIApp);
+    if (!m_pGifImage->Load(szPath))
+        return E_FAIL;
 
-	m_pGifMgr->LoadItem(mapAttr, szPath);
+    m_pGifImage->SetTransparentColor(RGB(255,255,255));
 
-	GifImageBase* pGif = NULL;
-	m_pGifMgr->GetGifImage((BSTR)m_strPath.c_str(), &pGif);
-	if (NULL == pGif)
-		return E_FAIL;
-	
-	pGif->SetTransparentColor(RGB(255,255,255));
+    Gif_Timer_Notify notify;
+    memset(&notify, 0, sizeof(notify));
+    notify.eType = Gif_Timer_Notify_Post_Thread_Msg;
+    notify.notify_ui_msg.pNotifyMsgObj =m_pNotifyMsg;
+    notify.notify_ui_msg.nTimerID = 1;
+    notify.notify_ui_msg.lParam = (LPARAM)this;
 
-	Gif_Timer_Notify notify(m_pNotifyMsg, 1, (LPARAM)this);
-	m_pGifRenderItem = pGif->AddRender(&notify);
-	if (NULL == m_pGifRenderItem)
-		return E_FAIL;
-
-	m_pGifRenderItem->Start();
-
-	if (NULL == m_pGifRenderItem)
-		return E_FAIL;
-#endif
+    m_pGifRender = m_pGifImage->AddRender(&notify);
+    if (!m_pGifRender)
+    {
+        SAFE_DELETE(m_pGifImage);
+        return E_FAIL;
+    }
+    m_pGifRender->Start();
+    m_strPath = szPath;
 	return S_OK;
+}
+HRESULT __stdcall GifOleObject::LoadSkinGif(const TCHAR* szId)
+{
+    if (m_pGifImage)
+        return E_FAIL;
+
+    if (!m_pUIApp)
+        return E_FAIL;
+
+    IGifRes* pGifRes = m_pUIApp->GetActiveSkinGifRes();
+    if (!pGifRes)
+        return E_FAIL;
+    
+    IGifImage* pGifImage = NULL;
+    pGifRes->GetGifImage(szId, &pGifImage);
+    if (!pGifImage)
+        return E_FAIL;
+
+    pGifImage->SetTransparentColor(RGB(255,255,255));
+
+    Gif_Timer_Notify notify;
+    memset(&notify, 0, sizeof(notify));
+    notify.eType = Gif_Timer_Notify_Post_Thread_Msg;
+    notify.notify_ui_msg.pNotifyMsgObj =m_pNotifyMsg;
+    notify.notify_ui_msg.nTimerID = 1;
+    notify.notify_ui_msg.lParam = (LPARAM)this;
+
+    m_pGifRender = pGifImage->AddRender(&notify);
+    if (!m_pGifRender)
+        return E_FAIL;
+    
+    m_pGifRender->Start();
+    m_strPath = szId;
+    return S_OK;
 }
 HRESULT __stdcall GifOleObject::Refresh()
 {
@@ -63,26 +93,22 @@ HRESULT __stdcall GifOleObject::Refresh()
 
 HRESULT GifOleObject::OnDraw(HDC hDC, RECT* prc)
 {
-#if 0 // -- 架构改造
-	if (NULL == m_pGifRenderItem)
+	if (NULL == m_pGifRender)
 		return E_FAIL;
 
-	m_pGifRenderItem->OnPaint(hDC, prc->left, prc->top);
-#endif
+	m_pGifRender->OnPaint(hDC, prc->left, prc->top);
 	return S_OK;
 }
 HRESULT GifOleObject::OnGetSize(SIZE* pSize)
 {
-#if 0 // -- 架构改造
 	if (NULL == pSize)
 		return E_INVALIDARG;
 
-	if (NULL == m_pGifRenderItem)
+	if (NULL == m_pGifRender)
 		return E_FAIL;
 
-	pSize->cx = m_pGifRenderItem->GetWidth();
-	pSize->cy = m_pGifRenderItem->GetHeight();
-#endif
+	pSize->cx = m_pGifRender->GetWidth();
+	pSize->cy = m_pGifRender->GetHeight();
 	
 	return S_OK;
 }
@@ -218,4 +244,22 @@ HRESULT GifOleObject::GetClipboardData(CHARRANGE FAR * lpchrg, DWORD reco, LPDAT
 	*lplpdataobj = static_cast<IDataObject*>(pDataobject);
 #endif
 	return S_OK;
+}
+
+HRESULT  GifOleObject::GetEncodeText(BSTR* pbstr)
+{
+    if (!pbstr)
+        return E_INVALIDARG;
+
+    WCHAR  szText[1024] = {0};
+    if (m_pGifImage)
+    {
+        wsprintf(szText, L"<gif version=\"1.0\" filepath=\"%s\" />", m_strPath.c_str());
+    }
+    else
+    {
+        wsprintf(szText, L"<emotion version=\"1.0\" id=\"%s\" />", m_strPath.c_str());
+    }
+    *pbstr = SysAllocString(szText);
+    return S_OK;
 }

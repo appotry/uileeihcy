@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<skin>
+  <layout>
+    <CustomWindow id="changeskindlg"  width="730" height="505" title="更改外观"
+                  bkgnd.render.type="image"
+                  bkgnd.render.image.drawtype="stretch"
+                  bkgnd.render.image="shadow_bkg.png"
+                  bkgnd.render.image.9region="10"
+                  
+                  material.render.region="6"
+                  
+                  foregnd.render.type="image"
+                  foregnd.render.image.drawtype="stretch"
+                  foregnd.render.image="changeskin_texture"
+                  foregnd.render.image.9region="10,0,10,0"
+                  
+                  padding="4"
+                  transparent.type="areo"
+                  transparent.part.9region="5"
+                  transparent.part="" istransparent="1" font="normal" >
+      <RenderChain>
+
+        <!-- 最外层边框 -->
+        <DirectRenderLayer
+          zorder="1"
+          layout.left ="0" layout.top="0" layout.right="0" layout.bottom="0"
+          bkgnd.render.type="image"
+          bkgnd.render.image="fringe_bkg.png"
+          bkgnd.render.image.9region="10"
+          bkgnd.render.image.drawtype="stretchborder"/>
+      </RenderChain>
+
+      <Panel layout="stack" layout.right="1" layout.top="0" layout.direction="righttoleft">
+        <Button id="sys_close"    styleclass="imagebtn"  tooltip="关闭"   bkgnd.render.image="icon_close"/>
+      </Panel>
+
+      <PictureCtrl layout.left="10" layout.top="7"  foregnd.render.type="image" foregnd.render.image="qqicon"/>
+      <Label text="更改外观" layout.left="30" layout.top="5" textrender.type="contrastcolor" textrender.font="normal_bold"/>
+
+      <TabCtrl istransparent="1" id="tabctrl" layout.left="2" layout.top="25" layout.right="2" layout.bottom="0" head.layout="fix" head.height="40">
+        <item>
+          <head> <TabCtrlButton styleclass="changeskin.tabctrlbtn" width="110" textrender.type="contrastcolorlist" textrender.colorlist.count="8" text="皮肤设置"/> </head>
+          <content>
+            <Panel id="tabpanel_skin" padding="10,0,10,0">
+              <Panel id="big_preview" layout="grid" layout.top="0" layout.left="0" layout.right="0" height="248" layout.width="124,124,124,124" layout.height="124,124">
+                <Button id="btn_skinpreview_18394" layout.col="0" layout.row="0" styleclass="changeskin.bigpreview.btn" bkgnd.render.image="skin_bigpreview_18394" />
+                <Button id="btn_skinpreview_18409" layout.col="1" layout.row="0" styleclass="changeskin.bigpreview.btn" bkgnd.render.image="skin_bigpreview_18409" />
+                <Button id="btn_skinpreview_19667" layout.col="2" layout.row="0" styleclass="changeskin.bigpreview.btn" bkgnd.render.image="skin_bigpreview_19667" />
+                <Button id="btn_skinpreview_19700" layout.col="3" layout.row="0" styleclass="changeskin.bigpreview.btn" bkgnd.render.image="skin_bigpreview_19700" />
+                
+                <Button id="btn_skinpreview_19508" layout.col="0" layout.row="1" styleclass="changeskin.bigpreview.btn" bkgnd.render.image="skin_bigpreview_19508" />
+                <Button id="btn_skinpreview_18400" layout.col="1" layout.row="1" styleclass="changeskin.bigpreview.btn" bkgnd.render.image="skin_bigpreview_18400" />
+                <Button id="btn_skinpreview_19301" layout.col="2" layout.row="1" styleclass="changeskin.bigpreview.btn" bkgnd.render.image="skin_bigpreview_19301" />
+                <Button id="btn_skinpreview_19247" layout.col="3" layout.row="1" styleclass="changeskin.bigpreview.btn" bkgnd.render.image="skin_bigpreview_19247" />
+              </Panel>
+              <Panel id="small_preview" layout="grid" layout.width="42,42,42,42,42,42,42,42,42,42,42,42,42,42" layout.height="42,42,42" layout.top="250" layout.left="0" layout.right="200" height="120">
+                <Button id="btn_skinpreivew_default" layout.col="0" layout.row="0" styleclass="changeskin.preview.btn" bkgnd.render.image="skin_preview_default"/>
+                <Button id="btn_skinpreivew_17" layout.col="1"  layout.row="0" styleclass="changeskin.preview.btn" bkgnd.render.image="skin_preview_1.45_17" tooltip="都市夜景"/>
+                <Button id="btn_skinpreivew_18" layout.col="2"  layout.row="0" styleclass="changeskin.preview.btn" bkgnd.render.image="skin_preview_1.45_18" tooltip="蔚蓝之光"/>
+                <Button id="btn_skinpreivew_19" layout.col="3"  layout.row="0" styleclass="changeskin.preview.btn" bkgnd.render.image="skin_preview_1.45_19" tooltip="菁菁世界"/>
+                <Button id="btn_skinpreivew_20" layout.col="4"  layout.row="0" styleclass="changeskin.preview.btn" bkgnd.render.image="skin_preview_1.45_20" tooltip="迷雾水珠"/>
+                <Button id="btn_skinpreivew_21" layout.col="5"  layout.row="0" styleclass="changeskin.preview.btn" bkgnd.render.image="skin_preview_1.45_21" tooltip="潮起潮落"/>
+                <Button id="btn_skinpreivew_22" layout.col="6"  layout.row="0" styleclass="changeskin.preview.btn" bkgnd.render.image="skin_preview_1.45_22" tooltip="欣欣向荣"/>
+                <Button id="btn_skinpreivew_23" layout.col="0"  layout.row="1" styleclass="changeskin.preview.btn" bkgnd.render.image="skin_preview_1.45_23" tooltip="海天一色"/>
+                <Button id="btn_skinpreivew_24" layout.col="1"  layout.row="1" styleclass="changeskin.preview.btn" bkgnd.render.image="skin_preview_1.45_24" tooltip="竹韵"/>
+                <Button id="btn_skinpreivew_25" layout.col="2"  layout.row="1" styleclass="changeskin.preview.btn" bkgnd.render.image="skin_preview_1.45_25" tooltip="雨中旋律"/>
+                <Button id="btn_skinpreivew_26" layout.col="3"  layout.row="1" styleclass="changeskin.preview.btn" bkgnd.render.image="skin_preview_1.45_26" tooltip="延绵山脉"/>
+                <Button id="btn_skinpreivew_27" layout.col="4"  layout.row="1" styleclass="changeskin.preview.btn" bkgnd.render.image="skin_preview_1.45_27" tooltip="海阔天空"/>
+                <Button id="btn_skinpreivew_28" layout.col="5"  layout.row="1" styleclass="changeskin.preview.btn" bkgnd.render.image="skin_preview_1.45_28" tooltip="凌波微步"/>
+                <Button id="btn_skinpreivew_29" layout.col="6"  layout.row="1" styleclass="changeskin.preview.btn" bkgnd.render.image="skin_preview_1.45_29" tooltip="长堤遐想"/>
+              </Panel>     
+              
+              <!-- 下层按钮 -->
+              <Button id="btn_customskin" styleclass="imagebtn" padding="5,0,5,5" text="自定义" layout.left="5" layout.bottom="6" width="80" height="30"
+                      bkgnd.render.image="button" foregnd.render.type="image" foregnd.render.image="changeskin_plus" foregnd.render.image.drawtype="center"/>
+              
+              <Button id="btn_changetexture_alpha" layout.right="140" layout.bottom="27" width="22" height="20"  styleclass="imagebtn"
+                      bkgnd.render.image="button2" bkgnd.render.image.drawtype="stretch" bkgnd.render.image.9region="5"
+                      foregnd.render.type="image"  foregnd.render.image="MaterialAlphaSet"/>
+              <Button id="btn_changeareo_alpha"    layout.right="140" layout.bottom="5" width="22" height="20"  styleclass="imagebtn"
+                      bkgnd.render.image="button2" bkgnd.render.image.drawtype="stretch" bkgnd.render.image.9region="5"
+                      foregnd.render.type="image"  foregnd.render.image="TransSet"
+                      />
+
+              <SliderCtrl id="slider_changetexture_alpha" layout.right="10" layout.bottom="25" width="124" height="25" istransparent="true" 
+                      bkgnd.render.type="image" bkgnd.render.image="changeskin_individuation" 
+                      trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.type="image"  trackbtn.bkgnd.render.image="changeskin_individuation_bar"   />
+              <SliderCtrl id="slider_changetransparent_alpha" layout.right="10" layout.bottom="2" width="124" height="25" istransparent="true"
+                      bkgnd.render.type="image" bkgnd.render.image="changeskin_individuation"
+                      trackbtn.styleclass="imagebtn" trackbtn.bkgnd.render.type="image"  trackbtn.bkgnd.render.image="changeskin_individuation_bar"/>
+            </Panel>                                                                                                              
+          </content>
+        </item>
+        <item>
+          <head><TabCtrlButton styleclass="changeskin.tabctrlbtn" width="110" textrender.type="contrastcolorlist" textrender.colorlist.count="8" text="界面管理"/></head>
+          <content>
+            <Panel id="tabpanel_uimgr">
+              <Panel id="areamain" layout.left="10" layout.top="15" width="342" height="352" 
+                     bkgnd.render.type="image" bkgnd.render.image="changeskin_AreaMainPanel" bkgnd.render.image.drawtype="stretch" bkgnd.render.image.9region="10,30,10,10">
+                <Label layout.left="5" layout.top="5" text="显示在主面板"></Label>
+                <CheckButton layout.left="15" layout.top="40"  styleclass="checkimagebtn"/>
+                <CheckButton layout.left="15" layout.top="70"  styleclass="checkimagebtn"/>
+                <CheckButton layout.left="15" layout.top="100" styleclass="checkimagebtn"/>
+                <CheckButton layout.left="15" layout.top="130" styleclass="checkimagebtn"/>
+                <CheckButton layout.left="15" layout.top="160" styleclass="checkimagebtn"/>
+                <CheckButton layout.left="15" layout.top="190" styleclass="checkimagebtn"/>
+
+                <PictureCtrl layout.left="45" layout.top="40"  foregnd.render.type="image" foregnd.render.image="icon_contacts_selected_Blue"/>
+                <PictureCtrl layout.left="45" layout.top="70"  foregnd.render.type="image" foregnd.render.image="icon_group_selected_Blue"/>
+                <PictureCtrl layout.left="45" layout.top="100" foregnd.render.type="image" foregnd.render.image="icon_last_selected_Blue"/>
+                <PictureCtrl layout.left="45" layout.top="130" foregnd.render.type="image" foregnd.render.image="icon_weibo_normal"/>
+                <PictureCtrl layout.left="45" layout.top="160" foregnd.render.type="image" foregnd.render.image="icon_qzong_normal"/>
+                <PictureCtrl layout.left="45" layout.top="190" foregnd.render.type="image" foregnd.render.image="weather_icon"/>
+                
+                <Label layout.left="70" layout.top="40"  text="联系人"/>
+                <Label layout.left="70" layout.top="70"  text="群/讨论组"/>
+                <Label layout.left="70" layout.top="100" text="会话"/>
+                <Label layout.left="70" layout.top="130" text="微博"/>
+                <Label layout.left="70" layout.top="160" text="QQ空间-特别关心"/>
+                <Label layout.left="70" layout.top="190" text="天气"/>
+              </Panel>
+              
+              <Panel id="areaperson" layout.left="362" layout.top="15" width="346" height="352"
+                     bkgnd.render.type="image" bkgnd.render.image="changeskin_AreaPerson" bkgnd.render.image.drawtype="stretch" bkgnd.render.image.9region="10,30,100,10">
+                <Label layout.left="5" layout.top="5" text="显示在个人信息区"></Label>
+                <ListBox id="pluginbtnlistbox" istransparent="1" padding="0" itemheight="25" bkgnd.render.type="null" layout.left="1" layout.top="34" width="273" height="300"
+                       foregnd.render.type="imagelist" foregnd.render.image="listitem_even" foregnd.render.image.drawtype="stretch"
+                       foregnd.odd.render.type="imagelist" foregnd.odd.render.image="listitem_odd" foregnd.odd.render.image.drawtype="stretch"
+                       checkbtn.styleclass="checkimagebtn"/>
+                <Button id="pluginbtn.up" styleclass="imagebtn"  padding="5,0,3,0" text="上移" layout.right="5" layout.top="34" width="62" height="24"
+                        bkgnd.render.image="button" bkgnd.render.image.drawtype="stretch" bkgnd.render.image.9region="5"
+                        foregnd.render.type="image" foregnd.render.image="changeskin_pluginbtnup" foregnd.render.image.drawtype="center"/>
+                <Button id="pluginbtn.down" styleclass="imagebtn" padding="5,0,3,0"  text="下移" layout.right="5" layout.top="64" width="62" height="24"
+                        bkgnd.render.image="button" bkgnd.render.image.drawtype="stretch" bkgnd.render.image.9region="5" 
+                        foregnd.render.type="image" foregnd.render.image="changeskin_pluginbtndown" foregnd.render.image.drawtype="center"/>
+              </Panel>
+              
+            </Panel>
+          </content>
+        </item>
+      </TabCtrl>
+      
+    </CustomWindow>
+  </layout>
+</skin>

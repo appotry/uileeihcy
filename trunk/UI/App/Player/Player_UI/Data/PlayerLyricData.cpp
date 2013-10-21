@@ -90,7 +90,7 @@ void  CPlayerLyricData::GetDefaultLyricDir(String& str)
 {
     TCHAR szPath[MAX_PATH] = _T("");
     UI::Util::GetAppPath_(szPath);
-    _tcscat(szPath, _T("TTPlayer\\lyric\\"));
+    _tcscat(szPath, _T("lyric\\"));
 
     str = szPath;
 }

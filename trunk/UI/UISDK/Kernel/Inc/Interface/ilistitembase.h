@@ -8,6 +8,21 @@ interface IPanel;
 class ListItemBase;
 interface IListCtrlBase;
 
+//////////////////////////////////////////////////////////////////////////
+// ListItem派生类消息
+
+// 在绘制之前处理延迟操作
+#define UI_LISTITEM_MSG_DELAY_OP  139222216
+
+enum LISTITEM_DELAY_OP
+{
+    // 在控件的大小发生改变后，通知子对象。如果子对象目前没有处于可视区域，则稍后在自己可见时再更新自己的布局
+    DELAY_OP_SIZE_CHANGED = 0x01,
+
+    // 在控件布局重新改变之后，通知子对象。子对象在自己刷新的时候再更新自己的布局
+    DELAY_OP_LAYOUT_CHANGED = 0x02,
+};
+
 interface UISDKAPI IListItemBase : public IMessage
 {
     UI_DECLARE_Ixxx_INTERFACE(IListItemBase, ListItemBase);    
@@ -37,6 +52,8 @@ interface UISDKAPI IListItemBase : public IMessage
     void  SetChildItem(IListItemBase* p);
     void  SetNextSelection(IListItemBase* p);
     void  SetPrevSelection(IListItemBase* p);
+	void  AddChild(IListItemBase* p);
+	void  AddChildFront(IListItemBase* p);
 
     const CRect* GetParentRect();
     void  GetParentRect(CRect* prc);
@@ -76,6 +93,10 @@ interface UISDKAPI IListItemBase : public IMessage
     void  SetIconFromFile(const TCHAR* szIconPath);
 
     UINT  GetItemState();
+    UINT  GetItemDelayOp();
+    void  AddItemDelayOp(int n);
+    void  RemoveDelayOp(int n);
+    void  ClearDelayOp();
     bool  IsMySelfVisible();
     bool  IsVisible();
     bool  IsDisable();

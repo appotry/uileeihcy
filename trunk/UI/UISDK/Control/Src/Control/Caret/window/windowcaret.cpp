@@ -2,6 +2,7 @@
 #include "windowcaret.h"
 #include "3rd\gdiplus\gdiplusfix.h"
 #include "UISDK\Kernel\Inc\Interface\iwindow.h"
+#include "UISDK\Kernel\Inc\Util\iimage.h"
 #pragma comment(lib, "gdiplus.lib")
 
 namespace UI
@@ -104,18 +105,76 @@ int CaretWindow::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_pLayeredWnd->Attach(m_hWnd);
 	m_pLayeredWnd->InitLayered();
 	
-	::HookSetCursor();
+	//::HookSetCursor();  // -- 采用分层窗口的方案后，在输入文字时仍然需要移动窗口，导致鼠标还是会闪烁...
 	return 0;
 }
 void CaretWindow::OnDestroy()
 {
-	::UnHookSetCursor();
+	//::UnHookSetCursor();
 
     SyncWindowData data;
     data.m_hWnd = m_hWnd;
     data.m_nAnchorType = ANCHOR_CUSTOM;
     ::SendMessage(m_hCtrlWnd, UI_WM_SYNC_WINDOW, (WPARAM)REMOVE_SYNC_WINDOW, (LPARAM)&data);
 }
+
+BOOL CaretWindow::OnEraseBkgnd(HDC hDC)
+{
+    return TRUE;
+}
+
+
+// 根据CreateCaret的参数创建一个RenderBitmap用于绘制 
+void  CaretWindow::DrawCaretBitmap(HBITMAP hbmp, HDC hDstDC, HBITMAP hDstBmp, int nWidht, int nHeight)
+{
+    if ((HBITMAP)0 == hbmp)
+    {
+        Gdiplus::Graphics g(hDstDC);
+        Gdiplus::SolidBrush brush(Gdiplus::Color(255,0,0,0));
+        g.FillRectangle(&brush, 0,0, nWidht, nHeight);
+        return;
+    }
+    else if ((HBITMAP)1 == hbmp)
+    {
+        Gdiplus::Graphics g(hDstDC);
+        Gdiplus::SolidBrush brush(Gdiplus::Color(255,128,128,128));
+        g.FillRectangle(&brush, 0,0, nWidht, nHeight);
+        return;
+    }
+
+    BITMAP bm = {0};
+    ::GetObject(hbmp, sizeof(bm), &bm);
+
+    if (/*1 == bm.bmBitsPixel*/ bm.bmBitsPixel != 32)
+    {
+        HDC hMemDC = ::CreateCompatibleDC(NULL);
+        HBITMAP hOldBmp = (HBITMAP)::SelectObject(hMemDC, hbmp);
+        ::BitBlt(hDstDC, 0, 0, bm.bmWidth, bm.bmHeight, hMemDC, 0, 0, SRCPAINT);
+        ::SelectObject(hMemDC, hOldBmp);
+        ::DeleteDC(hMemDC);
+
+        ::GetObject(hDstBmp, sizeof(bm), &bm);
+        byte* pBitsDest = (byte*)bm.bmBits;
+        for (int y = 0; y < bm.bmHeight; y++)
+        {
+            DWORD* pdwBits = (DWORD*)pBitsDest;
+            for (int x = 0; x < bm.bmWidth; x++, pdwBits++)
+            {
+                if (*pdwBits != 0)
+                    *pdwBits = 0xFF000000;
+            }
+            pBitsDest += bm.bmWidthBytes;
+        }
+    }
+    else
+    {
+        UI::IImage image; 
+        image.Attach(hbmp, true);
+        image.Draw(hDstDC, 0, 0);
+        image.Detach();
+    }
+}
+
 void CaretWindow::OnPaint(HDC hDC)
 {
 	CRect  rc;
@@ -130,24 +189,10 @@ void CaretWindow::OnPaint(HDC hDC)
 	}
 	else
 	{
-		CRect  rcRender(0,0, rc.Width(), rc.Height());
-
-        bool bVisible = m_bVisible;
-        
-        if (bVisible)
-        {
-            Gdiplus::Bitmap bmp(rc.Width(),rc.Height());
-            Gdiplus::Graphics g(&bmp);
-            Gdiplus::SolidBrush brush(Gdiplus::Color(254,0,0,0));
-            g.FillRectangle(&brush, 0,0, rc.Width(), rc.Height());
-
-            Gdiplus::Graphics gDC(hDC);
-            gDC.DrawImage(&bmp, rcRender.left, rcRender.top, rcRender.Width(), rcRender.Height());
-        }
+        if (m_bVisible)
+            m_pLayeredWnd->SetAlpha(255);
         else
-        {
-            ::FillRect(hDC, &rcRender, (HBRUSH)::GetStockObject(BLACK_BRUSH));
-        }
+            m_pLayeredWnd->SetAlpha(0);
     }
 }
 
@@ -192,28 +237,40 @@ BOOL CaretWindow::Create(IObject* pObj, HWND hWndParent, HBITMAP hbmp, int nWidt
     m_pObject = pObj;
     m_hCtrlWnd = hWndParent;
 
+    if (hbmp > (HBITMAP)1)
+    {
+        BITMAP bm = {0};
+        ::GetObject(hbmp, sizeof(bm), &bm);
+        nWidth = bm.bmWidth;
+        nHeight = bm.bmHeight;
+    }
+
     if (NULL == m_hWnd)
 	{
-		RECT rc = {0,0,nWidth, nHeight};
-		::OffsetRect(&rc, 100,100);
-
-        __super::Create(hWndParent, rc, 0, WS_POPUP|WS_DISABLED, WS_EX_TOOLWINDOW|WS_EX_TRANSPARENT);
-		if (m_pLayeredWnd)
-			m_pLayeredWnd->RedrawLayered();
+		CRect rc(0,0,nWidth, nHeight);
+        __super::Create(hWndParent, rc, 0, WS_POPUP|WS_DISABLED, WS_EX_TOOLWINDOW|WS_EX_LAYERED|WS_EX_TRANSPARENT);
 
 		SyncWindowData data;
 		data.m_hWnd = m_hWnd;
 		data.m_nAnchorType = ANCHOR_CUSTOM;
 		::SendMessage(hWndParent, UI_WM_SYNC_WINDOW, (WPARAM)ADD_SYNC_WINDOW, (LPARAM)&data);
 	}
-	else
-	{
-		this->SetWindowPos(hWndParent, 0,0, nWidth, nHeight, SWP_NOZORDER|SWP_NOACTIVATE|SWP_NOMOVE|SWP_NOSENDCHANGING);
-	}
-
+    else
+    {
+        this->SetWindowPos(hWndParent, 0,0, nWidth, nHeight, SWP_NOZORDER|SWP_NOACTIVATE|SWP_NOMOVE);
+        if (m_pLayeredWnd)
+        {
+            m_pLayeredWnd->ReSize();
+        }
+    }
+    if (m_pLayeredWnd)
+    {
+        DrawCaretBitmap(hbmp, m_pLayeredWnd->m_hLayeredMemDC, m_pLayeredWnd->m_hLayeredBitmap, nWidth, nHeight);
+        m_pLayeredWnd->Commit2LayeredWindow();
+    }
     return TRUE;
-}
-void CaretWindow::Destroy()
+} 
+void CaretWindow::Destroy(bool bRedraw)
 {
 	if (NULL == m_hWnd)
 		return;
@@ -255,7 +312,14 @@ void  CaretWindow::_SetPos(int x, int y)
 	::MapWindowPoints(m_hCtrlWnd,NULL, &pt, 1);
 
     UINT nFlag = SWP_NOZORDER|SWP_NOSIZE|SWP_NOACTIVATE;
-	SetWindowPos(NULL, pt.x, pt.y, 0,0, nFlag);
+    if (m_pLayeredWnd)
+    {
+        m_pLayeredWnd->Move(pt);
+    }
+    else
+    {
+	    SetWindowPos(NULL, pt.x, pt.y, 0,0, nFlag);
+    }
 	
 	if (m_bShow) // 在光标显示前，没有定时器，不用恢复
 		SetTimer(1,GetCaretBlinkTime());

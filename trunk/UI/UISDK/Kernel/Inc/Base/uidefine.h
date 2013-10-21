@@ -261,7 +261,7 @@ inline CONTROL_TYPE GetObjectExtentType(int type) { return  (CONTROL_TYPE)((type
 #define OSB_HOVER         0x0020
 #define OSB_FORCEPRESS    0x0040
 #define OSB_FORCEHOVER    0x0080         
-#define OSB_READONLY      0x0100
+// #define OSB_READONLY      0x0100     // 还是由各个控件自己实现更好一些。
 #define OSB_FOCUS         0x0200
 #define OSB_DEFAULT       0x0400
 #define OSB_SELECTED      0x0800         // 被选中
@@ -284,9 +284,10 @@ inline CONTROL_TYPE GetObjectExtentType(int type) { return  (CONTROL_TYPE)((type
 #define OBJECT_STYLE_HSCROLL            0x00020000    // 对象横向滚动
 #define OBJECT_STYLE_VSCROLL            0x00040000    // 对象纵向滚动
 #define OBJECT_STYLE_NCOBJ              0x00080000    // 该对象位于父对象的非客户区，不接受偏移
-#define OBJECT_STYLE_REJEST_MOUSE_MSG_ALL   0x00100000    // 该对象包括自己的子对象不接受鼠标消息，如label
-#define OBJECT_STYLE_REJEST_MOUSE_MSG_SELF  0x00200000    // 仅该对象不接受鼠标消息，其子对象还是接受鼠标消息的，如panel
-#define OBJECT_RECEIVE_DRAGDROPEVENT    0x00400000    // 该对象接受拖拽消息
+#define OBJECT_STYLE_REJECT_MOUSE_MSG_ALL   0x00100000    // 该对象包括自己的子对象不接受鼠标消息，如label
+#define OBJECT_STYLE_REJECT_MOUSE_MSG_SELF  0x00200000    // 仅该对象不接受鼠标消息，其子对象还是接受鼠标消息的，如panel
+#define OBJECT_STYLE_RECEIVE_DRAGDROPEVENT  0x00400000    // 该对象接受拖拽消息
+#define OBJECT_STYLE_ENABLE_IME         0x00800000    // 该对象需要启用输入法，如EDIT,RICHEDIT
 
 // window style
 #define WINDOW_STYLE_DESTROYED          0x00001000    // 表示该窗口已经被销毁了(WM_NCDESTROY)，用于触发OnFinalMessage
@@ -364,7 +365,7 @@ struct DROPTARGETEVENT_DATA
 //     classname*  GetImpl();                 \
 //     BOOL  xProcessMessage(UI::UIMSG* pMsg, int nMsgMapID, bool bDoHook); \
 // private:                                   \
-//     BOOL  DoProcessMessage(UI::UIMSG* pMsg, int nMsgMapID, bool bDoHook); \
+//     BOOL  virtualProcessMessage(UI::UIMSG* pMsg, int nMsgMapID, bool bDoHook); \
 // protected:                                 \
 //     classname*  m_p##classname##Impl;      \
 //     BOOL  m_bCreate##classname##Impl;      \
@@ -397,7 +398,7 @@ public:
 #define UI_DECLARE_Ixxx_INTERFACE_ProcessMessage(interfacename, classname) \
     BOOL  xProcessMessage(UI::UIMSG* pMsg, int nMsgMapID, bool bDoHook); \
 private:                                   \
-    BOOL  DoProcessMessage(UI::UIMSG* pMsg, int nMsgMapID, bool bDoHook); \
+    BOOL  virtualProcessMessage(UI::UIMSG* pMsg, int nMsgMapID, bool bDoHook); \
 public:
 
 #define UI_DECLARE_Ixxx_INTERFACE_CreateImpl(interfacename, classname) \
@@ -455,7 +456,7 @@ public:
     {                                                       \
         return m_p##classname##Impl->xProcessMessage(pMsg, nMsgMapID, bDoHook); \
     }                                                       \
-    /*virtual*/ BOOL  interfacename::DoProcessMessage(UI::UIMSG* pMsg, int nMsgMapID, bool bDoHook) \
+    /*virtual*/ BOOL  interfacename::virtualProcessMessage(UI::UIMSG* pMsg, int nMsgMapID, bool bDoHook) \
     {                                                       \
         return m_p##classname##Impl->xProcessMessage(pMsg, nMsgMapID, bDoHook); \
     }

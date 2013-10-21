@@ -2,7 +2,7 @@
 #define BUTTON_H_FD4B3D3C_D26B_4e80_B1BB_5070F9E02316
 
 #include "UISDK\Control\Inc\Interface\ibutton.h"
-
+#define BUTTON_VK_SPACE_MOUSECAPTURE_NOTIFY_ID  138162231
 namespace UI
 {
 
@@ -17,22 +17,28 @@ public:
 	UI_DECLARE_OBJECT3(ButtonBase, OBJ_CONTROL, _T("UICtrl/Control"))
 
 	UI_BEGIN_MSG_MAP
-		UIMSG_WM_STATECHANGED2(OnStateChanged2)
+		UIMSG_WM_STATECHANGED2( OnStateChanged2 )
 //		UIMSG_WM_MOUSEMOVE( OnMouseMove )
 //		UIMSG_WM_MOUSELEAVE( OnMouseLeave )
-		UIMSG_WM_ERASEBKGND(OnEraseBkgnd)
+		UIMSG_WM_ERASEBKGND( OnEraseBkgnd )
 
-//		UIMSG_WM_LBUTTONDOWN( OnLButtonDown )
-		UIMSG_WM_LBUTTONDBLCLK(OnLButtonDblClk)
-		UIMSG_WM_LBUTTONUP(OnLButtonUp)
-		UIMSG_WM_KEYDOWN(OnKeyDown)
-		UIMSG_WM_KEYUP(OnKeyUp)
-		UIMSG_WM_KILLFOCUS(OnKillFocus)
-		UIMSG_WM_SETFOCUS(OnSetFocus)
-        UIMSG_WM_QUERYINTERFACE(QueryInterface)
-        UIMSG_WM_RESETATTRIBUTE(ResetAttribute)
-        UIMSG_WM_SETATTRIBUTE(SetAttribute)
-        UIMSG_WM_FINALCONSTRUCT(FinalConstruct)
+		UIMSG_WM_LBUTTONDOWN( OnLButtonDown )
+		UIMSG_WM_LBUTTONDBLCLK( OnLButtonDblClk )
+		UIMSG_WM_LBUTTONUP( OnLButtonUp )
+		UIMSG_WM_RBUTTONUP( OnRButtonUp )
+		UIMSG_WM_KEYDOWN( OnKeyDown )
+		UIMSG_WM_KEYUP( OnKeyUp )
+		UIMSG_WM_KILLFOCUS( OnKillFocus )
+		UIMSG_WM_SETFOCUS( OnSetFocus )
+        UIMSG_WM_QUERYINTERFACE( QueryInterface )
+        UIMSG_WM_RESETATTRIBUTE( ResetAttribute )
+        UIMSG_WM_SETATTRIBUTE( SetAttribute )
+		UIMSG_WM_EDITORGETATTRLIST(OnEditorGetAttrList)
+        UIMSG_WM_FINALCONSTRUCT( FinalConstruct )
+    UIALT_MSG_MAP( BUTTON_VK_SPACE_MOUSECAPTURE_NOTIFY_ID )
+        {
+            return TRUE;
+        }
 	UI_END_MSG_MAP_CHAIN_PARENT_Ixxx(ButtonBase, IControl)   // 由当前消息入口类将消息传递给IControl处理
 
     void SetIButtonBase(IButtonBase* p) { m_pIButtonBase = p; SetIMessageProxy(m_pIButtonBase); }
@@ -45,8 +51,9 @@ protected:
 	void  OnEraseBkgnd(IRenderTarget*);
 // 	void  OnMouseMove(UINT nFlags, POINT point);
 // 	void  OnMouseLeave();
-// 	void  OnLButtonDown(UINT nFlags, POINT point);
+ 	void  OnLButtonDown(UINT nFlags, POINT point);
 	void  OnLButtonUp(UINT nFlags, POINT point);
+	void  OnRButtonUp(UINT nFlags, POINT point);
 	void  OnLButtonDblClk(UINT nFlags, POINT point);
 	void  OnSetFocus(IObject*);
 	void  OnKillFocus(IObject*);
@@ -54,6 +61,7 @@ protected:
 	void  OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags );
 	void  ResetAttribute();
     void  SetAttribute(IMapAttribute* pMapAttr, bool bReload);
+	void  OnEditorGetAttrList(IUIEditor* pEditor, IUIEditorGroupAttribute*  pRootAttr);
 
 	void  DrawFocus(IRenderTarget*);
 	void  OnClicked(POINT* pt);         // 自己被点击了（可在子类中用于设置当前check状态）
@@ -95,6 +103,7 @@ public:
         UIMSG_WM_OBJECTLOADED(OnObjectLoaded)
         UIMSG_WM_RESETATTRIBUTE(ResetAttribute)
         UIMSG_WM_SETATTRIBUTE(SetAttribute)
+		UIMSG_WM_EDITORGETATTRLIST(OnEditorGetAttrList)
         UIMSG_WM_FINALCONSTRUCT(FinalConstruct)
     UI_END_MSG_MAP_CHAIN_PARENT(ButtonBase)
 
@@ -102,22 +111,21 @@ public:
     void  SetIButton(IButton* p) { m_pIButton = p; }
     IButton*  GetIButton() { return m_pIButton; }
 
-    void  SetText(const TCHAR*  szText);
+    void  SetText(const TCHAR*  szText, bool bUpdate=true);
     const TCHAR* GetText();
 
     void  SetIconFromFile(const TCHAR* szIconPath);
+    void  SetIconFromHBITMAP(HBITMAP hBitmap);
 
 protected:
     HRESULT FinalConstruct(IUIApplication* p);
     void  ResetAttribute();
     void  SetAttribute(IMapAttribute* pMapAttrib, bool bReload);
+	void  OnEditorGetAttrList(IUIEditor* pEditor, IUIEditorGroupAttribute*  pRootAttr);
     void  OnObjectLoaded();
     void  OnClicked();
 
-#if 0 // -- 架构改造
-    virtual bool    GetAttributeList(IUIBuilder* pBuilder);
-#endif
-    void  GetDesiredSize(SIZE* pSize);
+	void  GetDesiredSize(SIZE* pSize);
     UINT  OnGetDlgCode(LPMSG lpMsg);
     void  OnPaint(IRenderTarget*);
     LRESULT  DrawFocus(WPARAM, LPARAM);

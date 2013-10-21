@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<skin>
+  <layout>
+    <CustomWindow id="friendmgrdlg" width="806" height="548" minwidth="806" minheight="548" text="好友管理器" font="normal"
+                  bkgnd.render.type="image" bkgnd.render.image.drawtype="stretch" bkgnd.render.image="shadow_bkg.png" bkgnd.render.image.9region="10"
+                  material.render.region="6" 
+                  foregnd.render.type="image" foregnd.render.image="contactmgr_texture" foregnd.render.image.drawtype="stretch" foregnd.render.image.9region="10,50,10,50"
+                  transparent.type="areo" transparent.part="" transparent.part.9region="5" istransparent="1" >
+      <RenderChain>
+        
+        <!-- 最外层边框 -->
+        <DirectRenderLayer
+          zorder="1"
+          layout.left ="0" layout.top="0" layout.right="0" layout.bottom="0"
+          bkgnd.render.type="image"
+          bkgnd.render.image="fringe_bkg.png"
+          bkgnd.render.image.9region="10"
+          bkgnd.render.image.drawtype="stretchborder"/>
+      </RenderChain>
+
+      <Panel layout="stack" layout.right="5" layout.top="4" layout.direction="righttoleft">
+        <Button id="sys_close"    styleclass="imagebtn"  tooltip="关闭"   bkgnd.render.image="icon_close"/>
+        <Button id="sys_restore"  styleclass="imagebtn"  tooltip="还原"   bkgnd.render.image="icon_restore"/>
+        <Button id="sys_maximize" styleclass="imagebtn"  tooltip="最大化" bkgnd.render.image="icon_max"/>
+        <Button id="sys_minimize" styleclass="imagebtn"  tooltip="最小化" bkgnd.render.image="icon_min"/>
+      </Panel>
+
+
+      <ListView id="listivew" layout.left="100" layout.top="50" layout.right="10" layout.bottom="10"
+         bkgnd.render.type="color" bkgnd.render.color="contactmgr_listview_bkg"/>
+      
+    </CustomWindow>
+  </layout>
+</skin>

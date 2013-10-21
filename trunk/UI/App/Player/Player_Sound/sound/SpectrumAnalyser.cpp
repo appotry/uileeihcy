@@ -93,11 +93,14 @@ HRESULT CSpectrumAnalyser::Release()
 	SAFE_ARRAY_DELETE(m_pPeaksDelay);
 	SAFE_ARRAY_DELETE(m_pSampleBuffer);
 	SAFE_ARRAY_DELETE(m_pLeftRightSampleData);
-    for (int i = 0; i < m_nArrayWaveBlurSize; i++)
-    {
-        SAFE_DELETE_GDIOBJECT(m_pArrayWaveBlur[i]);
-    }
-    SAFE_ARRAY_DELETE(m_pArrayWaveBlur);
+	if (m_pArrayWaveBlur)
+	{
+		for (int i = 0; i < m_nArrayWaveBlurSize; i++)
+		{
+			SAFE_DELETE_GDIOBJECT(m_pArrayWaveBlur[i]);
+		}
+		SAFE_ARRAY_DELETE(m_pArrayWaveBlur);
+	}
     m_nArrayWaveBlurSize = 0;
 
 	m_nAnalyserSampleCount = 0;
@@ -314,11 +317,15 @@ bool CSpectrumAnalyser::OnSetVisualization(VisualizationInfo* pInfo)
 				m_hMemBitmap = ::CreateDIBSection( NULL, &bmi, DIB_RGB_COLORS, &pBits, NULL, 0 );
 				m_hOldBitmap = (HBITMAP)::SelectObject(m_hRenderWndMemDC, m_hMemBitmap);
 
-                m_pArrayWaveBlur = new HBITMAP[m_nArrayWaveBlurSize];
-                for (int i = 0; i < m_nArrayWaveBlurSize; i++)
-                {
-                    m_pArrayWaveBlur[i] = ::CreateDIBSection( NULL, &bmi, DIB_RGB_COLORS, &pBits, NULL, 0);
-                }
+				if (!m_pArrayWaveBlur)
+				{
+					m_pArrayWaveBlur = new HBITMAP[m_nArrayWaveBlurSize];
+					for (int i = 0; i < m_nArrayWaveBlurSize; i++)
+					{
+						SAFE_DELETE_GDIOBJECT(m_pArrayWaveBlur[i]);
+						m_pArrayWaveBlur[i] = ::CreateDIBSection( NULL, &bmi, DIB_RGB_COLORS, &pBits, NULL, 0);
+					}
+				}
 			}
 
             if (m_pPeaksValue)

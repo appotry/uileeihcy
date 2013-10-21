@@ -52,10 +52,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
     UI::Util::GetAppPath_(szPath);
 	String str = szPath;
 
-	str.append(_T("ControlDemo"));
     g_pUIApp->SetSkinDirection(str.c_str());
-
-    //str.append(_T("\\controldemo.xml"));
 	g_pUIApp->LoadSkin(_T("Default"));
 
     str.append(_T("\\Default\\skin.xml"));

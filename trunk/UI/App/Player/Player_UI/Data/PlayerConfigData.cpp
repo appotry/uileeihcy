@@ -20,6 +20,7 @@ CConfigData::CConfigData()
 	player.m_byteBalance = 100;
 	player.m_bytePlayMode = (byte)ALL_LOOP;
 	player.m_bDirty = false;
+    player.m_bWndTopMost = false;
 }
 
 void  CConfigData::SetSkinActiveName(const TCHAR* szName)
@@ -47,7 +48,7 @@ void CPlayerConfigData::GetConfigXmlPath(String& str)
 {
 	TCHAR szPath[MAX_PATH] = _T("");
     UI::Util::GetAppPath_(szPath);
-	_tcscat(szPath, _T("TTPlayer\\player.xml"));
+	_tcscat(szPath, _T("player.xml"));
 
 	str = szPath;
 }
@@ -110,6 +111,16 @@ bool  CPlayerConfigData::Load(CConfigData* pData)
 
 			str = m_xml.GetAttrib(_T("PlayingTime"));
 			pData->player.m_nPlayingTime = _ttoi(str.c_str());
+
+            str = m_xml.GetAttrib(_T("WndTopMost"));
+            if (_T("1")==str || _T("true")==str)
+            {
+                pData->player.m_bWndTopMost = true;
+            }
+            else
+            {
+                pData->player.m_bWndTopMost = false;
+            }
 		}
 
 
@@ -177,6 +188,8 @@ bool CPlayerConfigData::Save(CConfigData* pData)
 			m_xml.SetAttrib(_T("PlayingFileName"), pData->player.m_strPlayingFileName);
 			_stprintf(szText, _T("%d"), pData->player.m_nPlayingTime);
 			m_xml.SetAttrib(_T("PlayingTime"), szText);
+            _stprintf(szText, _T("%d"), pData->player.m_bWndTopMost?1:0);
+            m_xml.SetAttrib(_T("WndTopMost"), szText);
 			
             bNeedSave = true;
             pData->player.m_bDirty = false;

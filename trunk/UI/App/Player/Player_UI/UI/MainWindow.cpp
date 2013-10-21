@@ -99,6 +99,8 @@ void MainWindow::OnInitWindow()
 			m_pbtnMute->SetChecked();
 	}
 
+    OnWndTopMostChanged(GetConfigData()->player.m_bWndTopMost?1:0);
+
 	if (m_pLabelPlaystatus)
 	{
 		m_strStatusText = m_pLabelPlaystatus->GetText();
@@ -164,7 +166,7 @@ void MainWindow::OnPaint(UI::IRenderTarget* pRenderTarget)
 	{
 		HDC hDC = pRenderTarget->GetHDC();
         UI::IImage image;
-		image.Attach(hBitmap);
+		image.Attach(hBitmap, false);
 		image.BitBlt(hDC, rcClient.left, rcClient.top, rcClient.Width(), rcClient.Height(), 0,0);
 		image.Detach();
 		pRenderTarget->ReleaseHDC(hDC);
@@ -371,10 +373,10 @@ void  MainWindow::OnLEDTimeClicked()
 }
 void MainWindow::OnBnClickMute()
 {
-	if( NULL == m_pbtnMute )
+	if (NULL == m_pbtnMute)
 		return;
 
-	bool bMute = !m_pbtnMute->IsChecked();
+	bool bMute = m_pbtnMute->IsChecked();
 	GetMainMgr()->SetMute(bMute);
 }
 
@@ -891,6 +893,17 @@ void  MainWindow::OnLyricDlgVisibleChanged(HWND wParam, BOOL bVisible)
         m_pBtnLyric->UpdateObject();
     }
 }
+void  MainWindow::OnWndTopMostChanged(BOOL bTopMost)
+{
+    if (bTopMost)
+    {
+        ::SetWindowPos(GetHWND(), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE|SWP_NOMOVE|SWP_NOACTIVATE);
+    }
+    else
+    {   
+        ::SetWindowPos(GetHWND(), HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE|SWP_NOMOVE|SWP_NOACTIVATE);
+    }
+}
 
 HBITMAP MainWindow::GetVisualizationInfo(RECT* prc)
 {
@@ -899,13 +912,8 @@ HBITMAP MainWindow::GetVisualizationInfo(RECT* prc)
 		CRect rc;
 		m_pVisuallzationPic->GetClientRectInWindow(&rc);
 		::CopyRect(prc, &rc);
-        
-		HBITMAP hBitmap = this->PaintObject(m_pVisuallzationPic);
-// 		Image image;
-// 		image.Attach(hBitmap);
-// 		image.Save(L"C:\\adf.png", Gdiplus::ImageFormatPNG);
-// 		image.Detach();
-		return hBitmap;
+
+        return m_pVisuallzationPic->TakeBkgndSnapshot();
 	}
 	return NULL;
 }

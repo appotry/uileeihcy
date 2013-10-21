@@ -14,6 +14,7 @@ interface ITextRenderBase;
 interface IUIElement;
 interface ISkinRes;
 interface ILayout;
+interface IBuffer;
 
 // UI对象创建函数
 typedef  HRESULT (*funcUICreateInstancePtr)(IUIApplication* pUIApp, void** pOut);
@@ -52,12 +53,16 @@ UISDKAPI GRAPHICS_RENDER_LIBRARY_TYPE GetRenderLibraryType(IObject* pObj);
 UISDKAPI GRAPHICS_RENDER_LIBRARY_TYPE GetRenderLibraryType(HWND hWnd);
 UISDKAPI IRenderTarget*  UICreateRenderTarget(HWND hWnd);
 UISDKAPI IRenderTarget*  UICreateRenderTarget(GRAPHICS_RENDER_LIBRARY_TYPE eType, HWND hWnd=NULL);
+UISDKAPI void  UICreateRenderBitmap(GRAPHICS_RENDER_LIBRARY_TYPE eGraphicsRenderType, IMAGE_ITEM_TYPE eType, IRenderBitmap** ppOut);
 
 interface IUIDocument;
 UISDKAPI void  UILoadXmlDocument(const TCHAR* szXmlPath, IUIDocument** ppDoc);
 
 // 创建一个内存位图，由外部负责Destroy
 UISDKAPI HBITMAP CreateMemBitmap(int nWidth, int nHeight, int* pnPitch, byte** ppBits);
+
+// 创建一个TCHAR buffer
+UISDKAPI void  CreateTCHARBuffer(IBuffer** pBuffer);
 
 // 创建一个IDataObject
 UISDKAPI void  CreateDataObjectInstance(IDataObject**  pp);

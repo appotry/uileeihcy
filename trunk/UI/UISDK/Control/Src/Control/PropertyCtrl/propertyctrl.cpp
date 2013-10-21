@@ -74,6 +74,7 @@ void  PropertyCtrl::ResetAttribute()
     {
         UISendMessage(m_pEdit, UI_WM_RESETATTRIBUTE);
     }
+    m_pIPropertyCtrl->ModifyStyle(OBJECT_STYLE_ENABLE_IME, 0, false);
 }
 void  PropertyCtrl::SetAttribute(IMapAttribute* pMapAttr, bool bReload)
 {
@@ -95,7 +96,7 @@ IPropertyCtrlGroupItem*  PropertyCtrl::InsertGroupItem(
                                             const TCHAR* szDesc, 
                                             IListItemBase* pParent, 
                                             IListItemBase* pInsertAfter, 
-                                            int nInsertFlags)
+                                            LISTITEM_OPFLAGS nInsertFlags)
 {
     IPropertyCtrlGroupItem*  pItem = NULL;
     IPropertyCtrlGroupItem::CreateInstance(m_pIPropertyCtrl->GetUIApplication(), &pItem);
@@ -118,7 +119,7 @@ IPropertyCtrlEditItem*  PropertyCtrl::InsertEditProperty(
                                             const TCHAR* szDesc, 
                                             IListItemBase* pParentItem, 
                                             IListItemBase* pInsertAfter, 
-                                            int nInsertFlags)
+                                            LISTITEM_OPFLAGS nInsertFlags)
 {
     // TODO: 先查找该key是否已经存在
     if (pParentItem)

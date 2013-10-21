@@ -51,7 +51,6 @@ interface UISDKAPI IUIApplication : IUnknown
     HRESULT  CreateInstanceByName(const TCHAR* szName, IObject** pOut);
     HRESULT  CreateInstanceByClsid(REFCLSID clsid, void** pOut);
     HRESULT  RegisterUIObjectCreateData(const TCHAR* szName, const TCHAR* szCategory, UINT nObjType, REFCLSID guid, funcUICreateInstancePtr pfunc);
-    HRESULT  GetObjectAttributeList(IObject* pObj);
     void     LoadUIObjectListToToolBox();
 
     HRESULT  RegisterUIRenderBaseCreateData(const TCHAR* szName, int nType, int nControlType, int nControlSubType, funcUICreateRenderBasePtr pfunc);
@@ -65,8 +64,6 @@ interface UISDKAPI IUIApplication : IUnknown
     HRESULT  RegisterLayoutCreateData(const TCHAR* szName, int nType, funcUICreateLayoutPtr);
     HRESULT  CreateLayoutByName(const TCHAR* szName, IObject* pObject, bool bCreateDefault, ILayout** ppOut);
     HRESULT  CreateLayout(int nType, IObject* pObject, ILayout** ppOut);
-
-    void  CreateRenderBitmapInstance(GRAPHICS_RENDER_LIBRARY_TYPE eGraphicsRenderType, IMAGE_ITEM_TYPE eType, IRenderBitmap** ppOut);
 
     BOOL     IsDialogMessage(MSG* pMsg);
     HRESULT  MsgHandleLoop(bool* pbQuitLoopRef=NULL);

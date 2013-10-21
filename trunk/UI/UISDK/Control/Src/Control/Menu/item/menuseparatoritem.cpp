@@ -29,6 +29,8 @@ void  MenuSeparatorItemShareData::SetAttribute(IMapAttribute* pMapAttrib, bool b
 {
     if (!m_pListCtrl)
         return;
+    if (!pMapAttrib)
+        return;
 
     const TCHAR* szText = pMapAttrib->GetAttr(XML_MENU_SEPARATOR_RENDEER_PREFIX XML_RENDER_TYPE, true);
     if (szText)
@@ -86,7 +88,11 @@ void  MenuSeparatorItem::OnInitialize()
 
         IMapAttribute*  pMapAttrib = NULL;
         pListCtrl->GetMapAttribute(&pMapAttrib);
-        UISendMessage(m_pShareData->GetIIMenuSeparatorItemShareData(), UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, 0);
+
+		SERIALIZEDATA data = {0};
+		data.pMapAttrib = pMapAttrib;
+		UISendMessage(m_pShareData->GetIIMenuSeparatorItemShareData(), UI_WM_SERIALIZE, (WPARAM)&data);
+//        UISendMessage(m_pShareData->GetIIMenuSeparatorItemShareData(), UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, 0);
         SAFE_RELEASE(pMapAttrib);
     }
     else

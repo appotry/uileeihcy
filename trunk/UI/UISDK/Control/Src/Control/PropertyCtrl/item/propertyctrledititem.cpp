@@ -171,6 +171,14 @@ void  PropertyCtrlEditItem::SetValueText(const TCHAR* szText)
     }
 }
 
+void  PropertyCtrlEditItem::SetDefaultValueText(const TCHAR* szText)
+{
+	if (szText)
+		m_strDefautValue = szText;
+	else
+		m_strDefautValue.clear();
+}
+
 LRESULT  PropertyCtrlEditItem::OnStateChanged(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     if (wParam & OSB_SELECTED)
@@ -192,6 +200,20 @@ LRESULT  PropertyCtrlEditItem::OnStateChanged(UINT uMsg, WPARAM wParam, LPARAM l
     }
     return 0;
 }
+LRESULT  PropertyCtrlEditItem::OnSetValue(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	const TCHAR* szText = (const TCHAR* )wParam;
+	this->SetValueText(szText);
+
+	return 0;
+}
+LRESULT  PropertyCtrlEditItem::OnSetDefaultValue(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	const TCHAR* szText = (const TCHAR* )wParam;
+	this->SetDefaultValueText(szText);
+
+	return 0;
+}
 
 LRESULT  PropertyCtrlEditItem::OnEditEsc(WPARAM w, LPARAM l)
 {
@@ -203,8 +225,15 @@ LRESULT  PropertyCtrlEditItem::OnEditReturn(WPARAM w, LPARAM l)
 {   
     UIMSG  msg;
     msg.message = UI_PROPERTYCTRL_MSG_EDITITEM_ACCEPTCONTENT;
-    msg.wParam = (WPARAM)m_pIPropertyCtrlEditItem;
-    msg.lParam = (LPARAM)m_pShareData->pEditCtrl->GetText(); 
+
+	PROPERTYCTRL_EDIT_ITEM_ACCEPTCONTENT  param = {0};
+	param.pItem = m_pIPropertyCtrlEditItem;
+	param.szKey = m_pIPropertyCtrlEditItem->GetText();
+	param.szNewValue = m_pShareData->pEditCtrl->GetText();
+	if (m_strDefautValue == param.szNewValue)
+		param.bDefault = true;
+	msg.wParam = (WPARAM)&param;
+
     m_pIPropertyCtrlEditItem->GetIListCtrlBase()->DoNotify(&msg);
 
     return 0;

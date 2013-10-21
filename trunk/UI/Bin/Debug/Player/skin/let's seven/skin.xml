@@ -1,0 +1,461 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<skin>
+  <layout>
+    <CustomWindow id="mainwindow" layout.left="300" layout.top="200"  width="322" height="165" 
+                   bkgnd.render.type="image" bkgnd.render.image="player_skin.png" 
+                   transparent.type="maskalpha">
+      <PictureCtrl id="icon" foregnd.render.image="ttplayer.ico" layout.left="10" layout.top="6"/>
+      <MultiLabel id="label_title" layout.left="25" layout.right="25" layout.top="34" height="20" rejestmousemsg="false"
+             textrender.type="normal" textrender.color="scroll_title_text" textrender.align="left|vcenter" textrender.font="normal"/>
+      <Panel layout="stack" layout.right="5" layout.top="0" layout.direction="righttoleft">
+        <Button id="sys_close"    styleclass="imagebtn" tooltip="退出"  bkgnd.render.image="close.bmp" />
+        <Button id="btn_minimode" styleclass="imagebtn" tooltip="迷你模式"  bkgnd.render.image="minimode.bmp" />
+        <Button id="sys_minimize" styleclass="imagebtn" tooltip="最小化"    bkgnd.render.image="minimize.bmp" />
+      </Panel>
+      <SliderCtrl id="progress_music" foregnd.render.image="progress_fill.bmp" height="12" width="192"
+                  direction="lefttoright" layout.left="20" layout.top="68" btn.id="progress_btn"
+                  trackbtn.bkgnd.render.image="progress_thumb.bmp"/>
+      <LEDCtrl id="led_time" text=" 00:00" layout.right="18" layout.top="83" indexmap="0123456789:-"
+               foregnd.render.type="imagelist"  foregnd.render.image="number.png"
+               foregnd.render.imagelist.layout="h"/>
+      <PictureCtrl id="visualization" istransparent="true" layout.left="25" layout.top="94" width="115" height="32"/>
+      <Label   id="label_channel_mode" text="立体声"    layout.right="112" layout.top="91"  textrender.color="voice_channel"/>
+      <Label   id="label_playstatus"   text="状态:停止" layout.right="112" layout.top="111" textrender.color="play_statue"/>
+      <Button  id="btn_playlist"  tabstop="0"  styleclass="imagebtn"  tooltip="播放列表" bkgnd.render.image="playlist.png" layout.top="64"  layout.right="72"/>
+      <Button  id="btn_equalizer" tabstop="0"  styleclass="imagebtn"  tooltip="均衡器"   bkgnd.render.image="equalizer.png" layout.top="64"  layout.right="47"/>
+      <CheckButton id="btn_lyric" tabstop="0"  styleclass="imagecheckbutton"  tooltip="歌词"     foregnd.render.image="lyric.png"     layout.top="64"  layout.right="18"/>
+      <Button id="btn_browser"    tabstop="0"  styleclass="imagebtn"  bkgnd.render.image="browser.bmp"  layout.top="108" layout.right="24"/>
+      <Panel  layout="stack"   layout.left="20" layout.bottom="10" layout.direction="lefttoright">
+        <Button id="btn_play"  styleclass="imagebtn" tooltip="开始"     bkgnd.render.image="play.bmp"  margin="0,0,2,0"/>
+        <Button id="btn_pause" styleclass="imagebtn" tooltip="暂停"     bkgnd.render.image="pause.bmp" margin="0,0,2,0"/>
+        <Button id="btn_stop"  styleclass="imagebtn" tooltip="停止"     bkgnd.render.image="stop.bmp"  margin="2,0,2,0"/>
+        <Button id="btn_prev"  styleclass="imagebtn" tooltip="上一首"   bkgnd.render.image="prev.bmp"  margin="1,0,1,0"/>
+        <Button id="btn_next"  styleclass="imagebtn" tooltip="下一首"   bkgnd.render.image="next.bmp"  margin="2,0,2,0"/>
+        <Button id="btn_open"  styleclass="imagebtn" tooltip="播放文件" bkgnd.render.image="open.bmp"  margin="1,0,2,0"/>
+        <CheckButton id="btn_mute" styleclass="imagecheckbutton" tooltip="静音" foregnd.render.image="mute.png"  margin="17,3,0,3"/>
+      </Panel>
+      <SliderCtrl id="progress_voice" foregnd.render.image="progress_fill.bmp" height="12" width="63" layout.right="26" layout.bottom="13"
+                         trackbtn.bkgnd.render.image="progress_thumb.bmp" />
+    </CustomWindow>
+    <CustomWindow id="playlistdlg"  
+                  width="322" height="165" minwidth="322" minheight="165"
+                  bkgnd.render.type="image" bkgnd.render.image="playlist_skin.png" bkgnd.render.image.9region="100,60,50,15,15,15,20,15"
+                  bkgnd.render.image.drawtype="stretch"
+                  transparent.type="maskalpha" transparent.part="4corner" transparent.part.9region="14,14,14,14,14,14,14,14"
+                  layout.left="300" layout.top="365" >
+      <Button id="sys_close" styleclass="imagebtn" bkgnd.render.image="close.bmp" layout.right="5" layout.top="0"/>
+      <Panel layout="stack" layout.left="15" layout.top="31">
+        <Button id="playlist_add"  styleclass="imagebtn" tooltip="添加" bkgnd.render.image="playlist_add.bmp"  bkgnd.render.imagelist.layout="v"/>
+        <Button id="playlist_del"  styleclass="imagebtn" tooltip="删除" bkgnd.render.image="playlist_del.bmp"  bkgnd.render.imagelist.layout="v"/>
+        <Button id="playlist_list" styleclass="imagebtn" tooltip="列表" bkgnd.render.image="playlist_list.bmp" bkgnd.render.imagelist.layout="v"/>
+        <Button id="playlist_sort" styleclass="imagebtn" tooltip="排序" bkgnd.render.image="playlist_sort.bmp" bkgnd.render.imagelist.layout="v"/>
+        <Button id="playlist_find" styleclass="imagebtn" tooltip="查找" bkgnd.render.image="playlist_find.bmp" bkgnd.render.imagelist.layout="v"/>
+        <Button id="playlist_edit" styleclass="imagebtn" tooltip="编辑" bkgnd.render.image="playlist_edit.bmp" bkgnd.render.imagelist.layout="v"/>
+        <Button id="playlist_mode" styleclass="imagebtn" tooltip="模式" bkgnd.render.image="playlist_mode.bmp" bkgnd.render.imagelist.layout="v"/>
+      </Panel>
+      <TTPlayerPlaylistCtrl id="playlistctrl" layout.left="16" layout.top="51"  layout.right="16"  layout.bottom="10"
+               bkgnd.render.type="color" bkgnd.render.color="playlistbk_color"  bkcolor2="playlistbk_color2" 
+               indextextcolor="playlist_textcolor_normal" textcolor="playlist_textcolor_normal" timetextcolor="playlist_textcolor_normal" 
+               indextextcolor.select="playlist_textcolor_select" textcolor.select="playlist_textcolor_select" timetextcolor.select="playlist_textcolor_select" 
+               indextextcolor.playing="playlist_textcolor_playing" textcolor.playing="playlist_textcolor_playing" timetextcolor.playing="playlist_textcolor_playing" 
+               selectcolor1="playlist_select_color1" selectcolor2="playlist_select_color2"
+                            />
+    </CustomWindow>
+    <CustomWindow id="equalizerdlg" layout.left="622" layout.top="365" width="322" height="165" 
+                  bkgnd.render.type="image" bkgnd.render.image="eq_skin.png"
+                  transparent.type="maskalpha" transparent.maskalpha="1">
+      <Button id="sys_close" styleclass="imagebtn" bkgnd.render.image="close.bmp" layout.right="5" layout.top="0"/>
+      <Panel layout="stack" layout.left="20" layout.bottom="13">
+        <CheckButton id="btn_enable"   styleclass="imagecheckbutton"  foregnd.render.image="eq_enabled.bmp"/>
+        <Button id="btn_reset"    styleclass="imagebtn"  bkgnd.render.image="reset.bmp" margin="3,0,3,0"></Button>
+        <Button id="btn_profile"  styleclass="imagebtn"  bkgnd.render.image="eq_profile.png"></Button>
+      </Panel>
+      <SliderCtrl id="progress_pan" height="8" width="53" layout.left="23" layout.top="54" foregnd.render.image="eqfactor_full2.bmp" trackbtn.bkgnd.render.type="null"/>
+      <SliderCtrl id="progress_3d"  height="8" width="53" layout.left="23" layout.top="85" foregnd.render.image="eqfactor_full2.bmp" trackbtn.bkgnd.render.type="null"/>
+      <SliderCtrl id="progress_eq_16k"  direction="bottomtotop" height="64" width="8" layout.left="292" layout.top="47"  foregnd.render.image="eqfactor_full.bmp" trackbtn.bkgnd.render.type="null"/>
+      <SliderCtrl id="progress_eq_8k"   direction="bottomtotop" height="64" width="8" layout.left="274" layout.top="47"  foregnd.render.image="eqfactor_full.bmp" trackbtn.bkgnd.render.type="null"/>
+      <SliderCtrl id="progress_eq_4k"   direction="bottomtotop" height="64" width="8" layout.left="256" layout.top="47"  foregnd.render.image="eqfactor_full.bmp" trackbtn.bkgnd.render.type="null"/>
+      <SliderCtrl id="progress_eq_2k"   direction="bottomtotop" height="64" width="8" layout.left="238" layout.top="47"  foregnd.render.image="eqfactor_full.bmp" trackbtn.bkgnd.render.type="null"/>
+      <SliderCtrl id="progress_eq_1k"   direction="bottomtotop" height="64" width="8" layout.left="220" layout.top="47"  foregnd.render.image="eqfactor_full.bmp" trackbtn.bkgnd.render.type="null"/>
+      <SliderCtrl id="progress_eq_500"  direction="bottomtotop" height="64" width="8" layout.left="202" layout.top="47"  foregnd.render.image="eqfactor_full.bmp" trackbtn.bkgnd.render.type="null"/>
+      <SliderCtrl id="progress_eq_250"  direction="bottomtotop" height="64" width="8" layout.left="184" layout.top="47"  foregnd.render.image="eqfactor_full.bmp" trackbtn.bkgnd.render.type="null"/>
+      <SliderCtrl id="progress_eq_125"  direction="bottomtotop" height="64" width="8" layout.left="166"  layout.top="47"  foregnd.render.image="eqfactor_full.bmp" trackbtn.bkgnd.render.type="null"/>
+      <SliderCtrl id="progress_eq_63"   direction="bottomtotop" height="64" width="8" layout.left="148"  layout.top="47"  foregnd.render.image="eqfactor_full.bmp" trackbtn.bkgnd.render.type="null"/>
+      <SliderCtrl id="progress_eq_31"   direction="bottomtotop" height="64" width="8" layout.left="130"  layout.top="47"  foregnd.render.image="eqfactor_full.bmp" trackbtn.bkgnd.render.type="null"/>
+      <SliderCtrl id="progress_eq_preamp"  direction="bottomtotop" height="64" width="8" layout.left="91"  layout.top="47" foregnd.render.image="eqfactor_full.bmp" trackbtn.bkgnd.render.type="null"/>
+      
+    </CustomWindow>
+    <CustomWindow id="lyricdlg" layout.left="622" layout.top="200" 
+                  width="322" height="165" minwidth="322" minheight="165"
+                  bkgnd.render.type="image" bkgnd.render.image="lyric_bk.png" bkgnd.render.image.9region="100,60,50,15,15,15,20,15"
+                  bkgnd.render.image.drawtype="stretch"
+                  transparent.type="maskalpha" transparent.maskalpha="1" >
+      <Button      id="sys_close"      layout.right="5"  layout.top="0" styleclass="imagebtn" bkgnd.render.image="close.bmp" />
+      <!--CheckButton id="switch_layered" layout.right="50" layout.top="5" text="切换透明窗口" tooltip="切换透明窗口" foregnd.render.type="imagelist" foregnd.render.image="checkbox_icon.png"/-->
+      <LyricCtrl id="lyricctrl" layout.left="5" layout.right="5" layout.top="35" layout.bottom="15" istransparent="1"/>
+      <!--Label id="label_hls_h" text="H:" layout.left="20" layout.top="91" textrender.color="default"/>
+      <SliderCtrl id="progress_hls_h" foregnd.render.image="progress_fill.bmp" height="10" width="270" layout.left="33" layout.top="93" />
+      <Label id="label_hls_h" text="S:" layout.left="20" layout.top="112" textrender.color="default"/>
+      <SliderCtrl id="progress_hls_s" foregnd.render.image="progress_fill.bmp" height="10" width="270" layout.left="33" layout.top="114" />
+      <Label id="label_hls_h" text="L:" layout.left="20" layout.top="133" textrender.color="default"/>
+      <SliderCtrl id="progress_hls_l" foregnd.render.image="progress_fill.bmp" height="10" width="270" layout.left="33" layout.top="135" /-->
+    </CustomWindow> 
+    <Window id="OptionWindow" font="normal" width="556" height="440">
+      <ListBox id="optionlist" border="1" layout.left="10" layout.top="10" width="100" height="370" padding="4" 
+        itemheight="24" textleftindent="20"
+        foregnd.render.type="imagelist" foregnd.render.image.9region="20,1,1,1" foregnd.render.image="listbox.png"
+        foregnd.render.image.drawtype="stretch"
+        bkgnd.render.type="color" bkgnd.render.color="default" bkgnd.render.border.color="control_border_color" bkgnd.render.border="1"
+        textrender.align="left|vcenter" 
+        textrender.color="black;white;white;white;white;white;white;white;white"
+        textindent="24"
+        />
+        
+      <Button id="btn_save_all"  text="全部保存" layout.right="169" layout.bottom="6" width="75" height="21" />
+      <Button id="btn_reset_all" text="全部重置" layout.right="88"  layout.bottom="6" width="75" height="21" />
+      <Button id="btn_cancel"    text="关闭"     layout.right="8"   layout.bottom="6" width="75" height="21" defpushbutton="1"/>
+      <Label  text="相关链接:"   layout.left="8" layout.bottom="8" />
+      <HyperLink id="link_homepage" text="软件主页"     tooltip="千千静听软件主页"   href="http://ttplayer.qianqian.com/"           layout.left="66"  layout.bottom="8" />
+      <HyperLink id="link_homepage" text="千千音乐在线" tooltip="千千静听在线网站"   href="http://ttplayer.qianqian.com/index.html" layout.left="122" layout.bottom="8" />
+      <HyperLink id="link_homepage" text="论坛"         tooltip="千千静听的官方论坛" href="http://bbs.qianqian.com/"                layout.left="202" layout.bottom="8" />
+      <HyperLink id="link_homepage" text="帮助"         tooltip="千千静听的帮助页面" href="http://ttplayer.qianqian.com/help.php"   layout.left="234" layout.bottom="8" />
+
+      <GroupBox layout="card" bkgnd.render.type="notheme" layout.left="115" layout.right="8" layout.top="10" height="370">
+
+        <Panel id="panel_about" layout.left="0" layout.right="0" layout.top="0" layout.bottom="0">
+          <PictureCtrl id="title_bk" layout.left="2" layout.right="2" layout.top="2" height="30" foregnd.render.type="gradient" foregnd.render.color.from="option_gradient_from" foregnd.render.color.to="option_gradient_to"/>
+          <GroupBox id="" bkgnd.render.type="notheme" layout.left="2" layout.right="2" layout.top="35" height="2"/>
+          <Label text="“千千静听”的简明介绍" textrender.align="left|vcenter" textrender.color="option_title_text_color_shadow" textrender.font="option_title" layout.left="6" layout.top="3" height="30" layout.right="2"/>
+          <Label text="“千千静听”的简明介绍" textrender.align="left|vcenter" textrender.color="option_title_text_color" textrender.font="option_title" layout.left="5" layout.top="2" height="30" layout.right="2"/>
+          <PictureCtrl foregnd.render.image="ttplayer.ico_48_48" layout.left="15" layout.top="50"/>
+          <Label text="千千静听" textrender.color="option_introduce_ttplayer_text3" textrender.font="option_introduce_ttplayer_text" layout.left="76" layout.top="53" />
+          <Label text="千千静听" textrender.color="option_introduce_ttplayer_text2" textrender.font="option_introduce_ttplayer_text" layout.left="74" layout.top="51" />
+          <Label text="千千静听" textrender.color="option_introduce_ttplayer_text1" textrender.font="option_introduce_ttplayer_text" layout.left="75" layout.top="52" />
+          <Label text="作者:"  layout.left="80" layout.top="85"/>
+          <HyperLink text="nanling" href="ttp@qianqian.com" tooltip="ttp@qianqian.com"  layout.left="115" layout.top="85"/>
+          <Label text="版权所有: 2003-2012"  layout.left="220" layout.top="85"/>
+          <Label text="版本: 5.9.4(Unicode)"  layout.left="80" layout.top="105"/>
+          <Label text="完成日期: 2012-8-2" layout.left="220" layout.top="105"/>
+          <GroupBox text="简介" layout.left="10" layout.top="120" layout.right="10" layout.bottom="10">
+            <RichEdit id="option_introduce_text" istransparent="0" layout.left="5" layout.right="5" layout.top="5" layout.bottom="5"
+                      xvscrollbar.bkgnd.render.type=""  
+                      xvscrollbar.linebtn1.bkgnd.render.type="" 
+                      xvscrollbar.linebtn2.bkgnd.render.type=""  
+                      xvscrollbar.thumbbtn.bkgnd.render.type=""/>
+          </GroupBox>
+        </Panel>
+
+        <Panel id="panel_common" layout.left="0" layout.right="0" layout.top="0" layout.bottom="0">
+          <PictureCtrl id="title_bk" layout.left="2" layout.right="2" layout.top="2" height="30" foregnd.render.type="gradient" foregnd.render.color.from="option_gradient_from" foregnd.render.color.to="option_gradient_to"/>
+          <GroupBox id="" bkgnd.render.type="notheme" layout.left="2" layout.right="2" layout.top="35" height="2"/>
+          <Label text="常规操作的参数设置" textrender.align="left|vcenter" textrender.color="option_title_text_color_shadow" textrender.font="option_title" layout.left="6" layout.top="3" height="30" layout.right="2"/>
+          <Label text="常规操作的参数设置" textrender.align="left|vcenter" textrender.color="option_title_text_color" textrender.font="option_title" layout.left="5" layout.top="2" height="30" layout.right="2"/>
+
+          <CheckButton id="checkbtn_topmost" layout.left="10" layout.top="50" text="前端显示"/>
+        </Panel>
+        
+        <Panel id="panel_visualization" layout.left="0" layout.right="0" layout.top="0" layout.bottom="0">
+          <PictureCtrl id="title_bk" layout.left="2" layout.right="2" layout.top="2" height="30" foregnd.render.type="gradient" foregnd.render.color.from="option_gradient_from" foregnd.render.color.to="option_gradient_to"/>
+          <GroupBox id="" bkgnd.render.type="notheme" layout.left="2" layout.right="2" layout.top="35" height="2"/>
+          <Label text="视觉效果相关的参数设置" textrender.align="left|vcenter" textrender.color="option_title_text_color_shadow" textrender.font="option_title" layout.left="6" layout.top="3" height="30" layout.right="2"/>
+          <Label text="视觉效果相关的参数设置" textrender.align="left|vcenter" textrender.color="option_title_text_color" textrender.font="option_title" layout.left="5" layout.top="2" height="30" layout.right="2"/>
+          <GroupBox text="选项" layout.left="10" layout.top="50" layout.right="10" height="90">
+            <Label text="视觉效果类型:" layout.left="10" layout.top="5"></Label>
+            <ComboBox id="combobox_visualization_type" layout.left="95" layout.top="2" width="135" height="20"/>
+            <Label text="分析显示速度:" layout.left="10" layout.top="30"></Label>
+            <SliderCtrl id="slider_visualization_fps" direction="lefttoright" thumbarrow="bottom" layout.left="95" layout.top="25" width="135"  height="30"  bkgnd.render.type="" trackbtn.bkgnd.render.type=""/>
+            <Label id="label_visualizatoin_fps" text="10" layout.left="235" layout.top="30"/>
+            <Label text="帧/秒" layout.left="250" layout.top="30"/>
+            <Label text="10" layout.left="95" layout.top="55"/>
+            <Label text="40" layout.left="220" layout.top="55"/>
+          </GroupBox>
+          <GroupBox text="频谱分析" layout.left="10" layout.top="145" layout.right="10" height="70">
+          </GroupBox>
+          <GroupBox text="示波显示" layout.left="10" layout.top="220" layout.right="10" height="70">
+          </GroupBox>
+          <GroupBox text="文字显示" layout.left="10" layout.top="300" layout.right="10" height="50">
+          </GroupBox>
+        </Panel>
+        
+        <Panel id="control_demo_panel" layout.left="0" layout.right="0" layout.top="0" layout.bottom="0">
+          <PictureCtrl id="title_bk" layout.left="2" layout.right="2" layout.top="2" height="30" foregnd.render.type="gradient" foregnd.render.color.from="option_gradient_from" foregnd.render.color.to="option_gradient_to"/>
+          <GroupBox id="" bkgnd.render.type="notheme" layout.left="2" layout.right="2" layout.top="35" height="2"/>
+          <Label text="控件测试页面" textrender.align="left|vcenter" textrender.color="option_title_text_color_shadow" textrender.font="option_title" layout.left="6" layout.top="3" height="30" layout.right="2"/>
+          <Label text="控件测试页面" textrender.align="left|vcenter" textrender.color="option_title_text_color" textrender.font="option_title" layout.left="5" layout.top="2" height="30" layout.right="2"/>
+        </Panel>
+      </GroupBox>
+     
+    </Window>
+    <TooltipWindow id="control_tooltips"></TooltipWindow>
+  <Menu id="main_menu" styleclass="mainmenu">
+    <!--注：xml中的回车换行必须用 &#xD; 或 &#xA; 而不是用\r\n-->
+    <String id="1001" text="千千选项" tooltip="“千千静听”的参数选项&#xD;千千选项" icon.render.type="image" icon.render.image="ttplayer.ico" icon.render.image.drawtype="adapt"/>
+    <Popup  text="相关链接"       styleclass="mainmenuitem" icon.render.imagelistitem.index="28">
+      <String text="千千主页"     styleclass="mainmenuitem" icon.render.imagelistitem.index="34"/>
+      <String text="千千音乐在线" styleclass="mainmenuitem" icon.render.imagelistitem.index="34"/>
+      <String text="论坛"         styleclass="mainmenuitem" icon.render.imagelistitem.index="31"/>
+      <Popup  text="论坛">
+        <String text="testtesttesttest"/>
+        <Separator></Separator>
+        <Popup  text="test">
+          <String text="ssss"/>
+        </Popup>
+      </Popup>
+    </Popup>
+    <Separator/>
+    <String id="1002" text="播放控制" styleclass="mainmenuitem" icon.render.imagelistitem.index="24"/>
+    <String id="1003" text="音量控制" styleclass="mainmenuitem" icon.render.imagelistitem.index="25"/>
+    <String id="1004" text="播放模式" styleclass="mainmenuitem" icon.render.imagelistitem.index="5"/>
+    <String id="1005" text="播放曲目" styleclass="mainmenuitem" icon.render.imagelistitem.index="4"/>
+    <Separator/>
+    <String id="1006" text="视觉外观" styleclass="mainmenuitem" icon.render.imagelistitem.index="8"/>
+    <String id="1007" text="歌词秀"   styleclass="mainmenuitem" icon.render.imagelistitem.index="9"/>
+    <String id="1008" text="均衡器"   styleclass="mainmenuitem" icon.render.imagelistitem.index="7"/>
+    <Separator/>
+    <Popup id="1009" text="皮肤"      styleclass="mainmenuitem" icon.render.imagelistitem.index="10"/>
+    <String id="1010" text="透明"     styleclass="mainmenuitem" icon.render.imagelistitem.index="11"/>
+    <String id="1011" text="查看"     styleclass="mainmenuitem" icon.render.imagelistitem.index="6"/>
+    <Separator/>
+    <String id="1015" text="显示桌面歌词" tooltip="显示桌面歌词" styleclass="mainmenuitem" icon.render.imagelistitem.index="32"/>
+    <Separator/>
+    <String id="1012" text="最小化"  tooltip="最小化/还原"  styleclass="mainmenuitem" icon.render.imagelistitem.index="2"/>
+    <String id="1013" text="全屏显示" styleclass="mainmenuitem" icon.render.imagelistitem.index="29"/>
+    <String id="1014" text="退出"    tooltip="退出“千千静听”&#xD;退出" styleclass="mainmenuitem" icon.render.imagelistitem.index="3"/>
+  </Menu>
+
+  <Menu id="menu_playlist_add">
+    <String id="1101" text="文件" tooltip="选择并添加音频文件&#xD;添加文件"/>
+    <String id="1102" text="文件夹" tooltip="选择并添加文件夹中的音频文件&#xD;添加文件夹"/>
+    <String id="1103" text="本地搜索" disable="1" tooltip="搜索并添加电脑中的音频文件" />
+    <String id="1104" text="网络搜索" disable="1" tooltip="添加网络URL"/>
+  </Menu>
+
+  <Menu id="menu_playlist_delete">
+    <String id="1201" text="选中的文件" tooltip="删除选中的文件"/>
+    <String id="1202" text="重复的文件" disable="1" tooltip="删除重复的文件" />
+    <String id="1203" text="错误的文件" tooltip="删除不支持或者不存在的文件"/>
+    <Separator/>
+    <String id="1204" text="全部删除"  tooltip="删除当前列表的所有文件"/>
+    <!--Separator/>
+    <String id="1204" text="物理删除"   disable="1" tooltip="从硬盘上删除选中的文件"/-->
+  </Menu>
+
+  <Menu id="menu_playlist_mode">
+    <String id="1701" text="单曲播放(S)" styleclass="playmodemenuitem" icon.render.imagelistitem.index="0" tooltip="单遍播放当前文件"/>
+    <String id="1702" text="单曲循环(I)" styleclass="playmodemenuitem" icon.render.imagelistitem.index="1" tooltip="循环播放当前文件"/>
+    <String id="1703" text="顺序播放(N)" styleclass="playmodemenuitem" icon.render.imagelistitem.index="2" tooltip="按顺序播放当前列表"/>
+    <String id="1704" text="循环播放(C)" styleclass="playmodemenuitem" icon.render.imagelistitem.index="3" tooltip="循环播放当前列表"/>
+    <String id="1705" text="随机播放(R)" styleclass="playmodemenuitem" icon.render.imagelistitem.index="4" tooltip="随机播放当前列表"/>
+    <Separator/>
+    <String id="1706" text="播放跟随光标(F)" disable="1" styleclass="playmodemenuitem" icon.render.imagelistitem.index="5" tooltip="将选中歌曲作为下一个播放对象"/>
+    <String id="1707" text="自动切换列表(A)" disable="1" styleclass="playmodemenuitem" icon.render.imagelistitem.index="6" tooltip="连续播放时当播放完当前列表后自动切换到下一个列表"/>
+  </Menu>
+
+    <Menu id="menu_eq_profile">
+      <String id="1301" text="推荐配置" styleclass="mainmenuitem" icon.render.imagelistitem.index="42" tooltip="使用推荐的EQ配置"/>
+      <String id="1302" text="自定义"   styleclass="mainmenuitem" icon.render.imagelistitem.index="43" tooltip="使用自定义的EQ配置"/>
+      <Separator/>
+      <String id="1303" text="流行音乐"/>
+      <String id="1304" text="摇滚"/>
+      <String id="1305" text="金属乐"/>
+      <String id="1306" text="舞曲"/>
+      <String id="1307" text="电子乐"/>
+      <String id="1308" text="乡村音乐"/>
+      <String id="1309" text="爵士乐"/>
+      <String id="1310" text="古典乐"/>
+      <String id="1311" text="布鲁斯"/>
+      <String id="1312" text="怀旧音乐"/>
+      <String id="1313" text="歌剧"/>
+      <String id="1314" text="语音"/>
+      <Separator/>
+      <String id="1315" text="从文件加载..."/>
+      <String id="1316" text="保存到文件..."/>
+    </Menu>
+  </layout>
+  <style>
+    <CustomWindow font="normal" transparentrgn.type="4corner" transparentrgn.9region="5"/>
+    
+    <class id="imagebtn" cursor="idc_hand" istransparent="1" autosize="bkimage" drawfocus="0" bkgnd.render.type="imagelist" />
+    
+    <class id="imagecheckbutton"  cursor="idc_hand" autosize="content" foregnd.render.type="imagelist" drawfocus="0" />
+    
+    <SliderCtrl 
+              istransparent="1" 
+              bkgnd.render.type="null" 
+              foregnd.render.type="image" 
+              cursor="idc_hand" 
+              foregnd.render.image.drawtype="stretch"
+              trackbtn.bkgnd.render.type="imagelist" 
+              trackbtn.styleclass="imagebtn"/>
+
+    <PictureCtrl foregnd.render.type="image"/>
+
+    <SystemHScrollBar
+               xbkgnd.render.type="image" 
+               xbkgnd.render.image="hscrollbar_bar.bmp"
+               xbkgnd.render.image.9region="1" 
+               xbkgnd.render.image.drawtype="stretch"
+               xlinebtn1.bkgnd.render.image="hscrollbar_button_lineleft.bmp"
+               xlinebtn1.styleclass="imagebtn"
+               xlinebtn1.cursor="idc_arrow"
+               xlinebtn2.bkgnd.render.image="hscrollbar_button_lineright.bmp"
+               xlinebtn2.styleclass="imagebtn"
+               xlinebtn2.cursor="idc_arrow"
+               xthumbbtn.styleclass="imagebtn"      
+               xthumbbtn.bkgnd.render.image="hscrollbar_thumb.bmp"
+               xthumbbtn.cursor="idc_arrow"        
+               xthumbbtn.bkgnd.render.type="imagelist"
+               xthumbbtn.bkgnd.render.image.drawtype="stretch"
+               xthumbbtn.bkgnd.render.image.9region="5"
+                  />
+
+    <SystemVScrollBar
+             bkgnd.render.type="image" 
+             bkgnd.render.image="scrollbar_bar.bmp"
+             bkgnd.render.image.9region="1"
+             bkgnd.render.image.drawtype="stretch"
+             linebtn1.bkgnd.render.image="scrollbar_button_lineup.bmp"
+             linebtn1.styleclass="imagebtn"
+             linebtn1.cursor="idc_arrow"
+             linebtn2.bkgnd.render.image="scrollbar_button_linedown.bmp"
+             linebtn2.styleclass="imagebtn"
+             linebtn2.cursor="idc_arrow"
+             thumbbtn.bkgnd.render.type="imagelist"
+             thumbbtn.bkgnd.render.image="scrollbar_thumb.bmp"
+             thumbbtn.bkgnd.render.image.drawtype="stretch"
+             thumbbtn.bkgnd.render.image.9region="2,5,2,5"
+             thumbbtn.styleclass="imagebtn"      
+             thumbbtn.cursor="idc_arrow"
+                  />
+
+    <Menu    border="2,2,2,2" 
+             bkgnd.render.type="image" 
+             bkgnd.render.image="menu_bk.png"
+             bkgnd.render.image.9region="24,2,2,2"
+             bkgnd.render.image.drawtype="stretch"
+             foregnd.render.type="colorlist" 
+             foregnd.render.color=";menu_item_hover;menu_item_hover"
+             foregnd.render.border.color=";menu_item_hover_border;menu_item_hover_border"  
+             foregnd.render.border="1"
+             foregnd.render.colorlist.count="3"
+             icongutterwidth="22"
+             textrender.type="colorlist"
+             textrender.color="black;black;black;gray"
+             textleftindent="5"
+             textrightindent="10"
+             separatorheight="8"
+             radioicon.render.type="image"
+             radioicon.render.image="menu_check_icon.png"
+             radioicon.render.image.drawtype="center"
+             checkicon.render.type="image"
+             checkicon.render.image="menu_check_icon.png"
+             checkicon.render.image.drawtype="center"
+             radiocheckiconbk.render.type="image"
+             radiocheckiconbk.render.image="menu_check_bk.png"
+             radiocheckiconbk.render.image.drawtype="center"
+             xtransparent.type="layered" 
+             xtransparent.maskalpha="240"
+             ></Menu>
+
+    <class   id="mainmenu"  
+             border="24,2,2,2" 
+             bkgnd.render.image="main_menu_bk.png"
+             bkgnd.render.image.9region="50,5,5,135"/>
+    <class   id="mainmenuitem"  
+             icon.render.type="imagelistitem" 
+             icon.render.image="menuicon_imagelist.png" 
+             icon.render.image.drawtype="adapt"/>
+    <class   id="playmodemenuitem"  
+             icon.render.type="imagelistitem" 
+             icon.render.image="playmode_imagelist.png" 
+             icon.render.image.drawtype="adapt"/>
+  </style>
+  <image>
+    <image id="player_skin.png">img\player_skin.png</image>
+    <imagelist id="minimize.bmp" count="4">img\minimize.bmp</imagelist>
+    <imagelist id="minimode.bmp" count="4">img\minimode.bmp</imagelist>
+    <image id="playlist_skin.png">img\playlist_skin.png</image>
+    <imagelist id="close.bmp" count="4">img\close.png</imagelist>
+    <imagelist id="progress_thumb.bmp" count="4">img\progress_thumb.bmp</imagelist>
+    <imagelist id="prev.bmp" count="4">img\prev.bmp</imagelist>
+    <imagelist id="play.bmp" count="4">img\play.bmp</imagelist>
+    <imagelist id="pause.bmp" count="4">img\pause.bmp</imagelist>
+    <imagelist id="open.bmp" count="4">img\open.bmp</imagelist>
+    <imagelist id="next.bmp" count="4">img\next.bmp</imagelist>
+    <imagelist id="mute.png" count="8">img\mute.png</imagelist>
+    <image id="progress_fill.bmp">img\progress_fill.bmp</image>
+    <imagelist id="lyric.png" count="8">img\lyric.png</imagelist>
+    <imagelist id="equalizer.png" count="8">img\equalizer.png</imagelist>
+    <imagelist id="playlist.png" count="8">img\playlist.png</imagelist>
+    <image id="eq_skin.png">img\eq_skin.png</image>
+    <imagelist id="browser.bmp" count="4">img\browser.bmp</imagelist>
+    <imagelist id="stop.bmp" count="4">img\stop.bmp</imagelist>
+    <imagelist id="playlist_add.bmp" count="4" layout="v">img\playlist_add.bmp</imagelist>
+    <imagelist id="playlist_del.bmp" count="4" layout="v">img\playlist_del.bmp</imagelist>
+    <imagelist id="playlist_edit.bmp" count="4" layout="v">img\playlist_edit.bmp</imagelist>
+    <imagelist id="playlist_find.bmp" count="4" layout="v">img\playlist_find.bmp</imagelist>
+    <imagelist id="playlist_list.bmp" count="4" layout="v">img\playlist_list.bmp</imagelist>
+    <imagelist id="playlist_mode.bmp" count="4" layout="v">img\playlist_mode.bmp</imagelist>
+    <image id="lyric_bk.png">img\lyric_bk.png</image>
+    <imagelist id="playlist_sort.bmp" count="4" layout="v">img\playlist_sort.bmp</imagelist>
+    <imagelist id="eq_enabled.bmp" count="8">img\eq_enabled.bmp</imagelist>
+    <imagelist id="eq_profile.png" count="4">img\eq_profile.png</imagelist>
+    <imagelist id="reset.bmp" count="4">img\reset.bmp</imagelist>
+    <imagelist id="listbox.png" useskinhls="0" count="9" layout="v">img\listbox.png</imagelist>
+    <image id="scrollbar_bar.bmp">img\scrollbar_bar.bmp</image>
+    <imagelist id="scrollbar_button_linedown.bmp" count="3">img\scrollbar_button_linedown.bmp</imagelist>
+    <imagelist id="scrollbar_button_lineup.bmp" count="3">img\scrollbar_button_lineup.bmp</imagelist>
+    <imagelist id="scrollbar_thumb.bmp" count="3">img\scrollbar_thumb.bmp</imagelist>
+    <image id="hscrollbar_bar.bmp">img\hscrollbar_bar.bmp</image>
+    <imagelist id="hscrollbar_button_lineright.bmp" count="3">img\hscrollbar_button_lineright.bmp</imagelist>
+    <imagelist id="hscrollbar_button_lineleft.bmp" count="3">img\hscrollbar_button_lineleft.bmp</imagelist>
+    <imagelist id="hscrollbar_thumb.bmp" count="3">img\hscrollbar_thumb.bmp</imagelist>
+    <imagelist id="number.png" count="12">img\number.bmp</imagelist>
+    <image id="menu_bk.png">img\menu_bk.png</image>
+    <image id="main_menu_bk.png">img\main_menu_bk.png</image>
+    <image id="menu_check_bk.png">img\menu_check_bk.png</image>
+    <image id="menu_check_icon.png">img\menu_check_icon.png</image>
+    <imagelist useskinhls="0" id="menuicon_imagelist.png"  count="50">img\menuicon_imagelist.png</imagelist>
+    <imagelist useskinhls="0" id="playmode_imagelist.png"  count="7">img\playmode_imagelist.png</imagelist>
+    <imagelist useskinhls="0" id="some_imagelist.png"      count="9">img\some_imagelist.png</imagelist>
+    <imagelist useskinhls="0" id="lyricedit_imagelist.png" count="17">img\lyricedit_imagelist.png</imagelist>
+    <icon id="ttplayer.ico"       useskinhls="0" width="16" height="16">img\ttplayer.ico</icon>
+    <icon id="ttplayer.ico_32_32" useskinhls="0" width="32" height="32">img\ttplayer.ico</icon>
+    <icon id="ttplayer.ico_48_48" useskinhls="0" width="48" height="48">img\ttplayer.ico</icon>
+    <image id="visualization_band.bmp">img\visualization_band.bmp</image>
+    <image id="eqfactor_full.bmp">img\eqfactor_full.bmp</image>
+    <image id="eqfactor_full2.bmp">img\eqfactor_full2.bmp</image>
+    <imagelist id="checkbox_icon.png" count="8">img\checkbox_icon.png</imagelist>
+</image>
+  <font>
+    <item id="normal" facename="宋体" size="9" />
+    <item id="option_title" facename="宋体" size="11"/>
+    <item id="option_introduce_ttplayer_text" facename="宋体" size="20" bold="1"/>
+  </font>
+  <color>
+    <item id="voice_channel">87,139,164,255</item>
+    <item id="play_statue">87,139,164,255</item>
+    <item id="scroll_title_text">207,237,251,255</item>
+    <item id="default">255,255,255,255</item>
+    <item id="white"  useskinhls="0">255,255,255,255</item>
+    <item id="black"  useskinhls="0">0,0,0,255</item>
+    <item id="gray"   useskinhls="0">127,127,127,255</item>
+    <item id="control_border_color">137,140,149,255</item>
+    <item id="playlistbk_color">29,56,64,255</item>
+    <item id="playlistbk_color2">24,51,60,255</item>
+    <item id="playlist_textcolor_normal">84,142,165,255</item>
+    <item id="playlist_textcolor_select">255,255,255,255</item>
+    <item id="playlist_textcolor_playing">212,245,255,255</item>
+    <item id="playlist_select_color1">127,198,240,255</item>
+    <item id="playlist_select_color2">38,70,81,255</item>
+    <item id="menu_item_hover">193,210,238,255</item>
+    <item id="menu_item_hover_border">49,106,197,255</item>
+    <item id="option_gradient_from" useskinhls="0">48,106,198,255</item>
+    <item id="option_gradient_to"  useskinhls="0">255,255,255,255</item>
+    <item id="option_title_text_color" useskinhls="0">255,255,255,255</item>
+    <item id="option_title_text_color_shadow" useskinhls="0">32,32,32,255</item>
+    <item id="option_introduce_ttplayer_text1" useskinhls="0">255,155,0,255</item>
+    <item id="option_introduce_ttplayer_text2" useskinhls="0">255,255,255,255</item>
+    <item id="option_introduce_ttplayer_text3" useskinhls="0">32,32,32,255</item>
+  </color>
+</skin>

@@ -287,6 +287,16 @@ COLORREF  TranslateRGB(const TCHAR* szCol, TCHAR szSep)
     return col;
 }
 
+COLORREF  TranslateHexColor(const TCHAR* szColor)
+{
+    if (NULL == szColor)
+        return 0;
+
+    long l = 0;
+    _stscanf(szColor, _T("%x"), &l);
+    return l;
+}
+
 bool  TranslateRECT(const TCHAR* szRect, RECT* pRect, TCHAR szSep)
 {
     if (NULL == szRect)

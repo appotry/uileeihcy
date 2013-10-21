@@ -12,9 +12,10 @@ interface UISDKAPI IImage
 
     static const DWORD createAlphaChannel = 0x01;
 
-    void  Attach(HBITMAP hBitmap);
+    void  Attach(HBITMAP hBitmap, bool bHasAlphaChannel);
     HBITMAP  Detach();
-    bool  Load(const TCHAR*  szPath);
+    bool  Load(const TCHAR*  szPath, bool bForceAlpha=false);
+    bool  LoadFromResource( HINSTANCE hInstance, UINT nIDResource, TCHAR* szResourceType );
 
     BOOL  Create(int nWidth, int nHeight, int nBPP, DWORD dwFlags = 0);
     void  Destroy();
@@ -30,6 +31,7 @@ interface UISDKAPI IImage
     void  EndDrawToMyself();
     BOOL  BitBlt(HDC hDestDC, int xDest, int yDest, int nDestWidth, int nDestHeight, int xSrc, int ySrc, DWORD dwROP = SRCCOPY);
     void  Draw(HDC hDestDC, int x, int y);
+    void  Draw(HDC hDestDC, int xDest, int yDest, int nDestWidth, int nDestHeight, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight);
 
     void  AlphaBottomEdge(int nSpeed=2);
     void  AlphaTopEdge(int nSpeed=2);

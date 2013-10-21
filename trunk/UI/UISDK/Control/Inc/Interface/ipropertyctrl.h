@@ -27,10 +27,28 @@ static const GUID IID_UI_IPropertyCtrlGroupItem =
 // RETURN: IEdit*
 #define UI_PROPERTYCTRL_MSG_GETEDITCTRL 136162254
 
+
+interface IPropertyCtrlEditItem;
+struct PROPERTYCTRL_EDIT_ITEM_ACCEPTCONTENT
+{
+	IPropertyCtrlEditItem*  pItem;
+	const TCHAR*  szKey;
+	const TCHAR*  szNewValue;
+	bool  bDefault;  
+};
 // Edititem接受编辑内容
 // WPARAM: IPropertyCtrlEditItem*
 // LPARAM: const TCHAR* newText
+// WPARAM:
 #define UI_PROPERTYCTRL_MSG_EDITITEM_ACCEPTCONTENT 136221752
+
+// 外部给IListItemBase发送消息，设置属性的值
+// WPARAM: const TCHAR* szText
+#define UI_PROPERTYCTRLITEM_MSG_SETVALUESTRING  130201219
+
+// 外部给IListItemBase发送消息，设置属性的默认值
+// WPARAM: const TCHAR* szText
+#define UI_PROPERTYCTRLITEM_MSG_SETDEFAULTVALUESTRING  130202239
 
 class PropertyCtrlEditItemShareData;
 interface IPropertyCtrlEditItemShareData : public IListItemTypeShareData
@@ -39,17 +57,18 @@ interface IPropertyCtrlEditItemShareData : public IListItemTypeShareData
 };
 
 class PropertyCtrlEditItem;
-class UICTRLAPI IPropertyCtrlEditItem : public IListItemBase
+interface UICTRLAPI IPropertyCtrlEditItem : public IListItemBase
 {
     UI_DECLARE_Ixxx_INTERFACE(IPropertyCtrlEditItem, PropertyCtrlEditItem);
 
     void  SetValueText(const TCHAR* szText);
+	void  SetDefaultValueText(const TCHAR* szText);
 };
 
 
 
 class PropertyCtrlGroupItem;
-class UICTRLAPI IPropertyCtrlGroupItem : public INormalTreeItem
+interface UICTRLAPI IPropertyCtrlGroupItem : public INormalTreeItem
 {
     UI_DECLARE_Ixxx_INTERFACE(IPropertyCtrlGroupItem, PropertyCtrlGroupItem)
 };
@@ -60,10 +79,10 @@ interface UICTRLAPI IPropertyCtrl : public ITreeView
     UI_DECLARE_Ixxx_INTERFACE(IPropertyCtrl, PropertyCtrl);
 
     IPropertyCtrlGroupItem*  InsertGroupItem(const TCHAR* szName, const TCHAR* szDesc, 
-        IListItemBase* pParent = UITVI_ROOT, IListItemBase* pInsertAfter = UITVI_LAST, int nInsertFlags=0);
+        IListItemBase* pParent = UITVI_ROOT, IListItemBase* pInsertAfter = UITVI_LAST, LISTITEM_OPFLAGS nInsertFlags=0);
 
     IPropertyCtrlEditItem*   InsertEditProperty(const TCHAR* szKey, const TCHAR* szValue, const TCHAR* szDesc, 
-        IListItemBase* pParentItem, IListItemBase* pInsertAfter = UITVI_LAST, int nInsertFlags=0);
+        IListItemBase* pParentItem, IListItemBase* pInsertAfter = UITVI_LAST, LISTITEM_OPFLAGS nInsertFlags=0);
 
 
 };

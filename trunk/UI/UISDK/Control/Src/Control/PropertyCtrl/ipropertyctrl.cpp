@@ -14,17 +14,18 @@ UI_IMPLEMENT_Ixxx_INTERFACE(IPropertyCtrlGroupItem, PropertyCtrlGroupItem, Norma
 UI_IMPLEMENT_Ixxx_INTERFACE2(IPropertyCtrlEditItemShareData, PropertyCtrlEditItemShareData, IListItemTypeShareData);
 
 IPropertyCtrlGroupItem*  IPropertyCtrl::InsertGroupItem(const TCHAR* szName, const TCHAR* szDesc, 
-                                         IListItemBase* pParent, IListItemBase* pInsertAfter, int nInsertFlags)
+                                         IListItemBase* pParent, IListItemBase* pInsertAfter, LISTITEM_OPFLAGS nInsertFlags)
 {
     return m_pPropertyCtrlImpl->InsertGroupItem(szName, szDesc, pParent, pInsertAfter, nInsertFlags);
 }
 
 IPropertyCtrlEditItem*   IPropertyCtrl::InsertEditProperty(const TCHAR* szKey, const TCHAR* szValue, const TCHAR* szDesc, 
-                                            IListItemBase* pParentItem, IListItemBase* pInsertAfter, int nInsertFlags)
+                                            IListItemBase* pParentItem, IListItemBase* pInsertAfter, LISTITEM_OPFLAGS nInsertFlags)
 {
     return m_pPropertyCtrlImpl->InsertEditProperty(szKey, szValue, szDesc, pParentItem, pInsertAfter, nInsertFlags);
 }
 
 
 void  IPropertyCtrlEditItem::SetValueText(const TCHAR* szText)    { m_pPropertyCtrlEditItemImpl->SetValueText(szText); }
+void  IPropertyCtrlEditItem::SetDefaultValueText(const TCHAR* szText)  { m_pPropertyCtrlEditItemImpl->SetDefaultValueText(szText); }
 }

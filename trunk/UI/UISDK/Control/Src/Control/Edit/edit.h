@@ -44,67 +44,68 @@ public:
 	~EditData();
 
 public:
-	void            BindToEdit(Edit* pEdit);
+	void    BindToEdit(Edit* pEdit);
 
-	void            SetText(const TCHAR*, bool& bUpdate);
-	void            ReplaceChar(const TCHAR& c, bool& bUpdate);
-	void            ReplaceString(const String& str, bool& bUpdate);
-	void            Delete(bool& bUpdate);
-	void            BackSpace(bool& bUpdate);
-	void            SetCaret(int nCaret, bool bSetSelStart, bool& bUpdate);
+	void    SetText(const TCHAR*, bool& bUpdate);
+	void    ReplaceChar(const TCHAR& c, bool& bUpdate);
+	void    ReplaceString(const String& str, bool& bUpdate);
+	void    Delete(bool& bUpdate);
+	void    BackSpace(bool& bUpdate);
+    void    DeleteSelectionText(bool& bUpdate);
+	void    SetCaret(int nCaret, bool bSetSelStart, bool& bUpdate);
 
-	void            CutToClipboard();
-	void            CopyToClipboard();
-	void            PasteFromClipboard();
-	void            GetPriorItemPos(int nCP, int* pPrior);
-	void            GetNextItemPos(int nCP, int* pNext);
+	void    CutToClipboard();
+	void    CopyToClipboard();
+	void    PasteFromClipboard();
+	void    GetPriorItemPos(int nCP, int* pPrior);
+	void    GetNextItemPos(int nCP, int* pNext);
 
-	void            SetMaxChar(int nMax);
-	void            SetMaxChar(int nMax, bool bUpdate);
-	void            SetInsertMode(bool bInsertOrOverride);
-	bool            GetInsertMode() { return m_bInsertMode; }
+	void    SetMaxChar(int nMax);
+	void    SetMaxChar(int nMax, bool bUpdate);
+	void    SetInsertMode(bool bInsertOrOverride);
+	bool    GetInsertMode() { return m_bInsertMode; }
 
-	void            GetText(String& str) { str = m_strText; }
+	void    GetText(String& str) { str = m_strText; }
 	const String&   GetText()       { return m_strText; }
-	int             GetTextLength() { return (int)m_strText.length(); }
-	int             GetCaretIndex() { return m_nCaret; }
-	int             GetSelectionLength() { return abs(m_nCaret - m_nSelStart); }
-	int             GetTextWidth()  { return m_nTextWidth; }
-	void            GetSelectionInfo(int& nLeft, int& nRight) const;
-	void            SetSelectionInfo(int nStart, int nEnd, bool& bUpdate);
-	void            GetSelectionText(String& str);
-	bool            IsSelectionExist();
+	int     GetTextLength() { return (int)m_strText.length(); }
+	int     GetCaretIndex() { return m_nCaret; }
+	int     GetSelectionLength() { return abs(m_nCaret - m_nSelStart); }
+	int     GetTextWidth()  { return m_nTextWidth; }
+	void    GetSelectionInfo(int& nLeft, int& nRight) const;
+	void    SetSelectionInfo(int nStart, int nEnd, bool& bUpdate);
+	void    GetSelectionText(String& str);
+	bool    IsSelectionExist();
 
-	bool            CP2X(int nCP, int* pX);
-	bool            X2CP(int nX, int* pnCP, int* pbTrailOrLead);
-	void            DestroyStringAnalysis();
+	bool    CP2X(int nCP, int* pX);
+	bool    X2CP(int nX, int* pnCP, int* pbTrailOrLead);
+	void    DestroyStringAnalysis();
 
 protected:
-	void            DeleteSelectionText();   // 该函数仅用于内部调用,不对数据进行处理，仅删除文本
+	void    DeleteSelectionText();   // 该函数仅用于内部调用,不对数据进行处理，仅删除文本
 
-	void            Fire_Text_Changed(BOOL bSetText=FALSE);
-	bool            FilterString(const TCHAR* szSrc, String& strDest);
-	bool            FilterChar(const TCHAR& cSrc, TCHAR& cDest);
+	void    Fire_Text_Changed(BOOL bSetText=FALSE);
+	bool    FilterString(const TCHAR* szSrc, String& strDest);
+	bool    FilterChar(const TCHAR& cSrc, TCHAR& cDest);
 
-	bool            StringAnalysis();
+	bool    StringAnalysis();
 
 private:
-	String          m_strText;              // 编辑框的内容
-	int             m_nMaxChar;             // 允许输入的最大字符数，-1表示无限制
+	String  m_strText;              // 编辑框的内容
+	int     m_nMaxChar;             // 允许输入的最大字符数，-1表示无限制
 
-	int	            m_nSelStart;            // 选择的字符起点，当没有选区时	m_nSelStart==m_nCaret	
-	int             m_nCaret;               // 当前光标的位置，也标志着选区的End pos
+	int	    m_nSelStart;            // 选择的字符起点，当没有选区时	m_nSelStart==m_nCaret	
+	int     m_nCaret;               // 当前光标的位置，也标志着选区的End pos
 
-	bool            m_bInsertMode;          // 插入/重写模式
+	bool    m_bInsertMode;          // 插入/重写模式
 
 	// UniScribe相关变量
 	SCRIPT_CONTROL	m_ScriptControl;		// For uniscribe
 	SCRIPT_STATE	m_ScriptState;			// For uniscribe
 
 	SCRIPT_STRING_ANALYSIS	m_Analysis;     // For cp2x, x2cp...
-	int             m_nTextWidth;           // 当前字符的总长度
+	int      m_nTextWidth;           // 当前字符的总长度
 
-	Edit*           m_pEdit;
+	Edit*    m_pEdit;
 };
 
 class Edit : public MessageProxy
@@ -127,6 +128,7 @@ public:
 		UIMSG_WM_LBUTTONUP(OnLButtonUp)
 		UIMSG_WM_LBUTTONDBLCLK(OnLButtonDblClk)
 		UIMSG_WM_RBUTTONDOWN(OnRButtonDown)
+        UIMSG_WM_RBUTTONUP(OnRButtonUp)
  		UIMSG_WM_SETFOCUS(OnSetFocus)
  		UIMSG_WM_KILLFOCUS(OnKillFocus)
 		UIMSG_WM_WINDOWPOSCHANGED(OnWindowPosChanged)
@@ -136,6 +138,10 @@ public:
         UIMSG_WM_GETDLGCODE(OnGetDlgCode)
         UIMESSAGE_HANDLER_EX(UI_WM_WINDOWLAYEREDCHANGED, OnWindowLayeredChanged)
         UIMESSAGE_HANDLER_EX(WM_IME_NOTIFY, OnImeNotify)
+        UIMESSAGE_HANDLER_EX(WM_IME_REQUEST, OnImeRequest)
+        UIMESSAGE_HANDLER_EX(WM_IME_COMPOSITION, OnImeComposition)
+        UIMESSAGE_HANDLER_EX(WM_IME_SETCONTEXT, OnImeSetContext)
+        UIMESSAGE_HANDLER_EX(WM_IME_STARTCOMPOSITION, OnStartComposition)
         UIMSG_WM_GETDESIREDSIZE(GetDesiredSize)
         UIMSG_WM_QUERYINTERFACE(QueryInterface)
         UIMSG_WM_GETOBJECTINFO(OnGetObjectInfo)
@@ -159,7 +165,11 @@ protected:
     UINT  OnGetDlgCode(LPMSG lpMsg);
 	void  OnVisibleChanged(BOOL bVisible, IObject* pParent);
     LRESULT  OnWindowLayeredChanged(UINT uMsg, WPARAM wParam, LPARAM lParam);
+    LRESULT  OnImeRequest(UINT uMsg, WPARAM wParam, LPARAM lParam);
     LRESULT  OnImeNotify(UINT uMsg, WPARAM wParam, LPARAM lParam);
+    LRESULT  OnImeComposition(UINT uMsg, WPARAM wParam, LPARAM lParam);
+    LRESULT  OnImeSetContext(UINT uMsg, WPARAM wParam, LPARAM lParam);
+    LRESULT  OnStartComposition(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	void  OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 	void  OnLButtonDown(UINT nFlags, POINT point);
@@ -167,6 +177,7 @@ protected:
 	void  OnMouseMove(UINT nFlags, POINT point);
 	void  OnLButtonDblClk(UINT nFlags, POINT point);
 	void  OnRButtonDown(UINT nFlags, CPoint point);
+    void  OnRButtonUp(UINT nFlags, CPoint point);
 
 	void  OnInputChar(UINT nChar);
 	void  OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
@@ -204,8 +215,15 @@ public:
 	int   GetEditStyle();
 	void  SetEditStyle(int n);
 
+    void  DeleteSelectionText(bool bUpdate);
+    bool  DoCut();
+    bool  DoCopy();
+    bool  DoPaste();
 	void  SetSel(int nStartChar, int nEndChar);
 	void  GetSel(int& nStartChar,int& nEndChar) const;
+
+    bool  IsReadOnly();
+    void  SetReadOnly(bool b, bool bUpdate);
 
 	// 私有方法
 private:
@@ -245,7 +263,66 @@ private:
 	Color*   m_pColorSelectBk;
 	CCaret   m_caret;     // 用于实现分层窗口上的光标显示
 };
+#if 0
 
+#include <msctf.h>
+class CUIElementSink;
+
+
+// Text service framework，新版本的IMM，基于COM架构。
+// 在切换到微软拼音输入法时会用到
+class TsfHelper
+{
+public:
+    TsfHelper();
+    ~TsfHelper();
+
+    void Init();
+    void Release();
+
+protected:
+    bool Create();
+    void Destroy();
+
+private:
+    long  m_lRef;
+    ITfThreadMgrEx*  m_pThreadMgr;
+    CUIElementSink*  m_pTsfSink;
+    DWORD  m_dwUIElementSinkCookie;
+};
+TsfHelper*  GetTsf();
+
+// Sink receives event notifications
+class CUIElementSink : public ITfUIElementSink//, public ITfInputProcessorProfileActivationSink, public ITfCompartmentEventSink
+{
+public:
+    CUIElementSink();
+    ~CUIElementSink();
+
+    // IUnknown
+    STDMETHODIMP QueryInterface(REFIID riid, void **ppvObj);
+    STDMETHODIMP_(ULONG) AddRef(void);
+    STDMETHODIMP_(ULONG) Release(void);
+
+    // ITfUIElementSink
+    //   Notifications for Reading Window events. We could process candidate as well, but we'll use IMM for simplicity sake.
+    STDMETHODIMP BeginUIElement(DWORD dwUIElementId, BOOL *pbShow);
+    STDMETHODIMP UpdateUIElement(DWORD dwUIElementId);
+    STDMETHODIMP EndUIElement(DWORD dwUIElementId);
+
+//     // ITfInputProcessorProfileActivationSink
+//     //   Notification for keyboard input locale change
+//     STDMETHODIMP OnActivated(DWORD dwProfileType, LANGID langid, REFCLSID clsid, REFGUID catid,
+//         REFGUID guidProfile, HKL hkl, DWORD dwFlags);
+// 
+//     // ITfCompartmentEventSink
+//     //    Notification for open mode (toggle state) change
+//     STDMETHODIMP OnChange(REFGUID rguid);
+
+private:
+    LONG _cRef;
+};
+#endif
 }
 
 #endif // EDIT_H_8AD460A9_25E8_4651_8280_ACFE31EF11DB

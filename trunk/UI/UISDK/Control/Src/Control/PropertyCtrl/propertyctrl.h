@@ -39,7 +39,7 @@ public:
         const TCHAR* szDesc, 
         IListItemBase* pParent = UITVI_ROOT, 
         IListItemBase* pInsertAfter = UITVI_LAST, 
-        int nInsertFlags=0);
+        LISTITEM_OPFLAGS nInsertFlags=0);
 
     IPropertyCtrlEditItem*   InsertEditProperty(
         const TCHAR* szKey, 
@@ -47,7 +47,7 @@ public:
         const TCHAR* szDesc, 
         IListItemBase* pParentItem, 
         IListItemBase* pInsertAfter = UITVI_LAST, 
-        int nInsertFlags=0);
+        LISTITEM_OPFLAGS nInsertFlags=0);
 
     // InsertComboProperty
     // InsertColorProperty

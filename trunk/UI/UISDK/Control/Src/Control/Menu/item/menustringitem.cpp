@@ -81,6 +81,8 @@ void  MenuStringItemShareData::SetAttribute(IMapAttribute* pMapAttrib, bool bRel
             UI_LOG_WARN( _T("%s Invalid %s=\"%s\""), FUNC_NAME, XML_MENU_RADIOCHECK_ICONBK_RENDER_PREFIX XML_RENDER_TYPE, szText);
         }
     }
+    pMapAttrib->GetAttr_int(XML_MENU_LEFT_TEXT_INDENT, false, &nTextIndentLeft);
+    pMapAttrib->GetAttr_int(XML_MENU_RIGHT_TEXT_INDENT, false, &nTextIndentRight);
 
 }
 //////////////////////////////////////////////////////////////////////////

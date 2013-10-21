@@ -6,13 +6,14 @@
 #include "controldraw\controldrawcaret.h"
 #include "UISDK\Kernel\Inc\Interface\iobject.h"
 
+ICaret* CCaret::m_pCaret = NULL;
+POINT CCaret::m_ptLast = {0, 0};
 namespace UI
 {
 
 CCaret::CCaret()
 { 
-    m_pCaret = NULL;
-    m_ptLast.x = m_ptLast.y = 0;
+    
 }
 CCaret::~CCaret()
 {
@@ -25,48 +26,39 @@ BOOL CCaret::CreateCaret(IObject* pObj, HBITMAP hbmp, int nWidth, int nHeight, C
         return FALSE;
 
     HWND hWnd = pObj->GetHWND();
-#if 1
-    eType = CARET_TYPE_CONTROLDRAW;
-    // TODO:
-    // api和window都存在剪裁区的问题
-    // api还涉及到同一个窗口上面两个EDIT相互切换的问题
-    // 以后再解决这些问题了，先用WINDOW吧
-#elif 1
     if (CARET_TYPE_UNKNOWN == eType)
     {
-        if (Util::IsLayeredWindow(hWnd))
+    //    if (Util::IsLayeredWindow(hWnd))
             eType = CARET_TYPE_WINDOW;
     }
-#endif
-    SAFE_DELETE(m_pCaret);
-    switch (eType)
+
+    if (m_pCaret && (m_pCaret->GetType() != eType || m_pCaret->GetObject() != pObj))
     {
-//     case CARET_TYPE_API:
-//         {
-//             m_pCaret = new ApiCaret;
-//         }
-//         break;
+        SAFE_DELETE(m_pCaret);
+    }
 
-    case CARET_TYPE_WINDOW:
+    if (!m_pCaret)
+    {
+        switch (eType)
         {
+    //     case CARET_TYPE_API:
+    //         m_pCaret = new ApiCaret;
+    //         break;
+    //     case CARET_TYPE_OWNERDRAW:
+    //         m_pCaret = new OwnerDrawCaret;
+    //         break;
+
+        case CARET_TYPE_WINDOW:
             m_pCaret = new CaretWindow;
-        }
-        break;
+            break;
 
-//     case CARET_TYPE_OWNERDRAW:
-//         {
-//             m_pCaret = new OwnerDrawCaret;
-//         }
-//         break;
-
-    case CARET_TYPE_CONTROLDRAW:
-        {
+        case CARET_TYPE_CONTROLDRAW:
             m_pCaret = new ControlDrawCaret;
-        }
-        break;
+            break;
 
-    default:
-        break;
+        default:
+            break;
+        }
     }
 
     if (m_pCaret)
@@ -76,39 +68,47 @@ BOOL CCaret::CreateCaret(IObject* pObj, HBITMAP hbmp, int nWidth, int nHeight, C
 
     return TRUE;
 }
-void CCaret::DestroyCaret()
+void CCaret::DestroyCaret(IObject* pObj, bool bRedraw)
 {
-    if (m_pCaret)
-    {
-        m_pCaret->Destroy();
+    if (m_pCaret && m_pCaret->GetObject() == pObj)
+    {   
+        m_pCaret->Destroy(bRedraw);
         SAFE_DELETE(m_pCaret);
     }
 }
 
 // 2013.6.17 将SetCaretPos的参数修改为相对于控件，而不是窗口
 // 这样才好解决Edit滚动的问题
-void CCaret::SetCaretPos(int x, int y, bool bRedraw)
+void CCaret::SetCaretPos(IObject* pObj, int x, int y, bool bRedraw)
 {
-    if (m_pCaret)
+    if (m_pCaret && m_pCaret->GetObject() == pObj)
+    {
         m_pCaret->SetPos(x, y, bRedraw);
 
-    m_ptLast.x = x;
-    m_ptLast.y = y;
+        m_ptLast.x = x;
+        m_ptLast.y = y;
+    }
 }
-void CCaret::ShowCaret(bool bRedraw)
+void CCaret::ShowCaret(IObject* pObj, bool bRedraw)
 {
-    if (m_pCaret)
+    if (m_pCaret && m_pCaret->GetObject() == pObj)
+    {
         m_pCaret->Show(bRedraw);
+    }
 }
-void CCaret::HideCaret(bool bRedraw)
+void CCaret::HideCaret(IObject* pObj, bool bRedraw)
 {
-    if (m_pCaret)
+    if (m_pCaret && m_pCaret->GetObject() == pObj)
+    {
         m_pCaret->Hide(bRedraw);
+    }
 }
-void  CCaret::OnControlPaint(IRenderTarget* p)
+void  CCaret::OnControlPaint(IObject* pObj, IRenderTarget* p)
 {
-    if (m_pCaret)
+    if (m_pCaret && m_pCaret->GetObject() == pObj)
+    {
         m_pCaret->OnControlPaint(p);
+    }
 }
 
 CARET_TYPE  CCaret::GetCaretType()

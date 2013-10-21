@@ -159,7 +159,7 @@ void CPlayerListData::GetConfigXmlPath(String& str)
 {
 	TCHAR szPath[MAX_PATH] = _T("");
     UI::Util::GetAppPath_(szPath);
-	_tcscat(szPath, _T("TTPlayer\\playerlist.xml"));
+	_tcscat(szPath, _T("playerlist.xml"));
 
 	str = szPath;
 }

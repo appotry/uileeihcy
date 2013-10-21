@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<plugin>
+  <name>我的邮箱</name>
+  <desc>xxx</desc>
+  <dll>yyy</dll>
+  
+  <icon>mail16.png</icon>
+  <icon2>mail16_2.png</icon2>
+  <text>99</text>
+  <tooltip>QQ邮箱 收件箱(99)</tooltip>
+  <sort>3</sort>
+</plugin>

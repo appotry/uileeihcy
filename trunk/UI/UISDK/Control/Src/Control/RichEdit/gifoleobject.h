@@ -13,6 +13,7 @@ class IGifOleObject
 {
 public:
 	virtual HRESULT __stdcall LoadGif(const TCHAR* szPath) = 0;
+    virtual HRESULT __stdcall LoadSkinGif(const TCHAR* szId) = 0;
 	virtual HRESULT __stdcall Refresh() = 0;
 };
 
@@ -20,7 +21,7 @@ public:
 class GifOleObject : public IGifOleObject, public RichEditOleObjectItem_Inner
 {
 public:
-	GifOleObject(/*GifRes* pGifMgr, */IMessage* pNotifyObj);
+	GifOleObject(IUIApplication* pUIApp, IMessage* pNotifyObj);
 	~GifOleObject();
 
 // public:
@@ -28,6 +29,7 @@ public:
 
 #pragma  region // igifoleobject
 	virtual HRESULT __stdcall LoadGif(const TCHAR* szPath);
+    virtual HRESULT __stdcall LoadSkinGif(const TCHAR* szId);
 	virtual HRESULT __stdcall Refresh();
 #pragma endregion
 
@@ -37,13 +39,17 @@ public:
 	virtual HRESULT GetClipboardData(CHARRANGE FAR * lpchrg, DWORD reco, LPDATAOBJECT FAR * lplpdataobj);
 #pragma endregion
 
+#pragma region // RichEditOleObject
+    virtual HRESULT  GetEncodeText(BSTR* pbstr);
+#pragma endregion
 protected:
-#if 0 // -- 架构改造
-	GifImageRenderItem*  m_pGifRenderItem;
-	GifRes*   m_pGifMgr;
-#endif
-	IMessage*  m_pNotifyMsg;
-	String    m_strPath;
+
+    IUIApplication*  m_pUIApp;
+    IGifImage*  m_pGifImage;         // 从文件加载的图片, 从skin加载时，m_pGifImage为空不使用，这样也不用管释放 了
+    IGifImageRender*  m_pGifRender;  // gif绘制接口
+
+	IMessage*   m_pNotifyMsg;
+	String      m_strPath;
 };
 
 

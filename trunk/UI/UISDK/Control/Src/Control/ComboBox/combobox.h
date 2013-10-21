@@ -47,10 +47,11 @@ public:
 
 public:
     void  CloseUp();
-    void  SetComboboxStyleType(int n);
     void  SetDropDownObjectPtr(IObject* p) { m_pDropDownObject = p; }
     IEdit*  GetEdit() { return m_pEdit; }
     const TCHAR*  GetText();
+    void  SetReadOnly(bool b);
+    bool  IsReadOnly();
 
 protected:
     HRESULT  FinalConstruct(IUIApplication* p);

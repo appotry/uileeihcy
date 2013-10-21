@@ -5,6 +5,11 @@
 namespace UI
 {
 
+enum BKCOLOR_FILL_TYPE
+{
+    BKCOLOR_FILL_ALL,    // 默认
+    BKCOLOR_FILL_EMPTY   // 只在背景图没有绘制的地方进行填充。因为如果先fill all，再画透明位图的话，位图的背景色就被污染了。例如IM背景窗口皮肤图片与其背景色
+};
 class ImageRender;
 interface UISDKAPI IImageRender : public IRenderBase
 {
@@ -14,8 +19,11 @@ interface UISDKAPI IImageRender : public IRenderBase
     int   GetAlpha();
     void  SetColor(Color c);
     Color GetColor();
-    void  SetDrawType(int n);
-    int   GetDrawType();
+    void  SetImageDrawType(int n);
+    int   GetImageDrawType();
+
+    BKCOLOR_FILL_TYPE  GetBkColorFillType();
+    void  SetBkColorFillType(BKCOLOR_FILL_TYPE eType);
 
     IRenderBitmap*  GetRenderBitmap();
     void  SetRenderBitmap(IRenderBitmap* pBitmap);
@@ -35,6 +43,7 @@ interface UISDKAPI IImageListRender : public IRenderBase
     UI_DECLARE_Ixxx_INTERFACE(IImageListRender, ImageListRender)
 
     void  SetIImageListRenderBitmap(IImageListRenderBitmap* pBitmap);
+    IRenderBitmap*  GetRenderBitmap();
     void  SetImageDrawType(int n);
     int   GetImageDrawType();
     void  SetImageStretch9Region(Image9Region* p);

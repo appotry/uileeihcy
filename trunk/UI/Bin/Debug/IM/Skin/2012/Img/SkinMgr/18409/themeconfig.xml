@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<theme name="" preview="preview.png">
+  <main file="skin.png" drawtype="topleft" bkcol="ffe4e3d4" avgcol="d1d7c7"/>
+</theme>
+
+<!--
+<theme-config PackPreview="preview.png" PackName="都市夜景" PackMinVer="3487" PackVersion="2.0" PackID="7649EA">
+	<backgroundlist>
+		<background mainfile="main.jpg" bkgstyle="toprightstretch" color="ff000000"/>
+	</backgroundlist>
+</theme-config>
+-->

@@ -13,6 +13,7 @@
 #include "UISDK\Control\Src\Control\SliderCtrl\sliderctrl.h"
 #include "UISDK\Control\Src\Control\Label\label.h"
 #include "UISDK\Control\Src\Control\LedCtrl\ledctrl.h"
+#include "UISDK\Control\Src\Control\LedCtrl\ledexctrl.h"
 #include "UISDK\Control\Src\Control\HeaderCtrl\headerlistctrl.h"
 #include "UISDK\Control\Src\Control\FlashWrap\flashwrap.h"
 #include "UISDK\Control\Src\Control\IE\iewrap.h"
@@ -48,6 +49,7 @@ namespace UI
         REGISTER_UI_OBJECT(p, Label);
         REGISTER_UI_OBJECT(p, PictureCtrl);
         REGISTER_UI_OBJECT(p, LEDCtrl);
+        REGISTER_UI_OBJECT(p, LEDExCtrl);
         REGISTER_UI_OBJECT(p, FlashWrap);
         REGISTER_UI_OBJECT(p, IEWrap);
         REGISTER_UI_OBJECT(p, ListBox);

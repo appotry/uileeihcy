@@ -89,7 +89,7 @@ inline  int RECTH(RECT rc)     { return rc.bottom - rc.top; }
 	if (h)\
 	{\
 		BOOL b = ::DeleteObject(h);\
-		if (0 == b) UIASSERT(b); \
+		/*if (0 == b) UIASSERT(b);*/ \
 		(h) = NULL;\
 	}\
 }

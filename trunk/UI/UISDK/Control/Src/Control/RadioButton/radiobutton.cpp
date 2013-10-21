@@ -35,10 +35,6 @@ void RadioButton::OnClicked()
     msg.lParam  = NULL;
     msg.pMsgFrom = m_pIRadioButton;
 
-    LRESULT lRet = m_pIRadioButton->DoNotify(&msg);
-    if (0 != lRet) // 外部已经处理了
-        return;
-
     if (m_nCheckState & BST_CHECKED)
     {
     }
@@ -103,6 +99,10 @@ void RadioButton::OnClicked()
             }
         }
     }
+
+	LRESULT lRet = m_pIRadioButton->DoNotify(&msg);
+	if (0 != lRet) // 外部已经处理了
+		return;
 }
 
 void RadioButton::ResetAttribute()

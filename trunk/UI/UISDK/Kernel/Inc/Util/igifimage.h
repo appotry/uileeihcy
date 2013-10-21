@@ -62,14 +62,31 @@ struct Gif_Timer_Notify
     };
 };
 
-interface  IGifImage
+class GifImageBase;
+class UISDKAPI IGifImage
 {
-    virtual bool  Load(const TCHAR* szPath, IMapAttribute* pMapAttrib=NULL) = 0;
-    virtual bool  Destroy() = 0;
+public:
+    IGifImage(GifImageBase* p);
+    IGifImage(IUIApplication* pUIApp);
+    ~IGifImage();
 
-    virtual IGifImageRender*  AddRender(Gif_Timer_Notify* pNotify, int* pIndex = NULL) = 0;
-    virtual bool  ModifyRender(Gif_Timer_Notify* pNotify, int nIndex=-1) = 0;
-    virtual bool  DeleteRender(int nIndex=-1) = 0;
+    void  CreateGifImpl(IUIApplication* pUIApp);
+    void  CreatePnglistGifImpl();
+    GifImageBase*  GetImpl();
+    void  SetImpl(GifImageBase* p);
+
+public:
+    bool  Load(const TCHAR* szPath, IMapAttribute* pMapAttrib=NULL);
+    bool  Destroy();
+
+    IGifImageRender*  AddRender(Gif_Timer_Notify* pNotify, int* pIndex = NULL);
+    bool  ModifyRender(Gif_Timer_Notify* pNotify, int nIndex=-1);
+    bool  DeleteRender(int nIndex=-1);
+
+   bool   SetTransparentColor(COLORREF colTransparent = GetSysColor(COLOR_BTNFACE));
+private:
+    GifImageBase*  m_pImpl;
+    bool  m_bCreateGifImageImpl;
 };
 
 //
@@ -93,6 +110,7 @@ interface  IGifImageRender
     virtual int  GetWidth() = 0;
     virtual int  GetHeight() = 0;
     virtual void  OnPaint(HDC hDC, int x, int y) = 0;
+    virtual void  OnAlphaPaint(HDC hDC, int x, int y) = 0;
     virtual GIF_DRAW_STATUS GetStatus() = 0;
 };
 

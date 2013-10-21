@@ -8,8 +8,8 @@ namespace UI
 SplitterBar::SplitterBar()
 {
     m_pISplitterBar = NULL;
-    m_pObjLeftUp = NULL;
-    m_pObjRightBottom = NULL;
+    m_pObjLeft = NULL;
+    m_pObjRight = NULL;
 
     m_ptLButtonDown.x = -1;
     m_ptLButtonDown.y = -1;
@@ -18,10 +18,11 @@ SplitterBar::SplitterBar()
     m_nDeviation = 0;
     m_bButtonDown = false;
 
-    m_nLeftUpMin = NDEF;
-    m_nLeftUpMax = NDEF;
-    m_nRightBottomMin = NDEF;
-    m_nRightBottomMax = NDEF;
+    m_nLeftMin = NDEF;
+    m_nLeftMax = NDEF;
+    m_nRightMin = NDEF;
+    m_nRightMax = NDEF;
+    m_rcAvailable.SetRectEmpty();
 }
 SplitterBar::~SplitterBar()
 {
@@ -32,18 +33,18 @@ void  SplitterBar::ResetAttribute()
 {
     DO_PARENT_PROCESS(ISplitterBar, IPanel);
 
-    m_pObjLeftUp = NULL;
-    m_pObjRightBottom = NULL;
+    m_pObjLeft = NULL;
+    m_pObjRight = NULL;
 
     m_eDirection = SPLITTERBAR_DIRECTION_H;
     m_eAlign = SPLITTERBAR_ALIGN_BOTTOM;
 
-    m_nLeftUpMin = NDEF;
-    m_nLeftUpMax = NDEF;
-    m_nRightBottomMin = NDEF;
-    m_nRightBottomMax = NDEF;
+    m_nLeftMin = NDEF;
+    m_nLeftMax = NDEF;
+    m_nRightMin = NDEF;
+    m_nRightMax = NDEF;
 
-    m_pISplitterBar->ModifyStyle(0, OBJECT_STYLE_REJEST_MOUSE_MSG_SELF, 0);
+    m_pISplitterBar->ModifyStyle(0, OBJECT_STYLE_REJECT_MOUSE_MSG_SELF, 0);
 }
 
 void  SplitterBar::SetAttribute(IMapAttribute* pMapAttr, bool bReload)
@@ -62,7 +63,7 @@ void  SplitterBar::SetAttribute(IMapAttribute* pMapAttr, bool bReload)
     }
     SetDirection(eDir);
    
-    SPLITTERBAR_ALIGN  eAlign = SPLITTERBAR_ALIGN_LEFT;
+    SPLITTERBAR_ALIGN  eAlign = SPLITTERBAR_ALIGN_BOTTOM;
     szText = pMapAttr->GetAttr(XML_SPLITTERBAR_ALIGN, true);
     if (szText)
     {
@@ -79,19 +80,19 @@ void  SplitterBar::SetAttribute(IMapAttribute* pMapAttr, bool bReload)
 
     if (IsHorz())
     {
-        pMapAttr->GetAttr_int(XML_SPLITTERBAR_TOP_PREFIX XML_SPLITTERBAR_OBJ_MINSIZE, true, &m_nLeftUpMin);
-        pMapAttr->GetAttr_int(XML_SPLITTERBAR_BOTTOM_PREFIX XML_SPLITTERBAR_OBJ_MINSIZE, true, &m_nRightBottomMin);
+        pMapAttr->GetAttr_int(XML_SPLITTERBAR_TOP_PREFIX XML_SPLITTERBAR_OBJ_MINSIZE, true, &m_nLeftMin);
+        pMapAttr->GetAttr_int(XML_SPLITTERBAR_BOTTOM_PREFIX XML_SPLITTERBAR_OBJ_MINSIZE, true, &m_nRightMin);
 
-        pMapAttr->GetAttr_int(XML_SPLITTERBAR_TOP_PREFIX XML_SPLITTERBAR_OBJ_MAXSIZE, true, &m_nLeftUpMax);
-        pMapAttr->GetAttr_int(XML_SPLITTERBAR_BOTTOM_PREFIX XML_SPLITTERBAR_OBJ_MAXSIZE, true, &m_nRightBottomMax);
+        pMapAttr->GetAttr_int(XML_SPLITTERBAR_TOP_PREFIX XML_SPLITTERBAR_OBJ_MAXSIZE, true, &m_nLeftMax);
+        pMapAttr->GetAttr_int(XML_SPLITTERBAR_BOTTOM_PREFIX XML_SPLITTERBAR_OBJ_MAXSIZE, true, &m_nRightMax);
     }
     else
     {
-        pMapAttr->GetAttr_int(XML_SPLITTERBAR_LEFT_PREFIX XML_SPLITTERBAR_OBJ_MINSIZE, true, &m_nLeftUpMin);
-        pMapAttr->GetAttr_int(XML_SPLITTERBAR_RIGHT_PREFIX XML_SPLITTERBAR_OBJ_MINSIZE, true, &m_nRightBottomMin);
+        pMapAttr->GetAttr_int(XML_SPLITTERBAR_LEFT_PREFIX XML_SPLITTERBAR_OBJ_MINSIZE, true, &m_nLeftMin);
+        pMapAttr->GetAttr_int(XML_SPLITTERBAR_RIGHT_PREFIX XML_SPLITTERBAR_OBJ_MINSIZE, true, &m_nRightMin);
 
-        pMapAttr->GetAttr_int(XML_SPLITTERBAR_LEFT_PREFIX XML_SPLITTERBAR_OBJ_MAXSIZE, true, &m_nLeftUpMax);
-        pMapAttr->GetAttr_int(XML_SPLITTERBAR_RIGHT_PREFIX XML_SPLITTERBAR_OBJ_MAXSIZE, true, &m_nRightBottomMax);
+        pMapAttr->GetAttr_int(XML_SPLITTERBAR_LEFT_PREFIX XML_SPLITTERBAR_OBJ_MAXSIZE, true, &m_nLeftMax);
+        pMapAttr->GetAttr_int(XML_SPLITTERBAR_RIGHT_PREFIX XML_SPLITTERBAR_OBJ_MAXSIZE, true, &m_nRightMax);
     }
 }
 void  SplitterBar::OnObjectLoaded()
@@ -108,13 +109,13 @@ void  SplitterBar::OnObjectLoaded()
         const TCHAR* szText = pMapAttrib->GetAttr(XML_SPLITTERBAR_TOP_PREFIX XML_SPLITTERBAR_OBJ_ID, true);
         if (szText)
         {
-            m_pObjLeftUp = pParent->FindChildObject(szText);
+            m_pObjTop = pParent->FindChildObject(szText);
         }
 
         szText = pMapAttrib->GetAttr(XML_SPLITTERBAR_BOTTOM_PREFIX XML_SPLITTERBAR_OBJ_ID, true);
         if (szText)
         {
-            m_pObjRightBottom = pParent->FindChildObject(szText);
+            m_pObjBottom = pParent->FindChildObject(szText);
         }
 
         SAFE_RELEASE(pMapAttrib);
@@ -127,13 +128,13 @@ void  SplitterBar::OnObjectLoaded()
         const TCHAR* szText = pMapAttrib->GetAttr(XML_SPLITTERBAR_LEFT_PREFIX XML_SPLITTERBAR_OBJ_ID, true);
         if (szText)
         {
-            m_pObjLeftUp = pParent->FindChildObject(szText);
+            m_pObjLeft = pParent->FindChildObject(szText);
         }
 
         szText = pMapAttrib->GetAttr(XML_SPLITTERBAR_RIGHT_PREFIX XML_SPLITTERBAR_OBJ_ID, true);
         if (szText)
         {
-            m_pObjRightBottom = pParent->FindChildObject(szText);
+            m_pObjRight = pParent->FindChildObject(szText);
         }
 
         SAFE_RELEASE(pMapAttrib);
@@ -159,6 +160,7 @@ void  SplitterBar::SetAlign(SPLITTERBAR_ALIGN eAlign)
     m_eAlign = eAlign;
 }
 
+// 表示的是分隔条控件的方向
 bool  SplitterBar::IsVert()
 {
     return m_eDirection == SPLITTERBAR_DIRECTION_V ? true:false;
@@ -166,6 +168,13 @@ bool  SplitterBar::IsVert()
 bool  SplitterBar::IsHorz()
 {
     return m_eDirection == SPLITTERBAR_DIRECTION_H ? true:false;
+}
+
+void  SplitterBar::OnSize(UINT nType, int cx, int cy)
+{
+    OnParentSizeChanged();
+    SetMsgHandled(FALSE);
+    return;
 }
 
 void  SplitterBar::OnLButtonDown(UINT nFlags, POINT point)
@@ -191,6 +200,7 @@ void  SplitterBar::OnLButtonDown(UINT nFlags, POINT point)
 //         pWindow->GetKeyboardMgr()->SetCapture(this, 0);
 //     }
     m_ptLastMouseMove = point;  // 防止第一次响应MOUSEMOVE时就去调用ondraging
+    CalcAvailableRegion();
 }
 void  SplitterBar::OnLButtonUp(UINT nFlags, POINT point)
 {
@@ -202,6 +212,7 @@ void  SplitterBar::OnCancelMode()
     m_ptLastMouseMove.x = m_ptLastMouseMove.y = -1;
     m_bButtonDown = false;
     m_nDeviation = 0;
+    m_rcAvailable.SetRectEmpty();
 }
 void  SplitterBar::OnMouseMove(UINT nFlags, POINT point)
 {
@@ -246,22 +257,21 @@ void  SplitterBar::OnDraging(POINT ptInParent)  // 相对于父对象的坐标
 }
 
 
-// 根据鼠标拖拽位置(窗口坐标)，计算最终拖拽条的位置
-bool  SplitterBar::TestAvailableDragPos(POINT point, POINT* ptAvailable)  
+void  SplitterBar::CalcAvailableRegion()
 {
-    // 获取需要布局的子对象指针（只布局两个子对象）
-    if (NULL == m_pObjLeftUp || NULL == m_pObjRightBottom)
-        return false;
+    m_rcAvailable.SetRectEmpty();
+
+    if (NULL == m_pObjLeft || NULL == m_pObjRight)
+        return;
 
     CRect  rcDragBarRect;
     CRect  rcLeftRect;
     CRect  rcRightRect;
 
     m_pISplitterBar->GetParentRect(&rcDragBarRect);
-    m_pObjLeftUp->GetParentRect(&rcLeftRect);
-    m_pObjRightBottom->GetParentRect(&rcRightRect);
+    m_pObjLeft->GetParentRect(&rcLeftRect);
+    m_pObjRight->GetParentRect(&rcRightRect);
 
-    bool  bRet = false;
     do 
     {
         if (IsVert())
@@ -280,43 +290,32 @@ bool  SplitterBar::TestAvailableDragPos(POINT point, POINT* ptAvailable)
             RECT rcAvai2 = {0,0,nWidth-nDragbarSize, nHeight};
 
             // 计算可拖拽范围
-            if (m_nLeftUpMin > 0)
+            if (m_nLeftMin > 0)
             {
-                rcAvai1.left = m_nLeftUpMin;
+                rcAvai1.left = m_nLeftMin;
             }
-            if (m_nLeftUpMax > 0)
+            if (m_nLeftMax > 0)
             {
-                rcAvai1.right = m_nLeftUpMax;
-            }
-
-            if (m_nRightBottomMin > 0)
-            {
-                rcAvai2.right = nWidth - m_nRightBottomMin - nDragbarSize;
-            }
-            if (m_nRightBottomMax > 0)
-            {
-                rcAvai2.left = nWidth - m_nRightBottomMax - nDragbarSize;
+                rcAvai1.right = m_nLeftMax;
             }
 
-            RECT rcIntersect;
-            if (::IntersectRect(&rcIntersect, &rcAvai1, &rcAvai2))
+            if (m_nRightMin > 0)
             {
-                ::OffsetRect(&rcIntersect, nFullLeft, nFullTop); // 转成窗口坐标
+                rcAvai2.right = nWidth - m_nRightMin - nDragbarSize;
+            }
+            if (m_nRightMax > 0)
+            {
+                rcAvai2.left = nWidth - m_nRightMax - nDragbarSize;
+            }
 
-                *ptAvailable = point;
-                if (point.x > rcIntersect.right)
-                {
-                    ptAvailable->x = rcIntersect.right;
-                }
-                else if (point.x < rcIntersect.left)
-                {
-                    ptAvailable->x = rcIntersect.left;
-                }
+            if (::IntersectRect(&m_rcAvailable, &rcAvai1, &rcAvai2))
+            {
+                ::OffsetRect(&m_rcAvailable, nFullLeft, nFullTop); // 转成窗口坐标
             }
             else
             {
                 // 配置与当前窗口大小不匹配
-                bRet = false;
+                m_rcAvailable.SetRectEmpty();
                 break;
             }
         }
@@ -336,50 +335,68 @@ bool  SplitterBar::TestAvailableDragPos(POINT point, POINT* ptAvailable)
             RECT rcAvai2 = {0,0,nWidth, nHeight-nDragbarSize};
 
             // 计算可拖拽范围
-            if (m_nLeftUpMin > 0)
+            if (m_nLeftMin > 0)
             {
-                rcAvai1.top = m_nLeftUpMin;
+                rcAvai1.top = m_nLeftMin;
             }
-            if (m_nLeftUpMax > 0)
+            if (m_nLeftMax > 0)
             {
-                rcAvai1.bottom = m_nLeftUpMax;
-            }
-
-            if (m_nRightBottomMin > 0)
-            {
-                rcAvai2.bottom = nHeight - m_nRightBottomMin - nDragbarSize;
-            }
-            if (m_nRightBottomMax > 0)
-            {
-                rcAvai2.top = nHeight - m_nRightBottomMax - nDragbarSize;
+                rcAvai1.bottom = m_nLeftMax;
             }
 
-            RECT rcIntersect;
-            if (::IntersectRect(&rcIntersect, &rcAvai1, &rcAvai2))
+            if (m_nRightMin > 0)
             {
-                ::OffsetRect(&rcIntersect, nFullLeft, nFullTop); // 转成窗口坐标
+                rcAvai2.bottom = nHeight - m_nRightMin - nDragbarSize;
+            }
+            if (m_nRightMax > 0)
+            {
+                rcAvai2.top = nHeight - m_nRightMax - nDragbarSize;
+            }
 
-                *ptAvailable = point;
-                if (point.y > rcIntersect.bottom)
-                {
-                    ptAvailable->y = rcIntersect.bottom;
-                }
-                else if (point.y < rcIntersect.top)
-                {
-                    ptAvailable->y = rcIntersect.top;
-                }
+            if (::IntersectRect(&m_rcAvailable, &rcAvai1, &rcAvai2))
+            {
+                ::OffsetRect(&m_rcAvailable, nFullLeft, nFullTop); // 转成窗口坐标
             }
             else
             {
                 // 配置与当前窗口大小不匹配
-                bRet = false;
+                m_rcAvailable.SetRectEmpty();
                 break;
             }
         }
-
-        bRet = true;
     }while (0);
+}
 
+// 根据鼠标拖拽位置(窗口坐标)，计算最终拖拽条的位置
+bool  SplitterBar::TestAvailableDragPos(POINT point, POINT* ptAvailable)  
+{
+    // 获取需要布局的子对象指针（只布局两个子对象）
+    if (m_rcAvailable.IsRectEmpty())
+        return false;
+
+    *ptAvailable = point;
+    if (IsVert())
+    {
+        if (point.x > m_rcAvailable.right)
+        {
+            ptAvailable->x = m_rcAvailable.right;
+        }
+        else if (point.x < m_rcAvailable.left)
+        {
+            ptAvailable->x = m_rcAvailable.left;
+        }
+    }
+    else
+    {
+        if (point.y > m_rcAvailable.bottom)
+        {
+            ptAvailable->y = m_rcAvailable.bottom;
+        }
+        else if (point.y < m_rcAvailable.top)
+        {
+            ptAvailable->y = m_rcAvailable.top;
+        }
+    }
 
     return true;
 }
@@ -402,30 +419,27 @@ void  SplitterBar::UpdateLeftRightCtrlPos(int nPos)
 
     rc.left = left;
     rc.right = right;
-    m_pISplitterBar->SetObjectPos(&rc, SWP_NOREDRAW);
+    m_pISplitterBar->SetObjectPos(&rc, SWP_NOREDRAW|SWP_NOSENDCHANGING);
 
-    if (m_pObjLeftUp)
+    if (m_pObjLeft)
     {
         CRect rcLeftCtrl;
-        m_pObjLeftUp->GetParentRect(&rcLeftCtrl);
+        m_pObjLeft->GetParentRect(&rcLeftCtrl);
         rcLeftCtrl.right = left;
-        m_pObjLeftUp->SetObjectPos(&rcLeftCtrl, SWP_NOREDRAW);
+        m_pObjLeft->SetObjectPos(&rcLeftCtrl, SWP_NOREDRAW);
     }
-    if (m_pObjRightBottom)
+    if (m_pObjRight)
     {
         CRect  rcRightCtrl;
-        m_pObjRightBottom->GetParentRect(&rcRightCtrl);
+        m_pObjRight->GetParentRect(&rcRightCtrl);
         rcRightCtrl.left = right;
-        m_pObjRightBottom->SetObjectPos(&rcRightCtrl, SWP_NOREDRAW);
+        m_pObjRight->SetObjectPos(&rcRightCtrl, SWP_NOREDRAW);
     }
 
-//     if (m_pObjLeftUp)
-//         m_pObjLeftUp->DirectDraw(VARIANT_FALSE);
-//     this->DirectDraw(VARIANT_FALSE);
-//     if (m_pObjRightBottom)
-//         m_pObjRightBottom->DirectDraw(VARIANT_FALSE);
+    m_pISplitterBar->GetParentObject()->UpdateObject(true);
 }
 
+// nPos为top或者left
 void  SplitterBar::UpdateUpBottomCtrlPos(int nPos)
 {
     CRect  rc;
@@ -441,28 +455,200 @@ void  SplitterBar::UpdateUpBottomCtrlPos(int nPos)
     long  bottom = top + nHeight;
     rc.top = top;
     rc.bottom = bottom;
-    m_pISplitterBar->SetObjectPos(&rc, SWP_NOREDRAW);
-    m_pISplitterBar->UpdateObject(false);
+    m_pISplitterBar->SetObjectPos(&rc, SWP_NOREDRAW|SWP_NOSENDCHANGING);
+    //m_pISplitterBar->UpdateObject(false);
 
-    if (m_pObjLeftUp)
+    if (m_pObjTop)
     {
         CRect  rcUpCtrl;
-        m_pObjLeftUp->GetParentRect(&rcUpCtrl);
+        m_pObjTop->GetParentRect(&rcUpCtrl);
         rcUpCtrl.bottom = top;
-        m_pObjLeftUp->SetObjectPos(&rcUpCtrl, SWP_NOREDRAW);
-        m_pObjLeftUp->UpdateObject(false);
+        m_pObjTop->SetObjectPos(&rcUpCtrl, SWP_NOREDRAW);
+    //    m_pObjLeft->UpdateObject(false);
     }
-    if (m_pObjRightBottom)
+    if (m_pObjBottom)
     {
         CRect  rcBottomCtrl;
-        m_pObjRightBottom->GetParentRect(&rcBottomCtrl);
+        m_pObjBottom->GetParentRect(&rcBottomCtrl);
         rcBottomCtrl.top = bottom;
-        m_pObjRightBottom->SetObjectPos(&rcBottomCtrl);
-        m_pObjRightBottom->UpdateObject(false);
+        m_pObjBottom->SetObjectPos(&rcBottomCtrl);
+    //    m_pObjRight->UpdateObject(false);
     }
 
     m_pISplitterBar->GetParentObject()->UpdateObject(true);
    // m_pISplitterBar->GetWindowObject()->CommitDoubleBuffet2Window(NULL, NULL, 0);
+}
+
+// 在窗口大小改变时，要重新调整两侧控件大小，保证二者都可见
+void  SplitterBar::OnParentSizeChanged()
+{
+    if (NULL == m_pObjLeft || NULL == m_pObjRight)
+        return;
+    
+    CRect rcDragBar;
+    m_pISplitterBar->GetParentRect(&rcDragBar);
+
+    POINT ptLast = {-1, -1};
+
+    if (IsHorz())
+    {
+        CRect rcTop, rcBottom;
+        m_pObjTop->GetParentRect(&rcTop);
+        m_pObjBottom->GetParentRect(&rcBottom);
+
+        bool bHandled = false;
+        if (m_eAlign == SPLITTERBAR_ALIGN_BOTTOM)
+        {
+            do 
+            {
+                if (m_nBottomMax != NDEF && rcBottom.Height() > m_nBottomMax)
+                {
+                    ptLast.y = rcBottom.bottom - m_nBottomMax - rcDragBar.Height();
+                    bHandled = true;
+                    break;
+                }
+
+                if (m_nBottomMin != NDEF && rcBottom.Height() < m_nBottomMin)
+                {
+                    ptLast.y = rcBottom.bottom - m_nBottomMin - rcDragBar.Height();
+                    bHandled = true;
+                    break;
+                }
+
+                if (m_nTopMin != NDEF && rcTop.Height() < m_nTopMin)
+                {
+                    ptLast.y = rcTop.top + m_nTopMin;
+                    bHandled = true;
+                    break;
+                }
+
+                if (m_nTopMax != NDEF && rcTop.Height() > m_nTopMax)
+                {
+                    ptLast.y = rcTop.top + m_nTopMax;
+                    bHandled = true;
+                    break;
+                }
+            }while(0);
+        }
+        else if (m_eAlign == SPLITTERBAR_ALIGN_TOP)
+        {
+            do 
+            {
+                if (m_nTopMin != NDEF && rcTop.Height() < m_nTopMin)
+                {
+                    ptLast.y = rcTop.top + m_nTopMin;
+                    bHandled = true;
+                    break;
+                }
+
+                if (m_nTopMax != NDEF && rcTop.Height() > m_nTopMax)
+                {
+                    ptLast.y = rcTop.top + m_nTopMax;
+                    bHandled = true;
+                    break;
+                }
+
+                if (m_nBottomMax != NDEF && rcBottom.Height() > m_nBottomMax)
+                {
+                    ptLast.y = rcBottom.bottom - m_nBottomMax - rcDragBar.Height();
+                    bHandled = true;
+                    break;
+                }
+
+                if (m_nBottomMin != NDEF && rcBottom.Height() < m_nBottomMin)
+                {
+                    ptLast.y = rcBottom.bottom - m_nBottomMin - rcDragBar.Height();
+                    bHandled = true;
+                    break;
+                }
+
+            }while(0);
+        }
+
+        if (bHandled)
+        {
+            UpdateUpBottomCtrlPos(ptLast.y);
+        }
+    }
+    else
+    {
+        CRect rcLeft, rcRight;
+        m_pObjLeft->GetParentRect(&rcLeft);
+        m_pObjRight->GetParentRect(&rcRight);
+
+         bool bHandled = false;
+        if (SPLITTERBAR_ALIGN_RIGHT == m_eAlign)
+        {
+            do
+            {
+                if (m_nRightMax != NDEF && rcRight.Width() > m_nRightMax)
+                {
+                    ptLast.x = rcRight.right - m_nRightMax - rcDragBar.Width();
+                    bHandled = true;
+                    break;
+                }
+
+                if (m_nRightMin != NDEF && rcRight.Width() < m_nRightMin)
+                {
+                    ptLast.x = rcRight.right - m_nRightMin - rcDragBar.Width();
+                    bHandled = true;
+                    break;
+                }
+
+                if (m_nLeftMin != NDEF && rcLeft.Width() < m_nLeftMin)
+                {
+                    ptLast.x = rcLeft.left + m_nLeftMin;
+                    bHandled = true;
+                    break;
+                }
+
+                if (m_nLeftMax != NDEF && rcLeft.Width() > m_nLeftMax)
+                {
+                    ptLast.x = rcLeft.left + m_nLeftMax;
+                    bHandled = true;
+                    break;
+                }
+            }while(0);
+        }
+        else
+        {
+            do
+            {
+                if (m_nLeftMin != NDEF && rcLeft.Width() < m_nLeftMin)
+                {
+                    ptLast.x = rcLeft.left + m_nLeftMin;
+                    bHandled = true;
+                    break;
+                }
+
+                if (m_nLeftMax != NDEF && rcLeft.Width() > m_nLeftMax)
+                {
+                    ptLast.x = rcLeft.left + m_nLeftMax;
+                    bHandled = true;
+                    break;
+                }
+
+                if (m_nRightMax != NDEF && rcRight.Width() > m_nRightMax)
+                {
+                    ptLast.x = rcRight.right - m_nRightMax - rcDragBar.Width();
+                    bHandled = true;
+                    break;
+                }
+
+                if (m_nRightMin != NDEF && rcRight.Width() < m_nRightMin)
+                {
+                    ptLast.x = rcRight.right - m_nRightMin - rcDragBar.Width();
+                    bHandled = true;
+                    break;
+                }
+
+            }while(0);
+        }
+        if (bHandled)
+        {
+            UpdateLeftRightCtrlPos(ptLast.x);
+        }
+    }
 }
 
 }

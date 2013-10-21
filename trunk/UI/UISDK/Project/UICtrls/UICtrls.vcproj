@@ -61,6 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				OutputFile="$(OutDir)\UI\$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(OutDir)lib\"
 				GenerateDebugInformation="true"
@@ -89,6 +90,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="copy $(TargetPath) $(OutDir)Demo\$(TargetFileName)&#x0D;&#x0A;copy $(TargetPath) $(OutDir)IM\$(TargetFileName)&#x0D;&#x0A;copy $(TargetPath) $(OutDir)Player\$(TargetFileName)&#x0D;&#x0A;copy $(TargetPath) $(OutDir)HourGlass\$(TargetFileName)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -137,6 +139,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				OutputFile="$(OutDir)\UI\$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(OutDir)lib\"
 				GenerateDebugInformation="true"
@@ -167,6 +170,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="copy $(TargetPath) $(OutDir)Demo\$(TargetFileName)&#x0D;&#x0A;copy $(TargetPath) $(OutDir)IM\$(TargetFileName)&#x0D;&#x0A;copy $(TargetPath) $(OutDir)Player\$(TargetFileName)&#x0D;&#x0A;copy $(TargetPath) $(OutDir)HourGlass\$(TargetFileName)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -230,6 +234,18 @@
 				RelativePath=".\UICtrls.cpp"
 				>
 			</File>
+			<Filter
+				Name="markup"
+				>
+				<File
+					RelativePath="..\..\..\3rd\markup\markup.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\3rd\markup\markup.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="03. res"
@@ -480,14 +496,30 @@
 						RelativePath="..\..\Control\Src\Control\LedCtrl\iledctrl.cpp"
 						>
 					</File>
-					<File
-						RelativePath="..\..\Control\Src\Control\LedCtrl\ledctrl.cpp"
+					<Filter
+						Name="02. ext"
 						>
-					</File>
-					<File
-						RelativePath="..\..\Control\Src\Control\LedCtrl\ledctrl.h"
+						<File
+							RelativePath="..\..\Control\Src\Control\LedCtrl\ledexctrl.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\..\Control\Src\Control\LedCtrl\ledexctrl.h"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="01. normal"
 						>
-					</File>
+						<File
+							RelativePath="..\..\Control\Src\Control\LedCtrl\ledctrl.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\..\Control\Src\Control\LedCtrl\ledctrl.h"
+							>
+						</File>
+					</Filter>
 				</Filter>
 				<Filter
 					Name="13. flash"

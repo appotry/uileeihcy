@@ -8,6 +8,7 @@ namespace UI
 #define COMBOBOX_BUTTON_MSG_HOOK_MSG_ID  1
 #define COMBOBOX_LISTBOX_MSG_HOOK_MSG_ID 2
 #define COMBOBOX_EDIT_MSG_HOOK_MSG_ID    3
+#define COMBOBOX_LISTBOX_MSG_NOTIFY_MSG_ID 4
 
 #define COMBOBOX_BUTTON_ID _T("combobox_button")
 #define COMBOBOX_EDIT_ID   _T("combobox_edit")
@@ -24,7 +25,6 @@ interface UICTRLAPI IComboBoxBase : public IControl
 
     const TCHAR*  GetText();
     void  CloseUp();
-    void  SetComboboxStyleType(int n);
     void  SetDropDownObjectPtr(IObject* p);
     IEdit*  GetEdit();
 };
@@ -39,6 +39,9 @@ interface UICTRLAPI IComboBox : public IComboBoxBase
     IListBoxItem*  AddStringEx(const TCHAR*, int nAddItemFlags=0);
     bool  SetCurSel(int nIndex);
     IListBox*  GetListBox();
+
+    void  SetReadOnly(bool b);
+    bool  IsReadOnly();
 };
 
 }

@@ -57,7 +57,7 @@ interface UISDKAPI IScrollBarManager : public IMessage
     void  SetScrollBarVisibleType(SCROLLBAR_DIRECTION_TYPE eDirType, SCROLLBAR_VISIBLE_TYPE eVisType);
     SCROLLBAR_VISIBLE_TYPE GetScrollBarVisibleType(SCROLLBAR_DIRECTION_TYPE eType);
 
-    virtual BOOL  DoProcessMessage(UIMSG* pMsg, int nMsgMapID, bool bDoHook); 
+    virtual BOOL  virtualProcessMessage(UIMSG* pMsg, int nMsgMapID, bool bDoHook); 
     void  ResetAttribute();
     void  SetAttribute(IMapAttribute* pMapAttrib, bool bReload);
     void  FireScrollMessage(SCROLLBAR_DIRECTION_TYPE eType, int nCode, int nTrackPos = 0);

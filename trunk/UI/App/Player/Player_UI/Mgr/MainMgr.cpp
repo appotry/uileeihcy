@@ -35,7 +35,7 @@ bool CMainMgr::Initialize()
 
     ::mp3_mute(GetConfigData()->player.m_bMute);
     ::mp3_set_volumn(GetConfigData()->player.m_byteVolumn);
-
+    
 	return true;
 }
 
@@ -104,6 +104,10 @@ void CMainMgr::HandleEvent(IMgr* pSource, int nEventType, int nEventId, WPARAM w
 
         case UI_EVENT_ID_ON_LYRICDLG_VISIBLE_CHANGED:
             m_pMainWindow->OnLyricDlgVisibleChanged((HWND)wParam, (BOOL)lParam);
+            break;
+
+        case UI_EVENT_ID_ON_WNDTOPMOST_CHANGED:
+            m_pMainWindow->OnWndTopMostChanged((BOOL)lParam);
             break;
         }
     }

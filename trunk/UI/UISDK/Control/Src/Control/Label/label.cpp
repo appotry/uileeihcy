@@ -80,7 +80,7 @@ void Label::ResetAttribute()
 	DO_PARENT_PROCESS(ILabel, IControl);
 
 	m_pILabel->SetTabstop(false);   // Label 不能有焦点
-	m_pILabel->ModifyStyle(OBJECT_STYLE_REJEST_MOUSE_MSG_ALL|OBJECT_STYLE_TRANSPARENT, 0, 0);  // 默认不接收鼠标消息
+	m_pILabel->ModifyStyle(OBJECT_STYLE_REJECT_MOUSE_MSG_ALL|OBJECT_STYLE_TRANSPARENT, 0, 0);  // 默认不接收鼠标消息
 }
 void  Label::SetAttribute(IMapAttribute* pMapAttrib, bool bReload)
 {
@@ -145,7 +145,7 @@ void PictureCtrl::ResetAttribute()
 	DO_PARENT_PROCESS(IPictureCtrl, IControl);
 
 	m_pIPictureCtrl->SetTabstop(false);   // Picture 不能有焦点
-	m_pIPictureCtrl->ModifyStyle(OBJECT_STYLE_REJEST_MOUSE_MSG_ALL, 0, 0);  // 默认不接收鼠标消息
+	m_pIPictureCtrl->ModifyStyle(OBJECT_STYLE_REJECT_MOUSE_MSG_ALL, 0, 0);  // 默认不接收鼠标消息
 }
 
 void  PictureCtrl::GetDesiredSize(SIZE* pSize)
@@ -199,7 +199,7 @@ void GifCtrl::ResetAttribute()
 	DO_PARENT_PROCESS(IGifCtrl, IControl);
 
 	m_pIGifCtrl->SetTabstop(false);   // GifPicture 不能有焦点
-	m_pIGifCtrl->ModifyStyle(OBJECT_STYLE_REJEST_MOUSE_MSG_ALL, OBJECT_STYLE_TRANSPARENT, false);  // 默认不接收鼠标消息// 默认不透明
+	m_pIGifCtrl->ModifyStyle(OBJECT_STYLE_REJECT_MOUSE_MSG_ALL, OBJECT_STYLE_TRANSPARENT, false);  // 默认不接收鼠标消息// 默认不透明
 }
 
 void GifCtrl::SetAttribute(IMapAttribute* pMapAttrib, bool bReload)
@@ -213,7 +213,7 @@ void GifCtrl::SetAttribute(IMapAttribute* pMapAttrib, bool bReload)
 
 		IGifRes* pGifRes = m_pIGifCtrl->GetUIApplication()->GetActiveSkinGifRes();
 		if (pGifRes)
-			pGifRes->GetGifImage((BSTR)szText, &pGifImage);
+			pGifRes->GetGifImage(szText, &pGifImage);
 
 		if (pGifImage)
 		{
@@ -241,14 +241,21 @@ void  GifCtrl::OnPaint(IRenderTarget* pRenderTarget)
 {
 	if (m_pGifRender)
 	{
-//         if (GIF_DRAW_STATUS_STOP == m_pGifRender->GetStatus()) // 避免在gif隐藏的时候还在绘制
-//             m_pGifRender->Start();
+//      if (GIF_DRAW_STATUS_STOP == m_pGifRender->GetStatus()) // 避免在gif隐藏的时候还在绘制
+//          m_pGifRender->Start();
 
 		// GIF都是直接带alpha通道的，可以用原始HDC绘制。否则使用Gdipulus::Graphics.GetHDC
 		// 会大大降低绘制效率
 		HDC hDC = pRenderTarget->GetBindHDC(); 
-		                                                      
-		m_pGifRender->OnPaint(hDC, 0,0);  // 因为HDC是已经带偏移量的，因此直接绘制在0,0即可
+		                     
+        if (pRenderTarget->GetGraphicsRenderLibraryType() == GRAPHICS_RENDER_LIBRARY_TYPE_GDI)
+        {
+		    m_pGifRender->OnPaint(hDC, 0,0);  // 因为HDC是已经带偏移量的，因此直接绘制在0,0即可
+        }
+        else
+        {
+            m_pGifRender->OnAlphaPaint(hDC, 0,0);  
+        }
 	}
 }
 

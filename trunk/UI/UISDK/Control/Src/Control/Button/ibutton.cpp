@@ -36,7 +36,8 @@ void  IButtonBase::SetButtonStyle(int n)
 
 
 void  IButton::SetIconFromFile(const TCHAR* szIconPath) { m_pButtonImpl->SetIconFromFile(szIconPath); }
-void  IButton::SetText(const TCHAR*  szText) { m_pButtonImpl->SetText(szText); }
+void  IButton::SetIconFromHBITMAP(HBITMAP hBitmap) { m_pButtonImpl->SetIconFromHBITMAP(hBitmap); }
+void  IButton::SetText(const TCHAR*  szText, bool bUpdate) { m_pButtonImpl->SetText(szText, bUpdate); }
 const TCHAR*  IButton::GetText() { return m_pButtonImpl->GetText(); }
 void  IButton::SetDrawFocusType(BUTTON_RENDER_DRAW_FOCUS_TYPE eType) { m_pButtonImpl->SetDrawFocusType(eType); }
 void  IButton::SetAutoSizeType(BUTTON_RENDER_AUTO_SIZE_TYPE eType) { m_pButtonImpl->SetAutoSizeType(eType); }

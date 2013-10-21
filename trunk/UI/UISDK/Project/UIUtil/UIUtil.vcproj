@@ -63,7 +63,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)\$(ProjectName).dll"
+				OutputFile="$(OutDir)\UI\$(ProjectName).dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)pdb\$(TargetName).pdb"
@@ -91,6 +91,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="copy $(TargetPath) $(OutDir)Demo\$(TargetFileName)&#x0D;&#x0A;copy $(TargetPath) $(OutDir)IM\$(TargetFileName)&#x0D;&#x0A;copy $(TargetPath) $(OutDir)Player\$(TargetFileName)&#x0D;&#x0A;copy $(TargetPath) $(OutDir)HourGlass\$(TargetFileName)"
 			/>
 		</Configuration>
 		<Configuration
@@ -140,7 +141,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)\$(ProjectName).dll"
+				OutputFile="$(OutDir)\UI\$(ProjectName).dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)pdb\$(TargetName).pdb"
@@ -170,6 +171,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="copy $(TargetPath) $(OutDir)Demo\$(TargetFileName)&#x0D;&#x0A;copy $(TargetPath) $(OutDir)IM\$(TargetFileName)&#x0D;&#x0A;copy $(TargetPath) $(OutDir)Player\$(TargetFileName)&#x0D;&#x0A;copy $(TargetPath) $(OutDir)HourGlass\$(TargetFileName)"
 			/>
 		</Configuration>
 	</Configurations>

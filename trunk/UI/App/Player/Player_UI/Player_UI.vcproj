@@ -63,7 +63,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)\$(ProjectName).exe"
+				OutputFile="$(OutDir)\Player\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(OutDir)\lib"
 				GenerateDebugInformation="true"
@@ -141,7 +141,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)\$(ProjectName).exe"
+				OutputFile="$(OutDir)\Player\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(OutDir)\lib"
 				GenerateDebugInformation="true"
@@ -394,27 +394,27 @@
 				Name="MediaPlayer"
 				>
 				<File
-					RelativePath="..\..\..\Bin\Debug\TTPlayer\skin\mediaplay\color.xml"
+					RelativePath="..\..\..\Bin\Debug\Player\skin\mediaplay\color.xml"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\Bin\Debug\TTPlayer\skin\mediaplay\font.xml"
+					RelativePath="..\..\..\Bin\Debug\Player\skin\mediaplay\font.xml"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\Bin\Debug\TTPlayer\skin\mediaplay\image.xml"
+					RelativePath="..\..\..\Bin\Debug\Player\skin\mediaplay\image.xml"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\Bin\Debug\TTPlayer\skin\mediaplay\layout.xml"
+					RelativePath="..\..\..\Bin\Debug\Player\skin\mediaplay\layout.xml"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\Bin\Debug\TTPlayer\skin\mediaplay\skin.xml"
+					RelativePath="..\..\..\Bin\Debug\Player\skin\mediaplay\skin.xml"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\Bin\Debug\TTPlayer\skin\mediaplay\style.xml"
+					RelativePath="..\..\..\Bin\Debug\Player\skin\mediaplay\style.xml"
 					>
 				</File>
 			</Filter>
@@ -422,7 +422,7 @@
 				Name="Let&apos;s Serven"
 				>
 				<File
-					RelativePath="..\..\..\Bin\Debug\TTPlayer\skin\let&apos;s seven\skin.xml"
+					RelativePath="..\..\..\Bin\Debug\Player\skin\let&apos;s seven\skin.xml"
 					>
 				</File>
 			</Filter>
