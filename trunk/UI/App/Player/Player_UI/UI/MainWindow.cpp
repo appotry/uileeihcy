@@ -75,7 +75,7 @@ void MainWindow::OnDestroy()
 
 void MainWindow::OnInitWindow()
 {
-    ICustomWindow::xProcessMessage(GetCurMsg(), 0, 0);
+    ICustomWindow::nvProcessMessage(GetCurMsg(), 0, 0);
     LoadCtrls();
    
 	if (m_pbtnStop)

@@ -23,7 +23,7 @@ CMainWnd::~CMainWnd()
 
 void  CMainWnd::OnInitialize()
 {
-    __super::xProcessMessage(GetCurMsg(), 0, 0);
+    __super::nvProcessMessage(GetCurMsg(), 0, 0);
 
     m_pLEDCtrl = (UI::ILEDExCtrl*)FindChildObject(_T("led"));
 //    SetWindowPos(GetHWND(), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE|SWP_NOACTIVATE);
@@ -50,11 +50,11 @@ void  CMainWnd::OnDestroy()
         KillTimer(GetHWND(), m_nTimerId);
         m_nTimerId = 0;
     }
-    __super::xProcessMessage(GetCurMsg(), 0, 0);
+    __super::nvProcessMessage(GetCurMsg(), 0, 0);
 }
 BOOL  CMainWnd::PreCreateWindow(CREATESTRUCT* pcs)
 {
-    __super::xProcessMessage(GetCurMsg(), 0, 0);
+    __super::nvProcessMessage(GetCurMsg(), 0, 0);
 
     pcs->dwExStyle |= WS_EX_TOOLWINDOW|WS_EX_TOPMOST;
     return TRUE;

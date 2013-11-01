@@ -6,7 +6,9 @@
 DWORD WINAPI _UIThread(LPVOID lpParameter)
 {
     CFramework* p = (CFramework*)lpParameter;
-    p->InitUI();
+    if (!p->InitUI())
+        return 0;
+
     p->UIThread();
     p->UninitUI();
     return 0;
@@ -37,7 +39,7 @@ void  CFramework::UIThread()
     m_pUIApp->MsgHandleLoop(&m_bQuitUIThreadRef);
 }
 
-void  CFramework::InitUI()
+bool  CFramework::InitUI()
 {
     CreateUIApplicationInstance(&m_pUIApp);
     m_pSkinMgr = m_pUIApp->GetSkinMgr();
@@ -50,14 +52,28 @@ void  CFramework::InitUI()
     String str = szPath;
     str.append(_T("skin"));
     m_pUIApp->SetSkinDirection(str.c_str());
-    m_pUIApp->LoadSkin(_T("2012"));
+    if (FAILED(m_pUIApp->LoadSkin(_T("2012"))))
+    {
+        SetEvent(m_hWaitEvent);
+        return false;
+    }
 
     UI_Ctrl_RegisterUIObject(m_pUIApp);   // 注册控件
     IM_Ctrl_RegisterUIObject(m_pUIApp);   // 注册控件
 
     m_UIMessageWnd.Create(HWND_MESSAGE);
 
+    // 创建线程消息队列
+    //
+    // PostThreadMessage:
+    // The function fails if the specified thread does not have a message queue. 
+    // The system creates a thread's message queue when the thread makes 
+    // its first call to one of the User or GDI functions
+    MSG msg;
+    PeekMessage(&msg, NULL, WM_USER, WM_USER, PM_NOREMOVE);
+
     SetEvent(m_hWaitEvent);
+    return true;
 }
 
 void  CFramework::LoadLog()
@@ -150,6 +166,10 @@ void  CFramework::BizThread()
 }
 void  CFramework::InitBiz()
 {
+    // 创建线程消息队列
+    MSG msg;
+    PeekMessage(&msg, NULL, WM_USER, WM_USER, PM_NOREMOVE);
+
     SetEvent(m_hWaitEvent);
 }
 
@@ -179,6 +199,10 @@ void  CFramework::NetThread()
 void  CFramework::InitNet()
 {
     // 加载网络模块
+
+    // 创建线程消息队列
+    MSG msg;
+    PeekMessage(&msg, NULL, WM_USER, WM_USER, PM_NOREMOVE);
 }
 void  CFramework::UninitNet()
 {

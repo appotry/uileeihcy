@@ -13,8 +13,17 @@ void  CFramework::Run(long lThreadMode)
 {
     m_dwMainThreadId = GetCurrentThreadId();
 
-    LoadFrameworkXml();
-    m_mgrPlugin.LoadPluginXml();
+    if (!LoadFrameworkXml())
+    {
+        ::MessageBox(NULL,_T("LoadFrameworkXml Failed"), _T("Error"), MB_OK|MB_ICONWARNING);
+        return;
+    }
+
+    if (!m_mgrPlugin.LoadPluginXml())
+    {
+        ::MessageBox(NULL,_T("LoadPluginXml Failed"), _T("Error"), MB_OK|MB_ICONWARNING);
+        return;
+    }
 
     m_hUIThread = ::CreateThread(NULL, 0, _UIThread, this, 0, &m_dwUIThreadId);
     WaitForSingleObject(m_hWaitEvent, INFINITE);

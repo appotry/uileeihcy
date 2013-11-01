@@ -62,6 +62,7 @@ namespace UI
 
 
 #define XML_FONT_FACENAME    _T("facename")
+#define XML_FONT_FACENAME2    _T("facename2")  // 当facename字体不存在时，尝试facename2
 #define XML_FONT_HEIGHT      _T("size")
 #define XML_FONT_ORIENTATION _T("orientation") 
 #define XML_FONT_BOLD        _T("bold")

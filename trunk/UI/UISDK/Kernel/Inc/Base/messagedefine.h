@@ -461,7 +461,7 @@ enum
 //  wparam : SetAttrPrefixData*
 //  lparam : 
 //
-#define  UI_WM_SETATTRIBUTE_PREFIX  139281919
+// #define  UI_WM_SETATTRIBUTE_PREFIX  139281919 (废弃，再使用UI_WM_SERIALIZE)
 
 //
 //  换肤前调用，释放现在正在使用的皮肤资源。
@@ -479,16 +479,19 @@ namespace UI
 {
 interface IMapAttribute;
 interface IListAttribute;
+interface IUIEditor;
+interface IUIEditorGroupAttribute;
 }
 // 对象序列化消息。用于取代WM_SETATTRIBUTE
 enum SERIALIZEFLAG
 {
-//	SERIALIZEFLAG_LOAD = 0x01,
+	SERIALIZEFLAG_LOAD = 0x01,
 	SERIALIZEFLAG_SAVE = 0x02,
-	SERIALIZEFLAG_GETLIST = 0x04,  // 获取属性列表和提示信息
+//	SERIALIZEFLAG_GETLIST = 0x04,  // 获取属性列表和提示信息 采用单独的消息：UIMSG_WM_EDITORGETATTRLIST
 
 	// load 标识
 	SERIALIZEFLAG_RELOAD = 0x0100,
+    SERIALIZEFLAG_LOAD_ERASEATTR = 0x0200,  // 获取到属性后，将该属性从mapattr中删除
 
 	// save 标识
 };
@@ -498,6 +501,7 @@ struct SERIALIZEDATA
 		UI::IMapAttribute*  pMapAttrib;    // load [in] / getlist [out]
 		UI::IListAttribute*  pListAttrib;  // save [out]
 	};
+    const TCHAR* szPrefix;      // 属性前缀
 	UINT nFlag;
 };
 
@@ -543,9 +547,14 @@ struct SERIALIZEDATA
 //
 #define UI_BN_CLICKED  139222333
 
+struct EDITORGETOBJECTATTRLISTDATA
+{
+    UI::IUIEditor*  pEditor;
+	UI::IUIEditorGroupAttribute*  pGroupAttr;
+	const TCHAR*  szPrefix;
+};
 // 获取对象属性列表
-// wParam: IUIEditor*
-// lParam: IRootUIEditorAttr*
+// wParam: EDITORGETOBJECTATTRLISTDATA*
 #define UI_EDITOR_GETOBJECTATTRLIST  139252026
 
 //
@@ -566,9 +575,9 @@ struct SERIALIZEDATA
 #define UI_BEGIN_MSG_MAP                              \
     virtual BOOL innerVirtualProcessMessage(UI::UIMSG* pMsg, int nMsgMapID=0, bool bDoHook=false) \
     {                                                 \
-        return this->xProcessMessage(pMsg, nMsgMapID, bDoHook); \
+        return this->nvProcessMessage(pMsg, nMsgMapID, bDoHook); \
     }                                                 \
-    BOOL xProcessMessage(UI::UIMSG* pMsg, int nMsgMapID, bool bDoHook) \
+    BOOL nvProcessMessage(UI::UIMSG* pMsg, int nMsgMapID, bool bDoHook) \
     {                                                 \
         UIASSERT (pMsg);                              \
         if (NULL == pMsg)                             \
@@ -610,7 +619,7 @@ struct SERIALIZEDATA
 #define UI_END_MSG_MAP_CHAIN_PARENT(baseclass)        \
             break;                                    \
         }                                             \
-        if (baseclass::xProcessMessage(pMsg, nMsgMapID, false)) \
+        if (baseclass::nvProcessMessage(pMsg, nMsgMapID, false)) \
             return TRUE;                              \
         return FALSE;                                 \
     }
@@ -622,7 +631,7 @@ struct SERIALIZEDATA
         }                                             \
         {                                             \
             if (m_pI##classname)                      \
-                if (static_cast<baseinterface*>(m_pI##classname)->xProcessMessage(pMsg, nMsgMapID, false)) \
+                if (static_cast<baseinterface*>(m_pI##classname)->nvProcessMessage(pMsg, nMsgMapID, false)) \
                     return TRUE;                      \
         }                                             \
         return FALSE;                                 \
@@ -633,7 +642,7 @@ struct SERIALIZEDATA
     static void  CreateInstance(UI::IUIApplication* p, classname** pp) \
     { classname::_CreatorClass::UICreateInstance(p, pp); } \
     virtual BOOL virtualProcessMessage(UI::UIMSG* pMsg, int nMsgMapID, bool bDoHook) \
-    { return xProcessMessage(pMsg, nMsgMapID, bDoHook); } \
+    { return nvProcessMessage(pMsg, nMsgMapID, bDoHook); } \
     UI_BEGIN_MSG_MAP
 
 //
@@ -652,7 +661,7 @@ struct SERIALIZEDATA
 #define UICHAIN_MSG_MAP_POINT_MEMBER(pTheChainMember)  \
     if (pTheChainMember)                               \
     {                                                  \
-        if (pTheChainMember->xProcessMessage(pMsg, nMsgMapID, false)) \
+        if (pTheChainMember->nvProcessMessage(pMsg, nMsgMapID, false)) \
         { \
             return TRUE;                               \
         } \
@@ -1284,7 +1293,7 @@ struct SERIALIZEDATA
     {                                                 \
         SetMsgHandled(TRUE);                          \
 		SERIALIZEDATA* pData = (SERIALIZEDATA*)wParam; \
-		if (!(pData->nFlag&SERIALIZEFLAG_SAVE))       \
+		if (pData->nFlag&SERIALIZEFLAG_LOAD)           \
 		{ \
 			bool bReload = pData->nFlag&SERIALIZEFLAG_RELOAD ? true:false; \
 			func((UI::IMapAttribute*)pData->pMapAttrib, bReload); \
@@ -1304,13 +1313,31 @@ struct SERIALIZEDATA
 	}
 
 // void SetAttribute(SetAttrPrefixData* pData);
+// #define UIMSG_WM_SETATTRIBUTE_PREFIX(func)            \
+//     if (uMsg == UI_WM_SETATTRIBUTE_PREFIX)            \
+//     {                                                 \
+//         SetMsgHandled(TRUE);                          \
+//         func((UI::SetAttrPrefixData*)wParam);         \
+//         if (IsMsgHandled())                           \
+//             return TRUE;                              \
+//     }
+
+// void SetAttribute(SetAttrPrefixData* pData);
 #define UIMSG_WM_SETATTRIBUTE_PREFIX(func)            \
-    if (uMsg == UI_WM_SETATTRIBUTE_PREFIX)            \
+    if (uMsg == UI_WM_SERIALIZE)                      \
     {                                                 \
         SetMsgHandled(TRUE);                          \
-        func((UI::SetAttrPrefixData*)wParam);         \
-        if (IsMsgHandled())                           \
-            return TRUE;                              \
+		SERIALIZEDATA* pData = (SERIALIZEDATA*)wParam; \
+		if (pData->nFlag&SERIALIZEFLAG_LOAD)          \
+		{                                             \
+			UI::SetAttrPrefixData data;               \
+			data.pMapAttrib = pData->pMapAttrib;      \
+			data.szPrefix = pData->szPrefix;          \
+			data.bErase = pData->nFlag&SERIALIZEFLAG_LOAD_ERASEATTR ? true:false; \
+			func(&data);                              \
+			if (IsMsgHandled())                       \
+	            return TRUE;                          \
+		}                                             \
     }
 
 // void  ResetAttribute();
@@ -1323,12 +1350,12 @@ struct SERIALIZEDATA
             return TRUE;                              \
     }
 
-// void  OnEditorGetAttrList(IUIEditor* pEditor, IUIEditorGroupAttribute*  pRootAttr);
+// void  OnEditorGetAttrList(EDITORGETOBJECTATTRLISTDATA* pData);
 #define UIMSG_WM_EDITORGETATTRLIST(func)              \
     if (uMsg == UI_EDITOR_GETOBJECTATTRLIST)          \
     {                                                 \
         SetMsgHandled(TRUE);                          \
-        func((IUIEditor*)wParam, (IUIEditorGroupAttribute*)lParam); \
+        func((EDITORGETOBJECTATTRLISTDATA*)wParam);   \
         if (IsMsgHandled())                           \
             return TRUE;                              \
     }

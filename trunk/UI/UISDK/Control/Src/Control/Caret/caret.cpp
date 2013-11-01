@@ -29,7 +29,7 @@ BOOL CCaret::CreateCaret(IObject* pObj, HBITMAP hbmp, int nWidth, int nHeight, C
     if (CARET_TYPE_UNKNOWN == eType)
     {
     //    if (Util::IsLayeredWindow(hWnd))
-            eType = CARET_TYPE_WINDOW;
+            eType = CARET_TYPE_CONTROLDRAW;
     }
 
     if (m_pCaret && (m_pCaret->GetType() != eType || m_pCaret->GetObject() != pObj))

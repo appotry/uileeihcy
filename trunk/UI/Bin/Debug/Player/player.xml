@@ -7,7 +7,7 @@
   </log>
   <skin active="mediaplay"></skin>
   
-  <Player Mute="0" Volume="100" Balance="0" PlayMode="4" PlayingFileName="F:\music\清晨.mp3" PlayingTime="62" WndTopMost="0" />
+  <Player Mute="0" Volume="50" Balance="0" PlayMode="4" PlayingFileName="F:\music\清晨.mp3" PlayingTime="82" WndTopMost="0" />
   <Visual Type="1" FramesPerSec="25" />
 
 </config>

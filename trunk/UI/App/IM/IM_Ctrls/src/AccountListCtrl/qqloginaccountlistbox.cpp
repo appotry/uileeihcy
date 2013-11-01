@@ -104,10 +104,10 @@ void  QQLoginAccountListBox::SetAttribute(UI::IMapAttribute* pMapAttrib, bool bR
 // 		m_pEraseBtn->SetConfigWidth(16);
 // 		m_pEraseBtn->SetConfigHeight(16);
 		m_pEraseBtn->SetConfigRight(2);
+        m_pEraseBtn->SetConfigLayoutFlags(UI::LAYOUT_ITEM_ALIGN_CENTER);   
+
 		m_pEraseBtn->SetNotify(m_pIQQLoginAccountListBox, 1);
         m_pEraseBtn->SetDrawFocusType(UI::BUTTON_RENDER_DRAW_FOCUS_TYPE_NONE);
-		m_pEraseBtn->SetConfigLayoutFlags(UI::LAYOUT_ITEM_ALIGN_CENTER);
-
         m_pEraseBtn->SetAttributeByPrefix(XML_QQLoginAccountList_ERASEBTN_PREFIX, pMapAttrib, bReload, true);
 	}
 }
@@ -241,7 +241,7 @@ void QQLoginAccountListBox::HandleItemChanged(
 	if (NULL == pOldItem && NULL == pNewItem)
 		return;
 
-    UI::UI_LOG_DEBUG(_T("%s old: %s,  new: %s"), FUNC_NAME, pOldItem?pOldItem->GetAccount():_T("null"), pNewItem?pNewItem->GetAccount():_T("null"));
+//    UI::UI_LOG_DEBUG(_T("%s old: %s,  new: %s"), FUNC_NAME, pOldItem?pOldItem->GetAccount():_T("null"), pNewItem?pNewItem->GetAccount():_T("null"));
 
 	if (NULL == pNewItem)  
 	{
@@ -360,7 +360,7 @@ void  QQLoginAccountListBox::OnEraseBtnClick()
 
 LRESULT  QQLoginAccountListBox::OnItemRemoved(WPARAM, LPARAM)
 {
-    if (m_pIQQLoginAccountListBox->TestStyleEx(LISTCTRLBASE_STYLE_SELECT_AS_HOVER_MODE))
+    if (m_pIQQLoginAccountListBox->TestStyleEx(LISTCTRLBASE_STYLE_POPUPLISTBOX))
     {
         SIZE s = m_pIQQLoginAccountListBox->GetDesiredSize();
         ::SetWindowPos(m_pIQQLoginAccountListBox->GetHWND(), 0, 0, 0, s.cx, s.cy, SWP_NOZORDER|SWP_NOMOVE);

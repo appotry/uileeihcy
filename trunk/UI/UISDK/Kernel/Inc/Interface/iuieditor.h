@@ -43,6 +43,7 @@ namespace UI
 		virtual const TCHAR* GetValue() = 0;
 		virtual void  SetValue(const TCHAR*) = 0;
 		virtual void  SetDefaultValue(const TCHAR* szText) = 0;
+		virtual void  SetKey(const TCHAR*) = 0;
 	};
 
 	
@@ -102,8 +103,20 @@ namespace UI
         virtual void  OnCursorItemLoad(__in ICursorResItem*  pItem, __in IUIElement* pXmlElem) = 0;
 
 		virtual IUIEditorAttrBase*  CreateAttribute(UIEDITOR_ATTR_TYPE, IUIEditorGroupAttribute* pParent) = 0;
-		virtual IUIEditorGroupAttribute*  CreateGroupAttribute(IUIEditorGroupAttribute* pParent, const TCHAR* szName, const TCHAR* szDesc) = 0;
-		virtual IUIEditorTextAttribute*  CreateTextAttribute(IUIEditorGroupAttribute* pParent, const TCHAR* szName, const TCHAR* szDesc) = 0;
+		virtual IUIEditorGroupAttribute*  CreateGroupAttribute(
+            IUIEditorGroupAttribute* pParent, 
+            const TCHAR* szName, 
+            const TCHAR* szDesc) 
+            = 0;
+        // 创建一个字符串属性。pParent为父结点，szName为该项在列表中显示的名称, szDesc为该项的描述信息,
+        //  szKeyPrefix1 + szKeyPrefix2 + szName是该项在xml中的属性字段
+	    virtual IUIEditorTextAttribute*  CreateTextAttribute(
+            IUIEditorGroupAttribute* pParent, 
+            const TCHAR* szName, 
+            const TCHAR* szKeyPrefix1,
+            const TCHAR* szKeyPrefix2 = NULL,
+            const TCHAR* szDesc = NULL) 
+            = 0;
 
 // 		// 读取一个对象的属性列表时，获取到一个属性组项，返回一个组的标识，用于调用OnGetAttribute_AddProperty
 // 		virtual long  OnGetAttribute_AddGroupProperty(__in IObject* pObj, __in const TCHAR* szGroupName) = 0;

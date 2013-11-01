@@ -48,6 +48,7 @@ void  PopupControlWindow::Create(IObject*  pBindObj, const TCHAR* szId, HWND hPa
 
 		SERIALIZEDATA data = {0};
 		data.pMapAttrib = pMapAttrib;
+		data.nFlag = SERIALIZEFLAG_LOAD;
 		UISendMessage(this, UI_WM_SERIALIZE, (WPARAM)&data);
 //        UISendMessage(this, UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, (LPARAM)false);
 
@@ -78,16 +79,19 @@ void  PopupControlWindow::Show(POINT pt, BOOL bDoModal)
         pt.y = rcWorkArea.bottom - size.cy;
 
     HWND hPopupWnd = GetHWND();
-    ::ShowWindow(hPopupWnd, SW_SHOWNA);  // 放在SetWindowPos后面还是会导致黑一次
     ::SetWindowPos(hPopupWnd, NULL, pt.x, pt.y, size.cx, size.cy, SWP_NOZORDER/*|SWP_SHOWWINDOW*/|SWP_NOACTIVATE);
-    ::UpdateWindow(hPopupWnd);
+	if (!GetUIApplication()->IsDesignMode())
+	{
+		::ShowWindow(hPopupWnd, SW_SHOWNA);  
+		::UpdateWindow(hPopupWnd);
 
-    IMessageFilterMgr* pMgr = NULL;
-    GetUIApplication()->GetMessageFilterMgr(&pMgr);
-    pMgr->AddMessageFilter(static_cast<IPreTranslateMessage*>(this));
+		IMessageFilterMgr* pMgr = NULL;
+		GetUIApplication()->GetMessageFilterMgr(&pMgr);
+		pMgr->AddMessageFilter(static_cast<IPreTranslateMessage*>(this));
 
-    if (TRUE == bDoModal)
-        GetUIApplication()->MsgHandleLoop(&m_bExitLoop);
+		if (TRUE == bDoModal)
+			GetUIApplication()->MsgHandleLoop(&m_bExitLoop);
+	}
 }
 
 // 如果是外部调用的话，则还需要移除pretranslatemessage?/?
@@ -118,7 +122,7 @@ void  PopupControlWindow::Destroy()
 
 void PopupControlWindow::OnInitialize()
 {
-    __super::xProcessMessage(GetCurMsg(), 0, 0);
+    __super::nvProcessMessage(GetCurMsg(), 0, 0);
     SetWindowResizeType(WRSB_NONE);
 
     if (m_pObject)

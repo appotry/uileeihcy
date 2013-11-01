@@ -262,50 +262,54 @@ void IEWrap::CreateControl()
 
  			m_pPopupIEWnd->Create(pUIApp, _T(""), hParentWnd);
 			m_pPopupIEWnd->AddChild(m_pIIEWrap);
-            m_pPopupIEWnd->SetObjectPos(0, 0, m_pIIEWrap->GetConfigWidth(), m_pIIEWrap->GetConfigHeight(), SWP_NOREDRAW|SWP_NOMOVE);
+//            m_pPopupIEWnd->SetObjectPos(0, 0, m_pIIEWrap->GetConfigWidth(), m_pIIEWrap->GetConfigHeight(), SWP_NOREDRAW|SWP_NOMOVE);
 			
             IMapAttribute* pEmpty = NULL;
             UICreateIMapAttribute(&pEmpty);
 
 			SERIALIZEDATA sdata = {0};
 			sdata.pMapAttrib = pEmpty;
+			sdata.nFlag = SERIALIZEFLAG_LOAD;
 			UISendMessage(m_pPopupIEWnd, UI_WM_SERIALIZE, (WPARAM)&sdata);
 //			UISendMessage(m_pPopupIEWnd, UI_WM_SETATTRIBUTE, (WPARAM)pEmpty, (LPARAM)false);
             SAFE_RELEASE(pEmpty);
 
 			SyncWindowData data;
 			data.m_hWnd = m_pPopupIEWnd->GetHWND();
-
-			if (m_pIIEWrap->GetConfigLeft() != NDEF)
-			{
-				data.m_nAnchorType |= ANCHOR_LEFT;
-				data.m_rcAnchorData.xOffset = m_pIIEWrap->GetConfigLeft();
-			}
-			if (m_pIIEWrap->GetConfigRight() != NDEF)
-			{
-				data.m_nAnchorType |= ANCHOR_RIGHT;
-				if (m_pIIEWrap->GetConfigLeft() == NDEF)
-					data.m_rcAnchorData.xOffset = m_pIIEWrap->GetConfigRight();
-				else
-					data.m_rcAnchorData.xOffset2 = m_pIIEWrap->GetConfigRight();
-			}
-			if (m_pIIEWrap->GetConfigTop() != NDEF)
-			{
-				data.m_nAnchorType |= ANCHOR_TOP;
-				data.m_rcAnchorData.yOffset = m_pIIEWrap->GetConfigTop();
-			}
-			if (m_pIIEWrap->GetConfigBottom() != NDEF)
-			{
-				data.m_nAnchorType |= ANCHOR_BOTTOM;
-				if (m_pIIEWrap->GetConfigTop() == NDEF)
-					data.m_rcAnchorData.yOffset = m_pIIEWrap->GetConfigBottom();
-				else
-					data.m_rcAnchorData.yOffset2 = m_pIIEWrap->GetConfigBottom();
-			}
-			if (m_pIIEWrap->GetConfigWidth() > 0)
-				data.m_rcAnchorData.Width = m_pIIEWrap->GetConfigWidth();
-			if (m_pIIEWrap->GetConfigHeight() > 0)
-				data.m_rcAnchorData.Height = m_pIIEWrap->GetConfigHeight();
+            data.m_nAnchorType = ANCHOR_CUSTOM;
+// 
+// 			if (m_pIIEWrap->GetConfigLeft() != NDEF)
+// 			{
+// 				data.m_nAnchorType |= ANCHOR_LEFT;
+// 				data.m_rcAnchorData.xOffset = m_pIIEWrap->GetConfigLeft();
+// 			}
+// 			if (m_pIIEWrap->GetConfigRight() != NDEF)
+// 			{
+// 				data.m_nAnchorType |= ANCHOR_RIGHT;
+// 				if (m_pIIEWrap->GetConfigLeft() == NDEF)
+// 					data.m_rcAnchorData.xOffset = m_pIIEWrap->GetConfigRight();
+// 				else
+// 					data.m_rcAnchorData.xOffset2 = m_pIIEWrap->GetConfigRight();
+// 			}
+// 			if (m_pIIEWrap->GetConfigTop() != NDEF)
+// 			{
+// 				data.m_nAnchorType |= ANCHOR_TOP;
+// 				data.m_rcAnchorData.yOffset = m_pIIEWrap->GetConfigTop();
+// 			}
+// 			if (m_pIIEWrap->GetConfigBottom() != NDEF)
+// 			{
+// 				data.m_nAnchorType |= ANCHOR_BOTTOM;
+// 				if (m_pIIEWrap->GetConfigTop() == NDEF)
+// 					data.m_rcAnchorData.yOffset = m_pIIEWrap->GetConfigBottom();
+// 				else
+// 					data.m_rcAnchorData.yOffset2 = m_pIIEWrap->GetConfigBottom();
+// 			}
+// 			if (m_pIIEWrap->GetConfigWidth() > 0)
+// 				data.m_rcAnchorData.Width = m_pIIEWrap->GetConfigWidth();
+// 			if (m_pIIEWrap->GetConfigHeight() > 0)
+// 				data.m_rcAnchorData.Height = m_pIIEWrap->GetConfigHeight();
+            
+            UIASSERT(0 && _T("TODO: Î´Íê³É"));
 
 			::SendMessage(hParentWnd, UI_WM_SYNC_WINDOW, (WPARAM)ADD_SYNC_WINDOW, (LPARAM)&data);
 			::ShowWindow(m_pPopupIEWnd->GetHWND(), SW_SHOWNOACTIVATE);

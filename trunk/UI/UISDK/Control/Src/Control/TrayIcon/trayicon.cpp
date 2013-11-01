@@ -335,7 +335,7 @@ void TrayIcon::OnTimer(UINT_PTR nIDEvent)
 //
 // 处理图标事件
 //
-BOOL TrayIcon::xProcessMessage(UIMSG* pMsg, UINT nMsgID, bool)
+BOOL TrayIcon::nvProcessMessage(UIMSG* pMsg, UINT nMsgID, bool)
 {
 	if (pMsg->message == m_Data.uCallbackMessage)
 	{

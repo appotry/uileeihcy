@@ -57,7 +57,7 @@ void  ListBoxItem::GetDesiredSize(SIZE* pSize)
 void ListBoxItem::OnLButtonDown(UINT nFlags, POINT point)
 {
     // 覆盖listitembase的OnLButtonDown，仅在鼠标弹起时选择
-    if (m_pIListBoxItem->GetIListCtrlBase()->TestStyleEx(LISTCTRLBASE_STYLE_SELECT_AS_HOVER_MODE)) 
+    if (m_pIListBoxItem->GetIListCtrlBase()->TestStyleEx(LISTCTRLBASE_STYLE_POPUPLISTBOX)) 
         return;
     
     SetMsgHandled(FALSE);
@@ -67,7 +67,7 @@ void ListBoxItem::OnLButtonUp(UINT nFlags, POINT point)
 {
     // popuplistctrlmousemgr处理了，这里不用再处理
 //     IListCtrlBase*  pListCtrl = m_pIListBoxItem->GetIListCtrlBase();
-//     if (pListCtrl->TestStyleEx(LISTCTRLBASE_STYLE_SELECT_AS_HOVER_MODE))    // 以最后鼠标弹出来的那项作为被选中的项
+//     if (pListCtrl->TestStyleEx(LISTCTRLBASE_STYLE_POPUPLISTBOX))    // 以最后鼠标弹出来的那项作为被选中的项
 //     {
 //         IListItemBase* pNewHover = pListCtrl->HitTest(point);  // 重新取hover对象。因为当鼠标移到listbox外面时，会仍然保留最后一个hover item
 // 

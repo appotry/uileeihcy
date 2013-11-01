@@ -107,7 +107,9 @@ bool  CFramework::LoadFrameworkXml()
 
     CMarkup  markup;
     if (false == markup.Load(strFrameworkXmlPath.c_str()))
+    {
         return false;
+    }
 
     if (false == markup.FindElem())
         return false;

@@ -26,6 +26,7 @@ HRESULT  TabCtrl::UIParseLayoutElement(IUIElement* pElement, IUIApplication*  pU
 
 	SERIALIZEDATA data = {0};
 	data.pMapAttrib = pMapAttrib;
+	data.nFlag = SERIALIZEFLAG_LOAD;
 	UISendMessage(pTabCtrl, UI_WM_SERIALIZE, (WPARAM)&data);
 //    UISendMessage(pTabCtrl, UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, 0);
     SAFE_RELEASE(pMapAttrib);
@@ -149,6 +150,7 @@ HRESULT  TabCtrlBase::FinalConstruct(IUIApplication* p)
 
 	SERIALIZEDATA data = {0};
 	data.pMapAttrib = pMapAttrib;
+	data.nFlag = SERIALIZEFLAG_LOAD;
 	UISendMessage(static_cast<IMessage*>(m_pPanelHead), UI_WM_SERIALIZE, (WPARAM)&data);
 	UISendMessage(static_cast<IMessage*>(m_pPanelContent), UI_WM_SERIALIZE, (WPARAM)&data);
 //     UISendMessage(static_cast<IMessage*>(m_pPanelHead), UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, 0);
@@ -487,14 +489,13 @@ void  TabCtrl::AddItem(const TCHAR*  szText, IObject* pContentObj)
 
 	SERIALIZEDATA data = {0};
 	data.pMapAttrib = pMapAttrib;
+	data.nFlag = SERIALIZEFLAG_LOAD;
 	UISendMessage(pBtn, UI_WM_SERIALIZE, (WPARAM)&data);
 //    UISendMessage(pBtn, UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, (LPARAM)0);
 
     pMapAttrib->Release();
-
-    pBtn->SetConfigWidth(100);
-    pBtn->SetConfigHeight(20);
     m_pPanelHead->AddChild(pBtn);
+    pBtn->SetObjectPos(0,0, 100,20, SWP_NOMOVE|SWP_NOREDRAW);
 
     __super::AddItem(0, pBtn, NULL);
 

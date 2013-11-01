@@ -34,7 +34,7 @@ void  ButtonBase::SetAttribute(IMapAttribute* pMapAttr, bool bReload)
 {
     DO_PARENT_PROCESS(IButtonBase, IControl);
 }
-void  ButtonBase::OnEditorGetAttrList(IUIEditor* pEditor, IUIEditorGroupAttribute*  pRootAttr)
+void  ButtonBase::OnEditorGetAttrList(EDITORGETOBJECTATTRLISTDATA* pData)
 {
 	DO_PARENT_PROCESS(IButtonBase, IControl);
 }
@@ -667,18 +667,20 @@ void Button::SetAttribute(IMapAttribute* pMapAttrib, bool bReload )
     }
 }
 
-void  Button::OnEditorGetAttrList(IUIEditor* pEditor, IUIEditorGroupAttribute*  pRootAttr)
+void  Button::OnEditorGetAttrList(EDITORGETOBJECTATTRLISTDATA* pData)
 {
-	__super::OnEditorGetAttrList(pEditor, pRootAttr);
+	__super::OnEditorGetAttrList(pData);
+    IUIEditor* pEditor = pData->pEditor;
+    const TCHAR* szPrefix = pData->szPrefix;
 
-	IUIEditorGroupAttribute*  pObjGroup = pEditor->CreateGroupAttribute(pRootAttr, Button::GetXmlName(), NULL);
-	pEditor->CreateTextAttribute(pObjGroup, XML_BUTTON_RENDER_AUTOSIZE_TYPE, NULL);
-	pEditor->CreateTextAttribute(pObjGroup, XML_BUTTON_ICON_ALIGN, NULL);
-	pEditor->CreateTextAttribute(pObjGroup, XML_BUTTON_TEXT, NULL);
-	pEditor->CreateTextAttribute(pObjGroup, XML_TEXTRENDER_TYPE, NULL);
-	pEditor->CreateTextAttribute(pObjGroup, XML_BUTTON_ICON_TEXT_MARGIN, NULL);
-	pEditor->CreateTextAttribute(pObjGroup, XML_BUTTON_RENDER_DRAW_FOCUS_FLAG, NULL);
-	pEditor->CreateTextAttribute(pObjGroup, XML_BUTTON_NOTDEFPUSHBUTTON, NULL);
+	IUIEditorGroupAttribute*  pObjGroup = pEditor->CreateGroupAttribute(pData->pGroupAttr, Button::GetXmlName(), NULL);
+	pEditor->CreateTextAttribute(pObjGroup, XML_BUTTON_RENDER_AUTOSIZE_TYPE, szPrefix);
+	pEditor->CreateTextAttribute(pObjGroup, XML_BUTTON_ICON_ALIGN, szPrefix);
+	pEditor->CreateTextAttribute(pObjGroup, XML_BUTTON_TEXT, szPrefix);
+	pEditor->CreateTextAttribute(pObjGroup, XML_TEXTRENDER_TYPE, szPrefix);
+	pEditor->CreateTextAttribute(pObjGroup, XML_BUTTON_ICON_TEXT_MARGIN, szPrefix);
+	pEditor->CreateTextAttribute(pObjGroup, XML_BUTTON_RENDER_DRAW_FOCUS_FLAG, szPrefix);
+	pEditor->CreateTextAttribute(pObjGroup, XML_BUTTON_NOTDEFPUSHBUTTON, szPrefix);
 }
 void Button::SetDrawFocusType(BUTTON_RENDER_DRAW_FOCUS_TYPE eType)
 {

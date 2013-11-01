@@ -75,7 +75,7 @@ void ListBoxBase::SetListBoxStyle(int n)
 
 bool  ListBoxBase::IsPopup()
 {
-    return m_pIListBoxBase->TestStyleEx(LISTCTRLBASE_STYLE_SELECT_AS_HOVER_MODE);
+    return m_pIListBoxBase->TestStyleEx(LISTCTRLBASE_STYLE_POPUPLISTBOX);
 }
 
 void ListBoxBase::ResetAttribute()
@@ -88,7 +88,7 @@ void ListBoxBase::ResetAttribute()
 	    m_pIListBoxBase->GetIScrollBarMgr()->SetScrollBarVisibleType(VSCROLLBAR, SCROLLBAR_VISIBLE_AUTO);
     }
 
-//    m_pIPopupListBox->ModifyStyleEx(LISTCTRLBASE_STYLE_SORT_ASCEND|LISTCTRLBASE_STYLE_SELECT_AS_HOVER_MODE, 0, 0);
+//    m_pIPopupListBox->ModifyStyleEx(LISTCTRLBASE_STYLE_SORT_ASCEND|LISTCTRLBASE_STYLE_POPUPLISTBOX, 0, 0);
 }
 void ListBoxBase::SetAttribute(IMapAttribute* pMapAttrib, bool bReload)
 {

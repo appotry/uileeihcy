@@ -9,7 +9,7 @@ interface ITrayIcon
     virtual long  Release() = 0;
 
 	virtual HRESULT  AddTrayIcon(HWND hWndNotify, HICON hIcon, BSTR bstrToolTip) = 0;
-	virtual BOOL  xProcessMessage(UIMSG* pMsg, UINT nMsgID, bool) = 0;
+	virtual BOOL  nvProcessMessage(UIMSG* pMsg, UINT nMsgID, bool) = 0;
 };
 }
 

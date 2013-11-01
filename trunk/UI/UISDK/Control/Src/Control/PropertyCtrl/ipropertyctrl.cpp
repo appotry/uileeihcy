@@ -19,13 +19,14 @@ IPropertyCtrlGroupItem*  IPropertyCtrl::InsertGroupItem(const TCHAR* szName, con
     return m_pPropertyCtrlImpl->InsertGroupItem(szName, szDesc, pParent, pInsertAfter, nInsertFlags);
 }
 
-IPropertyCtrlEditItem*   IPropertyCtrl::InsertEditProperty(const TCHAR* szKey, const TCHAR* szValue, const TCHAR* szDesc, 
+IPropertyCtrlEditItem*   IPropertyCtrl::InsertEditProperty(const TCHAR* szText, const TCHAR* szValue, const TCHAR* szDesc, const TCHAR* szKey, 
                                             IListItemBase* pParentItem, IListItemBase* pInsertAfter, LISTITEM_OPFLAGS nInsertFlags)
 {
-    return m_pPropertyCtrlImpl->InsertEditProperty(szKey, szValue, szDesc, pParentItem, pInsertAfter, nInsertFlags);
+    return m_pPropertyCtrlImpl->InsertEditProperty(szText, szValue, szDesc, szKey, pParentItem, pInsertAfter, nInsertFlags);
 }
 
 
 void  IPropertyCtrlEditItem::SetValueText(const TCHAR* szText)    { m_pPropertyCtrlEditItemImpl->SetValueText(szText); }
 void  IPropertyCtrlEditItem::SetDefaultValueText(const TCHAR* szText)  { m_pPropertyCtrlEditItemImpl->SetDefaultValueText(szText); }
+void  IPropertyCtrlEditItem::SetKeyText(const TCHAR* szText)      { m_pPropertyCtrlEditItemImpl->SetKeyText(szText); }
 }

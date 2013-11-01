@@ -6,6 +6,7 @@
 #include "UISDK\Control\Inc\Interface\imenu.h"
 #include "UISDK\Kernel\Inc\Interface\irenderlayer.h"
 #include "UISDK\Control\Inc\Interface\iflashwrap.h"
+#include "UISDK\Kernel\Inc\Interface\iskindatasource.h"
 #include "App\IM\IM_Ctrls\inc\iqqloginaccountcombobox.h"
 #include "UISDK\Control\Inc\Interface\ilabel.h"
 #include "LoginUI.h"
@@ -52,7 +53,7 @@ CLoginDlg::~CLoginDlg(void)
 
 void CLoginDlg::OnInitWindow()
 {
-    ICustomWindow::xProcessMessage(GetCurMsg(), 0, 0);
+    ICustomWindow::nvProcessMessage(GetCurMsg(), 0, 0);
 
     m_pAccoutCombobox = (IQQLoginAccountComboBox*)FindChildObject(_T("combo_account"));
     m_pPanelLogin = (UI::IPanel*)FindChildObject(_T("panel_login"));
@@ -133,16 +134,73 @@ void  CLoginDlg::InitFlash()
     time(&t);
     tm* ptm = localtime(&t);
 
+    String strUri;
+    String strFlashFileName;
     if (ptm->tm_hour < 6)
-        m_pFlashCtrl->SetFlashUri(_T("skin\\2012\\img\\login\\night.swf"));
+    {
+        strUri = _T("img\\login\\night.swf");
+        strFlashFileName = _T("night.swf");
+    }
     else if (ptm->tm_hour < 9)
-        m_pFlashCtrl->SetFlashUri(_T("skin\\2012\\img\\login\\morning.swf"));
+    {
+        strUri = _T("img\\login\\morning.swf");
+        strFlashFileName = _T("morning.swf");
+    }
     else if (ptm->tm_hour < 17)
-        m_pFlashCtrl->SetFlashUri(_T("skin\\2012\\img\\login\\noon.swf"));
+    {
+        strUri = _T("img\\login\\noon.swf");
+        strFlashFileName = _T("noon.swf");
+    }
     else if (ptm->tm_hour < 19)
-        m_pFlashCtrl->SetFlashUri(_T("skin\\2012\\img\\login\\afternoon.swf"));
+    {
+        strUri = _T("img\\login\\afternoon.swf");
+        strFlashFileName = _T("afternoon.swf");
+    }
     else
-        m_pFlashCtrl->SetFlashUri(_T("skin\\2012\\img\\login\\night.swf"));
+    {
+        strUri = _T("img\\login\\night.swf");
+        strFlashFileName = _T("night.swf");
+    }
+
+    UI::ISkinDataSource* pDataSource = GetUIApplication()->GetActiveSkinRes()->GetDataSource();
+    UI::SKIN_PACKET_TYPE eType = pDataSource->GetType();
+    if (eType == UI::SKIN_PACKET_TYPE_DIR)
+    {
+        strUri.insert(0, _T("skin\\2012\\"));
+        m_pFlashCtrl->SetFlashUri((BSTR)strUri.c_str());
+    }
+    else
+    {
+        // 从zip文件中解压出来放到临时目录下面
+        UI::IStreamBufferReader* pBuffer = NULL;
+        pDataSource->Load_StreamBuffer(strUri.c_str(), &pBuffer);
+        
+        // Get the temp path.
+        TCHAR szTempPath[MAX_PATH] = {0};
+        TCHAR szTempFileName[MAX_PATH] = {0};
+        GetTempPath(MAX_PATH, szTempPath); 
+        int nLength = _tcslen(szTempPath);
+        UIASSERT(nLength > 0);
+        if (szTempPath[nLength-1] == _T('\\'))
+            _tcscat(szTempPath, _T("uileeihcy_im\\"));
+        else
+            _tcscat(szTempPath, _T("\\uileeihcy_im\\"));
+
+        CreateDirectory(szTempPath, NULL);
+
+        // Create a temporary file. 
+        //if (0 != GetTempFileName(szTempPath, _T("swf_"), 0, szTempFileName))
+        _tcscpy(szTempFileName, szTempPath);
+        _tcscat(szTempFileName, strFlashFileName.c_str());
+        {
+            if (!PathFileExists(szTempFileName))
+                pBuffer->save(szTempFileName);
+            
+             m_pFlashCtrl->SetFlashUri(szTempFileName);
+        }
+
+        SAFE_RELEASE(pBuffer);
+    }
 }
 
 void  CLoginDlg::Show()

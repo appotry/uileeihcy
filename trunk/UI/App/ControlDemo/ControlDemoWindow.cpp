@@ -20,7 +20,7 @@ CControlDemoWindow::~CControlDemoWindow(void)
 
 void CControlDemoWindow::OnInitWindow()
 {
-    __super::xProcessMessage(GetCurMsg(), 0, 0);
+    __super::nvProcessMessage(GetCurMsg(), 0, 0);
 
     HRESULT hr = SetCanDrop(true);
     UIASSERT(SUCCEEDED(hr));

@@ -136,13 +136,7 @@ void  ContactListContactItem::InitInnerCtrl()
     m_pPanelHigh->AddChild(m_pString_Remark);
     m_pPanelLow->AddChild(m_pString_Moodphrase);
 
-    // 2. Layout
-    m_pImage_Portrait->SetConfigLeft(0);
-    m_pImage_Portrait->SetConfigTop(0);
-    m_pImage_Portrait->SetConfigRight(0);
-    m_pImage_Portrait->SetConfigBottom(0);
-
-    // 3. Attribute
+    // 2. Attribute
     m_pString_NickName->SetTextRender(m_pShareData->m_pTextRender1);
     m_pString_Remark->SetTextRender(m_pShareData->m_pTextRender2);
     m_pString_Moodphrase->SetTextRender(m_pShareData->m_pTextRender2);
@@ -166,6 +160,11 @@ void  ContactListContactItem::UpdadteBigFaceLayout()
     m_pPanelLeft->SetConfigTop(7);
     m_pPanelLeft->SetLayoutType(UI::LAYOUT_TYPE_CANVAS);
 
+    m_pImage_Portrait->SetConfigLeft(0);
+    m_pImage_Portrait->SetConfigTop(0);
+    m_pImage_Portrait->SetConfigRight(0);
+    m_pImage_Portrait->SetConfigBottom(0);
+
     m_pPanelRight->SetConfigLeft(55);
     m_pPanelRight->SetConfigRight(0);
     m_pPanelRight->SetConfigTop(0);
@@ -183,22 +182,27 @@ void  ContactListContactItem::UpdadteBigFaceLayout()
     m_pPanelLow->SetConfigLeft(0);
     m_pPanelLow->SetConfigTop(30);
     m_pPanelLow->SetConfigHeight(20);
-    m_pPanelLow->SetConfigRight(-1);
+    m_pPanelLow->SetConfigRight(-1); 
     m_pPanelLow->SetLayoutType(UI::LAYOUT_TYPE_STACK);
 }
 void  ContactListContactItem::UpdadteSmallFaceLayout()
 {
+    m_pPanelLeft->SetLayoutType(UI::LAYOUT_TYPE_CANVAS);
     m_pPanelLeft->SetConfigWidth(20);
     m_pPanelLeft->SetConfigHeight(20);
     m_pPanelLeft->SetConfigLeft(5);
     m_pPanelLeft->SetConfigTop(5);
-    m_pPanelLeft->SetLayoutType(UI::LAYOUT_TYPE_CANVAS);
 
+    m_pImage_Portrait->SetConfigLeft(0);
+    m_pImage_Portrait->SetConfigTop(0);
+    m_pImage_Portrait->SetConfigRight(0);
+    m_pImage_Portrait->SetConfigBottom(0);
+    
+    m_pPanelRight->SetLayoutType(UI::LAYOUT_TYPE_STACK);
     m_pPanelRight->SetConfigLeft(30);
     m_pPanelRight->SetConfigRight(0);
     m_pPanelRight->SetConfigTop(0);
     m_pPanelRight->SetConfigBottom(0);
-    m_pPanelRight->SetLayoutType(UI::LAYOUT_TYPE_STACK);
 
     m_pPanelHigh->SetConfigLeft(0);
     m_pPanelHigh->SetConfigTop(7);

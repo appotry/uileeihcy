@@ -21,7 +21,7 @@ HRESULT  QQLoginAccountComboBox::FinalConstruct(UI::IUIApplication* p)
 	IQQLoginAccountListBox* pListBox = NULL;
     IQQLoginAccountListBox::CreateInstance(p, &pListBox);
     pListBox->SetID(COMBOBOX_LIST_ID);
-    pListBox->ModifyStyleEx(LISTCTRLBASE_STYLE_SELECT_AS_HOVER_MODE, 0, true);
+    pListBox->ModifyStyleEx(LISTCTRLBASE_STYLE_POPUPLISTBOX, 0, true);
 	pListBox->SetBindObject(m_pIQQLoginAccountComboBox);
     pListBox->AddHook(m_pIQQLoginAccountComboBox, 0, COMBOBOX_LISTBOX_MSG_HOOK_MSG_ID);
     pListBox->SetNotify(m_pIQQLoginAccountComboBox, COMBOBOX_LISTBOX_MSG_NOTIFY_MSG_ID);
@@ -48,7 +48,7 @@ void  QQLoginAccountComboBox::ResetAttribute()
 {
     DO_PARENT_PROCESS(IQQLoginAccountComboBox, UI::IComboBoxBase);
     if (m_pDropDownCtrl)
-        m_pDropDownCtrl->ModifyStyleEx(LISTCTRLBASE_STYLE_SORT_ASCEND|LISTCTRLBASE_STYLE_SELECT_AS_HOVER_MODE, 0, false);
+        m_pDropDownCtrl->ModifyStyleEx(LISTCTRLBASE_STYLE_SORT_ASCEND|LISTCTRLBASE_STYLE_POPUPLISTBOX, 0, false);
 }
 
 

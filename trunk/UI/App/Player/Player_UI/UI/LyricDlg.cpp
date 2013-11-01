@@ -12,7 +12,7 @@ CLyricDlg::CLyricDlg()
 
 void CLyricDlg::OnInitWindow()
 {
-    ICustomWindow::xProcessMessage(GetCurMsg(), 0, 0);
+    ICustomWindow::nvProcessMessage(GetCurMsg(), 0, 0);
     this->SetWindowResizeType(WRSB_ALL);
 
     this->LoadCtrls();

@@ -27,6 +27,10 @@ IListItemBase*  IMenu::AppendPopup(const TCHAR* szText, UINT nId, IMenu* pSubMen
 
 int   IMenu::TrackPopupMenu(UINT nFlag, int x, int y, IMessage* pNotifyObj) { return m_pMenuImpl->TrackPopupMenu(nFlag, x, y, pNotifyObj); }
 
+IWindow*  IMenu::GetPopupWindow()
+{
+	return m_pMenuImpl->GetPopupWindow();
+}
 #if 0
 UI_IMPLEMENT_Ixxx_INTERFACE2(IMenuItemBase, MenuItemBase, IListItemBase)
 UI_IMPLEMENT_Ixxx_INTERFACE(IMenuItem, MenuItem, MenuItemBase)

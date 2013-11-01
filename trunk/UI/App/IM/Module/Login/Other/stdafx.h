@@ -11,6 +11,8 @@
 // Windows Header Files:
 #include <windows.h>
 #include <tchar.h>
+#include <Shlwapi.h>
+#pragma comment(lib, "shlwapi.lib")
 
 #include "App\IM\include\framework_inc.h"
 #pragma comment(lib, "framework.lib")

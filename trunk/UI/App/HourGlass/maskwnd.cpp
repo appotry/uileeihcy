@@ -29,7 +29,7 @@ CMaskWnd::~CMaskWnd()
 
 void  CMaskWnd::OnInitialize()
 {
-	__super::xProcessMessage(GetCurMsg(), 0, 0);
+	__super::nvProcessMessage(GetCurMsg(), 0, 0);
 
 	SetWindowResizeType(0);
 	m_pBtn = (UI::IButton*)FindChildObject(_T("idok"));
@@ -70,7 +70,7 @@ void  CMaskWnd::OnBtnClick(IMessage* pMsgFrom)
 
 BOOL  CMaskWnd::PreCreateWindow(CREATESTRUCT* pcs)
 {
-	__super::xProcessMessage(GetCurMsg(), 0, 0);
+	__super::nvProcessMessage(GetCurMsg(), 0, 0);
 
 #ifdef _DEBUG
 	pcs->dwExStyle |= WS_EX_TOOLWINDOW;

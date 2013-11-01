@@ -84,7 +84,7 @@ protected:
 };
 
 #define DO_PARENT_PROCESS(IMyInterface, IParentInterface) \
-    static_cast<IParentInterface*>(m_p##IMyInterface)->xProcessMessage(GetCurMsg(), 0, 0)
+    static_cast<IParentInterface*>(m_p##IMyInterface)->nvProcessMessage(GetCurMsg(), 0, 0)
 
 }
 

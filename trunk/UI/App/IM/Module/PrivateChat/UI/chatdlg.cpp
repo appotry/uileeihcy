@@ -48,7 +48,7 @@ CChatDlg::~CChatDlg(void)
 
 void CChatDlg::OnInitWindow()
 {
-    ICustomWindow::xProcessMessage(GetCurMsg(), 0, 0);
+    ICustomWindow::nvProcessMessage(GetCurMsg(), 0, 0);
     this->SetWindowResizeType(WRSB_ALL);
 
 	m_pLeftPanel = (UI::IPanel*)this->FindChildObject(_T("panel_left"));

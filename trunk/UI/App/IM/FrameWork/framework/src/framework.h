@@ -56,7 +56,7 @@ public:
 
 public:
     void  UIThread();
-    void  InitUI();
+    bool  InitUI();
     void  UninitUI();
 
     void  BizThread();
