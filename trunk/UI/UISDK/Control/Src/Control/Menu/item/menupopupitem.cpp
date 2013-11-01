@@ -99,6 +99,7 @@ void  MenuPopupItem::OnInitialize()
 
 		SERIALIZEDATA data = {0};
 		data.pMapAttrib = pMapAttrib;
+		data.nFlag = SERIALIZEFLAG_LOAD;
 		UISendMessage(m_pShareData->GetIMenuPopupItemShareData(), UI_WM_SERIALIZE, (WPARAM)&data);
 //        UISendMessage(m_pShareData->GetIMenuPopupItemShareData(), UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, 0);
         SAFE_RELEASE(pMapAttrib);

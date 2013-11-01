@@ -24,7 +24,7 @@ CEqualizerDlg::CEqualizerDlg()
 }
 void CEqualizerDlg::OnInitWindow( )
 {
-	ICustomWindow::xProcessMessage(GetCurMsg(), 0, 0);
+	ICustomWindow::nvProcessMessage(GetCurMsg(), 0, 0);
 
     m_pBalance = (UI::ISliderCtrl*)this->FindChildObject(_T("progress_pan"));
 	m_p3DSound = (UI::ISliderCtrl*)this->FindChildObject(_T("progress_3d"));

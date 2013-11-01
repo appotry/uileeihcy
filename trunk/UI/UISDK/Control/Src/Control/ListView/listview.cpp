@@ -30,12 +30,6 @@ HRESULT  ListView::FinalConstruct(IUIApplication* p)
 	{
 		m_pIListView->AddNcChild(m_pHeaderCtrl);
 		m_pHeaderCtrl->SetNotify(m_pIListView, 0);
-
-        // TODO: 这样的代码逻辑能去优化吗
-        // 避免header list ctrl在调用ListCtrlBase::UpdateItemRect时被认为是自适应大小而进入UpdateLayout分支  
-        // 导致header拖拽失败
-        m_pHeaderCtrl->SetConfigWidth(0);
-        m_pHeaderCtrl->SetConfigHeight(24);
 	}
 	return S_OK;
 }
@@ -258,7 +252,7 @@ void ListView::UpdateHeaderCtrlPos()
 		int nHeaderCtrlHeight = m_pHeaderCtrl->GetHeight();
 		if (0 == nHeaderCtrlHeight)
 		{
-			nHeaderCtrlHeight = m_pHeaderCtrl->GetDesiredSize().cy;
+			nHeaderCtrlHeight = 24;//m_pHeaderCtrl->GetDesiredSize().cy;
 		}
 		CRegion4 r;
 		m_pIListView->GetNonClientRegion(&r);

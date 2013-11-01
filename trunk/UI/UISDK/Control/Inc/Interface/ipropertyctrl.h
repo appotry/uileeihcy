@@ -50,6 +50,10 @@ struct PROPERTYCTRL_EDIT_ITEM_ACCEPTCONTENT
 // WPARAM: const TCHAR* szText
 #define UI_PROPERTYCTRLITEM_MSG_SETDEFAULTVALUESTRING  130202239
 
+// 外部给IListItemBase发送消息，获取key字段
+// Return: const TCHAR* szText
+#define UI_PROPERTYCTRLITEM_MSG_GETKEYSTRING  132311511
+
 class PropertyCtrlEditItemShareData;
 interface IPropertyCtrlEditItemShareData : public IListItemTypeShareData
 {
@@ -63,6 +67,7 @@ interface UICTRLAPI IPropertyCtrlEditItem : public IListItemBase
 
     void  SetValueText(const TCHAR* szText);
 	void  SetDefaultValueText(const TCHAR* szText);
+	void  SetKeyText(const TCHAR* szText);
 };
 
 
@@ -81,10 +86,8 @@ interface UICTRLAPI IPropertyCtrl : public ITreeView
     IPropertyCtrlGroupItem*  InsertGroupItem(const TCHAR* szName, const TCHAR* szDesc, 
         IListItemBase* pParent = UITVI_ROOT, IListItemBase* pInsertAfter = UITVI_LAST, LISTITEM_OPFLAGS nInsertFlags=0);
 
-    IPropertyCtrlEditItem*   InsertEditProperty(const TCHAR* szKey, const TCHAR* szValue, const TCHAR* szDesc, 
+    IPropertyCtrlEditItem*   InsertEditProperty(const TCHAR* szText, const TCHAR* szValue, const TCHAR* szDesc, const TCHAR* szKey,
         IListItemBase* pParentItem, IListItemBase* pInsertAfter = UITVI_LAST, LISTITEM_OPFLAGS nInsertFlags=0);
-
-
 };
 
 }

@@ -40,6 +40,8 @@ public:
         UIMSG_WM_NOTIFY(UI_EN_RETURN, OnEditReturn)
 		UIMESSAGE_HANDLER_EX(UI_PROPERTYCTRLITEM_MSG_SETVALUESTRING, OnSetValue)
 		UIMESSAGE_HANDLER_EX(UI_PROPERTYCTRLITEM_MSG_SETDEFAULTVALUESTRING, OnSetDefaultValue)
+        UIMESSAGE_HANDLER_EX(UI_PROPERTYCTRLITEM_MSG_GETKEYSTRING, OnGetKey)
+
         UIMSG_WM_QUERYINTERFACE(QueryInterface)
         UIMSG_WM_INITIALIZE(OnInitialize)
     UI_END_MSG_MAP_CHAIN_PARENT_Ixxx(PropertyCtrlEditItem, IListItemBase)
@@ -52,6 +54,7 @@ public:
 
     void  SetValueText(const TCHAR* szText);
 	void  SetDefaultValueText(const TCHAR* szText);
+	void  SetKeyText(const TCHAR* szText);
 
 protected:
     void  OnInitialize();
@@ -62,6 +65,7 @@ protected:
 	LRESULT  OnSetDefaultValue(UINT uMsg, WPARAM wParam, LPARAM lParam);
     LRESULT  OnEditEsc(WPARAM w, LPARAM l);
     LRESULT  OnEditReturn(WPARAM w, LPARAM l);
+    LRESULT  OnGetKey(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 protected:
     void  BeginEdit();
@@ -72,8 +76,9 @@ private:
     IPropertyCtrlEditItem*  m_pIPropertyCtrlEditItem;
     PropertyCtrlEditItemShareData*  m_pShareData;
 
-    String  m_strValue;
-	String  m_strDefautValue;
+    String  m_strValue;  // 该项在xml中的属性值
+	String  m_strDefautValue;  // 该项的默认值
+	String  m_strKey;    // 该项在xml中的属性字段名称, m_strText表示该项在控件上面显示的值，不一定是xml中的值
 };
 
 }

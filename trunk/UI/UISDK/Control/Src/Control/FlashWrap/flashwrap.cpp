@@ -499,6 +499,12 @@ HRESULT FlashWrap::CallFlashFunction(const TCHAR* szFuncName, const TCHAR* szArg
 	if (NULL == m_pFlash)
 		return E_FAIL;
 
+    long lVertion = 0;
+    m_pFlash->FlashVersion(&lVertion);
+    int nMajor = HIWORD(lVertion);
+    if (nMajor < 9)  // 在这里至少要求9.0以上版本才让调用，具体值是多少没查到
+        return E_FAIL;
+
 	String  str = _T("<invoke name='");
 	str.append(szFuncName);
 	str.append(_T("' returntype='xml'><arguments>"));

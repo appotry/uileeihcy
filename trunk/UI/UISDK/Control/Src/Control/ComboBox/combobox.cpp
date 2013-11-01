@@ -465,7 +465,7 @@ HRESULT  ComboBox::FinalConstruct(IUIApplication* p)
     if (m_pDropDownCtrl)
     {
         m_pDropDownCtrl->SetID(COMBOBOX_LIST_ID);
-    	m_pDropDownCtrl->ModifyStyleEx(LISTCTRLBASE_STYLE_SELECT_AS_HOVER_MODE, 0, true);
+    	m_pDropDownCtrl->ModifyStyleEx(LISTCTRLBASE_STYLE_POPUPLISTBOX, 0, true);
         m_pDropDownCtrl->SetBindObject(m_pIComboBox);
         m_pDropDownCtrl->AddHook(m_pIComboBox, 0, COMBOBOX_LISTBOX_MSG_HOOK_MSG_ID);
         m_pDropDownCtrl->SetNotify(m_pIComboBox, COMBOBOX_LISTBOX_MSG_HOOK_MSG_ID);

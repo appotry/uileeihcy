@@ -18,7 +18,7 @@
 						<Button id="btn_onlinestate" styleclass="imagebtn" iconalign="center" width="20" height="20" layout.align="bottom" bkgnd.render.image="btn_login_state.png" bkgnd.render.image.drawtype="stretch" foregnd.render.type="imagelistitem" foregnd.render.image="login_status" foregnd.render.imagelistitem.index="0"/>
 						<LEDExCtrl id="level" margin="0,0,0,2" layout.align="bottom" text="L48" padding="4" indexmap="L0123456789" posmap="0,10;10,16;16,6;22,6;28,6;34,6;40,6;46,6;52,6;58,6;64,6" bkgnd.render.type="imagelist" bkgnd.render.image="btn_login_state.png" bkgnd.render.image.drawtype="stretch" bkgnd.render.image.9region="5" bkgnd.render.imagelist.alphaanimate="1" foregnd.render.type="image" foregnd.render.image="level_icon" foregnd.render.image.drawtype="center"/>
 					</Panel>
-					<Label id="nickname" text="李波" textrender.font="main_dlg_nickname" textrender.type="contrastcolor" textrender.effect="halo"/>
+					<Label id="nickname" text="飞翔的企鹅" textrender.font="main_dlg_nickname" textrender.type="contrastcolor" textrender.effect="halo"/>
 				</Panel>
 			</Panel>
 			<!-- 工具条 -->

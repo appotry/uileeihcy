@@ -2089,7 +2089,7 @@ void  MenuTextThemeRender::SetAttribute(SetAttrPrefixData* pData)
     IMapAttribute* pMapAttrib = pData->pMapAttrib;
     const TCHAR* szPrefix = pData->szPrefix;
 
-    IThemeTextRenderBase::xProcessMessage(GetCurMsg(), 0, 0);
+    IThemeTextRenderBase::nvProcessMessage(GetCurMsg(), 0, 0);
 
     IUIApplication* pUIApp = GetObject()->GetUIApplication();
     if (NULL == pUIApp)
@@ -2257,7 +2257,7 @@ void  ListViewThemeTextRender::SetAttribute(SetAttrPrefixData* pData)
     IMapAttribute* pMapAttrib = pData->pMapAttrib;
     const TCHAR* szPrefix = pData->szPrefix;
 
-    IThemeTextRenderBase::xProcessMessage(GetCurMsg(), 0, 0);
+    IThemeTextRenderBase::nvProcessMessage(GetCurMsg(), 0, 0);
 
     IUIApplication* pUIApp = GetObject()->GetUIApplication();
     if (NULL == pUIApp)

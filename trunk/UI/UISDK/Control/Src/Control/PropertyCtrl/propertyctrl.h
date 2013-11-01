@@ -42,9 +42,10 @@ public:
         LISTITEM_OPFLAGS nInsertFlags=0);
 
     IPropertyCtrlEditItem*   InsertEditProperty(
-        const TCHAR* szKey, 
+        const TCHAR* szText, 
         const TCHAR* szValue, 
         const TCHAR* szDesc, 
+		const TCHAR* szKey,
         IListItemBase* pParentItem, 
         IListItemBase* pInsertAfter = UITVI_LAST, 
         LISTITEM_OPFLAGS nInsertFlags=0);

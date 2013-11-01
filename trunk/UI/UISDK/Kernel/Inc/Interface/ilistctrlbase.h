@@ -11,6 +11,7 @@ interface IListCtrlLayout;
 interface IListItemTypeShareData;
 
 typedef bool (*ListItemCompareProc)(IListItemBase* p1, IListItemBase* p2);
+typedef bool (*ListItemEnumProc)(IListItemBase* pItem, WPARAM, LPARAM);   // ∑µªÿfalse ±Õ£÷πenum
 
 enum LISTITEM_VISIBLE_POS_TYPE
 {
@@ -166,6 +167,7 @@ interface UISDKAPI IListCtrlBase : public IControl
     IListItemBase*  GetFirstDrawItem();
     IListItemBase*  GetLastDrawItem();
     IListItemBase*  FindVisibleItemFrom(IListItemBase* pFindFrom=NULL);
+    IListItemBase*  EnumItemByProc(ListItemEnumProc pProc, IListItemBase* pEnumFrom = NULL, WPARAM w = 0, LPARAM l = 0);
 
     IListItemBase*  GetFirstSelectItem();
     IListItemBase*  GetLastSelectItem();

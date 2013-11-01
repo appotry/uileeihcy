@@ -14,7 +14,7 @@ public:
 	~TrayIcon();
 
 	virtual HRESULT  AddTrayIcon(HWND hWndNotify, HICON hIcon, BSTR bstrToolTip);
-	virtual BOOL  xProcessMessage(UIMSG* pMsg, UINT nMsgID, bool);
+	virtual BOOL  nvProcessMessage(UIMSG* pMsg, UINT nMsgID, bool);
 
     virtual long  AddRef(void);
     virtual long  Release(void);

@@ -42,6 +42,7 @@ interface IStreamBufferReader
     virtual int   read(char* pread, int nread) = 0;
     virtual void  seek(int npos, ios_base::seek_dir dir) = 0;
     virtual int   tell() = 0;
+    virtual bool  save(const TCHAR* szPath) = 0;
 };
 
 interface IFileBufferReader : public IStreamBufferReader

@@ -100,6 +100,7 @@ HRESULT  Menu::UIParseLayoutElement(IUIElement* pElem, IUIApplication*  pUIApp, 
 
 	SERIALIZEDATA data = {0};
 	data.pMapAttrib = pMapAttrib;
+	data.nFlag = SERIALIZEFLAG_LOAD;
 	UISendMessage(pIMenu, UI_WM_SERIALIZE, (WPARAM)&data);
 //    UISendMessage(pIMenu, UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, (LPARAM)false);
     SAFE_RELEASE(pMapAttrib);
@@ -189,6 +190,7 @@ IListItemBase* Menu::LoadMenuItem(IUIElement* pUIElement, const TCHAR* szTagName
 
 			SERIALIZEDATA data = {0};
 			data.pMapAttrib = pMapAttrib;
+			data.nFlag = SERIALIZEFLAG_LOAD;
 			UISendMessage(pItem, UI_WM_SERIALIZE, (WPARAM)&data);
 //            UISendMessage(pItem, UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, (LPARAM)false);
         }
@@ -201,6 +203,7 @@ IListItemBase* Menu::LoadMenuItem(IUIElement* pUIElement, const TCHAR* szTagName
         {
 			SERIALIZEDATA data = {0};
 			data.pMapAttrib = pMapAttrib;
+			data.nFlag = SERIALIZEFLAG_LOAD;
 			UISendMessage(pItem, UI_WM_SERIALIZE, (WPARAM)&data);
 //            UISendMessage(pItem, UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, (LPARAM)false);
         }
@@ -244,6 +247,7 @@ IListItemBase* Menu::LoadMenuItem(IUIElement* pUIElement, const TCHAR* szTagName
 
 			SERIALIZEDATA data = {0};
 			data.pMapAttrib = pMapAttrib;
+			data.nFlag = SERIALIZEFLAG_LOAD;
 			UISendMessage(pItem, UI_WM_SERIALIZE, (WPARAM)&data);
 //            UISendMessage(pItem, UI_WM_SETATTRIBUTE, (WPARAM)pMapAttrib, (LPARAM)false);
         }
@@ -326,6 +330,7 @@ HRESULT  Menu::FinalConstruct(IUIApplication* p)
     MenuItemLayout* pLayout = NULL;
     MenuItemLayout::CreateInstance(&pLayout);
     m_pIMenu->SetLayout(pLayout);
+	m_pIMenu->ModifyStyleEx(LISTCTRLBASE_STYLE_MENU, 0, true);
 
     return S_OK;
 }
@@ -530,6 +535,10 @@ int  Menu::TrackPopupMenu(UINT nFlag, int x, int y, IMessage* pNotifyObj)
     return m_nRetCmd;
 }
 
+void  Menu::SetReturnCmd(UINT n) 
+{
+	m_nRetCmd = n; 
+}
 
 HWND Menu::GetPopupWindowHandle()
 {
@@ -538,6 +547,10 @@ HWND Menu::GetPopupWindowHandle()
         return NULL;
     }
     return m_pPopupWrapWnd->GetHWND();
+}
+IWindow*  Menu::GetPopupWindow()
+{
+	return m_pPopupWrapWnd;
 }
 
 Menu* Menu::GetRootMenu()
@@ -899,15 +912,24 @@ void Menu::OnLButtonUp(UINT nFlags, POINT point)
 {
     SetMsgHandled(FALSE);
 
-    IListItemBase* pSavePress = m_pIMenu->GetPressItem();
-    IListItemBase* pSaveHover = m_pIMenu->GetHoverItem();
-    if (pSavePress && pSavePress == pSaveHover)
-    {
-        if (pSavePress->IsDisable())
-            return;
+//     IListItemBase* pSavePress = m_pIMenu->GetPressItem();
+//     IListItemBase* pSaveHover = m_pIMenu->GetHoverItem();
+//     if (pSavePress && pSavePress == pSaveHover)
+//     {
+//         if (pSavePress->IsDisable())
+//             return;
+// 
+//         OnClick(pSavePress);
+//     }
 
-        OnClick(pSavePress);
-    }
+	IListItemBase* pSaveHover = m_pIMenu->GetHoverItem();
+	if (pSaveHover)
+	{
+		if (pSaveHover->IsDisable())
+			return;
+
+		OnClick(pSaveHover);
+	}
 }
 
 int  Menu::PopupSubMenu(IListItemBase* pItem)

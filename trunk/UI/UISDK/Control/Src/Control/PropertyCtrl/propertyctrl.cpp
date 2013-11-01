@@ -114,9 +114,10 @@ IPropertyCtrlGroupItem*  PropertyCtrl::InsertGroupItem(
 }
 
 IPropertyCtrlEditItem*  PropertyCtrl::InsertEditProperty(
-                                            const TCHAR* szKey, 
+                                            const TCHAR* szText, 
                                             const TCHAR* szValue, 
                                             const TCHAR* szDesc, 
+											const TCHAR* szKey,
                                             IListItemBase* pParentItem, 
                                             IListItemBase* pInsertAfter, 
                                             LISTITEM_OPFLAGS nInsertFlags)
@@ -135,9 +136,10 @@ IPropertyCtrlEditItem*  PropertyCtrl::InsertEditProperty(
     IPropertyCtrlEditItem*  pItem = NULL;
     IPropertyCtrlEditItem::CreateInstance(m_pIPropertyCtrl->GetUIApplication(), &pItem);
 
-    pItem->SetText(szKey);
+    pItem->SetText(szText);
     pItem->SetToolTip(szDesc);
     pItem->SetValueText(szValue);
+	pItem->SetKeyText(szKey);
 
     if (false == m_pIPropertyCtrl->InsertItem(pItem, pParentItem, pInsertAfter, nInsertFlags))
     {

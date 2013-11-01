@@ -62,6 +62,7 @@ public:
     Menu*  GetMenuByHWND(HWND hWnd);
     Menu*  GetMenuByPos(const POINT& ptScreen);
     HWND   GetPopupWindowHandle();
+	IWindow*  GetPopupWindow();
     int    GetIconGutterWidth()
     {
         return m_nIconGutterWidth;
@@ -96,7 +97,7 @@ protected:
 protected:
     IListItemBase*  LoadMenuItem(IUIElement* pUIElement, const TCHAR* szTagName, IMapAttribute* pMapAttrib);
 
-    void  SetReturnCmd(UINT n) { m_nRetCmd = n; }
+    void  SetReturnCmd(UINT n);
     bool  IsMyChildMenu(Menu* pMenu);
     void  OnClick(IListItemBase* pItem);
 

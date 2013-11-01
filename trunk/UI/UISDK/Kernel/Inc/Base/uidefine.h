@@ -302,7 +302,8 @@ inline CONTROL_TYPE GetObjectExtentType(int type) { return  (CONTROL_TYPE)((type
 #define LISTCTRLBASE_STYLE_SORT_ASCEND        0x0100    // 升序排序
 #define LISTCTRLBASE_STYLE_SORT_DESCEND       0x0200    // 降序排序
 #define LISTCTRLBASE_STYLE_MULTIPLE_SEL       0x0400    // 是否支持多选
-#define LISTCTRLBASE_STYLE_SELECT_AS_HOVER_MODE 0x0800  // 例如弹出式listbox，1.鼠标按下时不选择，鼠标弹起时选择 2. 当没有hover时显示sel 3. 当有hover时显示hover 4. 鼠标移出控件时不取消hover
+#define LISTCTRLBASE_STYLE_POPUPLISTBOX       0x0800    // 弹出式listbox式鼠标管理器，1.鼠标按下时不选择，鼠标弹起时选择 2. 当没有hover时显示sel 3. 当有hover时显示hover 4. 鼠标移出控件时不取消hover
+#define LISTCTRLBASE_STYLE_MENU               0x1000    // 菜单式鼠标管理器，1. 鼠标弹起时，如果不在pressitem上，则不触发click
 
 // 换色
 #define MIN_HUE_VALUE           0              // 色调  HLS范围定义
@@ -356,21 +357,6 @@ struct DROPTARGETEVENT_DATA
     UI_DECLARE_Ixxx_INTERFACE_ProcessMessage(interfacename, classname) \
     UI_DECLARE_Ixxx_INTERFACE_CreateImpl(interfacename, classname)
 
-// public:                                    \
-//     interfacename();                       \
-// protected:                                 \
-//     ~interfacename();                      \
-// public:                                    \
-//     void  CreateImpl(classname* p=NULL);   \
-//     classname*  GetImpl();                 \
-//     BOOL  xProcessMessage(UI::UIMSG* pMsg, int nMsgMapID, bool bDoHook); \
-// private:                                   \
-//     BOOL  virtualProcessMessage(UI::UIMSG* pMsg, int nMsgMapID, bool bDoHook); \
-// protected:                                 \
-//     classname*  m_p##classname##Impl;      \
-//     BOOL  m_bCreate##classname##Impl;      \
-// public:
-
 #define UI_DECLARE_Ixxx_INTERFACE_Construct(interfacename, classname) \
 public:                                    \
     typedef UI::UIObjCreator<interfacename> _CreatorClass; \
@@ -396,7 +382,7 @@ protected:                                 \
 public:
 
 #define UI_DECLARE_Ixxx_INTERFACE_ProcessMessage(interfacename, classname) \
-    BOOL  xProcessMessage(UI::UIMSG* pMsg, int nMsgMapID, bool bDoHook); \
+    BOOL  nvProcessMessage(UI::UIMSG* pMsg, int nMsgMapID, bool bDoHook); \
 private:                                   \
     BOOL  virtualProcessMessage(UI::UIMSG* pMsg, int nMsgMapID, bool bDoHook); \
 public:
@@ -452,13 +438,13 @@ public:
     void  interfacename::delete_this() { delete this; }
 
 #define UI_IMPLEMENT_Ixxx_INTERFACE_ProcessMessage(interfacename, classname) \
-    BOOL  interfacename::xProcessMessage(UI::UIMSG* pMsg, int nMsgMapID, bool bDoHook) \
+    BOOL  interfacename::nvProcessMessage(UI::UIMSG* pMsg, int nMsgMapID, bool bDoHook) \
     {                                                       \
-        return m_p##classname##Impl->xProcessMessage(pMsg, nMsgMapID, bDoHook); \
+        return m_p##classname##Impl->nvProcessMessage(pMsg, nMsgMapID, bDoHook); \
     }                                                       \
     /*virtual*/ BOOL  interfacename::virtualProcessMessage(UI::UIMSG* pMsg, int nMsgMapID, bool bDoHook) \
     {                                                       \
-        return m_p##classname##Impl->xProcessMessage(pMsg, nMsgMapID, bDoHook); \
+        return m_p##classname##Impl->nvProcessMessage(pMsg, nMsgMapID, bDoHook); \
     }
 #define UI_IMPLEMENT_Ixxx_INTERFACE_CreateImpl(interfacename,classname,baseclass) \
     void  interfacename::CreateImpl(classname* p)           \

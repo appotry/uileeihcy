@@ -57,7 +57,7 @@ CSkinDlg::~CSkinDlg()
 
 void  CSkinDlg::OnInitialize()
 {
-    __super::xProcessMessage(GetCurMsg(), 0, 0);
+    __super::nvProcessMessage(GetCurMsg(), 0, 0);
 
     UI::IPanel*  pPanelTabSkin = (UI::IPanel*)this->FindChildObject(_T("tabpanel_skin"));
     UI::IPanel*  pPanelTabPlugin = (UI::IPanel*)this->FindChildObject(_T("tabpanel_uimgr"));

@@ -61,7 +61,7 @@ protected:
 	void  OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags );
 	void  ResetAttribute();
     void  SetAttribute(IMapAttribute* pMapAttr, bool bReload);
-	void  OnEditorGetAttrList(IUIEditor* pEditor, IUIEditorGroupAttribute*  pRootAttr);
+	void  OnEditorGetAttrList(EDITORGETOBJECTATTRLISTDATA* pData);
 
 	void  DrawFocus(IRenderTarget*);
 	void  OnClicked(POINT* pt);         // 自己被点击了（可在子类中用于设置当前check状态）
@@ -121,7 +121,7 @@ protected:
     HRESULT FinalConstruct(IUIApplication* p);
     void  ResetAttribute();
     void  SetAttribute(IMapAttribute* pMapAttrib, bool bReload);
-	void  OnEditorGetAttrList(IUIEditor* pEditor, IUIEditorGroupAttribute*  pRootAttr);
+	void  OnEditorGetAttrList(EDITORGETOBJECTATTRLISTDATA* pData);
     void  OnObjectLoaded();
     void  OnClicked();
 

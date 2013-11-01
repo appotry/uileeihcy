@@ -96,9 +96,9 @@ void  PropertyCtrlEditItem::OnPaint(IRenderTarget* pRenderTarget)
     pRenderTarget->DrawLine(rcLeft.right, rcLeft.top, rcLeft.right, rcLeft.bottom, pPen);
 
     // 一行的横线
-    IListItemBase* pNextItem = m_pIPropertyCtrlEditItem->GetNextVisibleItem();
-    if (NULL == pNextItem || 
-        (pNextItem && pNextItem->GetDepth() == m_pIPropertyCtrlEditItem->GetDepth()))
+//     IListItemBase* pNextItem = m_pIPropertyCtrlEditItem->GetNextVisibleItem();
+//     if (NULL == pNextItem || 
+//         (pNextItem && pNextItem->GetDepth() == m_pIPropertyCtrlEditItem->GetDepth()))
     {
         pRenderTarget->DrawLine(rcParent.left, rcParent.bottom-1, rcParent.right, rcParent.bottom-1, pPen);
     }
@@ -154,6 +154,16 @@ void  PropertyCtrlEditItem::OnSize(UINT nType, int cx, int cy)
     if (m_pIPropertyCtrlEditItem->IsSelected() && m_pShareData->pEditCtrl->IsMySelfVisible())
     {
         m_pShareData->pEditCtrl->SetConfigLeft((*m_pShareData->pSlitterLinePos) + 1);
+
+//         CRect rc;
+//         m_pIPropertyCtrlEditItem->GetParentRect(&rc);
+// 
+//         CRect rcEdit;
+//         rcEdit.left = (*m_pShareData->pSlitterLinePos) + 1;
+//         rcEdit.right = cx;
+//         rcEdit.top = rc.top+1;
+//         rcEdit.bottom = cy;
+//         m_pShareData->pEditCtrl->SetObjectPos(&rcEdit, SWP_NOREDRAW);
     }
     SetMsgHandled(FALSE);
 }
@@ -177,6 +187,14 @@ void  PropertyCtrlEditItem::SetDefaultValueText(const TCHAR* szText)
 		m_strDefautValue = szText;
 	else
 		m_strDefautValue.clear();
+}
+
+void  PropertyCtrlEditItem::SetKeyText(const TCHAR* szText)
+{
+	if (szText)
+		m_strKey = szText;
+	else
+		m_strKey.clear();
 }
 
 LRESULT  PropertyCtrlEditItem::OnStateChanged(UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -215,6 +233,11 @@ LRESULT  PropertyCtrlEditItem::OnSetDefaultValue(UINT uMsg, WPARAM wParam, LPARA
 	return 0;
 }
 
+LRESULT  PropertyCtrlEditItem::OnGetKey(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    return (LRESULT)m_strKey.c_str();
+}
+
 LRESULT  PropertyCtrlEditItem::OnEditEsc(WPARAM w, LPARAM l)
 {
     m_pShareData->pEditCtrl->SetText(m_strValue.c_str());
@@ -228,7 +251,7 @@ LRESULT  PropertyCtrlEditItem::OnEditReturn(WPARAM w, LPARAM l)
 
 	PROPERTYCTRL_EDIT_ITEM_ACCEPTCONTENT  param = {0};
 	param.pItem = m_pIPropertyCtrlEditItem;
-	param.szKey = m_pIPropertyCtrlEditItem->GetText();
+	param.szKey = m_strKey.c_str();
 	param.szNewValue = m_pShareData->pEditCtrl->GetText();
 	if (m_strDefautValue == param.szNewValue)
 		param.bDefault = true;

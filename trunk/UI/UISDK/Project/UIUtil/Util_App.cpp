@@ -136,6 +136,8 @@ bool InstallAutoRun(BOOL bInstall, TCHAR* szName, TCHAR* szPath)
 
 	return true;
 }
+
+// RegGetValue Requires Windows Vista or Windows XP Professional x64 Edition.
 bool QueryAutoRun(TCHAR* szName, TCHAR* szPath)
 {
 	if (!szName)
@@ -147,7 +149,8 @@ bool QueryAutoRun(TCHAR* szName, TCHAR* szPath)
 		return false;
 
 	long lSize = 0;
-	RegGetValue(hKey, NULL, szName, RRF_RT_REG_SZ, NULL, NULL, (LPDWORD)&lSize);
+	//RegGetValue(hKey, NULL, szName, RRF_RT_REG_SZ, NULL, NULL, (LPDWORD)&lSize);
+	RegQueryValueEx(hKey, szName, 0, NULL, NULL, (LPDWORD)&lSize);
 	if (0 == lSize)
 	{
 		RegCloseKey(hKey);
@@ -160,7 +163,8 @@ bool QueryAutoRun(TCHAR* szName, TCHAR* szPath)
 		if (lSize > nMax)
 			lSize = nMax;
 
-		RegGetValue(hKey, NULL, szName, RRF_RT_REG_SZ, NULL, (LPVOID)szPath, (LPDWORD)&lSize);
+		//RegGetValue(hKey, NULL, szName, RRF_RT_REG_SZ, NULL, (LPVOID)szPath, (LPDWORD)&lSize);
+		RegQueryValueEx(hKey, szName, 0, NULL, (LPBYTE)szPath, (LPDWORD)&lSize);
 	}
 	RegCloseKey(hKey);
 	return true;

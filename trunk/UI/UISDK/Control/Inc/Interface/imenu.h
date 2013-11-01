@@ -24,6 +24,7 @@ class MenuItemBase;
 class MenuItem;
 class Menu;
 interface IMenu;
+interface IWindow;
 
 //////////////////////////////////////////////////////////////////////////
 class MenuSeparatorItemShareData;
@@ -101,6 +102,8 @@ interface UICTRLAPI IMenu : public IListCtrlBase
 
     IMenu*  GetSubMenuByPos(int nPos);
     IMenu*  GetSubMenuById(long lId);
+
+	IWindow*  GetPopupWindow();
 // 
 //     IMenu*  GetRootMenu();
 //     IMenu*  GetLastMenu();
