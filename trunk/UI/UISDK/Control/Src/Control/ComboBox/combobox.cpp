@@ -250,10 +250,17 @@ void ComboBoxBase::OnChildObjStateChanged(UINT nMask)
 
 const TCHAR*  ComboBoxBase::GetText()
 {
-    if (NULL == m_pEdit)
+    if (!m_pEdit)
         return NULL;
 
     return m_pEdit->GetText();
+}
+void  ComboBoxBase::SetText(const TCHAR* szText)
+{
+	if (!m_pEdit)
+		return;
+
+	m_pEdit->SetText(szText);
 }
 void  ComboBoxBase::SetReadOnly(bool b)
 {
@@ -417,12 +424,21 @@ bool ComboBoxBase::_DefaultDropDown()
         m_pPopupWrapWnd->Create(m_pDropDownObject, _T("PopupListBox"), m_pIComboBoxBase->GetHWND());
     }
 
+	HWND hWnd = m_pIComboBoxBase->GetHWND();
     CRect rcWindow;
     m_pIComboBoxBase->GetWindowRect(&rcWindow);
-    ::MapWindowPoints(m_pIComboBoxBase->GetHWND(), NULL, (LPPOINT)&rcWindow, 2);
+    ::MapWindowPoints(hWnd, NULL, (LPPOINT)&rcWindow, 2);
 
-    // 如果直接在SetWindowPos ShowWindow会导致窗口在第一次显示时先变黑一次（第一次Bitblt时）
-    // 因此将ShowWindow单独移出来。原因不清楚。
+	if (m_pButton && m_pButton->IsMySelfVisible())
+	{
+		CRect rcClickFrom;
+		m_pButton->GetWindowRect(&rcClickFrom);
+		m_pPopupWrapWnd->SetPopupFromInfo(hWnd, &rcClickFrom);
+	}
+	else
+	{
+		m_pPopupWrapWnd->SetPopupFromInfo(hWnd, &rcWindow);
+	}
     POINT pt = { rcWindow.left, rcWindow.bottom };
     m_pPopupWrapWnd->Show(pt, FALSE);  // <-- 这里不要用模态的，否则直接点击窗口关闭按钮时会导致崩溃
 
@@ -572,8 +588,10 @@ void  ComboBox::SetAttribute(IMapAttribute* pMapAttrib, bool bReload)
     {
         // 这个要放在设置完EDIT/BUTTON后面，否则EDIT在readonly下面又会被显示出来
         bool bReadonly = false;
-        pMapAttrib->GetAttr_bool(XML_READONLY, true, &bReadonly);
-        SetReadOnly(bReadonly);
+        if (MAPATTR_RET_NOT_EXIST != pMapAttrib->GetAttr_bool(XML_READONLY, true, &bReadonly))
+        {
+            SetReadOnly(bReadonly);
+        }
     }
 }
 void  ComboBox::ResetAttribute()
@@ -634,6 +652,14 @@ LRESULT  ComboBox::OnLCNClick(WPARAM, LPARAM)
 {
     this->OnDefaultCloseUp(0, 0);
     return 0;
+}
+
+void  ComboBox::ResetContent()
+{
+	if (m_pDropDownCtrl)
+	{
+		m_pDropDownCtrl->RemoveAllItem(0);
+	}
 }
 
 }

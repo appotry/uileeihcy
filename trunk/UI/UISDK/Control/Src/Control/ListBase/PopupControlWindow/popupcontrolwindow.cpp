@@ -11,6 +11,8 @@ PopupControlWindow::PopupControlWindow()
 	m_pObject = NULL;
 	m_bExitLoop = false;
     m_bMouseIn = false;
+	m_hWndClickFrom = NULL;
+	m_rcClickFrom.SetRectEmpty();
 }
 
 //(WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE);
@@ -57,6 +59,15 @@ void  PopupControlWindow::Create(IObject*  pBindObj, const TCHAR* szId, HWND hPa
     }
 }
  
+void  PopupControlWindow::SetPopupFromInfo(HWND hWnd, RECT* prcClickInWnd)
+{
+	m_hWndClickFrom = hWnd;
+	if (prcClickInWnd)
+		m_rcClickFrom.CopyRect(prcClickInWnd);
+	else
+		m_rcClickFrom.SetRectEmpty();
+}
+
 void  PopupControlWindow::Show(POINT pt, BOOL bDoModal)
 {
     if (NULL == m_pObject)
@@ -79,10 +90,10 @@ void  PopupControlWindow::Show(POINT pt, BOOL bDoModal)
         pt.y = rcWorkArea.bottom - size.cy;
 
     HWND hPopupWnd = GetHWND();
-    ::SetWindowPos(hPopupWnd, NULL, pt.x, pt.y, size.cx, size.cy, SWP_NOZORDER/*|SWP_SHOWWINDOW*/|SWP_NOACTIVATE);
+    ::SetWindowPos(hPopupWnd, NULL, pt.x, pt.y, size.cx, size.cy, SWP_NOZORDER|SWP_NOACTIVATE);
 	if (!GetUIApplication()->IsDesignMode())
 	{
-		::ShowWindow(hPopupWnd, SW_SHOWNA);  
+		::ShowWindow(hPopupWnd, SW_SHOWNA); 
 		::UpdateWindow(hPopupWnd);
 
 		IMessageFilterMgr* pMgr = NULL;
@@ -211,8 +222,34 @@ BOOL PopupControlWindow::PreTranslateMessage(MSG* pMsg)
 			return FALSE;
 		}
 	}
-	else if (WM_LBUTTONDOWN   == pMsg->message ||
-		WM_LBUTTONDBLCLK == pMsg->message ||
+	else if (WM_LBUTTONDOWN == pMsg->message || WM_LBUTTONDBLCLK == pMsg->message)
+	{
+		// 单独将鼠标点击抽出来进一步判断。有可能该处是弹出菜单的地方，
+		// 直接关闭菜单会导致菜单被关闭后又立刻显示出来菜单 
+
+		RECT rcWindow;
+		::GetWindowRect(GetHWND(), &rcWindow);
+		if (!PtInRect(&rcWindow, pMsg->pt))  
+		{
+			this->Hide();
+
+			// 给原窗口发送一个鼠标移动消息，重置hover对象。
+			// 否则会导致popupwnd消失后，原窗口鼠标直接点击无反应
+			// 或者导致窗口接收到lbuttondown之前，还没有更新hover对象
+			::SendMessage(pMsg->hwnd, WM_MOUSEMOVE, 0, pMsg->lParam);
+
+			// 鼠标在弹出窗口外面点击了，关闭当前窗口。如果点在了弹出来的按钮上面，则直接关闭，不再转发消息
+			if (m_hWndClickFrom && m_hWndClickFrom == pMsg->hwnd)
+			{
+				POINT ptWnd = {GET_X_LPARAM(pMsg->lParam), GET_Y_LPARAM(pMsg->lParam)};
+				if (PtInRect(&m_rcClickFrom, ptWnd))
+					return TRUE;
+			}
+
+			return FALSE/*TRUE*/;
+		}
+	}
+	else if (
 		WM_RBUTTONDOWN   == pMsg->message ||
 		WM_RBUTTONDBLCLK == pMsg->message ||
 		WM_MBUTTONDOWN   == pMsg->message ||
@@ -234,7 +271,7 @@ BOOL PopupControlWindow::PreTranslateMessage(MSG* pMsg)
 			// 或者导致窗口接收到lbuttondown之前，还没有更新hover对象
 			::SendMessage(pMsg->hwnd, WM_MOUSEMOVE, 0, pMsg->lParam);
 
-            return TRUE;
+            return FALSE/*TRUE*/;
 		}
 	}
 	

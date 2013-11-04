@@ -24,6 +24,7 @@ interface UICTRLAPI IComboBoxBase : public IControl
     UI_DECLARE_Ixxx_INTERFACE(IComboBoxBase, ComboBoxBase);
 
     const TCHAR*  GetText();
+	void  SetText(const TCHAR* szText);
     void  CloseUp();
     void  SetDropDownObjectPtr(IObject* p);
     IEdit*  GetEdit();
@@ -39,6 +40,7 @@ interface UICTRLAPI IComboBox : public IComboBoxBase
     IListBoxItem*  AddStringEx(const TCHAR*, int nAddItemFlags=0);
     bool  SetCurSel(int nIndex);
     IListBox*  GetListBox();
+	void  ResetContent();
 
     void  SetReadOnly(bool b);
     bool  IsReadOnly();

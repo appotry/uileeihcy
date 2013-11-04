@@ -71,7 +71,10 @@ typedef int LISTITEM_OPFLAGS;
 //		code:    UI_LCN_SELCHANGED
 //		wparam:  IListItemBase* pOld
 //		lparam:  IListItemBase* pNew
-#define UI_LCN_SELCHANGED  135311305
+#define UI_LCN_SELCHANGED_SELF  135311304   // 给自己派生类发送的
+#define UI_LCN_SELCHANGED  135311305  // 给自己发送的
+
+
 
 //  listctrl当前hover项改变\
 //		message: UI_WM_NOTIFY

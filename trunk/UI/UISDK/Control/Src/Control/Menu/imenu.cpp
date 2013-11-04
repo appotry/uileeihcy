@@ -25,7 +25,10 @@ IListItemBase*  IMenu::AppendString(const TCHAR* szText, UINT nId) { return m_pM
 IListItemBase*  IMenu::AppendSeparator(UINT nId) { return m_pMenuImpl->AppendSeparator(nId); }
 IListItemBase*  IMenu::AppendPopup(const TCHAR* szText, UINT nId, IMenu* pSubMenu) { return m_pMenuImpl->AppendPopup(szText, nId, pSubMenu); }
 
-int   IMenu::TrackPopupMenu(UINT nFlag, int x, int y, IMessage* pNotifyObj) { return m_pMenuImpl->TrackPopupMenu(nFlag, x, y, pNotifyObj); }
+int   IMenu::TrackPopupMenu(UINT nFlag, int x, int y, IMessage* pNotifyObj, HWND hWndClickFrom, RECT* prcClickFrom) 
+{ 
+	return m_pMenuImpl->TrackPopupMenu(nFlag, x, y, pNotifyObj, hWndClickFrom, prcClickFrom); 
+}
 
 IWindow*  IMenu::GetPopupWindow()
 {

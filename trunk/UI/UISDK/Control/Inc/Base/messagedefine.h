@@ -16,6 +16,40 @@ interface IListItemBase;
 //
 #define UI_TRBN_POSCHANGED  130172216
 
+
+//////////////////////////////////////////////////////////////////////////
+#pragma region // Combobox
+#define UI_CBN_SELCHANGED  132331846
+
+// 
+//  点击了下拉按钮或者ComboBox，通知子类去弹出下拉列表
+//      message: UI_WM_NOTIFY
+//      wParam:
+//      lParam:
+//      lRet:   0:失败  1:成功
+//
+#define UI_CBN_DROPDOWN  132331847
+
+//  要求关闭下拉列表
+//      message: UI_WM_NOTIFY
+//      code: UI_CBN_CLOSEUP
+//      
+#define UI_CBN_CLOSEUP  132331848
+#pragma endregion
+
+//////////////////////////////////////////////////////////////////////////
+#pragma region // Mene
+
+//	点击菜单项
+//		message: UI_WM_NOTIFY
+//		code:    UI_MENU_CLICK 
+//      wparam:  
+//      lparam: 
+//
+#define UI_MENU_CLICK 132331849
+#pragma endregion
+
+
 // void OnTrbnPosChanged( int nPos, int nScrollType );
 #define UIMSG_TRBN_POSCHANGED_ID(OBJID, func)         \
     if (uMsg == UI_WM_NOTIFY  &&                      \

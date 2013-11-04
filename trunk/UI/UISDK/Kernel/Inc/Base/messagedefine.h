@@ -301,38 +301,6 @@ enum
 #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
-#pragma region // Combobox
-    UI_CBN_SELCHANGED,
-
-    // 
-    //  点击了下拉按钮或者ComboBox，通知子类去弹出下拉列表
-    //      message: UI_WM_NOTIFY
-    //      wParam:
-    //      lParam:
-    //      lRet:   0:失败  1:成功
-    //
-    UI_CBN_DROPDOWN,
-
-    //  要求关闭下拉列表
-    //      message: UI_WM_NOTIFY
-    //      code: UI_CBN_CLOSEUP
-    //      
-    UI_CBN_CLOSEUP,
-#pragma endregion
-
-    //////////////////////////////////////////////////////////////////////////
-#pragma region // Mene
-
-    //	点击菜单项
-    //		message: UI_WM_NOTIFY
-    //		code:    UI_MENU_CLICK 
-    //      wparam:  
-    //      lparam: 
-    //
-    UI_MENU_CLICK,
-#pragma endregion
-
-    //////////////////////////////////////////////////////////////////////////
 #pragma region // UIBuilder中使用的通知消息
 
     // 预览窗口被销毁了，通知外部释放内存，以PostMessage(m_dwUserData)形式发送
@@ -743,6 +711,15 @@ struct EDITORGETOBJECTATTRLISTDATA
     {                                                 \
         SetMsgHandled(TRUE);                          \
         func((UI::IRenderTarget*)wParam);             \
+        if (IsMsgHandled())                           \
+            return TRUE;                              \
+    }
+
+#define UIMSG_WM_PAINT2(func)                         \
+    if (uMsg == WM_PAINT)                             \
+    {                                                 \
+        SetMsgHandled(TRUE);                          \
+		func((UI::IRenderTarget*)wParam, (UI::RenderContext*)lParam); \
         if (IsMsgHandled())                           \
             return TRUE;                              \
     }

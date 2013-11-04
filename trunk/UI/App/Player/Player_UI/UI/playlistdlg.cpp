@@ -52,7 +52,7 @@ void CPlayListDlg::OnBtnClickAdd(IObject* pBtnObj, POINT* pt)
 	pBtnObj->GetWindowRect(&rc);
 	::MapWindowPoints(GetHWND(), NULL, (LPPOINT)&rc, 2);
 
-	UINT nRet = pMenu->TrackPopupMenu(TPM_RETURNCMD, rc.left, rc.bottom, this);
+	UINT nRet = pMenu->TrackPopupMenu(TPM_RETURNCMD, rc.left, rc.bottom, this, GetHWND(), &rc);
 	SAFE_DELETE_Ixxx(pMenu);
 
 // 	HMENU hMenu = ::CreatePopupMenu();
@@ -98,7 +98,7 @@ void CPlayListDlg::OnBtnClickDel(IObject* pBtnObj, POINT* pt)
 	CRect rc;
 	pBtnObj->GetWindowRect(&rc);
 	::MapWindowPoints(GetHWND(), NULL, (LPPOINT)&rc, 2);
-	UINT nRet = pMenu->TrackPopupMenu(TPM_RETURNCMD, rc.left, rc.bottom, this);
+	UINT nRet = pMenu->TrackPopupMenu(TPM_RETURNCMD, rc.left, rc.bottom, this, GetHWND(), &rc);
 	SAFE_DELETE_Ixxx(pMenu);
 
 	switch(nRet)
@@ -148,7 +148,7 @@ void CPlayListDlg::OnBtnClickMode(IObject* pBtnObj, POINT* pt)
 	CRect rc;
 	pBtnObj->GetWindowRect(&rc);
 	::MapWindowPoints(GetHWND(), NULL, (LPPOINT)&rc, 2);
-	UINT nRet = pMenu->TrackPopupMenu(TPM_RETURNCMD, rc.left, rc.bottom, this);
+	UINT nRet = pMenu->TrackPopupMenu(TPM_RETURNCMD, rc.left, rc.bottom, this, GetHWND(), &rc);
 	SAFE_DELETE_Ixxx(pMenu);
 
 	switch(nRet)

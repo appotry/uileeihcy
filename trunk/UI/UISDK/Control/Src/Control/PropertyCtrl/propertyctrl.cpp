@@ -2,9 +2,13 @@
 #include "UISDK\Control\Src\Control\PropertyCtrl\propertyctrl.h"
 #include "UISDK\Kernel\Inc\Interface\iscrollbarmanager.h"
 #include "UISDK\Control\Inc\Interface\iedit.h"
+#include "UISDK\Control\Inc\Interface\ibutton.h"
+#include "UISDK\Control\Inc\Interface\icombobox.h"
 #include "UISDK\Kernel\Inc\Interface\icolorrender.h"
 
-#define PROPERTY_EDIT_PREFIX   _T("edit.")
+#define PROPERTY_EDIT_PREFIX       _T("edit.")
+#define PROPERTY_COMBOBOX_PREFIX   _T("combobox.")
+#define PROPERTY_BUTTON_PREFIX     _T("button.")
 
 namespace UI
 {
@@ -37,7 +41,7 @@ HRESULT  PropertyCtrl::FinalConstruct(IUIApplication* p)
         pScrollBarMgr->SetScrollBarVisibleType(HSCROLLBAR, SCROLLBAR_VISIBLE_NONE);
     }
 
-    if (NULL == m_pEdit)
+    if (!m_pEdit)
     {
         IEdit::CreateInstance(p, &m_pEdit);
         m_pEdit->SetVisible(false, false, false);
@@ -56,7 +60,34 @@ HRESULT  PropertyCtrl::FinalConstruct(IUIApplication* p)
             SAFE_RELEASE(pBkRender);
         }
     }
+	if (!m_pComboBox)
+	{
+		IComboBox::CreateInstance(p, &m_pComboBox);
+		m_pComboBox->SetVisible(false, false, false);
+		m_pComboBox->SetOutRef((void**)&m_pComboBox);
+        if (m_pComboBox->GetEdit())
+        {
+            m_pComboBox->GetEdit()->SetReadOnly(true, false); // 仅Edit只读，仅借用可写的combobox背景样式，否则连按钮也不显示了
+        }
 
+		IRenderBase* pBkRender = NULL;
+		p->CreateRenderBase(RENDER_TYPE_COLOR, m_pComboBox, &pBkRender);
+		if (pBkRender)
+		{
+			IColorRender* pColorRender = (IColorRender*)pBkRender->QueryInterface(uiiidof(IColorRender));
+			if (pColorRender)
+				pColorRender->SetBkColor(0xFFFFFFFF);
+
+			m_pComboBox->SetBkgndRender(pBkRender);
+			SAFE_RELEASE(pBkRender);
+		}
+	}
+	if (!m_pButton)
+	{
+		IButton::CreateInstance(p, &m_pButton);
+		m_pButton->SetVisible(false, false, false);
+		m_pButton->SetOutRef((void**)&m_pButton);
+	}
     return S_OK;
 }
 
@@ -64,6 +95,8 @@ void  PropertyCtrl::FinalRelease()
 {
     DO_PARENT_PROCESS(IPropertyCtrl, ITreeView);
     SAFE_DELETE_Ixxx(m_pEdit);
+	SAFE_DELETE_Ixxx(m_pComboBox);
+	SAFE_DELETE_Ixxx(m_pButton);
 }
 
 void  PropertyCtrl::ResetAttribute()
@@ -74,21 +107,44 @@ void  PropertyCtrl::ResetAttribute()
     {
         UISendMessage(m_pEdit, UI_WM_RESETATTRIBUTE);
     }
+	if (m_pComboBox)
+	{
+		UISendMessage(m_pComboBox, UI_WM_RESETATTRIBUTE);
+	}
+	if (m_pButton)
+	{
+		UISendMessage(m_pButton, UI_WM_RESETATTRIBUTE);
+	}
     m_pIPropertyCtrl->ModifyStyle(OBJECT_STYLE_ENABLE_IME, 0, false);
 }
 void  PropertyCtrl::SetAttribute(IMapAttribute* pMapAttr, bool bReload)
 {
     __super::SetAttribute(pMapAttr, bReload);
 
+	// 为了能够让edit也拿到window的默认字体，这里先将其加入子结点，否则edit将拿到系统字体，
+	// 而PropertyCtrl则拿到窗口字体，导致显示不一致
     if (m_pEdit)
     {
-        // 为了能够让edit也拿到window的默认字体，这里先将其加入子结点，否则edit将拿到系统字体，
-        // 而PropertyCtrl则拿到窗口字体，导致显示不一致
         m_pEdit->RemoveMeInTheTree();
         m_pIPropertyCtrl->AddChild(m_pEdit);  
         m_pEdit->SetAttributeByPrefix(PROPERTY_EDIT_PREFIX, pMapAttr, bReload, true);
         m_pEdit->RemoveMeInTheTree();
     }
+	if (m_pComboBox)
+	{
+		m_pComboBox->RemoveMeInTheTree();
+		m_pIPropertyCtrl->AddChild(m_pComboBox);  
+		m_pComboBox->SetAttributeByPrefix(PROPERTY_EDIT_PREFIX, pMapAttr, bReload, true);
+		m_pComboBox->RemoveMeInTheTree();
+	}
+	if (m_pButton)
+	{
+		m_pButton->RemoveMeInTheTree();
+		m_pIPropertyCtrl->AddChild(m_pButton);  
+		m_pButton->SetAttributeByPrefix(PROPERTY_EDIT_PREFIX, pMapAttr, bReload, true);
+		m_pButton->RemoveMeInTheTree();
+	}
+	
 }
 
 IPropertyCtrlGroupItem*  PropertyCtrl::InsertGroupItem(
@@ -150,6 +206,62 @@ IPropertyCtrlEditItem*  PropertyCtrl::InsertEditProperty(
     return pItem;
 }
 
+IPropertyCtrlComboBoxItem*  PropertyCtrl::InsertBoolProperty(
+	const TCHAR* szText, 
+	const TCHAR* szValue, 
+	const TCHAR* szDesc, 
+	const TCHAR* szKey,
+	IListItemBase* pParentItem, 
+	IListItemBase* pInsertAfter, 
+	LISTITEM_OPFLAGS nInsertFlags)
+{
+	IPropertyCtrlComboBoxItem* pCombobBoxItem = InsertComboBoxProperty(szText, szValue, szDesc, szKey, pParentItem, pInsertAfter, nInsertFlags);
+	if (!pCombobBoxItem)
+		return NULL;
+
+//	pCombobBoxItem->AddOption(_T(""), _T(""));
+	pCombobBoxItem->AddOption(_T("false"), _T("0"));
+	pCombobBoxItem->AddOption(_T("true"), _T("1"));
+	return pCombobBoxItem;
+}
+
+IPropertyCtrlComboBoxItem*  PropertyCtrl::InsertComboBoxProperty(
+	const TCHAR* szText, 
+	const TCHAR* szValue, 
+	const TCHAR* szDesc, 
+	const TCHAR* szKey,
+	IListItemBase* pParentItem, 
+	IListItemBase* pInsertAfter, 
+	LISTITEM_OPFLAGS nInsertFlags)
+{
+	// TODO: 先查找该key是否已经存在
+	if (pParentItem)
+	{
+
+	}
+	else
+	{
+
+	}
+
+
+	IPropertyCtrlComboBoxItem*  pItem = NULL;
+	IPropertyCtrlComboBoxItem::CreateInstance(m_pIPropertyCtrl->GetUIApplication(), &pItem);
+
+	pItem->SetText(szText);
+	pItem->SetToolTip(szDesc);
+	pItem->SetValueText(szValue);
+	pItem->SetKeyText(szKey);
+
+	if (false == m_pIPropertyCtrl->InsertItem(pItem, pParentItem, pInsertAfter, nInsertFlags))
+	{
+		SAFE_DELETE_Ixxx(pItem);
+		return NULL;
+	}
+
+	return pItem;
+}
+
 void  PropertyCtrl::OnSize(UINT nType, int cx, int cy)
 {
     m_nSplitterLinePos = cx * m_nSplitterLinePercent >> 10;
@@ -164,9 +276,18 @@ LRESULT  PropertyCtrl::OnGetEditCtrl(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     return (LRESULT)m_pEdit;
 }
+LRESULT  PropertyCtrl::OnGetComboBoxCtrl(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	return (LRESULT)m_pComboBox;
+}
+LRESULT  PropertyCtrl::OnGetButtonCtrl(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	return (LRESULT)m_pButton;
+}
 LRESULT  PropertyCtrl::OnPreShowTooltip(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    return 1;
+//    return 1;
+    return 0;
 }
 
 }

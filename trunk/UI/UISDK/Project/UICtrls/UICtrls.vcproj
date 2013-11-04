@@ -1088,7 +1088,7 @@
 						Name="02. item"
 						>
 						<Filter
-							Name="group"
+							Name="01. group"
 							>
 							<File
 								RelativePath="..\..\Control\Src\Control\PropertyCtrl\item\propertyctrlgroupitem.cpp"
@@ -1100,7 +1100,7 @@
 							</File>
 						</Filter>
 						<Filter
-							Name="edit"
+							Name="02. edit"
 							>
 							<File
 								RelativePath="..\..\Control\Src\Control\PropertyCtrl\item\propertyctrledititem.cpp"
@@ -1110,6 +1110,22 @@
 								RelativePath="..\..\Control\Src\Control\PropertyCtrl\item\propertyctrledititem.h"
 								>
 							</File>
+						</Filter>
+						<Filter
+							Name="03. combobox"
+							>
+							<File
+								RelativePath="..\..\Control\Src\Control\PropertyCtrl\item\propertyctrlcomboboxitem.cpp"
+								>
+							</File>
+							<File
+								RelativePath="..\..\Control\Src\Control\PropertyCtrl\item\propertyctrlcomboboxitem.h"
+								>
+							</File>
+						</Filter>
+						<Filter
+							Name="04."
+							>
 						</Filter>
 					</Filter>
 				</Filter>

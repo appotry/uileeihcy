@@ -11,11 +11,12 @@
 #include "UISDK\Control\Inc\Interface\ilabel.h"
 #include "LoginUI.h"
 
-#define WINDOW_3D_ROTATE_DURATION  300   // 窗口翻转90度的时间
+#define WINDOW_3D_ROTATE_DURATION  250   // 窗口翻转90度的时间
 #define TIMELINE_ID_GO_STEP1      1
 #define TIMELINE_ID_GO_STEP2      3
 #define TIMELINE_ID_BACK_STEP1    5
 #define TIMELINE_ID_BACK_STEP2    7
+#define WINDOW_3D_ROTATE_Z_DEEP   500
 
 #define SHOW_DURATION          300
 #define HIDE_DURATION          300
@@ -47,6 +48,7 @@ CLoginDlg::CLoginDlg(void)
 
 CLoginDlg::~CLoginDlg(void)
 {
+	GetUIApplication()->GetAnimateMgr()->SetFps(50);  // 恢复帧率
     GetUIApplication()->KillTimerById(TIMER_ID_LOGING_TEXT_TRAIL_POINT,  static_cast<UI::IMessage*>(this));
 	SAFE_RELEASE(m_pTrayIcon);
 }
@@ -113,6 +115,9 @@ void CLoginDlg::OnInitWindow()
 	}
 
     this->InitFlash();
+
+	UI::IAnimateManager* pAnimateMgr = GetUIApplication()->GetAnimateMgr();
+	pAnimateMgr->SetFps(100);  // 加大帧率，保证流畅性
 }
 
 void  CLoginDlg::InitFlash()
@@ -151,7 +156,7 @@ void  CLoginDlg::InitFlash()
         strUri = _T("img\\login\\noon.swf");
         strFlashFileName = _T("noon.swf");
     }
-    else if (ptm->tm_hour < 19)
+    else if (ptm->tm_hour < 20)
     {
         strUri = _T("img\\login\\afternoon.swf");
         strFlashFileName = _T("afternoon.swf");
@@ -264,12 +269,12 @@ void CLoginDlg::OnBtnNetSetCancel()
 
     UI::IIntAccelerateMove*  pMoveAlgo = NULL;
     UI::IIntTimeline* pTimelineY = (UI::IIntTimeline*)p->CreateTimeline(UI::TLV_INT, 0, UI::ITMA_Accelerate, (UI::IMoveAlgorithm**)&pMoveAlgo);
-    pMoveAlgo->SetParam1(360, 270, WINDOW_3D_ROTATE_DURATION, -300/1000.0f);
+    pMoveAlgo->SetParam1(360, 270, WINDOW_3D_ROTATE_DURATION, -500/1000.0f);
     pTimelineY->SetOutRef(p->GetRotateYPtr());
 
     UI::IIntLinearMove* pMoveAlgo2 = NULL;
     UI::IIntTimeline* pTimelineZ = (UI::IIntTimeline*)p->CreateTimeline(UI::TLV_INT, 1, UI::ITMA_Linear, (UI::IMoveAlgorithm**)&pMoveAlgo2);
-    pMoveAlgo2->SetParam1(0, 500, WINDOW_3D_ROTATE_DURATION);
+    pMoveAlgo2->SetParam1(0, WINDOW_3D_ROTATE_Z_DEEP, WINDOW_3D_ROTATE_DURATION);
 	pTimelineZ->SetOutRef(p->GetOffsetZPtr());
     p->Begin();
 
@@ -291,12 +296,12 @@ void CLoginDlg::OnBtnSet()
 
     UI::IIntAccelerateMove* pMoveAlgo = NULL;
     UI::IIntTimeline* pTimelineY = (UI::IIntTimeline*)p->CreateTimeline(UI::TLV_INT, 0, UI::ITMA_Accelerate, (UI::IMoveAlgorithm**)&pMoveAlgo);
-    pMoveAlgo->SetParam1(0, 90, WINDOW_3D_ROTATE_DURATION, 300/1000.0f);
+    pMoveAlgo->SetParam1(0, 90, WINDOW_3D_ROTATE_DURATION, 500/1000.0f);
 	pTimelineY->SetOutRef(p->GetRotateYPtr());
 
     UI::IIntLinearMove* pMoveAlgo2 = NULL;
     UI::IIntTimeline* pTimelineZ = (UI::IIntTimeline*)p->CreateTimeline(UI::TLV_INT, 1, UI::ITMA_Linear, (UI::IMoveAlgorithm**)&pMoveAlgo2);
-    pMoveAlgo2->SetParam1(0, 500, WINDOW_3D_ROTATE_DURATION);
+    pMoveAlgo2->SetParam1(0, WINDOW_3D_ROTATE_Z_DEEP, WINDOW_3D_ROTATE_DURATION);
 	pTimelineZ->SetOutRef(p->GetOffsetZPtr());
     p->Begin();
 }
@@ -502,12 +507,12 @@ void  CLoginDlg::OnAnimateTick_GoStep1(UI::IStoryboard* pStoryboard)
 
     UI::IIntAccelerateMove* pMoveAlgo = NULL;
     UI::IIntTimeline* pTimelineY = (UI::IIntTimeline*)p->CreateTimeline(UI::TLV_INT, 0, UI::ITMA_Accelerate, (UI::IMoveAlgorithm**)&pMoveAlgo);
-    pMoveAlgo->SetParam1(270, 360, WINDOW_3D_ROTATE_DURATION, 400/1000.0f);
+    pMoveAlgo->SetParam1(270, 360, WINDOW_3D_ROTATE_DURATION, 500/1000.0f);
     pTimelineY->SetOutRef(p->GetRotateYPtr());
 
     UI::IIntLinearMove* pMoveAlgo2 = NULL;
     UI::IIntTimeline* pTimelineZ = (UI::IIntTimeline*)p->CreateTimeline(UI::TLV_INT, 1, UI::ITMA_Linear, (UI::IMoveAlgorithm**)&pMoveAlgo2);
-    pMoveAlgo2->SetParam1(500, 0, WINDOW_3D_ROTATE_DURATION);
+    pMoveAlgo2->SetParam1(WINDOW_3D_ROTATE_Z_DEEP, 0, WINDOW_3D_ROTATE_DURATION);
     pTimelineZ->SetOutRef(p->GetOffsetZPtr());
     p->Begin();
 }
@@ -543,15 +548,15 @@ void  CLoginDlg::OnAnimateTick_BackStep1(UI::IStoryboard* pStoryboard)
     p->SetWParam((WPARAM)p);  // 用于在回翻过程中不断更新动画图片
     p->SetId(TIMELINE_ID_BACK_STEP2);
 
-    UI::IIntLinearMove* pMoveAlgo = NULL;
-    UI::IIntTimeline* pTimelineY = (UI::IIntTimeline*)p->CreateTimeline(UI::TLV_INT, 0, UI::ITMA_Linear, (UI::IMoveAlgorithm**)&pMoveAlgo);
-    pMoveAlgo->SetParam1(90, 0, WINDOW_3D_ROTATE_DURATION);
+    UI::IIntAccelerateMove* pMoveAlgo = NULL;
+    UI::IIntTimeline* pTimelineY = (UI::IIntTimeline*)p->CreateTimeline(UI::TLV_INT, 0, UI::ITMA_Accelerate, (UI::IMoveAlgorithm**)&pMoveAlgo);
+    pMoveAlgo->SetParam1(90, 0, WINDOW_3D_ROTATE_DURATION, -500/1000.0f);
     pTimelineY->SetId(TIMELINE_ID_BACK_STEP2);
     pTimelineY->SetOutRef(p->GetRotateYPtr());
 
     UI::IIntLinearMove* pMoveAlgo2 = NULL;
     UI::IIntTimeline* pTimelineZ = (UI::IIntTimeline*)p->CreateTimeline(UI::TLV_INT, 1, UI::ITMA_Linear, (UI::IMoveAlgorithm**)&pMoveAlgo2);
-    pMoveAlgo2->SetParam1(500, 0, WINDOW_3D_ROTATE_DURATION);
+    pMoveAlgo2->SetParam1(WINDOW_3D_ROTATE_Z_DEEP, 0, WINDOW_3D_ROTATE_DURATION);
     pTimelineZ->SetOutRef(p->GetOffsetZPtr());
     p->Begin();
 
@@ -650,7 +655,7 @@ void CLoginDlg::OnBtnClickLoginStatus()
 	m_pBtnLoginState->GetWindowRect(&rc);
 	::MapWindowPoints(GetHWND(), NULL, (LPPOINT)&rc, 2);
 
-	int nRet = pMenu->TrackPopupMenu(TPM_RETURNCMD, rc.left, rc.bottom, static_cast<IMessage*>(this));
+	int nRet = pMenu->TrackPopupMenu(TPM_RETURNCMD, rc.left, rc.bottom, static_cast<IMessage*>(this), GetHWND(), &rc);
 	SAFE_DELETE_Ixxx(pMenu);
 }
 LRESULT CLoginDlg::OnTrayIconNotify(UINT uMsg, WPARAM wParam, LPARAM lParam)

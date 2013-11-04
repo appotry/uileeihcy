@@ -12,6 +12,8 @@ namespace UI
 		ATTR_TYPE_NULL = 0,
 		UIEDITOR_ATTR_TYPE_GROUP,
 		UIEDITOR_ATTR_TYPE_TEXT,
+		UIEDITOR_ATTR_TYPE_BOOL,
+		UIEDITOR_ATTR_TYPE_COMBOBOX,
 	};
 
 	interface IPropertyCtrl;
@@ -40,8 +42,8 @@ namespace UI
 
 	interface IUIEditorAttribute : public IUIEditorAttrBase
 	{
-		virtual const TCHAR* GetValue() = 0;
-		virtual void  SetValue(const TCHAR*) = 0;
+// 		virtual const TCHAR* GetValue() = 0;
+// 		virtual void  SetValue(const TCHAR*) = 0;
 		virtual void  SetDefaultValue(const TCHAR* szText) = 0;
 		virtual void  SetKey(const TCHAR*) = 0;
 	};
@@ -51,6 +53,16 @@ namespace UI
 	{
 		virtual UIEDITOR_ATTR_TYPE  GetAttrType() { return UIEDITOR_ATTR_TYPE_TEXT; }
 	};
+
+	interface IUIEditorBoolAttribute : public IUIEditorAttribute
+	{
+		virtual UIEDITOR_ATTR_TYPE  GetAttrType() { return UIEDITOR_ATTR_TYPE_BOOL; }
+	};
+    interface IUIEditorComboBoxAttribute : public IUIEditorAttribute
+    {
+        virtual UIEDITOR_ATTR_TYPE  GetAttrType() { return UIEDITOR_ATTR_TYPE_COMBOBOX; }
+        virtual IUIEditorComboBoxAttribute*  AddOption(const TCHAR* szText, const TCHAR* szValue = NULL) = 0;
+    };
 
 // 	interface IComboboxAttribute : public IUIEditorAttr
 // 	{
@@ -117,6 +129,22 @@ namespace UI
             const TCHAR* szKeyPrefix2 = NULL,
             const TCHAR* szDesc = NULL) 
             = 0;
+
+		virtual IUIEditorBoolAttribute*  CreateBoolAttribute(
+			IUIEditorGroupAttribute* pParent, 
+			const TCHAR* szName, 
+            bool  bDefaultValue,
+			const TCHAR* szKeyPrefix1,
+			const TCHAR* szKeyPrefix2 = NULL,
+			const TCHAR* szDesc = NULL) 
+			= 0;
+
+        virtual IUIEditorComboBoxAttribute*  CreateComboBoxAttribute(
+            IUIEditorGroupAttribute* pParent, 
+            const TCHAR* szName, 
+            const TCHAR* szKeyPrefix1,
+            const TCHAR* szKeyPrefix2 = NULL,
+            const TCHAR* szDesc = NULL) = 0;
 
 // 		// 读取一个对象的属性列表时，获取到一个属性组项，返回一个组的标识，用于调用OnGetAttribute_AddProperty
 // 		virtual long  OnGetAttribute_AddGroupProperty(__in IObject* pObj, __in const TCHAR* szGroupName) = 0;

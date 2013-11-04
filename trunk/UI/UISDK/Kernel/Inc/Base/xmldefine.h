@@ -17,6 +17,14 @@ namespace UI
 #define XML_CHILD_SEPARATOR       _T('.')            // xml中父子之间的分隔符，如Menu.String
 #define XML_HEADER                _T("<?xml version=\"1.0\" encoding=\"utf-8\" ?>")
 
+
+#define XML_BOOL_VALUE_YES        _T("yes")
+#define XML_BOOL_VALUE_NO         _T("no")
+#define XML_BOOL_VALUE_1          _T("1")
+#define XML_BOOL_VALUE_0          _T("0")
+#define XML_BOOL_VALUE_TRUE       _T("true")
+#define XML_BOOL_VALUE_FALSE      _T("false")
+
 // #define XML_UI_XMLFILE_EXT   _T(".ui")          // 工程描述文件的后缀名
 #define XML_SKIN_XML              _T("skin.xml")
 #define XML_SKIN_PACKET_EXT       _T("skn")        // 皮肤包后缀名

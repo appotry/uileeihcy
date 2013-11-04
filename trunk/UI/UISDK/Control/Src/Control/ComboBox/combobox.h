@@ -50,6 +50,7 @@ public:
     void  SetDropDownObjectPtr(IObject* p) { m_pDropDownObject = p; }
     IEdit*  GetEdit() { return m_pEdit; }
     const TCHAR*  GetText();
+	void  SetText(const TCHAR* szText);
     void  SetReadOnly(bool b);
     bool  IsReadOnly();
 
@@ -119,6 +120,7 @@ public:
     IListBoxItem*  AddStringEx(const TCHAR*, int nAddItemFlags=0);
     bool  SetCurSel(int nIndex);
     IListBox*  GetListBox() { return m_pDropDownCtrl; }
+	void  ResetContent();
 
 protected:
     void  OnPaint(IRenderTarget*);
