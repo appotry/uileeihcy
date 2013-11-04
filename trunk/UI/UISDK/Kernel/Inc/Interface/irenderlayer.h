@@ -46,6 +46,7 @@ interface UISDKAPI IDirectRenderLayer : public IRenderLayer
 
 
 class RenderChain;
+class RenderContext;
 interface UISDKAPI IRenderChain
 {
     IRenderChain();
@@ -54,7 +55,7 @@ interface UISDKAPI IRenderChain
 
     IRenderLayer*  FindLayer(const TCHAR*  szLyerID);
 
-    IRenderTarget*  BeginRedrawObjectPart(IObject* pRedrawObj, RECT* prcArray, int nCount, bool* pbIsDrawing);
+    IRenderTarget*  BeginRedrawObjectPart(IObject* pRedrawObj, RECT* prcArray, int nCount, bool* pbIsDrawing, RenderContext* pOutRenderContext);
     void  EndRedrawObjectPart(IRenderTarget* pRenderTarget, RECT* prcArray, int nCount);
 
     void  SetCanCommit(bool b);

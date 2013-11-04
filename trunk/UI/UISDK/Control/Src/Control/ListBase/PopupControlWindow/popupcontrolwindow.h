@@ -38,6 +38,7 @@ public:
     void  Show(POINT pt, BOOL bDoModal);
     void  Hide();
     void  Destroy();
+	void  SetPopupFromInfo(HWND hWnd, RECT* prcClickInWnd);
 
 protected:
     void   _DestroyPopupWindow();
@@ -46,6 +47,10 @@ protected:
     IObject*  m_pObject;   // 弹出窗口中装载的对象指针，如ListBox* Menu*
     bool      m_bExitLoop; // 在收到WM_EXITPOPUPLOOP之后，该变量为true
     bool      m_bMouseIn;  // 鼠标在窗口上，用于触发WM_MOUSELEAVE
+
+	// 用于解决在弹出菜单后点击按钮，菜单会隐藏后又显示出来的问题
+	HWND  m_hWndClickFrom; // 为NULL时表示不判断
+	CRect  m_rcClickFrom;  // 窗口坐标
 };
 
 class PopupListBoxWindow : public PopupControlWindow

@@ -340,13 +340,11 @@ void  QQLoginAccountListBox::OnInitPopupWindow()
         m_pIQQLoginAccountListBox->SetMaxHeight(300);
 
     UI::IAnimateManager* pAnimateMgr = m_pIQQLoginAccountListBox->GetUIApplication()->GetAnimateMgr();
-    pAnimateMgr->SetFps(60);   // 提升列表动画的流畅性
 }
 
 void  QQLoginAccountListBox::OnUnInitPopupControlWindow()
 {
     UI::IAnimateManager* pAnimateMgr = m_pIQQLoginAccountListBox->GetUIApplication()->GetAnimateMgr();
-    pAnimateMgr->SetFps(30);  // 还原
 }
 
 void  QQLoginAccountListBox::OnEraseBtnClick()

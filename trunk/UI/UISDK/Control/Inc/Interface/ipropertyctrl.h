@@ -13,8 +13,14 @@ static const GUID IID_UI_IPropertyCtrlEditItem =
 static const GUID IID_UI_IPropertyCtrlGroupItem = 
 { 0x8530dbfb, 0x493e, 0x49be, { 0x85, 0x2d, 0x52, 0xfa, 0x42, 0xfa, 0x13, 0xa4 } };
 
-#define LISTITEM_TYPE_PropertyCtrlGroup  LISTITEM_TYPE_TREEITEM_NORMAL
-#define LISTITEM_TYPE_PropertyCtrlEdit   136151908
+// {19236792-9745-4d21-B04F-A44FEB740B2B}
+static const GUID IID_UI_IPropertyCtrlComboBoxItem = 
+{ 0x19236792, 0x9745, 0x4d21, { 0xb0, 0x4f, 0xa4, 0x4f, 0xeb, 0x74, 0xb, 0x2b } };
+
+
+#define LISTITEM_TYPE_PropertyCtrlGroup     LISTITEM_TYPE_TREEITEM_NORMAL
+#define LISTITEM_TYPE_PropertyCtrlEdit      136151908
+#define LISTITEM_TYPE_PropertyCtrlCombobox  132321222
 
 // 属性控件线条及背景颜色
 #define PROPERTYCTRL_LINE_COLOR 212,208,200,255  //(233,236,250,255);
@@ -26,6 +32,8 @@ static const GUID IID_UI_IPropertyCtrlGroupItem =
 // 获取EDIT控件
 // RETURN: IEdit*
 #define UI_PROPERTYCTRL_MSG_GETEDITCTRL 136162254
+#define UI_PROPERTYCTRL_MSG_GETCOMBOBOXCTRL 136162255
+#define UI_PROPERTYCTRL_MSG_GETBUTTONCTRL 136162256
 
 
 interface IPropertyCtrlEditItem;
@@ -41,6 +49,16 @@ struct PROPERTYCTRL_EDIT_ITEM_ACCEPTCONTENT
 // LPARAM: const TCHAR* newText
 // WPARAM:
 #define UI_PROPERTYCTRL_MSG_EDITITEM_ACCEPTCONTENT 136221752
+
+interface IPropertyCtrlComboBoxItem;
+struct PROPERTYCTRL_COMBOBOX_ITEM_ACCEPTCONTENT
+{
+	IPropertyCtrlComboBoxItem*  pItem;
+	const TCHAR*  szKey;
+	const TCHAR*  szNewValue;
+	bool  bDefault;  
+};
+#define UI_PROPERTYCTRL_MSG_COMBOBOXITEM_ACCEPTCONTENT 136221753
 
 // 外部给IListItemBase发送消息，设置属性的值
 // WPARAM: const TCHAR* szText
@@ -71,6 +89,22 @@ interface UICTRLAPI IPropertyCtrlEditItem : public IListItemBase
 };
 
 
+class PropertyCtrlComboBoxItemShareData;
+interface IPropertyCtrlComboBoxItemShareData : public IListItemTypeShareData
+{
+	UI_DECLARE_Ixxx_INTERFACE(IPropertyCtrlComboBoxItemShareData, PropertyCtrlComboBoxItemShareData);
+};
+
+class PropertyCtrlComboBoxItem;
+interface UICTRLAPI IPropertyCtrlComboBoxItem : public IListItemBase
+{
+	UI_DECLARE_Ixxx_INTERFACE(IPropertyCtrlComboBoxItem, PropertyCtrlComboBoxItem);
+
+	void  SetValueText(const TCHAR* szText);
+	void  SetDefaultValueText(const TCHAR* szText);
+	void  SetKeyText(const TCHAR* szText);
+	void  AddOption(const TCHAR* szItemText, const TCHAR* szItemValue);
+};
 
 class PropertyCtrlGroupItem;
 interface UICTRLAPI IPropertyCtrlGroupItem : public INormalTreeItem
@@ -88,6 +122,12 @@ interface UICTRLAPI IPropertyCtrl : public ITreeView
 
     IPropertyCtrlEditItem*   InsertEditProperty(const TCHAR* szText, const TCHAR* szValue, const TCHAR* szDesc, const TCHAR* szKey,
         IListItemBase* pParentItem, IListItemBase* pInsertAfter = UITVI_LAST, LISTITEM_OPFLAGS nInsertFlags=0);
+
+	IPropertyCtrlComboBoxItem*   InsertBoolProperty(const TCHAR* szText, const TCHAR* szValue, const TCHAR* szDesc, const TCHAR* szKey,
+		IListItemBase* pParentItem, IListItemBase* pInsertAfter = UITVI_LAST, LISTITEM_OPFLAGS nInsertFlags=0);
+
+	IPropertyCtrlComboBoxItem*   InsertComboBoxProperty(const TCHAR* szText, const TCHAR* szValue, const TCHAR* szDesc, const TCHAR* szKey,
+		IListItemBase* pParentItem, IListItemBase* pInsertAfter = UITVI_LAST, LISTITEM_OPFLAGS nInsertFlags=0);
 };
 
 }

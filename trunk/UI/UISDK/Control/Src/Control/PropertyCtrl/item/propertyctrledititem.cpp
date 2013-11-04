@@ -175,10 +175,10 @@ void  PropertyCtrlEditItem::SetValueText(const TCHAR* szText)
     else
         m_strValue.clear();
 
-    if (m_pIPropertyCtrlEditItem->IsSelected() && m_pShareData->pEditCtrl->IsMySelfVisible())
-    {
-        m_pShareData->pEditCtrl->SetText(m_strValue.c_str());
-    }
+//     if (m_pIPropertyCtrlEditItem->IsSelected() && m_pShareData->pEditCtrl->IsMySelfVisible())
+//     {
+//         m_pShareData->pEditCtrl->SetText(m_strValue.c_str());
+//     }
 }
 
 void  PropertyCtrlEditItem::SetDefaultValueText(const TCHAR* szText)
@@ -253,7 +253,7 @@ LRESULT  PropertyCtrlEditItem::OnEditReturn(WPARAM w, LPARAM l)
 	param.pItem = m_pIPropertyCtrlEditItem;
 	param.szKey = m_strKey.c_str();
 	param.szNewValue = m_pShareData->pEditCtrl->GetText();
-	if (m_strDefautValue == param.szNewValue)
+	if (0 == _tcslen(param.szNewValue) || m_strDefautValue == param.szNewValue)
 		param.bDefault = true;
 	msg.wParam = (WPARAM)&param;
 

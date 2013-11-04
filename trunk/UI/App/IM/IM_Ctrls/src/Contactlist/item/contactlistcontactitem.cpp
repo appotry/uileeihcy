@@ -3,6 +3,7 @@
 #include "UISDK\Kernel\Inc\Interface\iimagerender.h"
 #include "UISDK\Kernel\Inc\Interface\ipanel.h"
 #include "UISDK\Control\Inc\Interface\ilabel.h"
+#include "UISDK\Kernel\Inc\Util\rendercontext.h"
 
 
 #include <shobjidl.h>  // IDragSourceHelper
@@ -441,12 +442,17 @@ HBITMAP  ContactListContactItem::CreateDragBitmap(int* pWidth, int* pHeight)
 
     // 绘制
     pRenderTarget->BeginDraw(NULL, 0);
-    pRenderTarget->SetViewportOrgEx(
-        -rcParent.left+g_rcDragImgPadding.left, 
-        -rcParent.top+g_rcDragImgPadding.top);  // 抵消DrawItemInnerControl中的偏移
+	UI::RenderContext renderContent(NULL, true);
+	renderContent.m_ptOffset.x = -rcParent.left+g_rcDragImgPadding.left;
+	renderContent.m_ptOffset.y = -rcParent.top+g_rcDragImgPadding.top;
+	renderContent.m_rcDrawRegion.SetRect(0, 0, nWidth, nHeight);
+	renderContent.Update(pRenderTarget);
+//     pRenderTarget->SetViewportOrgEx(
+//         -rcParent.left+g_rcDragImgPadding.left, 
+//         -rcParent.top+g_rcDragImgPadding.top);  // 抵消DrawItemInnerControl中的偏移
 
     OnPaint(pRenderTarget);
-    m_pIContactListContactItem->DrawItemInnerControl(pRenderTarget);
+    m_pIContactListContactItem->DrawItemInnerControl(pRenderTarget, &renderContent);
     pRenderTarget->EndDraw();
 
     SAFE_RELEASE(pRenderTarget);

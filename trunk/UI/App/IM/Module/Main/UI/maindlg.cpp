@@ -541,7 +541,7 @@ LRESULT  CMainDlg::OnContactDropEvent(WPARAM wParam, LPARAM lParam)
 
             if (bOk)
             {
-                m_pMainUI->OpenPrivateChatDlg(NULL, IM::SENDTEXT, (WPARAM)bstrText, 0);
+            //    m_pMainUI->OpenPrivateChatDlg(NULL, IM::SENDTEXT, (WPARAM)bstrText, 0);
             }
         }
         break;

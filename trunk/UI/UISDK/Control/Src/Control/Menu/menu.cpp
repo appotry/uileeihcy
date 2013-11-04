@@ -507,7 +507,7 @@ IMenu*  Menu::GetSubMenuById(long lId)
 }
 
 
-int  Menu::TrackPopupMenu(UINT nFlag, int x, int y, IMessage* pNotifyObj)
+int  Menu::TrackPopupMenu(UINT nFlag, int x, int y, IMessage* pNotifyObj, HWND hWndClickFrom, RECT* prcClickFrom)
 {
     if (0 >= m_pIMenu->GetItemCount())
         return -1;
@@ -525,9 +525,7 @@ int  Menu::TrackPopupMenu(UINT nFlag, int x, int y, IMessage* pNotifyObj)
     }
 
     m_pIMenu->SetNotify(pNotifyObj, 0);
-
-    CRect rcWindow;
-    m_pIMenu->GetWindowRect(&rcWindow);
+	m_pPopupWrapWnd->SetPopupFromInfo(hWndClickFrom, prcClickFrom);
 
     POINT pt = { x, y };
     m_pPopupWrapWnd->Show(pt, (nFlag&TPM_RETURNCMD)?TRUE:FALSE);

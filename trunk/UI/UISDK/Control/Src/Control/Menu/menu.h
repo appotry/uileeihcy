@@ -46,7 +46,7 @@ public:
     void  SetIMenu(IMenu* p) { m_pIMenu = p; SetIMessageProxy(static_cast<IMessage*>(p)); }
     IMenu*  GetIMenu() { return m_pIMenu; }
 
-    int    TrackPopupMenu(UINT nFlag, int x, int y, IMessage* pNotifyObj);
+    int    TrackPopupMenu(UINT nFlag, int x, int y, IMessage* pNotifyObj, HWND hWndClickFrom = NULL, RECT* prcClickFrom = NULL);
     IListItemBase*  AppendString(const TCHAR* szText, UINT nId);
     IListItemBase*  AppendSeparator(UINT nId);
     IListItemBase*  AppendPopup(const TCHAR* szText, UINT nId, IMenu* pSubMenu);

@@ -22,6 +22,8 @@ public:
         UIMESSAGE_HANDLER_EX(UI_PROPERTYCTRL_MSG_GETSPLITTERLINEPOS_PTR, OnGetSplitterLinePosPtr)
         UIMESSAGE_HANDLER_EX(UI_WM_SHOW_TOOLTIP, OnPreShowTooltip)
         UIMESSAGE_HANDLER_EX(UI_PROPERTYCTRL_MSG_GETEDITCTRL, OnGetEditCtrl)
+		UIMESSAGE_HANDLER_EX(UI_PROPERTYCTRL_MSG_GETCOMBOBOXCTRL, OnGetComboBoxCtrl)
+		UIMESSAGE_HANDLER_EX(UI_PROPERTYCTRL_MSG_GETBUTTONCTRL, OnGetButtonCtrl)
         UIMSG_WM_GETOBJECTINFO(OnGetObjectInfo)
         UIMSG_WM_QUERYINTERFACE(QueryInterface)
         UIMSG_WM_RESETATTRIBUTE(ResetAttribute)
@@ -50,6 +52,24 @@ public:
         IListItemBase* pInsertAfter = UITVI_LAST, 
         LISTITEM_OPFLAGS nInsertFlags=0);
 
+	IPropertyCtrlComboBoxItem*   InsertBoolProperty(
+		const TCHAR* szText, 
+		const TCHAR* szValue, 
+		const TCHAR* szDesc, 
+		const TCHAR* szKey,
+		IListItemBase* pParentItem, 
+		IListItemBase* pInsertAfter = UITVI_LAST, 
+		LISTITEM_OPFLAGS nInsertFlags=0);
+
+	IPropertyCtrlComboBoxItem*   InsertComboBoxProperty(
+		const TCHAR* szText, 
+		const TCHAR* szValue, 
+		const TCHAR* szDesc, 
+		const TCHAR* szKey,
+		IListItemBase* pParentItem, 
+		IListItemBase* pInsertAfter = UITVI_LAST, 
+		LISTITEM_OPFLAGS nInsertFlags=0);
+
     // InsertComboProperty
     // InsertColorProperty
     // Insertxxxx
@@ -62,6 +82,8 @@ protected:
     void  OnSize(UINT nType, int cx, int cy);
     LRESULT  OnGetSplitterLinePosPtr(UINT uMsg, WPARAM wParam, LPARAM lParam);
     LRESULT  OnGetEditCtrl(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	LRESULT  OnGetComboBoxCtrl(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	LRESULT  OnGetButtonCtrl(UINT uMsg, WPARAM wParam, LPARAM lParam);
     LRESULT  OnPreShowTooltip(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 protected:

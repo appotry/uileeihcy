@@ -1,0 +1,297 @@
+ 
+9. 为每一个控件提供一个能直接刷新界面的方法，而不用去调用UpdateObject而触发所有的控件更新
+ 
+38. <紧急>，将对象的创建放在 WM_CREATE/WM_INITDIALOG中，将对象的释放放在 WM_NCDESTROY中    
+ 
+37. 将WTL的StartDialogProc模式搬进WindowBase::Create中，这样就能拦截所有的消息了。
+    至于this指针的传递，可以考虑map<HTREAD,pThis>的方式，+ 线程同步
+    --> 使用ATL提供的方式，在创建窗口之前使用UI_AddCreateWndData/UI_ExtractCreateWndData
+    
+6. ToolTip 插件
+	--> 未使用插件的方式，而是在MouseManager当中使用SetTimer来实现
+    
+ WM_IME_STARTCOMPOSITION,WM_IME_COMPOSITION,WM_IME_ENDCOMPOSITION
+ 
+49. 取消ImageSliderCtrl ->  backrender!
+50. GDIPLUS pojo_imageitem changeskinH
+
+63. 修改optiondlg中焦点切换不刷新的问题 --> Groupbox没有设置为透明导致
+
+*69. 现在重置属性，需要的构造函数中和resetattrib函数中都写一份代码，很容易导致不匹配，急需修改	
+*70. 如何在析构列表控件的时候，还能调用虚函数OnDeleteItem??,同时解决DestroyUI的虚函数继承问题
+     增加一人UIObjCreator InitialConstruct FinalConstruct FinalRelease
+62. 需要一套更灵活的classname <-> xmlname 的注册映射关系
+36. 考虑下，取消PrePareDC，每个对象都有一个FONT*属性，每次创建一个对象，，都会发送一个WM_SETFONT的消息
+ 3. PrepareDC( hDC ); 对应的SaveDC RestoreDC是否正确使用
+29. CustomWindow收编LayeredWindow	
+33. visible enable  的继承关系 
+35. 去除一个窗口的透明属性
+79. 换肤后，点击滚动条的line down，崩溃	             
+    换肤前line down button 为 focus对象保存在keyboard mgr中，换肤过程中该对象被销毁，导致后面在切换焦点时
+    继续引用原指针而崩溃
+80. 需要解决鼠标同时在两个popup menuitem上移动时，需要将上一个popup menu隐藏
+77. 菜单项radio check功能	
+54. theme change消息的响应
+53. 恢复skinh
+48. 直接UpdateObject刷新子对象时，会刷新在父对象的外面。例如将progress高度调小，上面的
+    按钮就会刷新到外面。将panel大小调小，上面的按钮会刷新到外面
+44. 当父窗口的字体改变后，如何同步给人它的子对象？怎么区分子对象是有字体的？
+14. 将pojp.h -> pojo.cpp
+15. 优化mapXml2Class
+85. 分层窗口为什么没有参与亮度的改变 : 错把gdiplus bitmap中的亮度改变的代码删除了
+86. 分层窗口下面，对EDIT进行双击取词，发现选中部分会被第二次截断。就是因为caretwindow在mouse up之前又发送了一次mouse move的消息，
+    导致的选区被修改...怎么办？  -- 在dbclick中将m_bDrag = false;
+61. LISTBOX的局部刷新
+90. map调用方法优化： map.count + map[] 效率低于 map.find	
+87. 使用CaretWindow时，如果移动窗口，光标不会跟随
+74. ListCtrlBase::ReDrawItem目前没用
+55. render增加一个接口，判断DrawState，这个状态是否支持
+    -- 修改为增加了一个 map映射字段，可以用于配置哪个状态对应哪个图片项
+94. 删除播放列表所有项时，滚动条没有刷新          
+88. 分层窗口优化！拖动窗口时，有明显的晃动
+91. 当使用方向 → 时，弹出的子菜单又会向当前窗口发送一个WM_MOUSEMOVE消息，就可能导致当前父菜单另一个ITEM得到HOVER，使得子菜单被关闭
+97. Menu Item为什么和xml中有1px padding差别 --- 默认设置了1px padding
+75. 分层菜单设置
+98. 透明菜单的实现，现在会崩溃
+100. 普通image绘制icon时，转换成icon类型
+99. gdiplus需要同步增加： DrawGray, Icon, imagelist Bitmap 类型
+81. 图标列表的功能、icon大小读取的功能	
+82. 音乐插件的功能，目前不支持WMA的文件  -- DirectShow已支持WMA
+101. 将鼠标从hover item慢慢移动到submenu item时，会先收到submenumousemove，然后收到mouseleave，导致hover item闪烁 -- 重载onmouseleave函数，增加一个条件判断
+21. PrepareDC的 oldFont 之类的东西如何恢复？ -- 该函数已被取消很多年了
+31. 考虑将WndProc做成virtual -- 已经将processwindowmessage做成virtual了
+76. 菜单提示条问题 -- 2012-09-28 将tooltip抽出来一个mgr，并实现了item提示
+104.开始、暂停按钮的正常状态图片怎么成高亮图片了？ -- 由于触发了ondeleteobject，里面直接将m_pHover=NULL，导致按钮状态没有被重置。应该调用SetHoverObject(NULL);
+103.option中的listbox的图片需要增加一个分隔线 -- 已修改图片
+105.在xml中配置的\n，读取后，并不是一个转义字符，而是两个字符了。怎么转义？  --  xml中的回车换行必须用 &#xD; 或 &#xA; 而不是用\r\n
+111.option window不是modal dialog，需要修改成modalless
+115.color skin hls    
+135.WAVE文件的时间显示问题，及SEEK时为什么必须用偶数的问题。
+    因为是16bits的格式，一个sample有高低位
+133.为什么有时候一开始播放一个文件后，当前时间就显示为00:01?
+    因为该时间其实显示的是当前文件所读取到的位置，而不是播放到的位置。怎么解决？
+    在调用GetCurPos时，将当前directsound buffer中的字节数给减掉再计算就行了。
+    不过当前的时间显示仍然存在跳跃不均匀的问题。    
+    
+140.分层菜单的刷新又出问题了。！！Fuck1
+    调用Gdiplus的FillRect/DrawRectangle时，貌似必须将right/bottom值减掉1？真心不懂呀    
+
+141.mediaplayer皮肤的HLS变换又出现问题了，按钮有不正常的颜色。这又是闹哪样？
+    --> 在获取图片数据时，忽略了图片如果是奇数宽时，最后有一位（或者三位）是对齐用的，不能用于循环当中    
+    
+ 1. Min max width/height 限制
+    --> 20121029. 为windowbase增加maxwidth maxheight minwidht minheight属性，同时设置分层窗口的窗口拉伸函数
+    
+96. 点击任务栏上面的按钮不能最小化窗口
+    --> 根据是否有sys_min/sys_max按钮增加WS_MINIMIZEBOX/WS_MAXIMIAZEBOX属性
+
+149.换肤时，paintobject中的updateobject，由于现在只绘制clip区域的内容，而当时的m_bSetWindowRgn为true，导致窗口被截断了
+	--> 由于现在控件刷新时进行了裁剪，导致在控件刷新时刷父背景，发现m_bSetWindowRgn=true，就去设置
+	    窗口形状，导致窗口被截断了。
+	    现在将窗口异形的截取放在了onpaint中处理
+119.放置一个控件用于显示频谱
+120.如何得到换肤消息
+121.换肤后自动设置属性、位置等等
+122.透明背景频谱
+123.设置频谱参数的线程同步
+83. 音乐频谱功能 
+134.换肤时，如果解决频谱图的另一个线程刷新问题？
+    // 最后还是添加了一个cs来解决这个问题，再继续观察一下。
+
+137.重新架构direct sound,sa的线程模型。现在的结构已经应付不了了。很多的崩溃。
+    不能完全将所有的消息都放在buffer thread来做。因为主线程中要根据directsoundengin::renderfile结果来判断是否使用该engine
+    但如果只将部分控制通知放在buffer thread中的话，又可能造成空指针崩溃。即一个线程释放了，但另一个线程还没收到通知。
+    
+    // 将原来的给线程postmessage的方法全改成了cs锁。但理论上仍然会存在其它问题。例如：
+       关于文件结束前的一瞬间，我又播放了其它文件。那么上一个文件的on_mp3_stop消息有可能会将新文件的播放停止掉。
+       继续观察吧。
+52. 需要增加一下变量，保存当前皮肤的hue值，后面加载的图片都要进行转换 （同时将active skin功能也做一下）
+
+	
+150.在任务栏上右击，选择”关闭“ 无反应
+    1. 在_OnHandleKeyboardMessage，不要让控件处理 SYSKEYDOWN+VK_F4消息
+    2. 将EndDialog放在SYSCOMMAND消息中，而不是OnSysClose中
+
+160. 从一个模态窗口中再弹出一个模态窗口，结果后面那个模态窗口无法响应鼠标点击事件了... WM_MOUSEACTIVE一直返0有关系?
+     由于customwindow中拦截了WM_NCACTIVATE消息并强制返回1，导致子窗口无法被激活
+       
+163. 需要在退出时记录下当前播放曲目 2012.11.29
+     已添加. 保存在配置文件中 2012.11.29
+
+84. 实现新的一类换肤功能：背景主题图片	
+    2012.11.29 已实现基本功能    
+    
+148.窗口最大化后，覆盖任务栏的问题，应该是GETMINMAXINFO没有去年任务栏高度的问题
+    另外，window类中处理的系统按钮命令是不是应该移到custom window当中？
+
+152.SetObjectPos里面的bMove||bSize，然后刷新父窗口，会导致滚动条刷新狂慢
+    已解决。是因为滚动条设置位置的时候，没有加上SWP_NOREDRAW标志
+
+154.TxDraw，在第一次绘制时无视hdc的偏移，这是为嘛？？我又哪搞错了？
+    2012.12.03 这可能也是因为render target重复创建的问题，导致m_hMemDC的属性被第二个render target给搅乱了，所以偏移量变成0了
+    
+167. 焦点不在RICHEDIT上面时，改变窗口大小，发现RICHEDIT光标出现了。 2012.12.05
+     TxDraw重绘时，如果将最后一个参数指出为TXTVIEW_ACTIVE将导致光标显示出来 2012.12.05
+            
+166. richedit在分层窗口上面，如果鼠标在HTLEFT改变窗口大小时，光标还是会根不上 2012.12.01
+	 -->2012.12.05  分层窗口在拖拽窗口大小时，没有将WINDOWPOSCHANGING消息发出来... 
+        加上windowposchanging消息之后能跟随了，但是不是很流畅,跟随不同步。不过还行，只是在拖拽改变大小时不同步，移动窗口时没有问题
+     拖拽分隔条时，下面的richedit的光标也没有进行跟随. 2012.12.05
+     -->由于TxDraw的时候传递了TXTVIEW_INACTIVE，导致光标没有移动
+                                
+
+168. 分隔条移动时，richedit的滚动条没有出来, SetScrollRange没有触发。 2012.12.05
+     --> 2012.12.06 有可能是RICHEDIT的bug，QQ也存在类似问题。暂不解决
+     --> 2012.12.06 在大小改变时，加上m_spTextServices->OnTxPropertyBitsChange(TXTBIT_EXTENTCHANGE, TRUE); 即可
+ 
+ 4. 由uibuilder启动时，ui的日志没有输出到 console 中
+    --> 2012.12.08 只创建一个LOG实例，其它获取调用UI_GetLog/UI_SetLog来共享指针
+          
+171. 20121213.21:10 TTPLAYER的RICHEDIT失焦时，光标未刷新
+     20121213.21:14 调用::DestroyCaret之前，最好先调用一次HideCaret
+
+169. 复合控件研究。BUTTON中复合各种图标、文本
+     20121215 16:05 CompoundButton完成
+                       
+42. 按钮的空格键
+
+
+58. icon在系统16位色下面显示全白
+    20121216 11:56 这个根图标中包含的图标项颜色分辨率有关系。有可能图标中就不包含32位的图标项，有可能
+    系统分辨率调整为16位色，导致系统不会去加载32位色的图标项。最终导致我们的界面显示失败,alpha处理不正确。
+    后来通过解析mask bitmap来设置非32位color bitmap的alpha值为0或者255
+
+112.回车换行时，richedit的滚动条没有正确更新
+    后来采用的延迟刷新richedit，并加一个滚动条是否需要刷新的变量解决
+              
+139.richedit 的 gif 图片插入
+     
+8. 子控件可以超出parent的区域进行绘制，但不会刷新，例如sliderctrl的滑动按钮
+
+
+161.【严重】uipostmessage，例如GIF动画，这个时候窗口销毁，但退出还不退出，CForwardPostMessageWindow::ProcessWindowMessage将崩溃。
+     有没有办法判断一个对象是否有效?
+    20121216 19:09 在Application中增加一个list保存所有的UI Object对象，在UIObject析构时删除。
+    
+
+34. 从无主题切换到其他主题的时候，界面显示异常
+    20121216 23:31 修改了一些问题。如分发消息时没有分发给NC Child，没有处理system color bk render   
+    
+ 5. 在拖动窗口大小的时候，EDIT位置变化时，CARAT没有随者变化
+    20121217 11:26 修改
+    并已得到EDIT中为什么会出现光标残影。是因为刷新窗口时，将当前正在显示的光标竖线线覆盖了，导致光标显隐错乱。
+    推测光标内部也是一直是XOR数据来清除显示窗口上的光标。为了修改该问题，特意增加了一个WSB_CARETBLINKING状态
+
+70. RICHEDIT在光标出现的时候，隐藏RICHEDIT，结果窗口上会遗留一个光标的图形不刷新。	
+    20121217 20:09 在RICHEDIT隐藏时，为窗口设置上WSB_CARETBLINKING标识
+    
+ 7. 测试font的效果，是否可以改变
+    20121217 15:28 目前没有发现其它问题
+ 
+ 66. Edit中，字体改变后/换肤后，m_nCaretHeight没有更新，将导致绘制位置出错    
+    20121217 15:28 1. 在ResetAttribute/SetAttribute中增加更新caret/sa的代码
+    2. 为IRenderFont增加AddModifyListener/RemoveModifyListener/NotifyListener的接口
+    
+ 
+ 28.换肤时，崩溃。先打开三个窗口，再关闭第二个窗口，换肤，崩溃。
+    20121020， 仍然存在崩溃。
+    20121217 18:44 现在测试，没发现崩溃    
+    
+46. 考虑当对象隐藏时，模拟一个 MSG_WM_SHOWWINDOW的消息
+    20121217 18:45 已添加    
+    
+156.Cursor资源测试
+    20121218 13:43 已测试本地资源和系统资源    
+
+175. 20121218 16:58 ThemeRender Type需要规范，有些控件是通过 Theme+className来区配，有些是直接在代码中设置eType
+     20121218 21:39 1. 扩展各个themerender type  2. 为所有的object type进行扩展，增加一个GetObjectExtentType虚方法    
+     
+177. 20121220 19:25 Combobox的下拉列表的高度限制     
+
+180. 20121227 23:21 listctrl的 first visible item没有实现 
+     20130110 13:40 已实现，并添加 last visible item
+     
+172. 20121214 23:20 整理所有的layout.xxx属性，改用一个union来表示。
+     20121215 15:59 将属性做为成员变量来调用不好弄。
+     1. 做成union的话，如果配置了canvas.left，也配置了stack.align就会乱套了
+     2. 如何区分出来该属性是未定义，还是就配置为了-1？
+     暂且放下该任务，以后再优化. 另外layout.left -> canvas.left(暂不修改)
+     
+		// 各种布局中的属性配置
+		typedef struct tagOBJ_LAYOUT_ATTR
+		{
+			union
+			{
+				struct 
+				{
+					int  left;
+					int  top;
+					int  right;
+					int  bottom;
+				}canvas;
+
+				struct
+				{
+					LAYOUT_STACK_ITEM_ALIGN eAlign;
+				}stack;
+
+			}u;
+
+		}OBJ_LAYOUT_ATTR;
+	 20130110 13:41 增加五个变量Object: m_nConfigL,R,T,B, Flag
+	 
+132.使用GDI+绘制option dialog，效率非常的低。什么原因？
+    GetHDC太慢的原因。可以考虑尝试vista/win7的新函数: BeginBufferedPaint  / SetAlpha (也不好用)	 
+    
+    
+118.复合列表框
+    2013.01.10 13:43 基本实现，但还存在一些问题需要修改    
+    
+186. 20130117 16:11 headerctrl的拖动响应有遗漏.listviewctrl
+     20130118 17:07 UI_HDCN_TRACKING消息中不要重新布局，而是在UI_HDCN_TOTAL_WIDTH_CHANGED中布局，否则layout3没有拿到最终headerctrl宽度
+
+189. 20130126 21:41  alphablend会取消setstretchmode为coloroncolor,导致图片收缩时，锯齿严重.
+     --> 当需要抗锯齿功能时，使用gdiplus绘制         
+     
+188. 20130123 12:39 背景图片换肤时，与背景平均色的过度区需要处理，渐变。并且窗口四个角连续在绘制时应该裁出圆角，避免画出frame
+	 --> 不是裁圆角，而是在上面盖一个边框图
+	 --> 20130220 将边框作为一个单独的direct render layer处理
+
+190. 20130207 12:14 重新修改了RenderTarget的begindraw, BindDC方法，但大小改变时没有处理。
+
+191. 20130207 12:16 分层窗口上面的flash绘制效率太低，主要是因为SetClip(MetaRgn)导致的
+     --> 20130220 直接在外面（FlashRenderLayer::OnInvalidateRect）对m_hMemDC进行剪裁，而不在内部的rendertarget中处理了     
+     
+124.文件标签的读取，现在仍然不清楚业内是如何去实现的。完全靠读文件吗？
+     --> 201302282034  mp3靠读取文件获取id3v1,v2, wma靠api, wav暂未读取     
+     
+193. 20130220 14:15 ListItemBase中的m_strText 不要放开了，设置为private，否则在别的模块中对其赋值的话会崩溃
+     20130424 重新修改架构，外部无法直接访问m_strText了，包括其它模块的继承类     
+     
+199. 20130307 15:18 CreateRender, CreateTextRender如何创建UIDLL模块外的Render?
+     20130424 11:57 将信息、创建函数注册到application中了     
+     
+195. 20130222 22:34 QQ Login动画点取消按钮时，恢复时有卡顿现象
+     20130424  13:07 在回翻过程中，由于每次动画采用的都是同一个数据源，因此动画结束后会跳帧。
+              在动画过程中不断的去调用UpdateWindowSourceImage来更新数据源，这样动画过程中flash也能动了，
+              动画结束后也不会有跳帧     
+              
+202. 2013.5.13 19:49 tabctrl head中的空白部分影响了窗口拖拽，需要优化！
+	  2013.5.13 22:49 为了支持点击TabCtrl空白处实现窗口拖拽，将tabctrl做为panel类型来实现，而不是Control类型             
+	  
+
+209. 2013.6.18 9:04 Edit的光标问题暂时放下，解决不了。原因是在scrollpanel中滚动Edit，根本得不到Edit被滚动到隐藏的消息
+     也就没法让光标同时隐藏了。除非是不停的去自绘Edit
+     2013.6.27 9:22 多选的列表控件，多选的绘制也存在同样的问题。以后一起考虑如何解决吧
+     2013.6.27 10:10 使用窗口使用 combobox.edit的光标时，弹出下拉列表后，会严重干扰下拉列表的mouse事件，导致hover item一直在切换
+     2013.7.01 12:50 解决使用窗口光标时显隐干扰问题。使用分层窗口模拟隐藏效果
+     2013.7.10 22:52 直接在EDIT内部绘制一个光标来解决滚动的问题	  
+     
+212. 2013.7.18.13:42 使用自绘光标在分层窗口上，改变窗口大小时出现了问题
+     2013.7.19 12:42 由在自绘光标在hide时又去刷新窗口，但这个时候rendertarget已经处于绘制状态，
+                     导致hide提交时的数据不完整。修改为但begindraw失败时，不提交数据     
+                     
+213. 2013.7.29 高斯模糊时把背景也搞模糊了，例如按钮上的文字，导致整个按钮变形
+     2013.7.30 新增加了一个cachebitmap，将文字先画在这个上面，同时增加了对alpha通道的模糊支持
+     但是出现一个新问题，如果判断一个BITMAP是上下序的，还是下上序的
+     2013.7.30 -- 增加一个flag，指出位图的上下序                     

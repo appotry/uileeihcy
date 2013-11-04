@@ -1,0 +1,86 @@
+
+1. 由代码或者读取配置文件设置皮肤目录：  IUIApplication::SetSkinDir
+2. 由代码或是读取配置文件注册外部控件：  RegisterUIObject
+
+3. UISDK遍历皮肤目录中的文件，规则如下：
+   . 对于目录，查找目录下是否有skin.xml文件，将目录名作为皮肤名称
+   . 对于文件，判断后缀是否是*.skn，将文件名作为皮肤名称
+
+4. 从配置上读取上一次的皮肤名称，如果没有读取到，则默认加载第一个皮肤。（如果还是没有皮肤，则加载*.exe中的皮肤）
+5. 加载皮肤：IUIApplication::LoadSkin(SkinName)
+6. skin.xml文件格式
+
+<skin>
+    <desc>
+        <auth></auth>
+        <website></website>
+        <email></email>
+        <preview>preview.png</preview>
+    </desc>
+    
+    <include>image1.xml</include>
+    <include>image2.xml</include>
+        
+    <image>
+        <image> aaa.image </image/>
+    </image>
+    
+    <color/>
+    <font/>
+    <style/>
+    
+    <layout>
+    </layout>
+</skin>
+
+a.xml:
+
+<skin>
+    <layout>
+        <Window... id=""/>
+    </layout>
+</skin>
+
+7. 文件解析引擎：
+
+
+class ISkinParseEngine
+{
+    map<String, ISkinParse*>  m_map;
+}
+
+interface ISkinParse
+{
+    virtual HRESULT NewElement(UIElement* pElem) = 0;
+}
+interface IImageParse : public ISkinParse
+{
+    virtual HRESULT NewElement(UIElement* pElem)
+    {
+        // 遍历子结点
+    }
+}
+
+
+ISkinXmlParseEngine::ProcessFile(xmlfile)
+{
+    1. 查找 <skin> root element，如果没有找到则直接返回，表示这不是一个合法文件
+    2. 遍历 <skin> 的child element
+    
+        2.1 获取tagName，例如image
+        2.2 获取image标签对应的解析器 IImageParse
+        2.3 调用IImageParse的NewElement
+        2.4 IImageParse自己去负责遍历子结点
+}
+
+8. 数据关联
+
+例如<image>这种大结点，可能分散定义在多个文件中，也可能一个文件中定义多次，那么需要将这几个 IElement 都保存起来吗？
+保存起来的目的是什么？
+
+. Create  <-- 需要拿到IUIDocument指针，插入到哪个文件中
+. Delete  <-- 
+. Modify
+. Insert
+
+:: --> 先只考虑简单的，以实现只能定义一次为第一期任务

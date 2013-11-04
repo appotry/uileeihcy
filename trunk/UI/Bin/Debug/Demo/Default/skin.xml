@@ -55,7 +55,7 @@
 </image>
   
 <font>
-   <item id="normal" facename="微软雅黑" size="18" bold="0"/>
+   <item id="normal" facename="微软雅黑" size="9" bold="0"/>
    <item id="normal2" facename="宋体" size="9"/>
 </font>
   

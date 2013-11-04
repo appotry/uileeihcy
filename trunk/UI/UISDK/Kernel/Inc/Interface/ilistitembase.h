@@ -7,6 +7,7 @@ namespace UI
 interface IPanel;
 class ListItemBase;
 interface IListCtrlBase;
+class RenderContext;
 
 //////////////////////////////////////////////////////////////////////////
 // ListItem派生类消息
@@ -120,7 +121,7 @@ interface UISDKAPI IListItemBase : public IMessage
 
     IPanel*  GetRootPanel();
     bool  CreateRootPanel();
-    void  DrawItemInnerControl(IRenderTarget* pRenderTarget);
+    void  DrawItemInnerControl(IRenderTarget* pRenderTarget, RenderContext* prenderContext);
     int   GetItemRenderState();
 
 };
