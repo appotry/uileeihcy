@@ -427,7 +427,8 @@ bool ComboBoxBase::_DefaultDropDown()
 	HWND hWnd = m_pIComboBoxBase->GetHWND();
     CRect rcWindow;
     m_pIComboBoxBase->GetWindowRect(&rcWindow);
-    ::MapWindowPoints(hWnd, NULL, (LPPOINT)&rcWindow, 2);
+	POINT pt = {rcWindow.left, rcWindow.bottom};
+    ::MapWindowPoints(hWnd, NULL, (LPPOINT)&pt, 1);
 
 	if (m_pButton && m_pButton->IsMySelfVisible())
 	{
@@ -439,7 +440,6 @@ bool ComboBoxBase::_DefaultDropDown()
 	{
 		m_pPopupWrapWnd->SetPopupFromInfo(hWnd, &rcWindow);
 	}
-    POINT pt = { rcWindow.left, rcWindow.bottom };
     m_pPopupWrapWnd->Show(pt, FALSE);  // <-- 这里不要用模态的，否则直接点击窗口关闭按钮时会导致崩溃
 
     return true;
