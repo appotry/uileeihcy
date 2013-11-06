@@ -288,6 +288,7 @@ inline CONTROL_TYPE GetObjectExtentType(int type) { return  (CONTROL_TYPE)((type
 #define OBJECT_STYLE_REJECT_MOUSE_MSG_SELF  0x00200000    // 仅该对象不接受鼠标消息，其子对象还是接受鼠标消息的，如panel
 #define OBJECT_STYLE_RECEIVE_DRAGDROPEVENT  0x00400000    // 该对象接受拖拽消息
 #define OBJECT_STYLE_ENABLE_IME         0x00800000    // 该对象需要启用输入法，如EDIT,RICHEDIT
+#define OBJECT_STYLE_ZINDEX_OVERLAP     0x01000000    // 该对象与同一层的其它对象区域重叠了，导致刷新时异常。配上该样式后，将直接刷新父对象
 
 // window style
 #define WINDOW_STYLE_DESTROYED          0x00001000    // 表示该窗口已经被销毁了(WM_NCDESTROY)，用于触发OnFinalMessage

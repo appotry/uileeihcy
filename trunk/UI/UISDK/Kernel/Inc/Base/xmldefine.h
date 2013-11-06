@@ -312,6 +312,7 @@ enum WINDOW_TRANSPARENT_PART_TYPE
 #define XML_CONTROL_STYLE_GROUP              _T("group")
 #define XML_CONTROL_STYLE_TABABLE            _T("tabstop")
 #define XML_REJEST_MOUSE_MSG                 _T("rejectmousemsg")  // 不接受鼠标消息
+#define XML_ZINDEX_OVERLAP                   _T("zindexoverlap")   // z序重叠了标识
 
 // window
 // #define  XML_WINDOW_BK_TYPE                    _T("bktype")     // 窗口背景绘制类型

@@ -532,6 +532,15 @@ bool Object::SetAttribute(IMapAttribute* pMapAttrib, bool bReload)
         else
             m_nStyle &= ~OBJECT_STYLE_REJECT_MOUSE_MSG_ALL;
     }
+
+    bool bZindexOverlap = false;
+    if (MAPATTR_RET_NOT_EXIST != pMapAttrib->GetAttr_bool(XML_ZINDEX_OVERLAP, true, &bZindexOverlap))
+    {
+        if (bZindexOverlap)
+            m_nStyle |= OBJECT_STYLE_ZINDEX_OVERLAP;
+        else
+            m_nStyle &= ~OBJECT_STYLE_ZINDEX_OVERLAP;
+    }
 	
 	// 鼠标样式
 	szText = pMapAttrib->GetAttr(XML_CURSOR, true);
@@ -553,6 +562,7 @@ void  Object::OnEditorGetAttrList(EDITORGETOBJECTATTRLISTDATA*  pData)
 	pEditor->CreateBoolAttribute(pObjGroup, XML_DISABLE, false, szPrefix, NULL, L"是否被禁用。默认可用");
     pEditor->CreateBoolAttribute(pObjGroup, XML_BACKGND_IS_TRANSPARENT, false, szPrefix, NULL, L"控件背景是否透明。如果控件背景透明，在绘制时则需要再绘制父控件背景。默认不透明");
     pEditor->CreateBoolAttribute(pObjGroup, XML_REJEST_MOUSE_MSG, false, szPrefix, NULL, L"是否屏蔽鼠标消息。默认接受");
+    pEditor->CreateBoolAttribute(pObjGroup, XML_ZINDEX_OVERLAP, false, szPrefix, NULL, L"是否和其它控件有重叠区域。默认没有");
 	pEditor->CreateTextAttribute(pObjGroup, XML_MARGIN, szPrefix, NULL, L"外间距");
 	pEditor->CreateTextAttribute(pObjGroup, XML_PADDING, szPrefix, NULL, L"内间距");
 	pEditor->CreateTextAttribute(pObjGroup, XML_BORDER, szPrefix, NULL, L"边框");

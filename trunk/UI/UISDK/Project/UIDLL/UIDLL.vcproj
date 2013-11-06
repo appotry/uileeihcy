@@ -1718,6 +1718,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Doc\动画架构.txt"
+				>
+			</File>
+			<File
 				RelativePath=".\Doc\接口架构.txt"
 				>
 			</File>
