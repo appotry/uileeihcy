@@ -238,7 +238,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\Bin\Debug\controldemo\Default\skin.xml"
+			RelativePath="..\..\Bin\Debug\Demo\Default\skin.xml"
 			>
 		</File>
 	</Files>

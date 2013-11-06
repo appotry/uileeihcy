@@ -324,6 +324,12 @@ void RenderChain::UpdateObject(Object* pObj, bool bOnlyRedrawBkgnd, bool bUpdate
     if (NULL == pObj)
         return;
 
+    // 对象与其它对象区域重叠，目前的重绘机制无法保证显示z序，因此直接刷新父对象以保证z index
+    if (pObj->TestStyle(OBJECT_STYLE_ZINDEX_OVERLAP) && pObj->GetParentObject())
+    {
+        UpdateObject(pObj->GetParentObject(), bOnlyRedrawBkgnd, bUpdateNow);
+        return;
+    }
 //    m_MultiLayerBuffer.Save(L"C:\\bbb.png", Gdiplus::ImageFormatPNG);
 
     // 这里之所以去掉对window类型的判断是因为存在一种场景：
