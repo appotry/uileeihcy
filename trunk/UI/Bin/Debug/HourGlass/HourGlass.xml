@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<config>
-  <picture>
-    <folder>G:\Pic\bizhi</folder>
-  </picture>
-
-  <misc hour="0" minute="15" second="0" breaktime="60" transparent="130" hls_h="0" hls_s="0"/>
-</config>

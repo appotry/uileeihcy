@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<uiproj>
-
-<DependsCtrlDll>
-<item>..\..\IM\UICtrls.dll</item>
-</DependsCtrlDll>
-</uiproj>

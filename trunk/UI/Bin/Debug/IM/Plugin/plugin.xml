@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<plugin>
-  <item name="mail" delayload="500" dllpath="mail.dll"/>
-</plugin>
