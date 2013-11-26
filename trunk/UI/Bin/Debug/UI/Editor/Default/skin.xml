@@ -1,8 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-
-<skin>
-  <include>res.xml</include>
-  <include>createwindowdlg.xml</include>
-  <include>projecttreedlg.xml</include>
-  <include>otherdlg.xml</include>
-</skin>
